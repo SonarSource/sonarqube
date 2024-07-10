@@ -17,28 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry;
+package org.sonar.telemetry.metrics.schema;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.sonar.telemetry.Granularity;
+import org.sonar.telemetry.TelemetryDataType;
 
-/**
- * Represent the granularity of the data provided by a {@link TelemetryDataProvider}. This both defines the time period between to pushes to
- * telemetry server for a given metric and the time period that the data represents.
- * Modifying this enum needs to be discussed beforehand with Data Platform team.
- */
-public enum Granularity {
-  DAILY("daily"),
-  WEEKLY("weekly"),
-  MONTHLY("monthly");
+public class LanguageMetric extends Metric {
 
-  private final String value;
+  @JsonProperty("language")
+  private String language;
 
-  Granularity(String value) {
+  public LanguageMetric(String key, Object value, String language, TelemetryDataType type, Granularity granularity) {
+    this.key = key;
     this.value = value;
+    this.language = language;
+    this.type = type;
+    this.granularity = granularity;
   }
 
-  @JsonValue
-  public String getValue() {
-    return value;
+  public String getLanguage() {
+    return language;
+  }
+
+  public void setLanguage(String language) {
+    this.language = language;
   }
 }

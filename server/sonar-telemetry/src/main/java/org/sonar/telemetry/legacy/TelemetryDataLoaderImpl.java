@@ -89,7 +89,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 import static org.sonar.server.qualitygate.Condition.Operator.fromDbValue;
-import static org.sonar.telemetry.legacy.TelemetryDaemon.I_PROP_MESSAGE_SEQUENCE;
+import static org.sonar.telemetry.TelemetryDaemon.I_PROP_MESSAGE_SEQUENCE;
 
 @ServerSide
 public class TelemetryDataLoaderImpl implements TelemetryDataLoader {

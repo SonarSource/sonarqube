@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.legacy;
+package org.sonar.telemetry;
 
 import java.io.IOException;
 import okhttp3.Call;
@@ -29,11 +29,11 @@ import okhttp3.Response;
 import okio.BufferedSink;
 import okio.GzipSink;
 import okio.Okio;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_COMPRESSION;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;

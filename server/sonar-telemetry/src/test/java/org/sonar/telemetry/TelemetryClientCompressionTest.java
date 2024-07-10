@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.legacy;
+package org.sonar.telemetry;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -29,19 +29,19 @@ import okhttp3.mockwebserver.RecordedRequest;
 import okio.GzipSource;
 import okio.Okio;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
 
-public class TelemetryClientCompressionTest {
+class TelemetryClientCompressionTest {
 
   private final OkHttpClient okHttpClient = new OkHttpClient();
   private final MockWebServer telemetryServer = new MockWebServer();
 
   @Test
-  public void payload_is_gzip_encoded() throws IOException, InterruptedException {
+  void payload_is_gzip_encoded() throws IOException, InterruptedException {
     telemetryServer.enqueue(new MockResponse().setResponseCode(200));
     MapSettings settings = new MapSettings();
     settings.setProperty(SONAR_TELEMETRY_URL.getKey(), telemetryServer.url("/").toString());

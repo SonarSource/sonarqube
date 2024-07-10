@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry;
+package org.sonar.server.platform.telemetry;
 
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
@@ -26,6 +26,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.telemetry.Dimension;
+import org.sonar.telemetry.Granularity;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +36,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
-import static org.sonar.telemetry.TelemetryNclocProvider.METRIC_KEY;
+import static org.sonar.server.platform.telemetry.TelemetryNclocProvider.METRIC_KEY;
 
 class TelemetryNclocProviderTest {
 

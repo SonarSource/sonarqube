@@ -26,6 +26,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserQuery;
+import org.sonar.server.util.DigestUtil;
 import org.sonar.telemetry.Dimension;
 import org.sonar.telemetry.Granularity;
 import org.sonar.telemetry.TelemetryDataProvider;
@@ -65,11 +66,12 @@ public class TelemetryUserEnabledProvider implements TelemetryDataProvider<Boole
     int pageSize = 1000;
     int page = 1;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<UserDto> userDtos = null;
+      List<UserDto> userDtos;
       do {
         userDtos = dbClient.userDao().selectUsers(dbSession, UserQuery.builder().build(), page, pageSize);
         for (UserDto userDto : userDtos) {
-          result.put(userDto.getUuid(), userDto.isActive());
+          String anonymizedUuid = DigestUtil.sha3_224Hex(userDto.getUuid());
+          result.put(anonymizedUuid, userDto.isActive());
         }
         page++;
       } while (!userDtos.isEmpty());

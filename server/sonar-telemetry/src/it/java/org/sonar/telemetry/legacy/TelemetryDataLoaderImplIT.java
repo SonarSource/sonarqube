@@ -67,6 +67,8 @@ import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QProfileComparison;
+import org.sonar.telemetry.FakeServer;
+import org.sonar.telemetry.TelemetryDaemon;
 import org.sonar.telemetry.legacy.TelemetryData.Branch;
 import org.sonar.telemetry.legacy.TelemetryData.CloudUsage;
 import org.sonar.telemetry.legacy.TelemetryData.NewCodeDefinition;

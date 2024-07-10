@@ -92,6 +92,7 @@ import org.sonar.db.schemamigration.SchemaMigrationDao;
 import org.sonar.db.scim.ScimGroupDao;
 import org.sonar.db.scim.ScimUserDao;
 import org.sonar.db.source.FileSourceDao;
+import org.sonar.db.telemetry.TelemetryMetricsSentDao;
 import org.sonar.db.user.ExternalGroupDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupMembershipDao;
@@ -186,6 +187,7 @@ public class DaoModule extends Module {
     ScimUserDao.class,
     SnapshotDao.class,
     SessionTokensDao.class,
+    TelemetryMetricsSentDao.class,
     UserDao.class,
     UserDismissedMessagesDao.class,
     UserGroupDao.class,

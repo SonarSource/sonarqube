@@ -19,11 +19,36 @@
  */
 package org.sonar.telemetry;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * Represents the dimension of the data provided by a {@link TelemetryDataProvider}.
  * {@link Dimension#PROJECT}, {@link Dimension#LANGUAGE} and {@link Dimension#USER} should not provide aggregated data.
  * For aggregated data (i.e. average number of lines of code per project), use #INSTALLATION.
  */
 public enum Dimension {
-  INSTALLATION, PROJECT, USER, LANGUAGE
+  INSTALLATION("installation"),
+  USER("user"),
+  PROJECT("project"),
+  LANGUAGE("language");
+
+  private final String value;
+
+  Dimension(String value) {
+    this.value = value;
+  }
+
+  @JsonValue
+  public String getValue() {
+    return value;
+  }
+
+  public static Dimension fromValue(String value) {
+    for (Dimension dimension : Dimension.values()) {
+      if (dimension.value.equalsIgnoreCase(value)) {
+        return dimension;
+      }
+    }
+    throw new IllegalArgumentException("Unknown dimension value: " + value);
+  }
 }

@@ -17,17 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.legacy.user;
+package org.sonar.telemetry.user;
 
 import java.util.Map;
-import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.telemetry.user.TelemetryUserEnabledProvider;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.util.DigestUtil;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class TelemetryUserEnabledProviderIT {
 
@@ -48,7 +50,7 @@ class TelemetryUserEnabledProviderIT {
   void getUuidValues_whenNoUsersInDatabase_shouldReturnEmptyMap() {
     Map<String, Boolean> uuidValues = underTest.getUuidValues();
 
-    Assertions.assertThat(uuidValues).isEmpty();
+    assertThat(uuidValues).isEmpty();
   }
 
   @Test
@@ -59,9 +61,9 @@ class TelemetryUserEnabledProviderIT {
 
     Map<String, Boolean> uuidValues = underTest.getUuidValues();
 
-    Assertions.assertThat(uuidValues).hasSize(2);
-    Assertions.assertThat(uuidValues.values().stream().filter(Boolean::booleanValue)).hasSize(1);
-    Assertions.assertThat(uuidValues.values().stream().filter(b -> !b)).hasSize(1);
+    assertThat(uuidValues).hasSize(2);
+    assertThat(uuidValues.values().stream().filter(Boolean::booleanValue)).hasSize(1);
+    assertThat(uuidValues.values().stream().filter(b -> !b)).hasSize(1);
   }
 
   @Test
@@ -73,7 +75,21 @@ class TelemetryUserEnabledProviderIT {
 
     Map<String, Boolean> uuidValues = underTest.getUuidValues();
 
-    Assertions.assertThat(uuidValues).hasSize(10);
-    Assertions.assertThat(uuidValues.values().stream().filter(Boolean::booleanValue)).hasSize(10);
+    assertThat(uuidValues).hasSize(10);
+    assertThat(uuidValues.values().stream().filter(Boolean::booleanValue)).hasSize(10);
   }
+
+  @Test
+  void getUuidValues_shouldAnonymizeUserUuids() {
+    UserDto userDto1 = db.users().insertUser();
+    UserDto userDto2 = db.users().insertUser();
+    db.getSession().commit();
+
+    Map<String, Boolean> uuidValues = underTest.getUuidValues();
+
+    String anonymizedUser1 = DigestUtil.sha3_224Hex(userDto1.getUuid());
+    String anonymizedUser2 = DigestUtil.sha3_224Hex(userDto2.getUuid());
+    assertThat(uuidValues.keySet()).containsExactlyInAnyOrder(anonymizedUser1, anonymizedUser2);
+  }
+
 }

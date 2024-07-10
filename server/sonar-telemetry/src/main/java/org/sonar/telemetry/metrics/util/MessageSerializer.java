@@ -17,28 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry;
+package org.sonar.telemetry.metrics.util;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import org.sonar.telemetry.metrics.schema.BaseMessage;
 
-/**
- * Represent the granularity of the data provided by a {@link TelemetryDataProvider}. This both defines the time period between to pushes to
- * telemetry server for a given metric and the time period that the data represents.
- * Modifying this enum needs to be discussed beforehand with Data Platform team.
- */
-public enum Granularity {
-  DAILY("daily"),
-  WEEKLY("weekly"),
-  MONTHLY("monthly");
+public class MessageSerializer {
 
-  private final String value;
-
-  Granularity(String value) {
-    this.value = value;
+  private MessageSerializer() {
+    throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
   }
 
-  @JsonValue
-  public String getValue() {
-    return value;
+  public static String serialize(BaseMessage message) {
+    ObjectMapper mapper = new ObjectMapper();
+    try {
+      return mapper.writeValueAsString(message);
+    } catch (IOException ioException) {
+      throw new UncheckedIOException(ioException);
+    }
   }
+
 }

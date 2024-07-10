@@ -31,8 +31,8 @@ import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.server.platform.ContainerSupport;
 import org.sonar.server.util.Paths2;
@@ -49,7 +49,7 @@ import static org.sonar.telemetry.legacy.CloudUsageDataProvider.KUBERNETES_SERVI
 import static org.sonar.telemetry.legacy.CloudUsageDataProvider.KUBERNETES_SERVICE_PORT;
 import static org.sonar.telemetry.legacy.CloudUsageDataProvider.SONAR_HELM_CHART_VERSION;
 
-public class CloudUsageDataProviderTest {
+class CloudUsageDataProviderTest {
 
   private final System2 system2 = mock(System2.class);
   private final Paths2 paths2 = mock(Paths2.class);
@@ -59,8 +59,8 @@ public class CloudUsageDataProviderTest {
   private final CloudUsageDataProvider underTest = new CloudUsageDataProvider(containerSupport, system2, paths2, () -> processBuilder,
     httpClient);
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     when(system2.envVariable(KUBERNETES_SERVICE_HOST)).thenReturn("localhost");
     when(system2.envVariable(KUBERNETES_SERVICE_PORT)).thenReturn("443");
 
@@ -92,64 +92,64 @@ public class CloudUsageDataProviderTest {
   }
 
   @Test
-  public void containerRuntime_whenContainerSupportContextExists_shouldNotBeNull() {
+  void containerRuntime_whenContainerSupportContextExists_shouldNotBeNull() {
     when(containerSupport.getContainerContext()).thenReturn("docker");
     assertThat(underTest.getCloudUsage().containerRuntime()).isEqualTo("docker");
   }
 
   @Test
-  public void containerRuntime_whenContainerSupportContextMissing_shouldBeNull() {
+  void containerRuntime_whenContainerSupportContextMissing_shouldBeNull() {
     when(containerSupport.getContainerContext()).thenReturn(null);
     assertThat(underTest.getCloudUsage().containerRuntime()).isNull();
   }
 
   @Test
-  public void kubernetes_whenEnvVarExists_shouldReturnTrue() {
+  void kubernetes_whenEnvVarExists_shouldReturnTrue() {
     assertThat(underTest.getCloudUsage().kubernetes()).isTrue();
   }
 
   @Test
-  public void kubernetes_whenEnvVarDoesNotExist_shouldReturnFalse() {
+  void kubernetes_whenEnvVarDoesNotExist_shouldReturnFalse() {
     when(system2.envVariable(KUBERNETES_SERVICE_HOST)).thenReturn(null);
     assertThat(underTest.getCloudUsage().kubernetes()).isFalse();
   }
 
   @Test
-  public void kubernetesVersion_whenOnKubernetes_shouldReturnValue() {
+  void kubernetesVersion_whenOnKubernetes_shouldReturnValue() {
     assertThat(underTest.getCloudUsage().kubernetesVersion()).isEqualTo("1.25");
   }
 
   @Test
-  public void kubernetesVersion_whenNotOnKubernetes_shouldReturnNull() {
+  void kubernetesVersion_whenNotOnKubernetes_shouldReturnNull() {
     when(system2.envVariable(KUBERNETES_SERVICE_HOST)).thenReturn(null);
     assertThat(underTest.getCloudUsage().kubernetesVersion()).isNull();
   }
 
   @Test
-  public void kubernetesVersion_whenApiCallFails_shouldReturnNull() throws IOException {
+  void kubernetesVersion_whenApiCallFails_shouldReturnNull() throws IOException {
     mockHttpClientCall(404, "not found", null);
     assertThat(underTest.getCloudUsage().kubernetesVersion()).isNull();
   }
 
   @Test
-  public void kubernetesPlatform_whenOnKubernetes_shouldReturnValue() {
+  void kubernetesPlatform_whenOnKubernetes_shouldReturnValue() {
     assertThat(underTest.getCloudUsage().kubernetesPlatform()).isEqualTo("linux/arm64");
   }
 
   @Test
-  public void kubernetesPlatform_whenNotOnKubernetes_shouldReturnNull() {
+  void kubernetesPlatform_whenNotOnKubernetes_shouldReturnNull() {
     when(system2.envVariable(KUBERNETES_SERVICE_HOST)).thenReturn(null);
     assertThat(underTest.getCloudUsage().kubernetesPlatform()).isNull();
   }
 
   @Test
-  public void kubernetesPlatform_whenApiCallFails_shouldReturnNull() throws IOException {
+  void kubernetesPlatform_whenApiCallFails_shouldReturnNull() throws IOException {
     mockHttpClientCall(404, "not found", null);
     assertThat(underTest.getCloudUsage().kubernetesPlatform()).isNull();
   }
 
   @Test
-  public void kubernetesProvider_shouldReturnValue() throws IOException {
+  void kubernetesProvider_shouldReturnValue() throws IOException {
     Process processMock = mock(Process.class);
     when(processMock.getInputStream()).thenReturn(new ByteArrayInputStream("some-provider".getBytes()));
     when(processBuilder.command(any(String[].class))).thenReturn(processBuilder);
@@ -159,7 +159,7 @@ public class CloudUsageDataProviderTest {
   }
 
   @Test
-  public void kubernetesProvider_whenValueContainsNullChars_shouldReturnValueWithoutNullChars() throws IOException {
+  void kubernetesProvider_whenValueContainsNullChars_shouldReturnValueWithoutNullChars() throws IOException {
     Process processMock = mock(Process.class);
     when(processMock.getInputStream()).thenReturn(new ByteArrayInputStream("so\u0000me-prov\u0000ider".getBytes()));
     when(processBuilder.command(any(String[].class))).thenReturn(processBuilder);
@@ -169,37 +169,37 @@ public class CloudUsageDataProviderTest {
   }
 
   @Test
-  public void officialHelmChart_whenEnvVarExists_shouldReturnValue() {
+  void officialHelmChart_whenEnvVarExists_shouldReturnValue() {
     when(system2.envVariable(SONAR_HELM_CHART_VERSION)).thenReturn("10.1.0");
     assertThat(underTest.getCloudUsage().officialHelmChart()).isEqualTo("10.1.0");
   }
 
   @Test
-  public void officialHelmChart_whenEnvVarDoesNotExist_shouldReturnNull() {
+  void officialHelmChart_whenEnvVarDoesNotExist_shouldReturnNull() {
     when(system2.envVariable(SONAR_HELM_CHART_VERSION)).thenReturn(null);
     assertThat(underTest.getCloudUsage().officialHelmChart()).isNull();
   }
 
   @Test
-  public void officialImage_whenEnvVarTrue_shouldReturnTrue() {
+  void officialImage_whenEnvVarTrue_shouldReturnTrue() {
     when(system2.envVariable(DOCKER_RUNNING)).thenReturn("True");
     assertThat(underTest.getCloudUsage().officialImage()).isTrue();
   }
 
   @Test
-  public void officialImage_whenEnvVarFalse_shouldReturnFalse() {
+  void officialImage_whenEnvVarFalse_shouldReturnFalse() {
     when(system2.envVariable(DOCKER_RUNNING)).thenReturn("False");
     assertThat(underTest.getCloudUsage().officialImage()).isFalse();
   }
 
   @Test
-  public void officialImage_whenEnvVarDoesNotExist_shouldReturnFalse() {
+  void officialImage_whenEnvVarDoesNotExist_shouldReturnFalse() {
     when(system2.envVariable(DOCKER_RUNNING)).thenReturn(null);
     assertThat(underTest.getCloudUsage().officialImage()).isFalse();
   }
 
   @Test
-  public void initHttpClient_whenValidCertificate_shouldCreateClient() throws URISyntaxException {
+  void initHttpClient_whenValidCertificate_shouldCreateClient() throws URISyntaxException {
     when(paths2.get(anyString())).thenReturn(Paths.get(requireNonNull(getClass().getResource("dummy.crt")).toURI()));
 
     CloudUsageDataProvider provider = new CloudUsageDataProvider(containerSupport, system2, paths2);
@@ -207,7 +207,7 @@ public class CloudUsageDataProviderTest {
   }
 
   @Test
-  public void initHttpClient_whenNotOnKubernetes_shouldNotCreateClient() throws URISyntaxException {
+  void initHttpClient_whenNotOnKubernetes_shouldNotCreateClient() throws URISyntaxException {
     when(paths2.get(anyString())).thenReturn(Paths.get(requireNonNull(getClass().getResource("dummy.crt")).toURI()));
     when(system2.envVariable(KUBERNETES_SERVICE_HOST)).thenReturn(null);
 
@@ -216,7 +216,7 @@ public class CloudUsageDataProviderTest {
   }
 
   @Test
-  public void initHttpClient_whenCertificateNotFound_shouldFail() {
+  void initHttpClient_whenCertificateNotFound_shouldFail() {
     when(paths2.get(any())).thenReturn(Paths.get("dummy.crt"));
 
     CloudUsageDataProvider provider = new CloudUsageDataProvider(containerSupport, system2, paths2);

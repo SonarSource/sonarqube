@@ -8,6 +8,7 @@ sonar {
 
 dependencies {
   // please keep the list grouped by configuration and ordered by name
+  implementation 'com.fasterxml.jackson.core:jackson-databind'
 
   api 'commons-io:commons-io'
   api 'com.google.guava:guava'

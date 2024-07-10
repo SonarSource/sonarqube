@@ -112,6 +112,7 @@ public final class SqTables {
     "scm_accounts",
     "session_tokens",
     "snapshots",
+    "telemetry_metrics_sent",
     "users",
     "user_dismissed_messages",
     "user_roles",

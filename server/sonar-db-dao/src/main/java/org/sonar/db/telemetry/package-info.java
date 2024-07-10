@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry;
+@ParametersAreNonnullByDefault
+package org.sonar.db.telemetry;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
-/**
- * Represent the granularity of the data provided by a {@link TelemetryDataProvider}. This both defines the time period between to pushes to
- * telemetry server for a given metric and the time period that the data represents.
- * Modifying this enum needs to be discussed beforehand with Data Platform team.
- */
-public enum Granularity {
-  DAILY("daily"),
-  WEEKLY("weekly"),
-  MONTHLY("monthly");
-
-  private final String value;
-
-  Granularity(String value) {
-    this.value = value;
-  }
-
-  @JsonValue
-  public String getValue() {
-    return value;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

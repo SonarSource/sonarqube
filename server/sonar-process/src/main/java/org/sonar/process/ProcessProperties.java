@@ -175,6 +175,7 @@ public class ProcessProperties {
 
     SONAR_TELEMETRY_ENABLE("sonar.telemetry.enable", "true"),
     SONAR_TELEMETRY_URL("sonar.telemetry.url", "https://telemetry.sonarsource.com/sonarqube"),
+    SONAR_TELEMETRY_METRICS_URL("sonar.telemetry.metrics.url", "https://telemetry.sonarsource.com/sonarqube/metrics"),
     SONAR_TELEMETRY_FREQUENCY_IN_SECONDS("sonar.telemetry.frequencyInSeconds", "10800"),
     SONAR_TELEMETRY_COMPRESSION("sonar.telemetry.compression", "true"),
 

@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.legacy;
+package org.sonar.telemetry;
 
 import java.io.IOException;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okio.Buffer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
 
@@ -35,18 +35,18 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_COMPRESSION;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
 
-public class TelemetryClientTest {
+class TelemetryClientTest {
 
   private static final String JSON = "{\"key\":\"value\"}";
   private static final String TELEMETRY_URL = "https://telemetry.com/url";
 
-  private OkHttpClient okHttpClient = mock(OkHttpClient.class, RETURNS_DEEP_STUBS);
-  private MapSettings settings = new MapSettings();
+  private final OkHttpClient okHttpClient = mock(OkHttpClient.class, RETURNS_DEEP_STUBS);
+  private final MapSettings settings = new MapSettings();
 
-  private TelemetryClient underTest = new TelemetryClient(okHttpClient, settings.asConfig());
+  private final TelemetryClient underTest = new TelemetryClient(okHttpClient, settings.asConfig());
 
   @Test
-  public void upload() throws IOException {
+  void upload() throws IOException {
     ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
     settings.setProperty(SONAR_TELEMETRY_URL.getKey(), TELEMETRY_URL);
     settings.setProperty(SONAR_TELEMETRY_COMPRESSION.getKey(), false);
@@ -65,7 +65,7 @@ public class TelemetryClientTest {
   }
 
   @Test
-  public void opt_out() throws IOException {
+  void opt_out() throws IOException {
     ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
     settings.setProperty(SONAR_TELEMETRY_URL.getKey(), TELEMETRY_URL);
     underTest.start();

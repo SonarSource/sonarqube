@@ -19,26 +19,17 @@
  */
 package org.sonar.telemetry;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import org.junit.jupiter.api.Test;
 
-/**
- * Represent the granularity of the data provided by a {@link TelemetryDataProvider}. This both defines the time period between to pushes to
- * telemetry server for a given metric and the time period that the data represents.
- * Modifying this enum needs to be discussed beforehand with Data Platform team.
- */
-public enum Granularity {
-  DAILY("daily"),
-  WEEKLY("weekly"),
-  MONTHLY("monthly");
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-  private final String value;
+class GranularityTest {
 
-  Granularity(String value) {
-    this.value = value;
+  @Test
+  void getValue() {
+    assertEquals("daily", Granularity.DAILY.getValue());
+    assertEquals("weekly", Granularity.WEEKLY.getValue());
+    assertEquals("monthly", Granularity.MONTHLY.getValue());
   }
 
-  @JsonValue
-  public String getValue() {
-    return value;
-  }
 }

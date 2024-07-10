@@ -17,28 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry;
+package org.sonar.db.telemetry;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import java.security.SecureRandom;
+import java.util.Random;
+import org.apache.commons.lang3.RandomStringUtils;
 
-/**
- * Represent the granularity of the data provided by a {@link TelemetryDataProvider}. This both defines the time period between to pushes to
- * telemetry server for a given metric and the time period that the data represents.
- * Modifying this enum needs to be discussed beforehand with Data Platform team.
- */
-public enum Granularity {
-  DAILY("daily"),
-  WEEKLY("weekly"),
-  MONTHLY("monthly");
+public class TelemetryMetricsSentTesting {
 
-  private final String value;
+  private static final Random RANDOM = new SecureRandom();
 
-  Granularity(String value) {
-    this.value = value;
+  private TelemetryMetricsSentTesting() {
+    // static stuff only
   }
 
-  @JsonValue
-  public String getValue() {
-    return value;
+  public static TelemetryMetricsSentDto newTelemetryMetricsSentDto() {
+    return new TelemetryMetricsSentDto(
+      RandomStringUtils.randomAlphanumeric(40), // key
+      RandomStringUtils.randomAlphanumeric(30) // dimension
+      ).setLastSent(RANDOM.nextLong());
   }
 }

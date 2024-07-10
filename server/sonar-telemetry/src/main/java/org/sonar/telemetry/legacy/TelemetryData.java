@@ -172,7 +172,7 @@ public class TelemetryData {
     return qualityProfiles;
   }
 
-  static Builder builder() {
+  public static Builder builder() {
     return new Builder();
   }
 
@@ -188,7 +188,7 @@ public class TelemetryData {
     return newCodeDefinitions;
   }
 
-  static class Builder {
+  public static class Builder {
     private String serverId;
     private String version;
     private Long messageSequenceNumber;
@@ -215,31 +215,31 @@ public class TelemetryData {
     private List<QualityProfile> qualityProfiles;
     private int ncdId;
 
-    private Builder() {
+    public Builder() {
       // enforce static factory method
     }
 
-    Builder setServerId(String serverId) {
+    public Builder setServerId(String serverId) {
       this.serverId = serverId;
       return this;
     }
 
-    Builder setVersion(String version) {
+    public Builder setVersion(String version) {
       this.version = version;
       return this;
     }
 
-    Builder setMessageSequenceNumber(@Nullable Long messageSequenceNumber) {
+    public Builder setMessageSequenceNumber(@Nullable Long messageSequenceNumber) {
       this.messageSequenceNumber = messageSequenceNumber;
       return this;
     }
 
-    Builder setPlugins(Map<String, String> plugins) {
+    public Builder setPlugins(Map<String, String> plugins) {
       this.plugins = plugins;
       return this;
     }
 
-    Builder setDatabase(Database database) {
+    public Builder setDatabase(Database database) {
       this.database = database;
       return this;
     }
@@ -309,7 +309,7 @@ public class TelemetryData {
       return this;
     }
 
-    TelemetryData build() {
+    public TelemetryData build() {
       requireNonNullValues(serverId, version, plugins, database, messageSequenceNumber);
       return new TelemetryData(this);
     }
@@ -349,7 +349,7 @@ public class TelemetryData {
     }
   }
 
-  record Database(String name, String version) {
+  public record Database(String name, String version) {
   }
 
   record NewCodeDefinition(String type, @Nullable String value, String scope) {

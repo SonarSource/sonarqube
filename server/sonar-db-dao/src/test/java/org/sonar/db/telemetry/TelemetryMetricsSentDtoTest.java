@@ -17,28 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry;
+package org.sonar.db.telemetry;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import org.junit.jupiter.api.Test;
 
-/**
- * Represent the granularity of the data provided by a {@link TelemetryDataProvider}. This both defines the time period between to pushes to
- * telemetry server for a given metric and the time period that the data represents.
- * Modifying this enum needs to be discussed beforehand with Data Platform team.
- */
-public enum Granularity {
-  DAILY("daily"),
-  WEEKLY("weekly"),
-  MONTHLY("monthly");
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private final String value;
+class TelemetryMetricsSentDtoTest {
 
-  Granularity(String value) {
-    this.value = value;
+  @Test
+  void testGetters() {
+    TelemetryMetricsSentDto metricDto = new TelemetryMetricsSentDto(
+      "key", "installation"
+    ).setLastSent(1L);
+
+    assertThat(metricDto.getMetricKey()).isEqualTo("key");
+    assertThat(metricDto.getDimension()).isEqualTo("installation");
+    assertThat(metricDto.getLastSent()).isEqualTo(1L);
   }
 
-  @JsonValue
-  public String getValue() {
-    return value;
-  }
 }

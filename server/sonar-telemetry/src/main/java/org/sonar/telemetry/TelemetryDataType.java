@@ -19,10 +19,26 @@
  */
 package org.sonar.telemetry;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * Represents the type of the data provided by a {@link TelemetryDataProvider}.
  * Modifying this enum needs to be discussed beforehand with Data Platform team.
  */
 public enum TelemetryDataType {
-  BOOLEAN, STRING, INTEGER, FLOAT
+  BOOLEAN("boolean"),
+  STRING("string"),
+  INTEGER("integer"),
+  FLOAT("float");
+
+  private final String value;
+
+  TelemetryDataType(String value) {
+    this.value = value;
+  }
+
+  @JsonValue
+  public String getValue() {
+    return value;
+  }
 }

@@ -184,6 +184,7 @@ import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.SystemInfoWriterModule;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.db.CheckAnyonePermissionsAtStartup;
+import org.sonar.server.platform.telemetry.TelemetryNclocProvider;
 import org.sonar.server.platform.telemetry.TelemetryVersionProvider;
 import org.sonar.server.platform.web.ActionDeprecationLoggerInterceptor;
 import org.sonar.server.platform.web.SonarLintConnectionFilter;
@@ -282,13 +283,13 @@ import org.sonar.server.webhook.WebhookQGChangeEventListener;
 import org.sonar.server.webhook.ws.WebhooksWsModule;
 import org.sonar.server.ws.WebServiceEngine;
 import org.sonar.server.ws.ws.WebServicesWsModule;
-import org.sonar.telemetry.TelemetryNclocProvider;
+import org.sonar.telemetry.TelemetryClient;
+import org.sonar.telemetry.TelemetryDaemon;
 import org.sonar.telemetry.legacy.CloudUsageDataProvider;
 import org.sonar.telemetry.legacy.QualityProfileDataProvider;
-import org.sonar.telemetry.legacy.TelemetryClient;
-import org.sonar.telemetry.legacy.TelemetryDaemon;
 import org.sonar.telemetry.legacy.TelemetryDataJsonWriter;
 import org.sonar.telemetry.legacy.TelemetryDataLoaderImpl;
+import org.sonar.telemetry.metrics.TelemetryMetricsLoader;
 import org.sonar.telemetry.project.ProjectCppAutoconfigTelemetryProvider;
 import org.sonar.telemetry.user.TelemetryUserEnabledProvider;
 
@@ -660,7 +661,14 @@ public class PlatformLevel4 extends PlatformLevel {
       RecoveryIndexer.class,
       IndexersImpl.class,
 
+      //new telemetry metrics
+      ProjectCppAutoconfigTelemetryProvider.class,
+      TelemetryVersionProvider.class,
+      TelemetryNclocProvider.class,
+      TelemetryUserEnabledProvider.class,
+
       // telemetry
+      TelemetryMetricsLoader.class,
       TelemetryDataLoaderImpl.class,
       TelemetryDataJsonWriter.class,
       TelemetryDaemon.class,
@@ -668,11 +676,6 @@ public class PlatformLevel4 extends PlatformLevel {
       CloudUsageDataProvider.class,
       QualityProfileDataProvider.class,
 
-      //new telemetry metrics
-      TelemetryVersionProvider.class,
-      TelemetryNclocProvider.class,
-      ProjectCppAutoconfigTelemetryProvider.class,
-      TelemetryUserEnabledProvider.class,
       // monitoring
       ServerMonitoringMetrics.class,
 

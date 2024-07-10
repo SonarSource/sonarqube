@@ -92,6 +92,7 @@ import org.sonar.db.schemamigration.SchemaMigrationDao;
 import org.sonar.db.scim.ScimGroupDao;
 import org.sonar.db.scim.ScimUserDao;
 import org.sonar.db.source.FileSourceDao;
+import org.sonar.db.telemetry.TelemetryMetricsSentDao;
 import org.sonar.db.user.ExternalGroupDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupMembershipDao;
@@ -195,6 +196,7 @@ public class DbClient {
   private final RuleChangeDao ruleChangeDao;
   private final ProjectExportDao projectExportDao;
   private final IssueFixedDao issueFixedDao;
+  private final TelemetryMetricsSentDao telemetryMetricsSentDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -288,6 +290,7 @@ public class DbClient {
     ruleChangeDao = getDao(map, RuleChangeDao.class);
     projectExportDao = getDao(map, ProjectExportDao.class);
     issueFixedDao = getDao(map, IssueFixedDao.class);
+    telemetryMetricsSentDao = getDao(map, TelemetryMetricsSentDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -340,6 +343,10 @@ public class DbClient {
 
   public IssueFixedDao issueFixedDao() {
     return issueFixedDao;
+  }
+
+  public TelemetryMetricsSentDao telemetryMetricsSentDao() {
+    return telemetryMetricsSentDao;
   }
 
   public QualityProfileDao qualityProfileDao() {

@@ -20,8 +20,6 @@
 package org.sonar.telemetry.legacy;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,8 +31,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.EditionProvider;
@@ -54,8 +53,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
 import static org.sonar.server.qualitygate.Condition.Operator.fromDbValue;
 import static org.sonar.test.JsonAssert.assertJson;
 
-@RunWith(DataProviderRunner.class)
-public class TelemetryDataJsonWriterTest {
+class TelemetryDataJsonWriterTest {
 
   private final Random random = new Random();
 
@@ -71,7 +69,7 @@ public class TelemetryDataJsonWriterTest {
   private static final TelemetryData.NewCodeDefinition NCD_PROJECT = new TelemetryData.NewCodeDefinition(NUMBER_OF_DAYS.name(), "30", "project");
 
   @Test
-  public void write_server_id_version_and_sequence() {
+  void write_server_id_version_and_sequence() {
     TelemetryData data = telemetryBuilder().build();
 
     String json = writeTelemetryData(data);
@@ -85,7 +83,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void does_not_write_edition_if_null() {
+  void does_not_write_edition_if_null() {
     TelemetryData data = telemetryBuilder().build();
 
     String json = writeTelemetryData(data);
@@ -93,9 +91,9 @@ public class TelemetryDataJsonWriterTest {
     assertThat(json).doesNotContain("edition");
   }
 
-  @Test
-  @UseDataProvider("allEditions")
-  public void writes_edition_if_non_null(EditionProvider.Edition edition) {
+  @ParameterizedTest
+  @MethodSource("allEditions")
+  void writes_edition_if_non_null(EditionProvider.Edition edition) {
     TelemetryData data = telemetryBuilder()
       .setEdition(edition)
       .build();
@@ -109,7 +107,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_default_qg() {
+  void writes_default_qg() {
     TelemetryData data = telemetryBuilder()
       .setDefaultQualityGate("default-qg")
       .build();
@@ -123,7 +121,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_sonarWay_qg() {
+  void writes_sonarWay_qg() {
     TelemetryData data = telemetryBuilder()
       .setSonarWayQualityGate("sonarWayUUID")
       .build();
@@ -137,7 +135,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_database() {
+  void writes_database() {
     String name = randomAlphabetic(12);
     String version = randomAlphabetic(10);
     TelemetryData data = telemetryBuilder()
@@ -156,7 +154,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_no_plugins() {
+  void writes_no_plugins() {
     TelemetryData data = telemetryBuilder()
       .setPlugins(Collections.emptyMap())
       .build();
@@ -171,7 +169,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_all_plugins() {
+  void writes_all_plugins() {
     Map<String, String> plugins = IntStream.range(0, 1 + random.nextInt(10))
       .boxed()
       .collect(Collectors.toMap(i -> "P" + i, i1 -> "V" + i1));
@@ -188,7 +186,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void does_not_write_installation_date_if_null() {
+  void does_not_write_installation_date_if_null() {
     TelemetryData data = telemetryBuilder()
       .setInstallationDate(null)
       .build();
@@ -199,7 +197,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void write_installation_date_in_utc_format() {
+  void write_installation_date_in_utc_format() {
     TelemetryData data = telemetryBuilder()
       .setInstallationDate(1_000L)
       .build();
@@ -214,7 +212,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void does_not_write_installation_version_if_null() {
+  void does_not_write_installation_version_if_null() {
     TelemetryData data = telemetryBuilder()
       .setInstallationVersion(null)
       .build();
@@ -225,7 +223,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void write_installation_version() {
+  void write_installation_version() {
     String installationVersion = randomAlphabetic(5);
     TelemetryData data = telemetryBuilder()
       .setInstallationVersion(installationVersion)
@@ -239,9 +237,9 @@ public class TelemetryDataJsonWriterTest {
       """.formatted(installationVersion));
   }
 
-  @Test
-  @UseDataProvider("getFeatureFlagEnabledStates")
-  public void write_container_flag(boolean isIncontainer) {
+  @ParameterizedTest
+  @MethodSource("getFeatureFlagEnabledStates")
+  void write_container_flag(boolean isIncontainer) {
     TelemetryData data = telemetryBuilder()
       .setInContainer(isIncontainer)
       .build();
@@ -264,9 +262,9 @@ public class TelemetryDataJsonWriterTest {
     };
   }
 
-  @Test
-  @UseDataProvider("getManagedInstanceData")
-  public void writeTelemetryData_encodesCorrectlyManagedInstanceInformation(boolean isManaged, String provider) {
+  @ParameterizedTest
+  @MethodSource("getManagedInstanceData")
+  void writeTelemetryData_encodesCorrectlyManagedInstanceInformation(boolean isManaged, String provider) {
     TelemetryData data = telemetryBuilder()
       .setManagedInstanceInformation(new TelemetryData.ManagedInstanceInformation(isManaged, provider))
       .build();
@@ -294,7 +292,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writeTelemetryData_shouldWriteCloudUsage() {
+  void writeTelemetryData_shouldWriteCloudUsage() {
     TelemetryData data = telemetryBuilder().build();
 
     String json = writeTelemetryData(data);
@@ -314,7 +312,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_has_unanalyzed_languages() {
+  void writes_has_unanalyzed_languages() {
     TelemetryData data = telemetryBuilder()
       .setHasUnanalyzedC(true)
       .setHasUnanalyzedCpp(false)
@@ -331,7 +329,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_security_custom_config() {
+  void writes_security_custom_config() {
     TelemetryData data = telemetryBuilder()
       .setCustomSecurityConfigs(Set.of("php", "java"))
       .build();
@@ -346,7 +344,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_local_timestamp() {
+  void writes_local_timestamp() {
     when(system2.now()).thenReturn(1000L);
 
     TelemetryData data = telemetryBuilder().build();
@@ -360,7 +358,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_all_users_with_anonymous_md5_uuids() {
+  void writes_all_users_with_anonymous_md5_uuids() {
     TelemetryData data = telemetryBuilder()
       .setUsers(attachUsers())
       .build();
@@ -401,7 +399,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_all_projects() {
+  void writes_all_projects() {
     TelemetryData data = telemetryBuilder()
       .setProjects(attachProjects())
       .build();
@@ -438,7 +436,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writeTelemetryData_whenAnalyzedLanguages_shouldwriteAllProjectsStats() {
+  void writeTelemetryData_whenAnalyzedLanguages_shouldwriteAllProjectsStats() {
     TelemetryData data = telemetryBuilder()
       .setProjectStatistics(attachProjectStatsWithMetrics())
       .build();
@@ -508,7 +506,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_all_projects_stats_with_unanalyzed_languages() {
+  void writes_all_projects_stats_with_unanalyzed_languages() {
     TelemetryData data = telemetryBuilder()
       .setProjectStatistics(attachProjectStats())
       .build();
@@ -518,7 +516,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_all_projects_stats_without_missing_metrics() {
+  void writes_all_projects_stats_without_missing_metrics() {
     TelemetryData data = telemetryBuilder()
       .setProjectStatistics(attachProjectStats())
       .build();
@@ -527,7 +525,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_all_quality_gates() {
+  void writes_all_quality_gates() {
     TelemetryData data = telemetryBuilder()
       .setQualityGates(attachQualityGates())
       .build();
@@ -590,7 +588,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writeTelemetryData_shouldWriteQualityProfiles() {
+  void writeTelemetryData_shouldWriteQualityProfiles() {
     TelemetryData data = telemetryBuilder()
       .setQualityProfiles(List.of(
         new TelemetryData.QualityProfile("uuid-1", "parent-uuid-1", "js", true, false, true, 2, 3, 4),
@@ -623,7 +621,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_all_branches() {
+  void writes_all_branches() {
     TelemetryData data = telemetryBuilder()
       .setBranches(attachBranches())
       .build();
@@ -654,7 +652,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_new_code_definitions() {
+  void writes_new_code_definitions() {
     TelemetryData data = telemetryBuilder()
       .setNewCodeDefinitions(attachNewCodeDefinitions())
       .build();
@@ -683,7 +681,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_instance_new_code_definition() {
+  void writes_instance_new_code_definition() {
     TelemetryData data = telemetryBuilder().build();
 
     String json = writeTelemetryData(data);

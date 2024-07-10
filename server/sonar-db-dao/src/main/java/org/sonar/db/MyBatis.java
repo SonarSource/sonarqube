@@ -157,6 +157,7 @@ import org.sonar.db.schemamigration.SchemaMigrationMapper;
 import org.sonar.db.scim.ScimGroupMapper;
 import org.sonar.db.scim.ScimUserMapper;
 import org.sonar.db.source.FileSourceMapper;
+import org.sonar.db.telemetry.TelemetryMetricsSentMapper;
 import org.sonar.db.user.ExternalGroupDto;
 import org.sonar.db.user.ExternalGroupMapper;
 import org.sonar.db.user.GroupDto;
@@ -343,6 +344,7 @@ public class MyBatis {
       ScimUserMapper.class,
       SessionTokenMapper.class,
       SnapshotMapper.class,
+      TelemetryMetricsSentMapper.class,
       UserDismissedMessagesMapper.class,
       UserGroupMapper.class,
       UserMapper.class,

@@ -17,54 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.legacy;
+package org.sonar.telemetry.metrics.schema;
 
-import java.util.Date;
-import org.sonar.api.platform.Server;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.sonar.telemetry.Granularity;
+import org.sonar.telemetry.TelemetryDataType;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+public class ProjectMetric extends Metric {
 
-class FakeServer extends Server {
-  private String id;
-  private String version;
+  @JsonProperty("project_uuid")
+  private String projectUuid;
 
-  public FakeServer() {
-    this.id = randomAlphanumeric(20);
-    this.version = randomAlphanumeric(10);
+  public ProjectMetric(String key, Object value, String projectUuid, TelemetryDataType type, Granularity granularity) {
+    this.key = key;
+    this.value = value;
+    this.projectUuid = projectUuid;
+    this.type = type;
+    this.granularity = granularity;
   }
 
-  @Override
-  public String getId() {
-    return id;
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
-  FakeServer setId(String id) {
-    this.id = id;
-    return this;
+  public void setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
   }
 
-  @Override
-  public String getVersion() {
-    return this.version;
-  }
-
-  public FakeServer setVersion(String version) {
-    this.version = version;
-    return this;
-  }
-
-  @Override
-  public Date getStartedAt() {
-    return null;
-  }
-
-  @Override
-  public String getContextPath() {
-    return null;
-  }
-
-  @Override
-  public String getPublicRootUrl() {
-    return null;
-  }
 }

@@ -17,28 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry;
+package org.sonar.db.telemetry;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+public class TelemetryMetricsSentDto {
 
-/**
- * Represent the granularity of the data provided by a {@link TelemetryDataProvider}. This both defines the time period between to pushes to
- * telemetry server for a given metric and the time period that the data represents.
- * Modifying this enum needs to be discussed beforehand with Data Platform team.
- */
-public enum Granularity {
-  DAILY("daily"),
-  WEEKLY("weekly"),
-  MONTHLY("monthly");
+  private final String metricKey;
 
-  private final String value;
+  private final String dimension;
 
-  Granularity(String value) {
-    this.value = value;
+  private long lastSent;
+
+  public TelemetryMetricsSentDto(String metricKey, String dimension) {
+    this.metricKey = metricKey;
+    this.dimension = dimension;
   }
 
-  @JsonValue
-  public String getValue() {
-    return value;
+  public String getMetricKey() {
+    return metricKey;
   }
+
+  public String getDimension() {
+    return dimension;
+  }
+
+  public Long getLastSent() {
+    return lastSent;
+  }
+
+  public TelemetryMetricsSentDto setLastSent(long lastSent) {
+    this.lastSent = lastSent;
+    return this;
+  }
+
 }

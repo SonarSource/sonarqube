@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.legacy;
+package org.sonar.telemetry;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.IOException;
@@ -27,15 +27,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
 import org.sonar.server.util.GlobalLockManager;
+import org.sonar.telemetry.legacy.TelemetryData;
+import org.sonar.telemetry.legacy.TelemetryDataJsonWriter;
+import org.sonar.telemetry.legacy.TelemetryDataLoader;
+import org.sonar.telemetry.metrics.TelemetryMetricsLoader;
+import org.sonar.telemetry.metrics.schema.BaseMessage;
+import org.sonar.telemetry.metrics.util.MessageSerializer;
 
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABLE;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_FREQUENCY_IN_SECONDS;
@@ -43,6 +51,8 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
 
 @ServerSide
 public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceImpl<ScheduledExecutorService> {
+  public static final String I_PROP_MESSAGE_SEQUENCE = "telemetry.messageSeq";
+
   private static final String THREAD_NAME_PREFIX = "sq-telemetry-service-";
   private static final int ONE_DAY = 24 * 60 * 60 * 1_000;
   private static final String I_PROP_LAST_PING = "telemetry.lastPing";
@@ -50,7 +60,6 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
   private static final String LOCK_NAME = "TelemetryStat";
   private static final Logger LOG = LoggerFactory.getLogger(TelemetryDaemon.class);
   private static final String LOCK_DELAY_SEC = "sonar.telemetry.lock.delay";
-  static final String I_PROP_MESSAGE_SEQUENCE = "telemetry.messageSeq";
 
   private final TelemetryDataLoader dataLoader;
   private final TelemetryDataJsonWriter dataJsonWriter;
@@ -59,9 +68,11 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
   private final Configuration config;
   private final InternalProperties internalProperties;
   private final System2 system2;
+  private final TelemetryMetricsLoader telemetryMetricsLoader;
+  private final DbClient dbClient;
 
   public TelemetryDaemon(TelemetryDataLoader dataLoader, TelemetryDataJsonWriter dataJsonWriter, TelemetryClient telemetryClient, Configuration config,
-    InternalProperties internalProperties, GlobalLockManager lockManager, System2 system2) {
+    InternalProperties internalProperties, GlobalLockManager lockManager, System2 system2, TelemetryMetricsLoader telemetryMetricsLoader, DbClient dbClient) {
     super(Executors.newSingleThreadScheduledExecutor(newThreadFactory()));
     this.dataLoader = dataLoader;
     this.dataJsonWriter = dataJsonWriter;
@@ -70,6 +81,8 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
     this.internalProperties = internalProperties;
     this.lockManager = lockManager;
     this.system2 = system2;
+    this.telemetryMetricsLoader = telemetryMetricsLoader;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -110,7 +123,9 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
 
         long now = system2.now();
         if (shouldUploadStatistics(now)) {
-          uploadStatistics();
+          uploadMetrics();
+          uploadLegacyTelemetry();
+
           updateTelemetryProps(now);
         }
       } catch (Exception e) {
@@ -143,7 +158,20 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
     telemetryClient.optOut(json.toString());
   }
 
-  private void uploadStatistics() throws IOException {
+  private void uploadMetrics() throws IOException {
+    TelemetryMetricsLoader.Context context = telemetryMetricsLoader.loadData();
+    for (BaseMessage message : context.getMessages()) {
+      String jsonString = MessageSerializer.serialize(message);
+      telemetryClient.upload(jsonString);
+    }
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      context.getMetricsToUpdate().forEach(toUpdate -> dbClient.telemetryMetricsSentDao().update(dbSession, toUpdate));
+      dbSession.commit();
+    }
+  }
+
+  private void uploadLegacyTelemetry() throws IOException {
     TelemetryData statistics = dataLoader.load();
     StringWriter jsonString = new StringWriter();
     try (JsonWriter json = JsonWriter.of(jsonString)) {

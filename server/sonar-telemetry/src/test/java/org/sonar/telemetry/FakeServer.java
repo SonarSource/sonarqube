@@ -19,26 +19,52 @@
  */
 package org.sonar.telemetry;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Date;
+import org.sonar.api.platform.Server;
 
-/**
- * Represent the granularity of the data provided by a {@link TelemetryDataProvider}. This both defines the time period between to pushes to
- * telemetry server for a given metric and the time period that the data represents.
- * Modifying this enum needs to be discussed beforehand with Data Platform team.
- */
-public enum Granularity {
-  DAILY("daily"),
-  WEEKLY("weekly"),
-  MONTHLY("monthly");
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
-  private final String value;
+public class FakeServer extends Server {
+  private String id;
+  private String version;
 
-  Granularity(String value) {
-    this.value = value;
+  public FakeServer() {
+    this.id = randomAlphanumeric(20);
+    this.version = randomAlphanumeric(10);
   }
 
-  @JsonValue
-  public String getValue() {
-    return value;
+  @Override
+  public String getId() {
+    return id;
+  }
+
+  public FakeServer setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  @Override
+  public String getVersion() {
+    return this.version;
+  }
+
+  public FakeServer setVersion(String version) {
+    this.version = version;
+    return this;
+  }
+
+  @Override
+  public Date getStartedAt() {
+    return null;
+  }
+
+  @Override
+  public String getContextPath() {
+    return null;
+  }
+
+  @Override
+  public String getPublicRootUrl() {
+    return null;
   }
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry;
+package org.sonar.server.platform.telemetry;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,6 +27,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.telemetry.Dimension;
+import org.sonar.telemetry.Granularity;
+import org.sonar.telemetry.TelemetryDataProvider;
+import org.sonar.telemetry.TelemetryDataType;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toMap;
