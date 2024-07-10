@@ -45,6 +45,9 @@ public final class Pagination implements Pagineable {
     return FIRST;
   }
 
+  /**
+   * @param page minimum value is 1
+   */
   public static Builder forPage(int page) {
     return new Builder(page);
   }
