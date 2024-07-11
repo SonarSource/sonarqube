@@ -282,6 +282,7 @@ import org.sonar.server.webhook.WebhookQGChangeEventListener;
 import org.sonar.server.webhook.ws.WebhooksWsModule;
 import org.sonar.server.ws.WebServiceEngine;
 import org.sonar.server.ws.ws.WebServicesWsModule;
+import org.sonar.telemetry.TelemetryNclocProvider;
 import org.sonar.telemetry.legacy.CloudUsageDataProvider;
 import org.sonar.telemetry.legacy.QualityProfileDataProvider;
 import org.sonar.telemetry.legacy.TelemetryClient;
@@ -667,6 +668,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       //new telemetry metrics
       TelemetryVersionProvider.class,
+      TelemetryNclocProvider.class,
 
       // monitoring
       ServerMonitoringMetrics.class,
