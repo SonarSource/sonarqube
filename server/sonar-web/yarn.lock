@@ -3836,9 +3836,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mantine/core@patch:@mantine/core@6.0.21#./config/patches/@mantine-core-npm-6.0.21-4d202d6649.patch::locator=%40sonarsource%2Fechoes-react%40npm%3A0.4.1":
+"@mantine/core@patch:@mantine/core@6.0.21#./config/patches/@mantine-core-npm-6.0.21-4d202d6649.patch::locator=%40sonarsource%2Fechoes-react%40npm%3A0.4.2":
   version: 6.0.21
-  resolution: "@mantine/core@patch:@mantine/core@npm%3A6.0.21#./config/patches/@mantine-core-npm-6.0.21-4d202d6649.patch::version=6.0.21&hash=070d0f&locator=%40sonarsource%2Fechoes-react%40npm%3A0.4.1"
+  resolution: "@mantine/core@patch:@mantine/core@npm%3A6.0.21#./config/patches/@mantine-core-npm-6.0.21-4d202d6649.patch::version=6.0.21&hash=070d0f&locator=%40sonarsource%2Fechoes-react%40npm%3A0.4.2"
   dependencies:
     "@floating-ui/react": "npm:^0.19.1"
     "@mantine/styles": "npm:6.0.21"
@@ -5039,9 +5039,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sonarsource/echoes-react@npm:0.4.1":
-  version: 0.4.1
-  resolution: "@sonarsource/echoes-react@npm:0.4.1"
+"@sonarsource/echoes-react@npm:0.4.2":
+  version: 0.4.2
+  resolution: "@sonarsource/echoes-react@npm:0.4.2"
   dependencies:
     "@mantine/core": "patch:@mantine/core@6.0.21#./config/patches/@mantine-core-npm-6.0.21-4d202d6649.patch"
     "@mantine/hooks": "npm:6.0.21"
@@ -5060,7 +5060,7 @@ __metadata:
     react-dom: ^17.0.0 || ^18.0.0
     react-intl: ^6.0.0
     react-router-dom: ^6.0.0
-  checksum: 10/8e1195f0f53206795a4dc24a43cbf1682665fc31fca7d19203884e711964b21f8a4891d117766b54c70d22d347453eef8d2deb92f31b7a3ba33ecc461eda2cea
+  checksum: 10/acc39460578cd51530c9dbe997709c249aa0e62f179fb460ec12025aebcc37d535fba1fc70cd681634668c80a9b3de2ddf67bbc5680f7fcc82c4420b456df09d
   languageName: node
   linkType: hard
 
@@ -6293,7 +6293,7 @@ __metadata:
     "@primer/octicons-react": "npm:19.10.0"
     "@react-spring/rafz": "npm:9.7.3"
     "@react-spring/web": "npm:9.7.3"
-    "@sonarsource/echoes-react": "npm:0.4.1"
+    "@sonarsource/echoes-react": "npm:0.4.2"
     "@swc/core": "npm:1.6.6"
     "@swc/jest": "npm:0.2.36"
     "@tanstack/react-query": "npm:5.18.1"
@@ -8337,7 +8337,7 @@ __metadata:
     "@babel/preset-typescript": "npm:7.24.7"
     "@emotion/babel-plugin": "npm:11.11.0"
     "@emotion/babel-plugin-jsx-pragmatic": "npm:0.2.1"
-    "@sonarsource/echoes-react": "npm:0.4.1"
+    "@sonarsource/echoes-react": "npm:0.4.2"
     "@testing-library/dom": "npm:10.2.0"
     "@testing-library/jest-dom": "npm:6.4.6"
     "@testing-library/react": "npm:16.0.0"
