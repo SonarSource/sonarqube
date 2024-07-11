@@ -36,3 +36,9 @@ export function isInput(
     event.target instanceof HTMLTextAreaElement
   );
 }
+
+export function isDropdown(event: KeyboardEvent) {
+  const role = (event.target as HTMLElement | null)?.role ?? '';
+
+  return ['menu', 'menuitem'].includes(role);
+}

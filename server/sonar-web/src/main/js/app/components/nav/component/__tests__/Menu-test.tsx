@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
@@ -62,7 +63,7 @@ it('should render correctly', async () => {
   expect(screen.getByRole('link', { name: 'layout.security_reports' })).toBeInTheDocument();
 
   // Check the dropdown.
-  const button = screen.getByRole('button', { name: 'more' });
+  const button = screen.getByRole('link', { name: 'more' });
   expect(button).toBeInTheDocument();
   await user.click(button);
   expect(screen.getByRole('menuitem', { name: 'ComponentFoo' })).toBeInTheDocument();
@@ -101,7 +102,7 @@ it('should render correctly when on a branch', async () => {
         extensions: [{ key: 'component-foo', name: 'ComponentFoo' }],
       },
     },
-    'branch=normal-branch',
+    'id=foo&branch=normal-branch',
   );
 
   expect(await screen.findByRole('link', { name: 'overview.page' })).toBeInTheDocument();
@@ -119,16 +120,19 @@ it('should render correctly when on a pull request', async () => {
         extensions: [{ key: 'component-foo', name: 'ComponentFoo' }],
       },
     },
-    'pullRequest=01',
+    'id=foo&pullRequest=01',
   );
 
   expect(await screen.findByRole('link', { name: 'overview.page' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'issues.page' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'layout.measures' })).toBeInTheDocument();
 
-  expect(
-    screen.queryByRole('link', { name: `layout.settings.${ComponentQualifier.Project}` }),
-  ).not.toBeInTheDocument();
+  await waitFor(() => {
+    expect(
+      screen.queryByRole('link', { name: `layout.settings.${ComponentQualifier.Project}` }),
+    ).not.toBeInTheDocument();
+  });
+
   expect(screen.queryByRole('button', { name: 'project.info.title' })).not.toBeInTheDocument();
 });
 

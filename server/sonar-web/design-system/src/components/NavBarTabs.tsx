@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import tw, { theme } from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { isDefined } from '../helpers/types';
@@ -48,29 +49,36 @@ interface NavBarTabLinkProps extends Omit<NavLinkProps, 'children'> {
   withChevron?: boolean;
 }
 
-export function NavBarTabLink(props: NavBarTabLinkProps) {
-  const { active, children, className, text, withChevron = false, ...linkProps } = props;
-  return (
-    <NavBarTabLinkWrapper>
-      <NavLink
-        className={({ isActive }) =>
-          classNames(
-            'sw-flex sw-items-center',
-            { active: isDefined(active) ? active : isActive },
-            className,
-          )
-        }
-        {...linkProps}
-      >
-        <span className="sw-inline-block sw-text-center" data-text={text}>
-          {text}
-        </span>
-        {children}
-        {withChevron && <ChevronDownIcon className="sw-ml-1" />}
-      </NavLink>
-    </NavBarTabLinkWrapper>
-  );
-}
+export const NavBarTabLink = forwardRef<HTMLAnchorElement, NavBarTabLinkProps>(
+  (props: NavBarTabLinkProps, ref) => {
+    const { active, children, className, text, withChevron = false, ...linkProps } = props;
+    return (
+      <NavBarTabLinkWrapper>
+        <NavLink
+          className={({ isActive }) =>
+            classNames(
+              'sw-flex sw-items-center',
+              { active: isDefined(active) ? active : isActive },
+              className,
+            )
+          }
+          ref={ref}
+          {...linkProps}
+        >
+          <span className="sw-inline-block sw-text-center" data-text={text}>
+            {text}
+          </span>
+
+          {children}
+
+          {withChevron && <ChevronDownIcon className="sw-ml-1" />}
+        </NavLink>
+      </NavBarTabLinkWrapper>
+    );
+  },
+);
+
+NavBarTabLink.displayName = 'NavBarTabLink';
 
 export function DisabledTabLink(props: { label: string; overlay: React.ReactNode }) {
   return (
@@ -102,11 +110,13 @@ const NavBarTabLinkWrapper = styled.li`
   & > a.active,
   & > a:active,
   & > a:hover,
-  & > a:focus {
+  & > a:focus,
+  & > a[aria-expanded='true'] {
     border-bottom-color: ${themeColor('tabBorder')};
   }
 
   & > a.active > span[data-text],
+  & > a[aria-expanded='true'] > span[data-text],
   & > a:active > span {
     ${tw`sw-body-md-highlight`};
   }

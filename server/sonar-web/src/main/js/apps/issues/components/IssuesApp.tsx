@@ -58,7 +58,7 @@ import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { fillBranchLike, isSameBranchLike } from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { parseIssueFromResponse } from '../../../helpers/issues';
-import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
+import { isDropdown, isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { serializeDate } from '../../../helpers/query';
@@ -280,7 +280,7 @@ export class App extends React.PureComponent<Props, State> {
       return;
     }
 
-    if (isInput(event) || isShortcut(event)) {
+    if (isInput(event) || isShortcut(event) || isDropdown(event)) {
       return;
     }
 

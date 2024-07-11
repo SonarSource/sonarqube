@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Dropdown, ItemNavLink, MainMenuItem, PopupPlacement, PopupZLevel } from 'design-system';
+
+import { DropdownMenu } from '@sonarsource/echoes-react';
+import { MainMenuItem } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { AppState } from '../../../../types/appstate';
@@ -26,13 +28,13 @@ import withAppStateContext from '../../app-state/withAppStateContext';
 
 const renderGlobalPageLink = ({ key, name }: Extension) => {
   return (
-    <ItemNavLink key={key} to={`/extension/${key}`}>
+    <DropdownMenu.ItemLink key={key} to={`/extension/${key}`}>
       {name}
-    </ItemNavLink>
+    </DropdownMenu.ItemLink>
   );
 };
 
-function GlobalNavMore({ appState: { globalPages = [] } }: { appState: AppState }) {
+function GlobalNavMore({ appState: { globalPages = [] } }: Readonly<{ appState: AppState }>) {
   const withoutPortfolios = globalPages.filter((page) => page.key !== 'governance/portfolios');
 
   if (withoutPortfolios.length === 0) {
@@ -40,29 +42,17 @@ function GlobalNavMore({ appState: { globalPages = [] } }: { appState: AppState 
   }
 
   return (
-    <Dropdown
+    <DropdownMenu.Root
+      align="start"
       id="moreMenuDropdown"
-      overlay={<ul>{withoutPortfolios.map(renderGlobalPageLink)}</ul>}
-      placement={PopupPlacement.BottomLeft}
-      zLevel={PopupZLevel.Global}
+      items={withoutPortfolios.map(renderGlobalPageLink)}
     >
-      {({ onToggleClick, open }) => (
-        <ul>
-          <MainMenuItem>
-            <a
-              aria-expanded={open}
-              aria-haspopup="menu"
-              href="#"
-              id="global-navigation-more"
-              onClick={onToggleClick}
-              role="button"
-            >
-              {translate('more')}
-            </a>
-          </MainMenuItem>
-        </ul>
-      )}
-    </Dropdown>
+      <MainMenuItem>
+        <a aria-haspopup="menu" href="#" id="global-navigation-more" role="button">
+          {translate('more')}
+        </a>
+      </MainMenuItem>
+    </DropdownMenu.Root>
   );
 }
 

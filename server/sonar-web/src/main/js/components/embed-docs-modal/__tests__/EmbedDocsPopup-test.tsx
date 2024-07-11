@@ -35,8 +35,6 @@ it('should render with no suggestions', async () => {
 
   expect(screen.getByText('docs.documentation')).toBeInTheDocument();
   expect(screen.queryByText('docs.suggestion')).not.toBeInTheDocument();
-
-  expect(screen.getByText('docs.documentation')).toHaveFocus();
 });
 
 it('should be able to render with suggestions and remove them', async () => {
@@ -51,13 +49,9 @@ it('should be able to render with suggestions and remove them', async () => {
   expect(screen.getByText('docs.suggestion')).toBeInTheDocument();
   expect(screen.getByText('About Background Tasks')).toBeInTheDocument();
 
-  expect(screen.getByText('About Background Tasks')).toHaveFocus();
-
   await user.click(screen.getByRole('button', { name: 'remove.suggestion' }));
   await user.click(screen.getByRole('button', { name: 'help' }));
   expect(screen.queryByText('docs.suggestion')).not.toBeInTheDocument();
-
-  expect(screen.getByText('docs.documentation')).toHaveFocus();
 });
 
 function renderEmbedDocsPopup() {

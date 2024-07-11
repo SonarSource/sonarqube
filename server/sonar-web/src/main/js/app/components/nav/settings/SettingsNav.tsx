@@ -17,15 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  Dropdown,
-  ItemNavLink,
-  LightLabel,
-  NavBarTabLink,
-  NavBarTabs,
-  PopupZLevel,
-  TopBar,
-} from 'design-system';
+
+import { DropdownMenu } from '@sonarsource/echoes-react';
+import { LightLabel, NavBarTabLink, NavBarTabs, TopBar } from 'design-system';
 import * as React from 'react';
 import { Location } from 'react-router-dom';
 import withLocation from '../../../../components/hoc/withLocation';
@@ -88,9 +82,9 @@ export class SettingsNav extends React.PureComponent<Props> {
 
   renderExtension = ({ key, name }: Extension) => {
     return (
-      <ItemNavLink key={key} to={`/admin/extension/${key}`}>
+      <DropdownMenu.ItemLink isMatchingFullPath key={key} to={`/admin/extension/${key}`}>
         {name}
-      </ItemNavLink>
+      </DropdownMenu.ItemLink>
     );
   };
 
@@ -98,134 +92,125 @@ export class SettingsNav extends React.PureComponent<Props> {
     const extensionsWithoutSupport = this.props.extensions.filter(
       (extension) => extension.key !== 'license/support',
     );
+
     return (
-      <Dropdown
+      <DropdownMenu.Root
+        align="start"
         id="settings-navigation-configuration-dropdown"
-        overlay={
+        items={
           <>
-            <ItemNavLink end to="/admin/settings">
+            <DropdownMenu.ItemLink isMatchingFullPath to="/admin/settings">
               {translate('settings.page')}
-            </ItemNavLink>
+            </DropdownMenu.ItemLink>
 
-            <ItemNavLink end to="/admin/settings/encryption">
+            <DropdownMenu.ItemLink isMatchingFullPath to="/admin/settings/encryption">
               {translate('property.category.security.encryption')}
-            </ItemNavLink>
+            </DropdownMenu.ItemLink>
 
-            <ItemNavLink end to="/admin/webhooks">
+            <DropdownMenu.ItemLink isMatchingFullPath to="/admin/webhooks">
               {translate('webhooks.page')}
-            </ItemNavLink>
+            </DropdownMenu.ItemLink>
 
             {extensionsWithoutSupport.map(this.renderExtension)}
           </>
         }
-        size="auto"
-        zLevel={PopupZLevel.Global}
       >
-        {({ onToggleClick, open }) => (
-          <NavBarTabLink
-            aria-expanded={open}
-            aria-haspopup="menu"
-            active={
-              open ||
-              (!this.isSecurityActive() &&
-                !this.isProjectsActive() &&
-                !this.isSystemActive() &&
-                !this.isSomethingActive(['/admin/extension/license/support']) &&
-                !this.isMarketplace() &&
-                !this.isAudit())
-            }
-            to={{}}
-            id="settings-navigation-configuration"
-            onClick={onToggleClick}
-            text={translate('sidebar.project_settings')}
-            withChevron
-          />
-        )}
-      </Dropdown>
+        <NavBarTabLink
+          aria-haspopup="menu"
+          active={
+            !this.isSecurityActive() &&
+            !this.isProjectsActive() &&
+            !this.isSystemActive() &&
+            !this.isSomethingActive(['/admin/extension/license/support']) &&
+            !this.isMarketplace() &&
+            !this.isAudit()
+          }
+          id="settings-navigation-configuration"
+          text={translate('sidebar.project_settings')}
+          to={{}}
+          withChevron
+        />
+      </DropdownMenu.Root>
     );
   }
 
   renderProjectsTab() {
     return (
-      <Dropdown
+      <DropdownMenu.Root
         id="settings-navigation-projects-dropdown"
-        overlay={
+        items={
           <>
-            <ItemNavLink end to="/admin/projects_management">
+            <DropdownMenu.ItemLink isMatchingFullPath to="/admin/projects_management">
               {translate('management')}
-            </ItemNavLink>
+            </DropdownMenu.ItemLink>
 
-            <ItemNavLink end to="/admin/background_tasks">
+            <DropdownMenu.ItemLink isMatchingFullPath to="/admin/background_tasks">
               {translate('background_tasks.page')}
-            </ItemNavLink>
+            </DropdownMenu.ItemLink>
           </>
         }
-        size="auto"
-        zLevel={PopupZLevel.Global}
       >
-        {({ onToggleClick, open }) => (
-          <NavBarTabLink
-            aria-expanded={open}
-            aria-haspopup="menu"
-            active={open || this.isProjectsActive()}
-            to={{}}
-            onClick={onToggleClick}
-            text={translate('sidebar.projects')}
-            withChevron
-          />
-        )}
-      </Dropdown>
+        <NavBarTabLink
+          aria-haspopup="menu"
+          active={this.isProjectsActive()}
+          to={{}}
+          text={translate('sidebar.projects')}
+          withChevron
+        />
+      </DropdownMenu.Root>
     );
   }
 
   renderSecurityTab() {
     return (
-      <Dropdown
+      <DropdownMenu.Root
         id="settings-navigation-security-dropdown"
-        overlay={
+        items={
           <>
-            <ItemNavLink to="/admin/users">{translate('users.page')}</ItemNavLink>
+            <DropdownMenu.ItemLink isMatchingFullPath to="/admin/users">
+              {translate('users.page')}
+            </DropdownMenu.ItemLink>
 
-            <ItemNavLink to="/admin/groups">{translate('user_groups.page')}</ItemNavLink>
+            <DropdownMenu.ItemLink isMatchingFullPath to="/admin/groups">
+              {translate('user_groups.page')}
+            </DropdownMenu.ItemLink>
 
-            <ItemNavLink to="/admin/permissions">
+            <DropdownMenu.ItemLink isMatchingFullPath to="/admin/permissions">
               {translate('global_permissions.page')}
-            </ItemNavLink>
+            </DropdownMenu.ItemLink>
 
-            <ItemNavLink to="/admin/permission_templates">
+            <DropdownMenu.ItemLink isMatchingFullPath to="/admin/permission_templates">
               {translate('permission_templates')}
-            </ItemNavLink>
+            </DropdownMenu.ItemLink>
           </>
         }
-        size="auto"
-        zLevel={PopupZLevel.Global}
       >
-        {({ onToggleClick, open }) => (
-          <NavBarTabLink
-            aria-expanded={open}
-            aria-haspopup="menu"
-            active={open || this.isSecurityActive()}
-            to={{}}
-            onClick={onToggleClick}
-            text={translate('sidebar.security')}
-            withChevron
-          />
-        )}
-      </Dropdown>
+        <NavBarTabLink
+          aria-haspopup="menu"
+          active={this.isSecurityActive()}
+          to={{}}
+          text={translate('sidebar.security')}
+          withChevron
+        />
+      </DropdownMenu.Root>
     );
   }
 
   render() {
     const { extensions, pendingPlugins } = this.props;
     const hasSupportExtension = extensions.find((extension) => extension.key === 'license/support');
+
     const hasGovernanceExtension = extensions.find(
       (e) => e.key === AdminPageExtension.GovernanceConsole,
     );
+
     const totalPendingPlugins =
       pendingPlugins.installing.length +
       pendingPlugins.removing.length +
       pendingPlugins.updating.length;
+
     let notifComponent;
+
     if (this.props.systemStatus === 'RESTARTING') {
       notifComponent = <SystemRestartNotif />;
     } else if (totalPendingPlugins > 0) {
@@ -266,6 +251,7 @@ export class SettingsNav extends React.PureComponent<Props> {
             )}
           </NavBarTabs>
         </TopBar>
+
         {notifComponent}
       </>
     );

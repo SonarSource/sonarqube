@@ -18,24 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ItemLink, OpenNewTabIcon } from 'design-system';
+import { DropdownMenu } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { DocLink } from '../../helpers/doc-links';
 import { useDocUrl } from '../../helpers/docs';
 
 interface Props {
   children: React.ReactNode;
-  innerRef?: React.Ref<HTMLAnchorElement>;
   to: DocLink;
 }
 
-export function DocItemLink({ to, innerRef, children }: Props) {
+export function DocItemLink({ to, children }: Readonly<Props>) {
   const toStatic = useDocUrl(to);
 
-  return (
-    <ItemLink innerRef={innerRef} to={toStatic}>
-      <OpenNewTabIcon />
-      {children}
-    </ItemLink>
-  );
+  return <DropdownMenu.ItemLink to={toStatic}>{children}</DropdownMenu.ItemLink>;
 }

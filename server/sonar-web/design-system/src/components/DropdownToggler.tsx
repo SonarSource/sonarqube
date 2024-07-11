@@ -31,6 +31,9 @@ interface Props extends PopupProps {
   withFocusOutHandler?: boolean;
 }
 
+/** @deprecated Use DropdownMenu.Root and other DropdownMenu.* elements from Echoes instead.
+ * See the {@link https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3354918914/DropdownMenus | Migration Guide}
+ */
 export function DropdownToggler(props: Props) {
   const {
     children,

@@ -18,16 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import {
-  ButtonSecondary,
-  DropdownMenu,
-  DropdownToggler,
-  ItemButton,
-  PopupPlacement,
-  PopupZLevel,
-  addGlobalErrorMessage,
-  addGlobalSuccessMessage,
-} from 'design-system';
+import { DropdownMenu } from '@sonarsource/echoes-react';
+import { addGlobalErrorMessage, addGlobalSuccessMessage, ButtonSecondary } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
@@ -47,11 +39,6 @@ export interface Props {
   login: UserBase['login'];
   projectKey: string;
   pullRequestID?: string;
-}
-
-interface State {
-  disabled?: boolean;
-  ides: Ide[];
 }
 
 const showError = () =>
@@ -79,14 +66,19 @@ export function IssueOpenInIdeButton({
   projectKey,
   pullRequestID,
 }: Readonly<Props>) {
-  const [state, setState] = React.useState<State>({ disabled: false, ides: [] });
+  const [isDisabled, setIsDisabled] = React.useState(false);
+  const [ides, setIdes] = React.useState<Ide[] | undefined>(undefined);
+  const ref = React.useRef<HTMLButtonElement>(null);
 
-  const cleanState = () => {
-    setState({ ...state, ides: [] });
-  };
+  // to give focus back to the trigger button once it is re-rendered as a single button
+  const focusTriggerButton = React.useCallback(() => {
+    setTimeout(() => {
+      ref.current?.focus();
+    });
+  }, []);
 
   const openIssue = async (ide: Ide) => {
-    setState({ ...state, disabled: true, ides: [] }); // close the dropdown, disable the button
+    setIsDisabled(true);
 
     let token: { name?: string; token?: string } = {};
 
@@ -112,14 +104,15 @@ export function IssueOpenInIdeButton({
 
     setTimeout(
       () => {
-        setState({ ...state, disabled: false });
+        setIsDisabled(false);
+        focusTriggerButton();
       },
       ide.needsToken ? DELAY_AFTER_TOKEN_CREATION : 0,
     );
   };
 
-  const onClick = async () => {
-    setState({ ...state, ides: [] });
+  const findIDEs = async () => {
+    setIdes(undefined);
 
     const ides = (await probeSonarLintServers()) ?? [];
 
@@ -128,47 +121,51 @@ export function IssueOpenInIdeButton({
     } else if (ides.length === 1) {
       openIssue(ides[0]);
     } else {
-      setState({ ...state, ides });
+      setIdes(ides);
     }
   };
 
-  return (
-    <div>
-      <DropdownToggler
-        allowResizing
-        onRequestClose={cleanState}
-        open={state.ides.length > 1}
-        overlay={
-          <DropdownMenu size="auto">
-            {state.ides.map((ide) => {
-              const { ideName, description } = ide;
+  const onClick = ides === undefined ? findIDEs : undefined;
 
-              const label = ideName + (description ? ` - ${description}` : '');
+  const triggerButton = (
+    <ButtonSecondary
+      className="sw-whitespace-nowrap"
+      disabled={isDisabled}
+      onClick={onClick}
+      ref={ref}
+    >
+      {translate('open_in_ide')}
+    </ButtonSecondary>
+  );
 
-              return (
-                <ItemButton
-                  key={ide.port}
-                  onClick={() => {
-                    openIssue(ide);
-                  }}
-                >
-                  {label}
-                </ItemButton>
-              );
-            })}
-          </DropdownMenu>
-        }
-        placement={PopupPlacement.BottomLeft}
-        zLevel={PopupZLevel.Global}
-      >
-        <ButtonSecondary
-          className="sw-whitespace-nowrap"
-          disabled={state.disabled}
-          onClick={onClick}
-        >
-          {translate('open_in_ide')}
-        </ButtonSecondary>
-      </DropdownToggler>
-    </div>
+  return ides === undefined ? (
+    triggerButton
+  ) : (
+    <DropdownMenu.Root
+      isOpenOnMount
+      items={ides.map((ide) => {
+        const { ideName, description } = ide;
+
+        const label = ideName + (description ? ` - ${description}` : '');
+
+        return (
+          <DropdownMenu.ItemButton
+            key={ide.port}
+            onClick={() => {
+              openIssue(ide);
+            }}
+          >
+            {label}
+          </DropdownMenu.ItemButton>
+        );
+      })}
+      onClose={() => {
+        setIdes(undefined);
+        focusTriggerButton();
+      }}
+      onOpen={findIDEs}
+    >
+      {triggerButton}
+    </DropdownMenu.Root>
   );
 }

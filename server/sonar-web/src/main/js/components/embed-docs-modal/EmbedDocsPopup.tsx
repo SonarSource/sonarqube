@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ItemDivider, ItemHeader, ItemLink, OpenNewTabIcon } from 'design-system';
+import { DropdownMenu } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
@@ -37,40 +37,36 @@ function IconLink({
   text: string;
 }) {
   return (
-    <ItemLink to={link}>
-      <Image
-        alt={text}
-        aria-hidden
-        className="sw-mr-2"
-        height="18"
-        src={`/images/${icon}`}
-        width="18"
-      />
+    <DropdownMenu.ItemLink
+      prefix={
+        <Image
+          alt={text}
+          aria-hidden
+          className="sw-mr-2"
+          height="18"
+          src={`/images/${icon}`}
+          width="18"
+        />
+      }
+      to={link}
+    >
       {text}
-    </ItemLink>
+    </DropdownMenu.ItemLink>
   );
 }
 
-function Suggestions({
-  firstItemRef,
-  suggestions,
-}: {
-  firstItemRef: React.RefObject<HTMLAnchorElement>;
-  suggestions: SuggestionLink[];
-}) {
+function Suggestions({ suggestions }: Readonly<{ suggestions: SuggestionLink[] }>) {
   return (
     <>
-      <ItemHeader id="suggestion">{translate('docs.suggestion')}</ItemHeader>
-      {suggestions.map((suggestion, i) => (
-        <DocItemLink
-          innerRef={i === 0 ? firstItemRef : undefined}
-          key={suggestion.link}
-          to={suggestion.link}
-        >
+      <DropdownMenu.GroupLabel>{translate('docs.suggestion')}</DropdownMenu.GroupLabel>
+
+      {suggestions.map((suggestion) => (
+        <DocItemLink key={suggestion.link} to={suggestion.link}>
           {suggestion.text}
         </DocItemLink>
       ))}
-      <ItemDivider />
+
+      <DropdownMenu.Separator />
     </>
   );
 }
@@ -85,29 +81,38 @@ export function EmbedDocsPopup() {
 
   return (
     <>
-      {suggestions.length !== 0 && (
-        <Suggestions firstItemRef={firstItemRef} suggestions={suggestions} />
-      )}
-      <DocItemLink innerRef={suggestions.length === 0 ? firstItemRef : undefined} to={DocLink.Root}>
-        {translate('docs.documentation')}
-      </DocItemLink>
-      <ItemLink to="/web_api">{translate('api_documentation.page')}</ItemLink>
-      <ItemLink to="/web_api_v2">{translate('api_documentation.page.v2')}</ItemLink>
-      <ItemDivider />
-      <ItemLink to="https://community.sonarsource.com/">
-        <OpenNewTabIcon />
+      {suggestions.length !== 0 && <Suggestions suggestions={suggestions} />}
+
+      <DocItemLink to={DocLink.Root}>{translate('docs.documentation')}</DocItemLink>
+
+      <DropdownMenu.ItemLink to="/web_api">
+        {translate('api_documentation.page')}
+      </DropdownMenu.ItemLink>
+
+      <DropdownMenu.ItemLink to="/web_api_v2">
+        {translate('api_documentation.page.v2')}
+      </DropdownMenu.ItemLink>
+
+      <DropdownMenu.Separator />
+
+      <DropdownMenu.ItemLink to="https://community.sonarsource.com/">
         {translate('docs.get_help')}
-      </ItemLink>
-      <ItemDivider />
-      <ItemHeader id="stay_connected">{translate('docs.stay_connected')}</ItemHeader>
+      </DropdownMenu.ItemLink>
+
+      <DropdownMenu.Separator />
+
+      <DropdownMenu.GroupLabel>{translate('docs.stay_connected')}</DropdownMenu.GroupLabel>
+
       <IconLink
         link="https://www.sonarsource.com/products/sonarqube/whats-new/?referrer=sonarqube"
         text={translate('docs.news')}
       />
+
       <IconLink
         link="https://www.sonarsource.com/products/sonarqube/roadmap/?referrer=sonarqube"
         text={translate('docs.roadmap')}
       />
+
       <IconLink
         icon="embed-doc/x-icon-black.svg"
         link="https://twitter.com/SonarQube"

@@ -49,10 +49,14 @@ export const MainMenuItem = styled.li`
     }
 
     &:hover,
-    &.hover,
-    &[aria-expanded='true'] {
+    &.hover {
       border-bottom: ${themeBorder('active', 'menuBorder', 1)};
       color: ${themeContrast('mainBarHover')};
     }
+  }
+
+  &[aria-expanded='true'] a {
+    border-bottom: ${themeBorder('active', 'menuBorder', 1)};
+    color: ${themeContrast('mainBarHover')};
   }
 `;

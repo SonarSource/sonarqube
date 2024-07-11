@@ -17,15 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  ButtonSecondary,
-  ChevronDownIcon,
-  Dropdown,
-  ItemButton,
-  PopupPlacement,
-  PopupZLevel,
-  TextMuted,
-} from 'design-system';
+
+import { DropdownMenu } from '@sonarsource/echoes-react';
+import { ButtonSecondary, ChevronDownIcon, TextMuted } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { GraphType } from '../../types/project-activity';
@@ -73,9 +67,9 @@ export default function GraphsHeader(props: Props) {
       const label = translate('project_activity.graphs', type);
 
       return (
-        <ItemButton key={label} onClick={() => handleGraphChange(type)}>
+        <DropdownMenu.ItemButton key={label} onClick={() => handleGraphChange(type)}>
           {label}
-        </ItemButton>
+        </DropdownMenu.ItemButton>
       );
     });
   }, [noCustomGraph, handleGraphChange]);
@@ -83,13 +77,7 @@ export default function GraphsHeader(props: Props) {
   return (
     <div className={className}>
       <div className="sw-flex">
-        <Dropdown
-          id="activity-graph-type"
-          size="auto"
-          placement={PopupPlacement.BottomLeft}
-          zLevel={PopupZLevel.Content}
-          overlay={options}
-        >
+        <DropdownMenu.Root id="activity-graph-type" align="start" items={options}>
           <ButtonSecondary
             aria-label={translate('project_activity.graphs.choose_type')}
             className={
@@ -100,7 +88,7 @@ export default function GraphsHeader(props: Props) {
             <TextMuted text={translate('project_activity.graphs', graph)} />
             <ChevronDownIcon className="sw-ml-1 sw-mr-0 sw-pr-0" />
           </ButtonSecondary>
-        </Dropdown>
+        </DropdownMenu.Root>
 
         {isCustomGraph(graph) &&
           props.onAddCustomMetric !== undefined &&
