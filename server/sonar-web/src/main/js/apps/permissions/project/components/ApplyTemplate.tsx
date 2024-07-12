@@ -113,6 +113,7 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
         isOverflowVisible
         headerTitle={header}
         onClose={this.props.onClose}
+        loading={this.state.loading}
         primaryButton={
           !this.state.done && (
             <ButtonPrimary
