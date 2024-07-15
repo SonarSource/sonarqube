@@ -23,7 +23,6 @@ import org.sonar.core.platform.Module;
 import org.sonar.server.authentication.event.AuthenticationEventImpl;
 import org.sonar.server.authentication.purge.ExpiredSessionsCleaner;
 import org.sonar.server.authentication.purge.ExpiredSessionsCleanerExecutorServiceImpl;
-import org.sonar.server.telemetry.TelemetryUserEnabledProvider;
 
 public class AuthenticationModule extends Module {
   @Override
@@ -55,7 +54,6 @@ public class AuthenticationModule extends Module {
       ExpiredSessionsCleanerExecutorServiceImpl.class,
       UserLastConnectionDatesUpdaterImpl.class,
       UserRegistrarImpl.class,
-      UserSessionInitializer.class,
-      TelemetryUserEnabledProvider.class);
+      UserSessionInitializer.class);
   }
 }

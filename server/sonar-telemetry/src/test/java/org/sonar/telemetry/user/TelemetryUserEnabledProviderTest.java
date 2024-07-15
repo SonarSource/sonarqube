@@ -17,10 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.telemetry;
+package org.sonar.telemetry.user;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.db.DbClient;
+import org.sonar.telemetry.Dimension;
+import org.sonar.telemetry.Granularity;
+import org.sonar.telemetry.TelemetryDataType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
