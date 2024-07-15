@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DropdownMenu } from '@sonarsource/echoes-react';
+import { DropdownMenu, DropdownMenuAlign } from '@sonarsource/echoes-react';
 import { LightLabel, NavBarTabLink, NavBarTabs, TopBar } from 'design-system';
 import * as React from 'react';
 import { Location } from 'react-router-dom';
@@ -95,7 +95,7 @@ export class SettingsNav extends React.PureComponent<Props> {
 
     return (
       <DropdownMenu.Root
-        align="start"
+        align={DropdownMenuAlign.Start}
         id="settings-navigation-configuration-dropdown"
         items={
           <>

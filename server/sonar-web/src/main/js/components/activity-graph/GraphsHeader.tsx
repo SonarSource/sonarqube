@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DropdownMenu } from '@sonarsource/echoes-react';
+import { DropdownMenu, DropdownMenuAlign } from '@sonarsource/echoes-react';
 import { ButtonSecondary, ChevronDownIcon, TextMuted } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
@@ -77,7 +77,7 @@ export default function GraphsHeader(props: Props) {
   return (
     <div className={className}>
       <div className="sw-flex">
-        <DropdownMenu.Root id="activity-graph-type" align="start" items={options}>
+        <DropdownMenu.Root align={DropdownMenuAlign.Start} id="activity-graph-type" items={options}>
           <ButtonSecondary
             aria-label={translate('project_activity.graphs.choose_type')}
             className={

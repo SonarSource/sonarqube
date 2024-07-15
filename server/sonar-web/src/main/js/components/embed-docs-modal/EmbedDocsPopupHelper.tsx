@@ -18,7 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DropdownMenu, IconQuestionMark, Tooltip } from '@sonarsource/echoes-react';
+import {
+  DropdownMenu,
+  DropdownMenuAlign,
+  IconQuestionMark,
+  Tooltip,
+} from '@sonarsource/echoes-react';
 import { InteractiveIcon } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
@@ -27,7 +32,11 @@ import { EmbedDocsPopup } from './EmbedDocsPopup';
 export default function EmbedDocsPopupHelper() {
   return (
     <div className="dropdown">
-      <DropdownMenu.Root align="end" id="help-menu-dropdown" items={<EmbedDocsPopup />}>
+      <DropdownMenu.Root
+        align={DropdownMenuAlign.End}
+        id="help-menu-dropdown"
+        items={<EmbedDocsPopup />}
+      >
         <Tooltip content={translate('help')}>
           <InteractiveIcon
             Icon={IconQuestionMark}

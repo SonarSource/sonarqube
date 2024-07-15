@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DropdownMenu } from '@sonarsource/echoes-react';
+import { DropdownMenu, DropdownMenuAlign } from '@sonarsource/echoes-react';
 import { MainMenuItem } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
@@ -43,7 +43,7 @@ function GlobalNavMore({ appState: { globalPages = [] } }: Readonly<{ appState: 
 
   return (
     <DropdownMenu.Root
-      align="start"
+      align={DropdownMenuAlign.Start}
       id="moreMenuDropdown"
       items={withoutPortfolios.map(renderGlobalPageLink)}
     >
