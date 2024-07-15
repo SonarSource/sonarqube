@@ -210,6 +210,7 @@ import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.plugins.ws.UninstallAction;
 import org.sonar.server.plugins.ws.UpdatesAction;
 import org.sonar.server.project.DefaultBranchNameResolver;
+import org.sonar.server.project.ProjectCppAutoconfigTelemetryProvider;
 import org.sonar.server.project.ProjectQGChangeEventListener;
 import org.sonar.server.project.VisibilityService;
 import org.sonar.server.project.ws.ProjectsWsModule;
@@ -669,6 +670,7 @@ public class PlatformLevel4 extends PlatformLevel {
       //new telemetry metrics
       TelemetryVersionProvider.class,
       TelemetryNclocProvider.class,
+      ProjectCppAutoconfigTelemetryProvider.class,
 
       // monitoring
       ServerMonitoringMetrics.class,

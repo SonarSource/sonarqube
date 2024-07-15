@@ -49,6 +49,7 @@ dependencies {
   api project(':sonar-markdown')
   api project(':sonar-plugin-api-impl')
   api project(':sonar-ws')
+  api project(':server:sonar-telemetry')
   implementation project(path: ':server:sonar-webserver-webapi')
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'

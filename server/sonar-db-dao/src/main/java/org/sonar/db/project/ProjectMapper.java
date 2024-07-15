@@ -76,4 +76,6 @@ public interface ProjectMapper {
   int countIndexedProjects();
 
   int countProjects();
+
+  List<ProjectDto> selectProjectsByLanguage(@Param("languageFilters") Set<String> languageFilters);
 }

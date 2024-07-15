@@ -147,6 +147,23 @@
       </foreach>
   </select>
 
+  <select id="selectProjectsByLanguage" parameterType="map" resultType="Project">
+    select distinct
+      <include refid="projectColumns"/>
+    from
+      live_measures lm
+    inner join
+      projects p on p.uuid = lm.project_uuid
+    inner join
+      metrics m on m.uuid = lm.metric_uuid
+    where
+      m.name = 'ncloc_language_distribution'
+      and
+      <foreach collection="languageFilters" index="index" item="languageFilter" open="(" separator=" or " close=")">
+        lm.text_value like #{languageFilter, jdbcType=VARCHAR} escape '/'
+      </foreach>
+  </select>
+
   <insert id="insert" parameterType="Project">
     INSERT INTO projects (
       kee,

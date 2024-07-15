@@ -20,9 +20,11 @@
 package org.sonar.db.project;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
@@ -37,6 +39,8 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 public class ProjectDao implements Dao {
   private final System2 system2;
   private final AuditPersister auditPersister;
+
+  private final Function<String, Set<String>> languageFilters = language -> Set.of(language + "=%", "%;" + language + "=%");
 
   public ProjectDao(System2 system2, AuditPersister auditPersister) {
     this.system2 = system2;
@@ -133,8 +137,7 @@ public class ProjectDao implements Dao {
   }
 
   public Set<String> selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(DbSession session, String language) {
-    Set<String> languageFilters = Set.of(language + "=%", "%;" + language + "=%");
-    return mapper(session).selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(languageFilters);
+    return mapper(session).selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(languageFilters.apply(language));
   }
 
   public void updateNcloc(DbSession dbSession, String projectUuid, long ncloc) {
@@ -155,5 +158,13 @@ public class ProjectDao implements Dao {
 
   public int countProjects(DbSession session) {
     return mapper(session).countProjects();
+  }
+
+  public List<ProjectDto> selectProjectsByLanguage(DbSession dbSession, Set<String> setOfLanguages) {
+    Set<String> likeFilters = new HashSet<>();
+    for (String language : setOfLanguages) {
+      likeFilters.addAll(languageFilters.apply(language));
+    }
+    return mapper(dbSession).selectProjectsByLanguage(likeFilters);
   }
 }

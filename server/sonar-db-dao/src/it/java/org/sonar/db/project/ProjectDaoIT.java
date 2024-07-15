@@ -406,6 +406,30 @@ class ProjectDaoIT {
     assertThat(projectDao.countProjects(db.getSession())).isEqualTo(10);
   }
 
+  @Test
+  void selectProjectsByLanguage_whenTwoLanguagesArePassed_selectProjectsWithTheseLanguages() {
+    Consumer<MetricDto> configureMetric = metric -> metric
+      .setValueType(STRING.name())
+      .setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+
+    MetricDto metric = db.measures().insertMetric(configureMetric);
+
+    ProjectData project1 = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
+    ProjectData project3 = db.components().insertPrivateProject();
+    ProjectData project4 = db.components().insertPrivateProject();
+
+    insertLiveMeasure("c", metric).accept(project1);
+    insertLiveMeasure("cpp", metric).accept(project2);
+    insertLiveMeasure("java", metric).accept(project3);
+    insertLiveMeasure("cobol", metric).accept(project4);
+
+    List<ProjectDto> projectDtos = projectDao.selectProjectsByLanguage(db.getSession(), Set.of("cpp", "c"));
+
+    assertThat(projectDtos).extracting(ProjectDto::getUuid)
+      .containsExactlyInAnyOrder(project1.getProjectDto().getUuid(), project2.getProjectDto().getUuid());
+  }
+
   private void insertDefaultQualityProfile(String language) {
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setIsBuiltIn(true).setLanguage(language));
     db.qualityProfiles().setAsDefault(profile);
