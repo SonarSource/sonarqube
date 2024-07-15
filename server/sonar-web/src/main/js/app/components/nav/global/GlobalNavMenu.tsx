@@ -20,7 +20,6 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
-import { isMySet } from '../../../../apps/issues/utils';
 import Link from '../../../../components/common/Link';
 import Dropdown from '../../../../components/controls/Dropdown';
 import DropdownIcon from '../../../../components/icons/DropdownIcon';
@@ -30,6 +29,7 @@ import { ComponentQualifier } from '../../../../types/component';
 import { Extension } from '../../../../types/types';
 import { CurrentUser, LoggedInUser } from '../../../../types/users';
 import withAppStateContext from '../../app-state/withAppStateContext';
+import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
 
 interface Props {
   appState: AppState;
@@ -68,12 +68,11 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
   }
 
   renderIssuesLink() {
-    const search = (
-      this.props.currentUser.isLoggedIn && isMySet()
-        ? new URLSearchParams({ resolved: 'false', myIssues: 'true' })
-        : new URLSearchParams({ resolved: 'false' })
-    ).toString();
-
+    if (!this.props.currentUser.isLoggedIn) {
+          handleRequiredAuthentication();
+          return;
+      }
+    const search = new URLSearchParams({ resolved: 'false', myIssues: 'true' }).toString();
     return (
       <li>
         <NavLink
