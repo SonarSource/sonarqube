@@ -17,50 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  ItemButton,
-  ItemDivider,
-  ItemHeader,
-  ItemHeaderHighlight,
-  ItemNavLink,
-} from 'design-system';
+
+import { DropdownMenu } from '@sonarsource/echoes-react';
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { translate } from '../../../../helpers/l10n';
-import { LoggedInUser } from '../../../../types/users';
 
-interface UserAccountMenuProps {
-  currentUser: LoggedInUser;
-}
-
-export function GlobalNavUserMenu({ currentUser }: UserAccountMenuProps) {
-  const navigateTo = useNavigate();
-  const firstItemRef = React.useRef<HTMLAnchorElement>(null);
-
-  const handleLogout = React.useCallback(() => {
-    navigateTo('/sessions/logout');
-  }, [navigateTo]);
-
-  React.useEffect(() => {
-    firstItemRef.current?.focus();
-  }, [firstItemRef]);
-
+export function GlobalNavUserMenu() {
   return (
     <>
-      <ItemHeader>
-        <ItemHeaderHighlight title={currentUser.name}>{currentUser.name}</ItemHeaderHighlight>
-        {currentUser.email != null && (
-          <div className="sw-mt-1" title={currentUser.email}>
-            {currentUser.email}
-          </div>
-        )}
-      </ItemHeader>
-      <ItemDivider />
-      <ItemNavLink end to="/account" innerRef={firstItemRef}>
+      <DropdownMenu.ItemLink isMatchingFullPath to="/account">
         {translate('my_account.page')}
-      </ItemNavLink>
-      <ItemDivider />
-      <ItemButton onClick={handleLogout}>{translate('layout.logout')}</ItemButton>
+      </DropdownMenu.ItemLink>
+
+      <DropdownMenu.Separator />
+
+      <DropdownMenu.ItemLink to="/sessions/logout">
+        {translate('layout.logout')}
+      </DropdownMenu.ItemLink>
     </>
   );
 }

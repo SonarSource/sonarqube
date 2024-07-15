@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
@@ -35,12 +36,7 @@ it('should render the right interface for logged in user', async () => {
   renderGlobalNavUser();
   await user.click(screen.getByRole('button'));
 
-  expect(screen.getAllByRole('menuitem')).toHaveLength(3);
-
-  // This line fails with the following issue:
-  // Will lose the focus to the body
-  // Remove the comment tag after fixing the issue
-  // expect(screen.getByRole('menuitem', { name: 'my_account.page' })).toHaveFocus();
+  expect(screen.getAllByRole('menuitem')).toHaveLength(2);
 });
 
 function renderGlobalNavUser(overrides: { currentUser?: CurrentUser } = {}) {

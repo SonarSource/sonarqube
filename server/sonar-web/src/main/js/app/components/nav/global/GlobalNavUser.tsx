@@ -17,16 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  Avatar,
-  BareButton,
-  ButtonSecondary,
-  Dropdown,
-  PopupPlacement,
-  PopupZLevel,
-} from 'design-system';
+import { DropdownMenu, DropdownMenuAlign, Tooltip } from '@sonarsource/echoes-react';
+import { Avatar, BareButton, ButtonSecondary } from 'design-system';
 import * as React from 'react';
-import Tooltip from '../../../../components/controls/Tooltip';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { GlobalSettingKeys } from '../../../../types/settings';
@@ -60,31 +53,22 @@ export function GlobalNavUser() {
   const gravatarServerUrl = settings[GlobalSettingKeys.GravatarServerUrl] ?? '';
 
   return (
-    <Dropdown
+    <DropdownMenu.Root
+      align={DropdownMenuAlign.End}
+      header={{ helpText: currentUser.email ?? '', label: currentUser.name }}
       id="userAccountMenuDropdown"
-      placement={PopupPlacement.BottomRight}
-      zLevel={PopupZLevel.Global}
-      overlay={<GlobalNavUserMenu currentUser={currentUser} />}
+      items={<GlobalNavUserMenu />}
     >
-      {({ a11yAttrs: { role, ...a11yAttrs }, onToggleClick, open }) => (
-        <Tooltip
-          mouseEnterDelay={0.2}
-          content={!open ? translate('global_nav.account.tooltip') : undefined}
-        >
-          <BareButton
-            aria-label={translate('global_nav.account.tooltip')}
-            onClick={onToggleClick}
-            {...a11yAttrs}
-          >
-            <Avatar
-              enableGravatar={enableGravatar}
-              gravatarServerUrl={gravatarServerUrl}
-              hash={currentUser.avatar}
-              name={currentUser.name}
-            />
-          </BareButton>
-        </Tooltip>
-      )}
-    </Dropdown>
+      <Tooltip content={translate('global_nav.account.tooltip')}>
+        <BareButton aria-label={translate('global_nav.account.tooltip')}>
+          <Avatar
+            enableGravatar={enableGravatar}
+            gravatarServerUrl={gravatarServerUrl}
+            hash={currentUser.avatar}
+            name={currentUser.name}
+          />
+        </BareButton>
+      </Tooltip>
+    </DropdownMenu.Root>
   );
 }
