@@ -91,7 +91,7 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<{}, State>
 
         {this.state.aboutCodescanOpen && this.renderAboutCodescan(
             'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
-            'embed-doc/codescan-version-24_0_7.png',
+            'embed-doc/codescan-version-24_0_8.png',
             translate('embed_docs.codescan_version')
         )}
       </div>
