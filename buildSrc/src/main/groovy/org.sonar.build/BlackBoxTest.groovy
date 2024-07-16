@@ -2,7 +2,7 @@ package org.sonar.build
 
 import org.gradle.api.tasks.testing.Test
 
-class BlackBoxTest extends Test {
+abstract class BlackBoxTest extends Test {
   BlackBoxTest() {
     systemProperty 'java.awt.headless', 'true'
     systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')

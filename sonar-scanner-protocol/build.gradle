@@ -26,6 +26,7 @@ task fatJar(type: Jar) {
     attributes 'Main-Class': 'org.sonar.scanner.protocol.viewer.ScannerReportViewerApp'
   }
   archiveBaseName = project.name + '-all'
+  dependsOn configurations.runtimeClasspath
   from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
   with jar
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
