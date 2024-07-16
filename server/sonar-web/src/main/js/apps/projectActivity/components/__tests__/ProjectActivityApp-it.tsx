@@ -605,6 +605,10 @@ function getPageObject() {
     ui: {
       ...ui,
       async appLoaded({ doNotWaitForBranch }: { doNotWaitForBranch?: boolean } = {}) {
+        await waitFor(() => {
+          expect(byText('loading').query()).not.toBeInTheDocument();
+        });
+
         expect(await ui.graphs.findAll()).toHaveLength(1);
 
         if (!doNotWaitForBranch) {
