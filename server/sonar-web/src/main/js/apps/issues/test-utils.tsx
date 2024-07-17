@@ -24,6 +24,7 @@ import { byPlaceholderText, byRole, byTestId, byText } from '~sonar-aligned/help
 import BranchesServiceMock from '../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../api/mocks/IssuesServiceMock';
+import SourcesServiceMock from '../../api/mocks/SourcesServiceMock';
 import UsersServiceMock from '../../api/mocks/UsersServiceMock';
 import { mockComponent } from '../../helpers/mocks/component';
 import { mockCurrentUser } from '../../helpers/testMocks';
@@ -42,6 +43,7 @@ import { projectIssuesRoutes } from './routes';
 export const usersHandler = new UsersServiceMock();
 export const issuesHandler = new IssuesServiceMock(usersHandler);
 export const componentsHandler = new ComponentsServiceMock();
+export const sourcesHandler = new SourcesServiceMock();
 export const branchHandler = new BranchesServiceMock();
 
 export const ui = {

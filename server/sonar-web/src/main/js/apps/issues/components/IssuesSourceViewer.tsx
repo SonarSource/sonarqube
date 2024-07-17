@@ -17,10 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ToggleButton } from 'design-system/lib';
 import * as React from 'react';
+import { isJupyterNotebookFile } from '~sonar-aligned/helpers/component';
+import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue } from '../../../types/types';
 import CrossComponentSourceViewer from '../crossComponentSourceViewer/CrossComponentSourceViewer';
+import { JupyterNotebookIssueViewer } from '../jupyter-notebook/JupyterNotebookIssueViewer';
 import { getLocations, getSelectedLocation } from '../utils';
 import { IssueSourceViewerScrollContext } from './IssueSourceViewerScrollContext';
 
@@ -35,98 +39,114 @@ export interface IssuesSourceViewerProps {
   selectedLocationIndex: number | undefined;
 }
 
-export default class IssuesSourceViewer extends React.PureComponent<IssuesSourceViewerProps> {
-  primaryLocationRef?: HTMLElement;
-  selectedSecondaryLocationRef?: HTMLElement;
+export default function IssuesSourceViewer(props: Readonly<IssuesSourceViewerProps>) {
+  const {
+    openIssue,
+    selectedFlowIndex,
+    selectedLocationIndex,
+    locationsNavigator,
+    branchLike,
+    issues,
+    onIssueSelect,
+    onLocationSelect,
+  } = props;
 
-  componentDidUpdate() {
-    if (this.props.selectedLocationIndex === -1) {
-      this.refreshScroll();
-    }
-  }
+  const [primaryLocationRef, setPrimaryLocationRef] = React.useState<HTMLElement | null>(null);
+  const [selectedSecondaryLocationRef, setSelectedSecondaryLocationRef] =
+    React.useState<HTMLElement | null>(null);
 
-  registerPrimaryLocationRef = (ref: HTMLElement) => {
-    this.primaryLocationRef = ref;
+  const isJupyterNotebook = isJupyterNotebookFile(openIssue.component);
+  const [tab, setTab] = React.useState(isJupyterNotebook ? 'preview' : 'code');
 
-    if (ref) {
-      this.refreshScroll();
-    }
-  };
-
-  registerSelectedSecondaryLocationRef = (ref: HTMLElement) => {
-    this.selectedSecondaryLocationRef = ref;
-
-    if (ref) {
-      this.refreshScroll();
-    }
-  };
-
-  refreshScroll() {
-    const { selectedLocationIndex } = this.props;
-
+  const refreshScroll = React.useCallback(() => {
     if (
       selectedLocationIndex !== undefined &&
       selectedLocationIndex !== -1 &&
-      this.selectedSecondaryLocationRef
+      selectedSecondaryLocationRef
     ) {
-      this.selectedSecondaryLocationRef.scrollIntoView({
+      selectedSecondaryLocationRef.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
         inline: 'nearest',
       });
-    } else if (this.primaryLocationRef) {
-      this.primaryLocationRef.scrollIntoView({
+    } else if (primaryLocationRef) {
+      primaryLocationRef.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
         inline: 'nearest',
       });
     }
+  }, [selectedSecondaryLocationRef, primaryLocationRef, selectedLocationIndex]);
+
+  function registerPrimaryLocationRef(ref: HTMLElement) {
+    setPrimaryLocationRef(ref);
+
+    if (ref) {
+      refreshScroll();
+    }
   }
 
-  render() {
-    const {
-      openIssue,
-      selectedFlowIndex,
-      selectedLocationIndex,
-      locationsNavigator,
-      branchLike,
-      issues,
-    } = this.props;
+  function registerSelectedSecondaryLocationRef(ref: HTMLElement) {
+    setSelectedSecondaryLocationRef(ref);
 
-    const locations = getLocations(openIssue, selectedFlowIndex).map((loc, index) => {
-      loc.index = index;
-      return loc;
-    });
-
-    const selectedLocation = getSelectedLocation(
-      openIssue,
-      selectedFlowIndex,
-      selectedLocationIndex,
-    );
-
-    const highlightedLocationMessage =
-      locationsNavigator && selectedLocationIndex !== undefined
-        ? selectedLocation && { index: selectedLocationIndex, text: selectedLocation.msg }
-        : undefined;
-
-    return (
-      <IssueSourceViewerScrollContext.Provider
-        value={{
-          registerPrimaryLocationRef: this.registerPrimaryLocationRef,
-          registerSelectedSecondaryLocationRef: this.registerSelectedSecondaryLocationRef,
-        }}
-      >
-        <CrossComponentSourceViewer
-          branchLike={branchLike}
-          highlightedLocationMessage={highlightedLocationMessage}
-          issue={openIssue}
-          issues={issues}
-          locations={locations}
-          onIssueSelect={this.props.onIssueSelect}
-          onLocationSelect={this.props.onLocationSelect}
-          selectedFlowIndex={selectedFlowIndex}
-        />
-      </IssueSourceViewerScrollContext.Provider>
-    );
+    if (ref) {
+      refreshScroll();
+    }
   }
+
+  React.useEffect(() => {
+    if (selectedLocationIndex === -1) {
+      refreshScroll();
+    }
+  }, [selectedLocationIndex, refreshScroll]);
+
+  const locations = getLocations(openIssue, selectedFlowIndex).map((loc, index) => {
+    loc.index = index;
+    return loc;
+  });
+
+  const selectedLocation = getSelectedLocation(openIssue, selectedFlowIndex, selectedLocationIndex);
+
+  const highlightedLocationMessage =
+    locationsNavigator && selectedLocationIndex !== undefined
+      ? selectedLocation && { index: selectedLocationIndex, text: selectedLocation.msg }
+      : undefined;
+
+  return (
+    <>
+      {isJupyterNotebook && (
+        <div className="sw-mb-2">
+          <ToggleButton
+            options={[
+              { label: translate('preview'), value: 'preview' },
+              { label: translate('code'), value: 'code' },
+            ]}
+            value={tab}
+            onChange={(value) => setTab(value)}
+          />
+        </div>
+      )}
+      {tab === 'code' ? (
+        <IssueSourceViewerScrollContext.Provider
+          value={{
+            registerPrimaryLocationRef,
+            registerSelectedSecondaryLocationRef,
+          }}
+        >
+          <CrossComponentSourceViewer
+            branchLike={branchLike}
+            highlightedLocationMessage={highlightedLocationMessage}
+            issue={openIssue}
+            issues={issues}
+            locations={locations}
+            onIssueSelect={onIssueSelect}
+            onLocationSelect={onLocationSelect}
+            selectedFlowIndex={selectedFlowIndex}
+          />
+        </IssueSourceViewerScrollContext.Provider>
+      ) : (
+        <JupyterNotebookIssueViewer branchLike={branchLike} issue={openIssue} />
+      )}
+    </>
+  );
 }

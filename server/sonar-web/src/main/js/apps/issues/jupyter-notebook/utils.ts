@@ -17,26 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useQuery } from '@tanstack/react-query';
-import { getRawSource } from '../api/sources';
-import { RequestData } from '../helpers/request';
-import { BranchParameters } from '../sonar-aligned/types/branch-like';
+import { PathToCursor } from '~sonar-aligned/helpers/json-issue-mapper';
 
-function getIssuesQueryKey(data: RequestData) {
-  return ['issues', JSON.stringify(data ?? '')];
-}
-
-function fetchRawSources({ queryKey: [, query] }: { queryKey: string[] }) {
-  if (typeof query !== 'string') {
+export function pathToCursorInCell(path: PathToCursor): {
+  cell: number;
+  cursorOffset: number;
+  line: number;
+} | null {
+  const [, cellEntry, , lineEntry, stringEntry] = path;
+  if (
+    cellEntry?.type !== 'array' ||
+    lineEntry?.type !== 'array' ||
+    stringEntry?.type !== 'string'
+  ) {
     return null;
   }
-
-  return getRawSource(JSON.parse(query) as BranchParameters & { key: string });
-}
-
-export function useRawSourceQuery(data: BranchParameters & { key: string }) {
-  return useQuery({
-    queryKey: getIssuesQueryKey(data),
-    queryFn: fetchRawSources,
-  });
+  return {
+    cell: cellEntry.index,
+    line: lineEntry.index,
+    cursorOffset: stringEntry.index,
+  };
 }

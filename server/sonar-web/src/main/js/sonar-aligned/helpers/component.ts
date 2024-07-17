@@ -28,3 +28,7 @@ export function isPortfolioLike(
     componentQualifier === ComponentQualifier.SubPortfolio
   );
 }
+
+export function isJupyterNotebookFile(componentKey: string) {
+  return componentKey.endsWith('.ipynb');
+}

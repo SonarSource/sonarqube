@@ -18,17 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ICell, isCode, isMarkdown } from '@jupyterlab/nbformat';
+import { ICell } from '@jupyterlab/nbformat';
 import { Spinner } from '@sonarsource/echoes-react';
 import { FlagMessage } from 'design-system/lib';
 import React from 'react';
-import {
-  JupyterCodeCell,
-  JupyterMarkdownCell,
-} from '~sonar-aligned/components/SourceViewer/JupyterNotebookViewer';
+import { JupyterCell } from '~sonar-aligned/components/SourceViewer/JupyterNotebookViewer';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { translate } from '../../helpers/l10n';
-import { omitNil } from '../../helpers/request';
 import { useRawSourceQuery } from '../../queries/sources';
 import { BranchLike } from '../../types/branch-like';
 
@@ -40,9 +36,10 @@ export interface Props {
 export default function SourceViewerPreview(props: Readonly<Props>) {
   const { component, branchLike } = props;
 
-  const { data, isLoading } = useRawSourceQuery(
-    omitNil({ key: component, ...getBranchLikeQuery(branchLike) }),
-  );
+  const { data, isLoading } = useRawSourceQuery({
+    key: component,
+    ...getBranchLikeQuery(branchLike),
+  });
 
   if (isLoading) {
     return <Spinner isLoading={isLoading} />;
@@ -60,14 +57,9 @@ export default function SourceViewerPreview(props: Readonly<Props>) {
 
   return (
     <>
-      {jupyterFile.cells.map((cell: ICell, index: number) => {
-        if (isCode(cell)) {
-          return <JupyterCodeCell cell={cell} key={`${cell.cell_type}-${index}`} />;
-        } else if (isMarkdown(cell)) {
-          return <JupyterMarkdownCell cell={cell} key={`${cell.cell_type}-${index}`} />;
-        }
-        return null;
-      })}
+      {jupyterFile.cells.map((cell: ICell, index: number) => (
+        <JupyterCell cell={cell} key={`${cell.cell_type}-${index}`} />
+      ))}
     </>
   );
 }

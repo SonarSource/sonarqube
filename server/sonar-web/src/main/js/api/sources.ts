@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { get, parseText, RequestData } from '../helpers/request';
+import { get, parseText } from '../helpers/request';
+import { BranchParameters } from '../sonar-aligned/types/branch-like';
 
-export function getRawSource(data: RequestData): Promise<string> {
+export function getRawSource(data: BranchParameters & { key: string }): Promise<string> {
   return get('/api/sources/raw', data).then(parseText);
 }

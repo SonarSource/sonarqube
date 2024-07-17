@@ -25,12 +25,20 @@ import { mockIpynbFile } from './data/sources';
 jest.mock('../sources');
 
 export default class SourcesServiceMock {
+  private source: string;
+
   constructor() {
+    this.source = mockIpynbFile;
+
     jest.mocked(getRawSource).mockImplementation(this.handleGetRawSource);
   }
 
+  setSource(source: string) {
+    this.source = source;
+  }
+
   handleGetRawSource = () => {
-    return this.reply(mockIpynbFile);
+    return this.reply(this.source);
   };
 
   reply<T>(response: T): Promise<T> {
@@ -38,6 +46,6 @@ export default class SourcesServiceMock {
   }
 
   reset = () => {
-    return this;
+    this.source = mockIpynbFile;
   };
 }

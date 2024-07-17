@@ -17,26 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useQuery } from '@tanstack/react-query';
-import { getRawSource } from '../api/sources';
-import { RequestData } from '../helpers/request';
-import { BranchParameters } from '../sonar-aligned/types/branch-like';
-
-function getIssuesQueryKey(data: RequestData) {
-  return ['issues', JSON.stringify(data ?? '')];
+export interface JupyterNotebookOutput {
+  data: {
+    [key: string]: string | string[];
+    'image/png': string;
+    'text/html': string[];
+    'text/plain': string[];
+  };
+  metadata: { [key: string]: string };
+  output_type: string;
+  text?: string[];
 }
 
-function fetchRawSources({ queryKey: [, query] }: { queryKey: string[] }) {
-  if (typeof query !== 'string') {
-    return null;
-  }
-
-  return getRawSource(JSON.parse(query) as BranchParameters & { key: string });
-}
-
-export function useRawSourceQuery(data: BranchParameters & { key: string }) {
-  return useQuery({
-    queryKey: getIssuesQueryKey(data),
-    queryFn: fetchRawSources,
-  });
+export interface JupyterNotebookCursorPath {
+  cell: number;
+  cursorOffset: number;
+  line: number;
 }

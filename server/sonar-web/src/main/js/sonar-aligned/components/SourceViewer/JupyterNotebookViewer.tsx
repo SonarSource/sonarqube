@@ -19,11 +19,14 @@
  */
 
 import {
+  ICell,
   ICodeCell,
   IMarkdownCell,
   IOutput,
+  isCode,
   isDisplayData,
   isExecuteResult,
+  isMarkdown,
   isStream,
 } from '@jupyterlab/nbformat';
 import { CodeSnippet } from 'design-system/lib';
@@ -87,4 +90,16 @@ export function JupyterCodeCell({ cell }: Readonly<{ cell: ICodeCell }>) {
       </div>
     </div>
   );
+}
+
+export function JupyterCell({ cell }: Readonly<{ cell: ICell }>) {
+  if (isCode(cell)) {
+    return <JupyterCodeCell cell={cell} />;
+  }
+
+  if (isMarkdown(cell)) {
+    return <JupyterMarkdownCell cell={cell} />;
+  }
+
+  return null;
 }

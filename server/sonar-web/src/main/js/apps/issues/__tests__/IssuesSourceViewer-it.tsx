@@ -19,11 +19,17 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { keyBy, times } from 'lodash';
 import { byLabelText, byRole } from '~sonar-aligned/helpers/testSelector';
+import { PARENT_COMPONENT_KEY, RULE_1 } from '../../../api/mocks/data/ids';
+import { mockSnippetsByComponent } from '../../../helpers/mocks/sources';
+import { mockRawIssue } from '../../../helpers/testMocks';
+import { IssueStatus } from '../../../types/issues';
 import {
   componentsHandler,
   issuesHandler,
   renderProjectIssuesApp,
+  sourcesHandler,
   usersHandler,
   waitOnDataLoaded,
 } from '../test-utils';
@@ -31,6 +37,7 @@ import {
 beforeEach(() => {
   issuesHandler.reset();
   componentsHandler.reset();
+  sourcesHandler.reset();
   usersHandler.reset();
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollTo = jest.fn();
@@ -41,6 +48,9 @@ const ui = {
   expandLinesAbove: byRole('button', { name: 'source_viewer.expand_above' }),
   expandLinesBelow: byRole('button', { name: 'source_viewer.expand_below' }),
 
+  preview: byRole('radio', { name: 'preview' }),
+  code: byRole('radio', { name: 'code' }),
+
   line1: byLabelText('source_viewer.line_X.1'),
   line44: byLabelText('source_viewer.line_X.44'),
   line45: byLabelText('source_viewer.line_X.45'),
@@ -49,6 +59,40 @@ const ui = {
 
   scmInfoLine60: byLabelText(
     'source_viewer.author_X.simon.brandhof@sonarsource.com, source_viewer.click_for_scm_info.1',
+  ),
+};
+
+const JUPYTER_ISSUE = {
+  issue: mockRawIssue(false, {
+    key: 'some-issue',
+    component: `${PARENT_COMPONENT_KEY}:jpt.ipynb`,
+    message: 'Issue on Jupyter Notebook',
+    rule: RULE_1,
+    textRange: {
+      startLine: 1,
+      endLine: 1,
+      startOffset: 1142,
+      endOffset: 1144,
+    },
+    ruleDescriptionContextKey: 'spring',
+    ruleStatus: 'DEPRECATED',
+    quickFixAvailable: true,
+    tags: ['unused'],
+    project: 'org.sonarsource.javascript:javascript',
+    assignee: 'email1@sonarsource.com',
+    author: 'email3@sonarsource.com',
+    issueStatus: IssueStatus.Confirmed,
+    prioritizedRule: true,
+  }),
+  snippets: keyBy(
+    [
+      mockSnippetsByComponent(
+        'jpt.ipynb',
+        PARENT_COMPONENT_KEY,
+        times(40, (i) => i + 20),
+      ),
+    ],
+    'component.key',
   ),
 };
 
@@ -121,5 +165,40 @@ describe('issues source viewer', () => {
     // Snippets should be automatically merged
     // eslint-disable-next-line jest-dom/prefer-in-document
     expect(screen.getAllByRole('table')).toHaveLength(1);
+  });
+
+  describe('should render jupyter notebook issues correctly', () => {
+    it('should render error when jupyter issue can not be parsed', async () => {
+      issuesHandler.setIssueList([JUPYTER_ISSUE]);
+      sourcesHandler.setSource('{not a JSON file}');
+      renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
+      await waitOnDataLoaded();
+
+      // Preview tab should be shown
+      expect(ui.preview.get()).toBeChecked();
+      expect(ui.code.get()).toBeInTheDocument();
+
+      expect(
+        await screen.findByRole('button', { name: 'Issue on Jupyter Notebook' }),
+      ).toBeInTheDocument();
+
+      expect(screen.getByText('issue.preview.jupyter_notebook.error')).toBeInTheDocument();
+    });
+
+    it('should show preview tab when jupyter notebook issue', async () => {
+      issuesHandler.setIssueList([JUPYTER_ISSUE]);
+      renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
+      await waitOnDataLoaded();
+
+      // Preview tab should be shown
+      expect(ui.preview.get()).toBeChecked();
+      expect(ui.code.get()).toBeInTheDocument();
+
+      expect(
+        await screen.findByRole('button', { name: 'Issue on Jupyter Notebook' }),
+      ).toBeInTheDocument();
+
+      expect(screen.queryByText('issue.preview.jupyter_notebook.error')).not.toBeInTheDocument();
+    });
   });
 });
