@@ -76,4 +76,8 @@ public interface TelemetryDataProvider<T> {
   default Map<String, T> getUuidValues() {
     throw new IllegalStateException("Not implemented");
   }
+
+  default void destroy() {
+    // this method does nothing by default it is used to perform cleanup tasks if needed
+  }
 }

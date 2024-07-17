@@ -36,6 +36,9 @@ import org.sonar.server.platform.db.migration.DatabaseMigrationStateImpl;
 import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
+import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
 import org.sonar.server.platform.web.WebPagesCache;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.PluginJarLoader;
@@ -84,6 +87,9 @@ public class PlatformLevel2 extends PlatformLevel {
     // Migration state must be kept at level2 to survive moving in and then out of safe mode
     // ExecutorService must be kept at level2 because stopping it when stopping safe mode level causes error making SQ fail
     add(
+      TelemetryDbMigrationTotalTimeProvider.class,
+      TelemetryDbMigrationStepsProvider.class,
+      TelemetryDbMigrationSuccessProvider.class,
       DatabaseMigrationStateImpl.class,
       DatabaseMigrationExecutorServiceImpl.class);
 

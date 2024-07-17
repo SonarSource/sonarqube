@@ -35,6 +35,9 @@ import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.platform.db.migration.engine.MigrationContainer;
 import org.sonar.server.platform.db.migration.engine.SimpleMigrationContainer;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
+import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
@@ -51,11 +54,15 @@ class MigrationStepsExecutorImplTest {
   @RegisterExtension
   private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  private MigrationContainer migrationContainer = new SimpleMigrationContainer();
-  private MigrationHistory migrationHistory = mock(MigrationHistory.class);
-  private MutableDatabaseMigrationState databaseMigrationState = mock();
-  private MigrationStepsExecutorImpl underTest = new MigrationStepsExecutorImpl(migrationContainer, migrationHistory, databaseMigrationState);
-  private NoOpMigrationStatusListener migrationStatusListener = mock();
+  private final MigrationContainer migrationContainer = new SimpleMigrationContainer();
+  private final MigrationHistory migrationHistory = mock(MigrationHistory.class);
+  private final MutableDatabaseMigrationState databaseMigrationState = mock();
+  private final TelemetryDbMigrationTotalTimeProvider telemetryDbMigrationTotalTimeProvider = new TelemetryDbMigrationTotalTimeProvider();
+  private final TelemetryDbMigrationStepsProvider telemetryDbMigrationStepsProvider = new TelemetryDbMigrationStepsProvider();
+  private final TelemetryDbMigrationSuccessProvider telemetryDbMigrationSuccessProvider = new TelemetryDbMigrationSuccessProvider();
+  private final MigrationStepsExecutorImpl underTest = new MigrationStepsExecutorImpl(migrationContainer, migrationHistory, databaseMigrationState,
+    telemetryDbMigrationTotalTimeProvider, telemetryDbMigrationStepsProvider, telemetryDbMigrationSuccessProvider);
+  private final NoOpMigrationStatusListener migrationStatusListener = mock();
 
   @BeforeEach
   void setUp() {
@@ -109,9 +116,9 @@ class MigrationStepsExecutorImplTest {
     ((SpringComponentContainer) migrationContainer).startComponents();
 
     underTest.execute(asList(
-        registeredStepOf(1, MigrationStep2.class),
-        registeredStepOf(2, MigrationStep1.class),
-        registeredStepOf(3, MigrationStep3.class)),
+      registeredStepOf(1, MigrationStep2.class),
+      registeredStepOf(2, MigrationStep1.class),
+      registeredStepOf(3, MigrationStep3.class)),
       migrationStatusListener);
 
     assertThat(SingleCallCheckerMigrationStep.calledSteps)
@@ -181,6 +188,26 @@ class MigrationStepsExecutorImplTest {
       assertThat(e.getCause()).isSameAs(RuntimeExceptionFailingMigrationStep.THROWN_EXCEPTION);
       verify(migrationStatusListener, times(1)).onMigrationStepCompleted();
     }
+  }
+
+  @Test
+  void whenExecute_TelemetryDataIsProperlyAdded() {
+    migrationContainer.add(MigrationStep2.class, MigrationStep1.class, MigrationStep3.class);
+    when(databaseMigrationState.getCompletedMigrations()).thenReturn(3);
+
+    List<RegisteredMigrationStep> steps = asList(
+      registeredStepOf(1, MigrationStep2.class),
+      registeredStepOf(2, MigrationStep1.class),
+      registeredStepOf(3, MigrationStep3.class));
+
+    ((SpringComponentContainer) migrationContainer).startComponents();
+
+    underTest.execute(steps, migrationStatusListener);
+
+    assertThat(telemetryDbMigrationTotalTimeProvider.getValue().get()).isPositive();
+    assertThat(telemetryDbMigrationStepsProvider.getValue()).hasValue(3);
+    assertThat(telemetryDbMigrationSuccessProvider.getValue()).hasValue(true);
+
   }
 
   private static RegisteredMigrationStep registeredStepOf(int migrationNumber, Class<? extends MigrationStep> migrationStep1Class) {

@@ -16,6 +16,8 @@ dependencies {
   api project(':server:sonar-process')
   api project(':sonar-core')
 
+  implementation project(':server:sonar-telemetry-core')
+
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
   testImplementation 'com.github.spotbugs:spotbugs-annotations'

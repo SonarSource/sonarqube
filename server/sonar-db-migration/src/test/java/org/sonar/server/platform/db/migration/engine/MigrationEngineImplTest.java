@@ -31,6 +31,9 @@ import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.NoOpMigrationStatusListener;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
+import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,10 +48,16 @@ class MigrationEngineImplTest {
   private final SpringComponentContainer serverContainer = new SpringComponentContainer();
   private final MigrationSteps migrationSteps = mock(MigrationSteps.class);
   private final StepRegistry stepRegistry = new StepRegistry();
+  private final TelemetryDbMigrationTotalTimeProvider telemetryDbMigrationTotalTimeProvider = new TelemetryDbMigrationTotalTimeProvider();
+  private final TelemetryDbMigrationStepsProvider telemetryUpgradeStepsProvider = new TelemetryDbMigrationStepsProvider();
+  private final TelemetryDbMigrationSuccessProvider telemetryDbMigrationSuccessProvider = new TelemetryDbMigrationSuccessProvider();
   private final MigrationEngineImpl underTest = new MigrationEngineImpl(migrationHistory, serverContainer, migrationSteps);
 
   @BeforeEach
   void before() {
+    serverContainer.add(telemetryDbMigrationTotalTimeProvider);
+    serverContainer.add(telemetryUpgradeStepsProvider);
+    serverContainer.add(telemetryDbMigrationSuccessProvider);
     serverContainer.add(migrationSteps);
     serverContainer.add(migrationHistory);
     serverContainer.add(stepRegistry);

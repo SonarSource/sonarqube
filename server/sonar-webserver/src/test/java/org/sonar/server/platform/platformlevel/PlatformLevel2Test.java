@@ -73,7 +73,7 @@ public class PlatformLevel2Test {
 
     verify(container).add(ServerPluginRepository.class);
     verify(container).add(DatabaseCharsetChecker.class);
-    verify(container, times(21)).add(any());
+    verify(container, times(24)).add(any());
   }
 
   @Test
@@ -94,7 +94,7 @@ public class PlatformLevel2Test {
 
     verify(container).add(ServerPluginRepository.class);
     verify(container, never()).add(DatabaseCharsetChecker.class);
-    verify(container, times(19)).add(any());
+    verify(container, times(22)).add(any());
   }
 
 

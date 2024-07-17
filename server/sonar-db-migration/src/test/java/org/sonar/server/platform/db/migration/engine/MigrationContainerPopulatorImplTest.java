@@ -27,6 +27,9 @@ import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutorImpl;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
+import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -51,6 +54,9 @@ public class MigrationContainerPopulatorImplTest {
     // add MigrationStepsExecutorImpl's dependencies
     migrationContainer.add(mock(MigrationHistory.class));
     migrationContainer.add(mock(MutableDatabaseMigrationState.class));
+    migrationContainer.add(mock(TelemetryDbMigrationStepsProvider.class));
+    migrationContainer.add(mock(TelemetryDbMigrationTotalTimeProvider.class));
+    migrationContainer.add(mock(TelemetryDbMigrationSuccessProvider.class));
 
     migrationContainer.startComponents();
     underTest.populateContainer(migrationContainer);

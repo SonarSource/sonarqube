@@ -26,6 +26,9 @@ import org.sonar.core.platform.Container;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
+import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
+import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -39,12 +42,19 @@ public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
   private final Container migrationContainer;
   private final MigrationHistory migrationHistory;
   private final MutableDatabaseMigrationState databaseMigrationState;
+  private final TelemetryDbMigrationTotalTimeProvider telemetryDbMigrationTotalTimeProvider;
+  private final TelemetryDbMigrationStepsProvider telemetryDbMigrationStepsProvider;
+  private final TelemetryDbMigrationSuccessProvider telemetryDbMigrationSuccessProvider;
 
-  public MigrationStepsExecutorImpl(
-    Container migrationContainer, MigrationHistory migrationHistory, MutableDatabaseMigrationState databaseMigrationState) {
+  public MigrationStepsExecutorImpl(Container migrationContainer, MigrationHistory migrationHistory, MutableDatabaseMigrationState databaseMigrationState,
+    TelemetryDbMigrationTotalTimeProvider telemetryDbMigrationTotalTimeProvider, TelemetryDbMigrationStepsProvider telemetryDbMigrationStepsProvider,
+    TelemetryDbMigrationSuccessProvider telemetryDbMigrationSuccessProvider) {
     this.migrationContainer = migrationContainer;
     this.migrationHistory = migrationHistory;
     this.databaseMigrationState = databaseMigrationState;
+    this.telemetryDbMigrationTotalTimeProvider = telemetryDbMigrationTotalTimeProvider;
+    this.telemetryDbMigrationStepsProvider = telemetryDbMigrationStepsProvider;
+    this.telemetryDbMigrationSuccessProvider = telemetryDbMigrationSuccessProvider;
   }
 
   @Override
@@ -59,17 +69,21 @@ public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
       }
       allStepsExecuted = true;
     } finally {
+      long dbMigrationDuration = 0L;
       if (allStepsExecuted) {
-        globalProfiler.stopInfo(GLOBAL_END_MESSAGE,
+        dbMigrationDuration = globalProfiler.stopInfo(GLOBAL_END_MESSAGE,
           databaseMigrationState.getCompletedMigrations(),
           databaseMigrationState.getTotalMigrations(),
           "success");
       } else {
-        globalProfiler.stopError(GLOBAL_END_MESSAGE,
+        dbMigrationDuration = globalProfiler.stopError(GLOBAL_END_MESSAGE,
           databaseMigrationState.getCompletedMigrations(),
           databaseMigrationState.getTotalMigrations(),
           "failure");
       }
+      telemetryDbMigrationTotalTimeProvider.setDbMigrationTotalTime(dbMigrationDuration);
+      telemetryDbMigrationStepsProvider.setDbMigrationCompletedSteps(databaseMigrationState.getCompletedMigrations());
+      telemetryDbMigrationSuccessProvider.setDbMigrationSuccess(allStepsExecuted);
     }
   }
 
