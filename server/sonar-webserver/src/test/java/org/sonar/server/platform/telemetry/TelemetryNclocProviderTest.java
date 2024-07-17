@@ -26,8 +26,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.telemetry.Dimension;
-import org.sonar.telemetry.Granularity;
+import org.sonar.telemetry.core.Dimension;
+import org.sonar.telemetry.core.Granularity;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.user;
+package org.sonar.server.platform.telemetry;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,10 +27,10 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserQuery;
 import org.sonar.server.util.DigestUtil;
-import org.sonar.telemetry.Dimension;
-import org.sonar.telemetry.Granularity;
-import org.sonar.telemetry.TelemetryDataProvider;
-import org.sonar.telemetry.TelemetryDataType;
+import org.sonar.telemetry.core.Dimension;
+import org.sonar.telemetry.core.Granularity;
+import org.sonar.telemetry.core.TelemetryDataProvider;
+import org.sonar.telemetry.core.TelemetryDataType;
 
 public class TelemetryUserEnabledProvider implements TelemetryDataProvider<Boolean> {
 

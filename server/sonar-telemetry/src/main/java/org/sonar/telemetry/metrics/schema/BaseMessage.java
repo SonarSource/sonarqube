@@ -22,7 +22,7 @@ package org.sonar.telemetry.metrics.schema;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 import java.util.Set;
-import org.sonar.telemetry.Dimension;
+import org.sonar.telemetry.core.Dimension;
 
 public class BaseMessage {
   @JsonProperty("message_uuid")

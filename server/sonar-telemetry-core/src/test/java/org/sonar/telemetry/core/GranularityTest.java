@@ -17,7 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.telemetry.user;
+package org.sonar.telemetry.core;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class GranularityTest {
+
+  @Test
+  void getValue() {
+    assertEquals("daily", Granularity.DAILY.getValue());
+    assertEquals("weekly", Granularity.WEEKLY.getValue());
+    assertEquals("monthly", Granularity.MONTHLY.getValue());
+  }
+
+}

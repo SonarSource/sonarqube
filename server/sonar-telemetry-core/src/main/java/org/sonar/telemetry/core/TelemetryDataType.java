@@ -17,19 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry;
+package org.sonar.telemetry.core;
 
-import org.junit.jupiter.api.Test;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+/**
+ * Represents the type of the data provided by a {@link TelemetryDataProvider}.
+ * Modifying this enum needs to be discussed beforehand with Data Platform team.
+ */
+public enum TelemetryDataType {
+  BOOLEAN("boolean"),
+  STRING("string"),
+  INTEGER("integer"),
+  FLOAT("float");
 
-class TelemetryDataTypeTest {
-  @Test
-  void getValue() {
-    assertEquals("integer", TelemetryDataType.INTEGER.getValue());
-    assertEquals("string", TelemetryDataType.STRING.getValue());
-    assertEquals("boolean", TelemetryDataType.BOOLEAN.getValue());
-    assertEquals("float", TelemetryDataType.FLOAT.getValue());
+  private final String value;
+
+  TelemetryDataType(String value) {
+    this.value = value;
   }
 
+  @JsonValue
+  public String getValue() {
+    return value;
+  }
 }

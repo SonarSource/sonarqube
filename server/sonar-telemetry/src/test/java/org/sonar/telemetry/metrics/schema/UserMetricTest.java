@@ -20,8 +20,8 @@
 package org.sonar.telemetry.metrics.schema;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.telemetry.Granularity;
-import org.sonar.telemetry.TelemetryDataType;
+import org.sonar.telemetry.core.Granularity;
+import org.sonar.telemetry.core.TelemetryDataType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

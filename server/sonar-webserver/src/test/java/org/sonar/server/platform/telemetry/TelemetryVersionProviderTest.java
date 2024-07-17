@@ -21,9 +21,9 @@ package org.sonar.server.platform.telemetry;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.api.platform.Server;
-import org.sonar.telemetry.Dimension;
-import org.sonar.telemetry.Granularity;
-import org.sonar.telemetry.TelemetryDataType;
+import org.sonar.telemetry.core.Dimension;
+import org.sonar.telemetry.core.Granularity;
+import org.sonar.telemetry.core.TelemetryDataType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

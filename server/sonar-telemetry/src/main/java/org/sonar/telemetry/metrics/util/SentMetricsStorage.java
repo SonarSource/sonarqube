@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.sonar.db.telemetry.TelemetryMetricsSentDto;
-import org.sonar.telemetry.Dimension;
-import org.sonar.telemetry.Granularity;
+import org.sonar.telemetry.core.Dimension;
+import org.sonar.telemetry.core.Granularity;
 
 public class SentMetricsStorage {
   private final Map<Dimension, Map<String, TelemetryMetricsSentDto>> dimensionMetricKeyMap = new EnumMap<>(Dimension.class);

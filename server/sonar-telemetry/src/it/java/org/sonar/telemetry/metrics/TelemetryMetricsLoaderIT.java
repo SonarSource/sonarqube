@@ -25,9 +25,9 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
-import org.sonar.telemetry.Dimension;
-import org.sonar.telemetry.TelemetryDataProvider;
 import org.sonar.telemetry.FakeServer;
+import org.sonar.telemetry.core.Dimension;
+import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.metrics.schema.BaseMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -17,26 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.project;
+package org.sonar.server.platform.telemetry;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.db.DbClient;
-import org.sonar.telemetry.Dimension;
-import org.sonar.telemetry.Granularity;
-import org.sonar.telemetry.TelemetryDataType;
+import org.sonar.telemetry.core.Dimension;
+import org.sonar.telemetry.core.Granularity;
+import org.sonar.telemetry.core.TelemetryDataType;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-class ProjectCppAutoconfigTelemetryProviderTest {
+class TelemetryUserEnabledProviderTest {
+
+  private final DbClient dbClient = mock(DbClient.class);
+
+  private final TelemetryUserEnabledProvider underTest = new TelemetryUserEnabledProvider(dbClient);
 
   @Test
   void testGetters() {
-     ProjectCppAutoconfigTelemetryProvider provider = new ProjectCppAutoconfigTelemetryProvider(mock(DbClient.class));
-
-     assertEquals("project_cpp_config_type", provider.getMetricKey());
-     assertEquals(Dimension.PROJECT, provider.getDimension());
-     assertEquals(Granularity.WEEKLY, provider.getGranularity());
-     assertEquals(TelemetryDataType.STRING, provider.getType());
+    assertThat(underTest.getDimension()).isEqualTo(Dimension.USER);
+    assertThat(underTest.getGranularity()).isEqualTo(Granularity.DAILY);
+    assertThat(underTest.getMetricKey()).isEqualTo("user_enabled");
+    assertThat(underTest.getType()).isEqualTo(TelemetryDataType.BOOLEAN);
   }
 }

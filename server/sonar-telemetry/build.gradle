@@ -7,6 +7,14 @@ sonar {
 }
 
 dependencies {
+    api project(':server:sonar-telemetry-core')
+
+    implementation project(':server:sonar-process')
+    implementation project(':server:sonar-server-common')
+    implementation project(':server:sonar-webserver-core')
+    implementation project(':server:sonar-webserver-webapi')
+    implementation project(':sonar-core')
+
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation 'com.squareup.okhttp3:mockwebserver'
     testImplementation 'com.tngtech.java:junit-dataprovider'
@@ -17,12 +25,6 @@ dependencies {
     testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
     testImplementation project(':sonar-testing-harness')
     testImplementation testFixtures(project(':server:sonar-server-common'))
-
-    api project(':server:sonar-process')
-    api project(':server:sonar-server-common')
-    api project(':server:sonar-webserver-core')
-    api project(':server:sonar-webserver-webapi')
-    api project(':sonar-core')
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }

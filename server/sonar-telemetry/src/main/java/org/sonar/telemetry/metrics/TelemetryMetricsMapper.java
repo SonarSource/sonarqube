@@ -22,7 +22,7 @@ package org.sonar.telemetry.metrics;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.sonar.telemetry.TelemetryDataProvider;
+import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.metrics.schema.InstallationMetric;
 import org.sonar.telemetry.metrics.schema.LanguageMetric;
 import org.sonar.telemetry.metrics.schema.Metric;

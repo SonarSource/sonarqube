@@ -20,8 +20,8 @@
 package org.sonar.telemetry.metrics.schema;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.sonar.telemetry.Granularity;
-import org.sonar.telemetry.TelemetryDataType;
+import org.sonar.telemetry.core.Granularity;
+import org.sonar.telemetry.core.TelemetryDataType;
 
 public class LanguageMetric extends Metric {
 

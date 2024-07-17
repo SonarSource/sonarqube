@@ -17,28 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry;
+package org.sonar.telemetry.core;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * Represents the type of the data provided by a {@link TelemetryDataProvider}.
- * Modifying this enum needs to be discussed beforehand with Data Platform team.
+ * Represents the dimension of the data provided by a {@link TelemetryDataProvider}.
+ * {@link Dimension#PROJECT}, {@link Dimension#LANGUAGE} and {@link Dimension#USER} should not provide aggregated data.
+ * For aggregated data (i.e. average number of lines of code per project), use #INSTALLATION.
  */
-public enum TelemetryDataType {
-  BOOLEAN("boolean"),
-  STRING("string"),
-  INTEGER("integer"),
-  FLOAT("float");
+public enum Dimension {
+  INSTALLATION("installation"),
+  USER("user"),
+  PROJECT("project"),
+  LANGUAGE("language");
 
   private final String value;
 
-  TelemetryDataType(String value) {
+  Dimension(String value) {
     this.value = value;
   }
 
   @JsonValue
   public String getValue() {
     return value;
+  }
+
+  public static Dimension fromValue(String value) {
+    for (Dimension dimension : Dimension.values()) {
+      if (dimension.value.equalsIgnoreCase(value)) {
+        return dimension;
+      }
+    }
+    throw new IllegalArgumentException("Unknown dimension value: " + value);
   }
 }
