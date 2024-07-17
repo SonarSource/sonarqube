@@ -43,6 +43,9 @@ public class Project {
   @SerializedName("path_with_namespace")
   private final String pathWithNamespace;
 
+  @SerializedName("visibility")
+  private String visibility;
+
   @SerializedName("web_url")
   private String webUrl;
 
@@ -98,8 +101,11 @@ public class Project {
     return pathWithNamespace;
   }
 
+  public String getVisibility() {
+    return visibility;
+  }
+
   public String getWebUrl() {
     return webUrl;
   }
-
 }

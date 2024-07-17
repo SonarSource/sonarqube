@@ -56,7 +56,6 @@ public class GitlabApplicationClientTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-
   private GitlabPaginatedHttpClient gitlabPaginatedHttpClient = mock();
 
   private final MockWebServer server = new MockWebServer();
@@ -131,19 +130,22 @@ public class GitlabApplicationClientTest {
   public void get_project() {
     MockResponse response = new MockResponse()
       .setResponseCode(200)
-      .setBody("{\n"
-        + "    \"id\": 12345,\n"
-        + "    \"name\": \"SonarQube example 1\",\n"
-        + "    \"name_with_namespace\": \"SonarSource / SonarQube / SonarQube example 1\",\n"
-        + "    \"path\": \"sonarqube-example-1\",\n"
-        + "    \"path_with_namespace\": \"sonarsource/sonarqube/sonarqube-example-1\",\n"
-        + "    \"web_url\": \"https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1\"\n"
-        + "  }");
+      .setBody("""
+        {
+            "id": 12345,
+            "name": "SonarQube example 1",
+            "name_with_namespace": "SonarSource / SonarQube / SonarQube example 1",
+            "path": "sonarqube-example-1",
+            "path_with_namespace": "sonarsource/sonarqube/sonarqube-example-1",
+            "visibility": "visibilityFromGitLab",
+            "web_url": "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1"
+          }
+        """);
     server.enqueue(response);
 
     assertThat(underTest.getProject(gitlabUrl, "pat", 12345L))
-      .extracting(Project::getId, Project::getName)
-      .containsExactly(12345L, "SonarQube example 1");
+      .extracting(Project::getId, Project::getName, Project::getVisibility)
+      .containsExactly(12345L, "SonarQube example 1", "visibilityFromGitLab");
   }
 
   @Test
@@ -376,15 +378,16 @@ public class GitlabApplicationClientTest {
   @Test
   public void get_project_details() throws InterruptedException {
     MockResponse projectResponse = new MockResponse()
-        .setResponseCode(200)
-        .setBody("{"
-            + "  \"id\": 1234,"
-            + "  \"name\": \"SonarQube example 2\","
-            + "  \"name_with_namespace\": \"SonarSource / SonarQube / SonarQube example 2\","
-            + "  \"path\": \"sonarqube-example-2\","
-            + "  \"path_with_namespace\": \"sonarsource/sonarqube/sonarqube-example-2\","
-            + "  \"web_url\": \"https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-2\""
-            + "}");
+      .setResponseCode(200)
+      .setBody("""
+        {\
+          "id": 1234,\
+          "name": "SonarQube example 2",\
+          "name_with_namespace": "SonarSource / SonarQube / SonarQube example 2",\
+          "path": "sonarqube-example-2",\
+          "path_with_namespace": "sonarsource/sonarqube/sonarqube-example-2",\
+          "web_url": "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-2"\
+        }""");
 
     server.enqueue(projectResponse);
 
@@ -396,22 +399,22 @@ public class GitlabApplicationClientTest {
     assertThat(project).isNotNull();
 
     assertThat(gitlabUrlCall).isEqualTo(
-        server.url("") + "projects/1234");
+      server.url("") + "projects/1234");
     assertThat(projectGitlabRequest.getMethod()).isEqualTo("GET");
   }
 
   @Test
   public void get_reporter_level_access_project() throws InterruptedException {
     MockResponse projectResponse = new MockResponse()
-        .setResponseCode(200)
-        .setBody("[{"
-            + "  \"id\": 1234,"
-            + "  \"name\": \"SonarQube example 2\","
-            + "  \"name_with_namespace\": \"SonarSource / SonarQube / SonarQube example 2\","
-            + "  \"path\": \"sonarqube-example-2\","
-            + "  \"path_with_namespace\": \"sonarsource/sonarqube/sonarqube-example-2\","
-            + "  \"web_url\": \"https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-2\""
-            + "}]");
+      .setResponseCode(200)
+      .setBody("[{"
+        + "  \"id\": 1234,"
+        + "  \"name\": \"SonarQube example 2\","
+        + "  \"name_with_namespace\": \"SonarSource / SonarQube / SonarQube example 2\","
+        + "  \"path\": \"sonarqube-example-2\","
+        + "  \"path_with_namespace\": \"sonarsource/sonarqube/sonarqube-example-2\","
+        + "  \"web_url\": \"https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-2\""
+        + "}]");
 
     server.enqueue(projectResponse);
 
@@ -423,7 +426,7 @@ public class GitlabApplicationClientTest {
     assertThat(project).isNotNull();
 
     assertThat(gitlabUrlCall).isEqualTo(
-        server.url("") + "projects?min_access_level=20&id_after=1233&id_before=1235");
+      server.url("") + "projects?min_access_level=20&id_after=1233&id_before=1235");
     assertThat(projectGitlabRequest.getMethod()).isEqualTo("GET");
   }
 
