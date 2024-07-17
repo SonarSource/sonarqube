@@ -25,7 +25,7 @@ import DocLink from '../common/DocLink';
 import Link from '../common/Link';
 import { DropdownOverlay } from '../controls/Dropdown';
 import { SuggestionsContext } from './SuggestionsContext';
-import { getApiKeyForZoho } from "../../api/codescan";
+import { getRedirectUrlForZoho } from "../../api/codescan";
 import withCurrentUserContext from "../../app/components/current-user/withCurrentUserContext";
 import { CurrentUserContextInterface } from "../../app/components/current-user/CurrentUserContext";
 import { LoggedInUser } from "../../types/users";
@@ -76,9 +76,8 @@ class EmbedDocsPopup extends React.PureComponent<Props & CurrentUserContextInter
     }
 
   // get zohoApiKey
-  return getApiKeyForZoho(payLoad).then((response: any) => {
-     const encodedFullName = encodeURIComponent(payLoad.fullName);
-     const zohoUrl = `https://support.autorabit.com/support/RemoteAuth?operation=${payLoad.operation}&email=${payLoad.email}&fullname=${encodedFullName}&loginname=${payLoad.loginName}&utype=${payLoad.utype}&ts=${response.ts}&apikey=${response.apiKey}`;
+  return getRedirectUrlForZoho(payLoad).then((response: any) => {
+     const zohoUrl = response.redirectUrl;
      this.setState({ zohoUrl });
     })
   }
