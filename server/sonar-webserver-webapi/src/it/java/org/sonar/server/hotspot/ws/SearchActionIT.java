@@ -114,6 +114,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STIG_ASD_V5R3;
 
 @SuppressWarnings("ALL")
 @RunWith(DataProviderRunner.class)
@@ -169,6 +170,7 @@ public class SearchActionIT {
     WebService.Param pciDss40Param = actionTester.getDef().param(PARAM_PCI_DSS_40);
     WebService.Param owasAsvs40Param = actionTester.getDef().param(PARAM_OWASP_ASVS_40);
     WebService.Param owaspTop10Param = actionTester.getDef().param(PARAM_OWASP_TOP_10_2017);
+    WebService.Param stigAsdV5R3 = actionTester.getDef().param(PARAM_STIG_ASD_V5R3);
     WebService.Param sansTop25Param = actionTester.getDef().param(PARAM_SANS_TOP_25);
     WebService.Param sonarsourceSecurityParam = actionTester.getDef().param(PARAM_SONARSOURCE_SECURITY);
     WebService.Param filesParam = actionTester.getDef().param(PARAM_FILES);
@@ -187,6 +189,8 @@ public class SearchActionIT {
     assertThat(owasAsvs40Param.isRequired()).isFalse();
     assertThat(owaspTop10Param).isNotNull();
     assertThat(owaspTop10Param.isRequired()).isFalse();
+    assertThat(stigAsdV5R3).isNotNull();
+    assertThat(stigAsdV5R3.isRequired()).isFalse();
     assertThat(sansTop25Param).isNotNull();
     assertThat(sansTop25Param.isRequired()).isFalse();
     assertThat(sonarsourceSecurityParam).isNotNull();
@@ -1543,6 +1547,30 @@ public class SearchActionIT {
   }
 
   @Test
+  public void returns_hotspots_with_specified_stig_category() {
+    ProjectData projectData = dbTester.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSessionRule.registerProjects(projectData.getProjectDto());
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDto rule1 = newRule(SECURITY_HOTSPOT);
+    RuleDto rule2 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(Set.of("cwe:117", "cwe:190")));
+    RuleDto rule3 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(Set.of("stig-ASD_V5R3:V-222400", "cwe:601")));
+    insertHotspot(project, file, rule1);
+    insertHotspot(project, file, rule2);
+    IssueDto hotspot3 = insertHotspot(project, file, rule3);
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project).setParam(PARAM_STIG_ASD_V5R3, "V-222400")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactly(hotspot3.getKey());
+  }
+
+  @Test
   public void returns_hotspots_with_specified_pciDss_category() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
@@ -1617,10 +1645,10 @@ public class SearchActionIT {
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule1 = newRule(SECURITY_HOTSPOT);
-    RuleDto rule2 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(of("cwe:117", "cwe:190")));
-    RuleDto rule3 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(of("owaspAsvs-4.0:2.1.1")));
-    RuleDto rule4 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(of("owaspAsvs-4.0:1.1.1")));
-    RuleDto rule5 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(of("owaspAsvs-4.0:3.6.1")));
+    RuleDto rule2 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(Set.of("cwe:117", "cwe:190")));
+    RuleDto rule3 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(Set.of("owaspAsvs-4.0:2.1.1")));
+    RuleDto rule4 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(Set.of("owaspAsvs-4.0:1.1.1")));
+    RuleDto rule5 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(Set.of("owaspAsvs-4.0:3.6.1")));
     insertHotspot(project, file, rule1);
     insertHotspot(project, file, rule2);
     IssueDto hotspot3 = insertHotspot(project, file, rule3);

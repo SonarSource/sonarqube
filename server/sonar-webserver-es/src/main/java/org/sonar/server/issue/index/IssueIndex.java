@@ -150,6 +150,7 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.SCOPES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SEVERITIES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SONARSOURCE_SECURITY;
 import static org.sonar.server.issue.index.IssueIndex.Facet.STATUSES;
+import static org.sonar.server.issue.index.IssueIndex.Facet.STIG_ASD_V5R3;
 import static org.sonar.server.issue.index.IssueIndex.Facet.TAGS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.TYPES;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE_UUID;
@@ -188,6 +189,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVE
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SQ_SECURITY_CATEGORY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STATUS;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STIG_ASD_V5R3;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TAGS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TYPE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_VULNERABILITY_PROBABILITY;
@@ -224,6 +226,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SCOPES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SONARSOURCE_SECURITY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STIG_ASD_V5R3;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 
@@ -288,6 +291,7 @@ public class IssueIndex {
     OWASP_ASVS_40(PARAM_OWASP_ASVS_40, FIELD_ISSUE_OWASP_ASVS_40, STICKY, DEFAULT_FACET_SIZE),
     OWASP_TOP_10(PARAM_OWASP_TOP_10, FIELD_ISSUE_OWASP_TOP_10, STICKY, DEFAULT_FACET_SIZE),
     OWASP_TOP_10_2021(PARAM_OWASP_TOP_10_2021, FIELD_ISSUE_OWASP_TOP_10_2021, STICKY, DEFAULT_FACET_SIZE),
+    STIG_ASD_V5R3(PARAM_STIG_ASD_V5R3, FIELD_ISSUE_STIG_ASD_V5R3, STICKY, DEFAULT_FACET_SIZE),
     SANS_TOP_25(PARAM_SANS_TOP_25, FIELD_ISSUE_SANS_TOP_25, STICKY, DEFAULT_FACET_SIZE),
     CWE(PARAM_CWE, FIELD_ISSUE_CWE, STICKY, DEFAULT_FACET_SIZE),
     CREATED_AT(PARAM_CREATED_AT, FIELD_ISSUE_FUNC_CREATED_AT, NON_STICKY),
@@ -501,6 +505,7 @@ public class IssueIndex {
     addOwaspAsvsFilter(FIELD_ISSUE_OWASP_ASVS_40, OWASP_ASVS_40, query, filters);
     addSecurityCategoryFilter(FIELD_ISSUE_OWASP_TOP_10, OWASP_TOP_10, query.owaspTop10(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_OWASP_TOP_10_2021, OWASP_TOP_10_2021, query.owaspTop10For2021(), filters);
+    addSecurityCategoryFilter(FIELD_ISSUE_STIG_ASD_V5R3, STIG_ASD_V5R3, query.stigAsdV5R3(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_SANS_TOP_25, SANS_TOP_25, query.sansTop25(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_CWE, CWE, query.cwe(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_SQ_SECURITY_CATEGORY, SONARSOURCE_SECURITY, query.sonarsourceSecurity(), filters);
@@ -888,6 +893,7 @@ public class IssueIndex {
     addSecurityCategoryFacetIfNeeded(PARAM_OWASP_ASVS_40, OWASP_ASVS_40, options, aggregationHelper, esRequest, query.owaspAsvs40().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_OWASP_TOP_10, OWASP_TOP_10, options, aggregationHelper, esRequest, query.owaspTop10().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_OWASP_TOP_10_2021, OWASP_TOP_10_2021, options, aggregationHelper, esRequest, query.owaspTop10For2021().toArray());
+    addSecurityCategoryFacetIfNeeded(PARAM_STIG_ASD_V5R3, STIG_ASD_V5R3, options, aggregationHelper, esRequest, query.stigAsdV5R3().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_SANS_TOP_25, SANS_TOP_25, options, aggregationHelper, esRequest, query.sansTop25().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_CWE, CWE, options, aggregationHelper, esRequest, query.cwe().toArray());
     addSecurityCategoryFacetIfNeeded(PARAM_SONARSOURCE_SECURITY, SONARSOURCE_SECURITY, options, aggregationHelper, esRequest, query.sonarsourceSecurity().toArray());

@@ -215,6 +215,11 @@ public class ProjectSensorContext implements SensorContext {
   }
 
   @Override
+  public void addTelemetryProperty(String s, String s1) {
+    //NOOP
+  }
+
+  @Override
   public NewSignificantCode newSignificantCode() {
     return new DefaultSignificantCode(sensorStorage);
   }

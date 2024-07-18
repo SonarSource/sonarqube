@@ -365,6 +365,16 @@ public class IssueDoc extends BaseDoc {
   }
 
   @CheckForNull
+  public Collection<String> getStigAsdV5R3() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_STIG_ASD_V5R3);
+  }
+
+  public IssueDoc setStigAsdV5R3(@Nullable Collection<String> o) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_STIG_ASD_V5R3, o);
+    return this;
+  }
+
+  @CheckForNull
   public Collection<String> getSansTop25() {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25);
   }

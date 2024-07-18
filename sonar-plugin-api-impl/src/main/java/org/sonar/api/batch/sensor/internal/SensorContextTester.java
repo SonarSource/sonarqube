@@ -441,6 +441,11 @@ public class SensorContextTester implements SensorContext {
     return cacheEnabled;
   }
 
+  @Override
+  public void addTelemetryProperty(String s, String s1) {
+    throw new UnsupportedOperationException("addTelemetryProperty");
+  }
+
   public void setCacheEnabled(boolean enabled) {
     this.cacheEnabled = enabled;
   }

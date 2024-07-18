@@ -24,11 +24,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.OwaspAsvsVersion;
 import org.sonar.server.security.SecurityStandards.OwaspAsvs;
 import org.sonar.server.security.SecurityStandards.PciDss;
 import org.sonar.server.security.SecurityStandards.SQCategory;
+import org.sonar.server.security.SecurityStandards.StigSupportedRequirement;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -42,9 +44,9 @@ import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDER
 import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
 import static org.sonar.server.security.SecurityStandards.getRequirementsForCategoryAndLevel;
 
-public class SecurityStandardsTest {
+class SecurityStandardsTest {
   @Test
-  public void fromSecurityStandards_from_empty_set_has_SQCategory_OTHERS() {
+  void fromSecurityStandards_from_empty_set_has_SQCategory_OTHERS() {
     SecurityStandards securityStandards = fromSecurityStandards(emptySet());
 
     assertThat(securityStandards.getStandards()).isEmpty();
@@ -53,7 +55,7 @@ public class SecurityStandardsTest {
   }
 
   @Test
-  public void fromSecurityStandards_from_empty_set_has_unkwown_cwe_standard() {
+  void fromSecurityStandards_from_empty_set_has_unkwown_cwe_standard() {
     SecurityStandards securityStandards = fromSecurityStandards(emptySet());
 
     assertThat(securityStandards.getStandards()).isEmpty();
@@ -61,7 +63,7 @@ public class SecurityStandardsTest {
   }
 
   @Test
-  public void fromSecurityStandards_from_empty_set_has_no_OwaspTop10_standard() {
+  void fromSecurityStandards_from_empty_set_has_no_OwaspTop10_standard() {
     SecurityStandards securityStandards = fromSecurityStandards(emptySet());
 
     assertThat(securityStandards.getStandards()).isEmpty();
@@ -69,7 +71,7 @@ public class SecurityStandardsTest {
   }
 
   @Test
-  public void fromSecurityStandards_from_empty_set_has_no_SansTop25_standard() {
+  void fromSecurityStandards_from_empty_set_has_no_SansTop25_standard() {
     SecurityStandards securityStandards = fromSecurityStandards(emptySet());
 
     assertThat(securityStandards.getStandards()).isEmpty();
@@ -77,7 +79,7 @@ public class SecurityStandardsTest {
   }
 
   @Test
-  public void fromSecurityStandards_from_empty_set_has_no_CweTop25_standard() {
+  void fromSecurityStandards_from_empty_set_has_no_CweTop25_standard() {
     SecurityStandards securityStandards = fromSecurityStandards(emptySet());
 
     assertThat(securityStandards.getStandards()).isEmpty();
@@ -85,7 +87,7 @@ public class SecurityStandardsTest {
   }
 
   @Test
-  public void fromSecurityStandards_finds_SQCategory_from_any_if_the_mapped_CWE_standard() {
+  void fromSecurityStandards_finds_SQCategory_from_any_if_the_mapped_CWE_standard() {
     CWES_BY_SQ_CATEGORY.forEach((sqCategory, cwes) -> {
       cwes.forEach(cwe -> {
         SecurityStandards securityStandards = fromSecurityStandards(singleton("cwe:" + cwe));
@@ -96,7 +98,7 @@ public class SecurityStandardsTest {
   }
 
   @Test
-  public void fromSecurityStandards_finds_SQCategory_from_multiple_of_the_mapped_CWE_standard() {
+  void fromSecurityStandards_finds_SQCategory_from_multiple_of_the_mapped_CWE_standard() {
     CWES_BY_SQ_CATEGORY.forEach((sqCategory, cwes) -> {
       SecurityStandards securityStandards = fromSecurityStandards(cwes.stream().map(t -> "cwe:" + t).collect(toSet()));
 
@@ -105,7 +107,13 @@ public class SecurityStandardsTest {
   }
 
   @Test
-  public void fromSecurityStandards_finds_SQCategory_first_in_order_when_CWEs_map_to_multiple_SQCategories() {
+  void fromSecurityStandards_whenStigStandardIsSet_shouldReturnExpectedCategories() {
+    SecurityStandards securityStandards = fromSecurityStandards(singleton("stig-ASD_V5R3:V-222400"));
+    assertThat(securityStandards.getStig(RulesDefinition.StigVersion.ASD_V5R3)).containsExactly("V-222400");
+  }
+
+  @Test
+  void fromSecurityStandards_finds_SQCategory_first_in_order_when_CWEs_map_to_multiple_SQCategories() {
     EnumSet<SQCategory> sqCategories = EnumSet.allOf(SQCategory.class);
     sqCategories.remove(SQCategory.OTHERS);
 
@@ -126,21 +134,21 @@ public class SecurityStandardsTest {
   }
 
   @Test
-  public void pciDss_categories_check() {
+  void pciDss_categories_check() {
     List<String> pciDssCategories = Arrays.stream(PciDss.values()).map(PciDss::category).toList();
 
     assertThat(pciDssCategories).hasSize(12).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12");
   }
 
   @Test
-  public void owaspAsvs_categories_check() {
+  void owaspAsvs_categories_check() {
     List<String> owaspAsvsCategories = Arrays.stream(OwaspAsvs.values()).map(OwaspAsvs::category).toList();
 
     assertThat(owaspAsvsCategories).hasSize(14).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14");
   }
 
   @Test
-  public void owaspAsvs40_requirements_distribution_by_level_check() {
+  void owaspAsvs40_requirements_distribution_by_level_check() {
     assertTrue(OWASP_ASVS_REQUIREMENTS_BY_LEVEL.containsKey(OwaspAsvsVersion.V4_0));
     assertTrue(OWASP_ASVS_REQUIREMENTS_BY_LEVEL.get(OwaspAsvsVersion.V4_0).containsKey(1));
     assertTrue(OWASP_ASVS_REQUIREMENTS_BY_LEVEL.get(OwaspAsvsVersion.V4_0).containsKey(2));
@@ -151,7 +159,7 @@ public class SecurityStandardsTest {
   }
 
   @Test
-  public void owaspAsvs40_requirements_by_category_and_level_check() {
+  void owaspAsvs40_requirements_by_category_and_level_check() {
     assertEquals(0, getRequirementsForCategoryAndLevel(OwaspAsvs.C1, 1).size());
     assertEquals(31, getRequirementsForCategoryAndLevel(OwaspAsvs.C2, 1).size());
     assertEquals(12, getRequirementsForCategoryAndLevel(OwaspAsvs.C3, 1).size());
@@ -166,5 +174,15 @@ public class SecurityStandardsTest {
     assertEquals(11, getRequirementsForCategoryAndLevel(OwaspAsvs.C12, 1).size());
     assertEquals(7, getRequirementsForCategoryAndLevel(OwaspAsvs.C13, 1).size());
     assertEquals(16, getRequirementsForCategoryAndLevel(OwaspAsvs.C14, 1).size());
+  }
+
+
+  @Test
+  void StigSupportedRequirement_values_shouldReturnAllValues() {
+    Set<String> requirements = Arrays.stream(StigSupportedRequirement.values())
+      .map(StigSupportedRequirement::getRequirement)
+      .collect(toSet());
+
+    assertThat(requirements).isNotEmpty().allSatisfy(e -> assertThat(e).startsWith("V-"));
   }
 }

@@ -197,6 +197,7 @@ public class IssueIndexerIT {
     assertThat(doc.updateDate()).isEqualToIgnoringMillis(new Date(issue.getIssueUpdateTime()));
     assertThat(doc.getCwe()).containsExactlyInAnyOrder(SecurityStandards.UNKNOWN_STANDARD);
     assertThat(doc.getOwaspTop10()).isEmpty();
+    assertThat(doc.getStigAsdV5R3()).isEmpty();
     assertThat(doc.getSansTop25()).isEmpty();
     assertThat(doc.getSonarSourceSecurityCategory()).isEqualTo(SQCategory.OTHERS);
     assertThat(doc.getVulnerabilityProbability()).isEqualTo(VulnerabilityProbability.LOW);
@@ -209,7 +210,7 @@ public class IssueIndexerIT {
 
   @Test
   public void indexAllIssues_shouldIndexSecurityStandards() {
-    RuleDto rule = db.rules().insert(r -> r.setSecurityStandards(new HashSet<>(Arrays.asList("cwe:123", "owaspTop10:a3", "cwe:863", "owaspAsvs-4.0:2.1.1"))));
+    RuleDto rule = db.rules().insert(r -> r.setSecurityStandards(new HashSet<>(Arrays.asList("stig-ASD_V5R3:V-222400", "cwe:123", "owaspTop10:a3", "cwe:863", "owaspAsvs-4.0:2.1.1"))));
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1"));
@@ -222,6 +223,7 @@ public class IssueIndexerIT {
     assertThat(doc.getOwaspTop10()).containsExactlyInAnyOrder("a3");
     assertThat(doc.getOwaspAsvs40()).containsExactlyInAnyOrder("2.1.1");
     assertThat(doc.getSansTop25()).containsExactlyInAnyOrder(SANS_TOP_25_POROUS_DEFENSES);
+    assertThat(doc.getStigAsdV5R3()).containsExactlyInAnyOrder("V-222400");
   }
 
   @Test

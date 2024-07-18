@@ -97,6 +97,7 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_OWASP_TOP_10_2021 = "owaspTop10-2021";
   public static final String FIELD_ISSUE_SANS_TOP_25 = "sansTop25";
   public static final String FIELD_ISSUE_CWE = "cwe";
+  public static final String FIELD_ISSUE_STIG_ASD_V5R3 = "stig-ASD_V5R3";
   public static final String FIELD_ISSUE_SQ_SECURITY_CATEGORY = "sonarsourceSecurity";
   public static final String FIELD_ISSUE_VULNERABILITY_PROBABILITY = "vulnerabilityProbability";
   public static final String FIELD_ISSUE_CODE_VARIANTS = "codeVariants";
@@ -184,6 +185,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     mapping.keywordFieldBuilder(FIELD_ISSUE_CWE).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_SQ_SECURITY_CATEGORY).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_VULNERABILITY_PROBABILITY).disableNorms().build();
+    mapping.keywordFieldBuilder(FIELD_ISSUE_STIG_ASD_V5R3).disableNorms().build();
     mapping.createBooleanField(FIELD_ISSUE_NEW_CODE_REFERENCE);
     mapping.keywordFieldBuilder(FIELD_ISSUE_CODE_VARIANTS).disableNorms().build();
     mapping.createBooleanField(FIELD_PRIORITIZED_RULE);

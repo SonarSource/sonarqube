@@ -127,6 +127,15 @@ class IssueQueryTest {
     assertThat(query.owaspTop10For2021()).containsOnly("a3", "a4");
   }
 
+  @Test
+  void build_stig_query() {
+    IssueQuery query = IssueQuery.builder()
+      .stigAsdR5V3(List.of("V-222400", "V-222401"))
+      .build();
+
+    assertThat(query.stigAsdV5R3()).containsOnly("V-222400", "V-222401");
+  }
+
 
   @Test
   void build_query_without_dates() {

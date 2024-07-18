@@ -36,6 +36,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.server.rule.RulesDefinition.OwaspAsvsVersion;
 import org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
+import org.sonar.api.server.rule.RulesDefinition.StigVersion;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
@@ -308,6 +309,10 @@ public final class SecurityStandards {
 
   public Set<String> getOwaspTop10For2021() {
     return getMatchingStandards(standards, OWASP_TOP10_2021_PREFIX);
+  }
+
+  public Set<String> getStig(StigVersion version) {
+    return getMatchingStandards(standards, version.prefix() + ":");
   }
 
   /**

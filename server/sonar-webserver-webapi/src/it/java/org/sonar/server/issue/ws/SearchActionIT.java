@@ -1750,6 +1750,31 @@ public class SearchActionIT {
   }
 
   @Test
+  public void only_vulnerabilities_are_returned_by_stig_R5V3() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "stig-ASD_V5R3:V-222402", "stig-ASD_V5R3:V-222403", "stig-ASD_V5R3:V-222404", "ostig-ASD_V5R3:V-222405"))
+      .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "stig", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "stig", "sans-top25-insecure", "sql"));
+    RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam("stig-ASD_V5R3", "V-222402")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
+  }
+
+  @Test
   public void only_vulnerabilities_are_returned_by_sansTop25() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -2083,7 +2108,7 @@ public class SearchActionIT {
       "additionalFields", "asc", "assigned", "assignees", "author", "components", "branch", "pullRequest", "createdAfter", "createdAt",
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspAsvs-4.0",
-      "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod", "codeVariants",
+      "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "stig-ASD_V5R3", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod", "codeVariants",
       "cleanCodeAttributeCategories", "impactSeverities", "impactSoftwareQualities", "issueStatuses", "fixedInPullRequest",
       "prioritizedRule");
 
