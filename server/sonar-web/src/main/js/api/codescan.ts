@@ -44,17 +44,6 @@ export function deleteBulkProjects(data: {
       .catch(throwGlobalError);
 }
 
-export function getApiKeyForZoho(data: {
-  operation: string;
-  email?: string;
-  loginName: string;
-  fullName: string;
-  utype: string;
-}): Promise<string> {
-  return postJSON('/_codescan/zoho/apiKey', data)
-      .catch(throwGlobalError);
-}
-
 export function getRedirectUrlForZoho(data: {
   operation: string;
   email?: string;

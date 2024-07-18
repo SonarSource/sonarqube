@@ -75,7 +75,7 @@ class EmbedDocsPopup extends React.PureComponent<Props & CurrentUserContextInter
       "utype": "portal",
     }
 
-  // get zohoApiKey
+  // get zoho re-direct url
   return getRedirectUrlForZoho(payLoad).then((response: any) => {
      const zohoUrl = response.redirectUrl;
      this.setState({ zohoUrl });
