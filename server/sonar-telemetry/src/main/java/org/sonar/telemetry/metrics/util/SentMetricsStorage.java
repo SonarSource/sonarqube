@@ -20,8 +20,8 @@
 package org.sonar.telemetry.metrics.util;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -50,28 +50,29 @@ public class SentMetricsStorage {
     return Optional.empty();
   }
 
-  public boolean shouldSendMetric(Dimension dimension, String metricKey, Granularity granularity) {
+  public boolean shouldSendMetric(Dimension dimension, String metricKey, Granularity granularity, long now) {
+    if (granularity == Granularity.ADHOC) {
+      return true;
+    }
+
     Map<String, TelemetryMetricsSentDto> metricKeyMap = dimensionMetricKeyMap.get(dimension);
     boolean exists = metricKeyMap != null && metricKeyMap.containsKey(metricKey);
-
     if (!exists) {
       return true;
     }
 
     TelemetryMetricsSentDto dto = metricKeyMap.get(metricKey);
-    Instant lastSentTime = Instant.ofEpochMilli(dto.getLastSent());
-    Instant now = Instant.now();
 
-    LocalDateTime lastSentDateTime = LocalDateTime.ofInstant(lastSentTime, ZoneId.systemDefault());
-    LocalDateTime nowDateTime = LocalDateTime.ofInstant(now, ZoneId.systemDefault());
+    ZonedDateTime lastSentInstant = Instant.ofEpochMilli(dto.getLastSent()).atZone(ZoneId.systemDefault());
+    ZonedDateTime nowInstant = Instant.ofEpochMilli(now).atZone(ZoneId.systemDefault());
 
     switch (granularity) {
       case DAILY -> {
-        return ChronoUnit.DAYS.between(lastSentDateTime, nowDateTime) > 0;
+        return ChronoUnit.DAYS.between(lastSentInstant, nowInstant) > 0;
       } case WEEKLY -> {
-        return ChronoUnit.WEEKS.between(lastSentDateTime, nowDateTime) > 0;
+        return ChronoUnit.WEEKS.between(lastSentInstant, nowInstant) > 0;
       } case MONTHLY -> {
-        return ChronoUnit.MONTHS.between(lastSentDateTime, nowDateTime) > 0;
+        return ChronoUnit.MONTHS.between(lastSentInstant, nowInstant) > 0;
       } default -> throw new IllegalArgumentException("Unknown granularity: " + granularity);
     }
   }

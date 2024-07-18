@@ -45,7 +45,7 @@ class TelemetryMetricsSentDaoIT {
     List<TelemetryMetricsSentDto> dtos = IntStream.range(0, 10)
       .mapToObj(i -> TelemetryMetricsSentTesting.newTelemetryMetricsSentDto())
       .toList();
-    dtos.forEach(metricDto -> db.getDbClient().telemetryMetricsSentDao().insert(db.getSession(), metricDto));
+    dtos.forEach(metricDto -> db.getDbClient().telemetryMetricsSentDao().upsert(db.getSession(), metricDto));
     db.getSession().commit();
 
     assertThat(underTest.selectAll(dbSession))
@@ -61,12 +61,12 @@ class TelemetryMetricsSentDaoIT {
   }
 
   @Test
-  void upsert_shouldUpdateOnly() {
+  void upsert_shouldUpdateOnlyAfterSecondPersistence() {
     TelemetryMetricsSentDto dto = TelemetryMetricsSentTesting.newTelemetryMetricsSentDto();
-    underTest.insert(dbSession, dto);
+    underTest.upsert(dbSession, dto);
 
     system2.setNow(NOW + 1);
-    underTest.update(dbSession, dto);
+    underTest.upsert(dbSession, dto);
     List<TelemetryMetricsSentDto> dtos = underTest.selectAll(dbSession);
 
     assertThat(dtos).hasSize(1);

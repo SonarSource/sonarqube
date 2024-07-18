@@ -36,13 +36,7 @@ public class TelemetryMetricsSentDao implements Dao {
     return mapper(session).selectAll();
   }
 
-  public TelemetryMetricsSentDto insert(DbSession session, TelemetryMetricsSentDto dto) {
-    mapper(session).upsert(dto);
-
-    return dto;
-  }
-
-  public void update(DbSession dbSession, TelemetryMetricsSentDto telemetryMetricsSentDto) {
+  public void upsert(DbSession dbSession, TelemetryMetricsSentDto telemetryMetricsSentDto) {
     long now = system2.now();
     telemetryMetricsSentDto.setLastSent(now);
     mapper(dbSession).upsert(telemetryMetricsSentDto);

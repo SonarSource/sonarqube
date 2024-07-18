@@ -20,13 +20,13 @@
 package org.sonar.telemetry.metrics.util;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.db.telemetry.TelemetryMetricsSentDto;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
@@ -37,6 +37,8 @@ public class SentMetricsStorageTest {
   public static final String METRIC_2 = "metric-2";
   public static final String METRIC_3 = "metric-3";
   public static final String METRIC_4 = "metric-4";
+
+  private final TestSystem2 system2 = new TestSystem2().setNow(10_000_000_000L);
 
   @DataProvider
   public static Object[][] data() {
@@ -64,7 +66,13 @@ public class SentMetricsStorageTest {
       // Non-existing metrics that should be sent, as they are sent for the first time
       {Dimension.INSTALLATION, "metric-5", Granularity.DAILY, true},
       {Dimension.USER, "metric-6", Granularity.WEEKLY, true},
-      {Dimension.PROJECT, "metric-7", Granularity.MONTHLY, true}
+      {Dimension.PROJECT, "metric-7", Granularity.MONTHLY, true},
+
+      // Adhoc granularity means the metric should ALWAYS be sent
+      {Dimension.INSTALLATION, "metric-8", Granularity.ADHOC, true},
+      {Dimension.USER, "metric-9", Granularity.ADHOC, true},
+      {Dimension.PROJECT, "metric-10", Granularity.ADHOC, true},
+      {Dimension.LANGUAGE, "metric-11", Granularity.ADHOC, true}
     };
   }
 
@@ -72,22 +80,22 @@ public class SentMetricsStorageTest {
   @MethodSource("data")
   void shouldSendMetric(Dimension dimension, String metricKey, Granularity granularity, boolean expectedResult) {
     SentMetricsStorage storage = new SentMetricsStorage(getDtos());
-    boolean actualResult = storage.shouldSendMetric(dimension, metricKey, granularity);
+    boolean actualResult = storage.shouldSendMetric(dimension, metricKey, granularity, system2.now());
     Assertions.assertEquals(expectedResult, actualResult);
   }
 
   private List<TelemetryMetricsSentDto> getDtos() {
     TelemetryMetricsSentDto dto1 = new TelemetryMetricsSentDto(METRIC_1, Dimension.INSTALLATION.getValue());
-    dto1.setLastSent(Instant.now().minus(1, ChronoUnit.MINUTES).toEpochMilli()); // 1 minute ago
+    dto1.setLastSent(system2.now() - TimeUnit.MINUTES.toMillis(1)); // 1 minute ago
 
     TelemetryMetricsSentDto dto2 = new TelemetryMetricsSentDto(METRIC_2, Dimension.USER.getValue());
-    dto2.setLastSent(Instant.now().minus(2, ChronoUnit.DAYS).toEpochMilli()); // 2 days ago
+    dto2.setLastSent(system2.now() - TimeUnit.DAYS.toMillis(2)); // 2 days ago
 
     TelemetryMetricsSentDto dto3 = new TelemetryMetricsSentDto(METRIC_3, Dimension.PROJECT.getValue());
-    dto3.setLastSent(Instant.now().minus(10, ChronoUnit.DAYS).toEpochMilli()); // 10 days ago
+    dto3.setLastSent(system2.now() - TimeUnit.DAYS.toMillis(10)); // 10 days ago
 
     TelemetryMetricsSentDto dto4 = new TelemetryMetricsSentDto(METRIC_4, Dimension.LANGUAGE.getValue());
-    dto4.setLastSent(Instant.now().minus(40, ChronoUnit.DAYS).toEpochMilli()); // 40 days ago
+    dto4.setLastSent(system2.now() - TimeUnit.DAYS.toMillis(40)); // 40 days ago
 
     return Arrays.asList(dto1, dto2, dto3, dto4);
   }

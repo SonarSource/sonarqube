@@ -20,6 +20,7 @@
 package org.sonar.telemetry.core;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * This interface is used to provide data to the telemetry system. The telemetry system will call the methods of this interface to get the
@@ -61,7 +62,7 @@ public interface TelemetryDataProvider<T> {
    *
    * @return the value of the data provided by this instance.
    */
-  default T getValue() {
+  default Optional<T> getValue() {
     throw new IllegalStateException("Not implemented");
   }
 

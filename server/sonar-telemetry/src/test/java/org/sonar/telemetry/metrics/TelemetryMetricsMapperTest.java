@@ -95,6 +95,30 @@ class TelemetryMetricsMapperTest {
       );
   }
 
+  @Test
+  void mapFromDataProvider_whenAdhocInstallationProviderWithoutValue_shouldNotMapToMetric() {
+    TestTelemetryAdhocBean provider = new TestTelemetryAdhocBean(Dimension.INSTALLATION, false); // Force the value so that nothing is returned
+
+    Set<Metric> metrics = TelemetryMetricsMapper.mapFromDataProvider(provider);
+    List<InstallationMetric> userMetrics = retrieveList(metrics);
+
+    assertThat(userMetrics).isEmpty();
+  }
+
+  @Test
+  void mapFromDataProvider_whenAdhocInstallationProviderWithValue_shouldMapToMetric() {
+    TestTelemetryAdhocBean provider = new TestTelemetryAdhocBean(Dimension.INSTALLATION, true); // Force the value to be returned
+
+    Set<Metric> metrics = TelemetryMetricsMapper.mapFromDataProvider(provider);
+    List<InstallationMetric> userMetrics = retrieveList(metrics);
+
+    assertThat(userMetrics)
+      .extracting(InstallationMetric::getKey, InstallationMetric::getType, InstallationMetric::getValue, InstallationMetric::getGranularity)
+      .containsExactlyInAnyOrder(
+        tuple("telemetry-adhoc-bean", TelemetryDataType.BOOLEAN, true, Granularity.ADHOC)
+      );
+  }
+
   private static Tuple[] expected() {
     return new Tuple[]
       {

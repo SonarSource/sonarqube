@@ -20,6 +20,7 @@
 package org.sonar.telemetry.metrics;
 
 import java.util.Map;
+import java.util.Optional;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataProvider;
@@ -60,8 +61,8 @@ public class TestTelemetryBean implements TelemetryDataProvider<String> {
   }
 
   @Override
-  public String getValue() {
-    return METRIC_VALUE;
+  public Optional<String> getValue() {
+    return Optional.of(METRIC_VALUE);
   }
 
   @Override

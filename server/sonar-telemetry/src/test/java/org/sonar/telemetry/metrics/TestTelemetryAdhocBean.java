@@ -17,45 +17,51 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.telemetry;
+package org.sonar.telemetry.metrics;
 
 import java.util.Optional;
-import org.sonar.api.platform.Server;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.core.TelemetryDataType;
 
-public class TelemetryVersionProvider implements TelemetryDataProvider<String> {
+public class TestTelemetryAdhocBean implements TelemetryDataProvider<Boolean> {
 
-  private final Server server;
+  private static final String METRIC_KEY = "telemetry-adhoc-bean";
+  private static final Granularity METRIC_GRANULARITY = Granularity.ADHOC;
+  private static final TelemetryDataType METRIC_TYPE = TelemetryDataType.BOOLEAN;
 
-  public TelemetryVersionProvider(Server server) {
-    this.server = server;
-  }
+  private final Dimension dimension;
+  private final boolean value;
 
-  @Override
-  public String getMetricKey() {
-    return "version";
+  public TestTelemetryAdhocBean(Dimension dimension, boolean value) {
+    this.dimension = dimension;
+    this.value = value;
   }
 
   @Override
   public Dimension getDimension() {
-    return Dimension.INSTALLATION;
+    return dimension;
+  }
+
+  @Override
+  public String getMetricKey() {
+    return METRIC_KEY;
   }
 
   @Override
   public Granularity getGranularity() {
-    return Granularity.DAILY;
+    return METRIC_GRANULARITY;
   }
 
   @Override
   public TelemetryDataType getType() {
-    return TelemetryDataType.STRING;
+    return METRIC_TYPE;
   }
 
   @Override
-  public Optional<String> getValue() {
-    return Optional.ofNullable(server.getVersion());
+  public Optional<Boolean> getValue() {
+    return value ? Optional.of(true) : Optional.empty();
   }
+
 }

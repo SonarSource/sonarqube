@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * Modifying this enum needs to be discussed beforehand with Data Platform team.
  */
 public enum Granularity {
+  ADHOC("adhoc"),
   DAILY("daily"),
   WEEKLY("weekly"),
   MONTHLY("monthly");

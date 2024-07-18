@@ -30,6 +30,7 @@ class GranularityTest {
     assertEquals("daily", Granularity.DAILY.getValue());
     assertEquals("weekly", Granularity.WEEKLY.getValue());
     assertEquals("monthly", Granularity.MONTHLY.getValue());
+    assertEquals("adhoc", Granularity.ADHOC.getValue());
   }
 
 }

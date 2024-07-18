@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.api.platform.Server;
+import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -39,12 +40,15 @@ import org.sonar.telemetry.metrics.schema.Metric;
 import org.sonar.telemetry.metrics.util.SentMetricsStorage;
 
 public class TelemetryMetricsLoader {
+  private final System2 system2;
   private final Server server;
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
   private final List<TelemetryDataProvider<?>> providers;
 
-  public TelemetryMetricsLoader(Server server, DbClient dbClient, UuidFactory uuidFactory, List<TelemetryDataProvider<?>> providers) {
+
+  public TelemetryMetricsLoader(System2 system2, Server server, DbClient dbClient, UuidFactory uuidFactory, List<TelemetryDataProvider<?>> providers) {
+    this.system2 = system2;
     this.server = server;
     this.dbClient = dbClient;
     this.providers = providers;
@@ -63,7 +67,7 @@ public class TelemetryMetricsLoader {
 
       Map<Dimension, Set<Metric>> telemetryDataMap = new LinkedHashMap<>();
       for (TelemetryDataProvider<?> provider : this.providers) {
-        boolean shouldSendMetric = storage.shouldSendMetric(provider.getDimension(), provider.getMetricKey(), provider.getGranularity());
+        boolean shouldSendMetric = storage.shouldSendMetric(provider.getDimension(), provider.getMetricKey(), provider.getGranularity(), system2.now());
         if (shouldSendMetric) {
           Set<Metric> newMetrics = TelemetryMetricsMapper.mapFromDataProvider(provider);
           telemetryDataMap.computeIfAbsent(provider.getDimension(), k -> new LinkedHashSet<>()).addAll(newMetrics);
@@ -88,6 +92,8 @@ public class TelemetryMetricsLoader {
 
   private Set<BaseMessage> retrieveBaseMessages(Map<Dimension, Set<Metric>> metrics) {
     return metrics.entrySet().stream()
+      // we do not want to send payloads with zero metrics
+      .filter(v -> !v.getValue().isEmpty())
       .map(entry -> new BaseMessage.Builder()
         .setMessageUuid(uuidFactory.create())
         .setInstallationId(server.getId())

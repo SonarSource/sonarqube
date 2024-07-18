@@ -19,12 +19,13 @@
  */
 package org.sonar.telemetry.metrics.schema;
 
+import javax.annotation.Nullable;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
 
 public class InstallationMetric extends Metric {
 
-  public InstallationMetric(String key, Object value, TelemetryDataType type, Granularity granularity) {
+  public InstallationMetric(String key, @Nullable Object value, TelemetryDataType type, Granularity granularity) {
     this.key = key;
     this.value = value;
     this.type = type;

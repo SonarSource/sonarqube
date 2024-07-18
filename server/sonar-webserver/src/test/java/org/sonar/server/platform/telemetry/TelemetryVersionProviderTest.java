@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.telemetry;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.platform.Server;
 import org.sonar.telemetry.core.Dimension;
@@ -46,7 +47,7 @@ class TelemetryVersionProviderTest {
     assertEquals(Dimension.INSTALLATION, telemetryVersionProvider.getDimension());
     assertEquals(Granularity.DAILY, telemetryVersionProvider.getGranularity());
     assertEquals(TelemetryDataType.STRING, telemetryVersionProvider.getType());
-    assertEquals("10.6", telemetryVersionProvider.getValue());
+    assertEquals(Optional.of("10.6"), telemetryVersionProvider.getValue());
     assertThrows(IllegalStateException.class, telemetryVersionProvider::getUuidValues);
   }
 }

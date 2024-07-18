@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class InstallationMetricTest {
 
   @Test
-  void gettersAndSetters() {
+  void constructor() {
     InstallationMetric metric = new InstallationMetric(
       "installation-key-1",
       "value",
@@ -37,6 +37,21 @@ class InstallationMetricTest {
     );
 
     assertThat(metric.getValue()).isEqualTo("value");
+    assertThat(metric.getKey()).isEqualTo("installation-key-1");
+    assertThat(metric.getGranularity()).isEqualTo(Granularity.WEEKLY);
+    assertThat(metric.getType()).isEqualTo(TelemetryDataType.STRING);
+  }
+
+  @Test
+  void constructor_shouldAcceptNullValue() {
+    InstallationMetric metric = new InstallationMetric(
+      "installation-key-1",
+      null,
+      TelemetryDataType.STRING,
+      Granularity.WEEKLY
+    );
+
+    assertThat(metric.getValue()).isNull();
     assertThat(metric.getKey()).isEqualTo("installation-key-1");
     assertThat(metric.getGranularity()).isEqualTo(Granularity.WEEKLY);
     assertThat(metric.getType()).isEqualTo(TelemetryDataType.STRING);

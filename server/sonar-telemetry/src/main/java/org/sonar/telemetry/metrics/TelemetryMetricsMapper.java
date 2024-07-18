@@ -20,8 +20,10 @@
 package org.sonar.telemetry.metrics;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.metrics.schema.InstallationMetric;
 import org.sonar.telemetry.metrics.schema.LanguageMetric;
@@ -49,9 +51,14 @@ public class TelemetryMetricsMapper {
   }
 
   private static Set<Metric> mapInstallationMetric(TelemetryDataProvider<?> provider) {
+    Optional<?> optionalValue = provider.getValue();
+    if (provider.getGranularity() == Granularity.ADHOC && optionalValue.isEmpty()) {
+      return Collections.emptySet();
+    }
+
     return Collections.singleton(new InstallationMetric(
       provider.getMetricKey(),
-      provider.getValue(),
+      optionalValue.orElse(null),
       provider.getType(),
       provider.getGranularity()
     ));

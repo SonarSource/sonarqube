@@ -166,7 +166,7 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
     }
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      context.getMetricsToUpdate().forEach(toUpdate -> dbClient.telemetryMetricsSentDao().update(dbSession, toUpdate));
+      context.getMetricsToUpdate().forEach(toUpdate -> dbClient.telemetryMetricsSentDao().upsert(dbSession, toUpdate));
       dbSession.commit();
     }
   }
