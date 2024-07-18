@@ -3836,9 +3836,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mantine/core@patch:@mantine/core@6.0.21#./config/patches/@mantine-core-npm-6.0.21-4d202d6649.patch::locator=%40sonarsource%2Fechoes-react%40npm%3A0.4.3":
+"@mantine/core@patch:@mantine/core@6.0.21#./config/patches/@mantine-core-npm-6.0.21-4d202d6649.patch::locator=%40sonarsource%2Fechoes-react%40npm%3A0.5.0":
   version: 6.0.21
-  resolution: "@mantine/core@patch:@mantine/core@npm%3A6.0.21#./config/patches/@mantine-core-npm-6.0.21-4d202d6649.patch::version=6.0.21&hash=070d0f&locator=%40sonarsource%2Fechoes-react%40npm%3A0.4.3"
+  resolution: "@mantine/core@patch:@mantine/core@npm%3A6.0.21#./config/patches/@mantine-core-npm-6.0.21-4d202d6649.patch::version=6.0.21&hash=070d0f&locator=%40sonarsource%2Fechoes-react%40npm%3A0.5.0"
   dependencies:
     "@floating-ui/react": "npm:^0.19.1"
     "@mantine/styles": "npm:6.0.21"
@@ -4424,6 +4424,39 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@radix-ui/react-popover@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@radix-ui/react-popover@npm:1.1.1"
+  dependencies:
+    "@radix-ui/primitive": "npm:1.1.0"
+    "@radix-ui/react-compose-refs": "npm:1.1.0"
+    "@radix-ui/react-context": "npm:1.1.0"
+    "@radix-ui/react-dismissable-layer": "npm:1.1.0"
+    "@radix-ui/react-focus-guards": "npm:1.1.0"
+    "@radix-ui/react-focus-scope": "npm:1.1.0"
+    "@radix-ui/react-id": "npm:1.1.0"
+    "@radix-ui/react-popper": "npm:1.2.0"
+    "@radix-ui/react-portal": "npm:1.1.1"
+    "@radix-ui/react-presence": "npm:1.1.0"
+    "@radix-ui/react-primitive": "npm:2.0.0"
+    "@radix-ui/react-slot": "npm:1.1.0"
+    "@radix-ui/react-use-controllable-state": "npm:1.1.0"
+    aria-hidden: "npm:^1.1.1"
+    react-remove-scroll: "npm:2.5.7"
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: 10/977173c0c6cb0d806c1a94197c7f92447004ade8c0aba5f238acb53ccaf0d330af54f8dbd3b334b497847df28c1ef0215b1103ae6bfccba10bbaf21f4ac59fac
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-popper@npm:1.2.0":
   version: 1.2.0
   resolution: "@radix-ui/react-popper@npm:1.2.0"
@@ -5001,15 +5034,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sonarsource/echoes-react@npm:0.4.3":
-  version: 0.4.3
-  resolution: "@sonarsource/echoes-react@npm:0.4.3"
+"@sonarsource/echoes-react@npm:0.5.0":
+  version: 0.5.0
+  resolution: "@sonarsource/echoes-react@npm:0.5.0"
   dependencies:
     "@mantine/core": "patch:@mantine/core@6.0.21#./config/patches/@mantine-core-npm-6.0.21-4d202d6649.patch"
     "@mantine/hooks": "npm:6.0.21"
     "@material-symbols/font-400": "npm:0.21.1"
     "@radix-ui/react-checkbox": "npm:1.1.1"
     "@radix-ui/react-dropdown-menu": "npm:2.1.1"
+    "@radix-ui/react-popover": "npm:1.1.1"
     "@radix-ui/react-radio-group": "npm:1.2.0"
     "@radix-ui/react-slot": "npm:1.1.0"
     "@radix-ui/react-tooltip": "npm:1.1.2"
@@ -5022,7 +5056,7 @@ __metadata:
     react-dom: ^17.0.0 || ^18.0.0
     react-intl: ^6.0.0
     react-router-dom: ^6.0.0
-  checksum: 10/b531a887f0287465b3d8338ddda7bb793e1bf79a520a4eb69268fe03d9cbd73488a14bdfec9feb5f0d79724b8d0e6a58e24eac6f866a5f2211d651e767b58a26
+  checksum: 10/ffe4b12cce1cf8a66ce89c8fd255d288292a73542de87806d2283553aa44804a90e37a559230d224a6b5fc20a245463969fc350cc742e13bab35355c9853f4bf
   languageName: node
   linkType: hard
 
@@ -6255,7 +6289,7 @@ __metadata:
     "@primer/octicons-react": "npm:19.10.0"
     "@react-spring/rafz": "npm:9.7.3"
     "@react-spring/web": "npm:9.7.3"
-    "@sonarsource/echoes-react": "npm:0.4.3"
+    "@sonarsource/echoes-react": "npm:0.5.0"
     "@swc/core": "npm:1.6.6"
     "@swc/jest": "npm:0.2.36"
     "@tanstack/react-query": "npm:5.18.1"
@@ -8299,7 +8333,7 @@ __metadata:
     "@babel/preset-typescript": "npm:7.24.7"
     "@emotion/babel-plugin": "npm:11.11.0"
     "@emotion/babel-plugin-jsx-pragmatic": "npm:0.2.1"
-    "@sonarsource/echoes-react": "npm:0.4.3"
+    "@sonarsource/echoes-react": "npm:0.5.0"
     "@testing-library/dom": "npm:10.2.0"
     "@testing-library/jest-dom": "npm:6.4.6"
     "@testing-library/react": "npm:16.0.0"
