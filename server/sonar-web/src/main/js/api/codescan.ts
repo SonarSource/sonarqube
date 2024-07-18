@@ -44,13 +44,13 @@ export function deleteBulkProjects(data: {
       .catch(throwGlobalError);
 }
 
-export function getApiKeyForZoho(data: {
+export function getRedirectUrlForZoho(data: {
   operation: string;
   email?: string;
   loginName: string;
   fullName: string;
   utype: string;
 }): Promise<string> {
-  return postJSON('/_codescan/zoho/apiKey', data)
+  return postJSON('/_codescan/zoho/redirectUrl', data)
       .catch(throwGlobalError);
 }
