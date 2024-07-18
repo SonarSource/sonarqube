@@ -69,6 +69,7 @@ import org.sonar.xoo.rule.OnePredefinedAndAdHocRuleExternalIssuePerLineSensor;
 import org.sonar.xoo.rule.OnePredefinedRuleExternalIssuePerLineSensor;
 import org.sonar.xoo.rule.OneQuickFixPerLineSensor;
 import org.sonar.xoo.rule.OneVulnerabilityIssuePerProjectSensor;
+import org.sonar.xoo.rule.OneVulnerabilityPerSecurityStandardSensor;
 import org.sonar.xoo.rule.RandomAccessSensor;
 import org.sonar.xoo.rule.SaveDataTwiceSensor;
 import org.sonar.xoo.rule.Xoo2BasicProfile;
@@ -181,6 +182,7 @@ public class XooPlugin implements Plugin {
       OneBugIssuePerLineSensor.class,
       OneCodeSmellIssuePerLineSensor.class,
       OneVulnerabilityIssuePerProjectSensor.class,
+      OneVulnerabilityPerSecurityStandardSensor.class,
 
       DeprecatedGlobalSensor.class,
       GlobalProjectSensor.class,

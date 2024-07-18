@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -32,11 +33,12 @@ import org.sonar.xoo.rule.hotspot.HotspotWithContextsSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithoutContextSensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
 
 public class XooRulesDefinitionTest {
 
-  private XooRulesDefinition def = new XooRulesDefinition(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
+  private XooRulesDefinition def = new XooRulesDefinition(SonarRuntimeImpl.forSonarQube(Version.create(10, 7), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY), mock(Configuration.class));
 
   private RulesDefinition.Context context = new RulesDefinitionContext();
 
@@ -68,7 +70,10 @@ public class XooRulesDefinitionTest {
     assertThat(rule.securityStandards())
       .isNotEmpty()
       .containsExactlyInAnyOrder("cwe:1", "cwe:89", "cwe:123", "cwe:863", "owaspTop10:a1", "owaspTop10:a3",
-        "owaspTop10-2021:a3", "owaspTop10-2021:a2");
+        "owaspTop10-2021:a3", "owaspTop10-2021:a2", "owaspAsvs-4.0:2.8.7", "owaspAsvs-4.0:3.1.1",
+        "owaspAsvs-4.0:4.2.2", "pciDss-3.2:4.2", "pciDss-3.2:4.2b", "pciDss-3.2:6.5.1",
+        "pciDss-3.2:6.5a.1b", "pciDss-4.0:4.1", "pciDss-4.0:4.2c", "pciDss-4.0:6.5.1", "pciDss-4.0:6.5a.1",
+        "stig-ASD_V5R3:V-222564", "stig-ASD_V5R3:V-222643", "stig-ASD_V5R3:V-222655");
   }
 
   @Test
@@ -93,7 +98,10 @@ public class XooRulesDefinitionTest {
     assertThat(rule.securityStandards())
       .isNotEmpty()
       .containsExactlyInAnyOrder("cwe:250", "cwe:546", "cwe:564", "cwe:943", "owaspTop10-2021:a6", "owaspTop10-2021:a9",
-        "owaspTop10:a10", "owaspTop10:a9");
+        "owaspTop10:a10", "owaspTop10:a9",
+        "owaspAsvs-4.0:11.1.2", "owaspAsvs-4.0:14.5.1", "owaspAsvs-4.0:14.5.4",
+        "pciDss-3.2:10.1a.2c", "pciDss-3.2:10.2", "pciDss-4.0:10.1", "pciDss-4.0:10.1a.2b",
+        "stig-ASD_V5R3:V-222473", "stig-ASD_V5R3:V-222480", "stig-ASD_V5R3:V-222524");
   }
 
   @Test
