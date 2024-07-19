@@ -92,6 +92,8 @@ export class StandardFacet extends React.PureComponent<Props, State> {
       sonarsourceSecurity: {},
       'pciDss-3.2': {},
       'pciDss-4.0': {},
+      'stig-ASD_V5R3': {},
+      casa: {},
       'owaspAsvs-4.0': {},
     },
   };
@@ -124,24 +126,28 @@ export class StandardFacet extends React.PureComponent<Props, State> {
   loadStandards = () => {
     getStandards().then(
       ({
-        'owaspTop10-2021': owaspTop102021,
-        owaspTop10,
-        cwe,
-        sonarsourceSecurity,
-        'pciDss-3.2': pciDss32,
-        'pciDss-4.0': pciDss40,
-        'owaspAsvs-4.0': owaspAsvs40,
+        [SecurityStandard.OWASP_TOP10_2021]: owaspTop102021,
+        [SecurityStandard.OWASP_TOP10]: owaspTop10,
+        [SecurityStandard.CWE]: cwe,
+        [SecurityStandard.SONARSOURCE]: sonarsourceSecurity,
+        [SecurityStandard.PCI_DSS_3_2]: pciDss32,
+        [SecurityStandard.PCI_DSS_4_0]: pciDss40,
+        [SecurityStandard.OWASP_ASVS_4_0]: owaspAsvs40,
+        [SecurityStandard.STIG_ASD_V5R3]: stigV5,
+        [SecurityStandard.CASA]: casa,
       }: Standards) => {
         if (this.mounted) {
           this.setState({
             standards: {
-              'owaspTop10-2021': owaspTop102021,
-              owaspTop10,
-              cwe,
-              sonarsourceSecurity,
-              'pciDss-3.2': pciDss32,
-              'pciDss-4.0': pciDss40,
-              'owaspAsvs-4.0': owaspAsvs40,
+              [SecurityStandard.OWASP_TOP10_2021]: owaspTop102021,
+              [SecurityStandard.OWASP_TOP10]: owaspTop10,
+              [SecurityStandard.CWE]: cwe,
+              [SecurityStandard.SONARSOURCE]: sonarsourceSecurity,
+              [SecurityStandard.PCI_DSS_3_2]: pciDss32,
+              [SecurityStandard.PCI_DSS_4_0]: pciDss40,
+              [SecurityStandard.OWASP_ASVS_4_0]: owaspAsvs40,
+              [SecurityStandard.STIG_ASD_V5R3]: stigV5,
+              [SecurityStandard.CASA]: casa,
             },
           });
         }

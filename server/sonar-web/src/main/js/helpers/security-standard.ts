@@ -104,3 +104,16 @@ export function renderOwaspAsvs40Category(standards: Standards, category: string
 function addPrefix(title: string, prefix: string, withPrefix: boolean) {
   return withPrefix ? `${prefix} ${title}` : title;
 }
+
+export function renderCASACategory(standards: Standards, category: string): string {
+  const record = standards['casa'][category];
+  if (!record) {
+    return category;
+  }
+  return `${category} - ${record.title}`;
+}
+
+export function renderStigCategory(standards: Standards, category: string) {
+  const record = standards['stig-ASD_V5R3'][category];
+  return record ? `${category} - ${record.title}` : category;
+}
