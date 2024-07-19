@@ -115,18 +115,10 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
   }
 }
 
-const ProjectsSortingSelectItem = React.forwardRef<HTMLDivElement, Option & { className: string }>(
-  ({ className, label, optionClass, short, value, ...props }, ref) => {
-    return (
-      <div
-        className={classNames(`it__project-sort-option-${value}`, className, optionClass)}
-        ref={ref}
-        {...props}
-      >
-        {short ?? label}
-      </div>
-    );
-  },
-);
-
-ProjectsSortingSelectItem.displayName = 'ProjectsSortingSelectItem';
+function ProjectsSortingSelectItem({ label, optionClass, short, value }: Readonly<Option>) {
+  return (
+    <div className={classNames(`it__project-sort-option-${value}`, optionClass)}>
+      {short ?? label}
+    </div>
+  );
+}
