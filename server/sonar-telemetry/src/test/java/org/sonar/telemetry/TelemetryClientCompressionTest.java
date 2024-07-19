@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_METRICS_URL;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
 
 class TelemetryClientCompressionTest {
@@ -45,6 +46,7 @@ class TelemetryClientCompressionTest {
     telemetryServer.enqueue(new MockResponse().setResponseCode(200));
     MapSettings settings = new MapSettings();
     settings.setProperty(SONAR_TELEMETRY_URL.getKey(), telemetryServer.url("/").toString());
+    settings.setProperty(SONAR_TELEMETRY_METRICS_URL.getKey(), telemetryServer.url("/").toString());
     TelemetryClient underTest = new TelemetryClient(okHttpClient, settings.asConfig());
     underTest.start();
     underTest.upload("payload compressed with gzip");

@@ -162,7 +162,7 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
     TelemetryMetricsLoader.Context context = telemetryMetricsLoader.loadData();
     for (BaseMessage message : context.getMessages()) {
       String jsonString = MessageSerializer.serialize(message);
-      telemetryClient.upload(jsonString);
+      telemetryClient.uploadMetric(jsonString);
     }
 
     try (DbSession dbSession = dbClient.openSession(false)) {

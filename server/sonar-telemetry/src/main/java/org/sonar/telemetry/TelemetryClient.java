@@ -37,6 +37,7 @@ import org.sonar.api.server.ServerSide;
 
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_COMPRESSION;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
+import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_METRICS_URL;
 
 @ServerSide
 public class TelemetryClient implements Startable {
@@ -46,6 +47,7 @@ public class TelemetryClient implements Startable {
   private final OkHttpClient okHttpClient;
   private final Configuration config;
   private String serverUrl;
+  private String metricsServerUrl;
   private boolean compression;
 
   public TelemetryClient(OkHttpClient okHttpClient, Configuration config) {
@@ -54,7 +56,12 @@ public class TelemetryClient implements Startable {
   }
 
   void upload(String json) throws IOException {
-    Request request = buildHttpRequest(json);
+    Request request = buildHttpRequest(serverUrl, json);
+    execute(okHttpClient.newCall(request));
+  }
+
+  void uploadMetric(String json) throws IOException {
+    Request request = buildHttpRequest(metricsServerUrl, json);
     execute(okHttpClient.newCall(request));
   }
 
@@ -63,7 +70,6 @@ public class TelemetryClient implements Startable {
     request.url(serverUrl);
     RequestBody body = RequestBody.create(JSON, json);
     request.delete(body);
-
     try {
       execute(okHttpClient.newCall(request.build()));
     } catch (IOException e) {
@@ -71,7 +77,7 @@ public class TelemetryClient implements Startable {
     }
   }
 
-  private Request buildHttpRequest(String json) {
+  private Request buildHttpRequest(String serverUrl, String json) {
     Request.Builder request = new Request.Builder();
     request.addHeader("Content-Encoding", "gzip");
     request.addHeader("Content-Type", "application/json");
@@ -117,6 +123,8 @@ public class TelemetryClient implements Startable {
   public void start() {
     this.serverUrl = config.get(SONAR_TELEMETRY_URL.getKey())
       .orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", SONAR_TELEMETRY_URL)));
+    this.metricsServerUrl = config.get(SONAR_TELEMETRY_METRICS_URL.getKey())
+      .orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", SONAR_TELEMETRY_METRICS_URL)));
     this.compression = config.getBoolean(SONAR_TELEMETRY_COMPRESSION.getKey()).orElse(true);
   }
 
