@@ -97,6 +97,7 @@ import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.PciDss;
 import org.sonar.server.security.SecurityStandards.SQCategory;
+import org.sonar.server.security.SecurityStandards.StigSupportedRequirement;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.springframework.util.CollectionUtils;
@@ -1320,6 +1321,16 @@ public class IssueIndex {
           includeCwe,
           null)));
     return search(request, includeCwe, version.label());
+  }
+
+  public List<SecurityStandardCategoryStatistics> getStig(String projectUuid, boolean isViewOrApp, RulesDefinition.StigVersion stigVersion) {
+    SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
+    Arrays.stream(StigSupportedRequirement.values())
+      .forEach(stigSupportedRequirement -> request.aggregation(
+        newSecurityReportSubAggregations(
+          AggregationBuilders.filter(stigSupportedRequirement.getRequirement(), boolQuery().filter(termQuery(stigVersion.prefix(), stigSupportedRequirement.getRequirement()))),
+          false, null)));
+    return search(request, false, stigVersion.label());
   }
 
   private List<SecurityStandardCategoryStatistics> searchWithLevelDistribution(SearchSourceBuilder sourceBuilder, String version, @Nullable String level) {

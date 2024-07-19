@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.rule.RulesDefinition.StigVersion;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.view.index.ViewDoc;
 
@@ -45,6 +46,8 @@ import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
 import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.issue.IssueDocTesting.newDocForProject;
+import static org.sonar.server.security.SecurityStandards.StigSupportedRequirement.V222391;
+import static org.sonar.server.security.SecurityStandards.StigSupportedRequirement.V222397;
 import static org.sonar.server.security.SecurityStandards.UNKNOWN_STANDARD;
 
 class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
@@ -727,6 +730,75 @@ class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
         SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
       .containsExactlyInAnyOrder(1L, 0L, 0L);
     assertThat(findRuleInCweByYear(cwe2023, "999")).isNull();
+  }
+
+  @Test
+  void getStigAsdV5R3_whenRequestingReportOnApplication_ShouldAggregateBasedOnStigRequirement() {
+    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+
+    indexIssues(
+      newDocForProject("openvul1", project1).setStigAsdV5R3(List.of(V222391.getRequirement())).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.MAJOR),
+      newDocForProject("openvul2", project2).setStigAsdV5R3(List.of(V222391.getRequirement())).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR),
+      newDocForProject("toreviewhotspot", project1).setStigAsdV5R3(List.of(V222397.getRequirement())).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_TO_REVIEW),
+
+      newDocForProject("unknown", project2).setStigAsdV5R3(List.of("V-999999")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR));
+
+    indexView(application.uuid(), asList(project1.uuid(), project2.uuid()));
+
+    Map<String, SecurityStandardCategoryStatistics> statisticsToMap = underTest.getStig(application.uuid(), true, StigVersion.ASD_V5R3)
+      .stream().collect(Collectors.toMap(SecurityStandardCategoryStatistics::getCategory, e -> e));
+
+    assertThat(statisticsToMap).hasSize(41)
+      .hasEntrySatisfying(V222391.getRequirement(), stat -> {
+        assertThat(stat.getVulnerabilities()).isEqualTo(2);
+        assertThat(stat.getToReviewSecurityHotspots()).isZero();
+        assertThat(stat.getReviewedSecurityHotspots()).isZero();
+      })
+      .hasEntrySatisfying(V222397.getRequirement(), stat -> {
+        assertThat(stat.getVulnerabilities()).isZero();
+        assertThat(stat.getToReviewSecurityHotspots()).isEqualTo(1);
+        assertThat(stat.getReviewedSecurityHotspots()).isZero();
+      });
+  }
+
+  @Test
+  void getStigAsdV5R3_whenRequestingReportOnProject_ShouldAggregateBasedOnStigRequirement() {
+    ComponentDto branch = newPrivateProjectDto();
+    indexIssues(
+      newDocForProject("openvul", branch).setStigAsdV5R3(List.of(V222391.getRequirement())).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.MAJOR),
+      newDocForProject("openvul2", branch).setStigAsdV5R3(List.of(V222391.getRequirement())).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.MAJOR),
+      newDocForProject("notopenvul", branch).setStigAsdV5R3(List.of(V222391.getRequirement())).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED)
+        .setResolution(Issue.RESOLUTION_FIXED)
+        .setSeverity(Severity.BLOCKER),
+      newDocForProject("toreviewhotspot", branch).setStigAsdV5R3(List.of(V222397.getRequirement())).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_TO_REVIEW),
+      newDocForProject("reviewedHostpot", branch).setStigAsdV5R3(List.of(V222397.getRequirement())).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_FIXED));
+
+    Map<String, SecurityStandardCategoryStatistics> statisticsToMap = underTest.getStig(branch.uuid(), false, StigVersion.ASD_V5R3)
+      .stream().collect(Collectors.toMap(SecurityStandardCategoryStatistics::getCategory, e -> e));
+
+    assertThat(statisticsToMap).hasSize(41)
+      .hasEntrySatisfying(V222391.getRequirement(), stat -> {
+        assertThat(stat.getVulnerabilities()).isEqualTo(2);
+        assertThat(stat.getToReviewSecurityHotspots()).isZero();
+        assertThat(stat.getReviewedSecurityHotspots()).isZero();
+        assertThat(stat.getVulnerabilityRating()).as("MAJOR = C").isEqualTo(OptionalInt.of(3));
+      })
+      .hasEntrySatisfying(V222397.getRequirement(), stat -> {
+        assertThat(stat.getVulnerabilities()).isZero();
+        assertThat(stat.getToReviewSecurityHotspots()).isEqualTo(1);
+        assertThat(stat.getReviewedSecurityHotspots()).isEqualTo(1);
+        assertThat(stat.getSecurityReviewRating()).as("50% of hotspots are reviewed, so rating is C").isEqualTo(3);
+      });
   }
 
   private SecurityStandardCategoryStatistics findRuleInCweByYear(SecurityStandardCategoryStatistics statistics, String cweId) {
