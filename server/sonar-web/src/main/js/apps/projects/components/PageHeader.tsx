@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { ButtonGroup } from '@sonarsource/echoes-react';
 import { InputSearch, LightLabel, LightPrimary } from 'design-system';
 import * as React from 'react';
 import { RawQuery } from '~sonar-aligned/types/router';
@@ -42,7 +44,7 @@ interface Props {
 
 const MIN_SEARCH_QUERY_LENGTH = 2;
 
-export default function PageHeader(props: Props) {
+export default function PageHeader(props: Readonly<Props>) {
   const { query, total, currentUser, view } = props;
   const defaultOption = isLoggedIn(currentUser) ? 'name' : 'analysis_date';
 
@@ -53,9 +55,13 @@ export default function PageHeader(props: Props) {
   return (
     <div className="it__page-header sw-flex sw-flex-col">
       <div className="sw-flex sw-justify-end sw-mb-4">
-        <ProjectCreationMenu />
-        <ApplicationCreation className="sw-ml-2" />
+        <ButtonGroup>
+          <ProjectCreationMenu />
+
+          <ApplicationCreation />
+        </ButtonGroup>
       </div>
+
       <div className="sw-flex sw-justify-between">
         <div className="sw-flex sw-flex-1">
           <Tooltip content={translate('projects.search')}>
@@ -69,7 +75,9 @@ export default function PageHeader(props: Props) {
               searchInputAriaLabel={translate('search_verb')}
             />
           </Tooltip>
+
           <PerspectiveSelect onChange={props.onPerspectiveChange} view={view} />
+
           <ProjectsSortingSelect
             defaultOption={defaultOption}
             onChange={props.onSortChange}
@@ -77,15 +85,18 @@ export default function PageHeader(props: Props) {
             view={view}
           />
         </div>
+
         <div className="sw-flex sw-items-center">
           {total != null && (
             <>
               <LightPrimary id="projects-total" className="sw-body-sm-highlight sw-mr-1">
                 {total}
               </LightPrimary>
+
               <LightLabel className="sw-body-sm">{translate('projects_')}</LightLabel>
             </>
           )}
+
           <HomePageSelect currentPage={{ type: 'PROJECTS' }} />
         </div>
       </div>

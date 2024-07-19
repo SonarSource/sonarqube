@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { ButtonGroup } from '@sonarsource/echoes-react';
 import tw from 'twin.macro';
 import { Spinner } from '../Spinner';
 
@@ -27,12 +29,15 @@ interface Props {
   secondaryButton: React.ReactNode;
 }
 
-export function ModalFooter({ loading = false, primaryButton, secondaryButton }: Props) {
+export function ModalFooter({ loading = false, primaryButton, secondaryButton }: Readonly<Props>) {
   return (
     <StyledFooter>
       <Spinner loading={loading} />
-      {primaryButton}
-      {secondaryButton}
+
+      <ButtonGroup>
+        {primaryButton}
+        {secondaryButton}
+      </ButtonGroup>
     </StyledFooter>
   );
 }
