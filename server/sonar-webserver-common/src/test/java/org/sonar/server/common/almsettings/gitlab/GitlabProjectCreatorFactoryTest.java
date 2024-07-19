@@ -20,23 +20,31 @@
 package org.sonar.server.common.almsettings.gitlab;
 
 import java.util.Map;
+import java.util.Optional;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.server.common.almsettings.DevOpsProjectCreator;
 import org.sonar.server.common.almsettings.DevOpsProjectDescriptor;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GitlabProjectCreatorFactoryTest {
+
+  @Mock
+  private GitlabDevOpsProjectCreationContextService gitlabDevOpsProjectService;
 
   @InjectMocks
   private GitlabProjectCreatorFactory underTest;
@@ -50,17 +58,28 @@ class GitlabProjectCreatorFactoryTest {
 
   @Test
   void getDevOpsProjectCreator_whenDevOpsPlatformIsNotGitlab_returnsEmpty() {
-    AlmSettingDto almSetting = mock();
-    when(almSetting.getAlm()).thenReturn(ALM.AZURE_DEVOPS);
+    AlmSettingDto almSetting = mockAlm(ALM.GITHUB);
     AssertionsForClassTypes.assertThat(underTest.getDevOpsProjectCreator(almSetting, Mockito.mock(DevOpsProjectDescriptor.class))).isEmpty();
   }
 
 
   @Test
-  void getDevOpsProjectCreator_whenDevOpsPlatformIsNotGitlab_returnsProjectCreator() {
-    AlmSettingDto almSetting = mock();
-    when(almSetting.getAlm()).thenReturn(ALM.GITLAB);
-    assertThat(underTest.getDevOpsProjectCreator(almSetting, mock(DevOpsProjectDescriptor.class))).isNotEmpty();
+  void getDevOpsProjectCreator_whenDevOpsPlatformIsGitlab_returnsProjectCreator() {
+    when(gitlabDevOpsProjectService.create(any(), any())).thenReturn(mock());
+
+    AlmSettingDto almSetting = mockAlm(ALM.GITLAB);
+    DevOpsProjectDescriptor devOpsProjectDescriptor = mock();
+    
+    Optional<DevOpsProjectCreator> devOpsProjectCreator = underTest.getDevOpsProjectCreator(almSetting, devOpsProjectDescriptor);
+    
+    assertThat(devOpsProjectCreator).isNotEmpty();
+    verify(gitlabDevOpsProjectService).create(almSetting, devOpsProjectDescriptor);
+  }
+  
+  private static AlmSettingDto mockAlm(ALM alm) {
+    AlmSettingDto almSettingDto = mock(AlmSettingDto.class);
+    when(almSettingDto.getAlm()).thenReturn(alm);
+    return almSettingDto;
   }
 
 }

@@ -17,16 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.almsettings.github;
+package org.sonar.server.common.almsettings;
 
 import javax.annotation.Nullable;
-import org.sonar.auth.github.AppInstallationToken;
-import org.sonar.auth.github.security.AccessToken;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.server.common.almsettings.DevOpsProjectDescriptor;
 import org.sonar.server.user.UserSession;
 
-public record GithubProjectCreationParameters(DevOpsProjectDescriptor devOpsProjectDescriptor, AlmSettingDto almSettingDto, UserSession userSession,
-                                              AccessToken devOpsAppInstallationToken,
-                                              @Nullable AppInstallationToken authAppInstallationToken) {
+public record DevOpsProjectCreationContext(String name, String fullName, String devOpsPlatformIdentifier, boolean isPublic, @Nullable String defaultBranchName,
+                                           AlmSettingDto almSettingDto, UserSession userSession) {
 }

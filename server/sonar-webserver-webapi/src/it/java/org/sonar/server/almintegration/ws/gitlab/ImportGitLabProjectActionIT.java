@@ -21,6 +21,7 @@ package org.sonar.server.almintegration.ws.gitlab;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,8 +29,10 @@ import org.junit.Test;
 import org.sonar.alm.client.gitlab.GitLabBranch;
 import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.alm.client.gitlab.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.auth.gitlab.GitLabSettings;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -37,23 +40,34 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
+import org.sonar.server.common.almsettings.gitlab.GitlabDevOpsProjectCreationContextService;
 import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.common.permission.GroupPermissionChanger;
 import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.common.permission.PermissionUpdater;
+import org.sonar.server.common.permission.UserPermissionChange;
+import org.sonar.server.common.permission.UserPermissionChanger;
 import org.sonar.server.common.project.ImportProjectService;
 import org.sonar.server.common.project.ProjectCreator;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.es.IndexersImpl;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.favorite.FavoriteUpdater;
+import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
+import org.sonar.server.permission.index.FooIndexDefinition;
+import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
@@ -64,7 +78,6 @@ import org.sonarqube.ws.Projects;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -107,8 +120,19 @@ public class ImportGitLabProjectActionIT {
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
   private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+
+  public EsTester es = EsTester.createCustom(new FooIndexDefinition());
+  private final PermissionUpdater<UserPermissionChange> userPermissionUpdater = new PermissionUpdater(
+    new IndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
+    Set.of(new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
+      new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory())));
+  private final PermissionService permissionService = new PermissionServiceImpl(new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT));
+
+  private final GitLabSettings gitlabSettings = mock();
+  private final ManagedProjectService managedProjectService = mock();
+  private final GitlabDevOpsProjectCreationContextService gitlabDevOpsProjectService = new GitlabDevOpsProjectCreationContextService(db.getDbClient(), userSession, gitlabApplicationClient);
   private final GitlabProjectCreatorFactory gitlabProjectCreatorFactory = new GitlabProjectCreatorFactory(db.getDbClient(), projectKeyGenerator, projectCreator,
-    gitlabApplicationClient, userSession);
+    gitlabSettings, permissionService, userPermissionUpdater, managedProjectService, gitlabDevOpsProjectService);
 
   private final ImportProjectService importProjectService = new ImportProjectService(db.getDbClient(), gitlabProjectCreatorFactory, userSession, componentUpdater,
     newCodeDefinitionResolver);
@@ -368,7 +392,10 @@ public class ImportGitLabProjectActionIT {
   }
 
   private Project mockGitlabProject(List<GitLabBranch> master) {
-    Project project = new Project(randomAlphanumeric(5), randomAlphanumeric(5));
+    Project project = mock();
+    when(project.getName()).thenReturn("projectName");
+    when(project.getPath()).thenReturn("project/with/path/projectName");
+    when(project.getVisibility()).thenReturn("public");
     when(gitlabApplicationClient.getProject(any(), any(), any())).thenReturn(project);
     when(gitlabApplicationClient.getBranches(any(), any(), any())).thenReturn(master);
     when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);

@@ -84,7 +84,9 @@ import org.sonar.server.common.almsettings.DelegatingDevOpsProjectCreatorFactory
 import org.sonar.server.common.almsettings.azuredevops.AzureDevOpsProjectCreatorFactory;
 import org.sonar.server.common.almsettings.bitbucketcloud.BitbucketCloudProjectCreatorFactory;
 import org.sonar.server.common.almsettings.bitbucketserver.BitbucketServerProjectCreatorFactory;
+import org.sonar.server.common.almsettings.github.GithubDevOpsProjectCreationContextService;
 import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
+import org.sonar.server.common.almsettings.gitlab.GitlabDevOpsProjectCreationContextService;
 import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.github.config.GithubConfigurationService;
@@ -575,8 +577,10 @@ public class PlatformLevel4 extends PlatformLevel {
       GithubApplicationClientImpl.class,
       GithubProvisioningConfigValidator.class,
       GithubProvisioningWs.class,
+      GithubDevOpsProjectCreationContextService.class,
       GithubProjectCreatorFactory.class,
       GithubPermissionConverter.class,
+      GitlabDevOpsProjectCreationContextService.class,
       BitbucketCloudRestClientConfiguration.class,
       BitbucketServerRestClient.class,
       AzureDevOpsHttpClient.class,

@@ -117,6 +117,11 @@ public class GitLabSettingsTest {
     assertThat(config.isProvisioningEnabled()).isTrue();
   }
 
+  @Test
+  public void isProjectVisibilitySynchronizationActivated_alwaysReturnsTrue() {
+    assertThat(config.isProjectVisibilitySynchronizationActivated()).isTrue();
+  }
+
   private void enableGitlabAuthentication() {
     settings.setProperty(GITLAB_AUTH_ENABLED, true);
     settings.setProperty(GITLAB_AUTH_APPLICATION_ID, "on");

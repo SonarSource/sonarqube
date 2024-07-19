@@ -50,10 +50,10 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.DelegatingDevOpsProjectCreatorFactory;
+import org.sonar.server.common.almsettings.DevOpsProjectCreationContext;
 import org.sonar.server.common.almsettings.DevOpsProjectCreator;
 import org.sonar.server.common.almsettings.DevOpsProjectCreatorFactory;
-import org.sonar.server.common.almsettings.DevOpsProjectDescriptor;
-import org.sonar.server.common.almsettings.github.GithubProjectCreationParameters;
+import org.sonar.server.common.almsettings.github.GithubDevOpsProjectCreationContextService;
 import org.sonar.server.common.almsettings.github.GithubProjectCreator;
 import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
@@ -127,10 +127,11 @@ public class ReportSubmitterIT {
     new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, mock(PermissionUpdater.class), permissionService);
   private final ManagedProjectService managedProjectService = mock();
   private final ManagedInstanceService managedInstanceService = mock();
+  private final GithubDevOpsProjectCreationContextService githubDevOpsProjectService = new GithubDevOpsProjectCreationContextService(db.getDbClient(), userSession, githubApplicationClient);
   private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
   private final GithubProjectCreatorFactory githubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(), githubGlobalSettingsValidator,
-    githubApplicationClient, projectKeyGenerator, userSession, projectCreator, gitHubSettings, null, permissionUpdater, permissionService,
-    managedProjectService);
+    githubApplicationClient, projectKeyGenerator, projectCreator, gitHubSettings, null, permissionUpdater, permissionService,
+    managedProjectService, githubDevOpsProjectService);
 
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new DelegatingDevOpsProjectCreatorFactory(Set.of(githubProjectCreatorFactory));
 
@@ -393,10 +394,10 @@ public class ReportSubmitterIT {
 
     mockGithubRepository(isPrivate);
 
-    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo", null);
-    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(projectDescriptor, almSettingDto, userSession, mock(), null);
-    DevOpsProjectCreator devOpsProjectCreator = spy(new GithubProjectCreator(db.getDbClient(), githubApplicationClient, null, projectKeyGenerator,
-      permissionUpdater, permissionService, managedProjectService, projectCreator, githubProjectCreationParameters, gitHubSettings));
+    DevOpsProjectCreationContext devOpsProjectCreationContext = new DevOpsProjectCreationContext("repo", "orga/repo", "orga/repo", true, "defaultBranch", almSettingDto, userSession);
+
+    DevOpsProjectCreator devOpsProjectCreator = spy(new GithubProjectCreator(db.getDbClient(), devOpsProjectCreationContext, projectKeyGenerator, gitHubSettings, projectCreator,
+      permissionService, permissionUpdater, managedProjectService, githubApplicationClient, null, null));
     doReturn(Optional.of(devOpsProjectCreator)).when(devOpsProjectCreatorFactorySpy).getDevOpsProjectCreator(any(), eq(characteristics));
     return devOpsProjectCreator;
   }

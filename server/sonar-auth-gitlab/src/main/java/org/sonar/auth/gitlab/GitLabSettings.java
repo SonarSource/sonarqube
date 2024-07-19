@@ -108,7 +108,7 @@ public class GitLabSettings implements DevOpsPlatformSettings {
 
   @Override
   public boolean isProjectVisibilitySynchronizationActivated() {
-    return false;
+    return true;
   }
 
   static List<PropertyDefinition> definitions() {

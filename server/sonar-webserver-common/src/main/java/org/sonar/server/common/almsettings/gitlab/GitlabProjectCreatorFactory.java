@@ -21,32 +21,44 @@ package org.sonar.server.common.almsettings.gitlab;
 
 import java.util.Map;
 import java.util.Optional;
-import org.sonar.alm.client.gitlab.GitlabApplicationClient;
+import org.sonar.auth.gitlab.GitLabSettings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
+import org.sonar.server.common.almsettings.DefaultDevOpsProjectCreator;
+import org.sonar.server.common.almsettings.DevOpsProjectCreationContext;
 import org.sonar.server.common.almsettings.DevOpsProjectCreator;
 import org.sonar.server.common.almsettings.DevOpsProjectCreatorFactory;
 import org.sonar.server.common.almsettings.DevOpsProjectDescriptor;
+import org.sonar.server.common.permission.PermissionUpdater;
+import org.sonar.server.common.permission.UserPermissionChange;
 import org.sonar.server.common.project.ProjectCreator;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.management.ManagedProjectService;
+import org.sonar.server.permission.PermissionService;
 
 public class GitlabProjectCreatorFactory implements DevOpsProjectCreatorFactory {
   private final DbClient dbClient;
   private final ProjectKeyGenerator projectKeyGenerator;
   private final ProjectCreator projectCreator;
-  private final GitlabApplicationClient gitlabApplicationClient;
-  private final UserSession userSession;
+  private final GitLabSettings gitLabSettings;
+  private final PermissionService permissionService;
+  private final PermissionUpdater<UserPermissionChange> permissionUpdater;
+  private final ManagedProjectService managedProjectService;
+  private final GitlabDevOpsProjectCreationContextService gitlabDevOpsProjectService;
 
-  public GitlabProjectCreatorFactory(DbClient dbClient, ProjectKeyGenerator projectKeyGenerator, ProjectCreator projectCreator, GitlabApplicationClient gitlabApplicationClient,
-    UserSession userSession) {
+  public GitlabProjectCreatorFactory(DbClient dbClient, ProjectKeyGenerator projectKeyGenerator, ProjectCreator projectCreator,
+    GitLabSettings gitLabSettings, PermissionService permissionService, PermissionUpdater<UserPermissionChange> permissionUpdater,
+    ManagedProjectService managedProjectService, GitlabDevOpsProjectCreationContextService gitlabDevOpsProjectService) {
     this.dbClient = dbClient;
     this.projectKeyGenerator = projectKeyGenerator;
     this.projectCreator = projectCreator;
-    this.gitlabApplicationClient = gitlabApplicationClient;
-    this.userSession = userSession;
+    this.gitLabSettings = gitLabSettings;
+    this.permissionService = permissionService;
+    this.permissionUpdater = permissionUpdater;
+    this.managedProjectService = managedProjectService;
+    this.gitlabDevOpsProjectService = gitlabDevOpsProjectService;
   }
 
   @Override
@@ -59,14 +71,21 @@ public class GitlabProjectCreatorFactory implements DevOpsProjectCreatorFactory 
     if (almSettingDto.getAlm() != ALM.GITLAB) {
       return Optional.empty();
     }
+
+    DevOpsProjectCreationContext devOpsProjectCreationContext = gitlabDevOpsProjectService.create(almSettingDto, devOpsProjectDescriptor);
+
     return Optional.of(
-      new GitlabProjectCreator(
+      new DefaultDevOpsProjectCreator(
         dbClient,
+        devOpsProjectCreationContext,
         projectKeyGenerator,
+        gitLabSettings,
         projectCreator,
-        almSettingDto,
-        devOpsProjectDescriptor,
-        gitlabApplicationClient,
-        userSession));
+        permissionService,
+        permissionUpdater,
+        managedProjectService
+      )
+    );
   }
+
 }

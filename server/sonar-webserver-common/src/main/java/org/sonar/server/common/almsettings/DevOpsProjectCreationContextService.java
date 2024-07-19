@@ -17,47 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.auth.github.security;
+package org.sonar.server.common.almsettings;
 
-import java.util.Objects;
+import org.sonar.db.alm.setting.AlmSettingDto;
 
-public class UserAccessToken implements AccessToken {
+public interface DevOpsProjectCreationContextService {
 
-  private final String token;
+  DevOpsProjectCreationContext create(AlmSettingDto almSettingDto, DevOpsProjectDescriptor devOpsProjectDescriptor);
 
-  public UserAccessToken(String token) {
-    this.token = token;
-  }
-
-  @Override
-  public String getValue() {
-    return token;
-  }
-
-  @Override
-  public String getAuthorizationHeaderPrefix() {
-    return "token";
-  }
-
-  @Override
-  public String toString() {
-    return getValue();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    UserAccessToken that = (UserAccessToken) o;
-    return Objects.equals(token, that.token);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(token);
-  }
 }
