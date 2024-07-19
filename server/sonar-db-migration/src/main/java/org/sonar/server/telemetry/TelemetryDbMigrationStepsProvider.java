@@ -59,7 +59,7 @@ public class TelemetryDbMigrationStepsProvider implements TelemetryDataProvider<
   }
 
   @Override
-  public void destroy() {
+  public void after() {
     dbMigrationCompletedSteps = null;
   }
 }

@@ -169,6 +169,9 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
       context.getMetricsToUpdate().forEach(toUpdate -> dbClient.telemetryMetricsSentDao().upsert(dbSession, toUpdate));
       dbSession.commit();
     }
+
+    // Finally, run after tasks for all providers
+    telemetryMetricsLoader.runProviderAfterTasks();
   }
 
   private void uploadLegacyTelemetry() throws IOException {

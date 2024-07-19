@@ -90,6 +90,10 @@ public class TelemetryMetricsLoader {
     }
   }
 
+  public void runProviderAfterTasks() {
+    this.providers.forEach(TelemetryDataProvider::after);
+  }
+
   private Set<BaseMessage> retrieveBaseMessages(Map<Dimension, Set<Metric>> metrics) {
     return metrics.entrySet().stream()
       // we do not want to send payloads with zero metrics

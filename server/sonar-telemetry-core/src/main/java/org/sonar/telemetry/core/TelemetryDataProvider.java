@@ -77,7 +77,12 @@ public interface TelemetryDataProvider<T> {
     throw new IllegalStateException("Not implemented");
   }
 
-  default void destroy() {
+  /**
+   * This method will be executed for every telemetry provider after telemetry metrics are sent. This is important for some telemetry
+   * providers, more specifically, those adhoc metrics which are usually to be sent as once off values as these values are typically
+   * stored in memory. The most common use case would be to clear the data.
+   */
+  default void after() {
     // this method does nothing by default it is used to perform cleanup tasks if needed
   }
 }

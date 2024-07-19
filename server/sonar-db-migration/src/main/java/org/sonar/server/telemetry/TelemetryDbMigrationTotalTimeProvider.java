@@ -59,7 +59,7 @@ public class TelemetryDbMigrationTotalTimeProvider implements TelemetryDataProvi
   }
 
   @Override
-  public void destroy() {
+  public void after() {
     dbMigrationTotalTime = null;
   }
 }

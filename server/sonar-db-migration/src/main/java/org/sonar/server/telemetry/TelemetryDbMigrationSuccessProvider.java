@@ -59,7 +59,7 @@ public class TelemetryDbMigrationSuccessProvider implements TelemetryDataProvide
   }
 
   @Override
-  public void destroy() {
+  public void after() {
     dbMigrationSuccess = null;
   }
 }
