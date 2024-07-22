@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Select } from '@sonarsource/echoes-react';
+
+import { InputSize, Select } from '@sonarsource/echoes-react';
 import { StyledPageTitle } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
@@ -55,11 +56,13 @@ export default function PerspectiveSelect(props: Readonly<Props>) {
       <Select
         ariaLabelledBy="aria-projects-perspective"
         className="sw-mr-4 sw-body-sm"
+        hasDropdownAutoWidth
         isNotClearable
         onChange={handleChange}
         data={options}
         placeholder={translate('project_activity.filter_events')}
         value={view}
+        size={InputSize.Small}
       />
     </div>
   );

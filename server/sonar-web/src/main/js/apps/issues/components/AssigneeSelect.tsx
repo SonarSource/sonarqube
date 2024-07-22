@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SelectAsync } from '@sonarsource/echoes-react';
+
+import { SelectAsync, SelectOption } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import Avatar from '../../../components/ui/Avatar';
@@ -32,10 +33,8 @@ export const MIN_QUERY_LENGTH = 2;
 
 const UNASSIGNED: Option = { value: '', label: translate('unassigned') };
 
-interface Option {
+interface Option extends SelectOption {
   Icon?: React.JSX.Element;
-  label: string;
-  value: string;
 }
 
 export interface AssigneeSelectProps {
@@ -56,7 +55,7 @@ function userToOption(user: RestUser | UserActive) {
   };
 }
 
-export default function AssigneeSelect(props: AssigneeSelectProps) {
+export default function AssigneeSelect(props: Readonly<AssigneeSelectProps>) {
   const { className, issues, inputId, label, selectedAssigneeKey } = props;
 
   const { currentUser } = React.useContext(CurrentUserContext);
@@ -103,8 +102,8 @@ export default function AssigneeSelect(props: AssigneeSelectProps) {
   );
 }
 
-function AssigneeOption(props: Omit<Option, 'value'>) {
-  const { label, Icon } = props;
+function AssigneeOption(props: Readonly<Option>) {
+  const { Icon, label } = props;
 
   return (
     <div className="sw-flex sw-flex-nowrap sw-items-center sw-overflow-hidden">

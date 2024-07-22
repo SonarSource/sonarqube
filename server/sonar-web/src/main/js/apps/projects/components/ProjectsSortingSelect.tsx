@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Select, Tooltip } from '@sonarsource/echoes-react';
+
+import { InputSize, Select, SelectOption, Tooltip } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { InteractiveIcon, SortAscendIcon, SortDescendIcon, StyledPageTitle } from 'design-system';
 import { sortBy } from 'lodash';
@@ -32,11 +33,9 @@ interface Props {
   view: string;
 }
 
-export interface Option {
-  label: string;
+export interface Option extends SelectOption {
   optionClass?: string;
   short?: string;
-  value: string;
 }
 
 export default class ProjectsSortingSelect extends React.PureComponent<Props> {
@@ -90,6 +89,7 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
           placeholder={translate('project_activity.filter_events')}
           isNotClearable
           value={sortValue}
+          size={InputSize.Medium}
         />
         <Tooltip
           content={
