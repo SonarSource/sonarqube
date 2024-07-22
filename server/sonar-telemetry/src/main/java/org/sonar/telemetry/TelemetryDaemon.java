@@ -123,8 +123,8 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
 
         long now = system2.now();
         if (shouldUploadStatistics(now)) {
-          uploadMetrics();
           uploadLegacyTelemetry();
+          uploadMetrics();
 
           updateTelemetryProps(now);
         }
