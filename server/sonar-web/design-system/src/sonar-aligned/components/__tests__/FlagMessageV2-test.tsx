@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
+import { ComponentProps } from 'react';
 import { IntlShape } from 'react-intl';
-import { FCProps } from '~types/misc';
 import { render } from '../../../helpers/testUtils';
-import { DismissableFlagMessage, FlagMessage, Variant } from '../FlagMessage';
+import { FlagMessageV2, FlagMessageV2Variant } from '../FlagMessageV2';
 
 jest.mock(
   'react-intl',
@@ -40,7 +40,8 @@ it.each([
   ['warning', '1px solid rgb(248,205,92)'],
   ['success', '1px solid rgb(166,208,91)'],
   ['info', '1px solid rgb(143,202,234)'],
-])('should render properly for "%s" variant', (variant: Variant, color) => {
+  ['recommended', '1px solid rgb(93,108,208)'],
+])('should render properly for "%s" variant', (variant: FlagMessageV2Variant, color) => {
   renderFlagMessage({ variant });
 
   const item = screen.getByRole('status');
@@ -48,22 +49,23 @@ it.each([
   expect(item).toHaveStyle({ border: color });
 });
 
-it('should render Dismissable flag message properly', () => {
-  const dismissFunc = jest.fn();
-  render(<DismissableFlagMessage onDismiss={dismissFunc} role="status" variant="error" />);
-  const item = screen.getByRole('status');
-  expect(item).toBeInTheDocument();
-  expect(item).toHaveStyle({ border: '1px solid rgb(249,112,102)' });
-  const dismissButton = screen.getByRole('button');
-  expect(dismissButton).toBeInTheDocument();
-  dismissButton.click();
-  expect(dismissFunc).toHaveBeenCalled();
+it('should render correctly with optional props', async () => {
+  const onDismiss = jest.fn();
+  const { user } = renderFlagMessage({
+    title: 'This is a title',
+    hasIcon: false,
+    onDismiss,
+  });
+  expect(screen.getByText('This is a title')).toBeInTheDocument();
+  expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button'));
+  expect(onDismiss).toHaveBeenCalled();
 });
 
-function renderFlagMessage(props: Partial<FCProps<typeof FlagMessage>> = {}) {
+function renderFlagMessage(props: Partial<ComponentProps<typeof FlagMessageV2>> = {}) {
   return render(
-    <FlagMessage role="status" variant="error" {...props}>
+    <FlagMessageV2 role="status" variant="error" {...props}>
       This is an error!
-    </FlagMessage>,
+    </FlagMessageV2>,
   );
 }
