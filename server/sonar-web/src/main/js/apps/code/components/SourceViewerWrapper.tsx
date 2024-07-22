@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ToggleButton } from 'design-system/lib';
 import * as React from 'react';
 import { Location } from '~sonar-aligned/types/router';
-import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
+import SourceViewer from '../../../components/SourceViewer/SourceViewer';
+import SourceViewerPreview from '../../../components/SourceViewer/SourceViewerPreview';
 import { BranchLike } from '../../../types/branch-like';
 import { Measure } from '../../../types/types';
 
@@ -31,8 +33,18 @@ export interface SourceViewerWrapperProps {
   location: Location;
 }
 
+const PREVIEW_MODE_SUPPORTED_EXTENSIONS = ['ipynb'];
+
 function SourceViewerWrapper(props: SourceViewerWrapperProps) {
   const { branchLike, component, componentMeasures, location } = props;
+
+  const isPreviewSupported = React.useMemo(
+    () => PREVIEW_MODE_SUPPORTED_EXTENSIONS.includes(component.split('.').pop() ?? ''),
+    [component],
+  );
+
+  const [tab, setTab] = React.useState('preview');
+
   const { line } = location.query;
   const finalLine = line ? Number(line) : undefined;
 
@@ -45,7 +57,34 @@ function SourceViewerWrapper(props: SourceViewerWrapperProps) {
     }
   }, [line]);
 
-  return (
+  return isPreviewSupported ? (
+    <>
+      <div className="sw-mb-4">
+        <ToggleButton
+          options={[
+            { label: 'Preview', value: 'preview' },
+            { label: 'Code', value: 'code' },
+          ]}
+          value={tab}
+          onChange={(value) => setTab(value)}
+        />
+      </div>
+
+      {tab === 'preview' ? (
+        <SourceViewerPreview branchLike={branchLike} component={component} />
+      ) : (
+        <SourceViewer
+          aroundLine={finalLine}
+          branchLike={branchLike}
+          component={component}
+          componentMeasures={componentMeasures}
+          highlightedLine={finalLine}
+          onLoaded={handleLoaded}
+          showMeasures
+        />
+      )}
+    </>
+  ) : (
     <SourceViewer
       aroundLine={finalLine}
       branchLike={branchLike}

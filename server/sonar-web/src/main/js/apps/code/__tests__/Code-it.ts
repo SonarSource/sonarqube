@@ -27,9 +27,11 @@ import { MetricKey } from '~sonar-aligned/types/metrics';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
+import SourcesServiceMock from '../../../api/mocks/SourcesServiceMock';
 import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
 import { isDiffMetric } from '../../../helpers/measures';
 import { mockComponent } from '../../../helpers/mocks/component';
+import { mockSourceLine, mockSourceViewerFile } from '../../../helpers/mocks/sources';
 import { mockMeasure } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
 import { Component } from '../../../types/types';
@@ -54,6 +56,7 @@ const originalScrollTo = window.scrollTo;
 
 const branchesHandler = new BranchesServiceMock();
 const componentsHandler = new ComponentsServiceMock();
+const sourcesHandler = new SourcesServiceMock();
 const issuesHandler = new IssuesServiceMock();
 
 beforeAll(() => {
@@ -75,6 +78,7 @@ afterAll(() => {
 beforeEach(() => {
   branchesHandler.reset();
   componentsHandler.reset();
+  sourcesHandler.reset();
   issuesHandler.reset();
 });
 
@@ -138,7 +142,7 @@ it('should behave correctly when using search', async () => {
   expect(await ui.searchResult(/folderA/).find()).toBeInTheDocument();
 });
 
-it('should correcly handle long lists of components', async () => {
+it('should correctly handle long lists of components', async () => {
   const component = mockComponent(componentsHandler.findComponentTree('foo')?.component);
   componentsHandler.registerComponentTree({
     component,
@@ -434,6 +438,56 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
   });
 });
 
+it('should render correctly for ipynb files', async () => {
+  const component = mockComponent({
+    ...componentsHandler.findComponentTree('foo')?.component,
+    qualifier: ComponentQualifier.Project,
+    canBrowseAllChildProjects: true,
+  });
+  componentsHandler.sourceFiles = [
+    {
+      component: mockSourceViewerFile('file0.ipynb', 'foo'),
+      lines: times(1, (n) =>
+        mockSourceLine({
+          line: n,
+          code: 'function Test() {}',
+        }),
+      ),
+    },
+  ];
+  componentsHandler.registerComponentTree({
+    component,
+    ancestors: [],
+    children: times(1, (n) => ({
+      component: mockComponent({
+        key: `foo:file${n}.ipynb`,
+        name: `file${n}.ipynb`,
+        qualifier: ComponentQualifier.File,
+      }),
+      ancestors: [component],
+      children: [],
+    })),
+  });
+  const ui = getPageObject(userEvent.setup());
+  renderCode({ component });
+
+  await ui.appLoaded();
+
+  await ui.clickOnChildComponent(/ipynb$/);
+
+  expect(ui.previewToggle.get()).toBeInTheDocument();
+  expect(ui.previewToggleOption().get()).toBeChecked();
+  expect(ui.previewMarkdown.get()).toBeInTheDocument();
+  expect(ui.previewCode.get()).toBeInTheDocument();
+  expect(ui.previewOutputImage.get()).toBeInTheDocument();
+  expect(ui.previewOutputText.get()).toBeInTheDocument();
+  expect(ui.previewOutputStream.get()).toBeInTheDocument();
+
+  await ui.clickToggleCode();
+
+  expect(ui.sourceCode.get()).toBeInTheDocument();
+});
+
 function getPageObject(user: UserEvent) {
   const ui = {
     componentName: (name: string) => byText(name),
@@ -442,8 +496,18 @@ function getPageObject(user: UserEvent) {
     componentIsEmptyTxt: (qualifier: ComponentQualifier) =>
       byText(`code_viewer.no_source_code_displayed_due_to_empty_analysis.${qualifier}`),
     searchInput: byRole('searchbox'),
+    previewToggle: byRole('radiogroup'),
+    previewToggleOption: (name: string = 'Preview') =>
+      byRole('radio', {
+        name,
+      }),
     noResultsTxt: byText('no_results'),
     sourceCode: byText('function Test() {}'),
+    previewCode: byText('numpy', { exact: false }),
+    previewMarkdown: byText('Learning a cosine with keras'),
+    previewOutputImage: byRole('img', { name: 'source_viewer.jupyter.output.image' }),
+    previewOutputText: byText('[<matplotlib.lines.Line2D at 0x7fb588176b90>]'),
+    previewOutputStream: byText('(7500,) (2500,)'),
     notAccessToAllChildrenTxt: byText('code_viewer.not_all_measures_are_shown'),
     showingOutOfTxt: (x: number, y: number) => byText(`x_of_y_shown.${x}.${y}`),
     newCodeBtn: byRole('radio', { name: 'projects.view.new_code' }),
@@ -479,6 +543,9 @@ function getPageObject(user: UserEvent) {
     },
     async clickOnChildComponent(name: string | RegExp) {
       await user.click(screen.getByRole('link', { name }));
+    },
+    async clickToggleCode() {
+      await user.click(ui.previewToggleOption('Code').get());
     },
     async appLoaded(name = 'Foo') {
       await waitFor(() => {
