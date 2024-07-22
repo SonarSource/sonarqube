@@ -135,6 +135,25 @@ const IconButton = styled.button`
   ${buttonIconStyle}
 `;
 
+/**
+ * @deprecated Use ButtonIcon from Echoes instead.
+ *
+ * Use the `variety` prop with the ButtonVariety enum to change the
+ * button's look and feel.
+ *
+ * Some of the props have changed or been renamed:
+ * - `disabled` is now `isDisabled`, note that an Echoes Tooltip won't work
+ * on a disabled button, use a text notice or ToggleTip next to the disabled button instead.
+ * - `Icon` is restricted to Echoes' Icons
+ * - `aria-label` is now `ariaLabel`
+ * - `size` now requires a value from the ButtonSize enum
+ *
+ * New props:
+ * - `tooltipContent` overrides the content of the tooltip (which defaults to the value of ariaLabel!)
+ * - `tooltipProps` allows you to customize the tooltip positioning (`align` and `side`)
+ *
+ * See the {@link https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3382706231/Button | Migration Guide} for more information.
+ */
 export const InteractiveIcon = styled(InteractiveIconBase)`
   --background: ${themeColor('interactiveIcon')};
   --backgroundHover: ${themeColor('interactiveIconHover')};
@@ -144,10 +163,42 @@ export const InteractiveIcon = styled(InteractiveIconBase)`
   --focus: ${themeColor('interactiveIconFocus', OPACITY_20_PERCENT)};
 `;
 
+/**
+ * @deprecated Use ButtonIcon from Echoes instead, with the ButtonVariety.DefaultGhost variety.
+ *
+ * Some of the props have changed or been renamed:
+ * - `disabled` is now `isDisabled`, note that an Echoes Tooltip won't work
+ * on a disabled button, use a text notice or ToggleTip next to the disabled button instead.
+ * - `Icon` is restricted to Echoes' Icons
+ * - `aria-label` is now `ariaLabel`
+ * - `size` now requires a value from the ButtonSize enum
+ *
+ * New props:
+ * - `tooltipContent` overrides the content of the tooltip (which defaults to the value of ariaLabel!)
+ * - `tooltipProps` allows you to customize the tooltip positioning (`align` and `side`)
+ *
+ * See the {@link https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3382706231/Button | Migration Guide} for more information.
+ */
 export const DiscreetInteractiveIcon = styled(InteractiveIcon)`
   --color: ${themeColor('discreetInteractiveIcon')};
 `;
 
+/**
+ * @deprecated Use ButtonIcon from Echoes instead, with the ButtonVariety.DangerGhost variety.
+ *
+ * Some of the props have changed or been renamed:
+ * - `disabled` is now `isDisabled`, note that an Echoes Tooltip won't work
+ * on a disabled button, use a text notice or ToggleTip next to the disabled button instead.
+ * - `Icon` is restricted to Echoes' Icons
+ * - `aria-label` is now `ariaLabel`
+ * - `size` now requires a value from the ButtonSize enum
+ *
+ * New props:
+ * - `tooltipContent` overrides the content of the tooltip (which defaults to the value of ariaLabel!)
+ * - `tooltipProps` allows you to customize the tooltip positioning (`align` and `side`)
+ *
+ * See the {@link https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3382706231/Button | Migration Guide} for more information.
+ */
 export const DestructiveIcon = styled(InteractiveIconBase)`
   --background: ${themeColor('destructiveIcon')};
   --backgroundHover: ${themeColor('destructiveIconHover')};
@@ -156,6 +207,22 @@ export const DestructiveIcon = styled(InteractiveIconBase)`
   --focus: ${themeColor('destructiveIconFocus', OPACITY_20_PERCENT)};
 `;
 
+/**
+ * @deprecated Use ButtonIcon from Echoes instead, with the ButtonVariety.DefaultGhost variety.
+ *
+ * Some of the props have changed or been renamed:
+ * - `disabled` is now `isDisabled`, note that an Echoes Tooltip won't work
+ * on a disabled button, use a text notice or ToggleTip next to the disabled button instead.
+ * - `Icon` is restricted to Echoes' Icons
+ * - `aria-label` is now `ariaLabel`
+ * - `size` now requires a value from the ButtonSize enum
+ *
+ * New props:
+ * - `tooltipContent` overrides the content of the tooltip (which defaults to the value of ariaLabel!)
+ * - `tooltipProps` allows you to customize the tooltip positioning (`align` and `side`)
+ *
+ * See the {@link https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3382706231/Button | Migration Guide} for more information.
+ */
 export const DismissProductNewsIcon = styled(InteractiveIcon)`
   --background: ${themeColor('productNews')};
   --backgroundHover: ${themeColor('productNewsHover')};

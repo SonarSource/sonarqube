@@ -19,16 +19,15 @@
  */
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import { ButtonIcon, ButtonVariety, IconUnfold } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import {
   ChevronRightIcon,
   ClipboardIconButton,
   HoverLink,
-  InteractiveIcon,
   LightLabel,
   Link,
   Spinner,
-  UnfoldIcon,
   themeColor,
 } from 'design-system';
 import * as React from 'react';
@@ -180,11 +179,11 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
 
       {expandable && !(loading ?? isLoadingBranches) && (
         <div className="sw-ml-4">
-          <InteractiveIcon
-            Icon={UnfoldIcon}
-            aria-label={translate('source_viewer.expand_all_lines')}
-            className="sw-h-6"
+          <ButtonIcon
+            Icon={IconUnfold}
+            ariaLabel={translate('source_viewer.expand_all_lines')}
             onClick={onExpand}
+            variety={ButtonVariety.PrimaryGhost}
           />
         </div>
       )}

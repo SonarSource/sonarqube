@@ -17,8 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { IconMoreVertical, Spinner, Tooltip } from '@sonarsource/echoes-react';
-import { ActionCell, Avatar, ContentCell, InteractiveIcon, TableRow } from 'design-system';
+import {
+  ButtonIcon,
+  ButtonSize,
+  ButtonVariety,
+  IconMoreVertical,
+  Spinner,
+} from '@sonarsource/echoes-react';
+import { ActionCell, Avatar, ContentCell, TableRow } from 'design-system';
 import * as React from 'react';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -80,30 +86,31 @@ export default function UserListItem(props: Readonly<UserListItemProps>) {
         <Spinner isLoading={groupsAreLoading}>
           {groupsCount}
           {manageProvider === undefined && (
-            <Tooltip content={translate('users.update_groups')}>
-              <InteractiveIcon
-                Icon={IconMoreVertical}
-                className="it__user-groups sw-ml-2"
-                aria-label={translateWithParameters('users.update_users_groups', user.login)}
-                onClick={() => setOpenGroupForm(true)}
-                size="small"
-              />
-            </Tooltip>
+            <ButtonIcon
+              Icon={IconMoreVertical}
+              tooltipContent={translate('users.update_groups')}
+              className="it__user-groups sw-ml-2"
+              ariaLabel={translateWithParameters('users.update_users_groups', user.login)}
+              onClick={() => setOpenGroupForm(true)}
+              size={ButtonSize.Medium}
+              variety={ButtonVariety.DefaultGhost}
+            />
           )}
         </Spinner>
       </ContentCell>
       <ContentCell>
         <Spinner isLoading={tokensAreLoading}>
           {tokens?.length}
-          <Tooltip content={translateWithParameters('users.update_tokens')}>
-            <InteractiveIcon
-              Icon={IconMoreVertical}
-              className="it__user-tokens sw-ml-2"
-              aria-label={translateWithParameters('users.update_tokens_for_x', name ?? login)}
-              onClick={() => setOpenTokenForm(true)}
-              size="small"
-            />
-          </Tooltip>
+
+          <ButtonIcon
+            Icon={IconMoreVertical}
+            tooltipContent={translateWithParameters('users.update_tokens')}
+            className="it__user-tokens sw-ml-2"
+            ariaLabel={translateWithParameters('users.update_tokens_for_x', name ?? login)}
+            onClick={() => setOpenTokenForm(true)}
+            size={ButtonSize.Medium}
+            variety={ButtonVariety.DefaultGhost}
+          />
         </Spinner>
       </ContentCell>
 

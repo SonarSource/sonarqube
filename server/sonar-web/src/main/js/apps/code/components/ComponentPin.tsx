@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InteractiveIcon, PinIcon } from 'design-system';
+import { ButtonIcon, ButtonVariety, IconPin } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { WorkspaceContextShape } from '../../../components/workspace/context';
 import { translateWithParameters } from '../../../helpers/l10n';
@@ -42,11 +42,12 @@ export default function ComponentPin(props: Props) {
     });
   }, [branchLike, component, openComponent]);
 
-  const label = translateWithParameters('component_viewer.open_in_workspace_X', component.name);
-
   return (
-    <span title={label}>
-      <InteractiveIcon aria-label={label} Icon={PinIcon} onClick={handleClick} />
-    </span>
+    <ButtonIcon
+      ariaLabel={translateWithParameters('component_viewer.open_in_workspace_X', component.name)}
+      Icon={IconPin}
+      onClick={handleClick}
+      variety={ButtonVariety.PrimaryGhost}
+    />
   );
 }

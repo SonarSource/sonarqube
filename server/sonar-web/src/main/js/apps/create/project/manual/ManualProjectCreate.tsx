@@ -18,17 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { ButtonIcon, ButtonSize, ButtonVariety, IconX } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import {
   ButtonPrimary,
   ButtonSecondary,
-  CloseIcon,
   FlagErrorIcon,
   FlagMessage,
   FlagSuccessIcon,
   FormField,
   InputField,
-  InteractiveIcon,
   Link,
   Note,
   Title,
@@ -146,12 +145,12 @@ export default function ManualProjectCreate(props: Readonly<Props>) {
           id="onboarding.create_project.manual.step1"
           defaultMessage={translate('onboarding.create_project.manual.step1')}
         />
-        <InteractiveIcon
-          Icon={CloseIcon}
-          aria-label={intl.formatMessage({ id: 'clear' })}
-          currentColor
+        <ButtonIcon
+          Icon={IconX}
+          ariaLabel={intl.formatMessage({ id: 'clear' })}
           onClick={props.onClose}
-          size="small"
+          size={ButtonSize.Medium}
+          variety={ButtonVariety.DefaultGhost}
         />
       </div>
       <Title>{translate('onboarding.create_project.manual.title')}</Title>

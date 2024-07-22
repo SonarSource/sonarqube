@@ -17,17 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  DropdownMenu,
-  INTERACTIVE_TOOLTIP_DELAY,
-  InputSearch,
-  InteractiveIcon,
-  MenuSearchIcon,
-  Popup,
-  PopupZLevel,
-  TextMuted,
-} from 'design-system';
-import { debounce, uniqBy } from 'lodash';
+import { ButtonIcon, ButtonVariety, IconSearch } from '@sonarsource/echoes-react';
+import { DropdownMenu, InputSearch, Popup, PopupZLevel, TextMuted } from 'design-system';
+import { debounce, isEmpty, uniqBy } from 'lodash';
 import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
@@ -35,7 +27,6 @@ import { Router } from '~sonar-aligned/types/router';
 import { getSuggestions } from '../../../api/components';
 import FocusOutHandler from '../../../components/controls/FocusOutHandler';
 import OutsideClickHandler from '../../../components/controls/OutsideClickHandler';
-import Tooltip from '../../../components/controls/Tooltip';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
@@ -419,17 +410,14 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
 
     return (
       <form role="search">
-        {!open && !query ? (
-          <Tooltip mouseEnterDelay={INTERACTIVE_TOOLTIP_DELAY} content={translate('search_verb')}>
-            <InteractiveIcon
-              className="it__search-icon"
-              Icon={MenuSearchIcon}
-              aria-label={translate('search_verb')}
-              currentColor
-              onClick={this.handleFocus}
-              size="medium"
-            />
-          </Tooltip>
+        {!open && isEmpty(query) ? (
+          <ButtonIcon
+            Icon={IconSearch}
+            ariaLabel={translate('search_verb')}
+            className="it__search-icon"
+            onClick={this.handleFocus}
+            variety={ButtonVariety.DefaultGhost}
+          />
         ) : (
           <FocusOutHandler onFocusOut={this.handleClickOutside}>
             <OutsideClickHandler onClickOutside={this.handleClickOutside}>

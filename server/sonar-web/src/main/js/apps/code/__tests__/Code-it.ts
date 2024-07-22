@@ -85,7 +85,7 @@ it('should allow navigating through the tree', async () => {
 
   // Navigate by clicking on an element.
   await ui.clickOnChildComponent(/folderA$/);
-  expect(await ui.childComponent(/out\.tsx/).findAll()).toHaveLength(2); // One for the pin, one for the name column
+  expect(await ui.childComponent(/out\.tsx/).find()).toBeInTheDocument();
   expect(screen.getByRole('navigation', { name: 'breadcrumbs' })).toBeInTheDocument();
 
   // Navigate back using the breadcrumb.

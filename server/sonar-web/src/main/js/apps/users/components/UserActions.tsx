@@ -19,12 +19,11 @@
  */
 
 import {
-  ActionsDropdown,
-  ItemButton,
-  ItemDangerButton,
-  ItemDivider,
-  PopupZLevel,
-} from 'design-system';
+  ButtonIcon,
+  ButtonVariety,
+  DropdownMenu,
+  IconMoreVertical,
+} from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Provider } from '../../../types/types';
@@ -49,31 +48,49 @@ export default function UserActions(props: Props) {
 
   return (
     <>
-      <ActionsDropdown
-        id={`user-settings-action-dropdown-${user.login}`}
-        toggleClassName="it__user-actions-toggle"
-        allowResizing
-        ariaLabel={translateWithParameters('users.manage_user', user.login)}
-        zLevel={PopupZLevel.Global}
+      <DropdownMenu.Root
+        items={
+          <>
+            <DropdownMenu.ItemButton
+              className="it__user-update"
+              key="update"
+              onClick={() => setOpenForm('update')}
+            >
+              {isInstanceManaged ? translate('update_scm') : translate('update_details')}
+            </DropdownMenu.ItemButton>
+
+            {!isInstanceManaged && user.local && (
+              <DropdownMenu.ItemButton
+                className="it__user-change-password"
+                key="change_password"
+                onClick={() => setOpenForm('password')}
+              >
+                {translate('my_profile.password.title')}
+              </DropdownMenu.ItemButton>
+            )}
+            {isUserActive(user) && !isInstanceManaged && <DropdownMenu.Separator key="separator" />}
+
+            {isUserActive(user) && (!isInstanceManaged || isUserLocal) && (
+              <DropdownMenu.ItemButtonDestructive
+                className="it__user-deactivate"
+                key="deactivate"
+                onClick={() => setOpenForm('deactivate')}
+              >
+                {translate('users.deactivate')}
+              </DropdownMenu.ItemButtonDestructive>
+            )}
+          </>
+        }
       >
-        <ItemButton className="it__user-update" onClick={() => setOpenForm('update')}>
-          {isInstanceManaged ? translate('update_scm') : translate('update_details')}
-        </ItemButton>
-        {!isInstanceManaged && user.local && (
-          <ItemButton className="it__user-change-password" onClick={() => setOpenForm('password')}>
-            {translate('my_profile.password.title')}
-          </ItemButton>
-        )}
-        {isUserActive(user) && !isInstanceManaged && <ItemDivider />}
-        {isUserActive(user) && (!isInstanceManaged || isUserLocal) && (
-          <ItemDangerButton
-            className="it__user-deactivate"
-            onClick={() => setOpenForm('deactivate')}
-          >
-            {translate('users.deactivate')}
-          </ItemDangerButton>
-        )}
-      </ActionsDropdown>
+        <ButtonIcon
+          id={`user-settings-action-dropdown-${user.login}`}
+          className="it__user-actions-toggle"
+          Icon={IconMoreVertical}
+          ariaLabel={translateWithParameters('users.manage_user', user.login)}
+          variety={ButtonVariety.DefaultGhost}
+        />
+      </DropdownMenu.Root>
+
       {openForm === 'deactivate' && isUserActive(user) && (
         <DeactivateForm onClose={() => setOpenForm(undefined)} user={user} />
       )}

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import { IconSearch } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
 import React, { PropsWithChildren, useEffect, useMemo, useRef, useState } from 'react';
@@ -31,7 +32,6 @@ import { InputSizeKeys } from '../../types/theme';
 import { InteractiveIcon } from '../InteractiveIcon';
 import { Spinner } from '../Spinner';
 import { CloseIcon } from '../icons/CloseIcon';
-import { SearchIcon } from '../icons/SearchIcon';
 
 interface Props {
   autoFocus?: boolean;
@@ -238,7 +238,7 @@ export const StyledInputWrapper = styled.div`
   }
 `;
 
-export const StyledSearchIcon = styled(SearchIcon)`
+export const StyledSearchIcon = styled(IconSearch)`
   color: ${themeColor('inputBorder')};
 `;
 

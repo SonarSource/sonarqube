@@ -19,12 +19,12 @@
  */
 
 import {
+  ButtonIcon,
+  ButtonVariety,
   DropdownMenu,
   DropdownMenuAlign,
   IconQuestionMark,
-  Tooltip,
 } from '@sonarsource/echoes-react';
-import { InteractiveIcon } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { EmbedDocsPopup } from './EmbedDocsPopup';
@@ -37,18 +37,13 @@ export default function EmbedDocsPopupHelper() {
         id="help-menu-dropdown"
         items={<EmbedDocsPopup />}
       >
-        <Tooltip content={translate('help')}>
-          <InteractiveIcon
-            Icon={IconQuestionMark}
-            data-guiding-id="issue-5"
-            aria-controls="help-menu-dropdown"
-            aria-haspopup
-            aria-label={translate('help')}
-            currentColor
-            size="medium"
-            stopPropagation={false}
-          />
-        </Tooltip>
+        <ButtonIcon
+          Icon={IconQuestionMark}
+          data-guiding-id="issue-5"
+          ariaLabel={translate('help')}
+          isIconFilled
+          variety={ButtonVariety.DefaultGhost}
+        />
       </DropdownMenu.Root>
     </div>
   );

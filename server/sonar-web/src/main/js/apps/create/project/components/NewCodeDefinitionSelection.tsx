@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { ButtonIcon, ButtonSize, ButtonVariety, IconX } from '@sonarsource/echoes-react';
 import {
   ButtonPrimary,
   ButtonSecondary,
-  CloseIcon,
   FlagMessage,
-  InteractiveIcon,
   Link,
   Spinner,
   Title,
@@ -193,12 +192,12 @@ export default function NewCodeDefinitionSelection(props: Props) {
           id="onboarding.create_project.manual.step2"
           defaultMessage={translate('onboarding.create_project.manual.step2')}
         />
-        <InteractiveIcon
-          Icon={CloseIcon}
-          aria-label={intl.formatMessage({ id: 'clear' })}
-          currentColor
+        <ButtonIcon
+          Icon={IconX}
+          ariaLabel={intl.formatMessage({ id: 'clear' })}
           onClick={onClose}
-          size="small"
+          size={ButtonSize.Medium}
+          variety={ButtonVariety.DefaultGhost}
         />
       </div>
       <Title>

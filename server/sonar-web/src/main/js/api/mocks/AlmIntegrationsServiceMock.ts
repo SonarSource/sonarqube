@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { cloneDeep, uniqueId } from 'lodash';
 import { Visibility } from '~sonar-aligned/types/component';
 import {
@@ -63,6 +64,14 @@ import {
   setupGithubProjectCreation,
   setupGitlabProjectCreation,
 } from '../alm-integrations';
+
+let uniqueNumber = 0;
+
+function createUniqueNumber() {
+  uniqueNumber += 1;
+
+  return uniqueNumber;
+}
 
 export default class AlmIntegrationsServiceMock {
   almInstancePATMap: { [key: string]: boolean } = {};
@@ -301,7 +310,7 @@ export default class AlmIntegrationsServiceMock {
     const generatedRepositories = Array.from(Array(quantity).keys()).map((index) => {
       return mockBitbucketCloudRepository({
         name: `Gitlab project ${index}`,
-        uuid: Math.floor(Math.random() * 100000),
+        uuid: createUniqueNumber(),
       });
     });
 

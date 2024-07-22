@@ -18,14 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { IconX } from '@sonarsource/echoes-react';
-import {
-  ButtonPrimary,
-  ButtonSecondary,
-  InteractiveIcon,
-  themeBorder,
-  themeColor,
-} from 'design-system';
+import { ButtonIcon, ButtonSize, ButtonVariety, IconX } from '@sonarsource/echoes-react';
+import { ButtonPrimary, ButtonSecondary, themeBorder, themeColor } from 'design-system';
 import React, { useState } from 'react';
 import { translate } from '../../../helpers/l10n';
 
@@ -68,11 +62,13 @@ export default function PromotedSection({
     <StyledWrapper className="sw-p-4 sw-pl-6 sw-my-6 sw-rounded-2">
       <div className="sw-flex sw-justify-between sw-mb-2">
         <StyledTitle className="sw-body-md-highlight">{title}</StyledTitle>
-        <InteractiveIcon
+
+        <ButtonIcon
           Icon={IconX}
-          aria-label={translate('dismiss')}
+          ariaLabel={translate('dismiss')}
           onClick={handleDismiss}
-          size="small"
+          size={ButtonSize.Medium}
+          variety={ButtonVariety.DefaultGhost}
         />
       </div>
       <p className="sw-body-sm sw-mb-4">{content}</p>
