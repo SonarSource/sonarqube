@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator, DangerButtonSecondary, StyledPageTitle } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { BasicSeparator, StyledPageTitle } from 'design-system';
 import { flatMap } from 'lodash';
 import * as React from 'react';
 import { RawQuery } from '~sonar-aligned/types/router';
@@ -88,9 +89,9 @@ export default function PageSidebar(props: PageSidebarProps) {
         </StyledPageTitle>
 
         {isFiltered && (
-          <DangerButtonSecondary onClick={clearAll}>
+          <Button onClick={clearAll} variety={ButtonVariety.DangerOutline}>
             {translate('clear_all_filters')}
-          </DangerButtonSecondary>
+          </Button>
         )}
       </div>
 

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FlagMessage, Link, Spinner, getTabId, getTabPanelId } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, Link, Spinner, getTabId, getTabPanelId } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
@@ -83,13 +84,14 @@ export default function AlmTabRenderer(props: Readonly<AlmTabRendererProps>) {
 
           <div className={definitions.length > 0 ? 'sw-mb-5' : 'sw-my-3'}>
             <CreationTooltip alm={almTab} preventCreation={preventCreation}>
-              <ButtonPrimary
+              <Button
                 data-test="settings__alm-create"
-                disabled={preventCreation}
+                isDisabled={preventCreation}
                 onClick={props.onCreate}
+                variety={ButtonVariety.Primary}
               >
                 {translate('settings.almintegration.create')}
-              </ButtonPrimary>
+              </Button>
             </CreationTooltip>
           </div>
           {definitions.map((def) => (

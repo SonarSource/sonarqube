@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonSecondary, DateRangePicker } from 'design-system';
+import { Button } from '@sonarsource/echoes-react';
+import { DateRangePicker } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 
@@ -43,9 +44,9 @@ export default function ChangelogSearch(props: ChangelogSearchProps) {
         onChange={props.onDateRangeChange}
         value={dateRange}
       />
-      <ButtonSecondary className="sw-ml-2 sw-align-top" onClick={props.onReset}>
+      <Button className="sw-ml-2 sw-align-top" onClick={props.onReset}>
         {intl.formatMessage({ id: 'reset_verb' })}
-      </ButtonSecondary>
+      </Button>
     </div>
   );
 }

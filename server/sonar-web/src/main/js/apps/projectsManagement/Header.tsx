@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, InteractiveIcon, PencilIcon, Title } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { InteractiveIcon, PencilIcon, Title } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -59,16 +60,17 @@ export default function Header(props: Readonly<Props>) {
           </div>
 
           {hasProvisionPermission && (
-            <ButtonPrimary
+            <Button
               id="create-project"
               onClick={() =>
                 navigate('/projects/create?mode=manual', {
                   state: { from: location.pathname },
                 })
               }
+              variety={ButtonVariety.Primary}
             >
               {translate('qualifiers.create.TRK')}
-            </ButtonPrimary>
+            </Button>
           )}
         </div>
       </div>

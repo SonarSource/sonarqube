@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonPrimary, FlagMessage, Modal, Spinner } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, Modal, Spinner } from 'design-system';
 import { keyBy } from 'lodash';
 import React, { SyntheticEvent, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -218,9 +219,14 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
       primaryButton={
         <>
           <Spinner loading={createLoading || updateLoading} />
-          <ButtonPrimary form={FORM_ID} type="submit" disabled={!canBeSaved}>
+          <Button
+            form={FORM_ID}
+            type="submit"
+            isDisabled={!canBeSaved}
+            variety={ButtonVariety.Primary}
+          >
             {translate('settings.almintegration.form.save')}
-          </ButtonPrimary>
+          </Button>
         </>
       }
     />

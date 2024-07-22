@@ -19,15 +19,9 @@
  */
 
 import styled from '@emotion/styled';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import {
-  ContentCell,
-  DangerButtonSecondary,
-  FlagWarningIcon,
-  Spinner,
-  TableRow,
-  themeColor,
-} from 'design-system';
+import { ContentCell, FlagWarningIcon, TableRow, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
@@ -115,15 +109,15 @@ export default function TokensFormItem(props: Readonly<Props>) {
 
       <ContentCell>
         {token.isExpired && (
-          <DangerButtonSecondary
-            disabled={isPending}
+          <Button
+            isDisabled={isPending}
+            isLoading={isPending}
             onClick={handleRevoke}
             aria-label={translateWithParameters('users.tokens.remove_label', token.name)}
+            variety={ButtonVariety.DangerOutline}
           >
-            <Spinner className="sw-mr-1" loading={isPending}>
-              {translate('remove')}
-            </Spinner>
-          </DangerButtonSecondary>
+            {translate('remove')}
+          </Button>
         )}
 
         {!token.isExpired && deleteConfirmation === 'modal' && (
@@ -141,31 +135,32 @@ export default function TokensFormItem(props: Readonly<Props>) {
             onConfirm={handleRevoke}
           >
             {({ onClick }) => (
-              <DangerButtonSecondary
-                disabled={isPending}
+              <Button
+                isDisabled={isPending}
                 onClick={onClick}
                 aria-label={translateWithParameters('users.tokens.revoke_label', token.name)}
+                variety={ButtonVariety.DangerOutline}
               >
                 {translate('users.tokens.revoke')}
-              </DangerButtonSecondary>
+              </Button>
             )}
           </ConfirmButton>
         )}
 
         {!token.isExpired && deleteConfirmation === 'inline' && (
-          <DangerButtonSecondary
+          <Button
             aria-label={
               showConfirmation
                 ? translate('users.tokens.sure')
                 : translateWithParameters('users.tokens.revoke_label', token.name)
             }
-            disabled={isPending}
+            isDisabled={isPending}
+            isLoading={isPending}
             onClick={handleClick}
+            variety={ButtonVariety.DangerOutline}
           >
-            <Spinner className="sw-mr-1" loading={isPending} />
-
             {showConfirmation ? translate('users.tokens.sure') : translate('users.tokens.revoke')}
-          </DangerButtonSecondary>
+          </Button>
         )}
       </ContentCell>
     </TableRow>

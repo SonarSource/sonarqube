@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, ButtonSecondary, Checkbox, Modal, Note } from 'design-system';
+import { Button, ButtonGroup, ButtonVariety } from '@sonarsource/echoes-react';
+import { Checkbox, Modal, Note } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
@@ -92,19 +93,19 @@ export default function StatusUpdateSuccessModal(props: StatusUpdateSuccessModal
         <Note className="sw-ml-2">{translate('hotspots.success_dialog.do_not_show')}</Note>
       </Checkbox>
 
-      <div className="sw-flex sw-justify-between sw-mt-4">
-        <ButtonSecondary
+      <ButtonGroup className="sw-mt-4">
+        <Button
           onClick={() => {
             props.onSwitchFilterToStatusOfUpdatedHotspot();
             props.onClose();
           }}
         >
           {translateWithParameters('hotspots.see_x_hotspots', statusLabel)}
-        </ButtonSecondary>
-        <ButtonPrimary onClick={props.onClose}>
+        </Button>
+        <Button onClick={props.onClose} variety={ButtonVariety.Primary}>
           {translate('hotspots.continue_to_next_hotspot')}
-        </ButtonPrimary>
-      </div>
+        </Button>
+      </ButtonGroup>
     </Modal>
   );
 }

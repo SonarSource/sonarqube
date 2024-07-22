@@ -19,8 +19,8 @@
  */
 
 import styled from '@emotion/styled';
-import { Link, LinkStandalone, Spinner } from '@sonarsource/echoes-react';
-import { ButtonPrimary, Card, CenteredLayout, Note, Title } from 'design-system';
+import { Button, ButtonVariety, Link, LinkStandalone, Spinner } from '@sonarsource/echoes-react';
+import { Card, CenteredLayout, Note, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
@@ -298,9 +298,13 @@ export default class App extends React.PureComponent<Props, State> {
                 <MaintenanceText>{translate('maintenance.upgrade_database.3')}</MaintenanceText>
 
                 <MaintenanceSpinner>
-                  <ButtonPrimary id="start-migration" onClick={this.handleMigrateClick}>
+                  <Button
+                    id="start-migration"
+                    onClick={this.handleMigrateClick}
+                    variety={ButtonVariety.Primary}
+                  >
                     {translate('maintenance.upgrade')}
-                  </ButtonPrimary>
+                  </Button>
                 </MaintenanceSpinner>
               </>
             )}

@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonPrimary, FlagMessage, InputTextArea } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, InputTextArea } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
@@ -65,9 +66,9 @@ export default class InputForJSON extends React.PureComponent<DefaultSpecialized
             isInvalid={isInvalid}
           />
           <div className="sw-ml-2">
-            <ButtonPrimary className="sw-mt-2" onClick={this.format}>
+            <Button className="sw-mt-2" onClick={this.format} variety={ButtonVariety.Primary}>
               {translate('settings.json.format')}
-            </ButtonPrimary>
+            </Button>
           </div>
         </div>
         {formatError && (

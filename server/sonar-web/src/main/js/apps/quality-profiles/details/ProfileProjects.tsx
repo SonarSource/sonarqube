@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Link, Spinner } from '@sonarsource/echoes-react';
-import { Badge, ButtonSecondary, ContentCell, SubTitle, Table, TableRow } from 'design-system';
+import { Button, Link, Spinner } from '@sonarsource/echoes-react';
+import { Badge, ContentCell, SubTitle, Table, TableRow } from 'design-system';
 import * as React from 'react';
 import { getProfileProjects } from '../../../api/quality-profiles';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -182,13 +182,13 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
             <SubTitle className="sw-mb-0">{translate('projects')}</SubTitle>
           }
           {profile.actions?.associateProjects && (
-            <ButtonSecondary
+            <Button
               className="it__quality-profiles__change-projects"
               onClick={this.handleChangeClick}
-              disabled={hasNoActiveRules}
+              isDisabled={hasNoActiveRules}
             >
               {translate('quality_profiles.change_projects')}
-            </ButtonSecondary>
+            </Button>
           )}
         </div>
 

@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonPrimary, FlagMessage, Title } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, Title } from 'design-system';
 import * as React from 'react';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
@@ -102,9 +103,13 @@ export default function PageHeader(props: Props) {
       </div>
       {canApplyPermissionTemplate && (
         <div>
-          <ButtonPrimary className="js-apply-template" onClick={handleApplyTemplate}>
+          <Button
+            className="js-apply-template"
+            onClick={handleApplyTemplate}
+            variety={ButtonVariety.Primary}
+          >
             {translate('projects_role.apply_template')}
-          </ButtonPrimary>
+          </Button>
 
           {applyTemplateModal && (
             <ApplyTemplate

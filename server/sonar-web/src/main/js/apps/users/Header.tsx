@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonPrimary, FlagMessage, Link, Title } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, Link, Title } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { DocLink } from '../../helpers/doc-links';
@@ -40,13 +41,14 @@ export default function Header(props: Props) {
       <div className="sw-flex sw-justify-between">
         <Title>{translate('users.page')}</Title>
 
-        <ButtonPrimary
+        <Button
           id="users-create"
-          disabled={manageProvider !== undefined}
+          isDisabled={manageProvider !== undefined}
           onClick={() => setOpenUserForm(true)}
+          variety={ButtonVariety.Primary}
         >
           {translate('users.create_user')}
-        </ButtonPrimary>
+        </Button>
       </div>
       <div>
         {manageProvider === undefined ? (

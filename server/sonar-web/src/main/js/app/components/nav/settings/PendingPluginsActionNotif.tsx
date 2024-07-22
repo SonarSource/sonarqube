@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonSecondary, FlagMessage } from 'design-system';
+import { Button, ButtonGroup } from '@sonarsource/echoes-react';
+import { FlagMessage } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { cancelPendingPlugins } from '../../../../api/plugins';
@@ -69,15 +70,13 @@ export default class PendingPluginsActionNotif extends React.PureComponent<Props
                 />
               </span>
             ))}
-
-          <RestartButton
-            className="sw-ml-2"
-            fetchSystemStatus={this.props.fetchSystemStatus}
-            systemStatus={this.props.systemStatus}
-          />
-          <ButtonSecondary className="sw-ml-2" onClick={this.handleRevert}>
-            {translate('marketplace.revert')}
-          </ButtonSecondary>
+          <ButtonGroup className="sw-ml-2">
+            <RestartButton
+              fetchSystemStatus={this.props.fetchSystemStatus}
+              systemStatus={this.props.systemStatus}
+            />
+            <Button onClick={this.handleRevert}>{translate('marketplace.revert')}</Button>
+          </ButtonGroup>
         </div>
       </FlagMessage>
     );

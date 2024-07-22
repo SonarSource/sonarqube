@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DangerButtonPrimary, FlagMessage, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, Modal } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Profile } from '../types';
@@ -65,14 +66,15 @@ export default function DeleteProfileForm(props: DeleteProfileFormProps) {
         </>
       }
       primaryButton={
-        <DangerButtonPrimary
+        <Button
           onClick={() => {
             props.onDelete();
           }}
-          disabled={loading}
+          isDisabled={loading}
+          variety={ButtonVariety.Danger}
         >
           {translate('delete')}
-        </DangerButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('cancel')}
     />

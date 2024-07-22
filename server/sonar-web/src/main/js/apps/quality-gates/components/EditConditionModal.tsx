@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FormField, Highlight, Modal, Note } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FormField, Highlight, Modal, Note } from 'design-system';
 import { isArray } from 'lodash';
 import * as React from 'react';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
@@ -121,9 +122,9 @@ export default function EditConditionModal({
       onClose={onClose}
       body={renderBody()}
       primaryButton={
-        <ButtonPrimary form={EDIT_CONDITION_MODAL_ID} type="submit">
+        <Button form={EDIT_CONDITION_MODAL_ID} type="submit" variety={ButtonVariety.Primary}>
           {translate('quality_gates.update_condition')}
-        </ButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('close')}
     />

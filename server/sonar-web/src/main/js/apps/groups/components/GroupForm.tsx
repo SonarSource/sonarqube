@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FormField, InputField, InputTextArea, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FormField, InputField, InputTextArea, Modal } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
@@ -102,12 +103,13 @@ export default function GroupForm(props: Props) {
       }
       onClose={props.onClose}
       primaryButton={
-        <ButtonPrimary
-          disabled={isUpdating || isCreating || name === ''}
+        <Button
+          isDisabled={isUpdating || isCreating || name === ''}
           onClick={create ? handleCreateGroup : handleUpdateGroup}
+          variety={ButtonVariety.Primary}
         >
           {create ? translate('create') : translate('update_verb')}
-        </ButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('cancel')}
     />

@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DropdownMenu, DropdownMenuAlign, Tooltip } from '@sonarsource/echoes-react';
-import { Avatar, BareButton, ButtonSecondary } from 'design-system';
+import { Button, DropdownMenu, DropdownMenuAlign, Tooltip } from '@sonarsource/echoes-react';
+import { Avatar, BareButton } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
@@ -44,7 +44,7 @@ export function GlobalNavUser() {
   if (!currentUser || !isLoggedIn(currentUser)) {
     return (
       <div>
-        <ButtonSecondary onClick={handleLogin}>{translate('layout.login')}</ButtonSecondary>
+        <Button onClick={handleLogin}>{translate('layout.login')}</Button>
       </div>
     );
   }

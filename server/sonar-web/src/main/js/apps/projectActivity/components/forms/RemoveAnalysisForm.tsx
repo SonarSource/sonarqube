@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DangerButtonPrimary, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { useDeleteAnalysisMutation } from '../../../../queries/project-analyses';
@@ -37,9 +38,13 @@ export default function RemoveAnalysisForm({ analysis, onClose }: Readonly<Props
       onClose={onClose}
       body={<p>{translate('project_activity.delete_analysis.question')}</p>}
       primaryButton={
-        <DangerButtonPrimary onClick={() => deleteAnalysis(analysis.key)} type="submit">
+        <Button
+          onClick={() => deleteAnalysis(analysis.key)}
+          type="submit"
+          variety={ButtonVariety.Danger}
+        >
           {translate('delete')}
-        </DangerButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('cancel')}
     />

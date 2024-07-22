@@ -51,14 +51,14 @@ exports[`should render with primary and secondary buttons 1`] = `
 }
 
 .emotion-4 {
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
   gap: var(--echoes-dimension-space-100);
 }
 
@@ -148,14 +148,14 @@ exports[`should render with secondary button 1`] = `
 }
 
 .emotion-4 {
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
   gap: var(--echoes-dimension-space-100);
 }
 

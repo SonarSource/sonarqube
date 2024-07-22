@@ -19,9 +19,9 @@
  */
 
 import styled from '@emotion/styled';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import {
   Badge,
-  DangerButtonSecondary,
   InheritanceIcon,
   Link,
   OverridenIcon,
@@ -186,9 +186,9 @@ export default function RuleListItem(props: Readonly<Props>) {
       return (
         <div className="sw-ml-4">
           <Tooltip content={translate('coding_rules.need_extend_or_copy')}>
-            <DangerButtonSecondary disabled>
+            <Button isDisabled variety={ButtonVariety.DangerOutline}>
               {translate('coding_rules', activation ? 'deactivate' : 'activate')}
-            </DangerButtonSecondary>
+            </Button>
           </Tooltip>
         </div>
       );

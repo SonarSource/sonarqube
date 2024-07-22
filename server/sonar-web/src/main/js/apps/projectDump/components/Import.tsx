@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonSecondary, FlagMessage, Link, Spinner } from 'design-system';
+import { Button } from '@sonarsource/echoes-react';
+import { FlagMessage, Link, Spinner } from 'design-system';
 import * as React from 'react';
 import { doImport } from '../../../api/project-dump';
 import DateFromNow from '../../../components/intl/DateFromNow';
@@ -57,13 +58,13 @@ export default function Import(props: Readonly<Props>) {
     return (
       <>
         <div className="sw-mt-4">{translate('project_dump.import_form_description')}</div>
-        <ButtonSecondary
+        <Button
           aria-label={translate('project_dump.do_import')}
           className="sw-mt-4"
           onClick={handleImport}
         >
           {translate('project_dump.do_import')}
-        </ButtonSecondary>
+        </Button>
       </>
     );
   }

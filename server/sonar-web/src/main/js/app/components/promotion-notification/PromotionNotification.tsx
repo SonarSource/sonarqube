@@ -19,7 +19,8 @@
  */
 
 import styled from '@emotion/styled';
-import { ButtonPrimary, ButtonSecondary, themeBorder, themeColor } from 'design-system';
+import { Button } from '@sonarsource/echoes-react';
+import { ButtonPrimary, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import { dismissNotice } from '../../../api/users';
 import { Image } from '../../../components/common/Image';
@@ -62,9 +63,9 @@ export function PromotionNotification(props: CurrentUserContextInterface) {
         >
           {translate('learn_more')}
         </ButtonPrimary>
-        <ButtonSecondary className="sw-justify-center" onClick={onClick}>
+        <Button className="sw-justify-center" onClick={onClick}>
           {translate('dismiss')}
-        </ButtonSecondary>
+        </Button>
       </div>
     </PromotionNotificationWrapper>
   );

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FormField, InputField, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FormField, InputField, Modal } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -81,9 +82,14 @@ export default function RenameBranchModal(props: Props) {
       }
       loading={isPending}
       primaryButton={
-        <ButtonPrimary disabled={submitDisabled} type="submit" form={FORM_ID}>
+        <Button
+          isDisabled={submitDisabled}
+          type="submit"
+          form={FORM_ID}
+          variety={ButtonVariety.Primary}
+        >
           <FormattedMessage id="rename" />
-        </ButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={<FormattedMessage id="cancel" />}
       onClose={props.onClose}

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, Card, CenteredLayout, Title } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Card, CenteredLayout, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
@@ -80,9 +81,9 @@ export function PluginRiskConsent(props: Readonly<PluginRiskConsentProps>) {
 
         <p className="sw-mb-6">{translate('plugin_risk_consent.description2')}</p>
 
-        <ButtonPrimary className="sw-my-4" onClick={acknowledgeRisk}>
+        <Button className="sw-my-4" onClick={acknowledgeRisk} variety={ButtonVariety.Primary}>
           {translate('plugin_risk_consent.action')}
-        </ButtonPrimary>
+        </Button>
       </Card>
     </CenteredLayout>
   );

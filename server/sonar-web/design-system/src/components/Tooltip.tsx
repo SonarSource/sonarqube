@@ -67,7 +67,8 @@ function isMeasured(state: State): state is OwnState & Measurements {
   return state.height !== undefined;
 }
 
-/** @deprecated Use {@link Echoes.Tooltip | Tooltip} from Echoes instead.
+/**
+ * @deprecated Use Tooltip from Echoes instead.
  *
  * Echoes Tooltip component should mainly be used on interactive element and contain very simple text based content.
  * If the content is more complex use a Popover component instead (not available yet).
@@ -79,7 +80,7 @@ function isMeasured(state: State): state is OwnState & Measurements {
  * - ~`mouseLeaveDelay`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
  * - ~`onHide`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
  * - ~`onShow`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
- * - `placement` is now `align` and `side`, based on the {@link Echoes.TooltipAlign | TooltipAlign} and {@link Echoes.TooltipSide | TooltipSide} enums.
+ * - `placement` is now `align` and `side`, based on the TooltipAlign and TooltipSide enums.
  * - `visible` is now `isOpen`
  */
 export function Tooltip(props: TooltipProps) {

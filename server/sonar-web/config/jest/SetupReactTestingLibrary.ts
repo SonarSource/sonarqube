@@ -19,7 +19,7 @@
  */
 import '@testing-library/jest-dom';
 import { configure, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
 
 configure({
   asyncUtilTimeout: 3000,
@@ -27,7 +27,7 @@ configure({
 
 expect.extend({
   async toHaveATooltipWithContent(received: any, content: string) {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ pointerEventsCheck: PointerEventsCheckLevel.Never });
 
     if (!(received instanceof Element)) {
       return {

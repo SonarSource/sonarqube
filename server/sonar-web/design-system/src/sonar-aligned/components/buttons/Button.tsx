@@ -47,6 +47,23 @@ export interface ButtonProps extends AllowedButtonAttributes {
   to?: LinkProps['to'];
 }
 
+/**
+ * @deprecated Use Button from Echoes instead.
+ * Use the `variety` prop with the ButtonVariety enum to change the button's look and feel.
+ *
+ * Some of the props have changed or been renamed:
+ * - `blurAfterClick` is now `shouldBlurAfterClick`
+ * - `disabled` is now `isDisabled`, note that a Echoes Tooltip won't work
+ * on a disabled button, use a text notice or ToggleTip next to the disabled button instead.
+ * - `icon` is now replace by `prefix` which works the same way
+ * - `preventDefault` is now `shouldPreventDefault`
+ * - `stopPropagation` is now `shouldStopPropagation`
+ *
+ * The button can't be used as a link anymore, and all props related to links have been dropped.
+ * Use a real Echoes Link instead.
+ *
+ * See the {@link https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3382706231/Button | Migration Guide} for more information.
+ */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   const {
     children,
@@ -150,7 +167,7 @@ const BaseButtonLink = styled(BaseLink)`
 
   /*
     Workaround to apply disable style to button-link
-    as link does not have disabled attribute, using props instead 
+    as link does not have disabled attribute, using props instead
   */
 
   ${({ disabled, theme }) =>
@@ -168,8 +185,8 @@ const BaseButton = styled.button`
   ${buttonStyle}
 
   /*
-   Workaround for tooltips issue with onMouseLeave in disabled buttons: 
-   https://github.com/facebook/react/issues/4251 
+   Workaround for tooltips issue with onMouseLeave in disabled buttons:
+   https://github.com/facebook/react/issues/4251
   */
   & [disabled] {
     ${tw`sw-pointer-events-none`};

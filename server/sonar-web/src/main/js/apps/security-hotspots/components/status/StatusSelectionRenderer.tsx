@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FormField, InputTextArea, Modal, Note, SelectionCard } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FormField, InputTextArea, Modal, Note, SelectionCard } from 'design-system';
 import * as React from 'react';
 import FormattingTips from '../../../../components/common/FormattingTips';
 import { translate } from '../../../../helpers/l10n';
@@ -87,9 +88,13 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
         </>
       }
       primaryButton={
-        <ButtonPrimary disabled={submitDisabled || loading} onClick={props.onSubmit}>
+        <Button
+          isDisabled={submitDisabled || loading}
+          onClick={props.onSubmit}
+          variety={ButtonVariety.Primary}
+        >
           {translate('hotspots.status.change_status')}
-        </ButtonPrimary>
+        </Button>
       }
     />
   );

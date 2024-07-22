@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import Echoes from '@sonarsource/echoes-react';
 import React from 'react';
 import {
   ActionMeta,
@@ -65,7 +64,8 @@ interface SearchSelectDropdownProps<
 }
 
 /**
- * @deprecated Use {@link Echoes.Select | Select} or {@link Echoes.SelectAsync | SelectAsync} from Echoes instead.
+ * @deprecated Use Select or SelectAsync from Echoes instead.
+ *
  * See the [Migration Guide](https://xtranet-sonarsource.atlassian.net/wiki/x/K4AYxw)
  */
 export function SearchSelectDropdown<

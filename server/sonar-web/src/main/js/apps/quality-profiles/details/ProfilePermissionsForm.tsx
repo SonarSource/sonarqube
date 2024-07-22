@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FormField, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FormField, Modal } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { useAddGroupMutation, useAddUserMutation } from '../../../queries/quality-profiles';
@@ -74,9 +75,14 @@ export default function ProfilePermissionForm(props: Readonly<Props>) {
       onClose={props.onClose}
       loading={loading}
       primaryButton={
-        <ButtonPrimary type="submit" form="grant_permissions_form" disabled={submitDisabled}>
+        <Button
+          type="submit"
+          form="grant_permissions_form"
+          isDisabled={submitDisabled}
+          variety={ButtonVariety.Primary}
+        >
           {translate('add_verb')}
-        </ButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('cancel')}
       body={

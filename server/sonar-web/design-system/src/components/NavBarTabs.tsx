@@ -19,6 +19,7 @@
  */
 
 import styled from '@emotion/styled';
+import { IconChevronDown } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import React, { forwardRef } from 'react';
 import tw, { theme } from 'twin.macro';
@@ -26,7 +27,6 @@ import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { isDefined } from '../helpers/types';
 import NavLink, { NavLinkProps } from './NavLink';
 import { Tooltip } from './Tooltip';
-import { ChevronDownIcon } from './icons/ChevronDownIcon';
 
 interface Props extends React.HTMLAttributes<HTMLUListElement> {
   children?: React.ReactNode;
@@ -71,7 +71,7 @@ export const NavBarTabLink = forwardRef<HTMLAnchorElement, NavBarTabLinkProps>(
 
           {children}
 
-          {withChevron && <ChevronDownIcon className="sw-ml-1" />}
+          {withChevron && <IconChevronDown className="sw-ml-1" />}
         </NavLink>
       </NavBarTabLinkWrapper>
     );

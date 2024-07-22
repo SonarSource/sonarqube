@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DangerButtonPrimary, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
@@ -41,9 +42,9 @@ export default function RemoveExtendedDescriptionModal({ onCancel, onSubmit }: P
       body={translate('coding_rules.remove_extended_description.confirm')}
       onClose={onCancel}
       primaryButton={
-        <DangerButtonPrimary disabled={submitting} onClick={handleClick}>
+        <Button isDisabled={submitting} onClick={handleClick} variety={ButtonVariety.Danger}>
           {translate('remove')}
-        </DangerButtonPrimary>
+        </Button>
       }
       loading={submitting}
       secondaryButtonLabel={translate('cancel')}

@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonPrimary, ButtonSecondary, FlagMessage, RadioButton, Spinner } from 'design-system';
+import { Button, ButtonGroup, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, RadioButton } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
 import GlobalNewCodeDefinitionDescription from '../../../components/new-code-definition/GlobalNewCodeDefinitionDescription';
@@ -187,21 +188,20 @@ export default function ProjectNewCodeDefinitionSelector(
           </FlagMessage>
         )}
 
-        <div className="sw-flex sw-items-center">
-          <ButtonPrimary type="submit" disabled={!isValid || !isChanged || saving}>
-            {translate('save')}
-          </ButtonPrimary>
-
-          <ButtonSecondary
-            className="sw-ml-2"
-            disabled={saving || !isChanged}
-            onClick={props.onCancel}
+        <ButtonGroup className="sw-flex">
+          <Button
+            type="submit"
+            isLoading={saving}
+            isDisabled={!isValid || !isChanged || saving}
+            variety={ButtonVariety.Primary}
           >
-            {translate('cancel')}
-          </ButtonSecondary>
+            {translate('save')}
+          </Button>
 
-          <Spinner className="sw-ml-2" loading={saving} />
-        </div>
+          <Button isDisabled={saving || !isChanged} onClick={props.onCancel}>
+            {translate('cancel')}
+          </Button>
+        </ButtonGroup>
       </div>
     </form>
   );

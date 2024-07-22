@@ -19,8 +19,8 @@
  */
 
 import styled from '@emotion/styled';
-import { Checkbox } from '@sonarsource/echoes-react';
-import { ButtonPrimary, InputSearch, LightPrimary, themeBorder, themeColor } from 'design-system';
+import { Button, ButtonVariety, Checkbox } from '@sonarsource/echoes-react';
+import { InputSearch, LightPrimary, themeBorder, themeColor } from 'design-system';
 import React, { useCallback, useMemo } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import ListFooter from '../../../../components/controls/ListFooter';
@@ -157,9 +157,13 @@ export default function RepositoryList(props: Readonly<RepositoryListProps>) {
                 />
               </SetupBoxContent>
               <div className="sw-mt-4">
-                <ButtonPrimary onClick={onImport} className="js-set-up-projects">
+                <Button
+                  onClick={onImport}
+                  className="js-set-up-projects"
+                  variety={ButtonVariety.Primary}
+                >
                   {formatMessage({ id: 'onboarding.create_project.import' })}
-                </ButtonPrimary>
+                </Button>
               </div>
             </div>
           </SetupBox>

@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonSecondary, FlagMessage, Spinner, Variant } from 'design-system';
+import { Button } from '@sonarsource/echoes-react';
+import { FlagMessage, Spinner, Variant } from 'design-system';
 import React from 'react';
 import { translate } from '../../../../helpers/l10n';
 
@@ -52,13 +53,13 @@ export default function GitLabConfigurationValidity(props: Readonly<Props>) {
       >
         {loading ? undefined : flagMessageContent}
       </FlagMessage>
-      <ButtonSecondary
+      <Button
         onClick={onTestConf}
-        disabled={loading}
+        isDisabled={loading}
         className="sw-whitespace-nowrap sw-text-center sw-my-4"
       >
         {translate(`${intlPrefix}.test`)}
-      </ButtonSecondary>
+      </Button>
     </>
   );
 }

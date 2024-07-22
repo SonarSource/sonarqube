@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Button, ButtonGroup, ButtonVariety } from '@sonarsource/echoes-react';
 import {
   BasicSeparator,
   ButtonSecondary,
-  DangerButtonSecondary,
   FlagErrorIcon,
   FlagMessage,
   FlagSuccessIcon,
@@ -150,8 +150,8 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
   return (
     <div className="it__alm-binding-definition sw-pb-10">
       <BasicSeparator className="sw-mb-6" />
-      <div className="sw-float-right">
-        <ButtonSecondary
+      <ButtonGroup className="sw-float-right">
+        <Button
           aria-label={translateWithParameters(
             'settings.almintegration.edit_configuration',
             definition.key,
@@ -161,20 +161,20 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
           }}
         >
           {translate('edit')}
-        </ButtonSecondary>
-        <DangerButtonSecondary
+        </Button>
+        <Button
           aria-label={translateWithParameters(
             'settings.almintegration.delete_configuration',
             definition.key,
           )}
-          className="sw-ml-2"
           onClick={() => {
             props.onDelete(definition.key);
           }}
+          variety={ButtonVariety.DangerOutline}
         >
           {translate('delete')}
-        </DangerButtonSecondary>
-      </div>
+        </Button>
+      </ButtonGroup>
 
       <div className="sw-mb-4">
         <h3>{definition.key}</h3>

@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Spinner } from '@sonarsource/echoes-react';
-import { BlueGreySeparator, ButtonPrimary, ButtonSecondary } from 'design-system';
+import { Button, ButtonVariety, Spinner } from '@sonarsource/echoes-react';
+import { BlueGreySeparator } from 'design-system';
 import React, { useEffect, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { GroupBase } from 'react-select';
@@ -250,12 +250,17 @@ export default function MonorepoProjectCreate(props: Readonly<MonorepoProjectCre
       )}
 
       <div className="sw-my-5">
-        <ButtonSecondary onClick={cancelMonorepoSetup}>
+        <Button onClick={cancelMonorepoSetup}>
           <FormattedMessage id="cancel" />
-        </ButtonSecondary>
-        <ButtonPrimary className="sw-ml-3" disabled={isSetupInvalid} onClick={submitProjects}>
+        </Button>
+        <Button
+          className="sw-ml-3"
+          isDisabled={isSetupInvalid}
+          onClick={submitProjects}
+          variety={ButtonVariety.Primary}
+        >
           <FormattedMessage id="next" />
-        </ButtonPrimary>
+        </Button>
       </div>
     </div>
   );

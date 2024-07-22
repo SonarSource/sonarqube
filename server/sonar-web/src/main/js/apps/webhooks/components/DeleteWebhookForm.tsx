@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DangerButtonPrimary, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { WebhookResponse } from '../../../types/webhook';
@@ -51,9 +52,9 @@ export default function DeleteWebhookForm({ onClose, onSubmit, webhook }: Props)
       isOverflowVisible
       body={renderForm}
       primaryButton={
-        <DangerButtonPrimary form={FORM_ID} type="submit">
+        <Button form={FORM_ID} type="submit" variety={ButtonVariety.Danger}>
           {translate('delete')}
-        </DangerButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('cancel')}
     />

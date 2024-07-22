@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonSecondary, Modal } from 'design-system';
+import { Button } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -90,14 +91,14 @@ export default function AutoProvisioningConsent() {
       </Modal.Body>
       <Modal.Footer
         primaryButton={
-          <ButtonSecondary onClick={onClickAutoProvisioning}>
+          <Button onClick={onClickAutoProvisioning}>
             <FormattedMessage id="settings.authentication.github.confirm_auto_provisioning.continue" />
-          </ButtonSecondary>
+          </Button>
         }
         secondaryButton={
-          <ButtonSecondary onClick={onClickJitProvisioning}>
+          <Button onClick={onClickJitProvisioning}>
             <FormattedMessage id="settings.authentication.github.confirm_auto_provisioning.switch_jit" />
-          </ButtonSecondary>
+          </Button>
         }
       />
     </Modal>

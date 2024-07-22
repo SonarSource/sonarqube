@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Spinner } from '@sonarsource/echoes-react';
+import { Button, ButtonGroup, ButtonVariety, Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { ButtonPrimary, ButtonSecondary } from 'design-system';
 import React, { useCallback, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
@@ -158,18 +157,18 @@ export default function NewCodeDefinition() {
                         </p>
                         <Spinner className="sw-mr-2" isLoading={isSaving} />
                         {!isSaving && (
-                          <>
-                            <ButtonPrimary type="submit" disabled={!isFormTouched || !isValid}>
-                              {translate('save')}
-                            </ButtonPrimary>
-                            <ButtonSecondary
-                              className="sw-ml-2"
-                              disabled={!isFormTouched}
-                              onClick={resetNewCodeDefinition}
+                          <ButtonGroup>
+                            <Button
+                              type="submit"
+                              isDisabled={!isFormTouched || !isValid}
+                              variety={ButtonVariety.Primary}
                             >
+                              {translate('save')}
+                            </Button>
+                            <Button isDisabled={!isFormTouched} onClick={resetNewCodeDefinition}>
                               {translate('cancel')}
-                            </ButtonSecondary>
-                          </>
+                            </Button>
+                          </ButtonGroup>
                         )}
                       </div>
                     </form>

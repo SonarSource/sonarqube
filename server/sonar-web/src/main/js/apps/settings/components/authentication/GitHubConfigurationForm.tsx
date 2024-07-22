@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Spinner } from '@sonarsource/echoes-react';
-import { ButtonPrimary, FlagMessage, Modal } from 'design-system';
+import { Button, ButtonVariety, Spinner } from '@sonarsource/echoes-react';
+import { FlagMessage, Modal } from 'design-system';
 import { isEmpty, keyBy } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -235,9 +235,15 @@ export default function GitHubConfigurationForm(props: Readonly<Props>) {
         primaryButton={
           <>
             <Spinner className="sw-ml-2" isLoading={isCreating || isUpdating} />
-            <ButtonPrimary form={FORM_ID} type="submit" autoFocus disabled={!isFormValid}>
+            <Button
+              form={FORM_ID}
+              type="submit"
+              hasAutoFocus
+              isDisabled={!isFormValid}
+              variety={ButtonVariety.Primary}
+            >
               <FormattedMessage id="settings.almintegration.form.save" />
-            </ButtonPrimary>
+            </Button>
           </>
         }
       />

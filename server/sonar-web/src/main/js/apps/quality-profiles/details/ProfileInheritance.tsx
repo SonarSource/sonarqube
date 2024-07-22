@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { ButtonSecondary, FlagMessage, Spinner, SubTitle, Table } from 'design-system';
+import { FlagMessage, Spinner, SubTitle, Table } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { useProfileInheritanceQuery } from '../../../queries/quality-profiles';
@@ -71,12 +72,9 @@ export default function ProfileInheritance(props: Readonly<Props>) {
       <div className="sw-flex sw-items-center sw-gap-3 sw-mb-6">
         <SubTitle className="sw-mb-0">{translate('quality_profiles.profile_inheritance')}</SubTitle>
         {profile.actions?.edit && !profile.isBuiltIn && (
-          <ButtonSecondary
-            className="it__quality-profiles__change-parent"
-            onClick={handleChangeParentClick}
-          >
+          <Button className="it__quality-profiles__change-parent" onClick={handleChangeParentClick}>
             {translate('quality_profiles.change_parent')}
-          </ButtonSecondary>
+          </Button>
         )}
       </div>
 

@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonPrimary, FlagMessage, Title } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, Title } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
@@ -39,13 +40,14 @@ export default function Header({ manageProvider }: Readonly<HeaderProps>) {
       <div id="groups-header">
         <div className="sw-flex sw-justify-between">
           <Title className="sw-mb-4">{translate('user_groups.page')}</Title>
-          <ButtonPrimary
+          <Button
             id="groups-create"
-            disabled={manageProvider !== undefined}
+            isDisabled={manageProvider !== undefined}
             onClick={() => setCreateModal(true)}
+            variety={ButtonVariety.Primary}
           >
             {translate('groups.create_group')}
-          </ButtonPrimary>
+          </Button>
         </div>
 
         {manageProvider === undefined ? (

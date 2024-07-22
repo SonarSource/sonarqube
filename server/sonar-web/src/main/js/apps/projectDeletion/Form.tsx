@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DangerButtonPrimary, addGlobalSuccessMessage } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
@@ -71,9 +72,9 @@ export class Form extends React.PureComponent<Props> {
         onConfirm={this.handleDelete}
       >
         {({ onClick }) => (
-          <DangerButtonPrimary id="delete-project" onClick={onClick}>
+          <Button id="delete-project" onClick={onClick} variety={ButtonVariety.Danger}>
             {translate('delete')}
-          </DangerButtonPrimary>
+          </Button>
         )}
       </ConfirmButton>
     );

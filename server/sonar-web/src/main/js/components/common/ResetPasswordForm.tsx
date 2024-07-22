@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonPrimary, FlagMessage, FormField, InputField } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, FormField, InputField } from 'design-system';
 import * as React from 'react';
 import { changePassword } from '../../api/users';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
@@ -140,9 +141,9 @@ export default function ResetPasswordForm({
       </div>
 
       <div className="sw-py-3">
-        <ButtonPrimary id="change-password" type="submit">
+        <Button id="change-password" type="submit" variety={ButtonVariety.Primary}>
           {translate('update_verb')}
-        </ButtonPrimary>
+        </Button>
       </div>
     </form>
   );

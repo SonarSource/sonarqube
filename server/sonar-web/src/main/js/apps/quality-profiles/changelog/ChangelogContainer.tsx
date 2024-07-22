@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonSecondary, Spinner } from 'design-system';
+import { Button } from '@sonarsource/echoes-react';
+import { Spinner } from 'design-system';
 import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location, Router } from '~sonar-aligned/types/router';
@@ -159,9 +160,7 @@ class ChangelogContainer extends React.PureComponent<Props, State> {
 
         {shouldDisplayFooter && (
           <footer className="sw-text-center sw-mt-2">
-            <ButtonSecondary onClick={this.loadMore.bind(this)}>
-              {translate('show_more')}
-            </ButtonSecondary>
+            <Button onClick={this.loadMore.bind(this)}>{translate('show_more')}</Button>
           </footer>
         )}
       </div>

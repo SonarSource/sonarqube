@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonSecondary, LockIcon } from 'design-system';
+import { Button } from '@sonarsource/echoes-react';
+import { LockIcon } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import {
@@ -95,9 +96,7 @@ export default class InputForSecured extends React.PureComponent<Props, State> {
     return (
       <div className="sw-flex sw-items-center">
         <LockIcon className="sw-mr-4" />
-        <ButtonSecondary onClick={this.handleChangeClick}>
-          {translate('change_verb')}
-        </ButtonSecondary>
+        <Button onClick={this.handleChangeClick}>{translate('change_verb')}</Button>
       </div>
     );
   }

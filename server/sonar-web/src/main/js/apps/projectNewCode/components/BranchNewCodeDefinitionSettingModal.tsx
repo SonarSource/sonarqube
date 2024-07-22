@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, Modal, PageContentFontWrapper, Spinner } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal, PageContentFontWrapper, Spinner } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
 import { setNewCodeDefinition } from '../../../api/newCodeDefinition';
@@ -223,9 +224,14 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
         primaryButton={
           <>
             <Spinner loading={saving} />
-            <ButtonPrimary form={FORM_ID} disabled={!isChanged || saving || !isValid} type="submit">
+            <Button
+              form={FORM_ID}
+              isDisabled={!isChanged || saving || !isValid}
+              type="submit"
+              variety={ButtonVariety.Primary}
+            >
               {translate('save')}
-            </ButtonPrimary>
+            </Button>
           </>
         }
         secondaryButtonLabel={translate('cancel')}

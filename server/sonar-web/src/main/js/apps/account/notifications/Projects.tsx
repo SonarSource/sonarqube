@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonPrimary, InputSearch, Note } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { InputSearch, Note } from 'design-system';
 import { groupBy, sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
@@ -123,11 +124,11 @@ export default class Projects extends React.PureComponent<Props, State> {
             {translate('my_profile.per_project_notifications.title')}
           </h2>
 
-          <ButtonPrimary onClick={this.openModal}>
+          <Button onClick={this.openModal} variety={ButtonVariety.Primary}>
             <span data-test="account__add-project-notification">
               {translate('my_profile.per_project_notifications.add')}
             </span>
-          </ButtonPrimary>
+          </Button>
         </div>
 
         {this.state.showModal && (

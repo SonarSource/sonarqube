@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, ButtonSecondary, DangerButtonPrimary, Modal, Note } from 'design-system';
+import { Button, ButtonGroup, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal, Note } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Setting } from '../../../types/settings';
@@ -68,9 +69,9 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
           </form>
         }
         primaryButton={
-          <DangerButtonPrimary type="submit" form={MODAL_FORM_ID}>
+          <Button type="submit" form={MODAL_FORM_ID} variety={ButtonVariety.Danger}>
             {translate('reset_verb')}
-          </DangerButtonPrimary>
+          </Button>
         }
         secondaryButtonLabel={translate('cancel')}
       />
@@ -86,30 +87,31 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
 
     return (
       <div className="sw-mt-8">
-        {hasValueChanged && (
-          <ButtonPrimary className="sw-mr-3" disabled={hasError} onClick={this.props.onSave}>
-            {translate('save')}
-          </ButtonPrimary>
-        )}
+        <ButtonGroup className="sw-mr-3">
+          {hasValueChanged && (
+            <Button
+              isDisabled={hasError}
+              onClick={this.props.onSave}
+              variety={ButtonVariety.Primary}
+            >
+              {translate('save')}
+            </Button>
+          )}
 
-        {showReset && (
-          <ButtonSecondary
-            className="sw-mr-3"
-            aria-label={translateWithParameters(
-              'settings.definition.reset',
-              getPropertyName(setting.definition),
-            )}
-            onClick={this.handleReset}
-          >
-            {translate('reset_verb')}
-          </ButtonSecondary>
-        )}
+          {showReset && (
+            <Button
+              aria-label={translateWithParameters(
+                'settings.definition.reset',
+                getPropertyName(setting.definition),
+              )}
+              onClick={this.handleReset}
+            >
+              {translate('reset_verb')}
+            </Button>
+          )}
 
-        {showCancel && (
-          <ButtonSecondary className="sw-mr-3" onClick={this.props.onCancel}>
-            {translate('cancel')}
-          </ButtonSecondary>
-        )}
+          {showCancel && <Button onClick={this.props.onCancel}>{translate('cancel')}</Button>}
+        </ButtonGroup>
 
         {showReset && (
           <Note>

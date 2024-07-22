@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FishVisual, Highlight } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FishVisual, Highlight } from 'design-system';
 import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Router } from '~sonar-aligned/types/router';
@@ -49,14 +50,15 @@ export function EmptyInstance(props: EmptyInstanceProps) {
           <p className="sw-mt-2 sw-body-sm">
             {translate('projects.no_projects.empty_instance.how_to_add_projects')}
           </p>
-          <ButtonPrimary
+          <Button
             className="sw-mt-6"
             onClick={() => {
               router.push('/projects/create');
             }}
+            variety={ButtonVariety.Primary}
           >
             {translate('my_account.create_new.TRK')}
-          </ButtonPrimary>
+          </Button>
         </div>
       )}
     </div>

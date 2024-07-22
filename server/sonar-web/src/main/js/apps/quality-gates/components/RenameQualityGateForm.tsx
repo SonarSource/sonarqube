@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonPrimary, FormField, InputField, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FormField, InputField, Modal } from 'design-system';
 import * as React from 'react';
 import { useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
@@ -78,9 +79,15 @@ export default function RenameQualityGateForm({ qualityGate, onClose }: Readonly
         </form>
       }
       primaryButton={
-        <ButtonPrimary autoFocus type="submit" disabled={confirmDisable} form={FORM_ID}>
+        <Button
+          hasAutoFocus
+          type="submit"
+          isDisabled={confirmDisable}
+          form={FORM_ID}
+          variety={ButtonVariety.Primary}
+        >
           {translate('rename')}
-        </ButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('cancel')}
     />

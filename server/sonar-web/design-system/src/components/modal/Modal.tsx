@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Global, css, useTheme } from '@emotion/react';
+import { Button } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { Fragment, ReactNode } from 'react';
 import { useIntl } from 'react-intl';
@@ -25,7 +26,6 @@ import ReactModal from 'react-modal';
 import tw from 'twin.macro';
 import { themeColor } from '../../helpers';
 import { REACT_DOM_CONTAINER } from '../../helpers/constants';
-import { ButtonSecondary } from '../../sonar-aligned/components/buttons';
 import { Theme } from '../../types/theme';
 import { ModalBody } from './ModalBody';
 import { ModalFooter } from './ModalFooter';
@@ -113,14 +113,14 @@ export function Modal({
               loading={props.loading}
               primaryButton={props.primaryButton}
               secondaryButton={
-                <ButtonSecondary
+                <Button
                   className="js-modal-close sw-capitalize"
-                  disabled={props.loading}
+                  isDisabled={props.loading}
                   onClick={onClose}
                   type="reset"
                 >
                   {props.secondaryButtonLabel ?? intl.formatMessage({ id: 'close' })}
-                </ButtonSecondary>
+                </Button>
               }
             />
           </Fragment>

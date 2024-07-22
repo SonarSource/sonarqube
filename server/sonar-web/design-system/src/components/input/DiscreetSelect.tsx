@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import Echoes from '@sonarsource/echoes-react';
 import { GroupBase, OnChangeValue } from 'react-select';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
@@ -34,7 +33,7 @@ type DiscreetProps<
 };
 
 /**
- * @deprecated Use {@link Echoes.Select | Select} or {@link Echoes.SelectAsync | SelectAsync} from Echoes instead, and use the {@link Echoes.SelectHighlight.Ghost | SelectHighlight.Ghost} highlight property.
+ * @deprecated Use Select or SelectAsync from Echoes instead, and use the SelectHighlight.Ghost highlight property.
  *
  * See the [Migration Guide](https://xtranet-sonarsource.atlassian.net/wiki/x/K4AYxw)
  */

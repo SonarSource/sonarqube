@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonSecondary, DiscreetInteractiveIcon, HomeFillIcon, HomeIcon } from 'design-system';
+import { Button } from '@sonarsource/echoes-react';
+import { DiscreetInteractiveIcon, HomeFillIcon, HomeIcon } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { setHomePage } from '../../api/users';
@@ -75,15 +76,15 @@ export function HomePageSelect(props: Readonly<Props>) {
           onClick={handleClick}
         />
       ) : (
-        <ButtonSecondary
+        <Button
           aria-label={tooltip}
-          icon={<Icon />}
+          prefix={<Icon />}
           className={className}
-          disabled={isDefault}
+          isDisabled={isDefault}
           onClick={handleClick}
         >
           {intl.formatMessage({ id: 'overview.set_as_homepage' })}
-        </ButtonSecondary>
+        </Button>
       )}
     </Tooltip>
   );

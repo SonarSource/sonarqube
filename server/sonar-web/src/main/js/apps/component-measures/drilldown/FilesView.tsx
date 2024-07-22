@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonSecondary, FlagMessage } from 'design-system';
+import { Button } from '@sonarsource/echoes-react';
+import { FlagMessage } from 'design-system';
 import { throttle } from 'lodash';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
@@ -191,13 +192,13 @@ export default class FilesView extends React.PureComponent<Props, State> {
               ),
               formatMeasure(this.props.metric.bestValue, this.props.metric.type),
             )}
-            <ButtonSecondary
+            <Button
               onClick={this.handleShowBestMeasures}
               className="sw-ml-4"
               aria-label={translate('component_measures.hidden_best_score_metrics_show_label')}
             >
               {translate('show_them')}
-            </ButtonSecondary>
+            </Button>
           </FlagMessage>
         )}
         {!hidingBestMeasures && this.props.paging && this.props.components.length > 0 && (

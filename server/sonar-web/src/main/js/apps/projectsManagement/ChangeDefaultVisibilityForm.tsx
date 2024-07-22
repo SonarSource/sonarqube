@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RadioButtonGroup } from '@sonarsource/echoes-react';
-import { ButtonPrimary, FlagMessage, Modal } from 'design-system';
+import { Button, ButtonVariety, RadioButtonGroup } from '@sonarsource/echoes-react';
+import { FlagMessage, Modal } from 'design-system';
 import React, { useState } from 'react';
 import { Visibility } from '~sonar-aligned/types/component';
 import { translate } from '../../helpers/l10n';
@@ -80,9 +80,9 @@ export default function ChangeDefaultVisibilityForm(props: Readonly<Props>) {
       onClose={props.onClose}
       body={body}
       primaryButton={
-        <ButtonPrimary form={FORM_ID} autoFocus type="submit">
+        <Button form={FORM_ID} hasAutoFocus type="submit" variety={ButtonVariety.Primary}>
           {translate('settings.projects.change_visibility_form.submit')}
-        </ButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('cancel')}
     />

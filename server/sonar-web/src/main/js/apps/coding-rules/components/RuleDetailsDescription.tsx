@@ -17,15 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety, Spinner } from '@sonarsource/echoes-react';
 import {
   ButtonPrimary,
   ButtonSecondary,
   CodeSyntaxHighlighter,
-  DangerButtonSecondary,
   InputTextArea,
 } from 'design-system';
-
-import { Spinner } from '@sonarsource/echoes-react';
 
 import * as React from 'react';
 import FormattingTips from '../../../components/common/FormattingTips';
@@ -116,14 +114,15 @@ export default function RuleDetailsDescription(props: Readonly<Props>) {
 
           {ruleDetails.mdNote !== undefined && (
             <>
-              <DangerButtonSecondary
+              <Button
                 className="sw-ml-2"
-                disabled={updatingRule}
+                isDisabled={updatingRule}
                 id="coding-rules-detail-extend-description-remove"
                 onClick={() => setDescriptionModal(true)}
+                variety={ButtonVariety.DangerOutline}
               >
                 {translate('remove')}
-              </DangerButtonSecondary>
+              </Button>
               {removeDescriptionModal && (
                 <RemoveExtendedDescriptionModal
                   onCancel={() => setDescriptionModal(false)}

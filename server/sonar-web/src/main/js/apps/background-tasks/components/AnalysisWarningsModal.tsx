@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DangerButtonSecondary, FlagMessage, HtmlFormatter, Modal, Spinner } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, HtmlFormatter, Modal, Spinner } from 'design-system';
 import * as React from 'react';
 import { dismissAnalysisWarning, getTask } from '../../../api/ce';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
@@ -128,14 +129,15 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
             <div>
               {dismissable && currentUser.isLoggedIn && (
                 <div className="sw-mt-4">
-                  <DangerButtonSecondary
-                    disabled={Boolean(dismissedWarning)}
+                  <Button
+                    isDisabled={Boolean(dismissedWarning)}
                     onClick={() => {
                       this.handleDismissMessage(key);
                     }}
+                    variety={ButtonVariety.DangerOutline}
                   >
                     {translate('dismiss_permanently')}
-                  </DangerButtonSecondary>
+                  </Button>
 
                   <Spinner className="sw-ml-2" loading={dismissedWarning === key} />
                 </div>

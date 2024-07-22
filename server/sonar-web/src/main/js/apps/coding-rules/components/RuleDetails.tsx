@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import {
   ButtonSecondary,
-  DangerButtonSecondary,
   HelperHintIcon,
   Spinner,
   SubHeadingHighlight,
@@ -145,13 +145,14 @@ export default function RuleDetails(props: Readonly<Props>) {
                 >
                   {({ onClick }) => (
                     <>
-                      <DangerButtonSecondary
+                      <Button
                         className="sw-ml-2 js-delete"
                         id="coding-rules-detail-rule-delete"
                         onClick={onClick}
+                        variety={ButtonVariety.DangerOutline}
                       >
                         {translate('delete')}
-                      </DangerButtonSecondary>
+                      </Button>
                       <HelpTooltip
                         className="sw-ml-2"
                         overlay={

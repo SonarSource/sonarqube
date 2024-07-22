@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FlagMessage, Spinner, Title } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, Spinner, Title } from 'design-system';
 import React, { useState } from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
@@ -65,7 +66,9 @@ function Header(props: Props) {
             <Spinner className="sw-mt-2" loading={!ready} />
           </div>
 
-          <ButtonPrimary onClick={() => setCreateModal(true)}>{translate('create')}</ButtonPrimary>
+          <Button onClick={() => setCreateModal(true)} variety={ButtonVariety.Primary}>
+            {translate('create')}
+          </Button>
         </div>
         <div className="sw-mb-4">{translate('permission_templates.page.description')}</div>
       </div>

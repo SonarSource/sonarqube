@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import {
-  ButtonPrimary,
   DropdownMenu,
   InputSearch,
   ItemButton,
@@ -249,13 +249,14 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
         headerTitle={translate('my_account.set_notifications_for.title')}
         onClose={closeModal}
         primaryButton={
-          <ButtonPrimary
-            disabled={selectedProject === undefined}
+          <Button
+            isDisabled={selectedProject === undefined}
             form="project-notifications-modal-form"
             type="submit"
+            variety={ButtonVariety.Primary}
           >
             {translate('add_verb')}
-          </ButtonPrimary>
+          </Button>
         }
         secondaryButtonLabel={translate('cancel')}
       />

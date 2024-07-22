@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DangerButtonPrimary, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
 import { useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -45,9 +46,9 @@ export default function DeleteQualityGateForm({ qualityGate, onClose }: Readonly
       onClose={onClose}
       body={translateWithParameters('quality_gates.delete.confirm.message', qualityGate.name)}
       primaryButton={
-        <DangerButtonPrimary autoFocus type="submit" onClick={onDelete}>
+        <Button hasAutoFocus type="submit" onClick={onDelete} variety={ButtonVariety.Danger}>
           {translate('delete')}
-        </DangerButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('cancel')}
     />

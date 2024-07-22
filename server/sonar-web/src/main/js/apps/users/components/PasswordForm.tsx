@@ -18,14 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import {
-  ButtonPrimary,
-  FlagMessage,
-  FormField,
-  InputField,
-  Modal,
-  addGlobalSuccessMessage,
-} from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, FormField, InputField, Modal, addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
 import { changePassword } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
@@ -156,13 +150,14 @@ export default function PasswordForm(props: Props) {
       onClose={props.onClose}
       loading={submitting}
       primaryButton={
-        <ButtonPrimary
+        <Button
           form={PASSWORD_FORM_ID}
-          disabled={submitting || !newPassword || newPassword !== confirmPassword}
+          isDisabled={submitting || !newPassword || newPassword !== confirmPassword}
           type="submit"
+          variety={ButtonVariety.Primary}
         >
           {translate('change_verb')}
-        </ButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('cancel')}
     />

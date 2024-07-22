@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { IconPeople, SelectAsync } from '@sonarsource/echoes-react';
-import { ButtonPrimary, GenericAvatar, Modal, Note } from 'design-system';
+import { Button, ButtonVariety, IconPeople, SelectAsync } from '@sonarsource/echoes-react';
+import { GenericAvatar, Modal, Note } from 'design-system';
 import * as React from 'react';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
@@ -69,9 +69,14 @@ export default function QualityGatePermissionsAddModalRenderer(
         </form>
       }
       primaryButton={
-        <ButtonPrimary disabled={!selection || submitting} type="submit" form={FORM_ID}>
+        <Button
+          isDisabled={!selection || submitting}
+          type="submit"
+          form={FORM_ID}
+          variety={ButtonVariety.Primary}
+        >
           {translate('add_verb')}
-        </ButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('cancel')}
     />

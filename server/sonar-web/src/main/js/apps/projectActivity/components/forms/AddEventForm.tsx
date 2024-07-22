@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, InputField, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { InputField, Modal } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { useCreateEventMutation } from '../../../../queries/project-analyses';
@@ -68,15 +69,16 @@ export default function AddEventForm(props: Readonly<Props>) {
         </form>
       }
       primaryButton={
-        <ButtonPrimary
+        <Button
           id="add-event-submit"
           form="add-event-form"
           type="submit"
-          disabled={name === ''}
+          isDisabled={name === ''}
           onClick={handleSubmit}
+          variety={ButtonVariety.Primary}
         >
           {translate('save')}
-        </ButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('cancel')}
     />

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DangerButtonPrimary, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { isPullRequest } from '~sonar-aligned/helpers/branch-like';
@@ -76,9 +77,9 @@ export default function DeleteBranchModal(props: Props) {
       }
       loading={isPending}
       primaryButton={
-        <DangerButtonPrimary type="submit" form={FORM_ID}>
+        <Button type="submit" form={FORM_ID} variety={ButtonVariety.Danger}>
           <FormattedMessage id="delete" />
-        </DangerButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={<FormattedMessage id="cancel" />}
       onClose={props.onClose}

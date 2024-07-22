@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonPrimary, CardWithPrimaryBackground, SubHeadingHighlight } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { CardWithPrimaryBackground, SubHeadingHighlight } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
@@ -59,13 +60,13 @@ export default function CaycNonCompliantBanner({ renderCaycModal, isOptimizing }
       </div>
       <ModalButton modal={renderCaycModal}>
         {({ onClick }) => (
-          <ButtonPrimary className="sw-mt-4" onClick={onClick}>
+          <Button className="sw-mt-4" onClick={onClick} variety={ButtonVariety.Primary}>
             {translate(
               isOptimizing
                 ? 'quality_gates.cayc_condition.review_optimize'
                 : 'quality_gates.cayc_condition.review_update',
             )}
-          </ButtonPrimary>
+          </Button>
         )}
       </ModalButton>
     </CardWithPrimaryBackground>

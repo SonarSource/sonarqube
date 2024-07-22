@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator, ButtonPrimary, SubHeading } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { BasicSeparator, SubHeading } from 'design-system';
 import React, { ReactElement } from 'react';
 import { translate } from '../../../../helpers/l10n';
 
@@ -39,9 +40,9 @@ export default function TabHeader({
       <div className="sw-mb-4">
         <SubHeading as="h4">{title}</SubHeading>
         {showCreate && (
-          <ButtonPrimary className="sw-mt-2" onClick={onCreate}>
+          <Button className="sw-mt-2" onClick={onCreate} variety={ButtonVariety.Primary}>
             {translate('settings.authentication.form.create')}
-          </ButtonPrimary>
+          </Button>
         )}
       </div>
       {configurationValidity}

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FormField, InputSelect, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FormField, InputSelect, Modal } from 'design-system';
 import { difference } from 'lodash';
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
@@ -116,13 +117,14 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
       isOverflowVisible
       body={renderForm}
       primaryButton={
-        <ButtonPrimary
-          disabled={!language || !key}
+        <Button
+          isDisabled={!language || !key}
           form="add-language-quality-profile"
           type="submit"
+          variety={ButtonVariety.Primary}
         >
           {translate('save')}
-        </ButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('cancel')}
     />

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DangerButtonPrimary, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useDeleteGroupMutation } from '../../../queries/groups';
@@ -45,9 +46,15 @@ export default function DeleteGroupForm(props: Readonly<Props>) {
       onClose={props.onClose}
       body={translateWithParameters('groups.delete_group.confirmation', group.name)}
       primaryButton={
-        <DangerButtonPrimary autoFocus type="submit" onClick={onSubmit} disabled={isPending}>
+        <Button
+          hasAutoFocus
+          type="submit"
+          onClick={onSubmit}
+          isDisabled={isPending}
+          variety={ButtonVariety.Danger}
+        >
           {translate('delete')}
-        </DangerButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('cancel')}
     />

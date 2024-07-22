@@ -17,14 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  ButtonPrimary,
-  ButtonSecondary,
-  FormField,
-  InputField,
-  Link,
-  Spinner,
-} from 'design-system';
+import { Button, ButtonVariety, LinkStandalone, Spinner } from '@sonarsource/echoes-react';
+import { FormField, InputField } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
@@ -79,13 +73,13 @@ export default class LoginForm extends React.PureComponent<Props, State> {
   render() {
     if (this.state.collapsed) {
       return (
-        <ButtonSecondary
+        <Button
           className="sw-w-full sw-justify-center"
           aria-expanded={false}
           onClick={this.handleMoreOptionsClick}
         >
           {translate('login.more_options')}
-        </ButtonSecondary>
+        </Button>
       );
     }
     return (
@@ -117,12 +111,12 @@ export default class LoginForm extends React.PureComponent<Props, State> {
         </FormField>
 
         <div>
-          <div className="sw-overflow-hidden sw-flex sw-items-center sw-justify-end sw-gap-3">
-            <Spinner loading={this.state.loading} />
-            <Link to="/">{translate('go_back')}</Link>
-            <ButtonPrimary disabled={this.state.loading} type="submit">
+          <div className="sw-flex sw-items-center sw-justify-end sw-gap-3">
+            <Spinner isLoading={this.state.loading} />
+            <LinkStandalone to="/">{translate('go_back')}</LinkStandalone>
+            <Button isDisabled={this.state.loading} type="submit" variety={ButtonVariety.Primary}>
               {translate('sessions.log_in')}
-            </ButtonPrimary>
+            </Button>
           </div>
         </div>
       </form>

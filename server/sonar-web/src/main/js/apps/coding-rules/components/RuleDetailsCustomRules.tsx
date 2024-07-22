@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import {
   ButtonSecondary,
   ContentCell,
-  DangerButtonSecondary,
   HeadingDark,
   Link,
   Spinner,
@@ -142,13 +142,14 @@ function RuleListItem(
             onConfirm={props.onDelete}
           >
             {({ onClick }) => (
-              <DangerButtonSecondary
+              <Button
                 className="js-delete-custom-rule"
                 aria-label={translateWithParameters('coding_rules.delete_rule_x', rule.name)}
                 onClick={onClick}
+                variety={ButtonVariety.DangerOutline}
               >
                 {translate('delete')}
-              </DangerButtonSecondary>
+              </Button>
             )}
           </ConfirmButton>
         </ContentCell>

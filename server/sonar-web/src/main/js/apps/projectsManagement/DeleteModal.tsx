@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DangerButtonPrimary, FlagMessage, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, Modal } from 'design-system';
 import * as React from 'react';
 import { Project, bulkDeleteProjects } from '../../api/project-management';
 import { toISO8601WithOffsetString } from '../../helpers/dates';
@@ -104,14 +105,15 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
           </>
         }
         primaryButton={
-          <DangerButtonPrimary
-            autoFocus
-            disabled={this.state.loading}
+          <Button
+            hasAutoFocus
+            isDisabled={this.state.loading}
             onClick={this.handleConfirmClick}
             type="submit"
+            variety={ButtonVariety.Danger}
           >
             {translate('delete')}
-          </DangerButtonPrimary>
+          </Button>
         }
         secondaryButtonLabel={translate('cancel')}
       />

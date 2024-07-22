@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonSecondary, InputSearch } from 'design-system';
+import { Button } from '@sonarsource/echoes-react';
+import { InputSearch } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { DEFAULT_FILTERS } from '../constants';
@@ -143,16 +144,12 @@ export default class Search extends React.PureComponent<Props> {
           )}
 
           <li>
-            <ButtonSecondary
-              className="js-reload sw-mr-2"
-              disabled={loading}
-              onClick={this.handleReload}
-            >
+            <Button className="js-reload sw-mr-2" isDisabled={loading} onClick={this.handleReload}>
               {translate('reload')}
-            </ButtonSecondary>
-            <ButtonSecondary disabled={loading} onClick={this.handleReset}>
+            </Button>
+            <Button isDisabled={loading} onClick={this.handleReset}>
               {translate('reset_verb')}
-            </ButtonSecondary>
+            </Button>
           </li>
         </ul>
       </section>

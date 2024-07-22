@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonSecondary, PageTitle } from 'design-system';
+import { Button } from '@sonarsource/echoes-react';
+import { PageTitle } from 'design-system';
 import * as React from 'react';
 import {
   commentSecurityHotspot,
@@ -87,9 +88,9 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
         />
 
         {isLoggedIn(currentUser) && (
-          <ButtonSecondary className="sw-mt-4 sw-mb-2" onClick={this.handleShowCommentModal}>
+          <Button className="sw-mt-4 sw-mb-2" onClick={this.handleShowCommentModal}>
             {translate('hotspots.status.add_comment')}
-          </ButtonSecondary>
+          </Button>
         )}
 
         <HotspotReviewHistory

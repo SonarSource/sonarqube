@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { IconSlideshow } from '@sonarsource/echoes-react';
-import { ButtonSecondary, SeparatorCircleIcon } from 'design-system';
+import { Button, IconSlideshow } from '@sonarsource/echoes-react';
+import { SeparatorCircleIcon } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
@@ -79,14 +79,14 @@ export default function BranchMetaTopBar({
       <ComponentReportActions component={component} branch={branch} />
       {showTakeTheTourButton && (
         <Tooltip content={translate('overview.promoted_section.button_tooltip')}>
-          <ButtonSecondary
+          <Button
             className="sw-pl-4 sw-shrink-0"
             data-spotlight-id="take-tour-1"
             onClick={startTour}
           >
             <IconSlideshow className="sw-mr-1" />
             {translate('overview.promoted_section.button_primary')}
-          </ButtonSecondary>
+          </Button>
         </Tooltip>
       )}
     </div>

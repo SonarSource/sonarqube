@@ -31,6 +31,23 @@ export const PrimaryStyle = (props: ThemedProps) => css`
   --border: ${themeBorder('default', 'transparent')(props)};
 `;
 
+/**
+ * @deprecated Use Button from Echoes instead with the `variety` prop set
+ * to ButtonVariety.Primary to have the same look and feel.
+ *
+ * Some of the props have changed or been renamed:
+ * - `blurAfterClick` is now `shouldBlurAfterClick`
+ * - `disabled` is now `isDisabled`, note that a Echoes Tooltip won't work
+ * on a disabled button, use a text notice or ToggleTip next to the disabled button instead.
+ * - `icon` is now replace by `prefix` which works the same way
+ * - `preventDefault` is now `shouldPreventDefault`
+ * - `stopPropagation` is now `shouldStopPropagation`
+ *
+ * The button can't be used as a link anymore, and all props related to links have been dropped.
+ * Use a real Echoes Link instead.
+ *
+ * See the {@link https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3382706231/Button | Migration Guide} for more information.
+ */
 export const ButtonPrimary = styled(Button)`
   ${PrimaryStyle}
 `;

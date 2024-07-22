@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, Title } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Title } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import CreationModal from './CreationModal';
@@ -58,9 +59,13 @@ export default class Header extends React.PureComponent<Props, State> {
         <header className="sw-mt-8 sw-mb-4">
           <div className="sw-flex sw-justify-between">
             <Title className="sw-mb-4">{translate('project_links.page')}</Title>
-            <ButtonPrimary id="create-project-link" onClick={this.handleCreateClick}>
+            <Button
+              id="create-project-link"
+              onClick={this.handleCreateClick}
+              variety={ButtonVariety.Primary}
+            >
               {translate('create')}
-            </ButtonPrimary>
+            </Button>
           </div>
           <p>{translate('project_links.page.description')}</p>
         </header>

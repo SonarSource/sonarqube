@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonSecondary, DateRangePicker, PopupZLevel } from 'design-system';
+import { Button } from '@sonarsource/echoes-react';
+import { DateRangePicker, PopupZLevel } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Query } from '../utils';
@@ -50,13 +51,13 @@ export default class ProjectActivityDateInput extends React.PureComponent<Props>
           value={{ from: this.props.from, to: this.props.to }}
           zLevel={PopupZLevel.Content}
         />
-        <ButtonSecondary
+        <Button
           className="sw-ml-2"
-          disabled={this.props.from === undefined && this.props.to === undefined}
+          isDisabled={this.props.from === undefined && this.props.to === undefined}
           onClick={this.handleResetClick}
         >
           {translate('project_activity.reset_dates')}
-        </ButtonSecondary>
+        </Button>
       </div>
     );
   }

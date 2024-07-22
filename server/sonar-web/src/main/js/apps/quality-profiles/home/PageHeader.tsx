@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, ButtonSecondary, FlagMessage, Link } from 'design-system';
+import { Button, ButtonGroup, ButtonVariety } from '@sonarsource/echoes-react';
+import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
@@ -71,22 +72,19 @@ export default function PageHeader(props: Readonly<Props>) {
       </div>
       {actions.create && (
         <div className="sw-flex sw-flex-col sw-items-end">
-          <div>
-            <ButtonPrimary
-              disabled={languages.length === 0}
+          <ButtonGroup>
+            <Button
+              isDisabled={languages.length === 0}
               id="quality-profiles-create"
               onClick={() => setModal('createProfile')}
+              variety={ButtonVariety.Primary}
             >
               {intl.formatMessage({ id: 'create' })}
-            </ButtonPrimary>
-            <ButtonSecondary
-              className="sw-ml-2"
-              id="quality-profiles-restore"
-              onClick={() => setModal('restoreProfile')}
-            >
+            </Button>
+            <Button id="quality-profiles-restore" onClick={() => setModal('restoreProfile')}>
               {intl.formatMessage({ id: 'restore' })}
-            </ButtonSecondary>
-          </div>
+            </Button>
+          </ButtonGroup>
           {languages.length === 0 && (
             <FlagMessage className="sw-mt-2" variant="warning">
               {intl.formatMessage({ id: 'quality_profiles.no_languages_available' })}

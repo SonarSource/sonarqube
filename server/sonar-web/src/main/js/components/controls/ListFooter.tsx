@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import { Button } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { ButtonSecondary, Spinner, themeColor } from 'design-system';
+import { Spinner, themeColor } from 'design-system';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
@@ -73,26 +74,26 @@ export default function ListFooter(props: ListFooterProps) {
   let button;
   if (needReload && props.reload) {
     button = (
-      <ButtonSecondary
+      <Button
         data-test="reload"
         className="sw-ml-2 sw-body-sm"
-        disabled={loading}
+        isDisabled={loading}
         onClick={props.reload}
       >
         {translate('reload')}
-      </ButtonSecondary>
+      </Button>
     );
   } else if (hasMore && props.loadMore) {
     button = (
-      <ButtonSecondary
+      <Button
         aria-label={loadMoreAriaLabel}
         data-test="show-more"
         className="sw-ml-2 sw-body-sm"
-        disabled={loading}
+        isDisabled={loading}
         onClick={onLoadMore}
       >
         {translate('show_more')}
-      </ButtonSecondary>
+      </Button>
     );
   }
 

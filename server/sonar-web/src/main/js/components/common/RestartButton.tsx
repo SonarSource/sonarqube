@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DangerButtonSecondary } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { restart } from '../../api/system';
 import ConfirmButton from '../../components/controls/ConfirmButton';
@@ -50,15 +50,16 @@ export default class RestartButton extends React.PureComponent<Props> {
         onConfirm={this.handleConfirm}
       >
         {({ onClick }) => (
-          <DangerButtonSecondary
+          <Button
             className={className}
-            disabled={systemStatus !== 'UP'}
+            isDisabled={systemStatus !== 'UP'}
             onClick={onClick}
+            variety={ButtonVariety.DangerOutline}
           >
             {systemStatus === 'RESTARTING'
               ? translate('system.restart_in_progress')
               : translate('system.restart_server')}
-          </DangerButtonSecondary>
+          </Button>
         )}
       </ConfirmButton>
     );

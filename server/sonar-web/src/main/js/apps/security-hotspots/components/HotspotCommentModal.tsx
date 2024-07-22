@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FormField, InputTextArea, Modal } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { FormField, InputTextArea, Modal } from 'design-system';
 import * as React from 'react';
 import FormattingTips from '../../../components/common/FormattingTips';
 import { translate } from '../../../helpers/l10n';
@@ -51,9 +52,13 @@ export default function HotspotCommentModal(props: HotspotCommentPopupProps) {
         </FormField>
       }
       primaryButton={
-        <ButtonPrimary onClick={() => props.onSubmit(comment)} disabled={!comment}>
+        <Button
+          onClick={() => props.onSubmit(comment)}
+          isDisabled={!comment}
+          variety={ButtonVariety.Primary}
+        >
           {translate('hotspots.comment.submit')}
-        </ButtonPrimary>
+        </Button>
       }
       secondaryButtonLabel={translate('cancel')}
     />
