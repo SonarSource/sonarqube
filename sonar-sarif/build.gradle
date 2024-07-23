@@ -8,7 +8,7 @@ dependencies {
 }
 
 jsonSchema2Pojo {
-  source = files("${sourceSets.main.output.resourcesDir}/sarif")
+  source = files("${sourceSets.main.output.resourcesDir}/sarif/sarif-schema-2.1.0.json")
   generateBuilders = true
   inclusionLevel = "NON_DEFAULT"
   initializeCollections = false
