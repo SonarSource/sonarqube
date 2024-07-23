@@ -17,10 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { INotebookContent } from '@jupyterlab/nbformat';
+import { ICell, INotebookContent } from '@jupyterlab/nbformat';
 import { Spinner } from '@sonarsource/echoes-react';
-import { FlagMessage, IssueMessageHighlighting, LineFinding } from 'design-system';
-import React, { useMemo } from 'react';
+import {
+  FlagMessage,
+  hljsUnderlinePlugin,
+  IssueMessageHighlighting,
+  LineFinding,
+} from 'design-system';
+import React from 'react';
 import { JupyterCell } from '~sonar-aligned/components/SourceViewer/JupyterNotebookViewer';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { JsonIssueMapper } from '~sonar-aligned/helpers/json-issue-mapper';
@@ -28,7 +33,6 @@ import { translate } from '../../../helpers/l10n';
 import { useRawSourceQuery } from '../../../queries/sources';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue } from '../../../types/types';
-import { JupyterNotebookCursorPath } from './types';
 import { pathToCursorInCell } from './utils';
 
 export interface JupyterNotebookIssueViewerProps {
@@ -42,26 +46,18 @@ export function JupyterNotebookIssueViewer(props: Readonly<JupyterNotebookIssueV
     key: issue.component,
     ...getBranchLikeQuery(branchLike),
   });
-  const [startOffset, setStartOffset] = React.useState<JupyterNotebookCursorPath | null>(null);
-  const [endPath, setEndPath] = React.useState<JupyterNotebookCursorPath | null>(null);
-
-  const jupyterNotebook = useMemo(() => {
-    if (typeof data !== 'string') {
-      return null;
-    }
-    try {
-      return JSON.parse(data) as INotebookContent;
-    } catch (error) {
-      return null;
-    }
-  }, [data]);
+  const [renderedCells, setRenderedCells] = React.useState<ICell[] | null>(null);
 
   React.useEffect(() => {
-    if (typeof data !== 'string') {
+    if (!issue.textRange || typeof data !== 'string') {
       return;
     }
 
-    if (!issue.textRange) {
+    let jupyterNotebook: INotebookContent;
+    try {
+      jupyterNotebook = JSON.parse(data);
+    } catch (error) {
+      setRenderedCells(null);
       return;
     }
 
@@ -76,33 +72,62 @@ export function JupyterNotebookIssueViewer(props: Readonly<JupyterNotebookIssueV
     );
     const startOffset = pathToCursorInCell(mapper.get(start));
     const endOffset = pathToCursorInCell(mapper.get(end));
-    if (
-      startOffset &&
-      endOffset &&
-      startOffset.cell === endOffset.cell &&
-      startOffset.line === endOffset.line
-    ) {
-      setStartOffset(startOffset);
-      setEndPath(endOffset);
+    if (!startOffset || !endOffset) {
+      setRenderedCells(null);
+      return;
     }
+
+    if (startOffset.cell === endOffset.cell) {
+      const startCell = jupyterNotebook.cells[startOffset.cell];
+      startCell.source = Array.isArray(startCell.source) ? startCell.source : [startCell.source];
+      startCell.source = hljsUnderlinePlugin.tokenize(startCell.source, [
+        {
+          start: startOffset,
+          end: endOffset,
+        },
+      ]);
+    } else {
+      // Each cell is a separate code block, so we have to underline them separately
+      // We underilne the first cell from the start offset to the end of the cell, and the last cell from the start of the cell to the end offset
+      const startCell = jupyterNotebook.cells[startOffset.cell];
+      startCell.source = Array.isArray(startCell.source) ? startCell.source : [startCell.source];
+      startCell.source = hljsUnderlinePlugin.tokenize(startCell.source, [
+        {
+          start: startOffset,
+          end: {
+            line: startCell.source.length - 1,
+            cursorOffset: startCell.source[startCell.source.length - 1].length,
+          },
+        },
+      ]);
+      const endCell = jupyterNotebook.cells[endOffset.cell];
+      endCell.source = Array.isArray(endCell.source) ? endCell.source : [endCell.source];
+      endCell.source = hljsUnderlinePlugin.tokenize(endCell.source, [
+        {
+          start: { line: 0, cursorOffset: 0 },
+          end: endOffset,
+        },
+      ]);
+    }
+
+    const cells = Array.from(new Set([startOffset.cell, endOffset.cell])).map(
+      (cellIndex) => jupyterNotebook.cells[cellIndex],
+    );
+
+    setRenderedCells(cells);
   }, [issue, data]);
 
   if (isLoading) {
     return <Spinner />;
   }
 
-  if (!jupyterNotebook || !startOffset || !endPath) {
+  if (!renderedCells) {
     return (
       <FlagMessage className="sw-mt-2" variant="warning">
         {translate('issue.preview.jupyter_notebook.error')}
       </FlagMessage>
     );
   }
-
-  // Cells to display
-  const cells = Array.from(new Set([startOffset.cell, endPath.cell])).map(
-    (cellIndex) => jupyterNotebook.cells[cellIndex],
-  );
 
   return (
     <>
@@ -116,7 +141,7 @@ export function JupyterNotebookIssueViewer(props: Readonly<JupyterNotebookIssueV
         }
         selected
       />
-      {cells.map((cell, index) => (
+      {renderedCells.map((cell, index) => (
         <JupyterCell key={'cell-' + index} cell={cell} />
       ))}
     </>

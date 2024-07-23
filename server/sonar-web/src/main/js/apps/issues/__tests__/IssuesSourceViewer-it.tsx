@@ -71,8 +71,8 @@ const JUPYTER_ISSUE = {
     textRange: {
       startLine: 1,
       endLine: 1,
-      startOffset: 1142,
-      endOffset: 1144,
+      startOffset: 1148,
+      endOffset: 1159,
     },
     ruleDescriptionContextKey: 'spring',
     ruleStatus: 'DEPRECATED',
@@ -185,6 +185,35 @@ describe('issues source viewer', () => {
       expect(screen.getByText('issue.preview.jupyter_notebook.error')).toBeInTheDocument();
     });
 
+    it('should render error when jupyter issue can not be found', async () => {
+      issuesHandler.setIssueList([
+        {
+          ...JUPYTER_ISSUE,
+          issue: {
+            ...JUPYTER_ISSUE.issue,
+            textRange: {
+              startLine: 2,
+              endLine: 2,
+              startOffset: 1,
+              endOffset: 1,
+            },
+          },
+        },
+      ]);
+      renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
+      await waitOnDataLoaded();
+
+      // Preview tab should be shown
+      expect(ui.preview.get()).toBeChecked();
+      expect(ui.code.get()).toBeInTheDocument();
+
+      expect(
+        await screen.findByRole('button', { name: 'Issue on Jupyter Notebook' }),
+      ).toBeInTheDocument();
+
+      expect(screen.getByText('issue.preview.jupyter_notebook.error')).toBeInTheDocument();
+    });
+
     it('should show preview tab when jupyter notebook issue', async () => {
       issuesHandler.setIssueList([JUPYTER_ISSUE]);
       renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
@@ -199,6 +228,44 @@ describe('issues source viewer', () => {
       ).toBeInTheDocument();
 
       expect(screen.queryByText('issue.preview.jupyter_notebook.error')).not.toBeInTheDocument();
+      expect(screen.getByTestId('hljs-sonar-underline')).toHaveTextContent('matplotlib');
+      expect(screen.getByText(/pylab/, { exact: false })).toBeInTheDocument();
+    });
+
+    it('should render issue in jupyter notebook spanning over multiple cells', async () => {
+      issuesHandler.setIssueList([
+        {
+          ...JUPYTER_ISSUE,
+          issue: {
+            ...JUPYTER_ISSUE.issue,
+            textRange: {
+              startLine: 1,
+              endLine: 1,
+              startOffset: 571,
+              endOffset: JUPYTER_ISSUE.issue.textRange!.endOffset,
+            },
+          },
+        },
+      ]);
+      renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
+      await waitOnDataLoaded();
+
+      // Preview tab should be shown
+      expect(ui.preview.get()).toBeChecked();
+      expect(ui.code.get()).toBeInTheDocument();
+
+      expect(
+        await screen.findByRole('button', { name: 'Issue on Jupyter Notebook' }),
+      ).toBeInTheDocument();
+
+      expect(screen.queryByText('issue.preview.jupyter_notebook.error')).not.toBeInTheDocument();
+
+      const underlined = screen.getAllByTestId('hljs-sonar-underline');
+      expect(underlined).toHaveLength(4);
+      expect(underlined[0]).toHaveTextContent('print train.shape');
+      expect(underlined[1]).toHaveTextContent('print test.shap');
+      expect(underlined[2]).toHaveTextContent('import pylab as pl');
+      expect(underlined[3]).toHaveTextContent('%matplotlib');
     });
   });
 });

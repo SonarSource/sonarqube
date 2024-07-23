@@ -25,6 +25,7 @@ import cobol from 'highlightjs-cobol';
 import abap from 'highlightjs-sap-abap';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers/theme';
+import { hljsUnderlinePlugin } from '../sonar-aligned/hljs/HljsUnderlinePlugin';
 
 hljs.registerLanguage('abap', abap);
 hljs.registerLanguage('apex', apex);
@@ -37,6 +38,8 @@ hljs.registerAliases('plsql', { languageName: 'pgsql' });
 hljs.registerAliases('secrets', { languageName: 'markdown' });
 hljs.registerAliases('web', { languageName: 'xml' });
 hljs.registerAliases(['cloudformation', 'kubernetes'], { languageName: 'yaml' });
+
+hljs.addPlugin(hljsUnderlinePlugin);
 
 interface Props {
   className?: string;
@@ -151,6 +154,13 @@ const StyledSpan = styled.span`
 
   .hljs-meta .hljs-keyword {
     color: ${themeColor('codeSnippetPreprocessingDirective')};
+  }
+
+  .sonar-underline {
+    text-decoration: underline ${themeColor('codeLineIssueSquiggle')};
+    text-decoration: underline ${themeColor('codeLineIssueSquiggle')} wavy;
+    text-decoration-thickness: 2px;
+    text-decoration-skip-ink: none;
   }
 
   &.code-wrap {

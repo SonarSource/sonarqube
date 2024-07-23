@@ -17,8 +17,4 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-export * from './components';
-export * from './helpers';
-export * from './hljs';
-export * from './types';
+export { hljsUnderlinePlugin } from './HljsUnderlinePlugin';

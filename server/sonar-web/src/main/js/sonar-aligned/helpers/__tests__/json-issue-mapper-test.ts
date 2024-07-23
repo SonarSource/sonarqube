@@ -107,7 +107,7 @@ describe('JsonIssueMapper', () => {
         { type: 'array', index: 1 },
         { type: 'object', key: 'data' },
         { type: 'object', key: 'image/png' },
-        { type: 'string', index: 23 },
+        { type: 'string', index: 24 },
       ]);
     });
 
@@ -119,7 +119,7 @@ describe('JsonIssueMapper', () => {
         { type: 'array', index: 1 },
         { type: 'object', key: 'source' },
         { type: 'array', index: 8 },
-        { type: 'string', index: 14 },
+        { type: 'string', index: 15 },
       ]);
     });
   });

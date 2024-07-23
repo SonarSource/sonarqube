@@ -234,6 +234,29 @@ export class JsonIssueMapper {
     };
   }
 
+  private getStringCursorIndex(firstQuoteIndex: number, endQuoteIndex: number): number {
+    const index = this.cursorPosition - firstQuoteIndex;
+
+    // We make it such that if the cursor is on a quote, it is considered to be within the string
+    if (index <= 0) {
+      return 0;
+    }
+
+    let count = 0;
+    let i = 0;
+    while (i < index) {
+      // Ignore escaped quotes
+      if (this.code[firstQuoteIndex + i] === '\\' && this.code[firstQuoteIndex + i + 1] === '"') {
+        i += 2;
+      } else {
+        i += 1;
+      }
+      count++;
+    }
+
+    return Math.min(count, endQuoteIndex - firstQuoteIndex - 2);
+  }
+
   /**
    * Parse a string value. Place the cursor at the end quote.
    */
@@ -243,14 +266,9 @@ export class JsonIssueMapper {
     // Cursor within string value
     if (this.cursorWithin(firstQuoteIndex, endQuoteIndex)) {
       if (endQuoteIndex - firstQuoteIndex > 1) {
-        // We make it such that if the cursor is on a quote, it is considered to be within the string
-        let index = this.cursorPosition - firstQuoteIndex - 1;
-        index = Math.min(index, endQuoteIndex - firstQuoteIndex - 2);
-        index = Math.max(0, index);
-
         this.path.push({
           type: 'string',
-          index,
+          index: this.getStringCursorIndex(firstQuoteIndex, endQuoteIndex),
         });
       }
 

@@ -147,6 +147,15 @@ exports[`should highlight code content correctly 1`] = `
   color: rgb(47,103,48);
 }
 
+.emotion-6 .sonar-underline {
+  -webkit-text-decoration: underline rgb(253,162,155);
+  text-decoration: underline rgb(253,162,155);
+  -webkit-text-decoration: underline rgb(253,162,155) wavy;
+  text-decoration: underline rgb(253,162,155) wavy;
+  text-decoration-thickness: 2px;
+  text-decoration-skip-ink: none;
+}
+
 .emotion-6.code-wrap {
   white-space: pre-wrap;
   word-break: break-all;
@@ -350,6 +359,15 @@ exports[`should show full size when multiline with no editing 1`] = `
 
 .emotion-6 .hljs-meta .hljs-keyword {
   color: rgb(47,103,48);
+}
+
+.emotion-6 .sonar-underline {
+  -webkit-text-decoration: underline rgb(253,162,155);
+  text-decoration: underline rgb(253,162,155);
+  -webkit-text-decoration: underline rgb(253,162,155) wavy;
+  text-decoration: underline rgb(253,162,155) wavy;
+  text-decoration-thickness: 2px;
+  text-decoration-skip-ink: none;
 }
 
 .emotion-6.code-wrap {
@@ -559,6 +577,15 @@ exports[`should show reduced size when single line with no editing 1`] = `
 
 .emotion-6 .hljs-meta .hljs-keyword {
   color: rgb(47,103,48);
+}
+
+.emotion-6 .sonar-underline {
+  -webkit-text-decoration: underline rgb(253,162,155);
+  text-decoration: underline rgb(253,162,155);
+  -webkit-text-decoration: underline rgb(253,162,155) wavy;
+  text-decoration: underline rgb(253,162,155) wavy;
+  text-decoration-thickness: 2px;
+  text-decoration-skip-ink: none;
 }
 
 .emotion-6.code-wrap {
