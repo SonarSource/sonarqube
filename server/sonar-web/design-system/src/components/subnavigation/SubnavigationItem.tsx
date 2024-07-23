@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { ReactNode, SyntheticEvent, useCallback } from 'react';
 import tw, { theme as twTheme } from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
+import { ThemedProps } from '../../types';
+import NavLink, { NavLinkProps } from '../NavLink';
 
 interface Props {
   active?: boolean;
@@ -54,7 +57,11 @@ export function SubnavigationItem(props: Readonly<Props>) {
   );
 }
 
-const StyledSubnavigationItem = styled.a`
+export function SubnavigationLinkItem({ children, ...props }: NavLinkProps) {
+  return <SubnavigationLinkItemStyled {...props}>{children}</SubnavigationLinkItemStyled>;
+}
+
+const ItemBaseStyle = (props: ThemedProps) => css`
   ${tw`sw-flex sw-items-center sw-justify-between`}
   ${tw`sw-box-border`}
   ${tw`sw-body-sm`}
@@ -63,21 +70,30 @@ const StyledSubnavigationItem = styled.a`
   ${tw`sw-cursor-pointer`}
 
   padding-left: calc(${twTheme('spacing.4')} - 3px);
-  color: ${themeContrast('subnavigation')};
-  background-color: ${themeColor('subnavigation')};
+  color: ${themeContrast('subnavigation')(props)};
+  background-color: ${themeColor('subnavigation')(props)};
   border-bottom: none;
-  border-left: ${themeBorder('active', 'transparent')};
+  border-left: ${themeBorder('active', 'transparent')(props)};
   transition: 0.2 ease;
   transition-property: border-left, background-color, color;
 
   &:hover,
   &:focus,
   &.active {
-    background-color: ${themeColor('subnavigationHover')};
+    background-color: ${themeColor('subnavigationHover')(props)};
   }
 
   &.active {
-    color: ${themeContrast('subnavigationHover')};
-    border-left: ${themeBorder('active')};
+    color: ${themeContrast('subnavigationHover')(props)};
+    border-left: ${themeBorder('active')(props)};
   }
+`;
+
+const StyledSubnavigationItem = styled.a`
+  ${ItemBaseStyle};
+`;
+
+const SubnavigationLinkItemStyled = styled(NavLink)`
+  ${ItemBaseStyle};
+  ${tw`sw-no-underline`}
 `;
