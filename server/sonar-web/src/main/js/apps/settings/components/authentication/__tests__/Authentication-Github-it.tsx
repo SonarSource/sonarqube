@@ -196,13 +196,13 @@ const ui = {
     name: 'settings.authentication.github.configuration.validation.details.title',
   }),
   continueAutoButton: byRole('button', {
-    name: 'settings.authentication.github.confirm_auto_provisioning.continue',
+    name: 'settings.authentication.confirm_auto_provisioning.continue',
   }),
   switchJitButton: byRole('button', {
-    name: 'settings.authentication.github.confirm_auto_provisioning.switch_jit',
+    name: 'settings.authentication.confirm_auto_provisioning.switch_jit',
   }),
   consentDialog: byRole('dialog', {
-    name: 'settings.authentication.github.confirm_auto_provisioning.header',
+    name: 'settings.authentication.confirm_auto_provisioning.header',
   }),
   getConfigDetailsTitle: () => ui.configDetailsDialog.byRole('heading').get(),
   getOrgs: () => ui.configDetailsDialog.byRole('listitem').getAll(),

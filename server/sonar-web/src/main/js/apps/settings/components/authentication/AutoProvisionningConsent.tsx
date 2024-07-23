@@ -25,44 +25,73 @@ import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
 import { DocLink } from '../../../../helpers/doc-links';
-import {
-  useSearchGitHubConfigurationsQuery,
-  useUpdateGitHubConfigurationMutation,
-} from '../../../../queries/dop-translation';
-import { ProvisioningType } from '../../../../types/provisioning';
+import { useUpdateGitHubConfigurationMutation } from '../../../../queries/dop-translation';
+import { useUpdateGitLabConfigurationMutation } from '../../../../queries/identity-provider/gitlab';
+import { useGetValueQuery, useResetSettingsMutation } from '../../../../queries/settings';
+import { GitHubConfigurationResponse } from '../../../../types/dop-translation';
+import { GitlabConfiguration, ProvisioningType } from '../../../../types/provisioning';
 
-export default function AutoProvisioningConsent() {
+const CONSENT_SETTING_KEY = 'sonar.auth.gitlab.userConsentForPermissionProvisioningRequired';
+
+interface Props {
+  githubConfiguration?: GitHubConfigurationResponse;
+  gitlabConfiguration?: GitlabConfiguration;
+}
+
+export default function AutoProvisioningConsent(props: Readonly<Props>) {
   const { formatMessage } = useIntl();
-  const { data: list } = useSearchGitHubConfigurationsQuery();
-  const gitHubConfiguration = list?.githubConfigurations[0];
+  const { githubConfiguration, gitlabConfiguration } = props;
 
-  const { mutate: updateConfig } = useUpdateGitHubConfigurationMutation();
+  const { mutate: updateGithubConfig } = useUpdateGitHubConfigurationMutation();
+  const { mutate: updateGitlabConfig } = useUpdateGitLabConfigurationMutation();
+  const { data: userConsent } = useGetValueQuery(CONSENT_SETTING_KEY);
+  const { mutateAsync: resetSettingValue } = useResetSettingsMutation();
 
-  if (gitHubConfiguration?.userConsentRequiredAfterUpgrade !== true) {
+  if (
+    (githubConfiguration?.userConsentRequiredAfterUpgrade !== true &&
+      gitlabConfiguration === undefined) ||
+    (!userConsent && githubConfiguration === undefined)
+  ) {
     return null;
   }
 
   const header = formatMessage({
-    id: 'settings.authentication.github.confirm_auto_provisioning.header',
+    id: 'settings.authentication.confirm_auto_provisioning.header',
   });
 
   const onClickAutoProvisioning = () => {
-    updateConfig({
-      id: gitHubConfiguration.id,
-      gitHubConfiguration: {
-        userConsentRequiredAfterUpgrade: false,
-      },
-    });
+    if (githubConfiguration) {
+      updateGithubConfig({
+        id: githubConfiguration.id,
+        gitHubConfiguration: {
+          userConsentRequiredAfterUpgrade: false,
+        },
+      });
+    }
+    if (gitlabConfiguration) {
+      resetSettingValue({ keys: [CONSENT_SETTING_KEY] });
+    }
   };
 
   const onClickJitProvisioning = () => {
-    updateConfig({
-      id: gitHubConfiguration.id,
-      gitHubConfiguration: {
-        provisioningType: ProvisioningType.jit,
-        userConsentRequiredAfterUpgrade: false,
-      },
-    });
+    if (githubConfiguration) {
+      updateGithubConfig({
+        id: githubConfiguration.id,
+        gitHubConfiguration: {
+          provisioningType: ProvisioningType.jit,
+          userConsentRequiredAfterUpgrade: false,
+        },
+      });
+    }
+    if (gitlabConfiguration) {
+      updateGitlabConfig({
+        id: gitlabConfiguration.id,
+        data: {
+          provisioningType: ProvisioningType.jit,
+        },
+      });
+      resetSettingValue({ keys: [CONSENT_SETTING_KEY] });
+    }
   };
 
   return (
@@ -71,14 +100,19 @@ export default function AutoProvisioningConsent() {
       <Modal.Body>
         <FormattedMessage
           tagName="p"
-          id="settings.authentication.github.confirm_auto_provisioning.description1"
+          id="settings.authentication.confirm_auto_provisioning.description1"
         />
         <FormattedMessage
-          id="settings.authentication.github.confirm_auto_provisioning.description2"
+          id="settings.authentication.confirm_auto_provisioning.description2"
           tagName="p"
           values={{
+            alm: githubConfiguration
+              ? formatMessage({ id: 'alm.github' })
+              : formatMessage({ id: 'alm.gitlab' }),
             documentation: (
-              <DocumentationLink to={DocLink.AlmGitHubAuth}>
+              <DocumentationLink
+                to={githubConfiguration ? DocLink.AlmGitHubAuth : DocLink.AlmGitLabAuth}
+              >
                 <FormattedMessage id="documentation" />
               </DocumentationLink>
             ),
@@ -86,18 +120,18 @@ export default function AutoProvisioningConsent() {
         />
         <FormattedMessage
           tagName="p"
-          id="settings.authentication.github.confirm_auto_provisioning.question"
+          id="settings.authentication.confirm_auto_provisioning.question"
         />
       </Modal.Body>
       <Modal.Footer
         primaryButton={
           <Button onClick={onClickAutoProvisioning}>
-            <FormattedMessage id="settings.authentication.github.confirm_auto_provisioning.continue" />
+            <FormattedMessage id="settings.authentication.confirm_auto_provisioning.continue" />
           </Button>
         }
         secondaryButton={
           <Button onClick={onClickJitProvisioning}>
-            <FormattedMessage id="settings.authentication.github.confirm_auto_provisioning.switch_jit" />
+            <FormattedMessage id="settings.authentication.confirm_auto_provisioning.switch_jit" />
           </Button>
         }
       />

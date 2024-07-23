@@ -39,6 +39,7 @@ import { GitLabConfigurationUpdateBody, ProvisioningType } from '../../../../typ
 import { DefinitionV2, SettingType } from '../../../../types/settings';
 import { Provider } from '../../../../types/types';
 import AuthenticationFormField from './AuthenticationFormField';
+import AutoProvisioningConsent from './AutoProvisionningConsent';
 import ConfigurationDetails from './ConfigurationDetails';
 import ConfirmProvisioningModal from './ConfirmProvisioningModal';
 import GitLabConfigurationForm from './GitLabConfigurationForm';
@@ -392,6 +393,7 @@ export default function GitLabAuthenticationTab() {
           onClose={() => setOpenForm(false)}
         />
       )}
+      <AutoProvisioningConsent gitlabConfiguration={configuration} />
     </Spinner>
   );
 }

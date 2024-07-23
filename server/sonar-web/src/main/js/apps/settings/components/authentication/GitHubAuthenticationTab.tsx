@@ -376,7 +376,7 @@ export default function GitHubAuthenticationTab() {
           />
         )}
 
-        <AutoProvisioningConsent />
+        <AutoProvisioningConsent githubConfiguration={gitHubConfiguration} />
       </div>
     </Spinner>
   );

@@ -144,6 +144,15 @@ const ui = {
   testConfiguration: glContainer.byRole('button', {
     name: 'settings.authentication.configuration.test',
   }),
+  continueAutoButton: byRole('button', {
+    name: 'settings.authentication.confirm_auto_provisioning.continue',
+  }),
+  switchJitButton: byRole('button', {
+    name: 'settings.authentication.confirm_auto_provisioning.switch_jit',
+  }),
+  consentDialog: byRole('dialog', {
+    name: 'settings.authentication.confirm_auto_provisioning.header',
+  }),
 };
 
 it('should create a Gitlab configuration and disable it with proper validation', async () => {
@@ -580,6 +589,50 @@ describe('Gitlab Provisioning', () => {
     expect(glContainer.get()).toHaveTextContent('ERROR');
     await user.click(ui.disableConfigButton.get());
     expect(ui.gitlabConfigurationStatus.query()).not.toBeInTheDocument();
+  });
+
+  it('should display a modal if user was already using auto and continue using auto provisioning', async () => {
+    const user = userEvent.setup();
+
+    settingsHandler.set('sonar.auth.gitlab.userConsentForPermissionProvisioningRequired', '');
+    handler.setGitlabConfigurations([
+      mockGitlabConfiguration({
+        allowUsersToSignUp: false,
+        enabled: true,
+        provisioningType: ProvisioningType.auto,
+        allowedGroups: ['D12'],
+        isProvisioningTokenSet: true,
+      }),
+    ]);
+    renderAuthentication([Feature.GitlabProvisioning]);
+
+    expect(await ui.consentDialog.find()).toBeInTheDocument();
+    await user.click(ui.continueAutoButton.get());
+
+    expect(await ui.autoProvisioningRadioButton.find()).toBeChecked();
+    expect(ui.consentDialog.query()).not.toBeInTheDocument();
+  });
+
+  it('should display a modal if user was already using auto and switch to JIT', async () => {
+    const user = userEvent.setup();
+
+    settingsHandler.set('sonar.auth.gitlab.userConsentForPermissionProvisioningRequired', '');
+    handler.setGitlabConfigurations([
+      mockGitlabConfiguration({
+        allowUsersToSignUp: false,
+        enabled: true,
+        provisioningType: ProvisioningType.auto,
+        allowedGroups: ['D12'],
+        isProvisioningTokenSet: true,
+      }),
+    ]);
+    renderAuthentication([Feature.GitlabProvisioning]);
+
+    expect(await ui.consentDialog.find()).toBeInTheDocument();
+    await user.click(ui.switchJitButton.get());
+
+    expect(await ui.jitProvisioningRadioButton.find()).toBeChecked();
+    expect(ui.consentDialog.query()).not.toBeInTheDocument();
   });
 });
 

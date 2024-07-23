@@ -224,6 +224,10 @@ export default class SettingsServiceMock {
       this.#settingValues = this.#settingValues.filter(
         (s) => s.key !== 'sonar.auth.github.userConsentForPermissionProvisioningRequired',
       );
+    } else if (data.keys === 'sonar.auth.gitlab.userConsentForPermissionProvisioningRequired') {
+      this.#settingValues = this.#settingValues.filter(
+        (s) => s.key !== 'sonar.auth.gitlab.userConsentForPermissionProvisioningRequired',
+      );
     } else if (definition.type === SettingType.PROPERTY_SET) {
       const fieldValues: Dict<string>[] = [];
       if (setting) {
