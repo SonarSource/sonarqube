@@ -22,7 +22,7 @@ package org.sonar.scanner.externalissue.sarif;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import java.util.Set;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,8 +34,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rules.RuleType;
-import org.sonar.core.sarif.Location;
-import org.sonar.core.sarif.Result;
+import org.sonar.sarif.pojo.Location;
+import org.sonar.sarif.pojo.Result;
 
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,6 +44,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.sarif.pojo.Result.Level.WARNING;
 import static org.sonar.scanner.externalissue.sarif.ResultMapper.DEFAULT_IMPACT_SEVERITY;
 import static org.sonar.scanner.externalissue.sarif.ResultMapper.DEFAULT_SEVERITY;
 import static org.sonar.scanner.externalissue.sarif.ResultMapper.DEFAULT_SOFTWARE_QUALITY;
@@ -51,8 +52,6 @@ import static org.sonar.scanner.externalissue.sarif.ResultMapper.DEFAULT_SOFTWAR
 @RunWith(DataProviderRunner.class)
 public class ResultMapperTest {
 
-  private static final String WARNING = "warning";
-  private static final String ERROR = "error";
   private static final String RULE_ID = "test_rules_id";
   private static final String DRIVER_NAME = "driverName";
 
@@ -105,7 +104,7 @@ public class ResultMapperTest {
   @Test
   public void mapResult_whenLocationExists_createsFileLocation() {
     Location location = mock(Location.class);
-    when(result.getLocations()).thenReturn(Set.of(location));
+    when(result.getLocations()).thenReturn(List.of(location));
 
     NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, WARNING, result);
 
@@ -119,7 +118,7 @@ public class ResultMapperTest {
   @Test
   public void mapResult_whenLocationExistsButLocationMapperReturnsNull_createsProjectLocation() {
     Location location = mock(Location.class);
-    when(result.getLocations()).thenReturn(Set.of(location));
+    when(result.getLocations()).thenReturn(List.of(location));
     when(locationMapper.fillIssueInFileLocation(any(), any(), any())).thenReturn(null);
 
     NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, WARNING, result);
@@ -156,18 +155,17 @@ public class ResultMapperTest {
   @DataProvider
   public static Object[][] rule_severity_to_sonarqube_severity_mapping() {
     return new Object[][] {
-      {"error", Severity.CRITICAL, org.sonar.api.issue.impact.Severity.HIGH},
-      {"warning", Severity.MAJOR, org.sonar.api.issue.impact.Severity.MEDIUM},
-      {"note", Severity.MINOR, org.sonar.api.issue.impact.Severity.LOW},
-      {"none", Severity.INFO, org.sonar.api.issue.impact.Severity.LOW},
-      {"anything else", DEFAULT_SEVERITY, DEFAULT_IMPACT_SEVERITY},
+      {Result.Level.ERROR, Severity.CRITICAL, org.sonar.api.issue.impact.Severity.HIGH},
+      {WARNING, Severity.MAJOR, org.sonar.api.issue.impact.Severity.MEDIUM},
+      {Result.Level.NOTE, Severity.MINOR, org.sonar.api.issue.impact.Severity.LOW},
+      {Result.Level.NONE, Severity.INFO, org.sonar.api.issue.impact.Severity.LOW},
       {null, DEFAULT_SEVERITY, DEFAULT_IMPACT_SEVERITY},
     };
   }
 
   @Test
   @UseDataProvider("rule_severity_to_sonarqube_severity_mapping")
-  public void mapResult_mapsCorrectlyLevelToSeverity(String ruleSeverity, Severity sonarQubeSeverity, org.sonar.api.issue.impact.Severity impactSeverity) {
+  public void mapResult_mapsCorrectlyLevelToSeverity(Result.Level ruleSeverity, Severity sonarQubeSeverity, org.sonar.api.issue.impact.Severity impactSeverity) {
     NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, ruleSeverity, ruleSeverity, result);
     verify(newExternalIssue).severity(sonarQubeSeverity);
     verify(newExternalIssue).addImpact(DEFAULT_SOFTWARE_QUALITY, impactSeverity);

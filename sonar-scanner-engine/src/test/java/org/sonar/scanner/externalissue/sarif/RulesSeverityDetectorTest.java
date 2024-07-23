@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.externalissue.sarif;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.assertj.core.api.Assertions;
@@ -27,41 +28,40 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.core.sarif.DefaultConfiguration;
-import org.sonar.core.sarif.Driver;
-import org.sonar.core.sarif.Extension;
-import org.sonar.core.sarif.Result;
-import org.sonar.core.sarif.Rule;
-import org.sonar.core.sarif.Run;
-import org.sonar.core.sarif.Tool;
+import org.sonar.sarif.pojo.ReportingConfiguration;
+import org.sonar.sarif.pojo.ReportingDescriptor;
+import org.sonar.sarif.pojo.Result;
+import org.sonar.sarif.pojo.Run;
+import org.sonar.sarif.pojo.Tool;
+import org.sonar.sarif.pojo.ToolComponent;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.sarif.pojo.Result.Level.WARNING;
 import static org.sonar.scanner.externalissue.sarif.ResultMapper.DEFAULT_IMPACT_SEVERITY;
 import static org.sonar.scanner.externalissue.sarif.ResultMapper.DEFAULT_SEVERITY;
 
 public class RulesSeverityDetectorTest {
   private static final String DRIVER_NAME = "Test";
-  private static final String WARNING = "warning";
   private static final String RULE_ID = "RULE_ID";
 
   @org.junit.Rule
   public LogTester logTester = new LogTester().setLevel(Level.TRACE);
 
   private final Run run = mock(Run.class);
-  private final Rule rule = mock(Rule.class);
+  private final ReportingDescriptor rule = mock(ReportingDescriptor.class);
   private final Tool tool = mock(Tool.class);
   private final Result result = mock(Result.class);
-  private final Driver driver = mock(Driver.class);
-  private final Extension extension = mock(Extension.class);
-  private final DefaultConfiguration defaultConfiguration = mock(DefaultConfiguration.class);
+  private final ToolComponent driver = mock(ToolComponent.class);
+  private final ToolComponent extension = mock(ToolComponent.class);
+  private final ReportingConfiguration defaultConfiguration = mock(ReportingConfiguration.class);
 
   @Before
   public void setUp() {
-    when(run.getResults()).thenReturn(Set.of(result));
+    when(run.getResults()).thenReturn(List.of(result));
     when(run.getTool()).thenReturn(tool);
     when(tool.getDriver()).thenReturn(driver);
   }
@@ -71,7 +71,7 @@ public class RulesSeverityDetectorTest {
   public void detectRulesSeverities_detectsCorrectlyResultDefinedRuleSeverities() {
     Run run = mockResultDefinedRuleSeverities();
 
-    Map<String, String> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeverities(run, DRIVER_NAME);
+    Map<String, Result.Level> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeverities(run, DRIVER_NAME);
 
     assertNoLogs();
     assertDetectedRuleSeverities(rulesSeveritiesByRuleId, tuple(RULE_ID, WARNING));
@@ -81,7 +81,7 @@ public class RulesSeverityDetectorTest {
   public void detectRulesSeveritiesForNewTaxonomy_shouldReturnsEmptyMapAndLogsWarning_whenOnlyResultDefinedRuleSeverities() {
     Run run = mockResultDefinedRuleSeverities();
 
-    Map<String, String> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, DRIVER_NAME);
+    Map<String, Result.Level> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, DRIVER_NAME);
 
     assertWarningLog(DEFAULT_IMPACT_SEVERITY.name());
     assertDetectedRuleSeverities(rulesSeveritiesByRuleId);
@@ -91,7 +91,7 @@ public class RulesSeverityDetectorTest {
   public void detectRulesSeverities_detectsCorrectlyDriverDefinedRuleSeverities() {
     Run run = mockDriverDefinedRuleSeverities();
 
-    Map<String, String> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, DRIVER_NAME);
+    Map<String, Result.Level> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, DRIVER_NAME);
 
     assertNoLogs();
     assertDetectedRuleSeverities(rulesSeveritiesByRuleId, tuple(RULE_ID, WARNING));
@@ -107,7 +107,7 @@ public class RulesSeverityDetectorTest {
   public void detectRulesSeverities_detectsCorrectlyExtensionsDefinedRuleSeverities() {
     Run run = mockExtensionsDefinedRuleSeverities();
 
-    Map<String, String> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, DRIVER_NAME);
+    Map<String, Result.Level> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, DRIVER_NAME);
 
     assertNoLogs();
     assertDetectedRuleSeverities(rulesSeveritiesByRuleId, tuple(RULE_ID, WARNING));
@@ -123,7 +123,7 @@ public class RulesSeverityDetectorTest {
   public void detectRulesSeverities_returnsEmptyMapAndLogsWarning_whenUnableToDetectSeverities() {
     Run run = mockUnsupportedRuleSeveritiesDefinition();
 
-    Map<String, String> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, DRIVER_NAME);
+    Map<String, Result.Level> rulesSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, DRIVER_NAME);
 
     assertWarningLog(DEFAULT_IMPACT_SEVERITY.name());
     assertDetectedRuleSeverities(rulesSeveritiesByRuleId);
@@ -136,7 +136,7 @@ public class RulesSeverityDetectorTest {
   }
 
   private Run mockResultDefinedRuleSeverities() {
-    when(run.getResults()).thenReturn(Set.of(result));
+    when(run.getResults()).thenReturn(List.of(result));
     when(result.getLevel()).thenReturn(WARNING);
     when(result.getRuleId()).thenReturn(RULE_ID);
     return run;
@@ -146,7 +146,7 @@ public class RulesSeverityDetectorTest {
     when(driver.getRules()).thenReturn(Set.of(rule));
     when(rule.getId()).thenReturn(RULE_ID);
     when(rule.getDefaultConfiguration()).thenReturn(defaultConfiguration);
-    when(defaultConfiguration.getLevel()).thenReturn(WARNING);
+    when(defaultConfiguration.getLevel()).thenReturn(ReportingConfiguration.Level.WARNING);
     return run;
   }
 
@@ -156,7 +156,7 @@ public class RulesSeverityDetectorTest {
     when(extension.getRules()).thenReturn(Set.of(rule));
     when(rule.getId()).thenReturn(RULE_ID);
     when(rule.getDefaultConfiguration()).thenReturn(defaultConfiguration);
-    when(defaultConfiguration.getLevel()).thenReturn(WARNING);
+    when(defaultConfiguration.getLevel()).thenReturn(ReportingConfiguration.Level.WARNING);
     return run;
   }
 
@@ -173,7 +173,7 @@ public class RulesSeverityDetectorTest {
     assertThat(logTester.logs()).isEmpty();
   }
 
-  private static void assertDetectedRuleSeverities(Map<String, String> severities, Tuple... expectedSeverities) {
+  private static void assertDetectedRuleSeverities(Map<String, Result.Level> severities, Tuple... expectedSeverities) {
     Assertions.assertThat(severities.entrySet())
       .extracting(Map.Entry::getKey, Map.Entry::getValue)
       .containsExactly(expectedSeverities);

@@ -19,22 +19,36 @@
  */
 package org.sonar.core.sarif;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.sonar.sarif.pojo.ArtifactLocation;
+import org.sonar.sarif.pojo.Location;
+import org.sonar.sarif.pojo.Message;
+import org.sonar.sarif.pojo.MultiformatMessageString;
+import org.sonar.sarif.pojo.PhysicalLocation;
+import org.sonar.sarif.pojo.Region;
+import org.sonar.sarif.pojo.ReportingDescriptor;
+import org.sonar.sarif.pojo.Result;
+import org.sonar.sarif.pojo.Run;
+import org.sonar.sarif.pojo.SarifSchema210;
+import org.sonar.sarif.pojo.Tool;
+import org.sonar.sarif.pojo.ToolComponent;
+import org.sonar.test.JsonAssert;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
-import static org.sonar.core.sarif.SarifVersionValidator.UNSUPPORTED_VERSION_MESSAGE_TEMPLATE;
+import static org.sonar.core.sarif.SarifSerializerImpl.UNSUPPORTED_VERSION_MESSAGE_TEMPLATE;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SarifSerializerImplTest {
@@ -45,20 +59,23 @@ public class SarifSerializerImplTest {
 
   @Test
   public void serialize() {
-    Run.builder().results(Set.of()).build();
-    Sarif210 sarif210 = new Sarif210("http://json.schemastore.org/sarif-2.1.0-rtm.4", Run.builder().results(Set.of()).build());
+    new Run().withResults(List.of());
+    SarifSchema210 sarif210 = new SarifSchema210()
+      .with$schema(URI.create("http://json.schemastore.org/sarif-2.1.0-rtm.4"))
+      .withVersion(SarifSchema210.Version._2_1_0)
+      .withRuns(List.of(new Run().withResults(List.of())));
 
     String result = serializer.serialize(sarif210);
 
-    assertThat(result).isEqualTo(SARIF_JSON);
+    JsonAssert.assertJson(result).isSimilarTo(SARIF_JSON);
   }
 
   @Test
-  public void deserialize() throws URISyntaxException, NoSuchFileException {
+  public void deserialize() throws URISyntaxException {
     URL sarifResource = requireNonNull(getClass().getResource("eslint-sarif210.json"));
     Path sarif = Paths.get(sarifResource.toURI());
 
-    Sarif210 deserializationResult = serializer.deserialize(sarif);
+    SarifSchema210 deserializationResult = serializer.deserialize(sarif);
 
     verifySarif(deserializationResult);
   }
@@ -69,7 +86,8 @@ public class SarifSerializerImplTest {
     Path sarif = Paths.get(file);
 
     assertThatThrownBy(() -> serializer.deserialize(sarif))
-      .isInstanceOf(NoSuchFileException.class);
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to read SARIF report at 'wrongPathToFile'");
   }
 
   @Test
@@ -102,73 +120,72 @@ public class SarifSerializerImplTest {
       .hasMessage(format(UNSUPPORTED_VERSION_MESSAGE_TEMPLATE, "A.B.C"));
   }
 
-  private void verifySarif(Sarif210 deserializationResult) {
-    Sarif210 expected = buildExpectedSarif210();
+  private void verifySarif(SarifSchema210 deserializationResult) {
+    SarifSchema210 expected = buildExpectedSarif210();
 
     assertThat(deserializationResult).isNotNull();
     assertThat(deserializationResult).usingRecursiveComparison().ignoringFields("runs").isEqualTo(expected);
 
     Run run = getRun(deserializationResult);
     Run expectedRun = getRun(expected);
-    assertThat(run).usingRecursiveComparison().ignoringFields("results", "tool.driver.rules").isEqualTo(expectedRun);
+    assertThat(run).usingRecursiveComparison().ignoringFields("results", "tool.driver.rules", "tool.driver.informationUri", "artifacts").isEqualTo(expectedRun);
 
     Result result = getResult(run);
     Result expectedResult = getResult(expectedRun);
     assertThat(result).usingRecursiveComparison().isEqualTo(expectedResult);
 
-    Rule rule = getRule(run);
-    Rule expectedRule = getRule(expectedRun);
+    ReportingDescriptor rule = getRule(run);
+    ReportingDescriptor expectedRule = getRule(expectedRun);
     assertThat(rule).usingRecursiveComparison().ignoringFields("properties").isEqualTo(expectedRule);
   }
 
-  private static Sarif210 buildExpectedSarif210() {
-    return new Sarif210("http://json.schemastore.org/sarif-2.1.0-rtm.4", buildExpectedRun());
+  private static SarifSchema210 buildExpectedSarif210() {
+    return new SarifSchema210()
+      .with$schema(URI.create("http://json.schemastore.org/sarif-2.1.0-rtm.4"))
+      .withVersion(SarifSchema210.Version._2_1_0)
+      .withRuns(List.of(buildExpectedRun()));
   }
 
   private static Run buildExpectedRun() {
-    Tool tool = new Tool(buildExpectedDriver());
-    return Run.builder()
-      .tool(tool)
-      .results(Set.of(buildExpectedResult())).build();
+    Tool tool = new Tool().withDriver(buildExpectedDriver());
+    return new Run().withTool(tool).withResults(List.of(buildExpectedResult()));
   }
 
-  private static Driver buildExpectedDriver() {
-    return Driver.builder()
-      .name("ESLint")
-      .rules(Set.of(buildExpectedRule()))
-      .build();
+  private static ToolComponent buildExpectedDriver() {
+    return new ToolComponent()
+      .withName("ESLint")
+      .withRules(Set.of(buildExpectedRule()));
   }
 
-  private static Rule buildExpectedRule() {
-    return Rule.builder()
-      .id("no-unused-vars")
-      .shortDescription("disallow unused variables")
-      .build();
+  private static ReportingDescriptor buildExpectedRule() {
+    return new ReportingDescriptor()
+      .withId("no-unused-vars")
+      .withShortDescription(new MultiformatMessageString().withText("disallow unused variables"))
+      .withHelpUri(URI.create("https://eslint.org/docs/rules/no-unused-vars"));
   }
 
   private static Result buildExpectedResult() {
-    return Result.builder()
-      .ruleId("no-unused-vars")
-      .locations(Set.of(buildExpectedLocation()))
-      .message("'x' is assigned a value but never used.")
-      .level("error")
-      .build();
+    return new Result()
+      .withRuleId("no-unused-vars")
+      .withRuleIndex(0)
+      .withLocations(List.of(buildExpectedLocation()))
+      .withMessage(new Message().withText("'x' is assigned a value but never used."))
+      .withLevel(Result.Level.ERROR);
   }
 
   private static Location buildExpectedLocation() {
-    ArtifactLocation artifactLocation = new ArtifactLocation(null, "file:///C:/dev/sarif/sarif-tutorials/samples/Introduction/simple-example.js");
-    PhysicalLocation physicalLocation = PhysicalLocation.of(artifactLocation, buildExpectedRegion());
-    return Location.of(physicalLocation);
+    ArtifactLocation artifactLocation = new ArtifactLocation().withUri("file:///C:/dev/sarif/sarif-tutorials/samples/Introduction/simple-example.js").withIndex(0);
+    PhysicalLocation physicalLocation = new PhysicalLocation().withArtifactLocation(artifactLocation).withRegion(buildExpectedRegion());
+    return new Location().withPhysicalLocation(physicalLocation);
   }
 
   private static Region buildExpectedRegion() {
-    return Region.builder()
-      .startLine(1)
-      .startColumn(5)
-      .build();
+    return new Region()
+      .withStartLine(1)
+      .withStartColumn(5);
   }
 
-  private static Run getRun(Sarif210 sarif210) {
+  private static Run getRun(SarifSchema210 sarif210) {
     return sarif210.getRuns().stream().findFirst().orElseGet(() -> fail("runs property is missing"));
   }
 
@@ -176,7 +193,7 @@ public class SarifSerializerImplTest {
     return run.getResults().stream().findFirst().orElseGet(() -> fail("results property is missing"));
   }
 
-  private static Rule getRule(Run run) {
+  private static ReportingDescriptor getRule(Run run) {
     return run.getTool().getDriver().getRules().stream().findFirst().orElseGet(() -> fail("rules property is missing"));
   }
 

@@ -483,7 +483,8 @@ subprojects {
       dependency ("org.apache.velocity:velocity:1.7") {
         dependency 'commons-collections:commons-collections:3.2.2'
       }
-
+      dependency 'com.fasterxml.jackson.core:jackson-databind:2.17.1'
+      dependency 'com.google.code.findbugs:jsr305:3.0.2'
       // please keep this list alphabetically ordered
     }
   }

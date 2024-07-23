@@ -39,8 +39,8 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.api.utils.MessageException;
-import org.sonar.core.sarif.Sarif210;
 import org.sonar.core.sarif.SarifSerializer;
+import org.sonar.sarif.pojo.SarifSchema210;
 
 import static java.lang.String.format;
 
@@ -101,7 +101,7 @@ public class SarifIssuesImportSensor implements ProjectSensor {
   private SarifImportResults processReport(SensorContext context, String reportPath) throws NoSuchFileException {
     LOG.debug("Importing SARIF issues from '{}'", reportPath);
     Path reportFilePath = context.fileSystem().resolvePath(reportPath).toPath();
-    Sarif210 sarifReport = sarifSerializer.deserialize(reportFilePath);
+    SarifSchema210 sarifReport = sarifSerializer.deserialize(reportFilePath);
     return sarifImporter.importSarif(sarifReport);
   }
 

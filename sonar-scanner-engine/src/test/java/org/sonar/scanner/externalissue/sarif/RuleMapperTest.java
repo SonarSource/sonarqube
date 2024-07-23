@@ -29,15 +29,15 @@ import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
-import org.sonar.core.sarif.Rule;
+import org.sonar.sarif.pojo.ReportingDescriptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.sonar.sarif.pojo.Result.Level.WARNING;
 
 @RunWith(DataProviderRunner.class)
 public class RuleMapperTest {
 
-  private static final String WARNING = "warning";
   private static final String RULE_ID = "test_rules_id";
   private static final String DRIVER_NAME = "driverName";
 
@@ -55,7 +55,7 @@ public class RuleMapperTest {
 
   @Test
   public void mapRule_shouldCorrectlyMapToNewAdHocRule() {
-    Rule rule = Rule.builder().id(RULE_ID).build();
+    ReportingDescriptor rule = new ReportingDescriptor().withId(RULE_ID);
     NewAdHocRule expected = new DefaultAdHocRule()
       .severity(ResultMapper.DEFAULT_SEVERITY)
       .type(ResultMapper.DEFAULT_TYPE)

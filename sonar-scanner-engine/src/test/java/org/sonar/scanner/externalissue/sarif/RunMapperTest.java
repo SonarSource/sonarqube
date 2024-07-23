@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.externalissue.sarif;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
@@ -34,22 +35,22 @@ import org.slf4j.event.Level;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.core.sarif.Extension;
-import org.sonar.core.sarif.Result;
-import org.sonar.core.sarif.Run;
+import org.sonar.sarif.pojo.ReportingDescriptor;
+import org.sonar.sarif.pojo.Result;
+import org.sonar.sarif.pojo.Run;
+import org.sonar.sarif.pojo.ToolComponent;
 import org.sonar.scanner.externalissue.sarif.RunMapper.RunMapperResult;
 
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
+import static org.sonar.sarif.pojo.Result.Level.WARNING;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RunMapperTest {
-  private static final String WARNING = "warning";
   private static final String TEST_DRIVER = "Test driver";
   public static final String RULE_ID = "ruleId";
 
@@ -63,7 +64,7 @@ public class RunMapperTest {
   private Run run;
 
   @Mock
-  private org.sonar.core.sarif.Rule rule;
+  private ReportingDescriptor rule;
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -82,7 +83,7 @@ public class RunMapperTest {
   public void mapRun_shouldMapExternalIssues() {
     Result result1 = mock(Result.class);
     Result result2 = mock(Result.class);
-    when(run.getResults()).thenReturn(Set.of(result1, result2));
+    when(run.getResults()).thenReturn(List.of(result1, result2));
     NewExternalIssue externalIssue1 = mockMappedExternalIssue(result1);
     NewExternalIssue externalIssue2 = mockMappedExternalIssue(result2);
 
@@ -116,7 +117,7 @@ public class RunMapperTest {
   @Test
   public void mapRun_shouldMapExternalRules_whenRulesInExtensions() {
     when(run.getTool().getDriver().getRules()).thenReturn(Set.of());
-    Extension extension = mock(Extension.class);
+    ToolComponent extension = mock(ToolComponent.class);
     when(extension.getRules()).thenReturn(Set.of(rule));
     when(run.getTool().getExtensions()).thenReturn(Set.of(extension));
     NewAdHocRule externalRule = mockMappedExternalRule();
@@ -135,7 +136,7 @@ public class RunMapperTest {
   @Test
   public void mapRun_shouldNotFail_whenExtensionsDontHaveRules() {
     when(run.getTool().getDriver().getRules()).thenReturn(Set.of(rule));
-    Extension extension = mock(Extension.class);
+    ToolComponent extension = mock(ToolComponent.class);
     when(extension.getRules()).thenReturn(null);
     when(run.getTool().getExtensions()).thenReturn(Set.of(extension));
 
@@ -150,7 +151,7 @@ public class RunMapperTest {
   @Test
   public void mapRun_shouldNotFail_whenExtensionsHaveEmptyRules() {
     when(run.getTool().getDriver().getRules()).thenReturn(Set.of(rule));
-    Extension extension = mock(Extension.class);
+    ToolComponent extension = mock(ToolComponent.class);
     when(extension.getRules()).thenReturn(Set.of());
     when(run.getTool().getExtensions()).thenReturn(Set.of(extension));
 
@@ -164,7 +165,7 @@ public class RunMapperTest {
 
   @Test
   public void mapRun_ifRunIsEmpty_returnsEmptyList() {
-    when(run.getResults()).thenReturn(emptySet());
+    when(run.getResults()).thenReturn(List.of());
 
     RunMapperResult runMapperResult = runMapper.mapRun(run);
 
@@ -175,7 +176,7 @@ public class RunMapperTest {
   public void mapRun_ifExceptionThrownByResultMapper_logsThemAndContinueProcessing() {
     Result result1 = mock(Result.class);
     Result result2 = mock(Result.class);
-    when(run.getResults()).thenReturn(Set.of(result1, result2));
+    when(run.getResults()).thenReturn(List.of(result1, result2));
     NewExternalIssue externalIssue2 = mockMappedExternalIssue(result2);
     when(result1.getRuleId()).thenReturn(RULE_ID);
     when(resultMapper.mapResult(TEST_DRIVER, WARNING, WARNING, result1)).thenThrow(new IllegalArgumentException("test"));

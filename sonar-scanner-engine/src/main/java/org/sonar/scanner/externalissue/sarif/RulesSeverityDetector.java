@@ -28,12 +28,12 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.sarif.DefaultConfiguration;
-import org.sonar.core.sarif.Extension;
-import org.sonar.core.sarif.Result;
-import org.sonar.core.sarif.Rule;
-import org.sonar.core.sarif.Run;
-import org.sonar.core.sarif.Tool;
+import org.sonar.sarif.pojo.ReportingConfiguration;
+import org.sonar.sarif.pojo.ReportingDescriptor;
+import org.sonar.sarif.pojo.Result;
+import org.sonar.sarif.pojo.Run;
+import org.sonar.sarif.pojo.Tool;
+import org.sonar.sarif.pojo.ToolComponent;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
@@ -47,20 +47,20 @@ public class RulesSeverityDetector {
 
   private RulesSeverityDetector() {}
 
-  public static Map<String, String> detectRulesSeverities(Run run, String driverName) {
-    Map<String, String> resultDefinedRuleSeverities = getResultDefinedRuleSeverities(run);
+  public static Map<String, Result.Level> detectRulesSeverities(Run run, String driverName) {
+    Map<String, Result.Level> resultDefinedRuleSeverities = getResultDefinedRuleSeverities(run);
 
     if (!resultDefinedRuleSeverities.isEmpty()) {
       return resultDefinedRuleSeverities;
     }
 
-    Map<String, String> driverDefinedRuleSeverities = getDriverDefinedRuleSeverities(run);
+    Map<String, Result.Level> driverDefinedRuleSeverities = getDriverDefinedRuleSeverities(run);
 
     if (!driverDefinedRuleSeverities.isEmpty()) {
       return driverDefinedRuleSeverities;
     }
 
-    Map<String, String> extensionDefinedRuleSeverities = getExtensionsDefinedRuleSeverities(run);
+    Map<String, Result.Level> extensionDefinedRuleSeverities = getExtensionsDefinedRuleSeverities(run);
 
     if (!extensionDefinedRuleSeverities.isEmpty()) {
       return extensionDefinedRuleSeverities;
@@ -70,14 +70,14 @@ public class RulesSeverityDetector {
     return emptyMap();
   }
 
-  public static Map<String, String> detectRulesSeveritiesForNewTaxonomy(Run run, String driverName) {
-    Map<String, String> driverDefinedRuleSeverities = getDriverDefinedRuleSeverities(run);
+  public static Map<String, Result.Level> detectRulesSeveritiesForNewTaxonomy(Run run, String driverName) {
+    Map<String, Result.Level> driverDefinedRuleSeverities = getDriverDefinedRuleSeverities(run);
 
     if (!driverDefinedRuleSeverities.isEmpty()) {
       return driverDefinedRuleSeverities;
     }
 
-    Map<String, String> extensionDefinedRuleSeverities = getExtensionsDefinedRuleSeverities(run);
+    Map<String, Result.Level> extensionDefinedRuleSeverities = getExtensionsDefinedRuleSeverities(run);
 
     if (!extensionDefinedRuleSeverities.isEmpty()) {
       return extensionDefinedRuleSeverities;
@@ -87,7 +87,7 @@ public class RulesSeverityDetector {
     return emptyMap();
   }
 
-  private static Map<String, String> getResultDefinedRuleSeverities(Run run) {
+  private static Map<String, Result.Level> getResultDefinedRuleSeverities(Run run) {
     Predicate<Result> hasResultDefinedLevel = result -> Optional.ofNullable(result).map(Result::getLevel).isPresent();
 
     return run.getResults()
@@ -96,34 +96,34 @@ public class RulesSeverityDetector {
       .collect(toMap(Result::getRuleId, Result::getLevel, (x, y) -> y));
   }
 
-  private static Map<String, String> getDriverDefinedRuleSeverities(Run run) {
+  private static Map<String, Result.Level> getDriverDefinedRuleSeverities(Run run) {
     return run.getTool().getDriver().getRules()
       .stream()
       .filter(RulesSeverityDetector::hasRuleDefinedLevel)
-      .collect(toMap(Rule::getId, x -> x.getDefaultConfiguration().getLevel()));
+      .collect(toMap(ReportingDescriptor::getId, x -> Result.Level.valueOf(x.getDefaultConfiguration().getLevel().name())));
   }
 
-  private static Map<String, String> getExtensionsDefinedRuleSeverities(Run run) {
+  private static Map<String, Result.Level> getExtensionsDefinedRuleSeverities(Run run) {
     return getExtensions(run)
       .stream()
-      .map(Extension::getRules)
+      .map(ToolComponent::getRules)
       .filter(Objects::nonNull)
       .flatMap(Collection::stream)
       .filter(RulesSeverityDetector::hasRuleDefinedLevel)
-      .collect(toMap(Rule::getId, rule -> rule.getDefaultConfiguration().getLevel()));
+      .collect(toMap(ReportingDescriptor::getId, rule -> Result.Level.valueOf(rule.getDefaultConfiguration().getLevel().name())));
   }
 
-  private static Set<Extension> getExtensions(Run run) {
+  private static Set<ToolComponent> getExtensions(Run run) {
     return Optional.of(run)
       .map(Run::getTool)
       .map(Tool::getExtensions)
       .orElse(emptySet());
   }
 
-  private static boolean hasRuleDefinedLevel(@Nullable Rule rule) {
+  private static boolean hasRuleDefinedLevel(@Nullable ReportingDescriptor rule) {
     return Optional.ofNullable(rule)
-      .map(Rule::getDefaultConfiguration)
-      .map(DefaultConfiguration::getLevel)
+      .map(ReportingDescriptor::getDefaultConfiguration)
+      .map(ReportingConfiguration::getLevel)
       .isPresent();
   }
 

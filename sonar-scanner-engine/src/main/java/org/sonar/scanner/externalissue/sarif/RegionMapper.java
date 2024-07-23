@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.core.sarif.Region;
+import org.sonar.sarif.pojo.Region;
 
 @ScannerSide
 public class RegionMapper {

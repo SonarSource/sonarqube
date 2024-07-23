@@ -20,7 +20,6 @@
 package org.sonar.scanner.externalissue.sarif;
 
 import java.util.List;
-import java.util.Set;
 import junit.framework.TestCase;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,8 +30,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.core.sarif.Run;
-import org.sonar.core.sarif.Sarif210;
+import org.sonar.sarif.pojo.Run;
+import org.sonar.sarif.pojo.SarifSchema210;
 import org.sonar.scanner.externalissue.sarif.RunMapper.RunMapperResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,11 +55,11 @@ public class DefaultSarif210ImporterTest extends TestCase {
 
   @Test
   public void importSarif_shouldDelegateRunMapping_toRunMapper() {
-    Sarif210 sarif210 = mock(Sarif210.class);
+    SarifSchema210 sarif210 = mock(SarifSchema210.class);
 
     Run run1 = mock(Run.class);
     Run run2 = mock(Run.class);
-    when(sarif210.getRuns()).thenReturn(Set.of(run1, run2));
+    when(sarif210.getRuns()).thenReturn(List.of(run1, run2));
 
     NewExternalIssue issue1run1 = mock(NewExternalIssue.class);
     NewExternalIssue issue2run1 = mock(NewExternalIssue.class);
@@ -80,11 +79,11 @@ public class DefaultSarif210ImporterTest extends TestCase {
 
   @Test
   public void importSarif_whenExceptionThrownByRunMapper_shouldLogAndContinueProcessing() {
-    Sarif210 sarif210 = mock(Sarif210.class);
+    SarifSchema210 sarif210 = mock(SarifSchema210.class);
 
     Run run1 = mock(Run.class);
     Run run2 = mock(Run.class);
-    when(sarif210.getRuns()).thenReturn(Set.of(run1, run2));
+    when(sarif210.getRuns()).thenReturn(List.of(run1, run2));
 
     Exception testException = new RuntimeException("test");
     when(runMapper.mapRun(run1)).thenThrow(testException);
@@ -102,7 +101,7 @@ public class DefaultSarif210ImporterTest extends TestCase {
 
   @Test
   public void importSarif_whenGetRunsReturnNull_shouldFailWithProperMessage() {
-    Sarif210 sarif210 = mock(Sarif210.class);
+    SarifSchema210 sarif210 = mock(SarifSchema210.class);
 
     when(sarif210.getRuns()).thenReturn(null);
 

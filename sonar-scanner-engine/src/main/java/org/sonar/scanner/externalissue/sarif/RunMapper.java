@@ -30,12 +30,11 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.core.sarif.Driver;
-import org.sonar.core.sarif.Extension;
-import org.sonar.core.sarif.Result;
-import org.sonar.core.sarif.Rule;
-import org.sonar.core.sarif.Run;
-import org.sonar.core.sarif.Tool;
+import org.sonar.sarif.pojo.ReportingDescriptor;
+import org.sonar.sarif.pojo.Result;
+import org.sonar.sarif.pojo.Run;
+import org.sonar.sarif.pojo.Tool;
+import org.sonar.sarif.pojo.ToolComponent;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toSet;
@@ -61,8 +60,8 @@ public class RunMapper {
     }
 
     String driverName = getToolDriverName(run);
-    Map<String, String> ruleSeveritiesByRuleId = detectRulesSeverities(run, driverName);
-    Map<String, String> ruleSeveritiesByRuleIdForNewCCT = detectRulesSeveritiesForNewTaxonomy(run, driverName);
+    Map<String, Result.Level> ruleSeveritiesByRuleId = detectRulesSeverities(run, driverName);
+    Map<String, Result.Level> ruleSeveritiesByRuleIdForNewCCT = detectRulesSeveritiesForNewTaxonomy(run, driverName);
 
     return new RunMapperResult()
       .newAdHocRules(toNewAdHocRules(run, driverName, ruleSeveritiesByRuleId, ruleSeveritiesByRuleIdForNewCCT))
@@ -78,13 +77,14 @@ public class RunMapper {
     return Optional.ofNullable(run)
       .map(Run::getTool)
       .map(Tool::getDriver)
-      .map(Driver::getName)
+      .map(ToolComponent::getName)
       .isPresent();
   }
 
-  private List<NewAdHocRule> toNewAdHocRules(Run run, String driverName, Map<String, String> ruleSeveritiesByRuleId, Map<String, String> ruleSeveritiesByRuleIdForNewCCT) {
-    Set<Rule> driverRules = run.getTool().getDriver().getRules();
-    Set<Rule> extensionRules = hasExtensions(run.getTool())
+  private List<NewAdHocRule> toNewAdHocRules(Run run, String driverName,
+    Map<String, Result.Level> ruleSeveritiesByRuleId, Map<String, Result.Level> ruleSeveritiesByRuleIdForNewCCT) {
+    Set<ReportingDescriptor> driverRules = run.getTool().getDriver().getRules();
+    Set<ReportingDescriptor> extensionRules = hasExtensions(run.getTool())
       ? run.getTool().getExtensions().stream().filter(RunMapper::hasRules).flatMap(extension -> extension.getRules().stream()).collect(toSet())
       : Set.of();
     return Stream.concat(driverRules.stream(), extensionRules.stream())
@@ -97,11 +97,12 @@ public class RunMapper {
     return tool.getExtensions() != null && !tool.getExtensions().isEmpty();
   }
 
-  private static boolean hasRules(Extension extension) {
+  private static boolean hasRules(ToolComponent extension) {
     return extension.getRules() != null && !extension.getRules().isEmpty();
   }
 
-  private List<NewExternalIssue> toNewExternalIssues(Run run, String driverName, Map<String, String> ruleSeveritiesByRuleId, Map<String, String> ruleSeveritiesByRuleIdForNewCCT) {
+  private List<NewExternalIssue> toNewExternalIssues(Run run, String driverName, Map<String, Result.Level> ruleSeveritiesByRuleId,
+    Map<String, Result.Level> ruleSeveritiesByRuleIdForNewCCT) {
     return run.getResults()
       .stream()
       .map(result -> toNewExternalIssue(driverName, ruleSeveritiesByRuleId.get(result.getRuleId()), ruleSeveritiesByRuleIdForNewCCT.get(result.getRuleId()), result))
@@ -110,7 +111,7 @@ public class RunMapper {
       .toList();
   }
 
-  private Optional<NewExternalIssue> toNewExternalIssue(String driverName, @Nullable String ruleSeverity, @Nullable String ruleSeverityForNewTaxonomy, Result result) {
+  private Optional<NewExternalIssue> toNewExternalIssue(String driverName, @Nullable Result.Level ruleSeverity, @Nullable Result.Level ruleSeverityForNewTaxonomy, Result result) {
     try {
       return Optional.of(resultMapper.mapResult(driverName, ruleSeverity, ruleSeverityForNewTaxonomy, result));
     } catch (Exception exception) {

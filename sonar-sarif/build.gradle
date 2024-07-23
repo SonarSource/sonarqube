@@ -1,0 +1,21 @@
+plugins {
+  id "org.jsonschema2pojo" version "1.2.1"
+}
+
+dependencies {
+  api 'com.fasterxml.jackson.core:jackson-databind'
+  api 'com.google.code.findbugs:jsr305'
+}
+
+jsonSchema2Pojo {
+  source = files("${sourceSets.main.output.resourcesDir}/sarif")
+  generateBuilders = true
+  inclusionLevel = "NON_DEFAULT"
+  initializeCollections = false
+  targetPackage = 'org.sonar.sarif.pojo'
+  includeJsr305Annotations = true
+}
+
+license {
+  excludes(["org/sonar/sarif/pojo/**/*"])
+}

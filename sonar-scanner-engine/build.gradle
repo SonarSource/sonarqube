@@ -42,6 +42,7 @@ dependencies {
 
 
   api project(':sonar-core')
+  api project(':sonar-sarif')
   api project(':sonar-scanner-protocol')
   api project(':sonar-ws')
   api project(':sonar-duplications')

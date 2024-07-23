@@ -38,10 +38,10 @@ import org.sonar.api.batch.fs.internal.predicates.AbstractFilePredicate;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.core.sarif.ArtifactLocation;
-import org.sonar.core.sarif.Location;
-import org.sonar.core.sarif.PhysicalLocation;
-import org.sonar.core.sarif.Result;
+import org.sonar.sarif.pojo.ArtifactLocation;
+import org.sonar.sarif.pojo.Location;
+import org.sonar.sarif.pojo.PhysicalLocation;
+import org.sonar.sarif.pojo.Result;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.Preconditions.checkArgument;

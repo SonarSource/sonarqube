@@ -35,8 +35,8 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.scanner.fs.InputProject;
-import org.sonar.core.sarif.Location;
-import org.sonar.core.sarif.Result;
+import org.sonar.sarif.pojo.Location;
+import org.sonar.sarif.pojo.Result;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

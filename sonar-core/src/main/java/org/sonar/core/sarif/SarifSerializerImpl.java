@@ -19,57 +19,81 @@
  */
 package org.sonar.core.sarif;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import javax.inject.Inject;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.sarif.pojo.SarifSchema210;
 
 import static java.lang.String.format;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.newBufferedReader;
 
 @ScannerSide
 @ComputeEngineSide
 public class SarifSerializerImpl implements SarifSerializer {
   private static final String SARIF_REPORT_ERROR = "Failed to read SARIF report at '%s'";
   private static final String SARIF_JSON_SYNTAX_ERROR = SARIF_REPORT_ERROR + ": invalid JSON syntax or file is not UTF-8 encoded";
+  public static final String UNSUPPORTED_VERSION_MESSAGE_TEMPLATE = "Version [%s] of SARIF is not supported";
 
-  private final Gson gson;
+  private final ObjectMapper mapper;
 
   @Inject
   public SarifSerializerImpl() {
-    this(new Gson());
+    this(new ObjectMapper());
   }
 
   @VisibleForTesting
-  SarifSerializerImpl(Gson gson) {
-    this.gson = gson;
+  SarifSerializerImpl(ObjectMapper mapper) {
+    this.mapper = mapper;
   }
 
   @Override
-  public String serialize(Sarif210 sarif210) {
-    return gson.toJson(sarif210);
+  public String serialize(SarifSchema210 sarif210) {
+    try {
+      return mapper
+        .writerWithDefaultPrettyPrinter()
+        .writeValueAsString(sarif210);
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Unable to serialize SARIF", e);
+    }
   }
 
   @Override
-  public Sarif210 deserialize(Path reportPath) throws NoSuchFileException {
-    try (Reader reader = newBufferedReader(reportPath, UTF_8)) {
-      Sarif210 sarif = gson.fromJson(reader, Sarif210.class);
-      SarifVersionValidator.validateSarifVersion(sarif.getVersion());
-      return sarif;
-    } catch (NoSuchFileException e) {
-      throw e;
-    } catch (JsonIOException | IOException e) {
-      throw new IllegalStateException(format(SARIF_REPORT_ERROR, reportPath), e);
-    } catch (JsonSyntaxException e) {
+  public SarifSchema210 deserialize(Path reportPath) {
+    try {
+      return mapper
+        .enable(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION)
+        .addHandler(new DeserializationProblemHandler() {
+          @Override
+          public Object handleInstantiationProblem(DeserializationContext ctxt, Class<?> instClass, Object argument, Throwable t) throws IOException {
+            if (!instClass.equals(SarifSchema210.Version.class)) {
+              return NOT_HANDLED;
+            }
+            throw new UnsupportedSarifVersionException(format(UNSUPPORTED_VERSION_MESSAGE_TEMPLATE, argument), t);
+          }
+        })
+        .readValue(reportPath.toFile(), SarifSchema210.class);
+    } catch (UnsupportedSarifVersionException e) {
+      throw new IllegalStateException(e.getMessage(), e);
+    } catch (JsonMappingException | JsonParseException e) {
       throw new IllegalStateException(format(SARIF_JSON_SYNTAX_ERROR, reportPath), e);
+    } catch (IOException e) {
+      throw new IllegalStateException(format(SARIF_REPORT_ERROR, reportPath), e);
+    }
+  }
+
+  private static class UnsupportedSarifVersionException extends IOException {
+
+    public UnsupportedSarifVersionException(String message, Throwable t) {
+      super(message, t);
     }
   }
 }

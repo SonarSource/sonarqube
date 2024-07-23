@@ -36,8 +36,8 @@ import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.core.sarif.Sarif210;
 import org.sonar.core.sarif.SarifSerializer;
+import org.sonar.sarif.pojo.SarifSchema210;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -196,7 +196,7 @@ public class SarifIssuesImportSensorTest {
   }
 
   private ReportAndResults mockSuccessfulReportAndResults(String path) throws NoSuchFileException {
-    Sarif210 report = mockSarifReport(path);
+    SarifSchema210 report = mockSarifReport(path);
 
     SarifImportResults sarifImportResults = mock(SarifImportResults.class);
     when(sarifImportResults.getSuccessFullyImportedIssues()).thenReturn(10);
@@ -207,15 +207,15 @@ public class SarifIssuesImportSensorTest {
     return new ReportAndResults(report, sarifImportResults);
   }
 
-  private Sarif210 mockSarifReport(String path) throws NoSuchFileException {
-    Sarif210 report = mock(Sarif210.class);
+  private SarifSchema210 mockSarifReport(String path) throws NoSuchFileException {
+    SarifSchema210 report = mock(SarifSchema210.class);
     Path reportFilePath = sensorContext.fileSystem().resolvePath(path).toPath();
     when(sarifSerializer.deserialize(reportFilePath)).thenReturn(report);
     return report;
   }
 
   private ReportAndResults mockFailedReportAndResults(String path) throws NoSuchFileException {
-    Sarif210 report = mockSarifReport(path);
+    SarifSchema210 report = mockSarifReport(path);
 
     SarifImportResults sarifImportResults = mock(SarifImportResults.class);
     when(sarifImportResults.getSuccessFullyImportedRuns()).thenReturn(0);
@@ -226,7 +226,7 @@ public class SarifIssuesImportSensorTest {
   }
 
   private ReportAndResults mockMixedReportAndResults(String path) throws NoSuchFileException {
-    Sarif210 report = mockSarifReport(path);
+    SarifSchema210 report = mockSarifReport(path);
 
     SarifImportResults sarifImportResults = mock(SarifImportResults.class);
     when(sarifImportResults.getSuccessFullyImportedIssues()).thenReturn(10);
@@ -270,15 +270,15 @@ public class SarifIssuesImportSensorTest {
   }
 
   private static class ReportAndResults {
-    private final Sarif210 sarifReport;
+    private final SarifSchema210 sarifReport;
     private final SarifImportResults sarifImportResults;
 
-    private ReportAndResults(Sarif210 sarifReport, SarifImportResults sarifImportResults) {
+    private ReportAndResults(SarifSchema210 sarifReport, SarifImportResults sarifImportResults) {
       this.sarifReport = sarifReport;
       this.sarifImportResults = sarifImportResults;
     }
 
-    private Sarif210 getSarifReport() {
+    private SarifSchema210 getSarifReport() {
       return sarifReport;
     }
 

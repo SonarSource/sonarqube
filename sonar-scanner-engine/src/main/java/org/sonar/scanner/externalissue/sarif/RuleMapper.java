@@ -23,7 +23,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.core.sarif.Rule;
+import org.sonar.sarif.pojo.ReportingDescriptor;
+import org.sonar.sarif.pojo.Result;
 
 import static java.lang.String.join;
 
@@ -36,7 +37,7 @@ public class RuleMapper {
     this.sensorContext = sensorContext;
   }
 
-  NewAdHocRule mapRule(Rule rule, String driverName, @Nullable String ruleSeverity, @Nullable String ruleSeverityForNewTaxonomy) {
+  NewAdHocRule mapRule(ReportingDescriptor rule, String driverName, @Nullable Result.Level ruleSeverity, @Nullable Result.Level ruleSeverityForNewTaxonomy) {
     return sensorContext.newAdHocRule()
       .severity(ResultMapper.toSonarQubeSeverity(ruleSeverity))
       .type(ResultMapper.DEFAULT_TYPE)

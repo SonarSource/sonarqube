@@ -61,6 +61,7 @@ include 'server:sonar-webserver-monitoring'
 
 include 'sonar-application'
 include 'sonar-core'
+include 'sonar-sarif'
 include 'sonar-duplications'
 include 'sonar-markdown'
 include 'sonar-plugin-api-impl'
