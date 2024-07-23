@@ -272,6 +272,16 @@ public class SearchAction implements HotspotsWsAction {
       .setBooleanPossibleValues()
       .setDefaultValue("false")
       .setSince("9.5");
+    createSecurityStandardParams(action);
+    action.createParam(PARAM_FILES)
+      .setDescription("Comma-separated list of files. Returns only hotspots found in those files")
+      .setExampleValue("src/main/java/org/sonar/server/Test.java")
+      .setSince("9.0");
+
+    action.setResponseExample(getClass().getResource("search-example.json"));
+  }
+
+  private static void createSecurityStandardParams(WebService.NewAction action) {
     action.createParam(PARAM_OWASP_ASVS_LEVEL)
       .setDescription("Filters hotspots with lower or equal OWASP ASVS level to the parameter value. Should be used in combination with the 'owaspAsvs-4.0' parameter.")
       .setSince("9.7")
@@ -319,12 +329,6 @@ public class SearchAction implements HotspotsWsAction {
       .setDescription("Comma-separated list of CWE numbers")
       .setExampleValue("89,434,352")
       .setSince("8.8");
-    action.createParam(PARAM_FILES)
-      .setDescription("Comma-separated list of files. Returns only hotspots found in those files")
-      .setExampleValue("src/main/java/org/sonar/server/Test.java")
-      .setSince("9.0");
-
-    action.setResponseExample(getClass().getResource("search-example.json"));
   }
 
   private Optional<ProjectAndBranch> getAndValidateProjectOrApplication(DbSession dbSession, WsRequest wsRequest) {
