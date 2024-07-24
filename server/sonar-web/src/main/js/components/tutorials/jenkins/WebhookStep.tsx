@@ -35,7 +35,7 @@ export interface WebhookStepProps {
   alm: AlmKeys;
   almBinding?: AlmSettingsInstance;
   branchesEnabled: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse | null;
 }
 
 function renderAlmSpecificInstructions(props: WebhookStepProps) {

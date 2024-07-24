@@ -41,7 +41,7 @@ export interface MultiBranchPipelineStepProps {
   alm: AlmKeys;
   almBinding?: AlmSettingsInstance;
 
-  projectBinding?: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse | null;
 }
 
 /* Capture [workspaceID] from this pattern: https://bitbucket.org/[workspaceId]/  */

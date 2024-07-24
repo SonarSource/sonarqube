@@ -29,23 +29,38 @@ import {
   useQuery,
 } from '@tanstack/react-query';
 
+const isFnWithoutParams = <T>(fn: ((data: any) => T) | (() => T)): fn is () => T => fn.length === 0;
+
 export function createQueryHook<
   T = unknown,
   TQueryData = unknown,
-  TError = Error,
+  TError extends Error = Error,
   TData = TQueryData,
   TQueryKey extends QueryKey = QueryKey,
 >(
-  fn: (data: T) => UseQueryOptions<TQueryData, TError, TData, TQueryKey>,
-): <SelectType = TQueryData>(
-  data: T,
-  options?: Omit<
-    UseQueryOptions<TQueryData, TError, SelectType, TQueryKey>,
-    'queryKey' | 'queryFn'
-  >,
-) => UseQueryResult<SelectType, TError>;
+  fn:
+    | ((data: T) => UseQueryOptions<TQueryData, TError, TData, TQueryKey>)
+    | (() => UseQueryOptions<TQueryData, TError, TData, TQueryKey>),
+): unknown extends T
+  ? <SelectType = TQueryData>(
+      options?: Omit<
+        UseQueryOptions<TQueryData, TError, SelectType, TQueryKey>,
+        'queryKey' | 'queryFn'
+      >,
+    ) => UseQueryResult<SelectType, TError>
+  : <SelectType = TQueryData>(
+      data: T,
+      options?: Omit<
+        UseQueryOptions<TQueryData, TError, SelectType, TQueryKey>,
+        'queryKey' | 'queryFn'
+      >,
+    ) => UseQueryResult<SelectType, TError>;
 
-export function createQueryHook(fn: (data: any) => UseQueryOptions) {
+export function createQueryHook(fn: ((data: any) => UseQueryOptions) | (() => UseQueryOptions)) {
+  if (isFnWithoutParams(fn)) {
+    return (options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>) =>
+      useQuery({ ...fn(), ...options });
+  }
   return (data: any, options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>) =>
     useQuery({ ...fn(data), ...options });
 }
@@ -59,18 +74,58 @@ export function createInfiniteQueryHook<
   TQueryKey extends QueryKey = QueryKey,
   TPageParam = unknown,
 >(
-  fn: (
-    data: T,
-  ) => UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey, TPageParam>,
-): <SelectType = TData>(
-  data: T,
-  options?: Omit<
-    UseInfiniteQueryOptions<TQueryFnData, TError, SelectType, TQueryData, TQueryKey, TPageParam>,
-    'queryKey' | 'queryFn' | 'getNextPageParam' | 'getPreviousPageParam' | 'initialPageParam'
-  >,
-) => UseInfiniteQueryResult<SelectType, TError>;
+  fn:
+    | ((
+        data: T,
+      ) => UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey, TPageParam>)
+    | (() => UseInfiniteQueryOptions<
+        TQueryFnData,
+        TError,
+        TData,
+        TQueryData,
+        TQueryKey,
+        TPageParam
+      >),
+): unknown extends T
+  ? <SelectType = TData>(
+      options?: Omit<
+        UseInfiniteQueryOptions<
+          TQueryFnData,
+          TError,
+          SelectType,
+          TQueryData,
+          TQueryKey,
+          TPageParam
+        >,
+        'queryKey' | 'queryFn' | 'getNextPageParam' | 'getPreviousPageParam' | 'initialPageParam'
+      >,
+    ) => UseInfiniteQueryResult<SelectType, TError>
+  : <SelectType = TData>(
+      data: T,
+      options?: Omit<
+        UseInfiniteQueryOptions<
+          TQueryFnData,
+          TError,
+          SelectType,
+          TQueryData,
+          TQueryKey,
+          TPageParam
+        >,
+        'queryKey' | 'queryFn' | 'getNextPageParam' | 'getPreviousPageParam' | 'initialPageParam'
+      >,
+    ) => UseInfiniteQueryResult<SelectType, TError>;
 
-export function createInfiniteQueryHook(fn: (data: any) => UseInfiniteQueryOptions) {
+export function createInfiniteQueryHook(
+  fn: ((data?: any) => UseInfiniteQueryOptions) | (() => UseInfiniteQueryOptions),
+) {
+  if (isFnWithoutParams(fn)) {
+    return (
+      options?: Omit<
+        UseInfiniteQueryOptions,
+        'queryKey' | 'queryFn' | 'getNextPageParam' | 'getPreviousPageParam' | 'initialPageParam'
+      >,
+    ) => useInfiniteQuery({ ...fn(), ...options });
+  }
   return (
     data: any,
     options?: Omit<

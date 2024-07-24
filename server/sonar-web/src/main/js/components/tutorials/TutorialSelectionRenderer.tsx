@@ -56,7 +56,7 @@ export interface TutorialSelectionRendererProps {
   currentUser: LoggedInUser;
   currentUserCanScanProject: boolean;
   loading: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse | null;
   selectedTutorial?: TutorialModes;
   willRefreshAutomatically?: boolean;
 }

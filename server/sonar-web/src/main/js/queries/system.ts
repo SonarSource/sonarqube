@@ -17,19 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { UseQueryOptions, useQuery } from '@tanstack/react-query';
+import { queryOptions } from '@tanstack/react-query';
 import { getSystemUpgrades } from '../api/system';
+import { createQueryHook } from './common';
 
-export function useSystemUpgrades<T = Awaited<ReturnType<typeof getSystemUpgrades>>>(
-  options?: Omit<
-    UseQueryOptions<Awaited<ReturnType<typeof getSystemUpgrades>>, Error, T>,
-    'queryKey' | 'queryFn'
-  >,
-) {
-  return useQuery({
+export const useSystemUpgrades = createQueryHook(() => {
+  return queryOptions({
     queryKey: ['system', 'upgrades'],
     queryFn: () => getSystemUpgrades(),
     staleTime: Infinity,
-    ...options,
   });
-}
+});

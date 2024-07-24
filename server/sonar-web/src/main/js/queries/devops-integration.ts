@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { UseQueryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
 import {
   deleteProjectAlmBinding,
@@ -30,6 +30,7 @@ import {
 } from '../api/alm-settings';
 import { HttpStatus } from '../helpers/request';
 import { AlmKeys, ProjectAlmBindingParams, ProjectAlmBindingResponse } from '../types/alm-settings';
+import { createQueryHook } from './common';
 
 function useProjectKeyFromLocation() {
   const location = useLocation();
@@ -42,39 +43,27 @@ function useProjectKeyFromLocation() {
   return id as string;
 }
 
-export function useProjectBindingQuery<T = ProjectAlmBindingResponse>(
-  project?: string,
-  options?: Omit<
-    UseQueryOptions<
-      ProjectAlmBindingResponse | null,
-      Error,
-      T,
-      ['devops_integration', string, 'binding']
-    >,
-    'queryKey' | 'queryFn'
-  >,
-) {
+export const useProjectBindingQuery = createQueryHook((project?: string) => {
   const keyFromUrl = useProjectKeyFromLocation();
 
   const projectKey = project ?? keyFromUrl;
 
-  return useQuery({
+  return queryOptions({
     queryKey: ['devops_integration', projectKey ?? '_blank_', 'binding'],
     queryFn: ({ queryKey: [_, key] }) =>
       getProjectAlmBinding(key).catch((e: Response) => {
         if (e.status === HttpStatus.NotFound) {
           return null;
         }
-        return e;
+        return e as unknown as ProjectAlmBindingResponse;
       }),
     staleTime: 60_000,
     enabled: projectKey !== null,
-    ...options,
   });
-}
+});
 
 export function useIsGitHubProjectQuery(project?: string) {
-  return useProjectBindingQuery<boolean>(project, {
+  return useProjectBindingQuery(project, {
     select: (data) => data?.alm === AlmKeys.GitHub,
   });
 }

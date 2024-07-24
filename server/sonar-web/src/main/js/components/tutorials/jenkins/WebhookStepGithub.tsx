@@ -29,7 +29,7 @@ import { buildGithubLink } from '../utils';
 export interface WebhookStepGithubProps {
   almBinding?: AlmSettingsInstance;
   branchesEnabled: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
+  projectBinding?: ProjectAlmBindingResponse | null;
 }
 
 export default function WebhookStepGithub(props: WebhookStepGithubProps) {
