@@ -216,7 +216,7 @@ subprojects {
       dependency 'org.sonarsource.kotlin:sonar-kotlin-plugin:2.12.0.1956'
       dependency 'org.sonarsource.slang:sonar-ruby-plugin:1.11.0.3905'
       dependency 'org.sonarsource.slang:sonar-scala-plugin:1.11.0.3905'
-      dependency 'org.sonarsource.api.plugin:sonar-plugin-api:9.14-CODESCAN'
+      dependency 'org.sonarsource.api.plugin:sonar-plugin-api:9.15-CODESCAN'
       dependency 'org.sonarsource.xml:sonar-xml-plugin:2.7.0.3820'
       dependency 'org.sonarsource.iac:sonar-iac-plugin:1.11.0.2847'
       dependency 'org.sonarsource.text:sonar-text-plugin:2.0.1.611'

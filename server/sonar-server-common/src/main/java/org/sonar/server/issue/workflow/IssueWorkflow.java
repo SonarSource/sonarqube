@@ -34,6 +34,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
+import static org.sonar.api.issue.Issue.RESOLUTION_EXCEPTION;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
@@ -173,7 +174,7 @@ public class IssueWorkflow implements Startable {
         .build())
       .transition(reviewedAsFixedBuilder
         .from(STATUS_REVIEWED)
-        .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED))
+        .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED, RESOLUTION_EXCEPTION))
         .build());
 
     // hotspot reviewed as safe, either from TO_REVIEW or from REVIEWED-FIXED or from REVIEWED-ACKNOWLEDGED
@@ -188,7 +189,7 @@ public class IssueWorkflow implements Startable {
         .build())
       .transition(resolveAsSafeTransitionBuilder
         .from(STATUS_REVIEWED)
-        .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(RESOLUTION_FIXED, RESOLUTION_ACKNOWLEDGED))
+        .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(RESOLUTION_FIXED, RESOLUTION_ACKNOWLEDGED, RESOLUTION_EXCEPTION))
         .build());
 
     // hotspot reviewed as acknowledged, either from TO_REVIEW or from REVIEWED-FIXED or from REVIEWED-SAFE
@@ -206,11 +207,26 @@ public class IssueWorkflow implements Startable {
         .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(RESOLUTION_FIXED, RESOLUTION_SAFE))
         .build());
 
+    // hotspot reviewed as exception, either from TO_REVIEW or from REVIEWED-FIXED or from REVIEWED-SAFE
+    Transition.TransitionBuilder resolveAsExceptionTransitionBuilder = Transition.builder(DefaultTransitions.RESOLVE_AS_EXCEPTION)
+            .to(STATUS_REVIEWED)
+            .functions(new SetResolution(RESOLUTION_EXCEPTION))
+            .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN);
+    builder
+            .transition(resolveAsExceptionTransitionBuilder
+                    .from(STATUS_TO_REVIEW)
+                    .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
+                    .build())
+            .transition(resolveAsExceptionTransitionBuilder
+                    .from(STATUS_REVIEWED)
+                    .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED))
+                    .build());
+
     // put hotspot back into TO_REVIEW
     builder
       .transition(Transition.builder(DefaultTransitions.RESET_AS_TO_REVIEW)
         .from(STATUS_REVIEWED).to(STATUS_TO_REVIEW)
-        .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED))
+        .conditions(new HasType(RuleType.SECURITY_HOTSPOT), new HasResolution(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED, RESOLUTION_EXCEPTION))
         .functions(new SetResolution(null))
         .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
         .build());

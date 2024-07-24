@@ -38,6 +38,7 @@ import org.sonar.server.issue.ws.IssueUpdater;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
+import static org.sonar.api.issue.Issue.RESOLUTION_EXCEPTION;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
@@ -126,7 +127,7 @@ public class AssignAction implements HotspotsWsAction {
   }
 
   private static void checkHotspotStatusAndResolution(IssueDto hotspotDto) {
-    if (!STATUS_TO_REVIEW.equals(hotspotDto.getStatus()) && !RESOLUTION_ACKNOWLEDGED.equals(hotspotDto.getResolution())) {
+    if (!STATUS_TO_REVIEW.equals(hotspotDto.getStatus()) && !(RESOLUTION_ACKNOWLEDGED.equals(hotspotDto.getResolution()) || RESOLUTION_EXCEPTION.equals(hotspotDto.getResolution()))) {
       throw new IllegalArgumentException("Cannot change the assignee of this hotspot given its current status and resolution");
     }
   }

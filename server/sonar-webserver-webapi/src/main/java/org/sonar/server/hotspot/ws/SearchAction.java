@@ -83,6 +83,7 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
+import static org.sonar.api.issue.Issue.RESOLUTION_EXCEPTION;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
@@ -280,7 +281,7 @@ public class SearchAction implements HotspotsWsAction {
       .setDescription(format(
         "If '%s' is provided and if status is '%s', only Security Hotspots with the specified resolution are returned.",
         PARAM_PROJECT_KEY, STATUS_REVIEWED))
-      .setPossibleValues(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED)
+      .setPossibleValues(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED, RESOLUTION_EXCEPTION)
       .setRequired(false);
     action.createParam(PARAM_IN_NEW_CODE_PERIOD)
       .setDescription("If '%s' is provided, only Security Hotspots created in the new code period are returned.", PARAM_IN_NEW_CODE_PERIOD)

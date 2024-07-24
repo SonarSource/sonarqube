@@ -180,6 +180,7 @@ const STATUS_AND_RESOLUTION_TO_STATUS_OPTION = {
   [HotspotStatus.TO_REVIEW]: HotspotStatusOption.TO_REVIEW,
   [HotspotStatus.REVIEWED]: HotspotStatusOption.FIXED,
   [HotspotResolution.ACKNOWLEDGED]: HotspotStatusOption.ACKNOWLEDGED,
+  [HotspotResolution.EXCEPTION]: HotspotStatusOption.EXCEPTION,
   [HotspotResolution.FIXED]: HotspotStatusOption.FIXED,
   [HotspotResolution.SAFE]: HotspotStatusOption.SAFE,
 };
@@ -199,6 +200,10 @@ const STATUS_OPTION_TO_STATUS_AND_RESOLUTION_MAP = {
     status: HotspotStatus.REVIEWED,
     resolution: HotspotResolution.ACKNOWLEDGED,
   },
+  [HotspotStatusOption.EXCEPTION]: {
+      status: HotspotStatus.REVIEWED,
+      resolution: HotspotResolution.EXCEPTION,
+    },
   [HotspotStatusOption.FIXED]: {
     status: HotspotStatus.REVIEWED,
     resolution: HotspotResolution.FIXED,
@@ -218,6 +223,7 @@ const STATUS_OPTION_TO_STATUS_FILTER = {
   [HotspotStatusOption.ACKNOWLEDGED]: HotspotStatusFilter.ACKNOWLEDGED,
   [HotspotStatusOption.FIXED]: HotspotStatusFilter.FIXED,
   [HotspotStatusOption.SAFE]: HotspotStatusFilter.SAFE,
+  [HotspotStatusOption.EXCEPTION]: HotspotStatusFilter.EXCEPTION,
 };
 
 export function getStatusFilterFromStatusOption(statusOption: HotspotStatusOption) {

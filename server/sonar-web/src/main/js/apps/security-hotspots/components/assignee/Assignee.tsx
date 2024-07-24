@@ -92,7 +92,7 @@ export class Assignee extends React.PureComponent<Props, State> {
     const { editing, loading } = this.state;
 
     const canEdit =
-      status === HotspotStatus.TO_REVIEW || resolution === HotspotResolution.ACKNOWLEDGED;
+      status === HotspotStatus.TO_REVIEW || resolution === HotspotResolution.ACKNOWLEDGED || resolution === HotspotResolution.EXCEPTION;
 
     return (
       <AssigneeRenderer
