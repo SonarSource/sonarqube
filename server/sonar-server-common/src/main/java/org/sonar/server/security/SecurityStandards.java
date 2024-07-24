@@ -23,6 +23,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -98,7 +100,7 @@ public final class SecurityStandards {
     "862", "77", "306", "119", "276", "918", "362", "400", "611", "94");
 
   // https://cwe.mitre.org/top25/archive/2023/2023_top25_list.html#tableView
-  public static final List<String> CWE_TOP25_2023 = List.of("787", "79", "89", "416", "78",  "20", "125", "22", "352", "434", "862", "476", "287", "190", "502",
+  public static final List<String> CWE_TOP25_2023 = List.of("787", "79", "89", "416", "78", "20", "125", "22", "352", "434", "862", "476", "287", "190", "502",
     "77", "119", "798", "918", "306", "362", "269", "94", "863", "276");
 
   public static final String CWE_YEAR_2021 = "2021";
@@ -120,13 +122,13 @@ public final class SecurityStandards {
     "14.3.2", "14.3.3", "14.4.1", "14.4.2", "14.4.3", "14.4.4", "14.4.5", "14.4.6", "14.4.7", "14.5.1", "14.5.2", "14.5.3");
 
   private static final List<String> OWASP_ASVS_40_LEVEL_2 = Stream.concat(Stream.of("1.1.1", "1.1.2", "1.1.3", "1.1.4", "1.1.5", "1.1.6",
-      "1.1.7", "1.10.1", "1.11.1", "1.11.2", "1.12.1", "1.12.2", "1.14.1", "1.14.2", "1.14.3", "1.14.4", "1.14.5", "1.14.6", "1.2.1", "1.2.2", "1.2.3", "1.2.4", "1.4.1", "1.4.2",
-      "1.4.3", "1.4.4", "1.4.5", "1.5.1", "1.5.2", "1.5.3", "1.5.4", "1.6.1", "1.6.2", "1.6.3", "1.6.4", "1.7.1", "1.7.2", "1.8.1", "1.8.2", "1.9.1", "1.9.2", "2.3.2", "2.3.3",
-      "2.4.1", "2.4.2", "2.4.3", "2.4.4", "2.4.5", "2.5.7", "2.6.1", "2.6.2", "2.6.3", "2.7.5", "2.7.6", "2.8.2", "2.8.3", "2.8.4", "2.8.5", "2.8.6", "2.9.1", "2.9.2", "2.9.3",
-      "3.2.4", "3.3.3", "3.3.4", "3.5.1", "3.5.2", "3.5.3", "4.3.3", "5.4.1", "5.4.2", "5.4.3", "6.1.1", "6.1.2", "6.1.3", "6.2.2", "6.2.3", "6.2.4", "6.2.5", "6.2.6", "6.3.1",
-      "6.3.2", "6.4.1", "6.4.2", "7.1.3", "7.1.4", "7.2.1", "7.2.2", "7.3.1", "7.3.2", "7.3.3", "7.3.4", "7.4.2", "7.4.3", "8.1.1", "8.1.2", "8.1.3", "8.1.4", "8.3.5", "8.3.6",
-      "8.3.7", "8.3.8", "9.2.1", "9.2.2", "9.2.3", "9.2.4", "10.2.1", "10.2.2", "11.1.6", "11.1.7", "11.1.8", "12.1.2", "12.1.3", "12.2.1", "12.3.6", "13.1.4", "13.1.5", "13.2.4",
-      "13.2.5", "13.2.6", "13.3.2", "13.4.1", "13.4.2", "14.1.1", "14.1.2", "14.1.3", "14.1.4", "14.2.4", "14.2.5", "14.2.6", "14.5.4"), OWASP_ASVS_40_LEVEL_1.stream())
+    "1.1.7", "1.10.1", "1.11.1", "1.11.2", "1.12.1", "1.12.2", "1.14.1", "1.14.2", "1.14.3", "1.14.4", "1.14.5", "1.14.6", "1.2.1", "1.2.2", "1.2.3", "1.2.4", "1.4.1", "1.4.2",
+    "1.4.3", "1.4.4", "1.4.5", "1.5.1", "1.5.2", "1.5.3", "1.5.4", "1.6.1", "1.6.2", "1.6.3", "1.6.4", "1.7.1", "1.7.2", "1.8.1", "1.8.2", "1.9.1", "1.9.2", "2.3.2", "2.3.3",
+    "2.4.1", "2.4.2", "2.4.3", "2.4.4", "2.4.5", "2.5.7", "2.6.1", "2.6.2", "2.6.3", "2.7.5", "2.7.6", "2.8.2", "2.8.3", "2.8.4", "2.8.5", "2.8.6", "2.9.1", "2.9.2", "2.9.3",
+    "3.2.4", "3.3.3", "3.3.4", "3.5.1", "3.5.2", "3.5.3", "4.3.3", "5.4.1", "5.4.2", "5.4.3", "6.1.1", "6.1.2", "6.1.3", "6.2.2", "6.2.3", "6.2.4", "6.2.5", "6.2.6", "6.3.1",
+    "6.3.2", "6.4.1", "6.4.2", "7.1.3", "7.1.4", "7.2.1", "7.2.2", "7.3.1", "7.3.2", "7.3.3", "7.3.4", "7.4.2", "7.4.3", "8.1.1", "8.1.2", "8.1.3", "8.1.4", "8.3.5", "8.3.6",
+    "8.3.7", "8.3.8", "9.2.1", "9.2.2", "9.2.3", "9.2.4", "10.2.1", "10.2.2", "11.1.6", "11.1.7", "11.1.8", "12.1.2", "12.1.3", "12.2.1", "12.3.6", "13.1.4", "13.1.5", "13.2.4",
+    "13.2.5", "13.2.6", "13.3.2", "13.4.1", "13.4.2", "14.1.1", "14.1.2", "14.1.3", "14.1.4", "14.2.4", "14.2.5", "14.2.6", "14.5.4"), OWASP_ASVS_40_LEVEL_1.stream())
     .toList();
 
   private static final List<String> OWASP_ASVS_40_LEVEL_3 = Stream
@@ -326,14 +328,96 @@ public final class SecurityStandards {
   private static final Ordering<SQCategory> SQ_CATEGORY_ORDERING = Ordering.explicit(stream(SQCategory.values()).toList());
   public static final Ordering<String> SQ_CATEGORY_KEYS_ORDERING = Ordering.explicit(stream(SQCategory.values()).map(SQCategory::getKey).toList());
 
+  public static final Map<String, String> CWES_BY_CASA_CATEGORY;
+
+  static {
+    Map<String, String> map = new HashMap<>();
+    map.put("1.1.4", "1059");
+    map.put("1.14.6", "477");
+    map.put("1.4.1", "602");
+    map.put("1.8.1", null);
+    map.put("1.8.2", null);
+    map.put("2.1.1", "521");
+    map.put("2.3.1", "330");
+    map.put("2.4.1", "916");
+    map.put("2.5.4", "16");
+    map.put("2.6.1", "308");
+    map.put("2.7.2", "287");
+    map.put("2.7.6", "310");
+    map.put("3.3.1", "613");
+    map.put("3.3.3", "613");
+    map.put("3.4.1", "614");
+    map.put("3.4.2", "1004");
+    map.put("3.4.3", "1275");
+    map.put("3.5.2", "798");
+    map.put("3.5.3", "345");
+    map.put("3.7.1", "306");
+    map.put("4.1.1", "602");
+    map.put("4.1.2", "639");
+    map.put("4.1.3", "285");
+    map.put("4.1.5", "285");
+    map.put("4.2.1", "639");
+    map.put("4.2.2", "352");
+    map.put("4.3.1", "419");
+    map.put("4.3.2", "548");
+    map.put("5.1.1", "235");
+    map.put("5.1.5", "601");
+    map.put("5.2.3", "147");
+    map.put("5.2.4", "95");
+    map.put("5.2.5", "94");
+    map.put("5.2.6", "918");
+    map.put("5.2.7", "159");
+    map.put("5.3.1", "116");
+    map.put("5.3.10", "643");
+    map.put("5.3.3", "79");
+    map.put("5.3.4", "89");
+    map.put("5.3.6", "830");
+    map.put("5.3.7", "90");
+    map.put("5.3.8", "78");
+    map.put("5.3.9", "829");
+    map.put("5.5.2", "611");
+    map.put("6.1.1", "311");
+    map.put("6.2.1", "310");
+    map.put("6.2.3", "326");
+    map.put("6.2.4", "326");
+    map.put("6.2.7", "326");
+    map.put("6.2.8", "385");
+    map.put("6.3.2", "338");
+    map.put("6.4.2", "320");
+    map.put("7.1.1", "532");
+    map.put("8.1.1", "524");
+    map.put("8.2.2", "922");
+    map.put("8.3.1", "319");
+    map.put("8.3.5", "532");
+    map.put("9.1.2", "326");
+    map.put("9.2.1", "295");
+    map.put("9.2.4", "299");
+    map.put("10.3.2", "353");
+    map.put("10.3.3", "350");
+    map.put("11.1.4", "770");
+    map.put("12.4.1", "552");
+    map.put("12.4.2", "509");
+    map.put("13.1.3", "598");
+    map.put("13.1.4", "285");
+    map.put("13.2.1", "650");
+    map.put("14.1.1", null);
+    map.put("14.1.4", null);
+    map.put("14.1.5", null);
+    map.put("14.3.2", "497");
+    map.put("14.5.2", "346");
+    CWES_BY_CASA_CATEGORY = Collections.unmodifiableMap(map);
+  }
   private final Set<String> standards;
   private final Set<String> cwe;
+  private final Set<String> casaCategories;
   private final SQCategory sqCategory;
   private final Set<SQCategory> ignoredSQCategories;
 
-  private SecurityStandards(Set<String> standards, Set<String> cwe, SQCategory sqCategory, Set<SQCategory> ignoredSQCategories) {
+  private SecurityStandards(Set<String> standards, Set<String> cwe, Set<String> casaCategories,
+    SQCategory sqCategory, Set<SQCategory> ignoredSQCategories) {
     this.standards = standards;
     this.cwe = cwe;
+    this.casaCategories = casaCategories;
     this.sqCategory = sqCategory;
     this.ignoredSQCategories = ignoredSQCategories;
   }
@@ -370,6 +454,10 @@ public final class SecurityStandards {
     return getMatchingStandards(standards, version.prefix() + ":");
   }
 
+  public Set<String> getCasa() {
+    return casaCategories;
+  }
+
   /**
    * @deprecated SansTop25 report is outdated, it has been completely deprecated in version 10.0 and will be removed from version 11.0
    */
@@ -402,7 +490,8 @@ public final class SecurityStandards {
     List<SQCategory> sq = toSortedSQCategories(cwe);
     SQCategory sqCategory = sq.iterator().next();
     Set<SQCategory> ignoredSQCategories = sq.stream().skip(1).collect(Collectors.toSet());
-    return new SecurityStandards(standards, cwe, sqCategory, ignoredSQCategories);
+    Set<String> casaCategories = toCasaCategories(cwe);
+    return new SecurityStandards(standards, cwe, casaCategories, sqCategory, ignoredSQCategories);
   }
 
   public static Set<String> getRequirementsForCategoryAndLevel(String category, int level) {
@@ -454,6 +543,14 @@ public final class SecurityStandards {
       .sorted(SQ_CATEGORY_ORDERING)
       .toList();
     return result.isEmpty() ? singletonList(SQCategory.OTHERS) : result;
+  }
+
+  private static Set<String> toCasaCategories(Set<String> cwe) {
+    return CWES_BY_CASA_CATEGORY
+      .keySet()
+      .stream()
+      .filter(k -> cwe.contains(CWES_BY_CASA_CATEGORY.get(k)))
+      .collect(Collectors.toSet());
   }
 
 }

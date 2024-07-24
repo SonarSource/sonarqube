@@ -375,6 +375,16 @@ public class IssueDoc extends BaseDoc {
   }
 
   @CheckForNull
+  public Collection<String> getCasa() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_CASA);
+  }
+
+  public IssueDoc setCasa(@Nullable Collection<String> o) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_CASA, o);
+    return this;
+  }
+
+  @CheckForNull
   public Collection<String> getSansTop25() {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25);
   }

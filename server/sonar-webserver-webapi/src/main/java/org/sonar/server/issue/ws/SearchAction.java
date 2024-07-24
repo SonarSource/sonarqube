@@ -99,6 +99,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHOR;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CASA;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CODE_VARIANTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
@@ -166,6 +167,7 @@ public class SearchAction implements IssuesWsAction {
     PARAM_OWASP_TOP_10,
     PARAM_OWASP_TOP_10_2021,
     PARAM_STIG_ASD_V5R3,
+    PARAM_CASA,
     PARAM_SANS_TOP_25,
     PARAM_CWE,
     PARAM_CREATED_AT,
@@ -215,6 +217,8 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.7", format(NEW_FACET_ADDED_MESSAGE, PARAM_CASA)),
+        new Change("10.7", format(NEW_PARAM_ADDED_MESSAGE, PARAM_CASA)),
         new Change("10.7", format(NEW_FACET_ADDED_MESSAGE, PARAM_STIG_ASD_V5R3)),
         new Change("10.7", format(NEW_PARAM_ADDED_MESSAGE, PARAM_STIG_ASD_V5R3)),
         new Change("10.6", format(NEW_FACET_ADDED_MESSAGE, PARAM_PRIORITIZED_RULE)),
@@ -377,7 +381,10 @@ public class SearchAction implements IssuesWsAction {
       .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10");
     action.createParam(PARAM_STIG_ASD_V5R3)
       .setDescription("Comma-separated list of STIG V5R3 categories.")
-      .setSince("9.4");
+      .setSince("10.7");
+    action.createParam(PARAM_CASA)
+      .setDescription("Comma-separated list of CASA categories.")
+      .setSince("10.7");
     action.createParam(PARAM_SANS_TOP_25)
       .setDescription("Comma-separated list of SANS Top 25 categories.")
       .setDeprecatedSince("10.0")
@@ -602,6 +609,7 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_OWASP_TOP_10, request.getOwaspTop10());
     addMandatoryValuesToFacet(facets, PARAM_OWASP_TOP_10_2021, request.getOwaspTop10For2021());
     addMandatoryValuesToFacet(facets, PARAM_STIG_ASD_V5R3, request.getStigAsdV5R3());
+    addMandatoryValuesToFacet(facets, PARAM_CASA, request.getCasa());
     addMandatoryValuesToFacet(facets, PARAM_SANS_TOP_25, request.getSansTop25());
     addMandatoryValuesToFacet(facets, PARAM_CWE, request.getCwe());
     addMandatoryValuesToFacet(facets, PARAM_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
@@ -690,6 +698,7 @@ public class SearchAction implements IssuesWsAction {
       .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
       .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
       .setStigAsdV5R3(request.paramAsStrings(PARAM_STIG_ASD_V5R3))
+      .setCasa(request.paramAsStrings(PARAM_CASA))
       .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
       .setCwe(request.paramAsStrings(PARAM_CWE))
       .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))

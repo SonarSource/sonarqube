@@ -113,6 +113,12 @@ class SecurityStandardsTest {
   }
 
   @Test
+  void fromSecurityStandards_shouldReturnExpectedCasaBasedOnCweMapping() {
+    SecurityStandards securityStandards = fromSecurityStandards(Set.of("cwe:326", "cwe:477"));
+    assertThat(securityStandards.getCasa()).containsExactly("6.2.3", "1.14.6", "9.1.2", "6.2.7", "6.2.4");
+  }
+
+  @Test
   void fromSecurityStandards_finds_SQCategory_first_in_order_when_CWEs_map_to_multiple_SQCategories() {
     EnumSet<SQCategory> sqCategories = EnumSet.allOf(SQCategory.class);
     sqCategories.remove(SQCategory.OTHERS);

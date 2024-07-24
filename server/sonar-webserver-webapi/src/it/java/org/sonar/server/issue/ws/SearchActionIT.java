@@ -1767,9 +1767,54 @@ public class SearchActionIT {
 
     SearchWsResponse result = ws.newRequest()
       .setParam("stig-ASD_V5R3", "V-222402")
+      .setParam(FACETS, "stig-ASD_V5R3")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
+
+    assertThat(result.getFacets().getFacets(0).getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactlyInAnyOrder(tuple("V-222402", 2L), tuple("V-222403", 2L), tuple("V-222404", 2L));
+  }
+
+  @Test
+  public void only_vulnerabilities_are_returned_by_casa() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "cwe:639", "cwe:326"))
+      .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "sans-top25-insecure", "sql"));
+    RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam("casa", "4.1.2")
+      .setParam(FACETS, "casa")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
+
+    assertThat(result.getFacets().getFacets(0).getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactlyInAnyOrder(tuple("4.1.2", 2L), tuple("4.2.1", 2L), tuple("6.2.3", 2L),
+        tuple("6.2.4", 2L), tuple("6.2.7", 2L), tuple("9.1.2", 2L));
+
+    result = ws.newRequest()
+      .setParam("casa", "4")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .as("We should be able to search with only the prefix '4'")
       .extracting(Issue::getKey)
       .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
   }
@@ -2108,7 +2153,7 @@ public class SearchActionIT {
       "additionalFields", "asc", "assigned", "assignees", "author", "components", "branch", "pullRequest", "createdAfter", "createdAt",
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspAsvs-4.0",
-      "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "stig-ASD_V5R3", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod", "codeVariants",
+      "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "stig-ASD_V5R3", "casa", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod", "codeVariants",
       "cleanCodeAttributeCategories", "impactSeverities", "impactSoftwareQualities", "issueStatuses", "fixedInPullRequest",
       "prioritizedRule");
 

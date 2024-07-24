@@ -55,6 +55,7 @@ public class SearchRequestTest {
       .setOwaspAsvs40(asList("1.1.1", "4.2.2"))
       .setOwaspAsvsLevel(2)
       .setStigAsdV5R3(List.of("V-222400", "V-222401"))
+      .setCasa(List.of("1.4.1", "6.4.2"))
       .setPciDss32(asList("1", "4"))
       .setPciDss40(asList("3", "5"))
       .setCodeVariants(asList("variant1", "variant2"))
@@ -82,6 +83,7 @@ public class SearchRequestTest {
     assertThat(underTest.getAsc()).isTrue();
     assertThat(underTest.getInNewCodePeriod()).isTrue();
     assertOwasp(underTest);
+    assertThat(underTest.getStigAsdV5R3()).containsExactly("V-222400", "V-222401");
     assertThat(underTest.getStigAsdV5R3()).containsExactly("V-222400", "V-222401");
     assertThat(underTest.getPciDss32()).containsExactly("1", "4");
     assertThat(underTest.getPciDss40()).containsExactly("3", "5");

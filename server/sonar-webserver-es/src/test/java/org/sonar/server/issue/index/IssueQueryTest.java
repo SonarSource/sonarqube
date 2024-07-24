@@ -136,6 +136,15 @@ class IssueQueryTest {
     assertThat(query.stigAsdV5R3()).containsOnly("V-222400", "V-222401");
   }
 
+  @Test
+  void build_casa_query() {
+    IssueQuery query = IssueQuery.builder()
+      .casa(List.of("1.1.4", "6.1.1"))
+      .build();
+
+    assertThat(query.casa()).containsOnly("1.1.4", "6.1.1");
+  }
+
 
   @Test
   void build_query_without_dates() {

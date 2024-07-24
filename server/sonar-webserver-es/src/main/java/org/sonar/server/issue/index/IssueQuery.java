@@ -81,6 +81,7 @@ public class IssueQuery {
   private final Integer owaspAsvsLevel;
   private final Collection<String> owaspTop10For2021;
   private final Collection<String> stigAsdV5R3;
+  private final Collection<String> casa;
   private final Collection<String> sansTop25;
   private final Collection<String> cwe;
   private final Collection<String> sonarsourceSecurity;
@@ -131,6 +132,7 @@ public class IssueQuery {
     this.owaspTop10 = defaultCollection(builder.owaspTop10);
     this.owaspTop10For2021 = defaultCollection(builder.owaspTop10For2021);
     this.stigAsdV5R3 = defaultCollection(builder.stigAsdV5R3);
+    this.casa = defaultCollection(builder.casa);
     this.sansTop25 = defaultCollection(builder.sansTop25);
     this.cwe = defaultCollection(builder.cwe);
     this.sonarsourceSecurity = defaultCollection(builder.sonarsourceSecurity);
@@ -266,6 +268,10 @@ public class IssueQuery {
     return stigAsdV5R3;
   }
 
+  public Collection<String> casa() {
+    return casa;
+  }
+
   public Collection<String> sansTop25() {
     return sansTop25;
   }
@@ -399,6 +405,7 @@ public class IssueQuery {
     private Collection<String> owaspTop10;
     private Collection<String> owaspTop10For2021;
     private Collection<String> stigAsdV5R3;
+    private Collection<String> casa;
     private Collection<String> sansTop25;
     private Collection<String> cwe;
     private Collection<String> sonarsourceSecurity;
@@ -561,6 +568,11 @@ public class IssueQuery {
 
     public Builder stigAsdR5V3(@Nullable Collection<String> o) {
       this.stigAsdV5R3 = o;
+      return this;
+    }
+
+    public Builder casa(@Nullable Collection<String> o) {
+      this.casa = o;
       return this;
     }
 

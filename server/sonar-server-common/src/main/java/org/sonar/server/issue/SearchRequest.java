@@ -74,6 +74,7 @@ public class SearchRequest {
   private List<String> owaspAsvs40;
   private List<String> owaspTop10For2021;
   private List<String> stigAsdV5R3;
+  private List<String> casa;
   private List<String> sansTop25;
   private List<String> sonarsourceSecurity;
   private List<String> cwe;
@@ -444,6 +445,16 @@ public class SearchRequest {
 
   public SearchRequest setStigAsdV5R3(@Nullable List<String> stigAsdV5R3) {
     this.stigAsdV5R3 = stigAsdV5R3;
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getCasa() {
+    return casa;
+  }
+
+  public SearchRequest setCasa(@Nullable List<String> casa) {
+    this.casa = casa;
     return this;
   }
 

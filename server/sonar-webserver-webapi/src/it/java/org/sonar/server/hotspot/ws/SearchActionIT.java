@@ -114,6 +114,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CASA;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STIG_ASD_V5R3;
 
 @SuppressWarnings("ALL")
@@ -171,6 +172,7 @@ public class SearchActionIT {
     WebService.Param owasAsvs40Param = actionTester.getDef().param(PARAM_OWASP_ASVS_40);
     WebService.Param owaspTop10Param = actionTester.getDef().param(PARAM_OWASP_TOP_10_2017);
     WebService.Param stigAsdV5R3 = actionTester.getDef().param(PARAM_STIG_ASD_V5R3);
+    WebService.Param casa = actionTester.getDef().param(PARAM_CASA);
     WebService.Param sansTop25Param = actionTester.getDef().param(PARAM_SANS_TOP_25);
     WebService.Param sonarsourceSecurityParam = actionTester.getDef().param(PARAM_SONARSOURCE_SECURITY);
     WebService.Param filesParam = actionTester.getDef().param(PARAM_FILES);
@@ -191,6 +193,8 @@ public class SearchActionIT {
     assertThat(owaspTop10Param.isRequired()).isFalse();
     assertThat(stigAsdV5R3).isNotNull();
     assertThat(stigAsdV5R3.isRequired()).isFalse();
+    assertThat(casa).isNotNull();
+    assertThat(casa.isRequired()).isFalse();
     assertThat(sansTop25Param).isNotNull();
     assertThat(sansTop25Param.isRequired()).isFalse();
     assertThat(sonarsourceSecurityParam).isNotNull();
@@ -1563,6 +1567,37 @@ public class SearchActionIT {
     indexIssues();
 
     SearchWsResponse response = newRequest(project).setParam(PARAM_STIG_ASD_V5R3, "V-222400")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactly(hotspot3.getKey());
+  }
+
+  @Test
+  public void executeProtobuf_WhenHotspotHasCwe_shoultReturnExpectedHotspotOnCasaParam() {
+    ProjectData projectData = dbTester.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+
+    userSessionRule.registerProjects(projectData.getProjectDto());
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDto rule1 = newRule(SECURITY_HOTSPOT);
+    RuleDto rule2 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(Set.of("cwe:310")));
+    RuleDto rule3 = newRule(SECURITY_HOTSPOT, r -> r.setSecurityStandards(Set.of("cwe:639")));
+    insertHotspot(project, file, rule1);
+    insertHotspot(project, file, rule2);
+    IssueDto hotspot3 = insertHotspot(project, file, rule3);
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project).setParam(PARAM_CASA, "4.1.2")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactly(hotspot3.getKey());
+
+    response = newRequest(project).setParam(PARAM_CASA, "4")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())

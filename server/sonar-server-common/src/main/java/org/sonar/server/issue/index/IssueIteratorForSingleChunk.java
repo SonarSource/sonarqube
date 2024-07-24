@@ -133,6 +133,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     doc.setOwaspTop10(securityStandards.getOwaspTop10());
     doc.setOwaspTop10For2021(securityStandards.getOwaspTop10For2021());
     doc.setStigAsdV5R3(securityStandards.getStig(StigVersion.ASD_V5R3));
+    doc.setCasa(securityStandards.getCasa());
     doc.setPciDss32(securityStandards.getPciDss32());
     doc.setPciDss40(securityStandards.getPciDss40());
     doc.setOwaspAsvs40(securityStandards.getOwaspAsvs40());
