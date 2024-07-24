@@ -88,9 +88,10 @@ class ProjectCppAutoconfigTelemetryProviderIT {
 
     Map<String, String> actualResult = underTest.getUuidValues();
 
-    assertThat(actualResult).hasSize(2);
-    assertThat(actualResult).containsExactlyInAnyOrderEntriesOf(Map.of(project1.getProjectDto().getUuid(), "AUTOCONFIG",
-      project2.getProjectDto().getUuid(), "AUTOCONFIG"));
+    assertThat(actualResult).hasSize(2)
+      .containsExactlyInAnyOrderEntriesOf(
+        Map.of(project1.getProjectDto().getUuid(), "AUTOCONFIG", project2.getProjectDto().getUuid(), "AUTOCONFIG")
+      );
   }
 
   @Test
@@ -116,9 +117,10 @@ class ProjectCppAutoconfigTelemetryProviderIT {
 
     Map<String, String> actualResult = underTest.getUuidValues();
 
-    assertThat(actualResult).hasSize(2);
-    assertThat(actualResult).containsExactlyInAnyOrderEntriesOf(Map.of(project1.getProjectDto().getUuid(), "BW_DEPRECATED",
-      project2.getProjectDto().getUuid(), "COMPDB"));
+    assertThat(actualResult).hasSize(2)
+      .containsExactlyInAnyOrderEntriesOf(
+        Map.of(project1.getProjectDto().getUuid(), "BW_DEPRECATED", project2.getProjectDto().getUuid(), "COMPDB")
+      );
   }
 
   private Consumer<LiveMeasureDto> configureLiveMeasure(String language, MetricDto metric, ProjectDto project, ComponentDto componentDto) {

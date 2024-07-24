@@ -65,7 +65,7 @@ public class ProjectCppAutoconfigTelemetryProvider implements TelemetryDataProvi
   public Map<String, String> getUuidValues() {
     Map<String, String> cppConfigTypePerProjectUuid = new HashMap<>();
     try (DbSession dbSession = dbClient.openSession(true)) {
-      //TODO in the feature ideally languages should be defined in the codebase as enums, using strings is error-prone
+      // In the future ideally languages should be defined in the codebase as enums, using strings is error-prone
       List<ProjectDto> cppProjects = dbClient.projectDao().selectProjectsByLanguage(dbSession, Set.of("cpp", "c"));
       for (ProjectDto cppProject : cppProjects) {
         CppConfigType cppConfigType = getCppConfigType(cppProject, dbSession);
