@@ -366,6 +366,7 @@ public class XooRulesDefinition implements RulesDefinition {
         break;
       case "pciDss-4.0":
         rule.addPciDss(PciDssVersion.V4_0, splitStandard[1]);
+        break;
       default:
         throw new IllegalArgumentException("Unknown standard: " + standard);
     }

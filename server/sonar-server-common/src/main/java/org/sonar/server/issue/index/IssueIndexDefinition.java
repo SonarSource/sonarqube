@@ -125,7 +125,7 @@ public class IssueIndexDefinition implements IndexDefinition {
 
   private IssueIndexDefinition(Configuration config, boolean enableSource) {
     this.config = config;
-    this.enableSource = true;
+    this.enableSource = enableSource;
   }
 
   /**

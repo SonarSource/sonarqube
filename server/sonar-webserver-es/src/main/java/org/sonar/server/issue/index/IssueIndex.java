@@ -1329,7 +1329,7 @@ public class IssueIndex {
     return search(request, includeCwe, version.label());
   }
 
-  public List<SecurityStandardCategoryStatistics> getStig(String projectUuid, boolean isViewOrApp, RulesDefinition.StigVersion stigVersion) {
+  public List<SecurityStandardCategoryStatistics> getStigReport(String projectUuid, boolean isViewOrApp, RulesDefinition.StigVersion stigVersion) {
     SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     Arrays.stream(StigSupportedRequirement.values())
       .forEach(stigSupportedRequirement -> request.aggregation(
@@ -1339,6 +1339,15 @@ public class IssueIndex {
     return search(request, false, stigVersion.label());
   }
 
+  public List<SecurityStandardCategoryStatistics> getCasaReport(String projectUuid, boolean isViewOrApp) {
+    SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
+    IntStream.range(1, 15)
+      .forEach(casaTopCategory -> request.aggregation(
+        newSecurityReportSubAggregations(
+          AggregationBuilders.filter(String.valueOf(casaTopCategory), boolQuery().filter(prefixQuery(FIELD_ISSUE_CASA, casaTopCategory + "."))), FIELD_ISSUE_CASA)));
+    return searchWithDistribution(request, null, null);
+  }
+
   private List<SecurityStandardCategoryStatistics> searchWithLevelDistribution(SearchSourceBuilder sourceBuilder, String version, @Nullable String level) {
     return getSearchResponse(sourceBuilder)
       .getAggregations().asList().stream()
@@ -1346,7 +1355,7 @@ public class IssueIndex {
       .toList();
   }
 
-  private List<SecurityStandardCategoryStatistics> searchWithDistribution(SearchSourceBuilder sourceBuilder, String version, @Nullable Integer level) {
+  private List<SecurityStandardCategoryStatistics> searchWithDistribution(SearchSourceBuilder sourceBuilder, @Nullable String version, @Nullable Integer level) {
     return getSearchResponse(sourceBuilder)
       .getAggregations().asList().stream()
       .map(c -> processSecurityReportIssueSearchResultsWithDistribution((ParsedFilter) c, version, level))
@@ -1366,7 +1375,8 @@ public class IssueIndex {
     return client.search(request);
   }
 
-  private static SecurityStandardCategoryStatistics processSecurityReportIssueSearchResultsWithDistribution(ParsedFilter categoryFilter, String version, @Nullable Integer level) {
+  private static SecurityStandardCategoryStatistics processSecurityReportIssueSearchResultsWithDistribution(ParsedFilter categoryFilter, @Nullable String version,
+    @Nullable Integer level) {
     var list = ((ParsedStringTerms) categoryFilter.getAggregations().get(AGG_DISTRIBUTION)).getBuckets();
     List<SecurityStandardCategoryStatistics> children = list.stream()
       .filter(categoryBucket -> StringUtils.startsWith(categoryBucket.getKeyAsString(), categoryFilter.getName() + "."))
