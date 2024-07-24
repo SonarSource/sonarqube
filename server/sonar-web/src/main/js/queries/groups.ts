@@ -17,21 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { infiniteQueryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createGroup, deleteGroup, getUsersGroups, updateGroup } from '../api/user_groups';
 import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
+import { createInfiniteQueryHook } from './common';
 
-export function useGroupsQueries(
-  getParams: Omit<Parameters<typeof getUsersGroups>[0], 'pageSize' | 'pageIndex'>,
-) {
-  return useInfiniteQuery({
-    queryKey: ['group', 'list', getParams],
-    queryFn: ({ pageParam }) => getUsersGroups({ ...getParams, pageIndex: pageParam }),
-    getNextPageParam,
-    getPreviousPageParam,
-    initialPageParam: 1,
-  });
-}
+export const useGroupsQueries = createInfiniteQueryHook(
+  (getParams: Omit<Parameters<typeof getUsersGroups>[0], 'pageSize' | 'pageIndex'>) => {
+    return infiniteQueryOptions({
+      queryKey: ['group', 'list', getParams],
+      queryFn: ({ pageParam }) => getUsersGroups({ ...getParams, pageIndex: pageParam }),
+      getNextPageParam,
+      getPreviousPageParam,
+      initialPageParam: 1,
+    });
+  },
+);
 
 export function useCreateGroupMutation() {
   const queryClient = useQueryClient();

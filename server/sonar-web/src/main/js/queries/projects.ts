@@ -17,19 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { UseQueryOptions, useQuery } from '@tanstack/react-query';
+import { queryOptions } from '@tanstack/react-query';
 import { searchProjects } from '../api/components';
+import { createQueryHook } from './common';
 
-export function useProjectQuery<T = Awaited<ReturnType<typeof searchProjects>>>(
-  key: string,
-  options?: Omit<
-    UseQueryOptions<Awaited<ReturnType<typeof searchProjects>>, Error, T>,
-    'queryKey' | 'queryFn'
-  >,
-) {
-  return useQuery({
+export const useProjectQuery = createQueryHook((key: string) => {
+  return queryOptions({
     queryKey: ['project', key],
     queryFn: ({ queryKey: [, key] }) => searchProjects({ filter: `query=${key}` }),
-    ...options,
   });
-}
+});
