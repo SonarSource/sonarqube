@@ -18,8 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Button, DropdownMenu, DropdownMenuAlign } from '@sonarsource/echoes-react';
-import { ChevronDownIcon, TextMuted } from 'design-system';
+import {
+  Button,
+  ButtonGroup,
+  DropdownMenu,
+  DropdownMenuAlign,
+  IconChevronDown,
+} from '@sonarsource/echoes-react';
+import { TextMuted } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { GraphType } from '../../types/project-activity';
@@ -76,17 +82,16 @@ export default function GraphsHeader(props: Props) {
 
   return (
     <div className={className}>
-      <div className="sw-flex">
+      <ButtonGroup>
         <DropdownMenu.Root align={DropdownMenuAlign.Start} id="activity-graph-type" items={options}>
           <Button
             aria-label={translate('project_activity.graphs.choose_type')}
-            className={
-              'sw-body-sm sw-flex sw-flex-row sw-justify-between sw-pl-3 sw-pr-2 sw-w-32 ' +
-              'sw-z-normal' // needed because the legends overlap part of the button
-            }
+            suffix={<IconChevronDown />}
           >
-            <TextMuted text={translate('project_activity.graphs', graph)} />
-            <ChevronDownIcon className="sw-ml-1 sw-mr-0 sw-pr-0" />
+            <TextMuted
+              className="sw-body-sm sw-flex"
+              text={translate('project_activity.graphs', graph)}
+            />
           </Button>
         </DropdownMenu.Root>
 
@@ -101,7 +106,7 @@ export default function GraphsHeader(props: Props) {
               selectedMetrics={selectedMetrics}
             />
           )}
-      </div>
+      </ButtonGroup>
     </div>
   );
 }
