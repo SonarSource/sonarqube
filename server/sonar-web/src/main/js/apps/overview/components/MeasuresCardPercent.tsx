@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { CoverageIndicator, DuplicationsIndicator, LightLabel, TextError } from 'design-system';
@@ -28,6 +29,7 @@ import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { duplicationRatingConverter, getLeakValue } from '../../../components/measure/utils';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { findMeasure, localizeMetric } from '../../../helpers/measures';
+import { isDefined } from '../../../helpers/types';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { isPullRequest } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
@@ -58,7 +60,7 @@ interface Props {
 }
 
 export default function MeasuresCardPercent(
-  props: React.PropsWithChildren<Props & React.HTMLAttributes<HTMLDivElement>>,
+  props: Readonly<React.PropsWithChildren<Props & React.HTMLAttributes<HTMLDivElement>>>,
 ) {
   const {
     componentKey,
@@ -97,6 +99,8 @@ export default function MeasuresCardPercent(
 
   const shouldRenderRequiredLabel = showRequired && condition;
 
+  const formattedMeasure = formatMeasure(linesValue ?? '0', MetricType.ShortInteger);
+
   return (
     <MeasuresCard
       value={formatMeasure(value, MetricType.Percent)}
@@ -134,13 +138,13 @@ export default function MeasuresCardPercent(
                   highlight={LinkHighlight.Default}
                   aria-label={translateWithParameters(
                     'overview.see_more_details_on_x_y',
-                    linesValue ?? '0',
+                    isDefined(linesValue) ? `${formattedMeasure} (${linesValue})` : '0',
                     localizeMetric(linesMetric),
                   )}
                   className="sw-body-sm-highlight sw--mt-[3px]"
                   to={linesUrl}
                 >
-                  {formatMeasure(linesValue ?? '0', MetricType.ShortInteger)}
+                  {formattedMeasure}
                 </LinkStandalone>
               ),
             }}
