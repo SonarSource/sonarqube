@@ -77,6 +77,8 @@ export function getComponentSecurityHotspotsUrl(
         SecurityStandard.PCI_DSS_3_2,
         SecurityStandard.PCI_DSS_4_0,
         SecurityStandard.OWASP_ASVS_4_0,
+        SecurityStandard.CASA,
+        SecurityStandard.STIG_ASD_V5R3,
         'owaspAsvsLevel',
       ]),
     }),

@@ -100,7 +100,7 @@ export default function FilterBarTemplate(props: Readonly<Props>) {
         id={id}
       >
         <Filterbar
-          className={classNames('sw--mt-8 sw-z-filterbar', {
+          className={classNames('sw-z-filterbar', {
             'sw-col-span-3': size === 'default',
             'sw-col-span-4': size === 'large',
             bordered: Boolean(header),

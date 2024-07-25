@@ -70,6 +70,8 @@ export function mockQuery(overrides: Partial<Query> = {}): Query {
     issues: [],
     languages: [],
     owaspTop10: [],
+    casa: [],
+    'stig-ASD_V5R3': [],
     'owaspTop10-2021': [],
     'pciDss-3.2': [],
     'pciDss-4.0': [],
