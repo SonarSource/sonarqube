@@ -717,7 +717,8 @@ it('should render external identity Providers', async () => {
 
 it('accessibility', async () => {
   systemHandler.setProvider(null);
-  const user = userEvent.setup();
+  // Skip hover to avoid issues with Tooltip rerenders
+  const user = userEvent.setup({ skipHover: true });
   renderUsersApp();
 
   // user list page should be accessible
@@ -727,26 +728,22 @@ it('accessibility', async () => {
   // user creation dialog should be accessible
   await user.click(await ui.createUserButton.find());
   expect(await ui.dialogCreateUser.find()).toBeInTheDocument();
-  await waitFor(async () => {
-    await expect(ui.dialogCreateUser.get()).toHaveNoA11yViolations();
-  });
+  await expect(ui.dialogCreateUser.get()).toHaveNoA11yViolations();
+
   await user.click(ui.cancelButton.get());
 
   // users group membership dialog should be accessible
   await user.click(await ui.aliceUpdateGroupButton.find());
   expect(await ui.dialogGroups.find()).toBeInTheDocument();
-  await waitFor(async () => {
-    await expect(await ui.dialogGroups.find()).toHaveNoA11yViolations();
-  });
+  await expect(await ui.dialogGroups.find()).toHaveNoA11yViolations();
+
   await user.click(ui.doneButton.get());
 
   // user update dialog should be accessible
   await user.click(await ui.aliceUpdateButton.find());
   await user.click(await byText('update_details').find());
   expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
-  await waitFor(async () => {
-    await expect(await ui.dialogUpdateUser.find()).toHaveNoA11yViolations();
-  });
+  await expect(await ui.dialogUpdateUser.find()).toHaveNoA11yViolations();
   await user.click(ui.cancelButton.get());
 
   // user tokens dialog should be accessible
@@ -759,18 +756,14 @@ it('accessibility', async () => {
   );
 
   expect(await ui.dialogTokens.find()).toBeInTheDocument();
-  await waitFor(async () => {
-    await expect(await ui.dialogTokens.find()).toHaveNoA11yViolations();
-  });
+  await expect(await ui.dialogTokens.find()).toHaveNoA11yViolations();
   await user.click(ui.closeButton.get());
 
   // user password dialog should be accessible
   await user.click(await ui.aliceUpdateButton.find());
   await user.click(await byText('my_profile.password.title').find());
   expect(await ui.dialogPasswords.find()).toBeInTheDocument();
-  await waitFor(async () => {
-    await expect(await ui.dialogPasswords.find()).toHaveNoA11yViolations();
-  });
+  await expect(await ui.dialogPasswords.find()).toHaveNoA11yViolations();
 });
 
 function renderUsersApp(featureList: Feature[] = [], currentUser?: CurrentUser) {
