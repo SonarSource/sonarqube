@@ -17,16 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.auth;
+package org.sonar.server.platform.db.migration.version.v107;
 
-public interface DevOpsPlatformSettings {
+import org.junit.jupiter.api.Test;
 
-  String getDevOpsPlatform();
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-  boolean isProvisioningEnabled();
+class DbVersion107Test {
 
-  boolean isProjectVisibilitySynchronizationActivated();
+  private final DbVersion107 underTest = new DbVersion107();
 
-  boolean isUserConsentRequiredAfterUpgrade();
+  @Test
+  void migrationNumber_starts_at_107_000() {
+    verifyMinimumMigrationNumber(underTest, 107_000);
+  }
 
+  @Test
+  void verify_migration_is_not_empty() {
+    verifyMigrationNotEmpty(underTest);
+  }
 }

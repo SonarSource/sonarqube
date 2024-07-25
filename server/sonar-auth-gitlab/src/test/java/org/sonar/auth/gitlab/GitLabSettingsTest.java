@@ -35,6 +35,7 @@ import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_PROVISIONING_TOKE
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SECRET;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SYNC_USER_GROUPS;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_URL;
+import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_USER_CONSENT_FOR_PERMISSION_PROVISIONING_REQUIRED;
 
 public class GitLabSettingsTest {
 
@@ -120,6 +121,17 @@ public class GitLabSettingsTest {
   @Test
   public void isProjectVisibilitySynchronizationActivated_alwaysReturnsTrue() {
     assertThat(config.isProjectVisibilitySynchronizationActivated()).isTrue();
+  }
+
+  @Test
+  public void isUserConsentRequiredForPermissionProvisioning_returnsFalseByDefault() {
+    assertThat(config.isUserConsentRequiredAfterUpgrade()).isFalse();
+  }
+
+  @Test
+  public void isUserConsentRequiredForPermissionProvisioning_returnsTrueWhenPropertyPresent() {
+    settings.setProperty(GITLAB_USER_CONSENT_FOR_PERMISSION_PROVISIONING_REQUIRED, "");
+    assertThat(config.isUserConsentRequiredAfterUpgrade()).isTrue();
   }
 
   private void enableGitlabAuthentication() {

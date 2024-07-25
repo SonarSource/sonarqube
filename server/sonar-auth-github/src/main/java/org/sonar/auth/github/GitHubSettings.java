@@ -168,6 +168,7 @@ public class GitHubSettings implements DevOpsPlatformSettings {
     return isEnabled() && internalProperties.read(GITHUB_PROVISIONING).map(Boolean::parseBoolean).orElse(false);
   }
 
+  @Override
   public boolean isUserConsentRequiredAfterUpgrade() {
     return configuration.get(GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE).isPresent();
   }

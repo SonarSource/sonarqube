@@ -22,6 +22,8 @@ package org.sonar.server.platform.db.migration.version.v107;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
+// ignoring bad number formatting, as it's indented that we align the migration numbers to SQ versions
+@SuppressWarnings("java:S3937")
 public class DbVersion107 implements DbVersion {
 
   /**
@@ -35,11 +37,11 @@ public class DbVersion107 implements DbVersion {
    * 10_1_002
    * 10_2_000
    */
-
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(10_7_000, "Create 'telemetry_metrics_sent' table", CreateTelemetryMetricsSentTable.class);
+      .add(10_7_000, "Create 'telemetry_metrics_sent' table", CreateTelemetryMetricsSentTable.class)
+      .add(10_7_001, "sonar.auth.gitlab.userConsentForPermissionProvisioningRequired", AddUserConsentRequiredIfGitlabAutoProvisioningEnabled.class);
   }
 
 }

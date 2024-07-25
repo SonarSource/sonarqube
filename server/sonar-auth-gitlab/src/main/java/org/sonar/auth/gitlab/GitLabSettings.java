@@ -46,6 +46,7 @@ public class GitLabSettings implements DevOpsPlatformSettings {
   public static final String GITLAB_AUTH_SYNC_USER_GROUPS = "sonar.auth.gitlab.groupsSync";
   public static final String GITLAB_AUTH_PROVISIONING_TOKEN = "provisioning.gitlab.token.secured";
   public static final String GITLAB_AUTH_PROVISIONING_ENABLED = "provisioning.gitlab.enabled";
+  public static final String GITLAB_USER_CONSENT_FOR_PERMISSION_PROVISIONING_REQUIRED = "sonar.auth.gitlab.userConsentForPermissionProvisioningRequired";
 
   private static final String CATEGORY = "authentication";
   private static final String SUBCATEGORY = "gitlab";
@@ -109,6 +110,11 @@ public class GitLabSettings implements DevOpsPlatformSettings {
   @Override
   public boolean isProjectVisibilitySynchronizationActivated() {
     return true;
+  }
+
+  @Override
+  public boolean isUserConsentRequiredAfterUpgrade() {
+    return configuration.getBoolean(GITLAB_USER_CONSENT_FOR_PERMISSION_PROVISIONING_REQUIRED).isPresent();
   }
 
   static List<PropertyDefinition> definitions() {
