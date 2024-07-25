@@ -65,7 +65,9 @@ export function useGitHubSyncStatusQuery(options: GithubSyncStatusOptions = {}) 
 export function useGithubProvisioningEnabledQuery() {
   const res = useGitHubSyncStatusQuery({ noRefetch: true });
 
-  return mapReactQueryResult(res, (data) => data.enabled);
+  return mapReactQueryResult(res, (data) => {
+    return data.enabled;
+  });
 }
 
 export function useSyncWithGitHubNow() {

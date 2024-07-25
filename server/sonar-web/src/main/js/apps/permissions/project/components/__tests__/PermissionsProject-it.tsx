@@ -23,8 +23,10 @@ import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import DopTranslationServiceMock from '../../../../../api/mocks/DopTranslationServiceMock';
 import GithubProvisioningServiceMock from '../../../../../api/mocks/GithubProvisioningServiceMock';
+import GitlabProvisioningServiceMock from '../../../../../api/mocks/GitlabProvisioningServiceMock';
 import PermissionsServiceMock from '../../../../../api/mocks/PermissionsServiceMock';
 import SystemServiceMock from '../../../../../api/mocks/SystemServiceMock';
+import { mockGitlabConfiguration } from '../../../../../helpers/mocks/alm-integrations';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockGitHubConfiguration } from '../../../../../helpers/mocks/dop-translation';
 import { mockPermissionGroup, mockPermissionUser } from '../../../../../helpers/mocks/permissions';
@@ -48,12 +50,14 @@ import { getPageObject } from '../../../test-utils';
 let serviceMock: PermissionsServiceMock;
 let dopTranslationHandler: DopTranslationServiceMock;
 let githubHandler: GithubProvisioningServiceMock;
+let gitlabHandler: GitlabProvisioningServiceMock;
 let almHandler: AlmSettingsServiceMock;
 let systemHandler: SystemServiceMock;
 beforeAll(() => {
   serviceMock = new PermissionsServiceMock();
   dopTranslationHandler = new DopTranslationServiceMock();
   githubHandler = new GithubProvisioningServiceMock(dopTranslationHandler);
+  gitlabHandler = new GitlabProvisioningServiceMock();
   almHandler = new AlmSettingsServiceMock();
   systemHandler = new SystemServiceMock();
 });
@@ -62,6 +66,7 @@ afterEach(() => {
   serviceMock.reset();
   dopTranslationHandler.reset();
   githubHandler.reset();
+  gitlabHandler.reset();
   almHandler.reset();
 });
 
@@ -330,7 +335,7 @@ describe('GH provisioning', () => {
 
     expect(ui.pageTitle.get()).toBeInTheDocument();
     await waitFor(() =>
-      expect(ui.pageTitle.get()).toHaveAccessibleName(/project_permission.github_managed/),
+      expect(ui.pageTitle.get()).toHaveAccessibleName(/project_permission.managed/),
     );
     expect(ui.pageTitle.byRole('img').get()).toBeInTheDocument();
     expect(ui.githubExplanations.get()).toBeInTheDocument();
@@ -434,6 +439,82 @@ describe('GH provisioning', () => {
         .getAllByRole('checkbox')
         .every((item) => item.getAttributeNames().includes('disabled')),
     ).toBe(false);
+  });
+});
+
+describe('GL provisioning', () => {
+  beforeEach(() => {
+    systemHandler.setProvider(Provider.Gitlab);
+  });
+
+  it('should not allow to change visibility for GitLab Project with auto-provisioning', async () => {
+    const user = userEvent.setup();
+    const ui = getPageObject(user);
+    dopTranslationHandler.gitHubConfigurations.push(
+      mockGitHubConfiguration({ provisioningType: ProvisioningType.jit }),
+    );
+    gitlabHandler.setGitlabConfigurations([
+      mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.auto }),
+    ]);
+    almHandler.handleSetProjectBinding(AlmKeys.GitLab, {
+      almSetting: 'test',
+      repository: 'test',
+      monorepo: false,
+      project: 'my-project',
+    });
+
+    renderPermissionsProjectApp({}, { featureList: [Feature.GitlabProvisioning] });
+    await ui.appLoaded();
+
+    expect(ui.visibilityRadio(Visibility.Public).get()).toBeDisabled();
+    expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
+    expect(ui.visibilityRadio(Visibility.Private).get()).toBeDisabled();
+    await ui.turnProjectPrivate();
+    expect(ui.visibilityRadio(Visibility.Private).get()).not.toBeChecked();
+  });
+
+  it('should allow to change visibility for non-GitLab Project', async () => {
+    const user = userEvent.setup();
+    const ui = getPageObject(user);
+    gitlabHandler.setGitlabConfigurations([
+      mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.auto }),
+    ]);
+    almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
+      almSetting: 'test',
+      repository: 'test',
+      monorepo: false,
+      project: 'my-project',
+    });
+    renderPermissionsProjectApp({}, { featureList: [Feature.GitlabProvisioning] });
+    await ui.appLoaded();
+
+    expect(ui.visibilityRadio(Visibility.Public).get()).not.toHaveClass('disabled');
+    expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
+    expect(ui.visibilityRadio(Visibility.Private).get()).not.toHaveClass('disabled');
+    await ui.turnProjectPrivate();
+    expect(ui.visibilityRadio(Visibility.Private).get()).toBeChecked();
+  });
+
+  it('should allow to change visibility for GitLab Project with disabled auto-provisioning', async () => {
+    const user = userEvent.setup();
+    const ui = getPageObject(user);
+    gitlabHandler.setGitlabConfigurations([
+      mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.jit }),
+    ]);
+    almHandler.handleSetProjectBinding(AlmKeys.GitLab, {
+      almSetting: 'test',
+      repository: 'test',
+      monorepo: false,
+      project: 'my-project',
+    });
+    renderPermissionsProjectApp({}, { featureList: [Feature.GitlabProvisioning] });
+    await ui.appLoaded();
+
+    expect(ui.visibilityRadio(Visibility.Public).get()).not.toHaveClass('disabled');
+    expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
+    expect(ui.visibilityRadio(Visibility.Private).get()).not.toHaveClass('disabled');
+    await ui.turnProjectPrivate();
+    expect(ui.visibilityRadio(Visibility.Private).get()).toBeChecked();
   });
 });
 

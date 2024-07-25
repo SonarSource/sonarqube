@@ -24,28 +24,36 @@ import * as React from 'react';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
 import { Image } from '../../../../components/common/Image';
-import { translate } from '../../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';
+import {
+  useIsGitHubProjectQuery,
+  useIsGitLabProjectQuery,
+} from '../../../../queries/devops-integration';
 import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider/github';
+import { useGilabProvisioningEnabledQuery } from '../../../../queries/identity-provider/gitlab';
 import { isApplication, isProject } from '../../../../types/component';
 import { Component } from '../../../../types/types';
 import ApplyTemplate from './ApplyTemplate';
 
 interface Props {
   component: Component;
-  isGitHubProject?: boolean;
   loadHolders: () => void;
 }
 
-export default function PageHeader(props: Props) {
+export default function PageHeader(props: Readonly<Props>) {
+  const { component, loadHolders } = props;
+  const { configuration, key, qualifier, visibility } = component;
   const [applyTemplateModal, setApplyTemplateModal] = React.useState(false);
+  const { data: isGitHubProject } = useIsGitHubProjectQuery(key);
+  const { data: isGitLabProject } = useIsGitLabProjectQuery(key);
   const { data: githubProvisioningStatus } = useGithubProvisioningEnabledQuery();
+  const { data: gitlabProvisioningStatus } = useGilabProvisioningEnabledQuery();
 
-  const { component, isGitHubProject } = props;
-  const { configuration } = component;
   const provisionedByGitHub = isGitHubProject && !!githubProvisioningStatus;
-  const canApplyPermissionTemplate =
-    configuration?.canApplyPermissionTemplate && !provisionedByGitHub;
+  const provisionedByGitLab = isGitLabProject && !!gitlabProvisioningStatus;
+  const provisioned = provisionedByGitHub || provisionedByGitLab;
+  const canApplyPermissionTemplate = configuration?.canApplyPermissionTemplate && !provisioned;
 
   const handleApplyTemplate = () => {
     setApplyTemplateModal(true);
@@ -56,15 +64,15 @@ export default function PageHeader(props: Props) {
   };
 
   let description = translate('roles.page.description2');
-  if (isPortfolioLike(component.qualifier)) {
+  if (isPortfolioLike(qualifier)) {
     description = translate('roles.page.description_portfolio');
-  } else if (isApplication(component.qualifier)) {
+  } else if (isApplication(qualifier)) {
     description = translate('roles.page.description_application');
   }
 
   const visibilityDescription =
-    isProject(component.qualifier) && component.visibility
-      ? translate('visibility', component.visibility, 'description', component.qualifier)
+    isProject(qualifier) && visibility
+      ? translate('visibility', visibility, 'description', qualifier)
       : undefined;
 
   return (
@@ -72,13 +80,16 @@ export default function PageHeader(props: Props) {
       <div>
         <Title>
           {translate('permissions.page')}
-          {provisionedByGitHub && (
+          {provisioned && (
             <Image
-              alt="github"
+              alt={provisionedByGitHub ? 'github' : 'gitlab'}
               className="sw-mx-2 sw-align-baseline"
-              aria-label={translate('project_permission.github_managed')}
+              aria-label={translateWithParameters(
+                'project_permission.managed',
+                provisionedByGitHub ? translate('alm.github') : translate('alm.gitlab'),
+              )}
               height={16}
-              src="/images/alm/github.svg"
+              src={`/images/alm/${provisionedByGitHub ? 'github' : 'gitlab'}.svg`}
             />
           )}
         </Title>
@@ -86,17 +97,26 @@ export default function PageHeader(props: Props) {
         <div>
           <p>{description}</p>
           {isDefined(visibilityDescription) && <p>{visibilityDescription}</p>}
-          {provisionedByGitHub && (
+          {provisioned && (
             <>
-              <p>{translate('roles.page.description.github')}</p>
+              <p>
+                {provisionedByGitHub
+                  ? translate('roles.page.description.github')
+                  : translate('roles.page.description.gitlab')}
+              </p>
               <div className="sw-mt-2">
-                <GitHubSynchronisationWarning short />
+                {provisionedByGitHub && <GitHubSynchronisationWarning short />}
               </div>
             </>
           )}
           {githubProvisioningStatus && !isGitHubProject && (
             <FlagMessage variant="warning" className="sw-mt-2">
               {translate('project_permission.local_project_with_github_provisioning')}
+            </FlagMessage>
+          )}
+          {gitlabProvisioningStatus && !isGitLabProject && (
+            <FlagMessage variant="warning" className="sw-mt-2">
+              {translate('project_permission.local_project_with_gitlab_provisioning')}
             </FlagMessage>
           )}
         </div>
@@ -113,7 +133,7 @@ export default function PageHeader(props: Props) {
 
           {applyTemplateModal && (
             <ApplyTemplate
-              onApply={props.loadHolders}
+              onApply={loadHolders}
               onClose={handleApplyTemplateClose}
               project={component}
             />

@@ -24,22 +24,19 @@ import { Helmet } from 'react-helmet-async';
 import { Visibility } from '~sonar-aligned/types/component';
 import * as api from '../../../../api/permissions';
 import withComponentContext from '../../../../app/components/componentContext/withComponentContext';
-import VisibilitySelector from '../../../../components/common/VisibilitySelector';
 import AllHoldersList from '../../../../components/permissions/AllHoldersList';
 import { FilterOption } from '../../../../components/permissions/SearchForm';
-import UseQuery from '../../../../helpers/UseQuery';
 import { translate } from '../../../../helpers/l10n';
 import {
   PERMISSIONS_ORDER_BY_QUALIFIER,
   convertToPermissionDefinitions,
 } from '../../../../helpers/permissions';
-import { useIsGitHubProjectQuery } from '../../../../queries/devops-integration';
-import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider/github';
 import { ComponentContextShape } from '../../../../types/component';
 import { Permissions } from '../../../../types/permissions';
 import { Component, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
 import '../../styles.css';
 import PageHeader from './PageHeader';
+import PermissionsProjectVisibility from './PermissionsProjectVisibility';
 import PublicProjectDisclaimer from './PublicProjectDisclaimer';
 
 interface Props extends ComponentContextShape {
@@ -336,8 +333,6 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
       usersPaging,
       groupsPaging,
     } = this.state;
-    const canTurnToPrivate =
-      component.configuration && component.configuration.canUpdateProjectVisibilityToPrivate;
 
     let order = PERMISSIONS_ORDER_BY_QUALIFIER[component.qualifier];
     if (component.visibility === Visibility.Public) {
@@ -350,39 +345,22 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
         <PageContentFontWrapper className="sw-my-8 sw-body-sm">
           <Helmet defer={false} title={translate('permissions.page')} />
 
-          <UseQuery query={useIsGitHubProjectQuery} args={[component.key]}>
-            {({ data: isGitHubProject }) => (
-              <>
-                <PageHeader
-                  component={component}
-                  isGitHubProject={isGitHubProject}
-                  loadHolders={this.loadHolders}
-                />
-                <div>
-                  <UseQuery query={useGithubProvisioningEnabledQuery}>
-                    {({ data: githubProvisioningStatus, isFetching }) => (
-                      <VisibilitySelector
-                        canTurnToPrivate={canTurnToPrivate}
-                        className="sw-flex sw-my-4"
-                        onChange={this.handleVisibilityChange}
-                        loading={loading || isFetching}
-                        disabled={isGitHubProject && !!githubProvisioningStatus}
-                        visibility={component.visibility}
-                      />
-                    )}
-                  </UseQuery>
+          <PageHeader component={component} loadHolders={this.loadHolders} />
+          <div>
+            <PermissionsProjectVisibility
+              component={component}
+              handleVisibilityChange={this.handleVisibilityChange}
+              isLoading={loading}
+            />
 
-                  {disclaimer && (
-                    <PublicProjectDisclaimer
-                      component={component}
-                      onClose={this.handleCloseDisclaimer}
-                      onConfirm={this.handleTurnProjectToPublic}
-                    />
-                  )}
-                </div>
-              </>
+            {disclaimer && (
+              <PublicProjectDisclaimer
+                component={component}
+                onClose={this.handleCloseDisclaimer}
+                onConfirm={this.handleTurnProjectToPublic}
+              />
             )}
-          </UseQuery>
+          </div>
 
           <AllHoldersList
             loading={loading}

@@ -79,6 +79,12 @@ export function useIsGitHubProjectQuery(project?: string) {
   });
 }
 
+export function useIsGitLabProjectQuery(project?: string) {
+  return useProjectBindingQuery<boolean>(project, {
+    select: (data) => data?.alm === AlmKeys.GitLab,
+  });
+}
+
 export function useDeleteProjectAlmBindingMutation(project?: string) {
   const keyFromUrl = useProjectKeyFromLocation();
   const client = useQueryClient();

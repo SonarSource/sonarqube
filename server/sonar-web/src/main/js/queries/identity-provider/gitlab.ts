@@ -28,6 +28,7 @@ import {
   updateGitLabConfiguration,
 } from '../../api/gitlab-provisioning';
 import { translate } from '../../helpers/l10n';
+import { mapReactQueryResult } from '../../helpers/react-query';
 import { AlmSyncStatus, ProvisioningType } from '../../types/provisioning';
 import { TaskStatuses, TaskTypes } from '../../types/tasks';
 
@@ -97,6 +98,17 @@ export function useDeleteGitLabConfigurationMutation() {
       });
     },
   });
+}
+
+export function useGilabProvisioningEnabledQuery() {
+  const res = useGitLabConfigurationsQuery();
+
+  return mapReactQueryResult(res, (data) =>
+    data.gitlabConfigurations?.some(
+      (configuration) =>
+        configuration.enabled && configuration.provisioningType === ProvisioningType.auto,
+    ),
+  );
 }
 
 export function useGitLabSyncStatusQuery() {
