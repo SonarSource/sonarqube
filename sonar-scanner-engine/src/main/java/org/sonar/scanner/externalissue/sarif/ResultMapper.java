@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -103,6 +104,15 @@ public class ResultMapper {
       Location firstLocation = locations.iterator().next();
       NewIssueLocation primaryLocation = fillFileOrProjectLocation(result, newIssueLocation, firstLocation);
       newExternalIssue.at(primaryLocation);
+    }
+
+    Set<Location> relatedLocations = result.getRelatedLocations();
+    if (relatedLocations != null && !relatedLocations.isEmpty()) {
+      relatedLocations.forEach(relatedLocation -> {
+        NewIssueLocation newRelatedLocation = newExternalIssue.newLocation();
+        fillFileOrProjectLocation(result, newRelatedLocation, relatedLocation);
+        newExternalIssue.addLocation(newRelatedLocation);
+      });
     }
   }
 

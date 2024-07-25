@@ -23,6 +23,7 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,7 +63,7 @@ public class ResultMapperTest {
   private SensorContext sensorContext;
 
   @Mock
-  private NewExternalIssue newExternalIssue;
+  private NewExternalIssue mockExternalIssue;
 
   @Mock
   private NewIssueLocation newExternalIssueLocation;
@@ -77,10 +78,10 @@ public class ResultMapperTest {
   public void setUp() {
     MockitoAnnotations.openMocks(this);
     when(result.getRuleId()).thenReturn(RULE_ID);
-    when(sensorContext.newExternalIssue()).thenReturn(newExternalIssue);
+    when(sensorContext.newExternalIssue()).thenReturn(mockExternalIssue);
     when(locationMapper.fillIssueInFileLocation(any(), any(), any())).thenReturn(newExternalIssueLocation);
     when(locationMapper.fillIssueInProjectLocation(any(), any())).thenReturn(newExternalIssueLocation);
-    when(newExternalIssue.newLocation()).thenReturn(newExternalIssueLocation);
+    when(mockExternalIssue.newLocation()).thenReturn(newExternalIssueLocation);
   }
 
   @Test
@@ -112,6 +113,23 @@ public class ResultMapperTest {
     verifyNoMoreInteractions(locationMapper);
     verify(newExternalIssue).at(newExternalIssueLocation);
     verify(newExternalIssue, never()).addLocation(any());
+    verify(newExternalIssue, never()).addFlow(any());
+  }
+
+  @Test
+  public void mapResult_whenRelatedLocationExists_createsSecondaryFileLocation() {
+    Location location = mock(Location.class);
+    when(result.getRelatedLocations()).thenReturn(Set.of(location));
+    var newIssueLocationCall2 = mock(NewIssueLocation.class);
+    when(mockExternalIssue.newLocation()).thenReturn(newExternalIssueLocation, newIssueLocationCall2);
+
+    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, WARNING, result);
+
+    verify(locationMapper).fillIssueInProjectLocation(result, newExternalIssueLocation);
+    verify(locationMapper).fillIssueInFileLocation(result, newIssueLocationCall2, location);
+    verifyNoMoreInteractions(locationMapper);
+    verify(newExternalIssue).at(newExternalIssueLocation);
+    verify(newExternalIssue).addLocation(newIssueLocationCall2);
     verify(newExternalIssue, never()).addFlow(any());
   }
 
