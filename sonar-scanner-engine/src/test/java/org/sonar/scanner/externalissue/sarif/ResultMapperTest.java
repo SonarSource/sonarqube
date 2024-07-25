@@ -36,10 +36,14 @@ import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rules.RuleType;
 import org.sonar.sarif.pojo.Location;
+import org.sonar.sarif.pojo.Message;
 import org.sonar.sarif.pojo.Result;
+import org.sonar.sarif.pojo.Stack;
+import org.sonar.sarif.pojo.StackFrame;
 
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -68,7 +72,6 @@ public class ResultMapperTest {
   @Mock
   private NewIssueLocation newExternalIssueLocation;
 
-  @Mock
   private Result result;
 
   @InjectMocks
@@ -77,10 +80,10 @@ public class ResultMapperTest {
   @Before
   public void setUp() {
     MockitoAnnotations.openMocks(this);
-    when(result.getRuleId()).thenReturn(RULE_ID);
+    result = new Result().withMessage(new Message().withText("Result message"));
+    result.withRuleId(RULE_ID);
     when(sensorContext.newExternalIssue()).thenReturn(mockExternalIssue);
-    when(locationMapper.fillIssueInFileLocation(any(), any(), any())).thenReturn(newExternalIssueLocation);
-    when(locationMapper.fillIssueInProjectLocation(any(), any())).thenReturn(newExternalIssueLocation);
+    when(locationMapper.fillIssueInFileLocation(any(), any())).thenReturn(true);
     when(mockExternalIssue.newLocation()).thenReturn(newExternalIssueLocation);
   }
 
@@ -96,7 +99,7 @@ public class ResultMapperTest {
 
   @Test
   public void mapResult_ifRuleIdMissing_fails() {
-    when(result.getRuleId()).thenReturn(null);
+    result.withRuleId(null);
     assertThatNullPointerException()
       .isThrownBy(() -> resultMapper.mapResult(DRIVER_NAME, WARNING, WARNING, result))
       .withMessage("No ruleId found for issue thrown by driver driverName");
@@ -104,12 +107,12 @@ public class ResultMapperTest {
 
   @Test
   public void mapResult_whenLocationExists_createsFileLocation() {
-    Location location = mock(Location.class);
-    when(result.getLocations()).thenReturn(List.of(location));
+    Location location = new Location();
+    result.withLocations(List.of(location));
 
     NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, WARNING, result);
 
-    verify(locationMapper).fillIssueInFileLocation(result, newExternalIssueLocation, location);
+    verify(locationMapper).fillIssueInFileLocation(newExternalIssueLocation, location);
     verifyNoMoreInteractions(locationMapper);
     verify(newExternalIssue).at(newExternalIssueLocation);
     verify(newExternalIssue, never()).addLocation(any());
@@ -117,31 +120,100 @@ public class ResultMapperTest {
   }
 
   @Test
+  public void mapResult_useResultMessageForIssue() {
+    Location location = new Location();
+    result.withLocations(List.of(location));
+
+    resultMapper.mapResult(DRIVER_NAME, WARNING, WARNING, result);
+
+    verify(newExternalIssueLocation).message("Result message");
+  }
+
+  @Test
+  public void mapResult_concatResultMessageAndLocationMessageForIssue() {
+    Location location = new Location().withMessage(new Message().withText("Location message"));
+    result.withLocations(List.of(location));
+
+    resultMapper.mapResult(DRIVER_NAME, WARNING, WARNING, result);
+
+    verify(newExternalIssueLocation).message("Result message - Location message");
+  }
+
+  @Test
   public void mapResult_whenRelatedLocationExists_createsSecondaryFileLocation() {
-    Location location = mock(Location.class);
-    when(result.getRelatedLocations()).thenReturn(Set.of(location));
+    Location relatedLocation = new Location().withMessage(new Message().withText("Related location message"));
+    result.withRelatedLocations(Set.of(relatedLocation));
     var newIssueLocationCall2 = mock(NewIssueLocation.class);
     when(mockExternalIssue.newLocation()).thenReturn(newExternalIssueLocation, newIssueLocationCall2);
 
     NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, WARNING, result);
 
-    verify(locationMapper).fillIssueInProjectLocation(result, newExternalIssueLocation);
-    verify(locationMapper).fillIssueInFileLocation(result, newIssueLocationCall2, location);
+    verify(locationMapper).fillIssueInProjectLocation(newExternalIssueLocation);
+    verify(locationMapper).fillIssueInFileLocation(newIssueLocationCall2, relatedLocation);
     verifyNoMoreInteractions(locationMapper);
     verify(newExternalIssue).at(newExternalIssueLocation);
     verify(newExternalIssue).addLocation(newIssueLocationCall2);
     verify(newExternalIssue, never()).addFlow(any());
+    verify(newIssueLocationCall2).message("Related location message");
   }
 
   @Test
-  public void mapResult_whenLocationExistsButLocationMapperReturnsNull_createsProjectLocation() {
-    Location location = mock(Location.class);
-    when(result.getLocations()).thenReturn(List.of(location));
-    when(locationMapper.fillIssueInFileLocation(any(), any(), any())).thenReturn(null);
+  public void mapResult_whenRelatedLocationExists_createsSecondaryFileLocation_no_messages() {
+    Location relatedLocationWithoutMessage = new Location();
+    result.withRelatedLocations(Set.of(relatedLocationWithoutMessage));
+    var newIssueLocationCall2 = mock(NewIssueLocation.class);
+    when(mockExternalIssue.newLocation()).thenReturn(newExternalIssueLocation, newIssueLocationCall2);
 
     NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, WARNING, result);
 
-    verify(locationMapper).fillIssueInProjectLocation(result, newExternalIssueLocation);
+    verify(newExternalIssue).addLocation(newIssueLocationCall2);
+    verify(newIssueLocationCall2, never()).message(anyString());
+  }
+
+  @Test
+  public void mapResult_whenStacksLocationExists_createsCodeFlowFileLocation() {
+    Location stackFrameLocation = new Location().withMessage(new Message().withText("Stack frame location message"));
+    var stackWithFrame = new Stack().withFrames(List.of(new StackFrame().withLocation(stackFrameLocation)));
+    var stackWithFrameNoLocation = new Stack().withFrames(List.of(new StackFrame()));
+    var stackWithoutFrame = new Stack().withFrames(List.of());
+    var stackWithoutFrame2 = new Stack();
+    result.withStacks(Set.of(stackWithFrame, stackWithFrameNoLocation, stackWithoutFrame, stackWithoutFrame2));
+    var newIssueLocationCall2 = mock(NewIssueLocation.class);
+    when(mockExternalIssue.newLocation()).thenReturn(newExternalIssueLocation, newIssueLocationCall2);
+
+    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, WARNING, result);
+
+    verify(locationMapper).fillIssueInProjectLocation(newExternalIssueLocation);
+    verify(locationMapper).fillIssueInFileLocation(newIssueLocationCall2, stackFrameLocation);
+    verifyNoMoreInteractions(locationMapper);
+    verify(newExternalIssue).at(newExternalIssueLocation);
+    verify(newExternalIssue).addFlow(List.of(newIssueLocationCall2));
+    verify(newExternalIssue, never()).addLocation(any());
+    verify(newIssueLocationCall2).message("Stack frame location message");
+  }
+
+  @Test
+  public void mapResult_whenStacksLocationExists_createsCodeFlowFileLocation_no_text_messages() {
+    Location stackFrameLocationWithoutMessage = new Location().withMessage(new Message().withId("1"));
+    result.withStacks(Set.of(new Stack().withFrames(List.of(new StackFrame().withLocation(stackFrameLocationWithoutMessage)))));
+    var newIssueLocationCall2 = mock(NewIssueLocation.class);
+    when(mockExternalIssue.newLocation()).thenReturn(newExternalIssueLocation, newIssueLocationCall2);
+
+    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, WARNING, result);
+
+    verify(newExternalIssue).addFlow(List.of(newIssueLocationCall2));
+    verify(newIssueLocationCall2, never()).message(anyString());
+  }
+
+  @Test
+  public void mapResult_whenLocationExistsButLocationMapperReturnsFalse_createsProjectLocation() {
+    Location location = new Location();
+    result.withLocations(List.of(location));
+    when(locationMapper.fillIssueInFileLocation(any(), any())).thenReturn(false);
+
+    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, WARNING, result);
+
+    verify(locationMapper).fillIssueInProjectLocation(newExternalIssueLocation);
     verify(newExternalIssue).at(newExternalIssueLocation);
     verify(newExternalIssue, never()).addLocation(any());
     verify(newExternalIssue, never()).addFlow(any());
@@ -150,8 +222,9 @@ public class ResultMapperTest {
   @Test
   public void mapResult_whenLocationsIsEmpty_createsProjectLocation() {
     NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, WARNING, result);
+    result.withLocations(List.of());
 
-    verify(locationMapper).fillIssueInProjectLocation(result, newExternalIssueLocation);
+    verify(locationMapper).fillIssueInProjectLocation(newExternalIssueLocation);
     verifyNoMoreInteractions(locationMapper);
     verify(newExternalIssue).at(newExternalIssueLocation);
     verify(newExternalIssue, never()).addLocation(any());
@@ -160,10 +233,9 @@ public class ResultMapperTest {
 
   @Test
   public void mapResult_whenLocationsIsNull_createsProjectLocation() {
-    when(result.getLocations()).thenReturn(null);
     NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, WARNING, result);
 
-    verify(locationMapper).fillIssueInProjectLocation(result, newExternalIssueLocation);
+    verify(locationMapper).fillIssueInProjectLocation(newExternalIssueLocation);
     verifyNoMoreInteractions(locationMapper);
     verify(newExternalIssue).at(newExternalIssueLocation);
     verify(newExternalIssue, never()).addLocation(any());

@@ -30,7 +30,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.batch.fs.InputFile;
@@ -41,9 +40,7 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.sarif.pojo.ArtifactLocation;
 import org.sonar.sarif.pojo.Location;
 import org.sonar.sarif.pojo.PhysicalLocation;
-import org.sonar.sarif.pojo.Result;
 
-import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
 @ScannerSide
@@ -65,31 +62,23 @@ public class LocationMapper {
     this.regionMapper = regionMapper;
   }
 
-  NewIssueLocation fillIssueInProjectLocation(Result result, NewIssueLocation newIssueLocation) {
-    return newIssueLocation
-      .message(getResultMessageOrThrow(result))
+  void fillIssueInProjectLocation(NewIssueLocation newIssueLocation) {
+    newIssueLocation
       .on(sensorContext.project());
   }
 
-  @CheckForNull
-  NewIssueLocation fillIssueInFileLocation(Result result, NewIssueLocation newIssueLocation, Location location) {
-    newIssueLocation.message(getResultMessageOrThrow(result));
+  boolean fillIssueInFileLocation(NewIssueLocation newIssueLocation, Location location) {
     PhysicalLocation physicalLocation = location.getPhysicalLocation();
 
     String fileUri = getFileUriOrThrow(location);
     Optional<InputFile> file = findFile(fileUri);
     if (file.isEmpty()) {
-      return null;
+      return false;
     }
     InputFile inputFile = file.get();
     newIssueLocation.on(inputFile);
     regionMapper.mapRegion(physicalLocation.getRegion(), inputFile).ifPresent(newIssueLocation::at);
-    return newIssueLocation;
-  }
-
-  private static String getResultMessageOrThrow(Result result) {
-    requireNonNull(result.getMessage(), "No messages found for issue thrown by rule " + result.getRuleId());
-    return requireNonNull(result.getMessage().getText(), "No text found for messages in issue thrown by rule " + result.getRuleId());
+    return true;
   }
 
   private static String getFileUriOrThrow(Location location) {
