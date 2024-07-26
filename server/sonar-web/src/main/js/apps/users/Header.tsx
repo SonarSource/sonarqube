@@ -63,8 +63,8 @@ export default function Header(props: Props) {
             />
             <div className="sw-mt-2">
               <FormattedMessage
-                defaultMessage={translate('users.page.managed_description2')}
-                id="users.page.managed_description2"
+                defaultMessage={translate('users.page.managed_description.recommendation')}
+                id="users.page.managed_description.recommendation"
                 values={{
                   link: (
                     <DocumentationLink to={DocLink.AuthOverview}>

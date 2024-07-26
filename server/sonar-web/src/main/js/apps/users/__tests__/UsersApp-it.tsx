@@ -129,7 +129,7 @@ const ui = {
   dialogCreateUser: byRole('dialog', { name: 'users.create_user' }),
   dialogDeactivateUser: byRole('dialog', { name: 'users.deactivate_user' }),
 
-  infoManageMode: byText(/users\.page\.managed_description2/),
+  infoManageMode: byText(/users\.page\.managed_description\.recommendation/),
   description: byText('users.page.description'),
   deleteUserAlert: byText('delete-user-warning'),
 

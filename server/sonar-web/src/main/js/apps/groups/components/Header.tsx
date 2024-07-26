@@ -63,8 +63,8 @@ export default function Header({ manageProvider }: Readonly<HeaderProps>) {
             />
             <div className="sw-mt-2">
               <FormattedMessage
-                defaultMessage={translate('user_groups.page.managed_description2')}
-                id="user_groups.page.managed_description2"
+                defaultMessage={translate('user_groups.page.managed_description.recommendation')}
+                id="user_groups.page.managed_description.recommendation"
                 values={{
                   link: (
                     <DocumentationLink to={DocLink.AuthOverview}>

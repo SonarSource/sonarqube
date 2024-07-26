@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { FlagMessage, LargeCenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
+import styled from '@emotion/styled';
+import { Spinner } from '@sonarsource/echoes-react';
+import { FlagMessage, LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { Navigate } from 'react-router-dom';
 import { isBranch, isMainBranch } from '~sonar-aligned/helpers/branch-like';
@@ -73,7 +75,7 @@ export function EmptyOverview(props: Readonly<EmptyOverviewProps>) {
   }, [component.key, currentUser, currentUserCanScanProject]);
 
   if (isLoading) {
-    return <Spinner loading />;
+    return <Spinner />;
   }
 
   if (component.qualifier === ComponentQualifier.Application) {
@@ -98,10 +100,10 @@ export function EmptyOverview(props: Readonly<EmptyOverviewProps>) {
     return (
       <LargeCenteredLayout className="sw-pt-8">
         <PageContentFontWrapper>
-          <FlagMessage variant="warning">
+          <SynchInProgress>
+            <Spinner className="sw-mr-2" />
             {translate('provisioning.permission_synch_in_progress')}
-            <Spinner className="sw-ml-8 sw-hidden" aria-hidden loading />
-          </FlagMessage>
+          </SynchInProgress>
         </PageContentFontWrapper>
       </LargeCenteredLayout>
     );
@@ -141,3 +143,10 @@ export function EmptyOverview(props: Readonly<EmptyOverviewProps>) {
 }
 
 export default withCurrentUserContext(EmptyOverview);
+
+const SynchInProgress = styled.div`
+  height: 50vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;

@@ -45,7 +45,7 @@ const githubHandler = new GithubProvisioningServiceMock(dopTranslationHandler);
 
 const ui = {
   createGroupButton: byRole('button', { name: 'groups.create_group' }),
-  infoManageMode: byText(/groups\.page\.managed_description2/),
+  infoManageMode: byText(/groups\.page\.managed_description\.recommendation/),
   description: byText('user_groups.page.description'),
   allFilter: byRole('radio', { name: 'all' }),
   selectedFilter: byRole('radio', { name: 'selected' }),
