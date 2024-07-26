@@ -63,11 +63,6 @@
     <async-supported>true</async-supported>
   </filter>
   <filter>
-    <filter-name>CrossOriginFilter</filter-name>
-    <filter-class>org.sonar.server.platform.web.CrossOriginFilter</filter-class>
-    <async-supported>true</async-supported>
-  </filter>
-  <filter>
     <filter-name>EndpointPathFilter</filter-name>
     <filter-class>org.sonar.server.platform.web.EndpointPathFilter</filter-class>
     <async-supported>true</async-supported>
@@ -104,10 +99,6 @@
   </filter-mapping>
   <filter-mapping>
     <filter-name>CspFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
-    <filter-name>CrossOriginFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
   <filter-mapping>
