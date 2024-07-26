@@ -59,7 +59,7 @@ export default function AutoProvisioningConsent(props: Readonly<Props>) {
     id: 'settings.authentication.confirm_auto_provisioning.header',
   });
 
-  const onClickAutoProvisioning = () => {
+  const onClickAutoProvisioning = async () => {
     if (githubConfiguration) {
       updateGithubConfig({
         id: githubConfiguration.id,
@@ -69,7 +69,13 @@ export default function AutoProvisioningConsent(props: Readonly<Props>) {
       });
     }
     if (gitlabConfiguration) {
-      resetSettingValue({ keys: [CONSENT_SETTING_KEY] });
+      await resetSettingValue({ keys: [CONSENT_SETTING_KEY] });
+      updateGitlabConfig({
+        id: gitlabConfiguration.id,
+        data: {
+          provisioningType: ProvisioningType.auto,
+        },
+      });
     }
   };
 
