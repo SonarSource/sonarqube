@@ -29,6 +29,7 @@ import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
+import org.sonar.sarif.pojo.MultiformatMessageString;
 import org.sonar.sarif.pojo.ReportingDescriptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +41,8 @@ public class RuleMapperTest {
 
   private static final String RULE_ID = "test_rules_id";
   private static final String DRIVER_NAME = "driverName";
+  private static final String SHORT_DESCRIPTION = "short_description";
+  private static final String LONG_DESCRIPTION = "loooooooooooooooooooooong description of the rule";
 
   @Mock
   private SensorContext sensorContext;
@@ -56,7 +59,28 @@ public class RuleMapperTest {
   @Test
   public void mapRule_shouldCorrectlyMapToNewAdHocRule() {
     ReportingDescriptor rule = new ReportingDescriptor().withId(RULE_ID);
-    NewAdHocRule expected = new DefaultAdHocRule()
+    NewAdHocRule expected = buildDefaultExpected();
+
+    NewAdHocRule result = ruleMapper.mapRule(rule, DRIVER_NAME, WARNING, WARNING);
+    assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+  }
+
+  @Test
+  public void bbmapRule_shouldCorrectlyMapToNewAdHocRuleWithDescription() {
+    ReportingDescriptor rule = new ReportingDescriptor()
+      .withId(RULE_ID)
+      .withShortDescription(new MultiformatMessageString().withText(SHORT_DESCRIPTION))
+      .withFullDescription(new MultiformatMessageString().withText(LONG_DESCRIPTION));
+    NewAdHocRule expected = buildDefaultExpected()
+      .name(SHORT_DESCRIPTION)
+      .description(LONG_DESCRIPTION);
+
+    NewAdHocRule result = ruleMapper.mapRule(rule, DRIVER_NAME, WARNING, WARNING);
+    assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+  }
+
+  private static DefaultAdHocRule buildDefaultExpected() {
+    return new DefaultAdHocRule()
       .severity(ResultMapper.DEFAULT_SEVERITY)
       .type(ResultMapper.DEFAULT_TYPE)
       .ruleId(RULE_ID)
@@ -64,10 +88,5 @@ public class RuleMapperTest {
       .name(String.join(":", DRIVER_NAME, RULE_ID))
       .cleanCodeAttribute(ResultMapper.DEFAULT_CLEAN_CODE_ATTRIBUTE)
       .addDefaultImpact(ResultMapper.DEFAULT_SOFTWARE_QUALITY, org.sonar.api.issue.impact.Severity.MEDIUM);
-
-    NewAdHocRule result = ruleMapper.mapRule(rule, DRIVER_NAME, WARNING, WARNING);
-
-    assertThat(result).usingRecursiveComparison().isEqualTo(expected);
   }
-
 }

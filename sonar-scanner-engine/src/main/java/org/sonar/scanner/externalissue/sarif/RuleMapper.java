@@ -20,6 +20,7 @@
 package org.sonar.scanner.externalissue.sarif;
 
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.scanner.ScannerSide;
@@ -38,13 +39,25 @@ public class RuleMapper {
   }
 
   NewAdHocRule mapRule(ReportingDescriptor rule, String driverName, @Nullable Result.Level ruleSeverity, @Nullable Result.Level ruleSeverityForNewTaxonomy) {
-    return sensorContext.newAdHocRule()
+
+    NewAdHocRule newAdHocRule = sensorContext.newAdHocRule()
       .severity(ResultMapper.toSonarQubeSeverity(ruleSeverity))
       .type(ResultMapper.DEFAULT_TYPE)
       .ruleId(rule.getId())
       .engineId(driverName)
-      .name(join(":", driverName, rule.getId()))
       .cleanCodeAttribute(ResultMapper.DEFAULT_CLEAN_CODE_ATTRIBUTE)
       .addDefaultImpact(ResultMapper.DEFAULT_SOFTWARE_QUALITY, ResultMapper.toSonarQubeImpactSeverity(ruleSeverityForNewTaxonomy));
+
+    if (rule.getShortDescription() != null && !StringUtils.isBlank(rule.getShortDescription().getText())) {
+      newAdHocRule.name(rule.getShortDescription().getText());
+    } else {
+      newAdHocRule.name(join(":", driverName, rule.getId()));
+    }
+
+    if (rule.getFullDescription() != null && !StringUtils.isBlank(rule.getFullDescription().getText())) {
+      newAdHocRule.description(rule.getFullDescription().getText());
+    }
+
+    return newAdHocRule;
   }
 }
