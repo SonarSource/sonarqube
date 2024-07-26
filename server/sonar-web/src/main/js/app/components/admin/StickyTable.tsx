@@ -28,5 +28,6 @@ export const StickyTable = styled(Table)`
     position: sticky;
     top: ${LAYOUT_ADMIN_NAV_HEIGHT + LAYOUT_GLOBAL_NAV_HEIGHT}px;
     background: ${themeColor('backgroundSecondary')};
+    z-index: 1;
   }
 `;

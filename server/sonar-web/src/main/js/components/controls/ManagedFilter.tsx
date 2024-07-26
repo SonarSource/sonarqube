@@ -49,7 +49,7 @@ export function ManagedFilter(props: Readonly<ManagedFilterProps>) {
           },
           { label: translate('local'), value: false },
         ]}
-        onChange={(filterOption: 'all' | boolean | undefined) => {
+        onChange={(filterOption) => {
           if (filterOption === 'all') {
             props.setManaged(undefined);
           } else {

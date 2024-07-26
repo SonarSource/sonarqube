@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, NumericalCell, Table, TableRow } from 'design-system';
+import { ContentCell, NumericalCell, TableRow } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { StickyTable } from '../../../app/components/admin/StickyTable';
 import { translate } from '../../../helpers/l10n';
 import { Group, Provider } from '../../../types/types';
 import ListItem from './ListItem';
@@ -44,10 +45,10 @@ export default function List(props: Readonly<Props>) {
   const { groups, manageProvider } = props;
 
   return (
-    <Table columnCount={4} header={<Header />} id="groups-list">
+    <StickyTable columnCount={4} header={<Header />} id="groups-list">
       {sortBy(groups, (group) => group.name.toLowerCase()).map((group) => (
         <ListItem group={group} key={group.name} manageProvider={manageProvider} />
       ))}
-    </Table>
+    </StickyTable>
   );
 }

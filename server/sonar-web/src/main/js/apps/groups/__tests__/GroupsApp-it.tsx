@@ -45,13 +45,14 @@ const githubHandler = new GithubProvisioningServiceMock(dopTranslationHandler);
 
 const ui = {
   createGroupButton: byRole('button', { name: 'groups.create_group' }),
-  infoManageMode: byText(/groups\.page\.managed_description/),
+  infoManageMode: byText(/groups\.page\.managed_description2/),
   description: byText('user_groups.page.description'),
   allFilter: byRole('radio', { name: 'all' }),
   selectedFilter: byRole('radio', { name: 'selected' }),
   unselectedFilter: byRole('radio', { name: 'unselected' }),
   localAndManagedFilter: byRole('radio', { name: 'all' }),
-  managedFilter: byRole('radio', { name: 'managed' }),
+  managedByScimFilter: byRole('radio', { name: 'managed.managed.SCIM' }),
+  managedByGithubFilter: byRole('radio', { name: 'managed.managed.github' }),
   localFilter: byRole('radio', { name: 'local' }),
   searchInput: byRole('searchbox', { name: 'search.search_by_name' }),
   updateButton: byRole('menuitem', { name: 'update_details' }),
@@ -344,7 +345,7 @@ describe('in manage mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    await user.click(await ui.managedFilter.find());
+    await user.click(await ui.managedByScimFilter.find());
 
     expect(await ui.managedGroupRow.find()).toBeInTheDocument();
     expect(ui.localGroupRow.query()).not.toBeInTheDocument();
@@ -428,7 +429,7 @@ describe('in manage mode', () => {
       const user = userEvent.setup();
       renderGroupsApp();
 
-      await user.click(await ui.managedFilter.find());
+      await user.click(await ui.managedByGithubFilter.find());
 
       expect(
         within(await ui.githubManagedGroupRow.find()).getByRole('img', { name: 'github' }),

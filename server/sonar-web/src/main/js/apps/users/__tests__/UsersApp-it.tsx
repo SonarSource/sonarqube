@@ -60,7 +60,8 @@ const groupsHandler = new GroupsServiceMock();
 const ui = {
   createUserButton: byRole('button', { name: 'users.create_user' }),
   localAndManagedFilter: byRole('radio', { name: 'all' }),
-  managedFilter: byRole('radio', { name: 'managed' }),
+  managedByScimFilter: byRole('radio', { name: 'managed.managed.SCIM' }),
+  managedByGithubFilter: byRole('radio', { name: 'managed.managed.github' }),
   localFilter: byRole('radio', { name: 'local' }),
   showMore: byRole('button', { name: 'show_more' }),
   aliceUpdateGroupButton: byRole('button', { name: 'users.update_users_groups.alice.merveille' }),
@@ -128,7 +129,7 @@ const ui = {
   dialogCreateUser: byRole('dialog', { name: 'users.create_user' }),
   dialogDeactivateUser: byRole('dialog', { name: 'users.deactivate_user' }),
 
-  infoManageMode: byText(/users\.page\.managed_description/),
+  infoManageMode: byText(/users\.page\.managed_description2/),
   description: byText('users.page.description'),
   deleteUserAlert: byText('delete-user-warning'),
 
@@ -218,7 +219,7 @@ describe('different filters combinations', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await user.click(await ui.managedFilter.find());
+    await user.click(await ui.managedByScimFilter.find());
     await waitFor(() => expect(ui.activityFilter.get()).toBeEnabled());
 
     await selectEvent.select(
@@ -499,7 +500,7 @@ describe('in manage mode', () => {
     systemHandler.setProvider(Provider.Github);
   });
 
-  it('should not be able to create a user"', async () => {
+  it('should not be able to create a user', async () => {
     renderUsersApp();
 
     expect(await ui.infoManageMode.find()).toBeInTheDocument();
@@ -568,7 +569,7 @@ describe('in manage mode', () => {
 
     expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
 
-    await user.click(await ui.managedFilter.find());
+    await user.click(await ui.managedByGithubFilter.find());
 
     expect(await ui.bobRow.find()).toBeInTheDocument();
     expect(ui.aliceRowWithLocalBadge.query()).not.toBeInTheDocument();
