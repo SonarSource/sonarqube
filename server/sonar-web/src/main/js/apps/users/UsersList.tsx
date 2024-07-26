@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ActionCell, ContentCell, HelperHintIcon, Table, TableRow } from 'design-system';
+import { ActionCell, ContentCell, HelperHintIcon, TableRow } from 'design-system';
 import * as React from 'react';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import { StickyTable } from '../../app/components/admin/StickyTable';
 import { translate } from '../../helpers/l10n';
 import { IdentityProvider, Provider } from '../../types/types';
 import { RestUserDetailed } from '../../types/users';
@@ -52,7 +53,7 @@ export default function UsersList({ identityProviders, users, manageProvider }: 
   );
 
   return (
-    <Table columnCount={7} header={header} id="users-list">
+    <StickyTable columnCount={7} header={header} id="users-list">
       {users.map((user) => (
         <UserListItem
           identityProvider={identityProviders.find(
@@ -63,6 +64,6 @@ export default function UsersList({ identityProviders, users, manageProvider }: 
           manageProvider={manageProvider}
         />
       ))}
-    </Table>
+    </StickyTable>
   );
 }

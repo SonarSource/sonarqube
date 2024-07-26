@@ -19,11 +19,11 @@
  */
 
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { FlagMessage, Link, Title } from 'design-system';
+import { Title } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import DocumentationLink from '../../components/common/DocumentationLink';
 import { DocLink } from '../../helpers/doc-links';
-import { useDocUrl } from '../../helpers/docs';
 import { translate } from '../../helpers/l10n';
 import UserForm from './components/UserForm';
 
@@ -32,7 +32,6 @@ interface Props {
 }
 
 export default function Header(props: Props) {
-  const docUrl = useDocUrl(DocLink.AuthOverview);
   const [openUserForm, setOpenUserForm] = React.useState(false);
 
   const { manageProvider } = props;
@@ -54,18 +53,28 @@ export default function Header(props: Props) {
         {manageProvider === undefined ? (
           <span>{translate('users.page.description')}</span>
         ) : (
-          <FlagMessage className="sw-max-w-3/4 sw-mb-4" variant="info">
-            <span>
+          <div className="sw-max-w-3/4 sw-mb-4">
+            <FormattedMessage
+              defaultMessage={translate('users.page.managed_description')}
+              id="users.page.managed_description"
+              values={{
+                provider: translate(`managed.${manageProvider}`),
+              }}
+            />
+            <div className="sw-mt-2">
               <FormattedMessage
-                defaultMessage={translate('users.page.managed_description')}
-                id="users.page.managed_description"
+                defaultMessage={translate('users.page.managed_description2')}
+                id="users.page.managed_description2"
                 values={{
-                  provider: manageProvider,
-                  link: <Link to={docUrl}>{translate('documentation')}</Link>,
+                  link: (
+                    <DocumentationLink to={DocLink.AuthOverview}>
+                      {translate('users.page.managing_users')}
+                    </DocumentationLink>
+                  ),
                 }}
               />
-            </span>
-          </FlagMessage>
+            </div>
+          </div>
         )}
       </div>
 
