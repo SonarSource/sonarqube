@@ -5262,1149 +5262,863 @@
     }
   },
   "stig-ASD_V5R3": {
-    "V-222400": {
-        "title": "Validity periods must be verified on all application messages using WS-Security or SAML assertions.",
-        "description": "When using WS-Security in SOAP messages, the application should check the validity of the time stamps with creation and expiration times. Time stamps that are not validated may lead to a replay..."
-    },
-    "V-222404": {
-        "title": "The application must use both the NotBefore and NotOnOrAfter elements or OneTimeUse element when using the Conditions element in a SAML assertion.",
-        "description": "SAML is a standard for exchanging authentication and authorization data between security domains. SAML uses security tokens containing assertions to pass information about a principal (usually an..."
-    },
-    "V-222612": {
-        "title": "The application must not be vulnerable to overflow attacks.",
-        "description": "A buffer overflow occurs when a program exceeds the amount of data allocated to a buffer. The buffer is a sequential section of memory and when the data is written outside the memory bounds, the..."
-    },
-    "V-222578": {
-        "title": "The application must destroy the session ID value and/or cookie on logoff or browser close.",
-        "description": "Many web development frameworks such as PHP, .NET, and ASP include their own mechanisms for session management. Whenever possible it is recommended to utilize the provided session management..."
-    },
-    "V-222430": {
-        "title": "The application must execute without excessive account permissions.",
-        "description": "Applications are often designed to utilize a user account. The account represents a means to control application permissions and access to OS resources, application resources or both. When the..."
-    },
-    "V-222432": {
-        "title": "The application must enforce the limit of three consecutive invalid logon attempts by a user during a 15 minute time period.",
-        "description": "By limiting the number of failed logon attempts, the risk of unauthorized system access via user password guessing, otherwise known as brute forcing, is reduced. Limits are imposed by locking the..."
-    },
-    "V-222577": {
-        "title": "The application must not expose session IDs.",
-        "description": "Authenticity protection provides protection against man-in-the-middle attacks/session hijacking and the insertion of false information into sessions. Application communication sessions are..."
-    },
-    "V-222609": {
-        "title": "The application must not be subject to input handling vulnerabilities.",
-        "description": "A common application vulnerability is unpredictable behavior due to improper input validation. This requirement guards against adverse or unintended system behavior caused by invalid inputs, where..."
-    },
-    "V-222608": {
-        "title": "The application must not be vulnerable to XML-oriented attacks.",
-        "description": "Extensible Markup Language (XML) is widely employed in web technology and applications like web services (SOAP, REST, and WSDL) and is also used for configuration files. XML vulnerability examples..."
-    },
-    "V-222602": {
-        "title": "The application must protect from Cross-Site Scripting (XSS) vulnerabilities.",
-        "description": "XSS attacks are essentially code injection attacks against the various language interpreters contained within the browser. XSS can be executed via HTML, JavaScript, VBScript, ActiveX; essentially..."
-    },
-    "V-222601": {
-        "title": "The application must not store sensitive information in hidden fields.",
-        "description": "Hidden fields allow developers to process application data without having to display it on the screen. Using hidden fields to pass data in forms is a common practice among web applications and by..."
-    },
-    "V-222607": {
-        "title": "The application must not be vulnerable to SQL Injection.",
-        "description": "SQL Injection is a code injection attack against database applications. Malicious SQL statements are inserted into an application data entry field where they are submitted to the database and..."
-    },
-    "V-222604": {
-        "title": "The application must protect from command injection.",
-        "description": "A command injection attack is an attack on a vulnerable application where improperly validated input is passed to a command shell setup in the application. The result is the ability of an attacker..."
-    },
-    "V-222403": {
-        "title": "The application must use the NotOnOrAfter condition when using the SubjectConfirmation element in a SAML assertion.",
-        "description": "SAML is a standard for exchanging authentication and authorization data between security domains. SAML uses security tokens containing assertions to pass information about a principal (usually an..."
-    },
-    "V-222585": {
-        "title": "The application must fail to a secure state if system initialization fails, shutdown fails, or aborts fail.",
-        "description": "Failure to a known safe state helps prevent systems from failing to a state that may cause loss of data or unauthorized access to system resources. Applications or systems that fail suddenly and..."
-    },
-    "V-222550": {
-        "title": "The application, when utilizing PKI-based authentication, must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor.",
-        "description": "Without path validation, an informed trust decision by the relying party cannot be made when presented with any certificate not already explicitly trusted. A trust anchor is an authoritative..."
-    },
-    "V-222522": {
-        "title": "The application must uniquely identify and authenticate organizational users (or processes acting on behalf of organizational users).",
-        "description": "To assure accountability and prevent unauthenticated access, organizational users must be identified and authenticated to prevent potential misuse and compromise of the system. Organizational..."
-    },
-    "V-222554": {
-        "title": "The application must not display passwords/PINs as clear text.",
-        "description": "To prevent the compromise of authentication information such as passwords during the authentication process, the feedback from the information system must not provide any information that would..."
-    },
-    "V-222596": {
-        "title": "The application must protect the confidentiality and integrity of transmitted information.",
-        "description": "Without protection of the transmitted information, confidentiality and integrity may be compromised since unprotected communications can be intercepted and either read or altered. This..."
-    },
-    "V-222399": {
-        "title": "Messages protected with WS_Security must use time stamps with creation and expiration times.",
-        "description": "The lack of time stamps could lead to the eventual replay of the message, leaving the application susceptible to replay events which may result in an immediate loss of confidentiality."
-    },
-    "V-222658": {
-        "title": "All products must be supported by the vendor or the development team.",
-        "description": "Unsupported commercial and government developed software products should not be used because fixes to newly identified bugs will not be implemented by the vendor or development team. The lack of..."
-    },
-    "V-222659": {
-        "title": "The application must be decommissioned when maintenance or support is no longer available.",
-        "description": "Unsupported software products should not be used because fixes to newly identified bugs will not be implemented by the vendor or development team. The lack of security updates can result in..."
-    },
-    "V-222551": {
-        "title": "The application, when using PKI-based authentication, must enforce authorized access to the corresponding private key.",
-        "description": "If the private key is discovered, an attacker can use the key to authenticate as an authorized user and gain access to the network infrastructure. The cornerstone of the PKI is the private key..."
-    },
-    "V-222620": {
-        "title": "Application web servers must be on a separate network segment from the application and database servers if it is a tiered application operating in the DoD DMZ.",
-        "description": "A tiered application usually consists of 3 tiers, the web layer (presentation tier), the application layer (application logic tier), and the database layer (data storage tier). Using one system..."
-    },
-    "V-222536": {
-        "title": "The application must enforce a minimum 15-character password length.",
-        "description": "The shorter the password, the lower the number of possible combinations that need to be tested before the password is compromised. Use of passwords for application authentication is intended only..."
-    },
-    "V-222643": {
-        "title": "The application must have the capability to mark sensitive/classified output when required.",
-        "description": "Failure to properly mark output could result in a disclosure of sensitive or classified data which is an immediate loss in confidentiality."
-    },
-    "V-222542": {
-        "title": "The application must only store cryptographic representations of passwords.",
-        "description": "Use of passwords for application authentication is intended only for limited situations and should not be used as a replacement for two-factor CAC-enabled authentication. Examples of situations..."
-    },
-    "V-222543": {
-        "title": "The application must transmit only cryptographically-protected passwords.",
-        "description": "Use of passwords for application authentication is intended only for limited situations and should not be used as a replacement for two-factor CAC-enabled authentication. Examples of situations..."
-    },
-    "V-222425": {
-        "title": "The application must enforce approved authorizations for logical access to information and system resources in accordance with applicable access control policies.",
-        "description": "To mitigate the risk of unauthorized access to sensitive information by entities that have been issued certificates by DoD-approved PKIs, all DoD systems (e.g., networks, web servers, and web..."
-    },
-    "V-222642": {
-        "title": "The application must not contain embedded authentication data.",
-        "description": "Authentication data stored in code could potentially be read and used by anonymous users to gain access to a backend database or application servers. This could lead to compromise of application data."
-    },
-    "V-222662": {
-        "title": "Default passwords must be changed.",
-        "description": "Default passwords can easily be compromised by attackers allowing immediate access to the applications."
-    },
-    "V-222555": {
-        "title": "The application must use mechanisms meeting the requirements of applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance for authentication to a cryptographic module.",
-        "description": "A cryptographic module is a hardware or software device or component that performs cryptographic operations securely within a physical or logical boundary, using a hardware, software or hybrid..."
-    },
-    "V-222541": {
-        "title": "The application must require the change of at least 8 of the total number of characters when passwords are changed.",
-        "description": "Use of passwords for application authentication is intended only for limited situations and should not be used as a replacement for two-factor CAC-enabled authentication. Examples of situations..."
-    },
-    "V-222395": {
-        "title": "The application must associate organization-defined types of security attributes having organization-defined security attribute values with information in transmission.",
-        "description": "Without the association of security attributes to information, there is no basis for the application to make security related access-control decisions. Security attributes are abstractions..."
-    },
-    "V-222491": {
-        "title": "The application must provide an audit reduction capability that supports after-the-fact investigations of security incidents.",
-        "description": "If the audit reduction capability does not support after-the-fact investigations, it is difficult to establish, correlate, and investigate the events leading up to an outage or attack, or identify..."
-    },
-    "V-222409": {
-        "title": "The application must automatically remove or disable temporary user accounts 72 hours after account creation.",
-        "description": "If temporary user accounts remain active when no longer needed or for an excessive period, these accounts may be used to gain unauthorized access. To mitigate this risk, automated termination of..."
-    },
-    "V-222408": {
-        "title": "Shared/group account credentials must be terminated when members leave the group.",
-        "description": "If shared/group account credentials are not terminated when individuals leave the group, the user that left the group can still gain access even though they are no longer authorized. A..."
-    },
-    "V-222560": {
-        "title": "The application must conform to FICAM-issued profiles.",
-        "description": "FICAM establishes a federated identity framework for the Federal Government. FICAM provides Government-wide services for common Identity, Credential, and Access Management (ICAM) requirements. ..."
-    },
-    "V-222561": {
-        "title": "Applications used for non-local maintenance sessions must audit non-local maintenance and diagnostic sessions for organization-defined auditable events.",
-        "description": "Non-local maintenance and diagnostic activities are those activities conducted by individuals communicating through a network, either an external network (e.g., the Internet) or an internal..."
-    },
-    "V-222566": {
-        "title": "The application must terminate all sessions and network connections when non-local maintenance is completed.",
-        "description": "If a maintenance session or connection remains open after maintenance is completed, it may be hijacked by an attacker and used to compromise or damage the system. Non-local maintenance and..."
-    },
-    "V-222567": {
-        "title": "The application must not be vulnerable to race conditions.",
-        "description": "A race condition is a timing event within an application that can become a security vulnerability. A race condition can occur when a pair of programming calls operating simultaneously do not work..."
-    },
-    "V-222564": {
-        "title": "Applications used for non-local maintenance sessions must verify remote disconnection at the termination of non-local maintenance and diagnostic sessions.",
-        "description": "Non-local maintenance and diagnostic activities are those activities conducted by individuals communicating through a network, either an external network (e.g., the Internet) or an internal..."
-    },
-    "V-222565": {
-        "title": "The application must employ strong authenticators in the establishment of non-local maintenance and diagnostic sessions.",
-        "description": "If maintenance tools are used by unauthorized personnel, they may accidentally or intentionally damage or compromise the system. The act of managing systems and applications includes the ability..."
-    },
-    "V-222401": {
-        "title": "The application must ensure each unique asserting party provides unique assertion ID references for each SAML assertion.",
-        "description": "SAML is a standard for exchanging authentication and authorization data between security domains. SAML uses security tokens containing assertions to pass information about a principal (usually an..."
-    },
-    "V-222568": {
-        "title": "The application must terminate all network connections associated with a communications session at the end of the session.",
-        "description": "Networked applications routinely open connections to and from other systems as part of their design and function. When connections are opened by the application, system resources are consumed. ..."
-    },
-    "V-222402": {
-        "title": "The application must ensure encrypted assertions, or equivalent confidentiality protections are used when assertion data is passed through an intermediary, and confidentiality of the assertion data is required when passing through the intermediary.",
-        "description": "SAML is a standard for exchanging authentication and authorization data between security domains. SAML uses security tokens containing assertions to pass information about a principal (usually an..."
-    },
-    "V-222405": {
-        "title": "The application must ensure if a OneTimeUse element is used in an assertion, there is only one of the same used in the Conditions element portion of an assertion.",
-        "description": "Multiple <OneTimeUse> elements used in a SAML assertion can lead to elevation of privileges, if the application does not process SAML assertions correctly."
-    },
-    "V-222407": {
-        "title": "The application must provide automated mechanisms for supporting account management functions.",
-        "description": "Enterprise environments make application account management challenging and complex. A manual process for account management functions adds the risk of a potential oversight or other..."
-    },
-    "V-222406": {
-        "title": "The application must ensure messages are encrypted when the SessionIndex is tied to privacy data.",
-        "description": "When the SessionIndex is tied to privacy data (e.g., attributes containing privacy data) the message should be encrypted. If the message is not encrypted there is the possibility of compromise of..."
-    },
-    "V-222618": {
-        "title": "Unsigned Category 1A mobile code must not be used in the application in accordance with DoD policy.",
-        "description": "Use of un-trusted Level 1A mobile code technologies can introduce security vulnerabilities and malicious code into the client system. 1A code is defined as: - ActiveX controls - Mobile code..."
-    },
-    "V-222619": {
-        "title": "The ISSO must ensure an account management process is implemented, verifying only authorized users can gain access to the application, and individual accounts designated as inactive, suspended, or terminated are promptly removed.",
-        "description": "A comprehensive account management process will ensure that only authorized users can gain access to applications and that individual accounts designated as inactive, suspended, or terminated are..."
-    },
-    "V-222413": {
-        "title": "The application must automatically audit account creation.",
-        "description": "Once an attacker establishes initial access to a system, the attacker often attempts to create a persistent method of re-establishing access. One way to accomplish this is for the attacker to..."
-    },
-    "V-222610": {
-        "title": "The application must generate error messages that provide information necessary for corrective actions without revealing information that could be exploited by adversaries.",
-        "description": "Only authorized personnel should be aware of errors and the details of the errors. Error messages are an indicator of an organization's operational state or can identify application components...."
-    },
-    "V-222579": {
-        "title": "Applications must use system-generated session identifiers that protect against session fixation.",
-        "description": "Session fixation allows an attacker to hijack a valid user’s application session. The attack focuses on the manner in which a web application manages the user’s session ID. Applications become..."
-    },
-    "V-222613": {
-        "title": "The application must remove organization-defined software components after updated versions have been installed.",
-        "description": "Previous versions of software components that are not removed from the information system after updates have been installed may be exploited by adversaries. Some information technology products..."
-    },
-    "V-222614": {
-        "title": "Security-relevant software updates and patches must be kept up to date.",
-        "description": "Security flaws with software applications are discovered daily. Vendors are constantly updating and patching their products to address newly discovered security vulnerabilities. Organizations..."
-    },
-    "V-222615": {
-        "title": "The application performing organization-defined security functions must verify correct operation of security functions.",
-        "description": "Without verification, security functions may not operate correctly and this failure may go unnoticed. Security function is defined as the hardware, software, and/or firmware of the information..."
-    },
-    "V-222616": {
-        "title": "The application must perform verification of the correct operation of security functions: upon system startup and/or restart; upon command by a user with privileged access; and/or every 30 days.",
-        "description": "Without verification, security functions may not operate correctly and this failure may go unnoticed. Security function is defined as the hardware, software, and/or firmware of the information..."
-    },
-    "V-222481": {
-        "title": "The application must off-load audit records onto a different system or media than the system being audited.",
-        "description": "Information stored in one location is vulnerable to accidental or incidental deletion or alteration. In addition, attackers often manipulate logs to hide or obfuscate their activity. The goal is..."
-    },
-    "V-222480": {
-        "title": "The application must provide centralized management and configuration of the content to be captured in audit records generated by all application components.",
-        "description": "Without the ability to centrally manage the content captured in the audit records, identification, troubleshooting, and correlation of suspicious behavior would be difficult and could lead to a..."
-    },
-    "V-222483": {
-        "title": "The application must provide an immediate warning to the SA and ISSO (at a minimum) when allocated audit record storage volume reaches 75% of repository maximum audit record storage capacity.",
-        "description": "If security personnel are not notified immediately upon storage volume utilization reaching 75%, they are unable to plan for storage capacity expansion. Due to variances in application usage and..."
-    },
-    "V-222482": {
-        "title": "The application must be configured to write application logs to a centralized log repository.",
-        "description": "Information stored in one location is vulnerable to accidental or incidental deletion or alteration. In addition, attackers often manipulate logs to hide or obfuscate their activity. Off-loading..."
-    },
-    "V-222485": {
-        "title": "The application must alert the ISSO and SA (at a minimum) in the event of an audit processing failure.",
-        "description": "It is critical for the appropriate personnel to be aware if a system is at risk of failing to process audit logs as required. Without this notification, the security personnel may be unaware of an..."
-    },
-    "V-222484": {
-        "title": "Applications categorized as having a moderate or high impact must provide an immediate real-time alert to the SA and ISSO (at a minimum) for all audit failure events.",
-        "description": "Applications that are categorized as having a high or moderate impact on the organization must provide immediate alerts when encountering failures with the application audit system. It is..."
-    },
-    "V-222487": {
-        "title": "The application must provide the capability to centrally review and analyze audit records from multiple components within the system.",
-        "description": "Successful incident response and auditing relies on timely, accurate system information and analysis in order to allow the organization to identify and respond to potential incidents in a..."
-    },
-    "V-222486": {
-        "title": "The application must shut down by default upon audit failure (unless availability is an overriding concern).",
-        "description": "It is critical that when the application is at risk of failing to process audit logs as required, it take action to mitigate the failure. Audit processing failures include: software/hardware..."
-    },
-    "V-222489": {
-        "title": "The application must provide an audit reduction capability that supports on-demand reporting requirements.",
-        "description": "The ability to generate on-demand reports, including after the audit data has been subjected to audit reduction, greatly facilitates the organization's ability to generate incident reports as..."
-    },
-    "V-222488": {
-        "title": "The application must provide the capability to filter audit records for events of interest based upon organization-defined criteria.",
-        "description": "The ability to specify the event criteria that are of interest provides the persons reviewing the logs with the ability to quickly isolate and identify these events without having to review..."
-    },
-    "V-222431": {
-        "title": "The application must audit the execution of privileged functions.",
-        "description": "Misuse of privileged functions, either intentionally or unintentionally by authorized users, or by unauthorized external entities that have compromised information system accounts, is a serious..."
-    },
-    "V-222624": {
-        "title": "The ISSO must ensure active vulnerability testing is performed.",
-        "description": "Use of automated scanning tools accompanied with manual testing/validation which confirms or expands on the automated test results is an accepted best practice when performing application security..."
-    },
-    "V-222575": {
-        "title": "The application must set the HTTPOnly flag on session cookies.",
-        "description": "HTTPOnly is a flag included in a Set-Cookie HTTP response header. If the HTTPOnly flag is included in the HTTP response header, the cookie cannot be accessed through client side scripts like..."
-    },
-    "V-222574": {
-        "title": "The application user interface must be either physically or logically separated from data storage and management interfaces.",
-        "description": "Application management functionality includes functions necessary for administration and requires privileged user access. Allowing non-privileged users to access application management..."
-    },
-    "V-222576": {
-        "title": "The application must set the secure flag on session cookies.",
-        "description": "Many web development frameworks such as PHP, .NET, ASP as well as application servers include their own mechanisms for session management. Whenever possible it is recommended to utilize the..."
-    },
-    "V-222478": {
-        "title": "The application must generate audit records containing the full-text recording of privileged commands or the individual identities of group account users.",
-        "description": "Reconstruction of harmful events or forensic analysis is not possible if audit records do not contain enough information. Organizations consider limiting the additional audit information to only..."
-    },
-    "V-222570": {
-        "title": "The application must utilize FIPS-validated cryptographic modules when signing application components.",
-        "description": "Applications that distribute components of the application must sign the components to provide an identity assurance to consumers of the application component. Components can include application..."
-    },
-    "V-222573": {
-        "title": "Applications making SAML assertions must use FIPS-approved random numbers in the generation of SessionIndex in the SAML element AuthnStatement.",
-        "description": "A predictable SessionIndex could lead to an attacker computing a future SessionIndex, thereby, possibly compromising the application. Use of weak or untested encryption algorithms undermines the..."
-    },
-    "V-222572": {
-        "title": "The application must utilize FIPS-validated cryptographic modules when protecting unclassified information that requires cryptographic protection.",
-        "description": "Use of weak or untested encryption algorithms undermines the purposes of utilizing encryption to protect data. The application must implement cryptographic modules adhering to the higher standards..."
-    },
-    "V-222474": {
-        "title": "The application must produce audit records containing enough information to establish which component, feature or function of the application triggered the audit event.",
-        "description": "It is impossible to establish, correlate, and investigate the events relating to an incident if the details regarding the source of the event it not available. In order to compile an accurate..."
-    },
-    "V-222475": {
-        "title": "When using centralized logging; the application must include a unique identifier in order to distinguish itself from other application logs.",
-        "description": "Without establishing the source, it is impossible to establish, correlate, and investigate the events leading up to an outage or attack. In the case of centralized logging, or other instances..."
-    },
-    "V-222476": {
-        "title": "The application must produce audit records that contain information to establish the outcome of the events.",
-        "description": "Without information about the outcome of events, security personnel cannot make an accurate assessment as to whether an attack was successful or if changes were made to the security state of the..."
-    },
-    "V-222477": {
-        "title": "The application must generate audit records containing information that establishes the identity of any individual or process associated with the event.",
-        "description": "Without information that establishes the identity of the subjects (i.e., users or processes acting on behalf of users) associated with the events, security personnel cannot determine..."
-    },
-    "V-222470": {
-        "title": "The application must log destination IP addresses.",
-        "description": "The IP addresses of the systems that the application connects to are an important aspect of identifying application network related activity. Recording the IP addresses of the system the..."
-    },
-    "V-222471": {
-        "title": "The application must log user actions involving access to data.",
-        "description": "When users access application data, there is risk of data compromise or seepage if the account used to access is compromised or access is granted improperly. To be able to investigate which..."
-    },
-    "V-222472": {
-        "title": "The application must log user actions involving changes to data.",
-        "description": "When users change/modify application data, there is risk of data compromise if the account used to access is compromised or access is granted improperly. To be able to investigate which account..."
-    },
-    "V-222473": {
-        "title": "The application must produce audit records containing information to establish when (date and time) the events occurred.",
-        "description": "Without establishing when events occurred, it is impossible to establish, correlate, and investigate the events relating to an incident. In order to compile an accurate risk assessment, and..."
-    },
-    "V-222562": {
-        "title": "Applications used for non-local maintenance sessions must implement cryptographic mechanisms to protect the integrity of non-local maintenance and diagnostic communications.",
-        "description": "Privileged access contains control and configuration information which is particularly sensitive, so additional protections are necessary. This is maintained by using cryptographic mechanisms to..."
-    },
-    "V-222563": {
-        "title": "Applications used for non-local maintenance sessions must implement cryptographic mechanisms to protect the confidentiality of non-local maintenance and diagnostic communications.",
-        "description": "Privileged access contains control and configuration information which is particularly sensitive, so additional protections are necessary. This is maintained by using cryptographic mechanisms to..."
-    },
-    "V-222603": {
-        "title": "The application must protect from Cross-Site Request Forgery (CSRF) vulnerabilities.",
-        "description": "Cross-Site Request Forgery (CSRF) is an attack where a website user is forced to execute an unwanted action on a website that he or she is currently authenticated to. An attacker, through social..."
-    },
-    "V-222600": {
-        "title": "The application must not disclose unnecessary information to users.",
-        "description": "Applications should not disclose information not required for the transaction. (e.g., a web application should not divulge the fact there is a SQL server database and/or its version). These..."
-    },
-    "V-222606": {
-        "title": "The application must validate all input.",
-        "description": "Checking the valid syntax and semantics of information system inputs (e.g., character set, length, numerical range, and acceptable values) verifies that inputs match specified definitions for..."
-    },
-    "V-222605": {
-        "title": "The application must protect from canonical representation vulnerabilities.",
-        "description": "Canonical representation vulnerabilities can occur when a data conversion process does not convert the data to its simplest form resulting in the possible misrepresentation of the data. The..."
-    },
-    "V-222391": {
-        "title": "Applications requiring user access authentication must provide a logoff capability for user initiated communication session.",
-        "description": "If a user cannot explicitly end an application session, the session may remain open and be exploited by an attacker. Applications providing user access must provide the ability for users to..."
-    },
-    "V-222497": {
-        "title": "The applications must use internal system clocks to generate time stamps for audit records.",
-        "description": "Without an internal clock used as the reference for the time stored on each event to provide a trusted common reference for the time, forensic analysis would be impeded. Determining the correct..."
-    },
-    "V-222655": {
-        "title": "Threat models must be documented and reviewed for each application release and updated as required by design and functionality changes or when new threats are discovered.",
-        "description": "Threat modeling is an approach for analyzing the security of an application. It is a structured approach that enables you to identify, quantify, and address the security risks associated with an..."
-    },
-    "V-222557": {
-        "title": "The application must accept Personal Identity Verification (PIV) credentials from other federal agencies.",
-        "description": "Access may be denied to authorized users if federal agency PIV credentials are not accepted. Personal Identity Verification (PIV) credentials are those credentials issued by federal agencies that..."
-    },
-    "V-222469": {
-        "title": "The application must log application shutdown events.",
-        "description": "Forensics is a large part of security incident response. Applications must provide a record of their actions so application events can be investigated post-event. Attackers may attempt to shut..."
-    },
-    "V-222468": {
-        "title": "The application must initiate session auditing upon startup.",
-        "description": "If the application does not begin logging upon startup, important log events could be missed."
-    },
-    "V-222467": {
-        "title": "The application must generate audit records for all account creations, modifications, disabling, and termination events.",
-        "description": "When application user accounts are created, modified, disabled or terminated the event must be logged. Centralized management of user accounts allows for rapid response to user related security..."
-    },
-    "V-222466": {
-        "title": "The application must generate audit records for all direct access to the information system.",
-        "description": "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an..."
-    },
-    "V-222465": {
-        "title": "The application must generate audit records when successful/unsuccessful accesses to objects occur.",
-        "description": "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an..."
-    },
-    "V-222464": {
-        "title": "The application must generate audit records showing starting and ending time for user access to the system.",
-        "description": "Knowing when a user’s application session began and when it ended is critical information that aids in forensic analysis."
-    },
-    "V-222463": {
-        "title": "The application must generate audit records for privileged activities or other system-level access.",
-        "description": "Privileged activities include the tasks or actions taken by users in an administrative role (admin, backup operator, manager, etc.) which are used to manage or reconfigure application function...."
-    },
-    "V-222461": {
-        "title": "The application must generate audit records when successful/unsuccessful attempts to delete categories of information (e.g., classification levels) occur.",
-        "description": "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an..."
-    },
-    "V-222460": {
-        "title": "The application must generate audit records when successful/unsuccessful attempts to delete application database security objects occur.",
-        "description": "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an..."
-    },
-    "V-222500": {
-        "title": "The application must protect audit information from any type of unauthorized read access.",
-        "description": "If audit data were to become compromised, then competent forensic analysis and discovery of the true source of potentially malicious system activity is difficult if not impossible to achieve. In..."
-    },
-    "V-222501": {
-        "title": "The application must protect audit information from unauthorized modification.",
-        "description": "If audit data were to become compromised, then forensic analysis and discovery of the true source of potentially malicious system activity is impossible to achieve. To ensure the veracity of..."
-    },
-    "V-222502": {
-        "title": "The application must protect audit information from unauthorized deletion.",
-        "description": "If audit data were to become compromised, then forensic analysis and discovery of the true source of potentially malicious system activity is impossible to achieve. To ensure the veracity of..."
-    },
-    "V-222503": {
-        "title": "The application must protect audit tools from unauthorized access.",
-        "description": "Protecting audit data also includes identifying and protecting the tools used to view and manipulate log data. Therefore, protecting audit tools is necessary to prevent unauthorized operation on..."
-    },
-    "V-222504": {
-        "title": "The application must protect audit tools from unauthorized modification.",
-        "description": "Protecting audit data also includes identifying and protecting the tools used to view and manipulate log data. Therefore, protecting audit tools is necessary to prevent unauthorized operation on..."
-    },
-    "V-222505": {
-        "title": "The application must protect audit tools from unauthorized deletion.",
-        "description": "Protecting audit data also includes identifying and protecting the tools used to view and manipulate log data. Therefore, protecting audit tools is necessary to prevent unauthorized operation on..."
-    },
-    "V-222506": {
-        "title": "The application must back up audit records at least every seven days onto a different system or system component than the system or component being audited.",
-        "description": "Protection of log data includes assuring log data is not accidentally lost or deleted. Backing up audit records to a different system or onto separate media than the system being audited on an..."
-    },
-    "V-222507": {
-        "title": "The application must use cryptographic mechanisms to protect the integrity of audit information.",
-        "description": "Audit records may be tampered with; if the integrity of audit data were to become compromised, then forensic analysis and discovery of the true source of potentially malicious system activity is..."
-    },
-    "V-222636": {
-        "title": "A disaster recovery/continuity plan must exist in accordance with DoD policy based on the applications availability requirements.",
-        "description": "All applications must document disaster recovery/continuity procedures to include business recovery plans, system contingency plans, facility disaster recovery plans, and plan acceptance."
-    },
-    "V-222509": {
-        "title": "The integrity of the audit tools must be validated by checking the files for changes in the cryptographic hash value.",
-        "description": "Protecting the integrity of the tools used for auditing purposes is a critical step to ensuring the integrity of audit data. Audit data includes all information (e.g., audit records, audit..."
-    },
-    "V-222634": {
-        "title": "The application services and interfaces must be compatible with and ready for IPv6 networks.",
-        "description": "If the application has not been upgraded to execute on an IPv6-only network, there is a possibility the application will not execute properly, and as a result, a denial of service could occur. In..."
-    },
-    "V-222635": {
-        "title": "The application must not be hosted on a general purpose machine if the application is designated as critical or high availability by the ISSO.",
-        "description": "Critical applications should not be hosted on a multi-purpose server with other applications. Applications that share resources are susceptible to the other shared application security defects...."
-    },
-    "V-222632": {
-        "title": "A Software Configuration Management (SCM) plan describing the configuration control and change management process of application objects developed by the organization and the roles and responsibilities of the organization must be created and maintained.",
-        "description": "Software Configuration Management (SCM) is very important in tracking code releases, baselines, and managing access to the configuration management repository. The SCM plan identifies what should..."
-    },
-    "V-222633": {
-        "title": "A Configuration Control Board (CCB) that meets at least every release cycle, for managing the Configuration Management (CM) process must be established.",
-        "description": "Software Configuration Management (SCM) is very important in tracking code releases, baselines, and managing access to the configuration management repository. An SCM plan or charter identifies..."
-    },
-    "V-222630": {
-        "title": "The Configuration Management (CM) repository must be properly patched and STIG compliant.",
-        "description": "A Configuration Management (CM) repository is used to manage application code versions and to securely store application code. Failure to properly apply security patches and secure the software..."
-    },
-    "V-222631": {
-        "title": "Access privileges to the Configuration Management (CM) repository must be reviewed every three months.",
-        "description": "A Configuration Management (CM) repository is used to manage application code versions and to securely store application code. Incorrect access privileges to the CM repository can lead to..."
-    },
-    "V-222588": {
-        "title": "The application must implement approved cryptographic mechanisms to prevent unauthorized modification of organization-defined information at rest on organization-defined information system components.",
-        "description": "Applications handling data requiring \"data at rest\" protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest. Selection of a..."
-    },
-    "V-222589": {
-        "title": "The application must use appropriate cryptography in order to protect stored DoD information when required by the information owner or DoD policy.",
-        "description": "Applications handling data requiring \"data at rest\" protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest. Selection of a..."
-    },
-    "V-222556": {
-        "title": "The application must uniquely identify and authenticate non-organizational users (or processes acting on behalf of non-organizational users).",
-        "description": "Lack of authentication and identification enables non-organizational users to gain access to the application or possibly other information systems and provides an opportunity for intruders to..."
-    },
-    "V-222580": {
-        "title": "Applications must validate session identifiers.",
-        "description": "Many web development frameworks such as PHP, .NET, and ASP include their own mechanisms for session management. Whenever possible it is recommended to utilize the provided session management framework."
-    },
-    "V-222581": {
-        "title": "Applications must not use URL embedded session IDs.",
-        "description": "Many web development frameworks such as PHP, .NET, and ASP include their own mechanisms for session management. Whenever possible it is recommended to utilize the provided session management..."
-    },
-    "V-222582": {
-        "title": "The application must not re-use or recycle session IDs.",
-        "description": "Many web development frameworks such as PHP, .NET, and ASP include their own mechanisms for session management. Whenever possible it is recommended to utilize the provided session management..."
-    },
-    "V-222583": {
-        "title": "The application must use the Federal Information Processing Standard (FIPS) 140-2-validated cryptographic modules and random number generator if the application implements encryption, key exchange, digital signature, and hash functionality.",
-        "description": "Sequentially generated session IDs can be easily guessed by an attacker. Employing the concept of randomness in the generation of unique session identifiers helps to protect against brute-force..."
-    },
-    "V-222584": {
-        "title": "The application must only allow the use of DoD-approved certificate authorities for verification of the establishment of protected sessions.",
-        "description": "Untrusted Certificate Authorities (CA) can issue certificates, but they may be issued by organizations or individuals that seek to compromise DoD systems or by organizations with insufficient..."
-    },
-    "V-222586": {
-        "title": "In the event of a system failure, applications must preserve any information necessary to determine cause of failure and any information necessary to return to operations with least disruption to mission processes.",
-        "description": "Failure to a known state can address safety or security in accordance with the mission/business needs of the organization. Failure to a known secure state helps prevent a loss of confidentiality,..."
-    },
-    "V-222587": {
-        "title": "The application must protect the confidentiality and integrity of stored information when required by DoD policy or the information owner.",
-        "description": "Information at rest refers to the state of information when it is located on a secondary storage device (e.g., disk drive and tape drive) within an organizational information system. Mobile..."
-    },
-    "V-222526": {
-        "title": "The application must use multifactor (e.g., CAC, Alt. Token) authentication for network access to non-privileged accounts.",
-        "description": "To assure accountability and prevent unauthenticated access, non-privileged users must utilize multifactor authentication to prevent potential misuse and compromise of the system. Multifactor..."
-    },
-    "V-222390": {
-        "title": "The application must automatically terminate the admin user session and log off admin users after a 10 minute idle time period is exceeded.",
-        "description": "Leaving an admin user's application session established for an indefinite period of time increases the risk of session hijacking. Session termination terminates an individual user's logical..."
-    },
-    "V-222524": {
-        "title": "The application must accept Personal Identity Verification (PIV) credentials.",
-        "description": "The use of PIV credentials facilitates standardization and reduces the risk of unauthorized access. DoD has mandated the use of the CAC to support identity management and personal authentication..."
-    },
-    "V-222452": {
-        "title": "The application must generate audit records when successful/unsuccessful attempts to access security levels occur.",
-        "description": "A security level denotes a permissions or authorization capability within the application. This is most often associated with a user role. Attempts to access a security level can occur when a user..."
-    },
-    "V-222453": {
-        "title": "The application must generate audit records when successful/unsuccessful attempts to access categories of information (e.g., classification levels) occur.",
-        "description": "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an..."
-    },
-    "V-222450": {
-        "title": "The application must generate audit records when successful/unsuccessful attempts to grant privileges occur.",
-        "description": "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an..."
-    },
-    "V-222657": {
-        "title": "The application development team must provide an application incident response plan.",
-        "description": "An application incident response process is managed by the development team and should include a method for individuals to submit potential security vulnerabilities to the development or..."
-    },
-    "V-222456": {
-        "title": "The application must generate audit records when successful/unsuccessful attempts to modify security levels occur.",
-        "description": "A security level denotes a permissions or authorization capability within the application. This is most often associated with a user role. Attempts to modify a security level can be construed as..."
-    },
-    "V-222457": {
-        "title": "The application must generate audit records when successful/unsuccessful attempts to modify categories of information (e.g., classification levels) occur.",
-        "description": "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an..."
-    },
-    "V-222454": {
-        "title": "The application must generate audit records when successful/unsuccessful attempts to modify privileges occur.",
-        "description": "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an..."
-    },
-    "V-222455": {
-        "title": "The application must generate audit records when successful/unsuccessful attempts to modify security objects occur.",
-        "description": "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an..."
-    },
-    "V-222458": {
-        "title": "The application must generate audit records when successful/unsuccessful attempts to delete privileges occur.",
-        "description": "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an..."
-    },
-    "V-222459": {
-        "title": "The application must generate audit records when successful/unsuccessful attempts to delete security levels occur.",
-        "description": "A security level denotes a permissions or authorization capability within the application. This is most often associated with a user role. Attempts to delete a security level can be construed as..."
-    },
-    "V-222393": {
-        "title": "The application must associate organization-defined types of security attributes having organization-defined security attribute values with information in storage.",
-        "description": "Without the association of security attributes to information, there is no basis for the application to make security related access-control decisions. Security attributes are abstractions..."
-    },
-    "V-222651": {
-        "title": "The changes to the application must be assessed for IA and accreditation impact prior to implementation.",
-        "description": "When changes are made to an application, either in the code or in the configuration of underlying components such as the OS or the web or application server, there is the potential for security..."
-    },
-    "V-222513": {
-        "title": "The application must have the capability to prevent the installation of patches, service packs, or application components without verification the software component has been digitally signed using a certificate that is recognized and approved by the organization.",
-        "description": "Changes to any software components can have significant effects on the overall security of the application. Verifying software components have been digitally signed using a certificate that is..."
-    },
-    "V-222512": {
-        "title": "The application must audit who makes configuration changes to the application.",
-        "description": "Without auditing the enforcement of access restrictions against changes to the application configuration, it will be difficult to identify attempted attacks and an audit trail will not be..."
-    },
-    "V-222511": {
-        "title": "The application must enforce access restrictions associated with changes to application configuration.",
-        "description": "Failure to provide logical access restrictions associated with changes to application configuration may have significant effects on the overall security of the system. When dealing with access..."
-    },
-    "V-222510": {
-        "title": "The application must prohibit user installation of software without explicit privileged status.",
-        "description": "Allowing regular users to install software, without explicit privileges, creates the risk that untested or potentially malicious software will be installed on the system. Explicit privileges..."
-    },
-    "V-222517": {
-        "title": "The application must employ a deny-all, permit-by-exception (whitelist) policy to allow the execution of authorized software programs.",
-        "description": "Utilizing a whitelist provides a configuration management method for allowing the execution of only authorized software. Using only authorized software decreases risk by limiting the number of..."
-    },
-    "V-222516": {
-        "title": "The application must prevent program execution in accordance with organization-defined policies regarding software program usage and restrictions, and/or rules authorizing the terms and conditions of software program usage.",
-        "description": "Control of application execution is a mechanism used to prevent execution of unauthorized applications in order to follow the rules of least privilege. Some applications may provide a capability..."
+    "V-222387": {
+        "title": "The application must provide a capability to limit the number of logon sessions per user."
     },
     "V-222388": {
-        "title": "The application must clear temporary storage and cookies when the session is terminated.",
-        "description": "Persistent cookies are a primary means by which a web application will store application state and user information. Since HTTP is a stateless protocol, this persistence allows the web..."
+        "title": "The application must clear temporary storage and cookies when the session is terminated."
     },
     "V-222389": {
-        "title": "The application must automatically terminate the non-privileged user session and log off non-privileged users after a 15 minute idle time period has elapsed.",
-        "description": "Leaving a user’s application session established for an indefinite period of time increases the risk of session hijacking. Session termination terminates an individual user's logical application..."
+        "title": "The application must automatically terminate the non-privileged user session and log off non-privileged users after a 15 minute idle time period has elapsed."
     },
-    "V-222629": {
-        "title": "The application must be registered with the DoD Ports and Protocols Database.",
-        "description": "Failure to register the applications usage of ports, protocols, and services with the DoD PPS Database may result in a Denial of Service (DoS) because of enclave boundary protections at other end..."
+    "V-222390": {
+        "title": "The application must automatically terminate the admin user session and log off admin users after a 10 minute idle time period is exceeded."
     },
-    "V-222387": {
-        "title": "The application must provide a capability to limit the number of logon sessions per user.",
-        "description": "Application management includes the ability to control the number of users and user sessions that utilize an application. Limiting the number of allowed users and sessions per user is helpful in..."
-    },
-    "V-222519": {
-        "title": "The application must be configured to use only functions, ports, and protocols permitted to it in the PPSM CAL.",
-        "description": "In order to prevent unauthorized connection of devices, unauthorized transfer of information, or unauthorized tunneling (i.e., embedding of data types within data types), organizations must..."
-    },
-    "V-222518": {
-        "title": "The application must be configured to disable non-essential capabilities.",
-        "description": "It is detrimental for applications to provide, or install by default, functionality exceeding requirements or mission objectives. These unnecessary capabilities or services are often overlooked..."
-    },
-    "V-222599": {
-        "title": "The application must maintain the confidentiality and integrity of information during reception.",
-        "description": "Data is subject to manipulation and other integrity related attacks whenever that data is transferred across a network. To protect data integrity during transmission, the application must..."
-    },
-    "V-222451": {
-        "title": "The application must generate audit records when successful/unsuccessful attempts to access security objects occur.",
-        "description": "Security objects represent application objects that provide or require security protections or have a security role within the application. Examples include but are not limited to, files,..."
-    },
-    "V-222611": {
-        "title": "The application must reveal error messages only to the ISSO, ISSM, or SA.",
-        "description": "Only authorized personnel should be aware of errors and the details of the errors. Error messages are an indicator of an organization's operational state or can identify application components...."
-    },
-    "V-222593": {
-        "title": "XML-based applications must mitigate DoS attacks by using XML filters, parser options, or gateways.",
-        "description": "DoS is a condition when a resource is not available for legitimate users. When this occurs, the organization either cannot accomplish its mission or must operate at degraded capacity. XML-based..."
-    },
-    "V-222592": {
-        "title": "Applications must prevent unauthorized and unintended information transfer via shared system resources.",
-        "description": "Preventing unauthorized information transfers mitigates the risk of information, including encrypted representations of information, produced by the actions of prior users/roles (or the actions of..."
-    },
-    "V-222591": {
-        "title": "The application must maintain a separate execution domain for each executing process.",
-        "description": "Applications can maintain separate execution domains for each executing process by assigning each process a separate address space. Each process has a distinct address space so that communication..."
-    },
-    "V-222590": {
-        "title": "The application must isolate security functions from non-security functions.",
-        "description": "An isolation boundary provides access control and protects the integrity of the hardware, software, and firmware that perform security functions. Security functions are the hardware, software,..."
-    },
-    "V-222597": {
-        "title": "The application must implement cryptographic mechanisms to prevent unauthorized disclosure of information and/or detect changes to information during transmission unless otherwise protected by alternative physical safeguards, such as, at a minimum, a Protected Distribution System (PDS).",
-        "description": "Data is subject to manipulation and other integrity related attacks whenever that data is transferred across a network. To protect data integrity during transmission, the application must..."
-    },
-    "V-222595": {
-        "title": "The web service design must include redundancy mechanisms when used with high-availability systems.",
-        "description": "DoS is a condition when a resource is not available for legitimate users. When this occurs, the organization either cannot accomplish its mission or must operate at degraded capacity. In the case..."
-    },
-    "V-222594": {
-        "title": "The application must restrict the ability to launch Denial of Service (DoS) attacks against itself or other information systems.",
-        "description": "Denial of Service (DoS) is a condition where a resource is not available for legitimate users. When this occurs, the organization either cannot accomplish its mission or must operate at degraded..."
-    },
-    "V-222515": {
-        "title": "An application vulnerability assessment must be conducted.",
-        "description": "An application vulnerability assessment is a test conducted in order to identify weaknesses and security vulnerabilities that may exist within an application. The testing must cover all aspects..."
-    },
-    "V-222621": {
-        "title": "The ISSO must ensure application audit trails are retained for at least 1 year for applications without SAMI data, and 5 years for applications including SAMI data.",
-        "description": "Log files are a requirement to trace intruder activity or to audit user activity."
-    },
-    "V-222445": {
-        "title": "The application must provide audit record generation capability for session timeouts.",
-        "description": "When a user's session times out, it is important to be able to identify these events in the application logs. Without the capability to generate audit records, it would be difficult to establish,..."
-    },
-    "V-222444": {
-        "title": "The application must not write sensitive data into the application logs.",
-        "description": "It is important to identify and exclude certain types of data that is written into the logs. If the logs are compromised and sensitive data is included in the logs, this could assist an attacker..."
-    },
-    "V-222447": {
-        "title": "The application must provide audit record generation capability for HTTP headers including User-Agent, Referer, GET, and POST.",
-        "description": "HTTP header information is a critical component of data that is used when evaluating forensic activity. Without the capability to generate audit records, it would be difficult to establish,..."
-    },
-    "V-222446": {
-        "title": "The application must record a time stamp indicating when the event occurred.",
-        "description": "It is important to include the time stamps for when an event occurred. Failure to include time stamps in the event logs is detrimental to forensic analysis."
-    },
-    "V-222441": {
-        "title": "The application must provide audit record generation capability for the creation of session IDs.",
-        "description": "Applications create session IDs at the onset of a user session in order to manage user access to the application and differentiate between different user sessions. It is important to log the..."
-    },
-    "V-222394": {
-        "title": "The application must associate organization-defined types of security attributes having organization-defined security attribute values with information in process.",
-        "description": "Without the association of security attributes to information, there is no basis for the application to make security related access-control decisions. Security attributes are abstractions..."
-    },
-    "V-222443": {
-        "title": "The application must provide audit record generation capability for the renewal of session IDs.",
-        "description": "Application design sometimes requires the renewal of session IDs in order to continue approved user access to the application. Session renewal is done on a case by case basis under circumstances..."
-    },
-    "V-222442": {
-        "title": "The application must provide audit record generation capability for the destruction of session IDs.",
-        "description": "Applications should destroy session IDs at the end of a user session in order to terminate user access to the application session and to reduce the possibility of an unauthorized attacker high..."
-    },
-    "V-222449": {
-        "title": "The application must record the username or user ID of the user associated with the event.",
-        "description": "When users conduct activity within an application, that user’s identity must be recorded in the audit log. Failing to record the identity of the user responsible for the activity within the..."
-    },
-    "V-222448": {
-        "title": "The application must provide audit record generation capability for connecting system IP addresses.",
-        "description": "Without the capability to generate audit records, it would be difficult to establish, correlate, and investigate the events relating to an incident, or identify those responsible for one. Audit..."
-    },
-    "V-222527": {
-        "title": "The application must use multifactor (Alt. Token) authentication for local access to privileged accounts.",
-        "description": "Multifactor authentication requires using two or more factors to achieve authentication and access. Factors include: (i) something a user knows (e.g., password/PIN); (ii) something a user has..."
-    },
-    "V-222656": {
-        "title": "The application must not be subject to error handling vulnerabilities.",
-        "description": "Error handling is the failure to check the return values of functions or catch top level exceptions within a program. Improper error handling in an application can lead to an application failure..."
-    },
-    "V-222525": {
-        "title": "The application must electronically verify Personal Identity Verification (PIV) credentials.",
-        "description": "The use of PIV credentials facilitates standardization and reduces the risk of unauthorized access. DoD has mandated the use of the CAC to support identity management and personal authentication..."
-    },
-    "V-222650": {
-        "title": "Flaws found during a code review must be tracked in a defect tracking system.",
-        "description": "This requirement is meant to apply to developers or organizations that are doing application development work. If flaws are not tracked they may possibly be forgotten to be included in a release...."
-    },
-    "V-222523": {
-        "title": "The application must use multifactor (Alt. Token) authentication for network access to privileged accounts.",
-        "description": "Multifactor authentication requires using two or more factors to achieve authentication and access. Factors include: (i) something a user knows (e.g., password/PIN); (ii) something a user has..."
-    },
-    "V-222652": {
-        "title": "Security flaws must be fixed or addressed in the project plan.",
-        "description": "This requirement is meant to apply to developers or organizations that are doing application development work. Application development efforts include the creation of a project plan to track and..."
-    },
-    "V-222521": {
-        "title": "The application must require devices to reauthenticate when organization-defined circumstances or situations requiring reauthentication.",
-        "description": "Without reauthenticating devices, unidentified or unknown devices may be introduced; thereby facilitating malicious activity. In addition to the reauthentication requirements associated with..."
-    },
-    "V-222398": {
-        "title": "Applications with SOAP messages requiring integrity must include the following message elements:-Message ID-Service Request-Timestamp-SAML Assertion (optionally included in messages) and all elements of the message must be digitally signed.",
-        "description": "Digitally signed SOAP messages provide message integrity and authenticity of the signer of the message independent of the transport layer. Service requests may be intercepted and changed in..."
-    },
-    "V-222552": {
-        "title": "The application must map the authenticated identity to the individual user or group account for PKI-based authentication.",
-        "description": "Without mapping the certificate used to authenticate to a corresponding user account, the ability to determine the identity of the individual user or group will not be available for forensic..."
-    },
-    "V-222528": {
-        "title": "The application must use multifactor (e.g., CAC, Alt. Token) authentication for local access to non-privileged accounts.",
-        "description": "To assure accountability, prevent unauthenticated access, and prevent misuse of the system, privileged users must utilize multifactor authentication for local access. Multifactor authentication..."
-    },
-    "V-222529": {
-        "title": "The application must ensure users are authenticated with an individual authenticator prior to using a group authenticator.",
-        "description": "To assure individual accountability and prevent unauthorized access, application users must be individually identified and authenticated. Individual accountability mandates that each user is..."
-    },
-    "V-222397": {
-        "title": "The application must implement cryptographic mechanisms to protect the integrity of remote access sessions.",
-        "description": "Without integrity protection mechanisms, unauthorized individuals may gain access to sensitive information via a remote access session. Remote access is access to DoD nonpublic information..."
-    },
-    "V-222433": {
-        "title": "The application administrator must follow an approved process to unlock locked user accounts.",
-        "description": "Once a user account has been locked, it must be unlocked by an administrator. An ISSM and ISSO approved process must be created and followed to ensure the user requesting access is properly..."
-    },
-    "V-222623": {
-        "title": "The ISSO must report all suspected violations of IA policies in accordance with DoD information system IA procedures.",
-        "description": "Violations of IA policies must be reviewed and reported. If there are no policies regarding the reporting of IA violations, IA violations may not be tracked or addressed in a proper manner."
-    },
-    "V-222539": {
-        "title": "The application must enforce password complexity by requiring that at least one numeric character be used.",
-        "description": "Use of passwords for application authentication is intended only for limited situations and should not be used as a replacement for two-factor CAC-enabled authentication. Examples of situations..."
-    },
-    "V-222396": {
-        "title": "The application must implement DoD-approved encryption to protect the confidentiality of remote access sessions.",
-        "description": "Without confidentiality protection mechanisms, unauthorized individuals may gain access to sensitive information via a remote access session. Remote access is access to DoD nonpublic information..."
-    },
-    "V-222622": {
-        "title": "The ISSO must review audit trails periodically based on system documentation recommendations or immediately upon system security events.",
-        "description": "Without access control the data is not secure. It can be compromised, misused, or changed by unauthorized access at any time."
-    },
-    "V-222531": {
-        "title": "The application must implement replay-resistant authentication mechanisms for network access to non-privileged accounts.",
-        "description": "A replay attack is a man-in-the-middle style attack which allows an attacker to repeat or alter a valid data transmission that may enable unauthorized access to the application. Authentication..."
-    },
-    "V-222625": {
-        "title": "Execution flow diagrams and design documents must be created to show how deadlock and recursion issues in web services are being mitigated.",
-        "description": "In order to understand data flows within web services, the process flow of data must be developed and documented. There are several different ways that web service deadlock occurs, many times it..."
-    },
-    "V-222533": {
-        "title": "The application must authenticate all network connected endpoint devices before establishing any connection.",
-        "description": "Without authenticating devices, unidentified or unknown devices may be introduced, thereby facilitating malicious activity. For distributed architectures (e.g., service-oriented architectures),..."
-    },
-    "V-222532": {
-        "title": "The application must utilize mutual authentication when endpoint device non-repudiation protections are required by DoD policy or by the data owner.",
-        "description": "Without identifying devices, unidentified or unknown devices may be introduced, thereby facilitating malicious activity. With one way SSL authentication which is the typical form of SSL..."
-    },
-    "V-222535": {
-        "title": "The application must disable device identifiers after 35 days of inactivity unless a cryptographic certificate is used for authentication.",
-        "description": "Device identifiers are used to identify hardware devices that interact with the application much like a user account is used to identify an application user. Examples of hardware devices include..."
-    },
-    "V-222534": {
-        "title": "Service-Oriented Applications handling non-releasable data must authenticate endpoint devices via mutual SSL/TLS.",
-        "description": "Without identifying devices, unidentified or unknown devices may be introduced, thereby facilitating malicious activity. One way SSL/TLS authentication is the typical form of authentication done..."
-    },
-    "V-222537": {
-        "title": "The application must enforce password complexity by requiring that at least one upper-case character be used.",
-        "description": "Use of passwords for application authentication is intended only for limited situations and should not be used as a replacement for two-factor CAC-enabled authentication. Examples of situations..."
-    },
-    "V-222646": {
-        "title": "At least one tester must be designated to test for security flaws in addition to functional testing.",
-        "description": "If there is no person designated to test for security flaws, vulnerabilities can potentially be missed during testing. This requirement is meant to apply to developers or organizations that are..."
-    },
-    "V-222645": {
-        "title": "Application files must be cryptographically hashed prior to deploying to DoD operational networks.",
-        "description": "When application code and binaries are transferred from one environment to another, there is the potential for malware to be introduced into either the application code or even the application..."
-    },
-    "V-222641": {
-        "title": "The application must use encryption to implement key exchange and authenticate endpoints prior to establishing a communication channel for key exchange.",
-        "description": "If the application does not use encryption and authenticate endpoints prior to establishing a communication channel and prior to transmitting encryption keys, these keys may be intercepted, and..."
-    },
-    "V-222438": {
-        "title": "The application must protect against an individual (or process acting on behalf of an individual) falsely denying having performed organization-defined actions to be covered by non-repudiation.",
-        "description": "Without non-repudiation, it is impossible to positively attribute an action to an individual (or process acting on behalf of an individual). Non-repudiation services can be used to determine if..."
-    },
-    "V-222439": {
-        "title": "For applications providing audit record aggregation, the application must compile audit records from organization-defined information system components into a system-wide audit trail that is time-correlated with an organization-defined level of tolerance for the relationship between time stamps of individual records in the audit trail.",
-        "description": "Without the ability to collate records based on the time when the events occurred, the ability to perform forensic analysis and investigations across multiple components is significantly..."
-    },
-    "V-222514": {
-        "title": "The applications must limit privileges to change the software resident within software libraries.",
-        "description": "If the application were to allow any user to make changes to software libraries, then those changes might be implemented without undergoing the appropriate testing and approvals that are part of a..."
-    },
-    "V-222553": {
-        "title": "The application, for PKI-based authentication, must implement a local cache of revocation data to support path discovery and validation in case of the inability to access revocation information via the network.",
-        "description": "A local cache of revocation data is also known as a CRL list. This list contains a list of revoked certificates and can be periodically downloaded to ensure certificates can still be checked for..."
-    },
-    "V-222648": {
-        "title": "An application code review must be performed on the application.",
-        "description": "A code review is a systematic evaluation of computer source code conducted for the purposes of identifying and remediating the security flaws in the software. This requirement is meant to apply..."
-    },
-    "V-222628": {
-        "title": "New IP addresses, data services, and associated ports used by the application must be submitted to the appropriate approving authority for the organization, which in turn will be submitted through the DoD Ports, Protocols, and Services Management (DoD PPSM)",
-        "description": "Failure to comply with DoD Ports, Protocols, and Services (PPS) Vulnerability Analysis and associated PPS mitigations may result in compromise of enclave boundary protections and/or functionality..."
-    },
-    "V-222640": {
-        "title": "Procedures must be in place to assure the appropriate physical and technical protection of the backup and restoration of the application.",
-        "description": "Protection of backup and restoration assets is essential for the successful restore of operations after a catastrophic failure or damage to the system or data files. Failure to follow proper..."
-    },
-    "V-222626": {
-        "title": "The designer must ensure the application does not store configuration and control files in the same directory as user data.",
-        "description": "Application configuration settings and user data are required to be stored in separate locations in order to prevent application users from possibly being able to access application configuration..."
-    },
-    "V-222520": {
-        "title": "The application must require users to reauthenticate when organization-defined circumstances or situations require reauthentication.",
-        "description": "Without reauthentication, users may access resources or perform tasks for which they do not have authorization. When applications provide the capability to change security roles or escalate the..."
-    },
-    "V-222530": {
-        "title": "The application must implement replay-resistant authentication mechanisms for network access to privileged accounts.",
-        "description": "A replay attack may enable an unauthorized user to gain access to the application. Authentication sessions between the authenticator and the application validating the user credentials must not be..."
-    },
-    "V-222627": {
-        "title": "The ISSO must ensure if a DoD STIG or NSA guide is not available, a third-party product will be configured by following available guidance.",
-        "description": "Not all COTS products are covered by a STIG. Those products not covered by a STIG, should follow commercially accepted best practices, independent testing results and vendors lock down guides and..."
-    },
-    "V-222548": {
-        "title": "The application password must not be changeable by users other than the administrator or the user with which the password is associated.",
-        "description": "If the application allows user A to change user B's password, user B can be locked out of the application, and user A is provided the ability to grant themselves access to the application as user..."
-    },
-    "V-222549": {
-        "title": "The application must terminate existing user sessions upon account deletion.",
-        "description": "The application must ensure that a user does not retain any rights that may have been granted or retain access to the application after the user's authorization or role within the application has..."
-    },
-    "V-222545": {
-        "title": "The application must enforce a 60-day maximum password lifetime restriction.",
-        "description": "Use of passwords for application authentication is intended only for limited situations and should not be used as a replacement for two-factor CAC-enabled authentication. Examples of situations..."
-    },
-    "V-222544": {
-        "title": "The application must enforce 24 hours/1 day as the minimum password lifetime.",
-        "description": "Use of passwords for application authentication is intended only for limited situations and should not be used as a replacement for two-factor CAC-enabled authentication. Examples of situations..."
-    },
-    "V-222673": {
-        "title": "The Program Manager must verify all levels of program management, designers, developers, and testers receive annual security training pertaining to their job function.",
-        "description": "Many application team members may not be aware of the security implications regarding the code that they design, write and test. To address this concern, the Program Manager will ensure all..."
-    },
-    "V-222671": {
-        "title": "Connections between the DoD enclave and the Internet or other public or commercial wide area networks must require a DMZ.",
-        "description": "In order to protect DoD data and systems, all remote access to DoD information systems must be mediated through a managed access control point, such as a remote access server in a DMZ."
-    },
-    "V-222540": {
-        "title": "The application must enforce password complexity by requiring that at least one special character be used.",
-        "description": "Use of passwords for application authentication is intended only for limited situations and should not be used as a replacement for two-factor CAC-enabled authentication. Examples of situations..."
-    },
-    "V-222546": {
-        "title": "The application must prohibit password reuse for a minimum of five generations.",
-        "description": "Use of passwords for application authentication is intended only for limited situations and should not be used as a replacement for two-factor CAC-enabled authentication. Examples of situations..."
-    },
-    "V-222423": {
-        "title": "Application data protection requirements must be identified and documented.",
-        "description": "Failure to protect organizational information from data mining may result in a compromise of information. In order to assign the appropriate data protections, application data must be identified..."
-    },
-    "V-222421": {
-        "title": "The application must automatically audit account enabling actions.",
-        "description": "When application accounts are enabled, user accessibility is affected. Accounts are utilized for identifying individual application users or for identifying the application processes themselves...."
-    },
-    "V-222547": {
-        "title": "The application must allow the use of a temporary password for system logons with an immediate change to a permanent password.",
-        "description": "Use of passwords for application authentication is intended only for limited situations and should not be used as a replacement for two-factor CAC-enabled authentication. Examples of situations..."
-    },
-    "V-222427": {
-        "title": "The application must enforce approved authorizations for controlling the flow of information within the system based on organization-defined information flow control policies.",
-        "description": "A mechanism to detect and prevent unauthorized communication flow must be configured or provided as part of the system design. If information flow is not enforced based on approved authorizations,..."
-    },
-    "V-222426": {
-        "title": "The application must enforce organization-defined discretionary access control policies over defined subjects and objects.",
-        "description": "Discretionary Access Control allows users to determine who is allowed to access their data. To mitigate the risk of unauthorized access to sensitive information by entities that have been issued..."
-    },
-    "V-222424": {
-        "title": "The application must utilize organization-defined data mining detection techniques for organization-defined data storage objects to adequately detect data mining attempts.",
-        "description": "Failure to protect organizational information from data mining may result in a compromise of information. Data mining occurs when the application is programmatically probed and data is..."
-    },
-    "V-222429": {
-        "title": "The application must prevent non-privileged users from executing privileged functions to include disabling, circumventing, or altering implemented security safeguards/countermeasures.",
-        "description": "Preventing non-privileged users from executing privileged functions mitigates the risk that unauthorized individuals or processes may gain unnecessary access to information or..."
-    },
-    "V-222428": {
-        "title": "The application must enforce approved authorizations for controlling the flow of information between interconnected systems based on organization-defined information flow control policies.",
-        "description": "A mechanism to detect and prevent unauthorized communication flow must be configured or provided as part of the system design. If information flow is not enforced based on approved authorizations,..."
-    },
-    "V-222462": {
-        "title": "The application must generate audit records when successful/unsuccessful logon attempts occur.",
-        "description": "Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an..."
-    },
-    "V-222598": {
-        "title": "The application must maintain the confidentiality and integrity of information during preparation for transmission.",
-        "description": "Data is subject to manipulation and other integrity related attacks whenever that data is transferred across a network. To protect data integrity during transmission, the application must..."
-    },
-    "V-254803": {
-        "title": "The application must implement NSA-approved cryptography to protect classified information in accordance with applicable federal laws, Executive Orders, directives, policies, regulations, and standards.",
-        "description": "Use of weak or untested encryption algorithms undermines the purposes of utilizing encryption to protect classified data. The application must implement cryptographic modules adhering to the..."
-    },
-    "V-222499": {
-        "title": "The application must record time stamps for audit records that meet a granularity of one second for a minimum degree of precision.",
-        "description": "Without sufficient granularity of time stamps, it is not possible to adequately determine the chronological order of records. Time stamps generated by the application include date and time...."
-    },
-    "V-222668": {
-        "title": "The system must alert an administrator when low resource conditions are encountered.",
-        "description": "In order to prevent DoS type attacks, applications should be monitored when resource conditions reach a predefined threshold. This could indicate the onset of a DoS attack or could be the..."
-    },
-    "V-222559": {
-        "title": "The application must accept FICAM-approved third-party credentials.",
-        "description": "FICAM establishes a federated identity framework for the Federal Government. FICAM provides Government-wide services for common Identity, Credential and Access Management (ICAM) requirements. The..."
-    },
-    "V-222558": {
-        "title": "The application must electronically verify Personal Identity Verification (PIV) credentials from other federal agencies.",
-        "description": "Inappropriate access may be granted to unauthorized users if federal agency PIV credentials are not electronically verified. Personal Identity Verification (PIV) credentials are those credentials..."
-    },
-    "V-222665": {
-        "title": "The designer must ensure uncategorized or emerging mobile code is not used in applications.",
-        "description": "By definition, mobile code is software obtained from remote systems outside the enclave boundary, transferred across a network, and then downloaded and executed on a local system without explicit..."
-    },
-    "V-222664": {
-        "title": "If the application contains classified data, a Security Classification Guide must exist containing data elements and their classification.",
-        "description": "Without a classification guide the marking, storage, and output media of classified material can be inadvertently mixed with unclassified material, leading to its possible loss or compromise."
-    },
-    "V-222667": {
-        "title": "Protections against DoS attacks must be implemented.",
-        "description": "Known DoS threats documented in the threat model should be mitigated, to prevent DoS type attacks."
-    },
-    "V-222666": {
-        "title": "Production database exports must have database administration credentials and sensitive data removed before releasing the export.",
-        "description": "Production database exports are often used to populate development databases. Test and development environments do not typically have the same rigid security protections that production..."
-    },
-    "V-222661": {
-        "title": "Unnecessary built-in application accounts must be disabled.",
-        "description": "Default passwords and properties of built-in accounts are often publicly available. Anyone with necessary knowledge, internal or external, can compromise an application using built-in..."
-    },
-    "V-222663": {
-        "title": "An Application Configuration Guide must be created and included with the application.",
-        "description": "The Application Configuration Guide is any document or collection of documents used to configure the application. These documents may be part of a user guide, secure configuration guide, or any..."
-    },
-    "V-222416": {
-        "title": "The application must automatically audit account removal actions.",
-        "description": "When application accounts are removed, user accessibility is affected. Accounts are utilized for identifying individual application users or for identifying the application processes themselves...."
-    },
-    "V-222414": {
-        "title": "The application must automatically audit account modification.",
-        "description": "One way for an attacker to establish persistent access is for the attacker to modify or copy an existing account. Auditing of account modification is one method for mitigating this risk. A..."
-    },
-    "V-222415": {
-        "title": "The application must automatically audit account disabling actions.",
-        "description": "When application accounts are disabled, user accessibility is affected. Accounts are utilized for identifying individual application users or for identifying the application processes themselves...."
-    },
-    "V-222412": {
-        "title": "Unnecessary application accounts must be disabled, or deleted.",
-        "description": "Test or demonstration accounts are sometimes created during the application installation process. This creates a security risk as these accounts often remain after the initial installation process..."
-    },
-    "V-222638": {
-        "title": "Data backup must be performed at required intervals in accordance with DoD policy.",
-        "description": "Without proper backups, the application is not protected from the loss of data or the operating environment in the event of hardware or software failure."
-    },
-    "V-222538": {
-        "title": "The application must enforce password complexity by requiring that at least one lower-case character be used.",
-        "description": "Use of passwords for application authentication is intended only for limited situations and should not be used as a replacement for two-factor CAC-enabled authentication. Examples of situations..."
-    },
-    "V-222639": {
-        "title": "Back-up copies of the application software or source code must be stored in a fire-rated container or stored separately (offsite).",
-        "description": "Application developers and application administrators must take steps to ensure continuity of development effort and operations should a disaster strike. Steps include protecting back-up copies..."
-    },
-    "V-222508": {
-        "title": "Application audit tools must be cryptographically hashed.",
-        "description": "Protecting the integrity of the tools used for auditing purposes is a critical step to ensuring the integrity of audit data. Audit data includes all information (e.g., audit records, audit..."
-    },
-    "V-222498": {
-        "title": "The application must record time stamps for audit records that can be mapped to Coordinated Universal Time (UTC) or Greenwich Mean Time (GMT).",
-        "description": "If time stamps are not consistently applied and there is no common time reference, it is difficult to perform forensic analysis. Time stamps generated by the application include date and time...."
-    },
-    "V-222637": {
-        "title": "Recovery procedures and technical system features must exist so recovery is performed in a secure and verifiable manner. The ISSO will document circumstances inhibiting a trusted recovery.",
-        "description": "Without a disaster recovery plan, the application is susceptible to interruption in service due to damage within the processing site. If the application is part of the site’s disaster recovery..."
-    },
-    "V-222496": {
-        "title": "The application must provide a report generation capability that does not alter original content or time ordering of audit records.",
-        "description": "If the audit report generation capability alters the original content or time ordering of audit records, the integrity of the audit records is compromised, and the records are no longer usable for..."
-    },
-    "V-222571": {
-        "title": "The application must utilize FIPS-validated cryptographic modules when generating cryptographic hashes.",
-        "description": "Use of weak or untested encryption algorithms undermines the purposes of utilizing encryption to protect data. The application must implement cryptographic modules adhering to the higher standards..."
-    },
-    "V-222494": {
-        "title": "The application must provide a report generation capability that supports after-the-fact investigations of security incidents.",
-        "description": "If the report generation capability does not support after-the-fact investigations, it is difficult to establish, correlate, and investigate the events leading up to an outage or attack, or..."
-    },
-    "V-222495": {
-        "title": "The application must provide an audit reduction capability that does not alter original content or time ordering of audit records.",
-        "description": "If the audit reduction capability alters the content or time ordering of audit records, the integrity of the audit records is compromised, and the records are no longer usable for forensic..."
-    },
-    "V-222492": {
-        "title": "The application must provide a report generation capability that supports on-demand audit review and analysis.",
-        "description": "The report generation capability must support on-demand review and analysis in order to facilitate the organization's ability to generate incident reports as needed to better handle larger-scale..."
-    },
-    "V-222493": {
-        "title": "The application must provide a report generation capability that supports on-demand reporting requirements.",
-        "description": "The report generation capability must support on-demand reporting in order to facilitate the organization's ability to generate incident reports as needed to better handle larger-scale or more..."
-    },
-    "V-222490": {
-        "title": "The application must provide an audit reduction capability that supports on-demand audit review and analysis.",
-        "description": "The ability to perform on-demand audit review and analysis, including after the audit data has been subjected to audit reduction, greatly facilitates the organization's ability to generate..."
-    },
-    "V-222479": {
-        "title": "The application must implement transaction recovery logs when transaction based.",
-        "description": "Without required logging and access control, security issues related to data changes will not be identified. This could lead to security compromises such as data misuse, unauthorized changes, or..."
-    },
-    "V-222434": {
-        "title": "The application must display the Standard Mandatory DoD Notice and Consent Banner before granting access to the application.",
-        "description": "Display of the DoD-approved use notification before granting access to the application ensures privacy and security notification verbiage used is consistent with applicable federal laws, Executive..."
-    },
-    "V-222436": {
-        "title": "The publicly accessible application must display the Standard Mandatory DoD Notice and Consent Banner before granting access to the application.",
-        "description": "Display of a standardized and approved use notification before granting access to the publicly accessible application ensures privacy and security notification verbiage used is consistent with..."
-    },
-    "V-222411": {
-        "title": "The application must automatically disable accounts after a 35 day period of account inactivity.",
-        "description": "Attackers that are able to exploit an inactive account can potentially obtain and maintain undetected access to an application. Owners of inactive accounts will not notice if unauthorized access..."
-    },
-    "V-222617": {
-        "title": "The application must notify the ISSO and ISSM of failed security verification tests.",
-        "description": "If personnel are not notified of failed security verification tests, they will not be able to take corrective action and the unsecure condition(s) will remain. Security function is defined as the..."
-    },
-    "V-222654": {
-        "title": "The designer must create and update the Design Document for each release of the application.",
-        "description": "This requirement is meant to apply to developers or organizations that are doing application development work. The application design document or configuration guide includes configuration..."
-    },
-    "V-222653": {
-        "title": "The application development team must follow a set of coding standards.",
-        "description": "Coding standards are guidelines established by the development team or individual developers that recommend programming style, practices and methods. The coding standards employed will vary based..."
-    },
-    "V-222647": {
-        "title": "Test procedures must be created and at least annually executed to ensure system initialization, shutdown, and aborts are configured to verify the system remains in a secure state.",
-        "description": "Secure state assurance cannot be accomplished without testing the system state at least annually to ensure the system remains in a secure state upon initialization, shutdown, and aborts."
-    },
-    "V-222644": {
-        "title": "Prior to each release of the application, updates to system, or applying patches; tests plans and procedures must be created and executed.",
-        "description": "Without test plans and procedures for application releases or updates, unexpected results may occur which could lead to a denial of service to the application or components. This requirement is..."
-    },
-    "V-222435": {
-        "title": "The application must retain the Standard Mandatory DoD Notice and Consent Banner on the screen until users acknowledge the usage conditions and take explicit actions to log on for further access.",
-        "description": "The banner must be acknowledged by the user prior to allowing the user access to the application. This provides assurance that the user has seen the message and accepted the conditions for access...."
-    },
-    "V-222437": {
-        "title": "The application must display the time and date of the users last successful logon.",
-        "description": "Providing a last successful logon date and time stamp notification to the user when they authenticate and access the application allows the user to determine if their application account has been..."
-    },
-    "V-222649": {
-        "title": "Code coverage statistics must be maintained for each release of the application.",
-        "description": "This requirement is meant to apply to developers or organizations that are doing application development work. Code coverage statistics describes the overall functionality provided by the..."
+    "V-222391": {
+        "title": "Applications requiring user access authentication must provide a logoff capability for user initiated communication session."
     },
     "V-222392": {
-        "title": "The application must display an explicit logoff message to users indicating the reliable termination of authenticated communications sessions.",
-        "description": "If a user is not explicitly notified that their application session has been terminated, they cannot be certain that their session did not remain open. Applications with a user access interface..."
+        "title": "The application must display an explicit logoff message to users indicating the reliable termination of authenticated communications sessions."
     },
-    "V-222670": {
-        "title": "The application must provide notifications or alerts when product update and security related patches are available.",
-        "description": "An application vulnerability management and update process must be in place to notify and provide users and administrators with a means of obtaining security patches and updates for the..."
+    "V-222393": {
+        "title": "The application must associate organization-defined types of security attributes having organization-defined security attribute values with information in storage."
     },
-    "V-222422": {
-        "title": "The application must notify System Administrators and Information System Security Officers of account enabling actions.",
-        "description": "Once an attacker establishes access to a system, the attacker often attempts to create a persistent method of re-establishing access. One way to accomplish this is for the attacker to simply..."
+    "V-222394": {
+        "title": "The application must associate organization-defined types of security attributes having organization-defined security attribute values with information in process."
     },
-    "V-222672": {
-        "title": "The application must generate audit records when concurrent logons from different workstations occur.",
-        "description": "When an application provides users with the ability to concurrently logon, an event must be recorded that indicates the user has logged on from different workstations. It is important to ensure..."
+    "V-222395": {
+        "title": "The application must associate organization-defined types of security attributes having organization-defined security attribute values with information in transmission."
     },
-    "V-222420": {
-        "title": "The application must notify System Administrators and Information System Security Officers of account removal actions.",
-        "description": "Once an attacker establishes access to a system, the attacker often attempts to create a persistent method of re-establishing access. One way to accomplish this is for the attacker to simply..."
+    "V-222396": {
+        "title": "The application must implement DoD-approved encryption to protect the confidentiality of remote access sessions."
     },
-    "V-222669": {
-        "title": "At least one application administrator must be registered to receive update notifications, or security alerts, when automated alerts are available.",
-        "description": "Administrators should register for updates to all COTS and custom-developed software, so when security flaws are identified, they can be tracked for testing and updates of the application can be..."
+    "V-222397": {
+        "title": "The application must implement cryptographic mechanisms to protect the integrity of remote access sessions."
     },
-    "V-222660": {
-        "title": "Procedures must be in place to notify users when an application is decommissioned.",
-        "description": "When maintenance no longer exists for an application, there are no individuals responsible for making security updates. The application support staff should maintain procedures for..."
+    "V-222398": {
+        "title": "Applications with SOAP messages requiring integrity must include the following message elements:-Message ID-Service Request-Timestamp-SAML Assertion (optionally included in messages) and all elements of the message must be digitally signed."
     },
-    "V-222417": {
-        "title": "The application must notify System Administrators and Information System Security Officers when accounts are created.",
-        "description": "Once an attacker establishes access to a system, the attacker often attempts to create a persistent method of re-establishing access. One way to accomplish this is for the attacker to simply..."
+    "V-222399": {
+        "title": "Messages protected with WS_Security must use time stamps with creation and expiration times."
+    },
+    "V-222400": {
+        "title": "Validity periods must be verified on all application messages using WS-Security or SAML assertions."
+    },
+    "V-222401": {
+        "title": "The application must ensure each unique asserting party provides unique assertion ID references for each SAML assertion."
+    },
+    "V-222402": {
+        "title": "The application must ensure encrypted assertions, or equivalent confidentiality protections are used when assertion data is passed through an intermediary, and confidentiality of the assertion data is required when passing through the intermediary."
+    },
+    "V-222403": {
+        "title": "The application must use the NotOnOrAfter condition when using the SubjectConfirmation element in a SAML assertion."
+    },
+    "V-222404": {
+        "title": "The application must use both the NotBefore and NotOnOrAfter elements or OneTimeUse element when using the Conditions element in a SAML assertion."
+    },
+    "V-222405": {
+        "title": "The application must ensure if a OneTimeUse element is used in an assertion, there is only one of the same used in the Conditions element portion of an assertion."
+    },
+    "V-222406": {
+        "title": "The application must ensure messages are encrypted when the SessionIndex is tied to privacy data."
+    },
+    "V-222407": {
+        "title": "The application must provide automated mechanisms for supporting account management functions."
+    },
+    "V-222408": {
+        "title": "Shared/group account credentials must be terminated when members leave the group."
+    },
+    "V-222409": {
+        "title": "The application must automatically remove or disable temporary user accounts 72 hours after account creation."
     },
     "V-222410": {
-        "title": "The application must have a process, feature or function that prevents removal or disabling of emergency accounts.",
-        "description": "Emergency accounts are administrator accounts which are established in response to crisis situations where the need for rapid account activation is required. Therefore, emergency account..."
+        "title": "The application must have a process, feature or function that prevents removal or disabling of emergency accounts. "
+    },
+    "V-222411": {
+        "title": "The application must automatically disable accounts after a 35 day period of account inactivity."
+    },
+    "V-222412": {
+        "title": "Unnecessary application accounts must be disabled, or deleted."
+    },
+    "V-222413": {
+        "title": "The application must automatically audit account creation."
+    },
+    "V-222414": {
+        "title": "The application must automatically audit account modification."
+    },
+    "V-222415": {
+        "title": "The application must automatically audit account disabling actions."
+    },
+    "V-222416": {
+        "title": "The application must automatically audit account removal actions."
+    },
+    "V-222417": {
+        "title": "The application must notify System Administrators and Information System Security Officers when accounts are created."
     },
     "V-222418": {
-        "title": "The application must notify System Administrators and Information System Security Officers when accounts are modified.",
-        "description": "Once an attacker establishes access to a system, the attacker often attempts to create a persistent method of re-establishing access. One way to accomplish this is for the attacker to simply..."
+        "title": "The application must notify System Administrators and Information System Security Officers when accounts are modified."
     },
     "V-222419": {
-        "title": "The application must notify System Administrators and Information System Security Officers of account disabling actions.",
-        "description": "Once an attacker establishes access to a system, the attacker often attempts to create a persistent method of re-establishing access. One way to accomplish this is for the attacker to simply..."
+        "title": "The application must notify System Administrators and Information System Security Officers of account disabling actions."
+    },
+    "V-222420": {
+        "title": "The application must notify System Administrators and Information System Security Officers of account removal actions."
+    },
+    "V-222421": {
+        "title": "The application must automatically audit account enabling actions."
+    },
+    "V-222422": {
+        "title": "The application must notify System Administrators and Information System Security Officers of account enabling actions."
+    },
+    "V-222423": {
+        "title": "Application data protection requirements must be identified and documented."
+    },
+    "V-222424": {
+        "title": "The application must utilize organization-defined data mining detection techniques for organization-defined data storage objects to adequately detect data mining attempts."
+    },
+    "V-222425": {
+        "title": "The application must enforce approved authorizations for logical access to information and system resources in accordance with applicable access control policies."
+    },
+    "V-222426": {
+        "title": "The application must enforce organization-defined discretionary access control policies over defined subjects and objects."
+    },
+    "V-222427": {
+        "title": "The application must enforce approved authorizations for controlling the flow of information within the system based on organization-defined information flow control policies."
+    },
+    "V-222428": {
+        "title": "The application must enforce approved authorizations for controlling the flow of information between interconnected systems based on organization-defined information flow control policies."
+    },
+    "V-222429": {
+        "title": "The application must prevent non-privileged users from executing privileged functions to include disabling, circumventing, or altering implemented security safeguards/countermeasures."
+    },
+    "V-222430": {
+        "title": "The application must execute without excessive account permissions."
+    },
+    "V-222431": {
+        "title": "The application must audit the execution of privileged functions."
+    },
+    "V-222432": {
+        "title": "The application must enforce the limit of three consecutive invalid logon attempts by a user during a 15 minute time period."
+    },
+    "V-222433": {
+        "title": "The application administrator must follow an approved process to unlock locked user accounts."
+    },
+    "V-222434": {
+        "title": "The application must display the Standard Mandatory DoD Notice and Consent Banner before granting access to the application."
+    },
+    "V-222435": {
+        "title": "The application must retain the Standard Mandatory DoD Notice and Consent Banner on the screen until users acknowledge the usage conditions and take explicit actions to log on for further access."
+    },
+    "V-222436": {
+        "title": "The publicly accessible application must display the Standard Mandatory DoD Notice and Consent Banner before granting access to the application."
+    },
+    "V-222437": {
+        "title": "The application must display the time and date of the users last successful logon."
+    },
+    "V-222438": {
+        "title": "The application must protect against an individual (or process acting on behalf of an individual) falsely denying having performed organization-defined actions to be covered by non-repudiation."
+    },
+    "V-222439": {
+        "title": "For applications providing audit record aggregation, the application must compile audit records from organization-defined information system components into a system-wide audit trail that is time-correlated with an organization-defined level of tolerance for the relationship between time stamps of individual records in the audit trail."
+    },
+    "V-222441": {
+        "title": "The application must provide audit record generation capability for the creation of session IDs."
+    },
+    "V-222442": {
+        "title": "The application must provide audit record generation capability for the destruction of session IDs."
+    },
+    "V-222443": {
+        "title": "The application must provide audit record generation capability for the renewal of session IDs."
+    },
+    "V-222444": {
+        "title": "The application must not write sensitive data into the application logs."
+    },
+    "V-222445": {
+        "title": "The application must provide audit record generation capability for session timeouts."
+    },
+    "V-222446": {
+        "title": "The application must record a time stamp indicating when the event occurred."
+    },
+    "V-222447": {
+        "title": "The application must provide audit record generation capability for HTTP headers including User-Agent, Referer, GET, and POST."
+    },
+    "V-222448": {
+        "title": "The application must provide audit record generation capability for connecting system IP addresses."
+    },
+    "V-222449": {
+        "title": "The application must record the username or user ID of the user associated with the event."
+    },
+    "V-222450": {
+        "title": "The application must generate audit records when successful/unsuccessful attempts to grant privileges occur."
+    },
+    "V-222451": {
+        "title": "The application must generate audit records when successful/unsuccessful attempts to access security objects occur."
+    },
+    "V-222452": {
+        "title": "The application must generate audit records when successful/unsuccessful attempts to access security levels occur."
+    },
+    "V-222453": {
+        "title": "The application must generate audit records when successful/unsuccessful attempts to access categories of information (e.g., classification levels) occur."
+    },
+    "V-222454": {
+        "title": "The application must generate audit records when successful/unsuccessful attempts to modify privileges occur."
+    },
+    "V-222455": {
+        "title": "The application must generate audit records when successful/unsuccessful attempts to modify security objects occur."
+    },
+    "V-222456": {
+        "title": "The application must generate audit records when successful/unsuccessful attempts to modify security levels occur."
+    },
+    "V-222457": {
+        "title": "The application must generate audit records when successful/unsuccessful attempts to modify categories of information (e.g., classification levels) occur."
+    },
+    "V-222458": {
+        "title": "The application must generate audit records when successful/unsuccessful attempts to delete privileges occur."
+    },
+    "V-222459": {
+        "title": "The application must generate audit records when successful/unsuccessful attempts to delete security levels occur."
+    },
+    "V-222460": {
+        "title": "The application must generate audit records when successful/unsuccessful attempts to delete application database security objects occur."
+    },
+    "V-222461": {
+        "title": "The application must generate audit records when successful/unsuccessful attempts to delete categories of information (e.g., classification levels) occur."
+    },
+    "V-222462": {
+        "title": "The application must generate audit records when successful/unsuccessful logon attempts occur."
+    },
+    "V-222463": {
+        "title": "The application must generate audit records for privileged activities or other system-level access."
+    },
+    "V-222464": {
+        "title": "The application must generate audit records showing starting and ending time for user access to the system."
+    },
+    "V-222465": {
+        "title": "The application must generate audit records when successful/unsuccessful accesses to objects occur."
+    },
+    "V-222466": {
+        "title": "The application must generate audit records for all direct access to the information system."
+    },
+    "V-222467": {
+        "title": "The application must generate audit records for all account creations, modifications, disabling, and termination events."
+    },
+    "V-222468": {
+        "title": "The application must initiate session auditing upon startup."
+    },
+    "V-222469": {
+        "title": "The application must log application shutdown events."
+    },
+    "V-222470": {
+        "title": "The application must log destination IP addresses."
+    },
+    "V-222471": {
+        "title": "The application must log user actions involving access to data."
+    },
+    "V-222472": {
+        "title": "The application must log user actions involving changes to data."
+    },
+    "V-222473": {
+        "title": "The application must produce audit records containing information to establish when (date and time) the events occurred."
+    },
+    "V-222474": {
+        "title": "The application must produce audit records containing enough information to establish which component, feature or function of the application triggered the audit event."
+    },
+    "V-222475": {
+        "title": "When using centralized logging; the application must include a unique identifier in order to distinguish itself from other application logs."
+    },
+    "V-222476": {
+        "title": "The application must produce audit records that contain information to establish the outcome of the events."
+    },
+    "V-222477": {
+        "title": "The application must generate audit records containing information that establishes the identity of any individual or process associated with the event."
+    },
+    "V-222478": {
+        "title": "The application must generate audit records containing the full-text recording of privileged commands or the individual identities of group account users."
+    },
+    "V-222479": {
+        "title": "The application must implement transaction recovery logs when transaction based."
+    },
+    "V-222480": {
+        "title": "The application must provide centralized management and configuration of the content to be captured in audit records generated by all application components."
+    },
+    "V-222481": {
+        "title": "The application must off-load audit records onto a different system or media than the system being audited."
+    },
+    "V-222482": {
+        "title": "The application must be configured to write application logs to a centralized log repository."
+    },
+    "V-222483": {
+        "title": "The application must provide an immediate warning to the SA and ISSO (at a minimum) when allocated audit record storage volume reaches 75% of repository maximum audit record storage capacity."
+    },
+    "V-222484": {
+        "title": "Applications categorized as having a moderate or high impact must provide an immediate real-time alert to the SA and ISSO (at a minimum) for all audit failure events."
+    },
+    "V-222485": {
+        "title": "The application must alert the ISSO and SA (at a minimum) in the event of an audit processing failure."
+    },
+    "V-222486": {
+        "title": "The application must shut down by default upon audit failure (unless availability is an overriding concern)."
+    },
+    "V-222487": {
+        "title": "The application must provide the capability to centrally review and analyze audit records from multiple components within the system."
+    },
+    "V-222488": {
+        "title": "The application must provide the capability to filter audit records for events of interest based upon organization-defined criteria."
+    },
+    "V-222489": {
+        "title": "The application must provide an audit reduction capability that supports on-demand reporting requirements."
+    },
+    "V-222490": {
+        "title": "The application must provide an audit reduction capability that supports on-demand audit review and analysis."
+    },
+    "V-222491": {
+        "title": "The application must provide an audit reduction capability that supports after-the-fact investigations of security incidents."
+    },
+    "V-222492": {
+        "title": "The application must provide a report generation capability that supports on-demand audit review and analysis."
+    },
+    "V-222493": {
+        "title": "The application must provide a report generation capability that supports on-demand reporting requirements."
+    },
+    "V-222494": {
+        "title": "The application must provide a report generation capability that supports after-the-fact investigations of security incidents."
+    },
+    "V-222495": {
+        "title": "The application must provide an audit reduction capability that does not alter original content or time ordering of audit records."
+    },
+    "V-222496": {
+        "title": "The application must provide a report generation capability that does not alter original content or time ordering of audit records."
+    },
+    "V-222497": {
+        "title": "The applications must use internal system clocks to generate time stamps for audit records."
+    },
+    "V-222498": {
+        "title": "The application must record time stamps for audit records that can be mapped to Coordinated Universal Time (UTC) or Greenwich Mean Time (GMT)."
+    },
+    "V-222499": {
+        "title": "The application must record time stamps for audit records that meet a granularity of one second for a minimum degree of precision."
+    },
+    "V-222500": {
+        "title": "The application must protect audit information from any type of unauthorized read access."
+    },
+    "V-222501": {
+        "title": "The application must protect audit information from unauthorized modification."
+    },
+    "V-222502": {
+        "title": "The application must protect audit information from unauthorized deletion."
+    },
+    "V-222503": {
+        "title": "The application must protect audit tools from unauthorized access."
+    },
+    "V-222504": {
+        "title": "The application must protect audit tools from unauthorized modification."
+    },
+    "V-222505": {
+        "title": "The application must protect audit tools from unauthorized deletion."
+    },
+    "V-222506": {
+        "title": "The application must back up audit records at least every seven days onto a different system or system component than the system or component being audited."
+    },
+    "V-222507": {
+        "title": "The application must use cryptographic mechanisms to protect the integrity of audit information."
+    },
+    "V-222508": {
+        "title": "Application audit tools must be cryptographically hashed."
+    },
+    "V-222509": {
+        "title": "The integrity of the audit tools must be validated by checking the files for changes in the cryptographic hash value."
+    },
+    "V-222510": {
+        "title": "The application must prohibit user installation of software without explicit privileged status."
+    },
+    "V-222511": {
+        "title": "The application must enforce access restrictions associated with changes to application configuration."
+    },
+    "V-222512": {
+        "title": "The application must audit who makes configuration changes to the application."
+    },
+    "V-222513": {
+        "title": "The application must have the capability to prevent the installation of patches, service packs, or application components without verification the software component has been digitally signed using a certificate that is recognized and approved by the organization."
+    },
+    "V-222514": {
+        "title": "The applications must limit privileges to change the software resident within software libraries."
+    },
+    "V-222515": {
+        "title": "An application vulnerability assessment must be conducted."
+    },
+    "V-222516": {
+        "title": "The application must prevent program execution in accordance with organization-defined policies regarding software program usage and restrictions, and/or rules authorizing the terms and conditions of software program usage."
+    },
+    "V-222517": {
+        "title": "The application must employ a deny-all, permit-by-exception (whitelist) policy to allow the execution of authorized software programs."
+    },
+    "V-222518": {
+        "title": "The application must be configured to disable non-essential capabilities."
+    },
+    "V-222519": {
+        "title": "The application must be configured to use only functions, ports, and protocols permitted to it in the PPSM CAL."
+    },
+    "V-222520": {
+        "title": "The application must require users to reauthenticate when organization-defined circumstances or situations require reauthentication."
+    },
+    "V-222521": {
+        "title": "The application must require devices to reauthenticate when organization-defined circumstances or situations requiring reauthentication."
+    },
+    "V-222522": {
+        "title": "The application must uniquely identify and authenticate organizational users (or processes acting on behalf of organizational users)."
+    },
+    "V-222523": {
+        "title": "The application must use multifactor (Alt. Token) authentication for network access to privileged accounts."
+    },
+    "V-222524": {
+        "title": "The application must accept Personal Identity Verification (PIV) credentials."
+    },
+    "V-222525": {
+        "title": "The application must electronically verify Personal Identity Verification (PIV) credentials."
+    },
+    "V-222526": {
+        "title": "The application must use multifactor (e.g., CAC, Alt. Token) authentication for network access to non-privileged accounts."
+    },
+    "V-222527": {
+        "title": "The application must use multifactor (Alt. Token) authentication for local access to privileged accounts."
+    },
+    "V-222528": {
+        "title": "The application must use multifactor (e.g., CAC, Alt. Token) authentication for local access to non-privileged accounts."
+    },
+    "V-222529": {
+        "title": "The application must ensure users are authenticated with an individual authenticator prior to using a group authenticator."
+    },
+    "V-222530": {
+        "title": "The application must implement replay-resistant authentication mechanisms for network access to privileged accounts."
+    },
+    "V-222531": {
+        "title": "The application must implement replay-resistant authentication mechanisms for network access to non-privileged accounts."
+    },
+    "V-222532": {
+        "title": "The application must utilize mutual authentication when endpoint device non-repudiation protections are required by DoD policy or by the data owner."
+    },
+    "V-222533": {
+        "title": "The application must authenticate all network connected endpoint devices before establishing any connection."
+    },
+    "V-222534": {
+        "title": "Service-Oriented Applications handling non-releasable data must authenticate endpoint devices via mutual SSL/TLS."
+    },
+    "V-222535": {
+        "title": "The application must disable device identifiers after 35 days of inactivity unless a cryptographic certificate is used for authentication."
+    },
+    "V-222536": {
+        "title": "The application must enforce a minimum 15-character password length."
+    },
+    "V-222537": {
+        "title": "The application must enforce password complexity by requiring that at least one upper-case character be used."
+    },
+    "V-222538": {
+        "title": "The application must enforce password complexity by requiring that at least one lower-case character be used."
+    },
+    "V-222539": {
+        "title": "The application must enforce password complexity by requiring that at least one numeric character be used."
+    },
+    "V-222540": {
+        "title": "The application must enforce password complexity by requiring that at least one special character be used."
+    },
+    "V-222541": {
+        "title": "The application must require the change of at least 8 of the total number of characters when passwords are changed."
+    },
+    "V-222542": {
+        "title": "The application must only store cryptographic representations of passwords."
+    },
+    "V-222543": {
+        "title": "The application must transmit only cryptographically-protected passwords."
+    },
+    "V-222544": {
+        "title": "The application must enforce 24 hours/1 day as the minimum password lifetime."
+    },
+    "V-222545": {
+        "title": "The application must enforce a 60-day maximum password lifetime restriction."
+    },
+    "V-222546": {
+        "title": "The application must prohibit password reuse for a minimum of five generations."
+    },
+    "V-222547": {
+        "title": "The application must allow the use of a temporary password for system logons with an immediate change to a permanent password."
+    },
+    "V-222548": {
+        "title": "The application password must not be changeable by users other than the administrator or the user with which the password is associated."
+    },
+    "V-222549": {
+        "title": "The application must terminate existing user sessions upon account deletion."
+    },
+    "V-222550": {
+        "title": "The application, when utilizing PKI-based authentication, must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor."
+    },
+    "V-222551": {
+        "title": "The application, when using PKI-based authentication, must enforce authorized access to the corresponding private key."
+    },
+    "V-222552": {
+        "title": "The application must map the authenticated identity to the individual user or group account for PKI-based authentication."
+    },
+    "V-222553": {
+        "title": "The application, for PKI-based authentication, must implement a local cache of revocation data to support path discovery and validation in case of the inability to access revocation information via the network."
+    },
+    "V-222554": {
+        "title": "The application must not display passwords/PINs as clear text."
+    },
+    "V-222555": {
+        "title": "The application must use mechanisms meeting the requirements of applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance for authentication to a cryptographic module."
+    },
+    "V-222556": {
+        "title": "The application must uniquely identify and authenticate non-organizational users (or processes acting on behalf of non-organizational users)."
+    },
+    "V-222557": {
+        "title": "The application must accept Personal Identity Verification (PIV) credentials from other federal agencies."
+    },
+    "V-222558": {
+        "title": "The application must electronically verify Personal Identity Verification (PIV) credentials from other federal agencies."
+    },
+    "V-222559": {
+        "title": "The application must accept FICAM-approved third-party credentials."
+    },
+    "V-222560": {
+        "title": "The application must conform to FICAM-issued profiles."
+    },
+    "V-222561": {
+        "title": "Applications used for non-local maintenance sessions must audit non-local maintenance and diagnostic sessions for organization-defined auditable events."
+    },
+    "V-222562": {
+        "title": "Applications used for non-local maintenance sessions must implement cryptographic mechanisms to protect the integrity of non-local maintenance and diagnostic communications."
+    },
+    "V-222563": {
+        "title": "Applications used for non-local maintenance sessions must implement cryptographic mechanisms to protect the confidentiality of non-local maintenance and diagnostic communications."
+    },
+    "V-222564": {
+        "title": "Applications used for non-local maintenance sessions must verify remote disconnection at the termination of non-local maintenance and diagnostic sessions."
+    },
+    "V-222565": {
+        "title": "The application must employ strong authenticators in the establishment of non-local maintenance and diagnostic sessions."
+    },
+    "V-222566": {
+        "title": "The application must terminate all sessions and network connections when non-local maintenance is completed."
+    },
+    "V-222567": {
+        "title": "The application must not be vulnerable to race conditions."
+    },
+    "V-222568": {
+        "title": "The application must terminate all network connections associated with a communications session at the end of the session."
+    },
+    "V-222570": {
+        "title": "The application must utilize FIPS-validated cryptographic modules when signing application components."
+    },
+    "V-222571": {
+        "title": "The application must utilize FIPS-validated cryptographic modules when generating cryptographic hashes."
+    },
+    "V-222572": {
+        "title": "The application must utilize FIPS-validated cryptographic modules when protecting unclassified information that requires cryptographic protection."
+    },
+    "V-222573": {
+        "title": "Applications making SAML assertions must use FIPS-approved random numbers in the generation of SessionIndex in the SAML element AuthnStatement."
+    },
+    "V-222574": {
+        "title": "The application user interface must be either physically or logically separated from data storage and management interfaces."
+    },
+    "V-222575": {
+        "title": "The application must set the HTTPOnly flag on session cookies."
+    },
+    "V-222576": {
+        "title": "The application must set the secure flag on session cookies."
+    },
+    "V-222577": {
+        "title": "The application must not expose session IDs."
+    },
+    "V-222578": {
+        "title": "The application must destroy the session ID value and/or cookie on logoff or browser close."
+    },
+    "V-222579": {
+        "title": "Applications must use system-generated session identifiers that protect against session fixation."
+    },
+    "V-222580": {
+        "title": "Applications must validate session identifiers."
+    },
+    "V-222581": {
+        "title": "Applications must not use URL embedded session IDs."
+    },
+    "V-222582": {
+        "title": "The application must not re-use or recycle session IDs."
+    },
+    "V-222583": {
+        "title": "The application must use the Federal Information Processing Standard (FIPS) 140-2-validated cryptographic modules and random number generator if the application implements encryption, key exchange, digital signature, and hash functionality."
+    },
+    "V-222584": {
+        "title": "The application must only allow the use of DoD-approved certificate authorities for verification of the establishment of protected sessions."
+    },
+    "V-222585": {
+        "title": "The application must fail to a secure state if system initialization fails, shutdown fails, or aborts fail."
+    },
+    "V-222586": {
+        "title": "In the event of a system failure, applications must preserve any information necessary to determine cause of failure and any information necessary to return to operations with least disruption to mission processes."
+    },
+    "V-222587": {
+        "title": "The application must protect the confidentiality and integrity of stored information when required by DoD policy or the information owner."
+    },
+    "V-222588": {
+        "title": "The application must implement approved cryptographic mechanisms to prevent unauthorized modification of organization-defined information at rest on organization-defined information system components."
+    },
+    "V-222589": {
+        "title": "The application must use appropriate cryptography in order to protect stored DoD information when required by the information owner or DoD policy."
+    },
+    "V-222590": {
+        "title": "The application must isolate security functions from non-security functions."
+    },
+    "V-222591": {
+        "title": "The application must maintain a separate execution domain for each executing process."
+    },
+    "V-222592": {
+        "title": "Applications must prevent unauthorized and unintended information transfer via shared system resources."
+    },
+    "V-222593": {
+        "title": "XML-based applications must mitigate DoS attacks by using XML filters, parser options, or gateways."
+    },
+    "V-222594": {
+        "title": "The application must restrict the ability to launch Denial of Service (DoS) attacks against itself or other information systems."
+    },
+    "V-222595": {
+        "title": "The web service design must include redundancy mechanisms when used with high-availability systems."
+    },
+    "V-222596": {
+        "title": "The application must protect the confidentiality and integrity of transmitted information."
+    },
+    "V-222597": {
+        "title": "The application must implement cryptographic mechanisms to prevent unauthorized disclosure of information and/or detect changes to information during transmission unless otherwise protected by alternative physical safeguards, such as, at a minimum, a Protected Distribution System (PDS)."
+    },
+    "V-222598": {
+        "title": "The application must maintain the confidentiality and integrity of information during preparation for transmission."
+    },
+    "V-222599": {
+        "title": "The application must maintain the confidentiality and integrity of information during reception."
+    },
+    "V-222600": {
+        "title": "The application must not disclose unnecessary information to users."
+    },
+    "V-222601": {
+        "title": "The application must not store sensitive information in hidden fields."
+    },
+    "V-222602": {
+        "title": "The application must protect from Cross-Site Scripting (XSS) vulnerabilities."
+    },
+    "V-222603": {
+        "title": "The application must protect from Cross-Site Request Forgery (CSRF) vulnerabilities."
+    },
+    "V-222604": {
+        "title": "The application must protect from command injection."
+    },
+    "V-222605": {
+        "title": "The application must protect from canonical representation vulnerabilities."
+    },
+    "V-222606": {
+        "title": "The application must validate all input."
+    },
+    "V-222607": {
+        "title": "The application must not be vulnerable to SQL Injection."
+    },
+    "V-222608": {
+        "title": "The application must not be vulnerable to XML-oriented attacks."
+    },
+    "V-222609": {
+        "title": "The application must not be subject to input handling vulnerabilities."
+    },
+    "V-222610": {
+        "title": "The application must generate error messages that provide information necessary for corrective actions without revealing information that could be exploited by adversaries."
+    },
+    "V-222611": {
+        "title": "The application must reveal error messages only to the ISSO, ISSM, or SA."
+    },
+    "V-222612": {
+        "title": "The application must not be vulnerable to overflow attacks."
+    },
+    "V-222613": {
+        "title": "The application must remove organization-defined software components after updated versions have been installed."
+    },
+    "V-222614": {
+        "title": "Security-relevant software updates and patches must be kept up to date."
+    },
+    "V-222615": {
+        "title": "The application performing organization-defined security functions must verify correct operation of security functions."
+    },
+    "V-222616": {
+        "title": "The application must perform verification of the correct operation of security functions: upon system startup and/or restart; upon command by a user with privileged access; and/or every 30 days."
+    },
+    "V-222617": {
+        "title": "The application must notify the ISSO and ISSM of failed security verification tests."
+    },
+    "V-222618": {
+        "title": "Unsigned Category 1A mobile code must not be used in the application in accordance with DoD policy."
+    },
+    "V-222619": {
+        "title": "The ISSO must ensure an account management process is implemented, verifying only authorized users can gain access to the application, and individual accounts designated as inactive, suspended, or terminated are promptly removed."
+    },
+    "V-222620": {
+        "title": "Application web servers must be on a separate network segment from the application and database servers if it is a tiered application operating in the DoD DMZ."
+    },
+    "V-222621": {
+        "title": "The ISSO must ensure application audit trails are retained for at least 1 year for applications without SAMI data, and 5 years for applications including SAMI data."
+    },
+    "V-222622": {
+        "title": "The ISSO must review audit trails periodically based on system documentation recommendations or immediately upon system security events."
+    },
+    "V-222623": {
+        "title": "The ISSO must report all suspected violations of IA policies in accordance with DoD information system IA procedures."
+    },
+    "V-222624": {
+        "title": "The ISSO must ensure active vulnerability testing is performed."
+    },
+    "V-222625": {
+        "title": "Execution flow diagrams and design documents must be created to show how deadlock and recursion issues in web services are being mitigated."
+    },
+    "V-222626": {
+        "title": "The designer must ensure the application does not store configuration and control files in the same directory as user data."
+    },
+    "V-222627": {
+        "title": "The ISSO must ensure if a DoD STIG or NSA guide is not available, a third-party product will be configured by following available guidance."
+    },
+    "V-222628": {
+        "title": "New IP addresses, data services, and associated ports used by the application must be submitted to the appropriate approving authority for the organization, which in turn will be submitted through the DoD Ports, Protocols, and Services Management (DoD PPSM)"
+    },
+    "V-222629": {
+        "title": "The application must be registered with the DoD Ports and Protocols Database."
+    },
+    "V-222630": {
+        "title": "The Configuration Management (CM) repository must be properly patched and STIG compliant."
+    },
+    "V-222631": {
+        "title": "Access privileges to the Configuration Management (CM) repository must be reviewed every three months."
+    },
+    "V-222632": {
+        "title": "A Software Configuration Management (SCM) plan describing the configuration control and change management process of application objects developed by the organization and the roles and responsibilities of the organization must be created and maintained."
+    },
+    "V-222633": {
+        "title": "A Configuration Control Board (CCB) that meets at least every release cycle, for managing the Configuration Management (CM) process must be established."
+    },
+    "V-222634": {
+        "title": "The application services and interfaces must be compatible with and ready for IPv6 networks."
+    },
+    "V-222635": {
+        "title": "The application must not be hosted on a general purpose machine if the application is designated as critical or high availability by the ISSO."
+    },
+    "V-222636": {
+        "title": "A disaster recovery/continuity plan must exist in accordance with DoD policy based on the applications availability requirements."
+    },
+    "V-222637": {
+        "title": "Recovery procedures and technical system features must exist so recovery is performed in a secure and verifiable manner. The ISSO will document circumstances inhibiting a trusted recovery."
+    },
+    "V-222638": {
+        "title": "Data backup must be performed at required intervals in accordance with DoD policy."
+    },
+    "V-222639": {
+        "title": "Back-up copies of the application software or source code must be stored in a fire-rated container or stored separately (offsite)."
+    },
+    "V-222640": {
+        "title": "Procedures must be in place to assure the appropriate physical and technical protection of the backup and restoration of the application."
+    },
+    "V-222641": {
+        "title": "The application must use encryption to implement key exchange and authenticate endpoints prior to establishing a communication channel for key exchange."
+    },
+    "V-222642": {
+        "title": "The application must not contain embedded authentication data."
+    },
+    "V-222643": {
+        "title": "The application must have the capability to mark sensitive/classified output when required."
+    },
+    "V-222644": {
+        "title": "Prior to each release of the application, updates to system, or applying patches; tests plans and procedures must be created and executed."
+    },
+    "V-222645": {
+        "title": "Application files must be cryptographically hashed prior to deploying to DoD operational networks."
+    },
+    "V-222646": {
+        "title": "At least one tester must be designated to test for security flaws in addition to functional testing."
+    },
+    "V-222647": {
+        "title": "Test procedures must be created and at least annually executed to ensure system initialization, shutdown, and aborts are configured to verify the system remains in a secure state."
+    },
+    "V-222648": {
+        "title": "An application code review must be performed on the application."
+    },
+    "V-222649": {
+        "title": "Code coverage statistics must be maintained for each release of the application."
+    },
+    "V-222650": {
+        "title": "Flaws found during a code review must be tracked in a defect tracking system."
+    },
+    "V-222651": {
+        "title": "The changes to the application must be assessed for IA and accreditation impact prior to implementation."
+    },
+    "V-222652": {
+        "title": "Security flaws must be fixed or addressed in the project plan."
+    },
+    "V-222653": {
+        "title": "The application development team must follow a set of coding standards."
+    },
+    "V-222654": {
+        "title": "The designer must create and update the Design Document for each release of the application."
+    },
+    "V-222655": {
+        "title": "Threat models must be documented and reviewed for each application release and updated as required by design and functionality changes or when new threats are discovered."
+    },
+    "V-222656": {
+        "title": "The application must not be subject to error handling vulnerabilities."
+    },
+    "V-222657": {
+        "title": "The application development team must provide an application incident response plan."
+    },
+    "V-222658": {
+        "title": "All products must be supported by the vendor or the development team."
+    },
+    "V-222659": {
+        "title": "The application must be decommissioned when maintenance or support is no longer available."
+    },
+    "V-222660": {
+        "title": "Procedures must be in place to notify users when an application is decommissioned."
+    },
+    "V-222661": {
+        "title": "Unnecessary built-in application accounts must be disabled."
+    },
+    "V-222662": {
+        "title": "Default passwords must be changed."
+    },
+    "V-222663": {
+        "title": "An Application Configuration Guide must be created and included with the application."
+    },
+    "V-222664": {
+        "title": "If the application contains classified data, a Security Classification Guide must exist containing data elements and their classification."
+    },
+    "V-222665": {
+        "title": "The designer must ensure uncategorized or emerging mobile code is not used in applications."
+    },
+    "V-222666": {
+        "title": "Production database exports must have database administration credentials and sensitive data removed before releasing the export."
+    },
+    "V-222667": {
+        "title": "Protections against DoS attacks must be implemented."
+    },
+    "V-222668": {
+        "title": "The system must alert an administrator when low resource conditions are encountered."
+    },
+    "V-222669": {
+        "title": "At least one application administrator must be registered to receive update notifications, or security alerts, when automated alerts are available."
+    },
+    "V-222670": {
+        "title": "The application must provide notifications or alerts when product update and security related patches are available."
+    },
+    "V-222671": {
+        "title": "Connections between the DoD enclave and the Internet or other public or commercial wide area networks must require a DMZ."
+    },
+    "V-222672": {
+        "title": "The application must generate audit records when concurrent logons from different workstations occur."
+    },
+    "V-222673": {
+        "title": "The Program Manager must verify all levels of program management, designers, developers, and testers receive annual security training pertaining to their job function."
+    },
+    "V-254803": {
+        "title": "The application must implement NSA-approved cryptography to protect classified information in accordance with applicable federal laws, Executive Orders, directives, policies, regulations, and standards."
     }
   },
   "casa": {
