@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ICell, INotebookContent } from '@jupyterlab/nbformat';
+import { ICodeCell, INotebookContent, isCode } from '@jupyterlab/nbformat';
 import { Spinner } from '@sonarsource/echoes-react';
 import {
   FlagMessage,
@@ -26,7 +26,7 @@ import {
   LineFinding,
 } from 'design-system';
 import React from 'react';
-import { JupyterCell } from '~sonar-aligned/components/SourceViewer/JupyterNotebookViewer';
+import { JupyterCodeCell } from '~sonar-aligned/components/SourceViewer/JupyterNotebookViewer';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { JsonIssueMapper } from '~sonar-aligned/helpers/json-issue-mapper';
 import { translate } from '../../../helpers/l10n';
@@ -46,7 +46,10 @@ export function JupyterNotebookIssueViewer(props: Readonly<JupyterNotebookIssueV
     key: issue.component,
     ...getBranchLikeQuery(branchLike),
   });
-  const [renderedCells, setRenderedCells] = React.useState<ICell[] | null>(null);
+  const [renderedCells, setRenderedCells] = React.useState<{
+    after: ICodeCell;
+    before: ICodeCell[];
+  } | null>(null);
 
   React.useEffect(() => {
     if (!issue.textRange || typeof data !== 'string') {
@@ -62,59 +65,67 @@ export function JupyterNotebookIssueViewer(props: Readonly<JupyterNotebookIssueV
     }
 
     const mapper = new JsonIssueMapper(data);
-    const start = mapper.lineOffsetToCursorPosition(
-      issue.textRange.startLine,
-      issue.textRange.startOffset,
+    const startOffset = pathToCursorInCell(
+      mapper.get(
+        mapper.lineOffsetToCursorPosition(issue.textRange.startLine, issue.textRange.startOffset),
+      ),
     );
-    const end = mapper.lineOffsetToCursorPosition(
-      issue.textRange.endLine,
-      issue.textRange.endOffset,
+    const endOffset = pathToCursorInCell(
+      mapper.get(
+        mapper.lineOffsetToCursorPosition(issue.textRange.endLine, issue.textRange.endOffset),
+      ),
     );
-    const startOffset = pathToCursorInCell(mapper.get(start));
-    const endOffset = pathToCursorInCell(mapper.get(end));
     if (!startOffset || !endOffset) {
       setRenderedCells(null);
       return;
     }
 
-    if (startOffset.cell === endOffset.cell) {
-      const startCell = jupyterNotebook.cells[startOffset.cell];
-      startCell.source = Array.isArray(startCell.source) ? startCell.source : [startCell.source];
-      startCell.source = hljsUnderlinePlugin.tokenize(startCell.source, [
+    // When the primary location spans over multiple cells, we show all cells that are part of the range
+    const cells: ICodeCell[] = jupyterNotebook.cells
+      .slice(startOffset.cell, endOffset.cell + 1)
+      .filter((cell) => isCode(cell));
+
+    // Split the last cell because we want to show the issue message at the end of the primary location
+    const sourceBefore = cells[cells.length - 1].source.slice(0, endOffset.line + 1);
+    const sourceAfter = cells[cells.length - 1].source.slice(endOffset.line + 1);
+    const lastCell = {
+      ...cells[cells.length - 1],
+      source: sourceAfter,
+    };
+    cells[cells.length - 1] = {
+      cell_type: 'code',
+      source: sourceBefore,
+      execution_count: 0,
+      outputs: [],
+      metadata: {},
+    };
+
+    for (let i = 0; i < cells.length; i++) {
+      const cell = cells[i];
+      cell.source = Array.isArray(cell.source) ? cell.source : [cell.source];
+
+      // Any cell between the first and last cell should be fully underlined
+      const start = i === 0 ? startOffset : { line: 0, cursorOffset: 0 };
+      const end =
+        i === cells.length - 1
+          ? endOffset
+          : {
+              line: cell.source.length - 1,
+              cursorOffset: cell.source[cell.source.length - 1].length,
+            };
+
+      cell.source = hljsUnderlinePlugin.tokenize(cell.source, [
         {
-          start: startOffset,
-          end: endOffset,
-        },
-      ]);
-    } else {
-      // Each cell is a separate code block, so we have to underline them separately
-      // We underilne the first cell from the start offset to the end of the cell, and the last cell from the start of the cell to the end offset
-      const startCell = jupyterNotebook.cells[startOffset.cell];
-      startCell.source = Array.isArray(startCell.source) ? startCell.source : [startCell.source];
-      startCell.source = hljsUnderlinePlugin.tokenize(startCell.source, [
-        {
-          start: startOffset,
-          end: {
-            line: startCell.source.length - 1,
-            cursorOffset: startCell.source[startCell.source.length - 1].length,
-          },
-        },
-      ]);
-      const endCell = jupyterNotebook.cells[endOffset.cell];
-      endCell.source = Array.isArray(endCell.source) ? endCell.source : [endCell.source];
-      endCell.source = hljsUnderlinePlugin.tokenize(endCell.source, [
-        {
-          start: { line: 0, cursorOffset: 0 },
-          end: endOffset,
+          start,
+          end,
         },
       ]);
     }
 
-    const cells = Array.from(new Set([startOffset.cell, endOffset.cell])).map(
-      (cellIndex) => jupyterNotebook.cells[cellIndex],
-    );
-
-    setRenderedCells(cells);
+    setRenderedCells({
+      before: cells,
+      after: lastCell,
+    });
   }, [issue, data]);
 
   if (isLoading) {
@@ -131,19 +142,30 @@ export function JupyterNotebookIssueViewer(props: Readonly<JupyterNotebookIssueV
 
   return (
     <>
-      <LineFinding
-        issueKey={issue.key}
-        message={
-          <IssueMessageHighlighting
-            message={issue.message}
-            messageFormattings={issue.messageFormattings}
-          />
-        }
-        selected
-      />
-      {renderedCells.map((cell, index) => (
-        <JupyterCell key={'cell-' + index} cell={cell} />
+      {renderedCells.before.map((cell, index) => (
+        <JupyterCodeCell
+          key={'cell-' + index}
+          source={cell.source as string[]}
+          className={index === renderedCells.before.length - 1 ? '-sw-mb-6 sw-relative' : undefined}
+        />
       ))}
+      <div className="-sw-mt-4 -sw-mb-4 -sw-ml-1 sw-mr-5 sw-relative sw-z-normal">
+        <LineFinding
+          issueKey={issue.key}
+          message={
+            <IssueMessageHighlighting
+              message={issue.message}
+              messageFormattings={issue.messageFormattings}
+            />
+          }
+          selected
+        />
+      </div>
+      <JupyterCodeCell
+        className="-sw-mt-6 sw-relative"
+        source={renderedCells.after.source as string[]}
+        outputs={renderedCells.after.outputs}
+      />
     </>
   );
 }

@@ -356,7 +356,10 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
               // See IssueGuide for an explanation on why we want top > 0.
               run={top > 0}
             />
-            <StyledHeader headerHeight={this.headerNode?.clientHeight ?? 0} className="sw-z-normal">
+            <StyledHeader
+              headerHeight={this.headerNode?.clientHeight ?? 0}
+              className="sw-z-issue-header"
+            >
               <div className="sw-p-6 sw-pb-4" ref={(node) => (this.headerNode = node)}>
                 <IssueHeader
                   issue={issue}

@@ -28,6 +28,7 @@ import {
   isMarkdown,
   isStream,
 } from '@jupyterlab/nbformat';
+import classNames from 'classnames';
 import { CodeSnippet } from 'design-system/lib';
 import { isArray } from 'lodash';
 import React from 'react';
@@ -74,12 +75,13 @@ function CellOutput({ output }: Readonly<{ output: IOutput }>) {
   return null;
 }
 
-export function JupyterCodeCell({
-  source,
-  outputs,
-}: Readonly<{ outputs: IOutput[]; source: string[] }>) {
+export function JupyterCodeCell(
+  props: Readonly<{ className?: string; outputs?: IOutput[]; source: string[] }>,
+) {
+  const { source, outputs, className } = props;
+
   return (
-    <div className="sw-m-4 sw-ml-0">
+    <div className={classNames('sw-m-4 sw-ml-0', className)}>
       <div>
         <CodeSnippet language="python" noCopy snippet={source.join('')} wrap className="sw-p-4" />
       </div>

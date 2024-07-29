@@ -104,6 +104,7 @@ module.exports = {
     },
     zIndex: {
       normal: '2',
+      'issue-header': '10',
       'project-list-header': '30',
       filterbar: '50',
       'content-popup': '52',
