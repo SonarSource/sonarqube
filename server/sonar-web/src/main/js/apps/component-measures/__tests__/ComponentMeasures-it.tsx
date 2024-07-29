@@ -69,7 +69,7 @@ describe('rendering', () => {
 
     // Overview.
     expect(ui.seeDataAsListLink.get()).toBeInTheDocument();
-    expect(ui.overviewDomainBtn.get()).toHaveAttribute('aria-current', 'true');
+    expect(ui.overviewDomainLink.get()).toHaveAttribute('aria-current', 'true');
     expect(ui.bubbleChart.get()).toBeInTheDocument();
     expect(within(ui.bubbleChart.get()).getAllByRole('link')).toHaveLength(8);
     expect(ui.newCodePeriodTxt.get()).toBeInTheDocument();
@@ -98,7 +98,7 @@ describe('rendering', () => {
       'Maintainability Rating metric.has_rating_X.E',
       'Effort to Reach Maintainability Rating A work_duration.x_minutes.1',
     ].forEach((measure) => {
-      expect(ui.measureBtn(measure).get()).toBeInTheDocument();
+      expect(ui.measureLink(measure).get()).toBeInTheDocument();
     });
   });
 
@@ -123,7 +123,7 @@ describe('rendering', () => {
       'Maintainability Rating metric.has_rating_X.E',
       'Effort to Reach Maintainability Rating A work_duration.x_minutes.1',
     ].forEach((measure) => {
-      expect(ui.measureBtn(measure).get()).toBeInTheDocument();
+      expect(ui.measureLink(measure).get()).toBeInTheDocument();
     });
     expect(screen.getByText('overview.missing_project_dataTRK')).toBeInTheDocument();
   });
@@ -207,7 +207,7 @@ describe('rendering', () => {
       'component_measures.metric.new_accepted_issues.name 1',
       'component_measures.metric.false_positive_issues.name 1',
     ].forEach((measure) => {
-      expect(ui.measureBtn(measure).get()).toBeInTheDocument();
+      expect(ui.measureLink(measure).get()).toBeInTheDocument();
     });
   });
 
@@ -308,7 +308,7 @@ describe('rendering', () => {
 
     expect(ui.goToActivityLink.query()).not.toBeInTheDocument();
     await user.click(
-      ui.measureBtn('component_measures.metric.maintainability_issues.name 2').get(),
+      ui.measureLink('component_measures.metric.maintainability_issues.name 2').get(),
     );
     expect(ui.goToActivityLink.get()).toHaveAttribute(
       'href',
@@ -344,7 +344,7 @@ describe('navigation', () => {
     await user.click(ui.maintainabilityDomainBtn.get());
 
     await user.click(
-      ui.measureBtn('component_measures.metric.maintainability_issues.name 2').get(),
+      ui.measureLink('component_measures.metric.maintainability_issues.name 2').get(),
     );
     expect(
       within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '2' }),
@@ -377,7 +377,7 @@ describe('navigation', () => {
 
     await user.click(ui.maintainabilityDomainBtn.get());
     await user.click(
-      ui.measureBtn('component_measures.metric.maintainability_issues.name 2').get(),
+      ui.measureLink('component_measures.metric.maintainability_issues.name 2').get(),
     );
 
     // Click list option in view select
@@ -401,7 +401,7 @@ describe('navigation', () => {
     await ui.appLoaded();
 
     await user.click(ui.maintainabilityDomainBtn.get());
-    await user.click(ui.measureBtn('Maintainability Rating metric.has_rating_X.E').get());
+    await user.click(ui.measureLink('Maintainability Rating metric.has_rating_X.E').get());
 
     // Click treemap option in view select
     await user.click(ui.viewSelect.get());
@@ -427,7 +427,7 @@ describe('navigation', () => {
     // Drilldown to the file level.
     await user.click(ui.maintainabilityDomainBtn.get());
     await user.click(
-      ui.measureBtn('component_measures.metric.maintainability_issues.name 2').get(),
+      ui.measureLink('component_measures.metric.maintainability_issues.name 2').get(),
     );
 
     await ui.arrowDown(); // Select the 1st element ("folderA")
@@ -472,7 +472,7 @@ describe('redirects', () => {
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures/metric/bugs?id=foo');
     await ui.appLoaded();
-    expect(ui.measureBtn('component_measures.metric.bugs.name 0').get()).toHaveAttribute(
+    expect(ui.measureLink('component_measures.metric.bugs.name 0').get()).toHaveAttribute(
       'aria-current',
       'true',
     );
@@ -482,10 +482,9 @@ describe('redirects', () => {
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures/metric/security_issues?id=foo');
     await ui.appLoaded();
-    expect(ui.measureBtn('component_measures.metric.security_issues.name 1').get()).toHaveAttribute(
-      'aria-current',
-      'true',
-    );
+    expect(
+      ui.measureLink('component_measures.metric.security_issues.name 1').get(),
+    ).toHaveAttribute('aria-current', 'true');
   });
 
   it('should redirect old domain route', async () => {
@@ -547,7 +546,7 @@ function getPageObject() {
     newCodePeriodTxt: byText('component_measures.leak_legend.new_code'),
 
     // Navigation
-    overviewDomainBtn: byRole('button', {
+    overviewDomainLink: byRole('link', {
       name: 'component_measures.overview.project_overview.subnavigation',
     }),
     releasabilityDomainBtn: byRole('button', {
@@ -580,7 +579,7 @@ function getPageObject() {
     issuesDomainBtn: byRole('button', {
       name: 'Issues component_measures.domain_subnavigation.Issues.help',
     }),
-    measureBtn: (name: string) => byRole('button', { name }),
+    measureLink: (name: string) => byRole('link', { name }),
 
     // Measure content
     measuresTable: byRole('table'),

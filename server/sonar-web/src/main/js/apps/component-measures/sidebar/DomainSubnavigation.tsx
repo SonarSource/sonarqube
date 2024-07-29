@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-  BareButton,
   HelperHintIcon,
   SubnavigationAccordion,
   SubnavigationItem,
@@ -87,10 +86,13 @@ export default function DomainSubnavigation(props: Readonly<Props>) {
       id={`measure-${domain.name}`}
     >
       {hasOverview(domain.name) && (
-        <SubnavigationItem active={domain.name === selected} onClick={onChange} value={domain.name}>
-          <BareButton aria-current={domain.name === selected}>
-            {translate('component_measures.domain_overview')}
-          </BareButton>
+        <SubnavigationItem
+          active={domain.name === selected}
+          ariaCurrent={domain.name === selected}
+          onClick={onChange}
+          value={domain.name}
+        >
+          {translate('component_measures.domain_overview')}
         </SubnavigationItem>
       )}
 

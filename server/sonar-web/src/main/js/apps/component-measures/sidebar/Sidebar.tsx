@@ -20,7 +20,6 @@
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
-  BareButton,
   LAYOUT_FOOTER_HEIGHT,
   LAYOUT_GLOBAL_NAV_HEIGHT,
   LAYOUT_PROJECT_NAV_HEIGHT,
@@ -91,11 +90,10 @@ export default function Sidebar(props: Readonly<Props>) {
         <SubnavigationGroup>
           <SubnavigationItem
             active={isProjectOverview(selectedMetric)}
+            ariaCurrent={isProjectOverview(selectedMetric)}
             onClick={handleProjectOverviewClick}
           >
-            <BareButton aria-current={isProjectOverview(selectedMetric)}>
-              {translate('component_measures.overview', PROJECT_OVERVEW, 'subnavigation')}
-            </BareButton>
+            {translate('component_measures.overview', PROJECT_OVERVEW, 'subnavigation')}
           </SubnavigationItem>
         </SubnavigationGroup>
 
