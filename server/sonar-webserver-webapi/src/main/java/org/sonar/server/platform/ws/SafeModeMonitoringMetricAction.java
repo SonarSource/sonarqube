@@ -54,9 +54,9 @@ public class SafeModeMonitoringMetricAction implements MonitoringWsAction {
     context.createAction("metrics")
       .setSince("9.3")
       .setDescription("""
-        Return monitoring metrics in Prometheus format.\s
-        Support content type 'text/plain' (default) and 'application/openmetrics-text'.
-        this endpoint can be access using a Bearer token, that needs to be defined in sonar.properties with the 'sonar.web.systemPasscode' key.""")
+         Return monitoring metrics in Prometheus format. \s
+         Support content type 'text/plain' (default) and 'application/openmetrics-text'.
+         This endpoint can be accessed using a Bearer token, which needs to be defined in sonar.properties with the 'sonar.web.systemPasscode' key.""")
       .setResponseExample(Resources.getResource(this.getClass(), "monitoring-metrics.txt"))
       .setHandler(this);
     isWebUpGauge.set(1D);
