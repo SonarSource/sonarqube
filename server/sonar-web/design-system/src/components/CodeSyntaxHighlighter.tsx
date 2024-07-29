@@ -25,7 +25,7 @@ import cobol from 'highlightjs-cobol';
 import abap from 'highlightjs-sap-abap';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers/theme';
-import { hljsUnderlinePlugin } from '../sonar-aligned/hljs/HljsUnderlinePlugin';
+import { hljsIssueIndicatorPlugin, hljsUnderlinePlugin } from '../sonar-aligned';
 
 hljs.registerLanguage('abap', abap);
 hljs.registerLanguage('apex', apex);
@@ -39,6 +39,7 @@ hljs.registerAliases('secrets', { languageName: 'markdown' });
 hljs.registerAliases('web', { languageName: 'xml' });
 hljs.registerAliases(['cloudformation', 'kubernetes'], { languageName: 'yaml' });
 
+hljs.addPlugin(hljsIssueIndicatorPlugin);
 hljs.addPlugin(hljsUnderlinePlugin);
 
 interface Props {

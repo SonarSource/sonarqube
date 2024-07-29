@@ -21,19 +21,31 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { keyBy, omit, times } from 'lodash';
-import { QuerySelector, byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import {
+  QuerySelector,
+  byLabelText,
+  byRole,
+  byTestId,
+  byText,
+} from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
+import { PARENT_COMPONENT_KEY, RULE_1 } from '../../../api/mocks/data/ids';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import SourcesServiceMock from '../../../api/mocks/SourcesServiceMock';
 import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
 import { isDiffMetric } from '../../../helpers/measures';
 import { mockComponent } from '../../../helpers/mocks/component';
-import { mockSourceLine, mockSourceViewerFile } from '../../../helpers/mocks/sources';
-import { mockMeasure } from '../../../helpers/testMocks';
+import {
+  mockSnippetsByComponent,
+  mockSourceLine,
+  mockSourceViewerFile,
+} from '../../../helpers/mocks/sources';
+import { mockMeasure, mockRawIssue } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
+import { IssueStatus } from '../../../types/issues';
 import { Component } from '../../../types/types';
 import routes from '../routes';
 
@@ -58,6 +70,40 @@ const branchesHandler = new BranchesServiceMock();
 const componentsHandler = new ComponentsServiceMock();
 const sourcesHandler = new SourcesServiceMock();
 const issuesHandler = new IssuesServiceMock();
+
+const JUPYTER_ISSUE = {
+  issue: mockRawIssue(false, {
+    key: 'some-issue',
+    component: `${PARENT_COMPONENT_KEY}:jpt.ipynb`,
+    message: 'Issue on Jupyter Notebook',
+    rule: RULE_1,
+    textRange: {
+      startLine: 1,
+      endLine: 1,
+      startOffset: 1148,
+      endOffset: 1159,
+    },
+    ruleDescriptionContextKey: 'spring',
+    ruleStatus: 'DEPRECATED',
+    quickFixAvailable: true,
+    tags: ['unused'],
+    project: 'org.sonarsource.javascript:javascript',
+    assignee: 'email1@sonarsource.com',
+    author: 'email3@sonarsource.com',
+    issueStatus: IssueStatus.Confirmed,
+    prioritizedRule: true,
+  }),
+  snippets: keyBy(
+    [
+      mockSnippetsByComponent(
+        'jpt.ipynb',
+        PARENT_COMPONENT_KEY,
+        times(40, (i) => i + 20),
+      ),
+    ],
+    'component.key',
+  ),
+};
 
 beforeAll(() => {
   Object.defineProperty(window, 'scrollTo', {
@@ -439,6 +485,7 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
 });
 
 it('should render correctly for ipynb files', async () => {
+  issuesHandler.setIssueList([JUPYTER_ISSUE]);
   const component = mockComponent({
     ...componentsHandler.findComponentTree('foo')?.component,
     qualifier: ComponentQualifier.Project,
@@ -475,6 +522,10 @@ it('should render correctly for ipynb files', async () => {
 
   await ui.clickOnChildComponent(/ipynb$/);
 
+  await ui.clickToggleCode();
+  expect(ui.sourceCode.get()).toBeInTheDocument();
+
+  await ui.clickTogglePreview();
   expect(ui.previewToggle.get()).toBeInTheDocument();
   expect(ui.previewToggleOption().get()).toBeChecked();
   expect(ui.previewMarkdown.get()).toBeInTheDocument();
@@ -482,10 +533,13 @@ it('should render correctly for ipynb files', async () => {
   expect(ui.previewOutputImage.get()).toBeInTheDocument();
   expect(ui.previewOutputText.get()).toBeInTheDocument();
   expect(ui.previewOutputStream.get()).toBeInTheDocument();
+  expect(ui.previewIssueUnderline.get()).toBeInTheDocument();
 
-  await ui.clickToggleCode();
+  expect(await ui.previewIssueIndicator.find()).toBeInTheDocument();
 
-  expect(ui.sourceCode.get()).toBeInTheDocument();
+  await ui.clickIssueIndicator();
+
+  expect(ui.issuesViewPage.get()).toBeInTheDocument();
 });
 
 function getPageObject(user: UserEvent) {
@@ -504,6 +558,11 @@ function getPageObject(user: UserEvent) {
     noResultsTxt: byText('no_results'),
     sourceCode: byText('function Test() {}'),
     previewCode: byText('numpy', { exact: false }),
+    previewIssueUnderline: byTestId('hljs-sonar-underline'),
+    previewIssueIndicator: byRole('button', {
+      name: 'source_viewer.issues_on_line.multiple_issues_same_category.true.1.issue.clean_code_attribute_category.responsible',
+    }),
+    issuesViewPage: byText('/project/issues?open=some-issue&id=foo'),
     previewMarkdown: byText('Learning a cosine with keras'),
     previewOutputImage: byRole('img', { name: 'source_viewer.jupyter.output.image' }),
     previewOutputText: byText('[<matplotlib.lines.Line2D at 0x7fb588176b90>]'),
@@ -546,6 +605,12 @@ function getPageObject(user: UserEvent) {
     },
     async clickToggleCode() {
       await user.click(ui.previewToggleOption('Code').get());
+    },
+    async clickTogglePreview() {
+      await user.click(ui.previewToggleOption('Preview').get());
+    },
+    async clickIssueIndicator() {
+      await user.click(ui.previewIssueIndicator.get());
     },
     async appLoaded(name = 'Foo') {
       await waitFor(() => {

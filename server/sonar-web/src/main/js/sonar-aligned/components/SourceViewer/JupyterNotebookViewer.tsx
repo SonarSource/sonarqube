@@ -20,7 +20,6 @@
 
 import {
   ICell,
-  ICodeCell,
   IMarkdownCell,
   IOutput,
   isCode,
@@ -75,17 +74,18 @@ function CellOutput({ output }: Readonly<{ output: IOutput }>) {
   return null;
 }
 
-export function JupyterCodeCell({ cell }: Readonly<{ cell: ICodeCell }>) {
-  const snippet = isArray(cell.source) ? cell.source.join('') : cell.source;
-
+export function JupyterCodeCell({
+  source,
+  outputs,
+}: Readonly<{ outputs: IOutput[]; source: string[] }>) {
   return (
     <div className="sw-m-4 sw-ml-0">
       <div>
-        <CodeSnippet language="python" noCopy snippet={snippet} wrap className="sw-p-4" />
+        <CodeSnippet language="python" noCopy snippet={source.join('')} wrap className="sw-p-4" />
       </div>
       <div>
-        {cell.outputs?.map((output: IOutput, outputIndex: number) => (
-          <CellOutput key={`${cell.cell_type}-output-${outputIndex}`} output={output} />
+        {outputs?.map((output: IOutput, outputIndex: number) => (
+          <CellOutput key={`${output.output_type}-output-${outputIndex}`} output={output} />
         ))}
       </div>
     </div>
@@ -93,8 +93,9 @@ export function JupyterCodeCell({ cell }: Readonly<{ cell: ICodeCell }>) {
 }
 
 export function JupyterCell({ cell }: Readonly<{ cell: ICell }>) {
+  const source = Array.isArray(cell.source) ? cell.source : [cell.source];
   if (isCode(cell)) {
-    return <JupyterCodeCell cell={cell} />;
+    return <JupyterCodeCell source={source} outputs={cell.outputs} />;
   }
 
   if (isMarkdown(cell)) {

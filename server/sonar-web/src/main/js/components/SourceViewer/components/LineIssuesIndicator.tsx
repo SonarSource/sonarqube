@@ -27,6 +27,7 @@ import { Issue, SourceLine } from '../../../types/types';
 const MOUSE_LEAVE_DELAY = 0.25;
 
 export interface LineIssuesIndicatorProps {
+  as?: React.ElementType;
   issues: Issue[];
   issuesOpen?: boolean;
   line: SourceLine;
@@ -34,7 +35,7 @@ export interface LineIssuesIndicatorProps {
 }
 
 export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
-  const { issues, issuesOpen, line } = props;
+  const { issues, issuesOpen, line, as = 'td' } = props;
   const hasIssues = issues.length > 0;
   const intl = useIntl();
 
@@ -66,7 +67,7 @@ export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
   }
 
   return (
-    <LineMeta className="it__source-line-with-issues" data-line-number={line.line}>
+    <LineMeta className="it__source-line-with-issues" data-line-number={line.line} as={as}>
       <Tooltip mouseLeaveDelay={MOUSE_LEAVE_DELAY} content={tooltipContent}>
         <IssueIndicatorButton
           aria-label={tooltipContent}

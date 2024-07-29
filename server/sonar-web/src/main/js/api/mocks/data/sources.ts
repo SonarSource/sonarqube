@@ -83,5 +83,10 @@ export const mockIpynbFile = JSON.stringify({
       ],
       source: ['import pylab as pl\n', '%matplotlib inline\n', 'pl.plot(x, y)'],
     },
+    {
+      cell_type: 'markdown',
+      metadata: {},
+      source: '# markdown as a string',
+    },
   ],
 });
