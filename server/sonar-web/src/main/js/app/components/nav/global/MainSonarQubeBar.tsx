@@ -32,7 +32,9 @@ function LogoWithAriaText() {
   const customLogoUrl = settings[GlobalSettingKeys.LogoUrl];
   const customLogoWidth = settings[GlobalSettingKeys.LogoWidth] ?? DEFAULT_CUSTOM_LOGO_WIDTH_IN_PX;
 
-  const title = translate('layout.nav.home_logo_alt');
+  const title = customLogoUrl
+    ? translate('layout.nav.home_logo_alt')
+    : translate('layout.nav.home_sonarqube_logo_alt');
 
   return (
     <div aria-label={title} role="img">
