@@ -80,7 +80,7 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
           touched: true
         });
         this.props.onChange(undefined);
-      }else if (key.length > 80 || !/^[a-z0-9A-Z][A-Za-z0-9-]*[A-Za-z0-9]?$/.test(key)) {
+      }else if (key.length > 80 || !/^(?:[a-zA-Z0-9]+(?:[\s-][a-zA-Z0-9]+)*)$/.test(key)) {
         this.setState({
           error: translate('onboarding.create_organization.organization_name.error'),
           touched: true
@@ -92,7 +92,7 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
     }else{
       if(key.length == 0){
         this.checkFreeKey("");
-      }else if (key.length > 80 || !/^[a-z0-9A-Z][A-Za-z0-9-]*[A-Za-z0-9]?$/.test(key)) {
+      }else if (key.length > 80 || !/^(?:[a-zA-Z0-9]+(?:[\s-][a-zA-Z0-9]+)*)$/.test(key)) {
         this.setState({
           error: translate('onboarding.create_organization.organization_name.error'),
           touched: true
