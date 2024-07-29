@@ -115,7 +115,7 @@ public class GithubConfigurationService {
       dbSession.commit();
 
       GithubConfiguration updatedConfiguration = getConfiguration(UNIQUE_GITHUB_CONFIGURATION_ID, dbSession);
-      if (shouldTriggerProvisioning(provisioningEnabled, currentConfiguration)) {
+      if (shouldTriggerProvisioning(provisioningEnabled, currentConfiguration, updateRequest)) {
         triggerRun(updatedConfiguration);
       }
 
@@ -123,8 +123,22 @@ public class GithubConfigurationService {
     }
   }
 
-  private static boolean shouldTriggerProvisioning(UpdatedValue<Boolean> provisioningEnabled, GithubConfiguration currentConfiguration) {
-    return provisioningEnabled.orElse(false) && !currentConfiguration.provisioningType().equals(AUTO_PROVISIONING);
+  private static boolean shouldTriggerProvisioning(UpdatedValue<Boolean> provisioningEnabled, GithubConfiguration currentConfiguration,
+    UpdateGithubConfigurationRequest updateRequest) {
+    return shouldTriggerProvisioningAfterTypeChange(provisioningEnabled, currentConfiguration)
+      || shouldTriggerProvisioningAfterUserConsent(updateRequest, currentConfiguration);
+  }
+
+  private static boolean shouldTriggerProvisioningAfterTypeChange(UpdatedValue<Boolean> provisioningEnabled, GithubConfiguration currentConfiguration) {
+    return provisioningEnabled.orElse(false)
+      && !currentConfiguration.provisioningType().equals(AUTO_PROVISIONING);
+  }
+
+  private static boolean shouldTriggerProvisioningAfterUserConsent(UpdateGithubConfigurationRequest updateRequest,
+    GithubConfiguration currentConfiguration) {
+    boolean wasUserConsentRequired = currentConfiguration.userConsentRequiredAfterUpgrade();
+    boolean userConsentProvidedForAutoProvisioning = !updateRequest.provisioningType().contains(JIT) && updateRequest.userConsentRequiredAfterUpgrade().contains(false);
+    return wasUserConsentRequired && userConsentProvidedForAutoProvisioning;
   }
 
   private static void throwIfUrlIsUpdatedWithoutPrivateKey(UpdateGithubConfigurationRequest request) {

@@ -105,7 +105,7 @@ public class GitlabConfigurationService {
       setIfDefined(dbSession, GITLAB_AUTH_PROVISIONING_ENABLED, provisioningEnabled.map(String::valueOf));
       setIfDefined(dbSession, GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP, updateRequest.allowUsersToSignUp().map(String::valueOf));
       setIfDefined(dbSession, GITLAB_AUTH_PROVISIONING_TOKEN, updateRequest.provisioningToken());
-      boolean shouldTriggerProvisioning = provisioningEnabled.orElse(false) && !currentConfiguration.provisioningType().equals(AUTO_PROVISIONING);
+      boolean shouldTriggerProvisioning = provisioningEnabled.orElse(false);
       deleteExternalGroupsWhenDisablingAutoProvisioning(dbSession, currentConfiguration, updateRequest.provisioningType());
       GitlabConfiguration updatedConfiguration = getConfiguration(UNIQUE_GITLAB_CONFIGURATION_ID, dbSession);
       if (shouldTriggerProvisioning) {

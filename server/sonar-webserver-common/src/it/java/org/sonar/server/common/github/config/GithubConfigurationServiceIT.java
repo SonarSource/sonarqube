@@ -48,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -120,7 +121,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void getConfiguration_whenConfigurationSet_returnsConfig() {
-    githubConfigurationService.createConfiguration(buildGithubConfiguration(AUTO_PROVISIONING));
+    githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING));
 
     GithubConfiguration configuration = githubConfigurationService.getConfiguration("github-configuration");
 
@@ -154,7 +155,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void updateConfiguration_whenIdIsNotGithubConfiguration_throwsException() {
-    githubConfigurationService.createConfiguration(buildGithubConfiguration(AUTO_PROVISIONING));
+    githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING));
     UpdateGithubConfigurationRequest updateGithubConfigurationRequest = builder().githubConfigurationId("not-github-configuration").build();
     assertThatExceptionOfType(NotFoundException.class)
       .isThrownBy(() -> githubConfigurationService.updateConfiguration(updateGithubConfigurationRequest))
@@ -171,7 +172,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void updateConfiguration_whenAllUpdateFieldDefined_updatesEverything() {
-    githubConfigurationService.createConfiguration(buildGithubConfiguration(JIT));
+    githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(JIT));
 
     UpdateGithubConfigurationRequest updateRequest = builder()
       .githubConfigurationId(UNIQUE_GITHUB_CONFIGURATION_ID)
@@ -212,7 +213,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void updateConfiguration_whenAllUpdateFieldDefinedAndSetToFalse_updatesEverything() {
-    githubConfigurationService.createConfiguration(buildGithubConfiguration(AUTO_PROVISIONING));
+    githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING));
     verify(managedInstanceService).queueSynchronisationTask();
     clearInvocations(managedInstanceService);
 
@@ -242,7 +243,7 @@ public class GithubConfigurationServiceIT {
     dbTester.getDbClient().githubOrganizationGroupDao().insert(dbSession, new GithubOrganizationGroupDto("14", "org1", "group1"));
     dbSession.commit();
 
-    githubConfigurationService.createConfiguration(buildGithubConfiguration(AUTO_PROVISIONING));
+    githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING));
     verify(managedInstanceService).queueSynchronisationTask();
     reset(managedInstanceService);
 
@@ -260,7 +261,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void updateConfiguration_whenSwitchingToAutoProvisioningAndTheConfigIsNotEnabled_shouldThrow() {
-    githubConfigurationService.createConfiguration(buildGithubConfiguration(JIT));
+    githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(JIT));
 
     UpdateGithubConfigurationRequest disableRequest = builder()
       .githubConfigurationId(UNIQUE_GITHUB_CONFIGURATION_ID)
@@ -282,7 +283,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void updateConfiguration_whenURLChangesWithoutSecret_shouldFail() {
-    githubConfigurationService.createConfiguration(buildGithubConfiguration(JIT));
+    githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(JIT));
 
     UpdateGithubConfigurationRequest updateUrlRequest = builder()
       .githubConfigurationId(UNIQUE_GITHUB_CONFIGURATION_ID)
@@ -296,7 +297,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void updateConfiguration_whenURLChangesWithAllSecrets_shouldUpdate() {
-    githubConfigurationService.createConfiguration(buildGithubConfiguration(JIT));
+    githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(JIT));
 
     UpdateGithubConfigurationRequest updateUrlRequest = builder()
       .githubConfigurationId(UNIQUE_GITHUB_CONFIGURATION_ID)
@@ -308,6 +309,59 @@ public class GithubConfigurationServiceIT {
 
     verifySettingWasSet(GITHUB_API_URL, "http://new.url");
     verifySettingWasSet(GITHUB_PRIVATE_KEY, "new-private-key");
+  }
+
+  @Test
+  public void updateConfiguration_whenDisablingUserConsentFlagAndJITProvisioning_shouldNotScheduleSync() {
+    githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING));
+    reset(managedInstanceService);
+    verifySettingExistsButEmpty(GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE);
+
+
+    UpdateGithubConfigurationRequest updateRequest = builder()
+      .githubConfigurationId(UNIQUE_GITHUB_CONFIGURATION_ID)
+      .userConsentRequiredAfterUpgrade(withValueOrThrow(false))
+      .provisioningType(withValueOrThrow(JIT))
+      .build();
+
+    githubConfigurationService.updateConfiguration(updateRequest);
+
+    verifySettingWasDeleted(GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE);
+    verify(managedInstanceService, never()).queueSynchronisationTask();
+  }
+
+  @Test
+  public void updateConfiguration_whenDisablingUserConsentFlagAndAUTOProvisioning_shouldScheduleSync() {
+    githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING));
+    reset(managedInstanceService);
+    verifySettingExistsButEmpty(GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE);
+
+
+    UpdateGithubConfigurationRequest updateRequest = builder()
+      .githubConfigurationId(UNIQUE_GITHUB_CONFIGURATION_ID)
+      .userConsentRequiredAfterUpgrade(withValueOrThrow(false))
+      .build();
+
+    githubConfigurationService.updateConfiguration(updateRequest);
+
+    verifySettingWasDeleted(GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE);
+    verify(managedInstanceService).queueSynchronisationTask();
+  }
+
+  @Test
+  public void updateConfiguration_whenDisablingUserConsentFlagAndUserConsentFlagAlreadyDisabled_shouldNotScheduleSync() {
+    githubConfigurationService.createConfiguration(buildGithubConfiguration(AUTO_PROVISIONING, false));
+    reset(managedInstanceService);
+
+
+    UpdateGithubConfigurationRequest updateRequest = builder()
+      .githubConfigurationId(UNIQUE_GITHUB_CONFIGURATION_ID)
+      .userConsentRequiredAfterUpgrade(withValueOrThrow(false))
+      .build();
+
+    githubConfigurationService.updateConfiguration(updateRequest);
+
+    verify(managedInstanceService, never()).queueSynchronisationTask();
   }
 
   private static void assertConfigurationFields(GithubConfiguration configuration) {
@@ -330,7 +384,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void createConfiguration_whenConfigurationAlreadyExists_shouldThrow() {
-    GithubConfiguration githubConfiguration = buildGithubConfiguration(AUTO_PROVISIONING);
+    GithubConfiguration githubConfiguration = buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING);
     githubConfigurationService.createConfiguration(githubConfiguration);
 
     assertThatThrownBy(() -> githubConfigurationService.createConfiguration(githubConfiguration))
@@ -340,7 +394,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void createConfiguration_whenAutoProvisioning_shouldCreateCorrectConfigurationAndScheduleSync() {
-    GithubConfiguration configuration = buildGithubConfiguration(AUTO_PROVISIONING);
+    GithubConfiguration configuration = buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING);
 
     GithubConfiguration createdConfiguration = githubConfigurationService.createConfiguration(configuration);
 
@@ -354,7 +408,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void createConfiguration_whenInstanceIsExternallyManaged_shouldThrow() {
-    GithubConfiguration configuration = buildGithubConfiguration(AUTO_PROVISIONING);
+    GithubConfiguration configuration = buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING);
 
     when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
     when(managedInstanceService.getProviderName()).thenReturn("not-github");
@@ -367,7 +421,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void createConfiguration_whenJitProvisioning_shouldCreateCorrectConfiguration() {
-    GithubConfiguration configuration = buildGithubConfiguration(JIT);
+    GithubConfiguration configuration = buildGithubConfigurationWithUserConsentTrue(JIT);
 
     GithubConfiguration createdConfiguration = githubConfigurationService.createConfiguration(configuration);
 
@@ -406,6 +460,10 @@ public class GithubConfigurationServiceIT {
     assertThat(dbTester.getDbClient().propertiesDao().selectGlobalProperty(setting)).isNotNull();
   }
 
+  private void verifySettingWasDeleted(String setting) {
+    assertThat(dbTester.getDbClient().propertiesDao().selectGlobalProperty(setting)).isNull();
+  }
+
   @Test
   public void deleteConfiguration_whenIdIsNotGithubConfiguration_throwsException() {
     assertThatThrownBy(() -> githubConfigurationService.deleteConfiguration("not-github-configuration"))
@@ -426,7 +484,7 @@ public class GithubConfigurationServiceIT {
     dbTester.getDbClient().externalGroupDao().insert(dbSession, new ExternalGroupDto("12", "12", GitHubIdentityProvider.KEY));
     dbTester.getDbClient().externalGroupDao().insert(dbSession, new ExternalGroupDto("34", "34", GitHubIdentityProvider.KEY));
     dbSession.commit();
-    githubConfigurationService.createConfiguration(buildGithubConfiguration(AUTO_PROVISIONING));
+    githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING));
     githubConfigurationService.deleteConfiguration("github-configuration");
 
     assertPropertyIsDeleted(GITHUB_ENABLED);
@@ -456,7 +514,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void validate_whenConfigurationIsDisabled_shouldNotValidate() {
-    GithubConfiguration githubConfiguration = buildGithubConfiguration(AUTO_PROVISIONING);
+    GithubConfiguration githubConfiguration = buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING);
     when(githubConfiguration.enabled()).thenReturn(false);
 
     githubConfigurationService.validate(githubConfiguration);
@@ -466,7 +524,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void validate_whenConfigurationIsValidAndJIT_returnEmptyOptional() {
-    GithubConfiguration configuration = buildGithubConfiguration(JIT);
+    GithubConfiguration configuration = buildGithubConfigurationWithUserConsentTrue(JIT);
     when(configuration.enabled()).thenReturn(true);
 
     githubConfigurationService.validate(configuration);
@@ -477,7 +535,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void validate_whenConfigurationIsValidAndAutoProvisioning_returnEmptyOptional() {
-    GithubConfiguration configuration = buildGithubConfiguration(AUTO_PROVISIONING);
+    GithubConfiguration configuration = buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING);
     when(configuration.enabled()).thenReturn(true);
 
     githubConfigurationService.validate(configuration);
@@ -488,7 +546,7 @@ public class GithubConfigurationServiceIT {
 
   @Test
   public void validate_whenConfigurationIsInValid_returnsExceptionMessage() {
-    GithubConfiguration configuration = buildGithubConfiguration(AUTO_PROVISIONING);
+    GithubConfiguration configuration = buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING);
     when(configuration.enabled()).thenReturn(true);
 
     Exception exception = new IllegalStateException("Invalid configuration");
@@ -499,7 +557,11 @@ public class GithubConfigurationServiceIT {
     assertThat(message).contains("Invalid configuration");
   }
 
-  private static GithubConfiguration buildGithubConfiguration(ProvisioningType provisioningType) {
+  private static GithubConfiguration buildGithubConfigurationWithUserConsentTrue(ProvisioningType provisioningType) {
+    return buildGithubConfiguration(provisioningType, true);
+  }
+
+  private static GithubConfiguration buildGithubConfiguration(ProvisioningType provisioningType, boolean userConsentRequiredAfterUpgrade) {
     GithubConfiguration githubConfiguration = mock();
     when(githubConfiguration.id()).thenReturn("github-configuration");
     when(githubConfiguration.enabled()).thenReturn(true);
@@ -514,7 +576,7 @@ public class GithubConfigurationServiceIT {
     when(githubConfiguration.provisioningType()).thenReturn(provisioningType);
     when(githubConfiguration.allowUsersToSignUp()).thenReturn(true);
     when(githubConfiguration.provisionProjectVisibility()).thenReturn(true);
-    when(githubConfiguration.userConsentRequiredAfterUpgrade()).thenReturn(true);
+    when(githubConfiguration.userConsentRequiredAfterUpgrade()).thenReturn(userConsentRequiredAfterUpgrade);
     return githubConfiguration;
   }
 

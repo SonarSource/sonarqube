@@ -252,6 +252,22 @@ public class GitlabConfigurationServiceIT {
   }
 
   @Test
+  public void updateConfiguration_whenResettingAutoFromAuto_shouldTriggerSync() {
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(AUTO_PROVISIONING));
+    verify(managedInstanceService).queueSynchronisationTask();
+    reset(managedInstanceService);
+
+    UpdateGitlabConfigurationRequest updateRequest = builder()
+      .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
+      .provisioningType(withValueOrThrow(AUTO_PROVISIONING))
+      .build();
+
+    gitlabConfigurationService.updateConfiguration(updateRequest);
+
+    verify(managedInstanceService).queueSynchronisationTask();
+  }
+
+  @Test
   public void updateConfiguration_whenSwitchingToAutoProvisioningAndTheConfigIsNotEnabled_shouldThrow() {
     gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(JIT));
 
