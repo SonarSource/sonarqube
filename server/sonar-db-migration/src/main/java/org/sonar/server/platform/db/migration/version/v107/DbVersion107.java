@@ -41,7 +41,8 @@ public class DbVersion107 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(10_7_000, "Create 'telemetry_metrics_sent' table", CreateTelemetryMetricsSentTable.class)
-      .add(10_7_001, "sonar.auth.gitlab.userConsentForPermissionProvisioningRequired", AddUserConsentRequiredIfGitlabAutoProvisioningEnabled.class);
+      .add(10_7_001, "sonar.auth.gitlab.userConsentForPermissionProvisioningRequired", AddUserConsentRequiredIfGitlabAutoProvisioningEnabled.class)
+      .add(10_7_002, "Migrate SMTP configuration into internal_properties", MigrateSmtpConfiguration.class);
   }
 
 }
