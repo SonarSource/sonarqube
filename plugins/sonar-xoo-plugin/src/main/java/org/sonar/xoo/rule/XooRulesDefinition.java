@@ -316,9 +316,9 @@ public class XooRulesDefinition implements RulesDefinition {
 
     if (version != null && version.isGreaterThanOrEqual(Version.create(10, 7))) {
       hotspot
-        .addStig(StigVersion.ASD_V5R3, "V-222643", "V-222564", "V-222655");
+        .addStig(StigVersion.ASD_V5R3, "V-222599", "V-222615", "V-222653");
       oneVulnerabilityIssuePerProject
-        .addStig(StigVersion.ASD_V5R3, "V-222480", "V-222473", "V-222524");
+        .addStig(StigVersion.ASD_V5R3, "V-222596", "V-222608", "V-222653");
     }
 
     NewRule hotspotWithContexts = repo.createRule(HotspotWithContextsSensor.RULE_KEY)
