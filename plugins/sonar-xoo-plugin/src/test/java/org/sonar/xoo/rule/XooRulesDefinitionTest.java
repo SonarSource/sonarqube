@@ -97,7 +97,7 @@ public class XooRulesDefinitionTest {
     assertThat(rule.name()).isNotEmpty();
     assertThat(rule.securityStandards())
       .isNotEmpty()
-      .containsExactlyInAnyOrder("cwe:250", "cwe:546", "cwe:564", "cwe:943", "owaspTop10-2021:a6", "owaspTop10-2021:a9",
+      .containsExactlyInAnyOrder("cwe:89", "cwe:250", "cwe:311", "cwe:546", "cwe:564", "cwe:943", "owaspTop10-2021:a6", "owaspTop10-2021:a9",
         "owaspTop10:a10", "owaspTop10:a9",
         "owaspAsvs-4.0:11.1.2", "owaspAsvs-4.0:14.5.1", "owaspAsvs-4.0:14.5.4",
         "pciDss-3.2:10.1a.2c", "pciDss-3.2:10.2", "pciDss-4.0:10.1", "pciDss-4.0:10.1a.2b",

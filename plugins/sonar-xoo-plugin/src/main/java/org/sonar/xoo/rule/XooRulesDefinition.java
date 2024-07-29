@@ -290,7 +290,7 @@ public class XooRulesDefinition implements RulesDefinition {
       oneVulnerabilityIssuePerProject
         .addOwaspTop10(Y2017, OwaspTop10.A9, OwaspTop10.A10)
         .addOwaspTop10(Y2021, OwaspTop10.A6, OwaspTop10.A9)
-        .addCwe(250, 564, 546, 943);
+        .addCwe(89, 250, 311, 546, 564, 943);
     }
 
     if (version != null && version.isGreaterThanOrEqual(Version.create(9, 5))) {
