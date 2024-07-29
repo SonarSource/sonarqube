@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import { identity } from 'lodash';
 import { PopupPlacement } from '../../helpers';
@@ -31,12 +32,13 @@ export interface MultiSelectOptionProps {
   element: string;
   onHover: (element: string) => void;
   onSelectChange: (selected: boolean, element: string) => void;
+  renderAriaLabel?: (element: string) => string;
   renderLabel?: (element: string) => React.ReactNode;
   renderTooltip?: (element: string, disabled: boolean) => React.ReactNode;
   selected?: boolean;
 }
 
-export function MultiSelectMenuOption(props: MultiSelectOptionProps) {
+export function MultiSelectMenuOption(props: Readonly<MultiSelectOptionProps>) {
   const {
     active,
     createElementLabel,
@@ -44,15 +46,17 @@ export function MultiSelectMenuOption(props: MultiSelectOptionProps) {
     disabled = false,
     element,
     onSelectChange,
-    selected,
+    renderAriaLabel = identity,
     renderLabel = identity,
     renderTooltip,
+    selected,
   } = props;
 
   const onHover = () => {
     props.onHover(element);
   };
 
+  const ariaLabel = renderAriaLabel(element);
   const label = renderLabel(element);
 
   return (
@@ -62,7 +66,7 @@ export function MultiSelectMenuOption(props: MultiSelectOptionProps) {
         className={classNames('sw-flex sw-py-2 sw-px-4', { active })}
         disabled={disabled}
         id={element}
-        label={element}
+        label={ariaLabel}
         onCheck={onSelectChange}
         onFocus={onHover}
         onPointerEnter={onHover}

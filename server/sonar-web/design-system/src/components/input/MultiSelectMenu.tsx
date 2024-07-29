@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import { difference } from 'lodash';
 import React, { PureComponent } from 'react';
@@ -58,6 +59,7 @@ interface State {
 
 interface DefaultProps {
   filterSelected: (query: string, selectedElements: string[]) => string[];
+  renderAriaLabel: (element: string) => string;
   renderLabel: (element: string) => React.ReactNode;
   validateSearchInput: (value: string) => string;
 }
@@ -69,9 +71,10 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
   searchInput?: HTMLInputElement | null;
   mounted = false;
 
-  static defaultProps: DefaultProps = {
+  static readonly defaultProps: DefaultProps = {
     filterSelected: (query: string, selectedElements: string[]) =>
       selectedElements.filter((elem) => elem.includes(query)),
+    renderAriaLabel: (element: string) => element,
     renderLabel: (element: string) => element,
     validateSearchInput: (value: string) => value,
   };
@@ -274,7 +277,7 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
       elementsDisabled,
       renderTooltip,
     } = this.props;
-    const { renderLabel } = this.props as PropsWithDefault;
+    const { renderAriaLabel, renderLabel } = this.props as PropsWithDefault;
 
     const { query, activeIdx, selectedElements, unselectedElements } = this.state;
     const activeElement = this.getAllElements(this.props, this.state)[activeIdx];
@@ -318,6 +321,7 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
                 key={element}
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
+                renderAriaLabel={renderAriaLabel}
                 renderLabel={renderLabel}
                 renderTooltip={renderTooltip}
                 selected
@@ -333,6 +337,7 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
                 key={element}
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
+                renderAriaLabel={renderAriaLabel}
                 renderLabel={renderLabel}
                 renderTooltip={renderTooltip}
               />
@@ -346,6 +351,7 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
               key={element}
               onHover={this.handleElementHover}
               onSelectChange={this.handleSelectChange}
+              renderAriaLabel={renderAriaLabel}
               renderLabel={renderLabel}
               renderTooltip={renderTooltip}
             />

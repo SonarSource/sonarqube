@@ -28,7 +28,10 @@ import {
   byText,
 } from '~sonar-aligned/helpers/testSelector';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
-import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
+import {
+  CCT_SOFTWARE_QUALITY_METRICS,
+  DEPRECATED_ACTIVITY_METRICS,
+} from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import { mockHistoryItem, mockMeasureHistory } from '../../../helpers/mocks/project-activity';
 import { mockMetric } from '../../../helpers/testMocks';
@@ -191,7 +194,9 @@ function getPageObject() {
     maintainabilityIssuesCheckbox: byRole('checkbox', { name: MetricKey.maintainability_issues }),
     newBugsCheckbox: byRole('checkbox', { name: MetricKey.new_bugs }),
     burnedBudgetCheckbox: byRole('checkbox', { name: MetricKey.burned_budget }),
-    vulnerabilityCheckbox: byRole('checkbox', { name: MetricKey.vulnerabilities }),
+    vulnerabilityCheckbox: byRole('checkbox', {
+      name: `${MetricKey.vulnerabilities} (deprecated)`,
+    }),
     hiddenOptionsAlert: byText('project_activity.graphs.custom.type_x_message', {
       exact: false,
     }),
@@ -237,7 +242,11 @@ function getPageObject() {
         await user.type(ui.filterMetrics.get(), text);
       },
       async clickOnMetric(name: MetricKey) {
-        await user.click(screen.getByRole('checkbox', { name }));
+        await user.click(
+          screen.getByRole('checkbox', {
+            name: DEPRECATED_ACTIVITY_METRICS.includes(name) ? `${name} (deprecated)` : name,
+          }),
+        );
       },
       async removeMetric(metric: MetricKey) {
         await user.click(ui.legendRemoveMetricBtn(metric).get());

@@ -29,6 +29,7 @@ import ApplicationServiceMock from '../../../../api/mocks/ApplicationServiceMock
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { TimeMachineServiceMock } from '../../../../api/mocks/TimeMachineServiceMock';
 import { mockBranchList } from '../../../../api/mocks/data/branches';
+import { DEPRECATED_ACTIVITY_METRICS } from '../../../../helpers/constants';
 import { parseDate } from '../../../../helpers/dates';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import {
@@ -564,7 +565,10 @@ function getPageObject() {
 
     // Add metrics.
     addMetricBtn: byRole('button', { name: 'project_activity.graphs.custom.add' }),
-    metricCheckbox: (name: MetricKey) => byRole('checkbox', { name }),
+    metricCheckbox: (name: MetricKey) =>
+      byRole('checkbox', {
+        name: DEPRECATED_ACTIVITY_METRICS.includes(name) ? `${name} (deprecated)` : name,
+      }),
 
     // Graph legend.
     newCodeLegend: byText('hotspot.filters.period.since_leak_period'),
