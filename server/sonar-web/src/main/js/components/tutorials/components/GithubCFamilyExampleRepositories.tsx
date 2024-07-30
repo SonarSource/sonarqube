@@ -22,8 +22,8 @@ import { LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { Card, LightLabel } from 'design-system';
 import React from 'react';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { translate } from '../../../helpers/l10n';
-import { Image } from '../../common/Image';
 import { OSs, TutorialModes } from '../types';
 
 export interface GithubCFamilyExampleRepositoriesProps {

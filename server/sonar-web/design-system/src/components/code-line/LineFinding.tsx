@@ -24,6 +24,7 @@ import { themeBorder, themeColor, themeContrast, themeShadow } from '../../helpe
 import { BareButton } from '../../sonar-aligned/components/buttons';
 
 interface Props {
+  as?: React.ElementType;
   className?: string;
   issueKey: string;
   message: React.ReactNode;
@@ -32,11 +33,12 @@ interface Props {
 }
 
 function LineFindingFunc(
-  { message, issueKey, selected = true, className, onIssueSelect }: Props,
+  { as, message, issueKey, selected = true, className, onIssueSelect }: Props,
   ref: Ref<HTMLButtonElement>,
 ) {
   return (
     <LineFindingStyled
+      as={as}
       className={className}
       data-issue={issueKey}
       onClick={() => {

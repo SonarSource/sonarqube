@@ -29,6 +29,12 @@ interface UnderlineRange {
   start: UnderlineRangePosition;
 }
 
+/**
+ * Plugin for HLJS to underline content.
+ *
+ * In order to underline code, the input source code must be preprocessed using the tokenize() method.
+ * Then, the after hook will replace the tokens with the appropriate HTML markup to underline the content.
+ */
 export class HljsUnderlinePlugin {
   static readonly SPAN_REGEX = '<\\/?span[^>]*>';
 
@@ -119,6 +125,10 @@ export class HljsUnderlinePlugin {
     return source;
   }
 
+  /**
+   * Replace the tokens with the appropriate HTML markup to underline the content.
+   * Tokens were added using the tokenize() method.
+   */
   'after:highlight'(result: HighlightResult) {
     const re = new RegExp(HljsUnderlinePlugin.TOKEN_START, 'g');
     re.lastIndex = 0;

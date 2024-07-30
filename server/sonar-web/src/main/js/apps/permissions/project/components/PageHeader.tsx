@@ -21,9 +21,9 @@
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import { FlagMessage, Title } from 'design-system';
 import * as React from 'react';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
-import { Image } from '../../../../components/common/Image';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';
 import {

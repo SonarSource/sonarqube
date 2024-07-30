@@ -34,7 +34,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
-import { Image } from '../../../components/common/Image';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useGroupMembersCountQuery } from '../../../queries/group-memberships';
 import { Group, Provider } from '../../../types/types';

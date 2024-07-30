@@ -20,8 +20,8 @@
 
 import { ItemLink } from 'design-system';
 import * as React from 'react';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
-import { Image } from '../../../components/common/Image';
 import { translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
 

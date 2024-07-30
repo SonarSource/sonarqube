@@ -20,10 +20,10 @@
 
 import { DropdownMenu } from '@sonarsource/echoes-react';
 import * as React from 'react';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
 import { SuggestionLink } from '../../types/types';
-import { Image } from '../common/Image';
 import { DocItemLink } from './DocItemLink';
 import { SuggestionsContext } from './SuggestionsContext';
 

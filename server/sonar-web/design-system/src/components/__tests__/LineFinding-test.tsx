@@ -23,11 +23,16 @@ import { render } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
 import { LineFinding } from '../code-line/LineFinding';
 
-it('should render correctly', async () => {
+it('should render correctly as button', async () => {
   const user = userEvent.setup();
   const { container } = setupWithProps();
   await user.click(screen.getByRole('button'));
   expect(container).toMatchSnapshot();
+});
+
+it('should render as non-button', () => {
+  setupWithProps({ as: 'div' });
+  expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });
 
 it('should be clickable when onIssueSelect is provided', async () => {

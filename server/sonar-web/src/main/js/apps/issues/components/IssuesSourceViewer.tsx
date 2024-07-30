@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ToggleButton } from 'design-system/lib';
+import { ToggleButton } from 'design-system';
 import * as React from 'react';
 import { isJupyterNotebookFile } from '~sonar-aligned/helpers/component';
 import { translate } from '../../../helpers/l10n';
@@ -58,7 +58,7 @@ export default function IssuesSourceViewer(props: Readonly<IssuesSourceViewerPro
   const isJupyterNotebook = isJupyterNotebookFile(openIssue.component);
   const [tab, setTab] = React.useState(isJupyterNotebook ? 'preview' : 'code');
 
-  const refreshScroll = React.useCallback(() => {
+  React.useEffect(() => {
     if (
       selectedLocationIndex !== undefined &&
       selectedLocationIndex !== -1 &&
@@ -80,25 +80,11 @@ export default function IssuesSourceViewer(props: Readonly<IssuesSourceViewerPro
 
   function registerPrimaryLocationRef(ref: HTMLElement) {
     setPrimaryLocationRef(ref);
-
-    if (ref) {
-      refreshScroll();
-    }
   }
 
   function registerSelectedSecondaryLocationRef(ref: HTMLElement) {
     setSelectedSecondaryLocationRef(ref);
-
-    if (ref) {
-      refreshScroll();
-    }
   }
-
-  React.useEffect(() => {
-    if (selectedLocationIndex === -1) {
-      refreshScroll();
-    }
-  }, [selectedLocationIndex, refreshScroll]);
 
   const locations = getLocations(openIssue, selectedFlowIndex).map((loc, index) => {
     loc.index = index;
@@ -137,7 +123,7 @@ export default function IssuesSourceViewer(props: Readonly<IssuesSourceViewerPro
             branchLike={branchLike}
             highlightedLocationMessage={highlightedLocationMessage}
             issue={openIssue}
-            issues={issues}
+            issues={isJupyterNotebook ? [openIssue] : issues}
             locations={locations}
             onIssueSelect={onIssueSelect}
             onLocationSelect={onLocationSelect}

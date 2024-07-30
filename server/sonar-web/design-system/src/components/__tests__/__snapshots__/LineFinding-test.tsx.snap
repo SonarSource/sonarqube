@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly as button 1`] = `
 .emotion-0 {
   all: unset;
   cursor: pointer;

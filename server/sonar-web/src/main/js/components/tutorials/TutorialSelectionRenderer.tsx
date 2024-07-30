@@ -29,6 +29,7 @@ import {
   Title,
 } from 'design-system';
 import * as React from 'react';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { isMainBranch } from '~sonar-aligned/helpers/branch-like';
 import { AnalysisStatus } from '../../apps/overview/components/AnalysisStatus';
 import { translate } from '../../helpers/l10n';
@@ -38,7 +39,6 @@ import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../t
 import { MainBranch } from '../../types/branch-like';
 import { Component } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
-import { Image } from '../common/Image';
 import AzurePipelinesTutorial from './azure-pipelines/AzurePipelinesTutorial';
 import BitbucketPipelinesTutorial from './bitbucket-pipelines/BitbucketPipelinesTutorial';
 import GitHubActionTutorial from './github-action/GitHubActionTutorial';

@@ -20,8 +20,8 @@
 
 import { Note } from 'design-system';
 import * as React from 'react';
+import { Image } from '~sonar-aligned/components/common/Image';
 import DocumentationLink from '../../../components/common/DocumentationLink';
-import { Image } from '../../../components/common/Image';
 import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 

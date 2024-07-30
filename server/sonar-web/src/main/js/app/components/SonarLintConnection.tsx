@@ -32,7 +32,7 @@ import {
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
-import { Image } from '../../components/common/Image';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { generateSonarLintUserToken, portIsValid, sendUserToken } from '../../helpers/sonarlint';

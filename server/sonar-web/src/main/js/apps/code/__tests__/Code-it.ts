@@ -551,7 +551,7 @@ function getPageObject(user: UserEvent) {
       byText(`code_viewer.no_source_code_displayed_due_to_empty_analysis.${qualifier}`),
     searchInput: byRole('searchbox'),
     previewToggle: byRole('radiogroup'),
-    previewToggleOption: (name: string = 'Preview') =>
+    previewToggleOption: (name: string = 'preview') =>
       byRole('radio', {
         name,
       }),
@@ -604,10 +604,10 @@ function getPageObject(user: UserEvent) {
       await user.click(screen.getByRole('link', { name }));
     },
     async clickToggleCode() {
-      await user.click(ui.previewToggleOption('Code').get());
+      await user.click(ui.previewToggleOption('code').get());
     },
     async clickTogglePreview() {
-      await user.click(ui.previewToggleOption('Preview').get());
+      await user.click(ui.previewToggleOption('preview').get());
     },
     async clickIssueIndicator() {
       await user.click(ui.previewIssueIndicator.get());

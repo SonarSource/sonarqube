@@ -20,9 +20,9 @@
 
 import { getTextColor } from 'design-system';
 import * as React from 'react';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { getIdentityProviders } from '../../../api/users';
 import { colors } from '../../../app/theme';
-import { Image } from '../../../components/common/Image';
 import { IdentityProvider } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 

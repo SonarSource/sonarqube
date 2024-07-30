@@ -19,10 +19,11 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { keyBy, times } from 'lodash';
+import { keyBy } from 'lodash';
 import { byLabelText, byRole } from '~sonar-aligned/helpers/testSelector';
 import { PARENT_COMPONENT_KEY, RULE_1 } from '../../../api/mocks/data/ids';
-import { mockSnippetsByComponent } from '../../../helpers/mocks/sources';
+import { mockIpynbFile } from '../../../api/mocks/data/sources';
+import { mockSourceLine, mockSourceViewerFile } from '../../../helpers/mocks/sources';
 import { mockRawIssue } from '../../../helpers/testMocks';
 import { IssueStatus } from '../../../types/issues';
 import {
@@ -86,11 +87,12 @@ const JUPYTER_ISSUE = {
   }),
   snippets: keyBy(
     [
-      mockSnippetsByComponent(
-        'jpt.ipynb',
-        PARENT_COMPONENT_KEY,
-        times(40, (i) => i + 20),
-      ),
+      {
+        component: mockSourceViewerFile('jpt.ipynb', PARENT_COMPONENT_KEY),
+        sources: {
+          1: mockSourceLine({ line: 1, code: mockIpynbFile }),
+        },
+      },
     ],
     'component.key',
   ),
@@ -230,6 +232,28 @@ describe('issues source viewer', () => {
       expect(screen.queryByText('issue.preview.jupyter_notebook.error')).not.toBeInTheDocument();
       expect(screen.getByTestId('hljs-sonar-underline')).toHaveTextContent('matplotlib');
       expect(screen.getByText(/pylab/, { exact: false })).toBeInTheDocument();
+    });
+
+    it('should not show non-selected issues in code tab of Issues page', async () => {
+      issuesHandler.setIssueList([
+        JUPYTER_ISSUE,
+        {
+          ...JUPYTER_ISSUE,
+          issue: {
+            ...JUPYTER_ISSUE.issue,
+            key: 'some-other-issue',
+            message: 'Another unrelated issue',
+          },
+        },
+      ]);
+      const user = userEvent.setup();
+      renderProjectIssuesApp('project/issues?issues=some-issue&open=some-issue&id=myproject');
+      await waitOnDataLoaded();
+
+      await user.click(ui.code.get());
+
+      expect(screen.getAllByRole('button', { name: 'Issue on Jupyter Notebook' })).toHaveLength(2);
+      expect(screen.queryByText('Another unrelated issue')).not.toBeInTheDocument();
     });
 
     it('should render issue in jupyter notebook spanning over multiple cells', async () => {

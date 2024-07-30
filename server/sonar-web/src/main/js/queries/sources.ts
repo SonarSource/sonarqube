@@ -17,26 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useQuery } from '@tanstack/react-query';
+import { queryOptions } from '@tanstack/react-query';
 import { getRawSource } from '../api/sources';
-import { RequestData } from '../helpers/request';
 import { BranchParameters } from '../sonar-aligned/types/branch-like';
+import { createQueryHook } from './common';
 
-function getIssuesQueryKey(data: RequestData) {
-  return ['issues', JSON.stringify(data ?? '')];
+// This will prevent refresh when navigating from page to page.
+const SOURCES_STALE_TIME = 60_000;
+
+function getSourcesQueryKey(key: string, branchParameters: BranchParameters) {
+  return ['sources', 'details', key, branchParameters];
 }
 
-function fetchRawSources({ queryKey: [, query] }: { queryKey: string[] }) {
-  if (typeof query !== 'string') {
-    return null;
-  }
-
-  return getRawSource(JSON.parse(query) as BranchParameters & { key: string });
-}
-
-export function useRawSourceQuery(data: BranchParameters & { key: string }) {
-  return useQuery({
-    queryKey: getIssuesQueryKey(data),
-    queryFn: fetchRawSources,
+export const useRawSourceQuery = createQueryHook((data: BranchParameters & { key: string }) => {
+  return queryOptions({
+    queryKey: getSourcesQueryKey(data.key, data),
+    queryFn: () => getRawSource(data),
+    staleTime: SOURCES_STALE_TIME,
   });
-}
+});

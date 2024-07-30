@@ -19,22 +19,19 @@
  */
 
 import {
-  ICell,
   IMarkdownCell,
   IOutput,
-  isCode,
   isDisplayData,
   isExecuteResult,
-  isMarkdown,
   isStream,
 } from '@jupyterlab/nbformat';
 import classNames from 'classnames';
-import { CodeSnippet } from 'design-system/lib';
+import { CodeSnippet } from 'design-system';
 import { isArray } from 'lodash';
 import React from 'react';
 import Markdown from 'react-markdown';
-import { Image } from '../../../components/common/Image';
 import { translate } from '../../../helpers/l10n';
+import { Image } from '../common/Image';
 
 export function JupyterMarkdownCell({ cell }: Readonly<{ cell: IMarkdownCell }>) {
   const markdown = isArray(cell.source) ? cell.source.join('') : cell.source;
@@ -67,7 +64,7 @@ function CellOutput({ output }: Readonly<{ output: IOutput }>) {
       }
       return null;
     });
-    return components;
+    return <>{components}</>;
   } else if (isStream(output)) {
     const text = isArray(output.text) ? output.text.join('') : output.text;
     return <pre>{text}</pre>;
@@ -92,17 +89,4 @@ export function JupyterCodeCell(
       </div>
     </div>
   );
-}
-
-export function JupyterCell({ cell }: Readonly<{ cell: ICell }>) {
-  const source = Array.isArray(cell.source) ? cell.source : [cell.source];
-  if (isCode(cell)) {
-    return <JupyterCodeCell source={source} outputs={cell.outputs} />;
-  }
-
-  if (isMarkdown(cell)) {
-    return <JupyterMarkdownCell cell={cell} />;
-  }
-
-  return null;
 }

@@ -30,8 +30,8 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { Location } from '~sonar-aligned/types/router';
-import { Image } from '../../../components/common/Image';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeUserInput } from '../../../helpers/sanitize';
 import { getReturnUrl } from '../../../helpers/urls';

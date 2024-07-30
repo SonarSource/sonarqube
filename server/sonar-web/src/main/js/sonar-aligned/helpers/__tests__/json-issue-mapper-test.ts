@@ -38,7 +38,7 @@ const fixtures = loadFixtures();
 describe('JsonIssueMapper', () => {
   it('should return cursor position in file from line offset', () => {
     const parser = new JsonIssueMapper(fixtures['00-object-simple.json']);
-    expect(parser.lineOffsetToCursorPosition(12, 31)).toEqual(224);
+    expect(parser.lineOffsetToCursorPosition(12, 31)).toEqual(225);
   });
 
   describe('should not fail on invalid json', () => {
@@ -56,23 +56,29 @@ describe('JsonIssueMapper', () => {
   describe('should return correct path in strings', () => {
     it('gets cursor path in a string value', () => {
       const parser = new JsonIssueMapper(fixtures['00-object-simple.json']);
-      const cursor = 20;
-      expect(parser.get(cursor)).toEqual([
-        { type: 'object', key: 'first-key' },
-        { type: 'string', index: 2 },
-      ]);
+      for (const cursor of [20, 21]) {
+        expect(parser.get(cursor)).toEqual([
+          { type: 'object', key: 'first-key' },
+          { type: 'string', index: 2 },
+        ]);
+      }
     });
 
     it('ignores false-flag characters in strings', () => {
       const parser = new JsonIssueMapper(fixtures['01-object-false-flags.json']);
       const cursor = 111;
-      expect(parser.get(cursor)).toEqual([
+      const path = parser.get(cursor);
+      expect(path).toEqual([
         { type: 'object', key: '\\"{}}[]]].:-]\\\\\\\\' },
         { type: 'array', index: 0 },
         { type: 'array', index: 0 },
         { type: 'object', key: '\\"{}}[]]].:-]\\\\\\\\' },
-        { type: 'string', index: 20 },
+        { type: 'string', index: 17 },
       ]);
+
+      const object = JSON.parse(fixtures['01-object-false-flags.json']);
+      const value = object['"{}}[]]].:-]\\\\'][0][0]['"{}}[]]].:-]\\\\'];
+      expect(value[17]).toEqual('u');
     });
 
     it('detects cursor in empty strings', () => {
@@ -107,7 +113,7 @@ describe('JsonIssueMapper', () => {
         { type: 'array', index: 1 },
         { type: 'object', key: 'data' },
         { type: 'object', key: 'image/png' },
-        { type: 'string', index: 24 },
+        { type: 'string', index: 23 },
       ]);
     });
 
@@ -119,7 +125,7 @@ describe('JsonIssueMapper', () => {
         { type: 'array', index: 1 },
         { type: 'object', key: 'source' },
         { type: 'array', index: 8 },
-        { type: 'string', index: 15 },
+        { type: 'string', index: 14 },
       ]);
     });
   });

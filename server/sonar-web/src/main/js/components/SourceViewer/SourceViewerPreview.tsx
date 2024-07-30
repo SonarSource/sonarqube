@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ICell, isCode, isMarkdown } from '@jupyterlab/nbformat';
+import { ICell, INotebookContent, isCode, isMarkdown } from '@jupyterlab/nbformat';
 import { Spinner } from '@sonarsource/echoes-react';
 import {
+  Card,
   FlagMessage,
   hljsIssueIndicatorPlugin,
   hljsUnderlinePlugin,
@@ -36,10 +37,9 @@ import {
   JupyterMarkdownCell,
 } from '~sonar-aligned/components/SourceViewer/JupyterNotebookViewer';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
-import { JsonIssueMapper } from '~sonar-aligned/helpers/json-issue-mapper';
+import { getOffsetsForIssue } from '~sonar-aligned/helpers/json-issue-mapper';
 import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
 import { ComponentContext } from '../../app/components/componentContext/ComponentContext';
-import { pathToCursorInCell } from '../../apps/issues/jupyter-notebook/utils';
 import { parseQuery, serializeQuery } from '../../apps/issues/utils';
 import { translate } from '../../helpers/l10n';
 import { getIssuesUrl } from '../../helpers/urls';
@@ -70,7 +70,6 @@ type IssueIndicatorsProps = {
   issuesByCell: IssuesByCell;
   jupyterRef: React.RefObject<HTMLDivElement>;
 };
-
 type IssueMapper = {
   issueUrl: To;
   key: string;
@@ -95,7 +94,7 @@ export default function SourceViewerPreview(props: Readonly<Props>) {
       return null;
     }
     try {
-      return JSON.parse(data) as { cells: ICell[] };
+      return JSON.parse(data) as INotebookContent;
     } catch (error) {
       return null;
     }
@@ -111,64 +110,8 @@ export default function SourceViewerPreview(props: Readonly<Props>) {
   }, [component, branchLike]);
 
   useEffect(() => {
-    const newIssuesByCell: IssuesByCell = {};
-
-    if (!jupyterNotebook) {
-      return;
-    }
-
-    issues.forEach((issue) => {
-      if (!issue.textRange) {
-        return;
-      }
-
-      if (typeof data !== 'string') {
-        return;
-      }
-
-      const mapper = new JsonIssueMapper(data);
-      const start = mapper.lineOffsetToCursorPosition(
-        issue.textRange.startLine,
-        issue.textRange.startOffset,
-      );
-      const end = mapper.lineOffsetToCursorPosition(
-        issue.textRange.endLine,
-        issue.textRange.endOffset,
-      );
-
-      const startOffset = pathToCursorInCell(mapper.get(start));
-      const endOffset = pathToCursorInCell(mapper.get(end));
-
-      if (!startOffset || !endOffset) {
-        return;
-      }
-
-      if (startOffset.cell !== endOffset.cell) {
-        return;
-      }
-
-      const { cell } = startOffset;
-
-      if (!newIssuesByCell[cell]) {
-        newIssuesByCell[cell] = {};
-      }
-
-      if (!newIssuesByCell[cell][startOffset.line]) {
-        newIssuesByCell[cell][startOffset.line] = [{ issue, start: startOffset, end: endOffset }];
-      }
-
-      const existingIssues = newIssuesByCell[cell][startOffset.line];
-      const issueExists = existingIssues.some(
-        ({ issue: existingIssue }) => existingIssue.key === issue.key,
-      );
-
-      if (!issueExists) {
-        newIssuesByCell[cell][startOffset.line].push({ issue, start: startOffset, end: endOffset });
-      }
-    });
-
-    setIssuesByCell(newIssuesByCell);
-  }, [issues, data, jupyterNotebook]);
+    processIssuesByCell(issues, data, setIssuesByCell);
+  }, [issues, data]);
 
   if (isLoading) {
     return <Spinner isLoading={isLoading} />;
@@ -191,8 +134,8 @@ export default function SourceViewerPreview(props: Readonly<Props>) {
   }
 
   return (
-    <>
-      <RenderJupyterNotebook
+    <Card>
+      <JupyterNotebookSourceViewer
         cells={jupyterNotebook.cells}
         issuesByCell={issuesByCell}
         ref={jupyterNotebookRef}
@@ -205,7 +148,7 @@ export default function SourceViewerPreview(props: Readonly<Props>) {
           jupyterRef={jupyterNotebookRef}
         />
       )}
-    </>
+    </Card>
   );
 }
 
@@ -221,7 +164,7 @@ function mapIssuesToIssueKeys(issuesByLine: IssuesByLine): IssueKeysByLine {
   }, {} as IssueKeysByLine);
 }
 
-const RenderJupyterNotebook = forwardRef<HTMLDivElement, JupyterNotebookProps>(
+const JupyterNotebookSourceViewer = forwardRef<HTMLDivElement, JupyterNotebookProps>(
   ({ cells, issuesByCell }, ref) => {
     const buildCellsBlocks = useMemo(() => {
       return cells.map((cell: ICell, index: number) => {
@@ -268,7 +211,7 @@ const RenderJupyterNotebook = forwardRef<HTMLDivElement, JupyterNotebookProps>(
   },
 );
 
-RenderJupyterNotebook.displayName = 'RenderJupyterNotebook';
+JupyterNotebookSourceViewer.displayName = 'JupyterNotebookSourceViewer';
 
 function IssueIndicators({
   issuesByCell,
@@ -308,6 +251,11 @@ function IssueIndicators({
   ));
 }
 
+/* 
+Creates a react portal bound to an element id `issue-key-${key}` that represents the first issue 
+present on a virtual line of code. The element id is generated from executing the 
+HljsIssueIndicatorPlugin.addIssuesToLines function on the source code of a Jupyter notebook cell.
+*/
 function PortalLineIssuesIndicator(props: {
   issueMapper: IssueMapper;
   jupyterRef: React.RefObject<HTMLDivElement>;
@@ -315,7 +263,9 @@ function PortalLineIssuesIndicator(props: {
   const { jupyterRef, issueMapper } = props;
   const router = useRouter();
 
-  const [mutationCount, setMutationCount] = useState(0);
+  // We use this state to force-re-render the component when the jupyterRef changes
+  // eslint-disable-next-line react/hook-use-state
+  const [, setMutationCount] = useState(0);
 
   useEffect(() => {
     if (!jupyterRef.current) {
@@ -327,14 +277,10 @@ function PortalLineIssuesIndicator(props: {
   const { key, lineIndex, onlyIssues, issueUrl } = issueMapper;
   const element = document.getElementById(`issue-key-${key}`);
 
-  // we don't have the jupyterRef yet
-  if (mutationCount === 0) {
-    return null;
-  }
-
   if (!element) {
     return null;
   }
+
   return createPortal(
     <LineIssuesIndicator
       issues={onlyIssues}
@@ -344,4 +290,54 @@ function PortalLineIssuesIndicator(props: {
     />,
     element,
   );
+}
+
+/**
+ * Processes issues and maps them to their corresponding cells and lines in a Jupyter notebook.
+ * This function updates the state with a new mapping of issues by cell.
+ *
+ * @param {Array} issues - The list of issues to process.
+ * @param {string} data - The JSON data representing the notebook.
+ * @param {Function} setIssuesByCell - Function to update the state with the new issues mapping.
+ */
+function processIssuesByCell(
+  issues: Issue[],
+  data: string | null | undefined,
+  setIssuesByCell: Function,
+) {
+  const newIssuesByCell: IssuesByCell = {};
+
+  issues.forEach((issue) => {
+    if (typeof data !== 'string') {
+      return;
+    }
+
+    const { startOffset, endOffset } = getOffsetsForIssue(issue, data);
+
+    // failed to parse the issue offsets, skip the issue
+    if (!startOffset || !endOffset) {
+      return;
+    }
+
+    const { cell } = startOffset;
+
+    if (!newIssuesByCell[cell]) {
+      newIssuesByCell[cell] = {};
+    }
+
+    if (!newIssuesByCell[cell][startOffset.line]) {
+      newIssuesByCell[cell][startOffset.line] = [{ issue, start: startOffset, end: endOffset }];
+    }
+
+    const existingIssues = newIssuesByCell[cell][startOffset.line];
+    const issueExists = existingIssues.some(
+      ({ issue: existingIssue }) => existingIssue.key === issue.key,
+    );
+
+    if (!issueExists) {
+      newIssuesByCell[cell][startOffset.line].push({ issue, start: startOffset, end: endOffset });
+    }
+  });
+
+  setIssuesByCell(newIssuesByCell);
 }

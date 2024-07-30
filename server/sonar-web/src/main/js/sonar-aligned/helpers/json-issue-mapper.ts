@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Issue } from '../../types/types';
+
 export type PathEntry =
   | {
       key: string;
@@ -40,8 +42,13 @@ type ParseStepResult = {
 };
 
 export class JsonIssueMapper {
+  /**
+   * Stop-character for literals (first chars of true, false, null, undefined)
+   */
   static readonly TOKEN_LITERAL = 'tfnu'.split('');
-  static readonly TOKEN_SCOPE_ENTRY = '{["0123456789tfnu'.split('');
+
+  static readonly TOKEN_SCOPE_ENTRY = `{["0123456789${JsonIssueMapper.TOKEN_LITERAL}`.split('');
+
   static readonly TOKEN_SCOPE_EXIT = ',}]'.split('');
 
   private readonly code: string;
@@ -67,7 +74,7 @@ export class JsonIssueMapper {
       this.splitCode = this.code.split('\n');
     }
     const charsBeforeStartLine = this.splitCode.slice(0, startLine - 1).join('\n').length;
-    return charsBeforeStartLine + startOffset;
+    return charsBeforeStartLine + startOffset + (startLine > 1 ? 1 : 0);
   }
 
   get(cursorPosition: number): PathToCursor {
@@ -242,11 +249,11 @@ export class JsonIssueMapper {
       return 0;
     }
 
-    let count = 0;
+    let count = -1;
     let i = 0;
     while (i < index) {
-      // Ignore escaped quotes
-      if (this.code[firstQuoteIndex + i] === '\\' && this.code[firstQuoteIndex + i + 1] === '"') {
+      // Ignore escaped characters
+      if (this.code[firstQuoteIndex + 1 + i] === '\\') {
         i += 2;
       } else {
         i += 1;
@@ -335,4 +342,45 @@ export class JsonIssueMapper {
   private cursorWithin(startIndex: number, endIndex: number) {
     return startIndex <= this.cursorPosition && this.cursorPosition <= endIndex;
   }
+}
+
+export function pathToCursorInCell(path: PathToCursor): {
+  cell: number;
+  cursorOffset: number;
+  line: number;
+} | null {
+  const [, cellEntry, , lineEntry, stringEntry] = path;
+  if (
+    cellEntry?.type !== 'array' ||
+    lineEntry?.type !== 'array' ||
+    stringEntry?.type !== 'string'
+  ) {
+    return null;
+  }
+  return {
+    cell: cellEntry.index,
+    line: lineEntry.index,
+    cursorOffset: stringEntry.index,
+  };
+}
+
+export function getOffsetsForIssue(issue: Issue, data: string) {
+  if (!issue.textRange) {
+    return { startOffset: null, endOffset: null };
+  }
+
+  const mapper = new JsonIssueMapper(data);
+
+  const startOffset = pathToCursorInCell(
+    mapper.get(
+      mapper.lineOffsetToCursorPosition(issue.textRange.startLine, issue.textRange.startOffset),
+    ),
+  );
+  const endOffset = pathToCursorInCell(
+    mapper.get(
+      mapper.lineOffsetToCursorPosition(issue.textRange.endLine, issue.textRange.endOffset),
+    ),
+  );
+
+  return { startOffset, endOffset };
 }

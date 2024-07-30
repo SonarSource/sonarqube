@@ -33,9 +33,9 @@ import {
 import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { useState } from 'react';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { MetricKey } from '~sonar-aligned/types/metrics';
-import { Image } from '../../../components/common/Image';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
 import {

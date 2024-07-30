@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ComponentQualifier } from '~sonar-aligned/types/component';
-import { isPortfolioLike } from '../component';
+import { isJupyterNotebookFile, isPortfolioLike } from '../component';
 
 it.each([[isPortfolioLike]])(
   '%p should work properly',
@@ -30,3 +30,11 @@ it.each([[isPortfolioLike]])(
     expect(results).toMatchSnapshot();
   },
 );
+
+it.each([
+  ['foo.ipynb', true],
+  ['foo.py', false],
+  ['foo.ipynb.py', false],
+])('%s is a Jupyter notebook file: %p', (componentKey, expected) => {
+  expect(isJupyterNotebookFile(componentKey)).toBe(expected);
+});

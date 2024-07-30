@@ -20,7 +20,7 @@
 
 import { SubHeading, UnorderedList } from 'design-system';
 import * as React from 'react';
-import { Image } from '../../../components/common/Image';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { Edition, EditionKey } from '../../../types/editions';
 
 interface Props {

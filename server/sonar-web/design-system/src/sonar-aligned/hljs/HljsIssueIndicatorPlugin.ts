@@ -22,6 +22,15 @@ import { BeforeHighlightContext, HighlightResult } from 'highlight.js';
 
 const BREAK_LINE_REGEXP = /\n/g;
 
+/**
+ * Plugin for HLJS to add issue indicators to the code.
+ *
+ * In order to add issue indicators (sidebar with indicators to issue count on each line), the input source code must be preprocessed using the addIssuesToLines() method. This method will update the source code to prepend the list of issues key of this line.
+ * Then, the `before` hook of the HLJS plugin will extract the issue keys from the source code, store them in memory for later use, and drop the issue keys token from the source code.
+ * Finally, the `after` hook will add some HTML markup with a reference to the issue key in the transformed code source. The actual interactive issue indicators will be attached inside this HTML markup later on with a React Portal.
+ *
+ * Each line is wrapped with a div element that contains the issue indicators and the line content.
+ */
 export class HljsIssueIndicatorPlugin {
   static readonly LINE_WRAPPER_STYLE = [
     'display: inline-grid',
@@ -30,7 +39,7 @@ export class HljsIssueIndicatorPlugin {
     'align-items: center',
   ].join(';');
 
-  private issueKeys: { [key: string]: string[] };
+  private issueKeys: { [line: string]: string[] };
   static readonly LINE_WRAPPER_OPEN_TAG = `<div style="${this.LINE_WRAPPER_STYLE}">`;
   static readonly LINE_WRAPPER_CLOSE_TAG = `</div>`;
   static readonly EMPTY_INDICATOR_COLUMN = `<div></div>`;
@@ -77,15 +86,15 @@ export class HljsIssueIndicatorPlugin {
     const issueKeysPattern = /\[ISSUE_KEYS:([^\]]+)\](.+)/;
     const removeIssueKeysPattern = /\[ISSUE_KEYS:[^\]]+\](.+)/;
 
-    const wrappedLines = lines.map((line, index) => {
+    const wrappedLines = lines.map((line, lineNumber) => {
       const match = issueKeysPattern.exec(line);
 
       if (match) {
         const issueKeys = match[1].split(',');
-        if (!this.issueKeys[index]) {
-          this.issueKeys[index] = issueKeys;
+        if (!this.issueKeys[lineNumber]) {
+          this.issueKeys[lineNumber] = issueKeys;
         } else {
-          this.issueKeys[index].push(...issueKeys);
+          this.issueKeys[lineNumber].push(...issueKeys);
         }
       }
 
@@ -100,8 +109,8 @@ export class HljsIssueIndicatorPlugin {
   private addIssueIndicator(inputHtml: string) {
     const lines = this.getLines(inputHtml);
 
-    const wrappedLines = lines.map((line, index) => {
-      const issueKeys = this.issueKeys[index];
+    const wrappedLines = lines.map((line, lineNumber) => {
+      const issueKeys = this.issueKeys[lineNumber];
 
       if (issueKeys) {
         // the react portal looks for the first issue key

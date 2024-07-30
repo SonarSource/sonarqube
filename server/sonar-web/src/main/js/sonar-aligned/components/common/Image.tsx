@@ -17,24 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { PathToCursor } from '~sonar-aligned/helpers/json-issue-mapper';
 
-export function pathToCursorInCell(path: PathToCursor): {
-  cell: number;
-  cursorOffset: number;
-  line: number;
-} | null {
-  const [, cellEntry, , lineEntry, stringEntry] = path;
+import * as React from 'react';
+import { getBaseUrl } from '../../../helpers/system';
+
+export function Image(props: Readonly<JSX.IntrinsicElements['img']>) {
+  const { alt, src: source, ...rest } = props;
+
+  const baseUrl = getBaseUrl();
+
+  let src = source;
+
   if (
-    cellEntry?.type !== 'array' ||
-    lineEntry?.type !== 'array' ||
-    stringEntry?.type !== 'string'
+    src !== undefined &&
+    !src.startsWith(baseUrl) &&
+    !src.startsWith('http') &&
+    !src.startsWith('data:')
   ) {
-    return null;
+    src = `${baseUrl}/${src}`.replace(/(?<!:)\/+/g, '/');
   }
-  return {
-    cell: cellEntry.index,
-    line: lineEntry.index,
-    cursorOffset: stringEntry.index,
-  };
+
+  // eslint-disable-next-line react/forbid-elements
+  return <img alt={alt} src={src} {...rest} />;
 }

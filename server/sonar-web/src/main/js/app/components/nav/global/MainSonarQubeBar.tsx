@@ -20,7 +20,7 @@
 
 import { MainAppBar, SonarQubeLogo } from 'design-system';
 import * as React from 'react';
-import { Image } from '../../../../components/common/Image';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { translate } from '../../../../helpers/l10n';
 import { GlobalSettingKeys } from '../../../../types/settings';
 import { AppStateContext } from '../../app-state/AppStateContext';

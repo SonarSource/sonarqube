@@ -20,12 +20,12 @@
 
 import { Badge, ContentCell, TableRowInteractive, UserGroupIcon } from 'design-system';
 import * as React from 'react';
+import { Image } from '~sonar-aligned/components/common/Image';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
 import { isDefined } from '../../helpers/types';
 import { Permissions } from '../../types/permissions';
 import { PermissionDefinitions, PermissionGroup } from '../../types/types';
-import { Image } from '../common/Image';
 import PermissionCell from './PermissionCell';
 import usePermissionChange from './usePermissionChange';
 
