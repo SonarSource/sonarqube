@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
@@ -41,6 +42,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.email.EmailSmtpConfiguration;
+import org.sonar.server.oauth.OAuthMicrosoftRestClient;
 import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.issue.notification.EmailTemplate;
 import org.sonar.server.notification.NotificationChannel;
@@ -97,6 +99,7 @@ public class EmailNotificationChannel extends NotificationChannel {
   private static final String SUBJECT_DEFAULT = "Notification";
   private static final String SMTP_HOST_NOT_CONFIGURED_DEBUG_MSG = "SMTP host was not configured - email will not be sent";
   private static final String MAIL_SENT_FROM = "%sMail sent from: %s";
+  private static final String OAUTH_AUTH_METHOD = "OAUTH";
 
   private final EmailSmtpConfiguration configuration;
   private final Server server;
@@ -289,14 +292,32 @@ public class EmailNotificationChannel extends NotificationChannel {
     }
   }
 
-  private void setConnectionDetails(Email email) {
+  private void setConnectionDetails(Email email) throws EmailException {
     email.setHostName(configuration.getSmtpHost());
     configureSecureConnection(email);
+    email.setSocketConnectionTimeout(SOCKET_TIMEOUT);
+    email.setSocketTimeout(SOCKET_TIMEOUT);
+    if (OAUTH_AUTH_METHOD.equals(configuration.getAuthMethod())) {
+      setOauthAuthentication(email);
+    } else if (StringUtils.isNotBlank(configuration.getSmtpUsername()) || StringUtils.isNotBlank(configuration.getSmtpPassword())) {
+      setBasicAuthentication(email);
+    }
+  }
+
+  private void setOauthAuthentication(Email email) throws EmailException {
+    String token = OAuthMicrosoftRestClient.getAccessTokenFromClientCredentialsGrantFlow(configuration.getOAuthHost(), configuration.getOAuthClientId(),
+      configuration.getOAuthClientSecret(), configuration.getOAuthTenant(), configuration.getOAuthScope());
+    email.setAuthentication(configuration.getSmtpUsername(), token);
+    Properties props = email.getMailSession().getProperties();
+    props.put("mail.smtp.auth.mechanisms", "XOAUTH2");
+    props.put("mail.smtp.auth.login.disable", "true");
+    props.put("mail.smtp.auth.plain.disable", "true");
+  }
+
+  private void setBasicAuthentication(Email email) {
     if (StringUtils.isNotBlank(configuration.getSmtpUsername()) || StringUtils.isNotBlank(configuration.getSmtpPassword())) {
       email.setAuthentication(configuration.getSmtpUsername(), configuration.getSmtpPassword());
     }
-    email.setSocketConnectionTimeout(SOCKET_TIMEOUT);
-    email.setSocketTimeout(SOCKET_TIMEOUT);
   }
 
   private void configureSecureConnection(Email email) {

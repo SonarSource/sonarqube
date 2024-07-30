@@ -256,9 +256,9 @@ public class EmailNotificationChannelTest {
   @Test
   public void deliverAll_has_no_effect_if_set_is_empty() {
     EmailSmtpConfiguration emailSettings = mock(EmailSmtpConfiguration.class);
-    EmailNotificationChannel underTest = new EmailNotificationChannel(emailSettings, server, null, null);
+    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(emailSettings, server, null, null);
 
-    int count = underTest.deliverAll(Collections.emptySet());
+    int count = emailNotificationChannel.deliverAll(Collections.emptySet());
 
     assertThat(count).isZero();
     verifyNoInteractions(emailSettings);
@@ -272,9 +272,9 @@ public class EmailNotificationChannelTest {
     Set<EmailDeliveryRequest> requests = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> new EmailDeliveryRequest("foo" + i + "@moo", mock(Notification.class)))
       .collect(toSet());
-    EmailNotificationChannel underTest = new EmailNotificationChannel(emailSettings, server, null, null);
+    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(emailSettings, server, null, null);
 
-    int count = underTest.deliverAll(requests);
+    int count = emailNotificationChannel.deliverAll(requests);
 
     assertThat(count).isZero();
     verify(emailSettings).getSmtpHost();
@@ -290,9 +290,9 @@ public class EmailNotificationChannelTest {
     Set<EmailDeliveryRequest> requests = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> new EmailDeliveryRequest(emptyString, mock(Notification.class)))
       .collect(toSet());
-    EmailNotificationChannel underTest = new EmailNotificationChannel(emailSettings, server, null, null);
+    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(emailSettings, server, null, null);
 
-    int count = underTest.deliverAll(requests);
+    int count = emailNotificationChannel.deliverAll(requests);
 
     assertThat(count).isZero();
     verify(emailSettings).getSmtpHost();
@@ -316,9 +316,9 @@ public class EmailNotificationChannelTest {
     Set<EmailDeliveryRequest> requests = Stream.of(notification1, notification2, notification3)
       .map(t -> new EmailDeliveryRequest(recipientEmail, t))
       .collect(toSet());
-    EmailNotificationChannel underTest = new EmailNotificationChannel(configuration, server, new EmailTemplate[] {template1, template3}, null);
+    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(configuration, server, new EmailTemplate[] {template1, template3}, null);
 
-    int count = underTest.deliverAll(requests);
+    int count = emailNotificationChannel.deliverAll(requests);
 
     assertThat(count).isEqualTo(2);
     assertThat(smtpServer.getMessages()).hasSize(2);
@@ -356,9 +356,9 @@ public class EmailNotificationChannelTest {
     when(template11.format(notification1)).thenReturn(emailMessage11);
     when(template12.format(notification1)).thenReturn(emailMessage12);
     EmailDeliveryRequest request = new EmailDeliveryRequest(recipientEmail, notification1);
-    EmailNotificationChannel underTest = new EmailNotificationChannel(configuration, server, new EmailTemplate[] {template11, template12}, null);
+    EmailNotificationChannel emailNotificationChannel = new EmailNotificationChannel(configuration, server, new EmailTemplate[] {template11, template12}, null);
 
-    int count = underTest.deliverAll(Collections.singleton(request));
+    int count = emailNotificationChannel.deliverAll(Collections.singleton(request));
 
     assertThat(count).isOne();
     assertThat(smtpServer.getMessages()).hasSize(1);
