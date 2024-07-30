@@ -88,6 +88,7 @@ import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.component.index.EntityDefinitionIndexer;
 import org.sonar.server.config.ConfigurationProvider;
+import org.sonar.server.email.EmailSmtpConfiguration;
 import org.sonar.server.es.EsModule;
 import org.sonar.server.es.IndexersImpl;
 import org.sonar.server.extension.CoreExtensionBootstraper;
@@ -407,6 +408,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // Notifications
       QGChangeEmailTemplate.class,
       EmailSettings.class,
+      EmailSmtpConfiguration.class,
       NotificationService.class,
       DefaultNotificationManager.class,
       EmailNotificationChannel.class,
