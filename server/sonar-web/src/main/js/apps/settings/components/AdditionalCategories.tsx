@@ -25,6 +25,7 @@ import {
   ALM_INTEGRATION_CATEGORY,
   ANALYSIS_SCOPE_CATEGORY,
   AUTHENTICATION_CATEGORY,
+  EMAIL_NOTIFICATION_CATEGORY,
   LANGUAGES_CATEGORY,
   NEW_CODE_PERIOD_CATEGORY,
   PULL_REQUEST_DECORATION_BINDING_CATEGORY,
@@ -34,6 +35,7 @@ import Languages from './Languages';
 import NewCodeDefinition from './NewCodeDefinition';
 import AlmIntegration from './almIntegration/AlmIntegration';
 import Authentication from './authentication/Authentication';
+import EmailNotification from './email-notification/EmailNotification';
 import PullRequestDecorationBinding from './pullRequestDecorationBinding/PRDecorationBinding';
 
 export interface AdditionalCategoryComponentProps {
@@ -103,6 +105,14 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     availableForProject: false,
     displayTab: false,
   },
+  {
+    key: EMAIL_NOTIFICATION_CATEGORY,
+    name: translate('settings.email_notification.category'),
+    renderComponent: getEmailNotificationComponent,
+    availableGlobally: true,
+    availableForProject: false,
+    displayTab: true,
+  },
 ];
 
 function getLanguagesComponent(props: AdditionalCategoryComponentProps) {
@@ -127,4 +137,8 @@ function getAuthenticationComponent(props: AdditionalCategoryComponentProps) {
 
 function getPullRequestDecorationBindingComponent(props: AdditionalCategoryComponentProps) {
   return props.component && <PullRequestDecorationBinding component={props.component} />;
+}
+
+function getEmailNotificationComponent(props: AdditionalCategoryComponentProps) {
+  return <EmailNotification {...props} />;
 }

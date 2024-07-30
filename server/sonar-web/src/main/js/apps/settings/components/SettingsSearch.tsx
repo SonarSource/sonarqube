@@ -28,8 +28,8 @@ import { Component, Dict } from '../../../types/types';
 import {
   ADDITIONAL_PROJECT_SETTING_DEFINITIONS,
   ADDITIONAL_SETTING_DEFINITIONS,
-  buildSettingLink,
-} from '../utils';
+} from '../constants';
+import { buildSettingLink } from '../utils';
 import SettingsSearchRenderer from './SettingsSearchRenderer';
 
 interface Props {

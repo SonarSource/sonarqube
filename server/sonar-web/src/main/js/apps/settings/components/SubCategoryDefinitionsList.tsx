@@ -25,9 +25,9 @@ import { Location } from '~sonar-aligned/types/router';
 import { sanitizeStringRestricted } from '../../../helpers/sanitize';
 import { SettingDefinitionAndValue } from '../../../types/settings';
 import { Component } from '../../../types/types';
+import { SUB_CATEGORY_EXCLUSIONS } from '../constants';
 import { getSubCategoryDescription, getSubCategoryName } from '../utils';
 import DefinitionsList from './DefinitionsList';
-import EmailForm from './EmailForm';
 
 export interface SubCategoryDefinitionsListProps {
   category: string;
@@ -42,7 +42,7 @@ export interface SubCategoryDefinitionsListProps {
 class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefinitionsListProps> {
   componentDidUpdate(prevProps: SubCategoryDefinitionsListProps) {
     const { hash } = this.props.location;
-    if (hash && prevProps.location.hash !== hash) {
+    if (hash.length > 0 && prevProps.location.hash !== hash) {
       const query = `[data-scroll-key=${hash.substring(1).replace(/[.#/]/g, '\\$&')}]`;
       const element = document.querySelector<HTMLHeadingElement | HTMLLIElement>(query);
       this.scrollToSubCategoryOrDefinition(element);
@@ -52,22 +52,15 @@ class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefiniti
   scrollToSubCategoryOrDefinition = (element: HTMLHeadingElement | HTMLLIElement | null) => {
     if (element) {
       const { hash } = this.props.location;
-      if (hash && hash.substring(1) === element.getAttribute('data-scroll-key')) {
+      if (hash.length > 0 && hash.substring(1) === element.getAttribute('data-scroll-key')) {
         element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
       }
     }
   };
 
-  renderEmailForm = (subCategoryKey: string) => {
-    const isEmailSettings = this.props.category === 'general' && subCategoryKey === 'email';
-    if (!isEmailSettings) {
-      return null;
-    }
-    return <EmailForm />;
-  };
-
   render() {
     const {
+      category,
       displaySubCategoryTitle = true,
       settings,
       subCategory,
@@ -85,7 +78,8 @@ class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefiniti
     );
     const filteredSubCategories = subCategory
       ? sortedSubCategories.filter((c) => c.key === subCategory)
-      : sortedSubCategories;
+      : sortedSubCategories.filter((c) => !SUB_CATEGORY_EXCLUSIONS[category]?.includes(c.key));
+
     return (
       <ul>
         {filteredSubCategories.map((subCategory, index) => (
@@ -114,8 +108,6 @@ class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefiniti
               scrollToDefinition={this.scrollToSubCategoryOrDefinition}
               settings={bySubCategory[subCategory.key]}
             />
-            {this.renderEmailForm(subCategory.key)}
-
             {
               // Add a separator to all but the last element
               index !== filteredSubCategories.length - 1 && <BasicSeparator />

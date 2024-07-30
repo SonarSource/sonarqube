@@ -55,21 +55,25 @@ function CategoriesList(props: Readonly<CategoriesListProps>) {
   );
 
   const categoriesWithName = categories
-    .filter((key) => !CATEGORY_OVERRIDES[key.toLowerCase()])
+    .filter((key) => CATEGORY_OVERRIDES[key.toLowerCase()] === undefined)
     .map((key) => ({
       key,
       name: getCategoryName(key),
     }))
     .concat(
-      ADDITIONAL_CATEGORIES.filter((c) => c.displayTab)
-        .filter((c) =>
-          component
-            ? // Project settings
-              c.availableForProject
-            : // Global settings
-              c.availableGlobally,
-        )
-        .filter((c) => props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport),
+      ADDITIONAL_CATEGORIES.filter((c) => {
+        const availableForCurrentMenu = component
+          ? // Project settings
+            c.availableForProject
+          : // Global settings
+            c.availableGlobally;
+
+        return (
+          c.displayTab &&
+          availableForCurrentMenu &&
+          (props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport)
+        );
+      }),
     );
   const sortedCategories = sortBy(categoriesWithName, (category) => category.name.toLowerCase());
 
