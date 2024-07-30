@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DiscreetLink } from 'design-system';
+
+import { Link } from '@sonarsource/echoes-react';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { getProfileChangelogPath } from '../../apps/quality-profiles/utils';
@@ -46,25 +47,29 @@ export function RichQualityProfileEventInner({
     name,
     qualityProfile: { languageKey, name: qualityProfileName },
   } = event;
+
   const intl = useIntl();
 
   const truncatedName = name.split(description)[0];
 
+  const contextForAria = intl.formatMessage(
+    { id: 'quality_profiles.page_title_changelog_x' },
+    { 0: qualityProfileName },
+  );
+
   return (
     <span aria-label={name}>
       {truncatedName}
-      <DiscreetLink
-        aria-label={intl.formatMessage(
-          { id: 'quality_profiles.page_title_changelog_x' },
-          { 0: qualityProfileName },
-        )}
+
+      <Link
+        aria-label={`${contextForAria}: ${description}`}
         to={getProfileChangelogPath(qualityProfileName, languageKey)}
         // Needed to make this link work from the Activity tab
         // Because of a click handler on a parent component that is also trigerring a redirection
         onClick={(event) => event.stopPropagation()}
       >
         {description}
-      </DiscreetLink>
+      </Link>
     </span>
   );
 }

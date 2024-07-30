@@ -77,7 +77,9 @@ it('should render correctly', async () => {
   ).toBeInTheDocument();
 
   await user.click(
-    screen.getByRole('link', { name: 'quality_profiles.page_title_changelog_x.QP-test' }),
+    screen.getByRole('link', {
+      name: 'quality_profiles.page_title_changelog_x.QP-test: 1 new rule, 2 modified rules, and 3 removed rules',
+    }),
   );
 
   expect(await screen.findByText('QP-test java')).toBeInTheDocument();
