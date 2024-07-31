@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.alm.integration.pat.AlmPatsDbTester;
 import org.sonar.db.almsettings.AlmSettingsDbTester;
 import org.sonar.db.audit.AuditDbTester;
@@ -62,7 +62,7 @@ import org.sonar.db.webhook.WebhookDeliveryDbTester;
  */
 public class DbTester extends AbstractDbTester<TestDbImpl> {
 
-  private final UuidFactory uuidFactory = new SequenceUuidFactory();
+  private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
   private final System2 system2;
   private final AuditPersister auditPersister;
   private DbClient client;

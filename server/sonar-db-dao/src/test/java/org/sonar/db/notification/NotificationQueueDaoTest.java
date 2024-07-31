@@ -19,6 +19,8 @@
  */
 package org.sonar.db.notification;
 
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -100,8 +102,10 @@ public class NotificationQueueDaoTest {
     db.commit();
 
     assertThat(dao.selectOldest(3))
-      .extracting(NotificationQueueDto::getUuid)
-      .containsExactlyElementsOf(Arrays.asList("1", "2", "3"));
+      .extracting(NotificationQueueDto::getData)
+      .map(bytes -> new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject())
+      .extracting("type")
+      .containsExactlyElementsOf(List.of("foo_0", "foo_1", "foo_2"));
   }
 
   private List<String> selectAllUuid() {

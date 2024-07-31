@@ -71,7 +71,7 @@ public class AlmSettingDaoWithPersisterTest {
       .extracting("devOpsPlatformSettingUuid", "key")
       .containsExactly(almSettingDto.getUuid(), almSettingDto.getKey());
     assertThat(newValue)
-      .hasToString("{\"devOpsPlatformSettingUuid\": \"1\", \"key\": \"key\", \"devOpsPlatformName\": \"id1\", \"url\": \"url\", \"appId\": \"id1\", \"clientId\": \"cid1\" }");
+      .hasToString("{\"devOpsPlatformSettingUuid\": \""+almSettingDto.getUuid()+"\", \"key\": \""+almSettingDto.getKey()+"\", \"devOpsPlatformName\": \"id1\", \"url\": \"url\", \"appId\": \"id1\", \"clientId\": \"cid1\" }");
 
     almSettingDto.setPrivateKey("updated private key");
     almSettingDto.setAppId("updated app id");
@@ -90,8 +90,9 @@ public class AlmSettingDaoWithPersisterTest {
     assertThat(newValue)
       .extracting("devOpsPlatformSettingUuid", "key", "appId", "devOpsPlatformName", "url", "clientId")
       .containsExactly(almSettingDto.getUuid(), almSettingDto.getKey(), almSettingDto.getAppId(), almSettingDto.getAppId(), almSettingDto.getUrl(), almSettingDto.getClientId());
-    assertThat(newValue).hasToString("{\"devOpsPlatformSettingUuid\": \"1\", \"key\": \"updated key\", \"devOpsPlatformName\": \"updated app id\", "
-      + "\"url\": \"updated url\", \"appId\": \"updated app id\", \"clientId\": \"cid1\" }");
+    assertThat(newValue).hasToString("{\"devOpsPlatformSettingUuid\": \""+almSettingDto.getUuid()+"\", \"key\": \""+almSettingDto.getKey()
+      +"\", \"devOpsPlatformName\": \""+almSettingDto.getAppId()+"\", "
+      + "\"url\": \""+almSettingDto.getUrl()+"\", \"appId\": \""+almSettingDto.getAppId()+"\", \"clientId\": \""+almSettingDto.getClientId()+"\" }");
   }
 
   @Test
