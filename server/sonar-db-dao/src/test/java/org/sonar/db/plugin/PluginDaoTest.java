@@ -109,6 +109,5 @@ public class PluginDaoTest {
       "removed", removed,
       "created_at", createdAt,
       "updated_at", updatedAt);
-    db.commit();
   }
 }

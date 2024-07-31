@@ -26,8 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.measures.CoreMetrics;
@@ -61,26 +65,42 @@ public class PopulateDb {
 
   private static final long NUMBER_OF_USERS = 100_000L;
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
+    final DbTester dbTester = createDbTester();
+
     // read base data
     final Map<String, MetricDto> metricDtosByKey;
     final List<ProjectDto> allProjects;
     final List<PortfolioDto> allPortfolios;
     final Set<RuleDto> enabledRules;
 
-    DbSession dbSession = dbTester.getSession();
-    metricDtosByKey = dbTester.getDbClient().metricDao().selectAll(dbSession).stream().collect(
-      Collectors.toMap(MetricDto::getKey, Function.identity()));
-    allProjects = dbTester.getDbClient().projectDao().selectProjects(dbSession);
-    allPortfolios = dbTester.getDbClient().portfolioDao().selectAll(dbSession);
+    DbSession initSession = dbTester.getSession();
+    metricDtosByKey = dbTester.getDbClient().metricDao().selectAll(initSession).stream().collect(
+      Collectors.toMap(MetricDto::getKey, Function.identity())
+    );
+    allProjects = dbTester.getDbClient().projectDao().selectProjects(initSession);
+    allPortfolios = dbTester.getDbClient().portfolioDao().selectAll(initSession);
     enabledRules = new HashSet<>(dbTester.getDbClient().ruleDao().selectEnabled(dbTester.getSession()));
 
-    ProjectDto projectDto = generateProject(new SqContext(enabledRules, metricDtosByKey, dbTester),
-      new ProjectStructure("project " + (allProjects.size() + 1), 10, 10, 10, 2, 5));
-    allProjects.add(projectDto);
+    ExecutorService executorService = Executors.newFixedThreadPool(1);
+    SqContext sqContext = new SqContext(enabledRules, metricDtosByKey, dbTester);
+
+    IntStream.rangeClosed(1, 1)
+      .map(i -> i + allProjects.size())
+      .mapToObj(i -> new ProjectStructure("project " + i, 10, 100, 10, 2, 5))
+        .forEach(projectStructure -> {
+          executorService.submit(() -> {
+            sqContext.dbTester.getSession(true);
+            generateProject(
+              sqContext, projectStructure
+            );
+          });
+        });
+
+    executorService.shutdown();
+    executorService.awaitTermination(100, TimeUnit.DAYS);
 
     createUsers(allProjects);
-
     allPortfolios.addAll(createPortfolios(new PortfolioGenerationSettings(allPortfolios.size(), 100, 10), allProjects));
 
     // close database connection
@@ -185,6 +205,7 @@ public class PopulateDb {
 
   private static ProjectDto generateProject(SqContext sqContext, ProjectStructure pj) {
     ComponentDto projectCompoDto = sqContext.dbTester.components().insertPublicProject(p -> p.setName(pj.projectName));
+    sqContext.dbTester.forceCommit();
     ProjectDto projectDto = sqContext.dbTester.components().getProjectDto(projectCompoDto);
 
     Streams.concat(
@@ -242,6 +263,7 @@ public class PopulateDb {
         SnapshotDto lastSnapshotDto = snapshots.get(0);
         lastSnapshotDto.setLast(true);
         sqContext.dbTester.components().insertSnapshots(snapshots.toArray(new SnapshotDto[0]));
+        sqContext.dbTester.forceCommit();
       });
 
     return projectDto;

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
@@ -66,7 +67,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private final System2 system2;
   private final AuditPersister auditPersister;
   private DbClient client;
-  ThreadLocal<DbSession> session = new ThreadLocal<>();
+  ThreadLocal<DbSessionContext> session = new ThreadLocal<>();
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
   private final ProjectLinkDbTester componentLinkTester;
@@ -251,22 +252,32 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   @Override
   protected void after() {
     if (session.get() != null) {
-      session.get().rollback();
-      session.get().close();
+      session.get().dbSession.rollback();
+      session.get().dbSession.close();
       session.remove();
     }
     db.stop();
   }
 
   public DbSession getSession() {
+    return getSession(false);
+  }
+
+  public DbSession getSession(boolean batched) {
     if (session.get() == null) {
-      session.set(db.getMyBatis().openSession(false));
+      session.set(new DbSessionContext(db.getMyBatis().openSession(batched), batched));
     }
-    return session.get();
+    return session.get().dbSession;
+  }
+
+  public void forceCommit() {
+    getSession().commit(true);
   }
 
   public void commit() {
-    getSession().commit();
+    if(session.get() != null && !session.get().isBatched) {
+      getSession().commit();
+    }
   }
 
   public DbClient getDbClient() {
@@ -312,6 +323,8 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return ((HikariDataSource) db.getDatabase().getDataSource()).getJdbcUrl();
   }
 
+  private record DbSessionContext(@NotNull DbSession dbSession, boolean isBatched){}
+
   private static class DbSessionConnectionSupplier implements ConnectionSupplier {
     private final DbSession dbSession;
 
@@ -336,8 +349,8 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
     public DbTesterMyBatisConfExtension(Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
       this.mapperClasses = Stream.concat(
-        Stream.of(firstMapperClass),
-        Arrays.stream(otherMapperClasses))
+          Stream.of(firstMapperClass),
+          Arrays.stream(otherMapperClasses))
         .sorted(Comparator.comparing(Class::getName))
         .toArray(Class<?>[]::new);
     }

@@ -74,7 +74,6 @@ public class NotificationQueueDaoTest {
       .mapToObj(i -> toNotificationQueueDto(new Notification("foo_" + i)))
       .collect(toList());
     dao.insert(notifs);
-    db.commit();
 
     List<String> uuids = selectAllUuid();
 
@@ -99,7 +98,6 @@ public class NotificationQueueDaoTest {
       .mapToObj(i -> toNotificationQueueDto(new Notification("foo_" + i)))
       .collect(toList());
     dao.insert(notifs);
-    db.commit();
 
     assertThat(dao.selectOldest(3))
       .extracting(NotificationQueueDto::getData)
