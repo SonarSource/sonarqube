@@ -66,7 +66,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private final System2 system2;
   private final AuditPersister auditPersister;
   private DbClient client;
-  private DbSession session = null;
+  ThreadLocal<DbSession> session = new ThreadLocal<>();
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
   private final ProjectLinkDbTester componentLinkTester;
@@ -250,18 +250,19 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
   @Override
   protected void after() {
-    if (session != null) {
-      session.rollback();
-      session.close();
+    if (session.get() != null) {
+      session.get().rollback();
+      session.get().close();
+      session.remove();
     }
     db.stop();
   }
 
   public DbSession getSession() {
-    if (session == null) {
-      session = db.getMyBatis().openSession(false);
+    if (session.get() == null) {
+      session.set(db.getMyBatis().openSession(false));
     }
-    return session;
+    return session.get();
   }
 
   public void commit() {
