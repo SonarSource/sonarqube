@@ -22,24 +22,23 @@ package org.sonar.db.plugin;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 public class PluginDbTester {
   private final DbClient dbClient;
-  private final DbSession dbSession;
+  private final DbTester db;
 
   public PluginDbTester(DbTester db) {
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
+    this.db = db;
   }
 
   @SafeVarargs
   public final PluginDto insertPlugin(Consumer<PluginDto>... consumers) {
     PluginDto pluginDto = PluginTesting.newPluginDto();
     Arrays.stream(consumers).forEach(c -> c.accept(pluginDto));
-    dbClient.pluginDao().insert(dbSession, pluginDto);
-    dbSession.commit();
+    dbClient.pluginDao().insert(db.getSession(), pluginDto);
+    db.commit();
     return pluginDto;
   }
 

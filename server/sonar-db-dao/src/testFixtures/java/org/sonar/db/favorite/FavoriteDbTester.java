@@ -21,7 +21,6 @@ package org.sonar.db.favorite;
 
 import java.util.List;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
@@ -31,20 +30,20 @@ public class FavoriteDbTester {
   private static final String PROP_FAVORITE_KEY = "favourite";
 
   private final DbClient dbClient;
-  private final DbSession dbSession;
+  private final DbTester db;
 
   public FavoriteDbTester(DbTester db) {
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
+    this.db = db;
   }
 
   public void add(ComponentDto componentDto, String userUuid, String userLogin) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
+    dbClient.propertiesDao().saveProperty(db.getSession(), new PropertyDto()
         .setKey(PROP_FAVORITE_KEY)
         .setUserUuid(userUuid)
         .setComponentUuid(componentDto.uuid()),
       userLogin, componentDto.getKey(), componentDto.name(), componentDto.qualifier());
-    dbSession.commit();
+    db.commit();
   }
 
   public boolean hasFavorite(ComponentDto componentDto, String userUuid) {
@@ -52,7 +51,7 @@ public class FavoriteDbTester {
       .setKey(PROP_FAVORITE_KEY)
       .setComponentUuid(componentDto.uuid())
       .setUserUuid(userUuid)
-      .build(), dbSession);
+      .build(), db.getSession());
 
     return !result.isEmpty();
   }
@@ -61,7 +60,7 @@ public class FavoriteDbTester {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(PROP_FAVORITE_KEY)
       .setComponentUuid(componentDto.uuid())
-      .build(), dbSession);
+      .build(), db.getSession());
     return result.isEmpty();
   }
 }

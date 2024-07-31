@@ -22,7 +22,6 @@ package org.sonar.db.permission.template;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -34,23 +33,21 @@ import static org.sonar.db.permission.template.PermissionTemplateTesting.newPerm
 public class PermissionTemplateDbTester {
   private final DbTester db;
   private final DbClient dbClient;
-  private final DbSession dbSession;
 
   public PermissionTemplateDbTester(DbTester db) {
     this.db = db;
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
   }
 
   public void setDefaultTemplates(String projectDefaultTemplateUuid, @Nullable String applicationDefaultTemplateUuid, @Nullable String portfoliosDefaultTemplateUuid) {
-    db.getDbClient().internalPropertiesDao().save(dbSession, "defaultTemplate.prj", projectDefaultTemplateUuid);
+    db.getDbClient().internalPropertiesDao().save(db.getSession(), "defaultTemplate.prj", projectDefaultTemplateUuid);
     if (applicationDefaultTemplateUuid != null) {
-      db.getDbClient().internalPropertiesDao().save(dbSession, "defaultTemplate.app", applicationDefaultTemplateUuid);
+      db.getDbClient().internalPropertiesDao().save(db.getSession(), "defaultTemplate.app", applicationDefaultTemplateUuid);
     }
     if (portfoliosDefaultTemplateUuid != null) {
-      db.getDbClient().internalPropertiesDao().save(dbSession, "defaultTemplate.port", portfoliosDefaultTemplateUuid);
+      db.getDbClient().internalPropertiesDao().save(db.getSession(), "defaultTemplate.port", portfoliosDefaultTemplateUuid);
     }
-    dbSession.commit();
+    db.commit();
   }
 
   public void setDefaultTemplates(PermissionTemplateDto projectDefaultTemplate, @Nullable PermissionTemplateDto applicationDefaultTemplate,
@@ -66,7 +63,7 @@ public class PermissionTemplateDbTester {
   }
 
   public PermissionTemplateDto insertTemplate(PermissionTemplateDto template) {
-    PermissionTemplateDto templateInDb = dbClient.permissionTemplateDao().insert(dbSession, template);
+    PermissionTemplateDto templateInDb = dbClient.permissionTemplateDao().insert(db.getSession(), template);
     db.commit();
     return templateInDb;
   }
@@ -76,7 +73,7 @@ public class PermissionTemplateDbTester {
   }
 
   public void addGroupToTemplate(String templateUuid, @Nullable String groupUuid, String permission, String templateName, @Nullable String groupName) {
-    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, templateUuid, groupUuid, permission, templateName, groupName);
+    dbClient.permissionTemplateDao().insertGroupPermission(db.getSession(), templateUuid, groupUuid, permission, templateName, groupName);
     db.commit();
   }
 
@@ -89,7 +86,7 @@ public class PermissionTemplateDbTester {
   }
 
   public void addUserToTemplate(String templateUuid, String userUuid, String permission, String templateName, String userLogin) {
-    dbClient.permissionTemplateDao().insertUserPermission(dbSession, templateUuid, userUuid, permission, templateName, userLogin);
+    dbClient.permissionTemplateDao().insertUserPermission(db.getSession(), templateUuid, userUuid, permission, templateName, userLogin);
     db.commit();
   }
 
@@ -98,7 +95,7 @@ public class PermissionTemplateDbTester {
   }
 
   public void addProjectCreatorToTemplate(String templateUuid, String permission, String templateName) {
-    dbClient.permissionTemplateCharacteristicDao().insert(dbSession, newPermissionTemplateCharacteristicDto()
+    dbClient.permissionTemplateCharacteristicDao().insert(db.getSession(), newPermissionTemplateCharacteristicDto()
         .setWithProjectCreator(true)
         .setTemplateUuid(templateUuid)
         .setPermission(permission),
