@@ -20,6 +20,7 @@
 package org.sonar.core.util;
 
 import java.security.SecureRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * NOT thread safe
@@ -29,7 +30,7 @@ import java.security.SecureRandom;
 public class UuidFactoryFast implements UuidFactory {
   private static UuidFactoryFast instance = new UuidFactoryFast();
   private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-  private static int sequenceNumber = new SecureRandom().nextInt();
+  private AtomicInteger sequenceNumber = new AtomicInteger(new SecureRandom().nextInt());
 
   private UuidFactoryFast() {
     //
@@ -54,8 +55,8 @@ public class UuidFactoryFast implements UuidFactory {
     return instance;
   }
   
-  private static int getSequenceNumber() {
-    return sequenceNumber++;
+  private int getSequenceNumber() {
+    return sequenceNumber.getAndIncrement();
   }
 
   /** Puts the lower numberOfLongBytes from l into the array, starting index pos. */
