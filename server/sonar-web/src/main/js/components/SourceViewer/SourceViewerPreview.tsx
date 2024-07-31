@@ -20,9 +20,16 @@
 
 import { ICell, isCode, isMarkdown } from '@jupyterlab/nbformat';
 import { Spinner } from '@sonarsource/echoes-react';
-import { FlagMessage, hljsIssueIndicatorPlugin, hljsUnderlinePlugin } from 'design-system';
-import React, { useEffect, useMemo, useState } from 'react';
+import {
+  FlagMessage,
+  hljsIssueIndicatorPlugin,
+  hljsUnderlinePlugin,
+  UnderlineRangePosition,
+} from 'design-system';
+
+import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { To } from 'react-router-dom';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import {
   JupyterCodeCell,
@@ -48,22 +55,35 @@ export interface Props {
 }
 
 type IssuesByCell = { [key: number]: IssuesByLine };
+type IssueByLine = {
+  end: UnderlineRangePosition;
+  issue: Issue;
+  start: UnderlineRangePosition;
+};
 type IssuesByLine = {
-  [line: number]: {
-    end: { cursorOffset: number; line: number };
-    issue: Issue;
-    start: { cursorOffset: number; line: number };
-  }[];
+  [line: number]: IssueByLine[];
 };
 type IssueKeysByLine = { [line: number]: string[] };
+type IssueIndicatorsProps = {
+  branchLike: BranchLike;
+  component: Component;
+  issuesByCell: IssuesByCell;
+  jupyterRef: React.RefObject<HTMLDivElement>;
+};
 
-const DELAY_FOR_PORTAL_INDEX_ELEMENT = 200;
+type IssueMapper = {
+  issueUrl: To;
+  key: string;
+  lineIndex: number;
+  onlyIssues: Issue[];
+};
 
 export default function SourceViewerPreview(props: Readonly<Props>) {
   const { component, branchLike } = props;
   const [issues, setIssues] = useState<Issue[]>([]);
   const [issuesByCell, setIssuesByCell] = useState<IssuesByCell>({});
-  const [renderedCells, setRenderedCells] = useState<ICell[] | null>([]);
+  const jupyterNotebookRef = useRef<HTMLDivElement>(null);
+
   const { data, isLoading } = useRawSourceQuery({
     key: component,
     ...getBranchLikeQuery(branchLike),
@@ -80,8 +100,6 @@ export default function SourceViewerPreview(props: Readonly<Props>) {
       return null;
     }
   }, [data]);
-
-  const [hasRendered, setHasRendered] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -122,12 +140,10 @@ export default function SourceViewerPreview(props: Readonly<Props>) {
       const endOffset = pathToCursorInCell(mapper.get(end));
 
       if (!startOffset || !endOffset) {
-        setRenderedCells(null);
         return;
       }
 
       if (startOffset.cell !== endOffset.cell) {
-        setRenderedCells(null);
         return;
       }
 
@@ -151,7 +167,6 @@ export default function SourceViewerPreview(props: Readonly<Props>) {
       }
     });
 
-    setRenderedCells(jupyterNotebook?.cells);
     setIssuesByCell(newIssuesByCell);
   }, [issues, data, jupyterNotebook]);
 
@@ -167,7 +182,7 @@ export default function SourceViewerPreview(props: Readonly<Props>) {
     );
   }
 
-  if (!renderedCells) {
+  if (!jupyterNotebook?.cells) {
     return (
       <FlagMessage className="sw-mt-2" variant="warning">
         {translate('source_viewer.jupyter.preview.error')}
@@ -178,15 +193,16 @@ export default function SourceViewerPreview(props: Readonly<Props>) {
   return (
     <>
       <RenderJupyterNotebook
-        cells={renderedCells}
+        cells={jupyterNotebook.cells}
         issuesByCell={issuesByCell}
-        onRender={() => setHasRendered(true)}
+        ref={jupyterNotebookRef}
       />
-      {hasRendered && issues && componentContext && branchLike && (
+      {issues && componentContext && branchLike && (
         <IssueIndicators
           issuesByCell={issuesByCell}
           component={componentContext}
           branchLike={branchLike}
+          jupyterRef={jupyterNotebookRef}
         />
       )}
     </>
@@ -196,7 +212,6 @@ export default function SourceViewerPreview(props: Readonly<Props>) {
 type JupyterNotebookProps = {
   cells: ICell[];
   issuesByCell: IssuesByCell;
-  onRender: () => void;
 };
 
 function mapIssuesToIssueKeys(issuesByLine: IssuesByLine): IssueKeysByLine {
@@ -206,95 +221,127 @@ function mapIssuesToIssueKeys(issuesByLine: IssuesByLine): IssueKeysByLine {
   }, {} as IssueKeysByLine);
 }
 
-function RenderJupyterNotebook({ cells, issuesByCell, onRender }: Readonly<JupyterNotebookProps>) {
-  useEffect(() => {
-    // the `issue-key-${issue.key}` need to be rendered before we trigger the IssueIndicators below
-    setTimeout(onRender, DELAY_FOR_PORTAL_INDEX_ELEMENT);
-  }, [onRender]);
+const RenderJupyterNotebook = forwardRef<HTMLDivElement, JupyterNotebookProps>(
+  ({ cells, issuesByCell }, ref) => {
+    const buildCellsBlocks = useMemo(() => {
+      return cells.map((cell: ICell, index: number) => {
+        let sourceLines = Array.isArray(cell.source) ? cell.source : [cell.source];
+        const issuesByLine = issuesByCell[index];
+        if (!issuesByLine) {
+          return {
+            cell,
+            sourceLines,
+          };
+        }
+        const issues = mapIssuesToIssueKeys(issuesByLine);
+        const flatIssues = Object.entries(issuesByLine).flatMap(([, issues]) => issues);
 
-  const buildCellsBlocks = useMemo(() => {
-    return cells.map((cell: ICell, index: number) => {
-      let sourceLines = Array.isArray(cell.source) ? cell.source : [cell.source];
-      const issuesByLine = issuesByCell[index];
-      if (!issuesByLine) {
+        sourceLines = hljsUnderlinePlugin.tokenize(sourceLines, flatIssues);
+        sourceLines = hljsIssueIndicatorPlugin.addIssuesToLines(sourceLines, issues);
+
         return {
           cell,
           sourceLines,
         };
-      }
-      const issues = mapIssuesToIssueKeys(issuesByLine);
-      const flatIssues = Object.entries(issuesByLine).flatMap(([, issues]) => issues);
+      });
+    }, [cells, issuesByCell]);
 
-      sourceLines = hljsUnderlinePlugin.tokenize(sourceLines, flatIssues);
-      sourceLines = hljsIssueIndicatorPlugin.addIssuesToLines(sourceLines, issues);
+    return (
+      <div ref={ref}>
+        {buildCellsBlocks.map((element, index) => {
+          const { cell, sourceLines } = element;
+          if (isCode(cell)) {
+            return (
+              <JupyterCodeCell
+                source={sourceLines}
+                outputs={cell.outputs}
+                key={`${cell.cell_type}-${index}`}
+              />
+            );
+          } else if (isMarkdown(cell)) {
+            return <JupyterMarkdownCell cell={cell} key={`${cell.cell_type}-${index}`} />;
+          }
+          return null;
+        })}
+      </div>
+    );
+  },
+);
 
-      return {
-        cell,
-        sourceLines,
-      };
-    });
-  }, [cells, issuesByCell]);
+RenderJupyterNotebook.displayName = 'RenderJupyterNotebook';
 
-  return (
-    <>
-      {buildCellsBlocks.map((element, index) => {
-        const { cell, sourceLines } = element;
-        if (isCode(cell)) {
-          return (
-            <JupyterCodeCell
-              source={sourceLines}
-              outputs={cell.outputs}
-              key={`${cell.cell_type}-${index}`}
-            />
-          );
-        } else if (isMarkdown(cell)) {
-          return <JupyterMarkdownCell cell={cell} key={`${cell.cell_type}-${index}`} />;
-        }
-        return null;
-      })}
-    </>
-  );
-}
-
-type IssueIndicatorsProps = {
-  branchLike: BranchLike;
-  component: Component;
-  issuesByCell: IssuesByCell;
-};
-
-function IssueIndicators({ issuesByCell, component, branchLike }: Readonly<IssueIndicatorsProps>) {
+function IssueIndicators({
+  issuesByCell,
+  component,
+  branchLike,
+  jupyterRef,
+}: Readonly<IssueIndicatorsProps>) {
   const location = useLocation();
   const query = parseQuery(location.query);
+  const onlyIssuesMap = (issues: IssueByLine[]) => issues.map(({ issue }) => issue);
+  const mappedIssues = useMemo(() => {
+    return Object.entries(issuesByCell).flatMap(([, issuesByLine]) =>
+      Object.entries(issuesByLine).map(([, issues]) => {
+        const firstIssue = issues[0].issue;
+        const onlyIssues = onlyIssuesMap(issues);
+        const urlQuery = {
+          ...getBranchLikeQuery(branchLike),
+          ...serializeQuery(query),
+          open: firstIssue.key,
+        };
+        const issueUrl = component?.key
+          ? getComponentIssuesUrl(component?.key, urlQuery)
+          : getIssuesUrl(urlQuery);
+        return { key: firstIssue.key, issueUrl, onlyIssues, lineIndex: issues[0].start.line };
+      }),
+    );
+    // we only need to recompute this with new issues
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [issuesByCell]);
+
+  return mappedIssues.map((mappedIssues) => (
+    <PortalLineIssuesIndicator
+      key={mappedIssues.key}
+      issueMapper={mappedIssues}
+      jupyterRef={jupyterRef}
+    />
+  ));
+}
+
+function PortalLineIssuesIndicator(props: {
+  issueMapper: IssueMapper;
+  jupyterRef: React.RefObject<HTMLDivElement>;
+}) {
+  const { jupyterRef, issueMapper } = props;
   const router = useRouter();
 
-  const issuePortals = Object.entries(issuesByCell).flatMap(([, issuesByLine]) =>
-    Object.entries(issuesByLine).map(([lineIndex, issues]) => {
-      const firstIssue = issues[0].issue;
-      const onlyIssues = issues.map(({ issue }) => issue);
-      const urlQuery = {
-        ...getBranchLikeQuery(branchLike),
-        ...serializeQuery(query),
-        open: firstIssue.key,
-      };
-      const issueUrl = component?.key
-        ? getComponentIssuesUrl(component?.key, urlQuery)
-        : getIssuesUrl(urlQuery);
-      const portalIndexElement = document.getElementById(`issue-key-${firstIssue.key}`);
-      return portalIndexElement ? (
-        <span key={`${firstIssue.key}-${lineIndex}`}>
-          {createPortal(
-            <LineIssuesIndicator
-              issues={onlyIssues}
-              onClick={() => router.navigate(issueUrl)}
-              line={{ line: Number(lineIndex) }}
-              as="span"
-            />,
-            portalIndexElement,
-          )}
-        </span>
-      ) : null;
-    }),
-  );
+  const [mutationCount, setMutationCount] = useState(0);
 
-  return <>{issuePortals}</>;
+  useEffect(() => {
+    if (!jupyterRef.current) {
+      return;
+    }
+    setMutationCount((count) => count + 1);
+  }, [jupyterRef]);
+
+  const { key, lineIndex, onlyIssues, issueUrl } = issueMapper;
+  const element = document.getElementById(`issue-key-${key}`);
+
+  // we don't have the jupyterRef yet
+  if (mutationCount === 0) {
+    return null;
+  }
+
+  if (!element) {
+    return null;
+  }
+  return createPortal(
+    <LineIssuesIndicator
+      issues={onlyIssues}
+      onClick={() => router.navigate(issueUrl)}
+      line={{ line: Number(lineIndex) }}
+      as="span"
+    />,
+    element,
+  );
 }

@@ -19,7 +19,7 @@
  */
 import { HighlightResult } from 'highlight.js';
 
-interface UnderlineRangePosition {
+export interface UnderlineRangePosition {
   cursorOffset: number;
   line: number;
 }

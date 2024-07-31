@@ -20,3 +20,4 @@
 
 export { hljsIssueIndicatorPlugin } from './HljsIssueIndicatorPlugin';
 export { hljsUnderlinePlugin } from './HljsUnderlinePlugin';
+export type { UnderlineRangePosition } from './HljsUnderlinePlugin';
