@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -43,13 +45,20 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.user.TokenType;
+import org.sonar.db.user.UserDto;
 
 import static org.sonar.db.component.BranchType.BRANCH;
 
 public class PopulateDb {
-  public static void main(String[] args) {
-    final DbTester dbTester = createDbTester();
 
+  private static final DbTester dbTester = createDbTester();
+
+  private static final Random random = new Random();
+
+  private static final long NUMBER_OF_USERS = 100_000L;
+
+  public static void main(String[] args) {
     // read base data
     final Map<String, MetricDto> metricDtosByKey;
     final List<ProjectDto> allProjects;
@@ -62,11 +71,42 @@ public class PopulateDb {
     allProjects = dbTester.getDbClient().projectDao().selectProjects(initSession);
     enabledRules = new HashSet<>(dbTester.getDbClient().ruleDao().selectEnabled(dbTester.getSession()));
 
-    generateProject(new SqContext(enabledRules, metricDtosByKey, dbTester),
+    ProjectDto projectDto = generateProject(new SqContext(enabledRules, metricDtosByKey, dbTester),
       new ProjectStructure("project " + (allProjects.size() + 1), 10, 10, 10, 2, 5));
+    allProjects.add(projectDto);
 
-    // close database connexion
+    createUsers(allProjects);
+    // close database connection
     dbTester.getDbClient().getDatabase().stop();
+  }
+
+  private static List<UserDto> createUsers(List<ProjectDto> allProjects) {
+    List<UserDto> allUsers = new ArrayList<>();
+    for (int i = 0; i < NUMBER_OF_USERS; i++) {
+      UserDto userDto = dbTester.users().insertUserRealistic();
+      allUsers.add(userDto);
+      ProjectDto projectDto = random.nextBoolean() ? null : allProjects.get(random.nextInt(allProjects.size()));
+      if (i % 60 == 0 && projectDto != null) {
+        createUserTokensDto(userDto, projectDto);
+      }
+      if (i % 50 == 5 && projectDto != null) {
+        createUserDismissedMessages(userDto, projectDto);
+      }
+    }
+    return allUsers;
+  }
+
+  private static void createUserDismissedMessages(UserDto userDto, ProjectDto projectDto) {
+    CeTaskMessageType type = random.nextBoolean() ? CeTaskMessageType.GENERIC : CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE;
+    dbTester.users().insertUserDismissedMessage(userDto, projectDto, type);
+  }
+
+  private static void createUserTokensDto(UserDto userDto, ProjectDto randomProject) {
+    long now = System.currentTimeMillis();
+    Long expirationDate = random.nextBoolean() ? now + 123_123 : null;
+    dbTester.users().insertToken(userDto, a -> a.setCreatedAt(now).setExpirationDate(expirationDate).setProjectKey(randomProject.getKey())
+      .setLastConnectionDate(now).setType(randomProject.getKey() != null ? TokenType.PROJECT_ANALYSIS_TOKEN.name() :
+        TokenType.USER_TOKEN.name()));
   }
 
   private record SqContext(Set<RuleDto> rules, Map<String, MetricDto> metricDtosByKey, DbTester dbTester) {
