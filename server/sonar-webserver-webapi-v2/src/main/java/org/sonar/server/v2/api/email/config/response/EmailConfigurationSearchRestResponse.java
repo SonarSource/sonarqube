@@ -17,17 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.email.ws;
+package org.sonar.server.v2.api.email.config.response;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.common.email.config.EmailConfigurationService;
+import java.util.List;
+import org.sonar.server.v2.api.email.config.resource.EmailConfigurationResource;
+import org.sonar.server.v2.api.response.PageRestResponse;
 
-public class EmailsWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      EmailConfigurationService.class,
-      EmailsWs.class,
-      SendAction.class);
-  }
-}
+public record EmailConfigurationSearchRestResponse(List<EmailConfigurationResource> emailConfigurations, PageRestResponse page) {}
+

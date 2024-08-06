@@ -29,6 +29,6 @@ public class EmailsWsModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new EmailsWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(2);
+    assertThat(container.getAddedObjects()).hasSize(3);
   }
 }

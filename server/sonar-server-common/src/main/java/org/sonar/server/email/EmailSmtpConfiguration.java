@@ -34,8 +34,6 @@ public class EmailSmtpConfiguration {
   public static final String EMAIL_CONFIG_SMTP_PORT_DEFAULT = "25";
   public static final String EMAIL_CONFIG_SMTP_SECURE_CONNECTION = "email.smtp_secure_connection.secured";
   public static final String EMAIL_CONFIG_SMTP_SECURE_CONNECTION_DEFAULT = "";
-  public static final String EMAIL_CONFIG_SMTP_AUTH_METHOD= "email.smtp.auth.method";
-  public static final String EMAIL_CONFIG_SMTP_AUTH_METHOD_DEFAULT = "BASIC";
   // Email content
   public static final String EMAIL_CONFIG_FROM = "email.from";
   public static final String EMAIL_CONFIG_FROM_DEFAULT = "noreply@nowhere";
@@ -43,19 +41,24 @@ public class EmailSmtpConfiguration {
   public static final String EMAIL_CONFIG_FROM_NAME_DEFAULT = "SonarQube";
   public static final String EMAIL_CONFIG_PREFIX = "email.prefix";
   public static final String EMAIL_CONFIG_PREFIX_DEFAULT = "[SONARQUBE]";
+  // Auth selection
+  public static final String EMAIL_CONFIG_SMTP_AUTH_METHOD= "email.smtp.auth.method";
+  public static final String EMAIL_CONFIG_SMTP_AUTH_METHOD_DEFAULT = "BASIC";
   // Basic Auth
   public static final String EMAIL_CONFIG_SMTP_USERNAME = "email.smtp_username.secured";
   public static final String EMAIL_CONFIG_SMTP_USERNAME_DEFAULT = "";
   public static final String EMAIL_CONFIG_SMTP_PASSWORD = "email.smtp_password.secured";
   public static final String EMAIL_CONFIG_SMTP_PASSWORD_DEFAULT = "";
-  // Modern auth
+  // OAuth
   public static final String EMAIL_CONFIG_SMTP_OAUTH_HOST = "email.smtp.oauth.host";
   public static final String EMAIL_CONFIG_SMTP_OAUTH_HOST_DEFAULT = "https://login.microsoftonline.com";
-  public static final String EMAIL_CONFIG_SMTP_OAUTH_TENANT = "email.smtp.oauth.tenant";
   public static final String EMAIL_CONFIG_SMTP_OAUTH_CLIENTID = "email.smtp.oauth.clientId";
   public static final String EMAIL_CONFIG_SMTP_OAUTH_CLIENTSECRET = "email.smtp.oauth.clientSecret";
+  public static final String EMAIL_CONFIG_SMTP_OAUTH_TENANT = "email.smtp.oauth.tenant";
   public static final String EMAIL_CONFIG_SMTP_OAUTH_SCOPE = "email.smtp.oauth.scope";
-  public static final String EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT = "client_credentials";
+  public static final String EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT = "https://outlook.office365.com/.default";
+  public static final String EMAIL_CONFIG_SMTP_OAUTH_GRANT = "email.smtp.oauth.grant";
+  public static final String EMAIL_CONFIG_SMTP_OAUTH_GRANT_DEFAULT = "client_credentials";
 
   private final DbClient dbClient;
 
@@ -117,6 +120,10 @@ public class EmailSmtpConfiguration {
 
   public String getOAuthScope() {
     return get(EMAIL_CONFIG_SMTP_OAUTH_SCOPE, EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT);
+  }
+
+  public String getOAuthGrant() {
+    return get(EMAIL_CONFIG_SMTP_OAUTH_GRANT, EMAIL_CONFIG_SMTP_OAUTH_GRANT_DEFAULT);
   }
 
   private String get(String key, String defaultValue) {

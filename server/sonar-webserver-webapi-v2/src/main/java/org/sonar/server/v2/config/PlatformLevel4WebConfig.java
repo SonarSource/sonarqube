@@ -24,6 +24,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Languages;
 import org.sonar.db.Database;
 import org.sonar.db.DbClient;
+import org.sonar.server.common.email.config.EmailConfigurationService;
 import org.sonar.server.common.github.config.GithubConfigurationService;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.group.service.GroupMembershipService;
@@ -60,6 +61,8 @@ import org.sonar.server.v2.api.analysis.service.ScannerEngineHandler;
 import org.sonar.server.v2.api.analysis.service.ScannerEngineHandlerImpl;
 import org.sonar.server.v2.api.dop.controller.DefaultDopSettingsController;
 import org.sonar.server.v2.api.dop.controller.DopSettingsController;
+import org.sonar.server.v2.api.email.config.controller.DefaultEmailConfigurationController;
+import org.sonar.server.v2.api.email.config.controller.EmailConfigurationController;
 import org.sonar.server.v2.api.github.config.controller.DefaultGithubConfigurationController;
 import org.sonar.server.v2.api.github.config.controller.GithubConfigurationController;
 import org.sonar.server.v2.api.gitlab.config.controller.DefaultGitlabConfigurationController;
@@ -204,6 +207,11 @@ public class PlatformLevel4WebConfig {
   @Bean
   public ScannerEngineController scannerEngineController(ScannerEngineHandler scannerEngineHandler) {
     return new DefaultScannerEngineController(scannerEngineHandler);
+  }
+
+  @Bean
+  public EmailConfigurationController emailConfigurationController(UserSession userSession, EmailConfigurationService emailConfigurationService) {
+    return new DefaultEmailConfigurationController(userSession, emailConfigurationService);
   }
 
 }

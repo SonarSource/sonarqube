@@ -17,17 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.email.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.server.v2.api.email.config.response;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.common.email.config.EmailConfigurationService;
-
-public class EmailsWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      EmailConfigurationService.class,
-      EmailsWs.class,
-      SendAction.class);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

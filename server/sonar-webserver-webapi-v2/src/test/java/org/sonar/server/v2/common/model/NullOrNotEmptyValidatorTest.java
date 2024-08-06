@@ -17,17 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.email.ws;
+package org.sonar.server.v2.common.model;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.common.email.config.EmailConfigurationService;
+import javax.validation.ConstraintValidatorContext;
+import org.junit.jupiter.api.Test;
 
-public class EmailsWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      EmailConfigurationService.class,
-      EmailsWs.class,
-      SendAction.class);
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+
+class NullOrNotEmptyValidatorTest {
+
+  NullOrNotEmptyValidator validator = new NullOrNotEmptyValidator();
+  ConstraintValidatorContext context = mock();
+
+  @Test
+  void isValid_shouldValidateNull() {
+    assertTrue(validator.isValid(null, context));
   }
+
+  @Test
+  void isValid_shouldValidateNotEmptyString() {
+    assertTrue(validator.isValid("not-empty", context));
+  }
+
+  @Test
+  void isValid_shouldNotValidateEmptyString() {
+    assertFalse(validator.isValid("", context));
+  }
+
 }

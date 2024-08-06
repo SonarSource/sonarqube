@@ -17,17 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.email.ws;
+package org.sonar.server.v2.common.model;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.common.email.config.EmailConfigurationService;
+import javax.annotation.Nullable;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
-public class EmailsWsModule extends Module {
+public class NullOrNotEmptyValidator implements ConstraintValidator<NullOrNotEmpty, String> {
   @Override
-  protected void configureModule() {
-    add(
-      EmailConfigurationService.class,
-      EmailsWs.class,
-      SendAction.class);
+  public boolean isValid(@Nullable String value, ConstraintValidatorContext context) {
+    return value == null || !value.isEmpty();
   }
 }
