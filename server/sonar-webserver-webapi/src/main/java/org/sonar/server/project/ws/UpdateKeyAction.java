@@ -52,11 +52,7 @@ public class UpdateKeyAction implements ProjectsWsAction {
   public WebService.NewAction doDefine(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_UPDATE_KEY)
       .setDescription("Update a project all its sub-components keys.<br>" +
-        "Requires one of the following permissions: " +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified project</li>" +
-        "</ul>")
+        "Requires 'Administer' permission on the project.")
       .setSince("6.1")
       .setPost(true)
       .setHandler(this);
