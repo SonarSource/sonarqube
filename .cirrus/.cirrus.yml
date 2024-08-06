@@ -128,7 +128,7 @@ yarn_check_task:
   container:
     dockerfile: .cirrus/Dockerfile
     cpu: 3
-    memory: 5Gb
+    memory: 10Gb
   <<: *DEFAULT_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
