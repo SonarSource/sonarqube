@@ -26,7 +26,6 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.auth.gitlab.GsonGroup;
+import org.sonar.auth.gitlab.GsonProjectMember;
 import org.sonar.auth.gitlab.GsonUser;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
@@ -61,6 +61,8 @@ public class GitlabApplicationClient {
   private static final TypeToken<List<GsonGroup>> GITLAB_GROUP = new TypeToken<>() {
   };
   private static final TypeToken<List<GsonUser>> GITLAB_USER = new TypeToken<>() {
+  };
+  private static final TypeToken<List<GsonProjectMember>> GITLAB_PROJECT_MEMBER = new TypeToken<>() {
   };
 
   protected static final String PRIVATE_TOKEN = "Private-Token";
@@ -370,9 +372,13 @@ public class GitlabApplicationClient {
     return Set.copyOf(executePaginatedQuery(gitlabUrl, token, endpoint, resp -> GSON.fromJson(resp, GITLAB_USER)));
   }
 
+  public Set<GsonProjectMember> getAllProjectMembers(String gitlabUrl, String token, long projectId) {
+    String url = format("/projects/%s/members/all", projectId);
+    return Set.copyOf(executePaginatedQuery(gitlabUrl, token, url, resp -> GSON.fromJson(resp, GITLAB_PROJECT_MEMBER)));
+  }
+
   private <E> List<E> executePaginatedQuery(String appUrl, String token, String query, Function<String, List<E>> responseDeserializer) {
     GitlabToken gitlabToken = new GitlabToken(token);
     return gitlabPaginatedHttpClient.get(appUrl, gitlabToken, query, responseDeserializer);
   }
-
 }

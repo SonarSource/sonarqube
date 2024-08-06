@@ -40,6 +40,7 @@ import org.sonar.alm.client.ConstantTimeoutConfiguration;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.auth.gitlab.GsonGroup;
+import org.sonar.auth.gitlab.GsonProjectMember;
 import org.sonar.auth.gitlab.GsonUser;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -657,6 +658,47 @@ public class GitlabApplicationClientTest {
     when(gsonUser.getName()).thenReturn(name);
     when(gsonUser.getAccessLevel()).thenReturn(accessLevel);
     return gsonUser;
+  }
+
+  @Test
+  public void getAllProjectMembers_whenCallIsSuccesfull_deserializesAndReturnsCorrectlyProjectsMembers() throws IOException {
+    ArgumentCaptor<Function<String, List<GsonProjectMember>>> deserializerCaptor = ArgumentCaptor.forClass(Function.class);
+
+    String token = "token-toto";
+    GitlabToken gitlabToken = new GitlabToken(token);
+    List<GsonProjectMember> expectedProjectMembers = expectedProjectMembers();
+    when(gitlabPaginatedHttpClient.get(eq(gitlabUrl), eq(gitlabToken), eq("/projects/42/members/all"), deserializerCaptor.capture())).thenReturn(expectedProjectMembers);
+
+    Set<GsonProjectMember> actualProjectMembers = underTest.getAllProjectMembers(gitlabUrl, token, 42);
+    assertThat(actualProjectMembers).containsExactlyInAnyOrderElementsOf(expectedProjectMembers);
+
+    String responseContent = getResponseContent("project-members-full-response.json");
+
+    List<GsonProjectMember> deserializedProjectMembers = deserializerCaptor.getValue().apply(responseContent);
+    assertThat(deserializedProjectMembers).isEqualTo(expectedProjectMembers);
+
+  }
+
+  @Test
+  public void getAllProjectMembers_whenCallIsInError_rethrows() {
+    String token = "token-toto";
+    GitlabToken gitlabToken = new GitlabToken(token);
+    List<GsonProjectMember> expectedProjectMembers = expectedProjectMembers();
+    when(gitlabPaginatedHttpClient.get(eq(gitlabUrl), eq(gitlabToken), eq("/projects/42/members/all"), any())).thenThrow(new IllegalStateException("exception"));
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> underTest.getAllProjectMembers(gitlabUrl, token, 42))
+      .withMessage("exception");
+  }
+
+  private static List<GsonProjectMember> expectedProjectMembers() {
+    GsonProjectMember user1 = createGsonProjectMember(12818153, 5);
+    GsonProjectMember user2 = createGsonProjectMember(22330087, 50);
+    return List.of(user1, user2);
+  }
+
+  private static GsonProjectMember createGsonProjectMember(int id, int accessLevel) {
+    return new GsonProjectMember(id, accessLevel);
   }
 
   private static String getResponseContent(String path) throws IOException {

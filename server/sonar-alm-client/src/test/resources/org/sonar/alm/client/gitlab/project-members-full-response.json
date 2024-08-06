@@ -1,0 +1,37 @@
+[
+  {
+    "id": 12818153,
+    "username": "aurelien-poscia-sonarsource",
+    "name": "Aurélien Poscia 2",
+    "state": "active",
+    "locked": false,
+    "avatar_url": "https://secure.gravatar.com/avatar/171fd98c95e67a87cb7bd05a42842adebd14818d7e7d6d5c838225e9240e01b0?s=80&d=identicon",
+    "web_url": "https://gitlab.com/aurelien-poscia-sonarsource",
+    "access_level": 5,
+    "created_at": "2023-06-01T08:22:56.677Z",
+    "created_by": {
+      "id": 12818153,
+      "username": "aurelien-poscia-sonarsource",
+      "name": "Aurélien Poscia 2",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://secure.gravatar.com/avatar/171fd98c95e67a87cb7bd05a42842adebd14818d7e7d6d5c838225e9240e01b0?s=80&d=identicon",
+      "web_url": "https://gitlab.com/aurelien-poscia-sonarsource"
+    },
+    "expires_at": null,
+    "membership_state": "active"
+  },
+  {
+    "id": 22330087,
+    "username": "project_46494175_bot_d518a7d5f68ba2e623d8dba785ca8b5f",
+    "name": "Guillaume Peoch",
+    "state": "active",
+    "locked": false,
+    "avatar_url": "https://secure.gravatar.com/avatar/60254275467af5e8861e2d91a3e3a09a5819fafaa00f34813b9ebef61f9bb44b?s=80&d=identicon",
+    "web_url": "https://gitlab.com/project_46494175_bot_d518a7d5f68ba2e623d8dba785ca8b5f",
+    "access_level": 50,
+    "created_at": "2024-08-05T14:38:37.647Z",
+    "expires_at": "2024-09-04",
+    "membership_state": "active"
+  }
+]
