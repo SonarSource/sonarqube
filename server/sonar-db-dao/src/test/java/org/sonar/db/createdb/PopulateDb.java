@@ -21,13 +21,14 @@ package org.sonar.db.createdb;
 
 import com.google.common.collect.Streams;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -52,18 +53,13 @@ import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 
 import static org.sonar.db.component.BranchType.BRANCH;
 
 public class PopulateDb {
-
-  private static final DbTester dbTester = createDbTester();
-
-  private static final Random random = new Random();
-
-  private static final long NUMBER_OF_USERS = 100_000L;
 
   public static void main(String[] args) throws InterruptedException {
     final DbTester dbTester = createDbTester();
@@ -73,112 +69,111 @@ public class PopulateDb {
     final List<ProjectDto> allProjects;
     final List<PortfolioDto> allPortfolios;
     final Set<RuleDto> enabledRules;
+    final GroupDto adminGroupDto;
 
     DbSession initSession = dbTester.getSession();
     metricDtosByKey = dbTester.getDbClient().metricDao().selectAll(initSession).stream().collect(
       Collectors.toMap(MetricDto::getKey, Function.identity())
     );
-    allProjects = dbTester.getDbClient().projectDao().selectProjects(initSession);
-    allPortfolios = dbTester.getDbClient().portfolioDao().selectAll(initSession);
+    allProjects = Collections.synchronizedList(new ArrayList<>(dbTester.getDbClient().projectDao().selectProjects(initSession)));
     enabledRules = new HashSet<>(dbTester.getDbClient().ruleDao().selectEnabled(dbTester.getSession()));
+    adminGroupDto = dbTester.getDbClient().groupDao().selectByName(dbTester.getSession(), "sonar-administrators")
+      .orElseThrow(() -> new IllegalStateException("group with name \"sonar-administrators\" is expected to exist"));
+    SqContext sqContext = new SqContext(allProjects, enabledRules, metricDtosByKey, adminGroupDto, dbTester);
 
     ExecutorService executorService = Executors.newFixedThreadPool(1);
-    SqContext sqContext = new SqContext(enabledRules, metricDtosByKey, dbTester);
 
     IntStream.rangeClosed(1, 1)
       .map(i -> i + allProjects.size())
       .mapToObj(i -> new ProjectStructure("project " + i, 10, 100, 10, 2, 5))
-        .forEach(projectStructure -> {
-          executorService.submit(() -> {
-            sqContext.dbTester.getSession(true);
-            generateProject(
-              sqContext, projectStructure
-            );
-          });
+      .forEach(projectStructure -> {
+        executorService.submit(() -> {
+          sqContext.dbTester.getSession(true);
+          allProjects.add(generateProject(
+            sqContext, projectStructure
+          ));
         });
+      });
 
     executorService.shutdown();
     executorService.awaitTermination(100, TimeUnit.DAYS);
 
-    createUsers(allProjects);
-    allPortfolios.addAll(createPortfolios(new PortfolioGenerationSettings(allPortfolios.size(), 100, 10), allProjects));
+    createUsers(sqContext, 100_000);
+
+    allPortfolios = new ArrayList<>(dbTester.getDbClient().portfolioDao().selectAll(initSession));
+    allPortfolios.addAll(createPortfolios(sqContext, new PortfolioGenerationSettings(allPortfolios.size(), 100, 10)));
 
     // close database connection
     dbTester.getDbClient().getDatabase().stop();
   }
 
-  private static List<PortfolioDto> createPortfolios(PortfolioGenerationSettings portfolioGenerationSettings, List<ProjectDto> allProjects) {
+  private static List<PortfolioDto> createPortfolios(SqContext sqContext, PortfolioGenerationSettings portfolioGenerationSettings) {
     List<PortfolioDto> generatedPortfolios = new ArrayList<>();
     int startIndex = portfolioGenerationSettings.currentPortfoliosSize + 1;
     int limit = startIndex + portfolioGenerationSettings.numberOfPortolios;
 
     for (int portfolioIndex = startIndex; portfolioIndex < limit; portfolioIndex++) {
-      PortfolioDto portfolioDto = generatePortfolio("portfolio " + portfolioIndex);
+      PortfolioDto portfolioDto = generatePortfolio(sqContext, "portfolio " + portfolioIndex);
       generatedPortfolios.add(portfolioDto);
-      for (int projectIndex = 0; projectIndex < Math.min(portfolioGenerationSettings.maxProjectPerPortfolio, allProjects.size()); projectIndex++) {
-        dbTester.getDbClient().portfolioDao().addProject(dbTester.getSession(), portfolioDto.getUuid(), allProjects.get(projectIndex).getUuid());
+      for (int projectIndex = 0; projectIndex < Math.min(portfolioGenerationSettings.maxProjectPerPortfolio, sqContext.projects.size()); projectIndex++) {
+        sqContext.dbTester.getDbClient().portfolioDao().addProject(sqContext.dbTester.getSession(), portfolioDto.getUuid(), sqContext.projects.get(projectIndex).getUuid());
       }
     }
 
     return generatedPortfolios;
   }
 
-  private static PortfolioDto generatePortfolio(String portfolioName) {
-    ComponentDto portfolioComponentDto = dbTester.components().insertPublicPortfolio(p -> p.setName(portfolioName));
-    PortfolioDto portfolioDto = dbTester.components().getPortfolioDto(portfolioComponentDto);
+  private static PortfolioDto generatePortfolio(SqContext sqContext, String portfolioName) {
+    ComponentDto portfolioComponentDto = sqContext.dbTester.components().insertPublicPortfolio(
+      c -> c.setName(portfolioName),
+      // Selection mode is set to MANUAL as we are picking the portfolio projects manually
+      p -> p.setSelectionMode(PortfolioDto.SelectionMode.MANUAL));
 
-    // Selection mode is set to MANUAL as we are picking the portfolio projects manually
-    portfolioDto.setSelectionMode(PortfolioDto.SelectionMode.MANUAL);
+    insertPortfolioAdminRights(sqContext, portfolioComponentDto);
 
-    dbTester.getDbClient().portfolioDao().update(dbTester.getSession(), portfolioDto);
-
-    insertPortfolioAdminRights(portfolioComponentDto);
-
-    return portfolioDto;
+    return sqContext.dbTester.components().getPortfolioDto(portfolioComponentDto);
   }
 
-  private static void insertPortfolioAdminRights(ComponentDto portfolioComponentDto) {
-    dbTester.getDbClient().groupDao().selectByName(dbTester.getSession(), "sonar-administrators").ifPresent(groupDto -> {
+  private static void insertPortfolioAdminRights(SqContext sqContext, ComponentDto portfolioComponentDto) {
+    GroupPermissionDto dto = new GroupPermissionDto()
+      .setUuid(Uuids.createFast())
+      .setGroupUuid(sqContext.adminGroup.getUuid())
+      .setComponentUuid(portfolioComponentDto.uuid())
+      .setRole("admin");
 
-      GroupPermissionDto dto = new GroupPermissionDto()
-        .setUuid(Uuids.createFast())
-        .setGroupUuid(groupDto.getUuid())
-        .setComponentUuid(portfolioComponentDto.uuid())
-        .setRole("admin");
-
-      dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto, portfolioComponentDto, null);
-    });
+    sqContext.dbTester.getDbClient().groupPermissionDao().insert(sqContext.dbTester.getSession(), dto, portfolioComponentDto, null);
   }
 
-  private static List<UserDto> createUsers(List<ProjectDto> allProjects) {
+  private static List<UserDto> createUsers(SqContext sqContext, int nbUser) {
     List<UserDto> allUsers = new ArrayList<>();
-    for (int i = 0; i < NUMBER_OF_USERS; i++) {
-      UserDto userDto = dbTester.users().insertUserRealistic();
+    for (int i = 0; i < nbUser; i++) {
+      UserDto userDto = sqContext.dbTester.users().insertUserRealistic();
       allUsers.add(userDto);
-      ProjectDto projectDto = random.nextBoolean() ? null : allProjects.get(random.nextInt(allProjects.size()));
+      ProjectDto projectDto = ThreadLocalRandom.current().nextBoolean() ? null : sqContext.projects.get(ThreadLocalRandom.current().nextInt(sqContext.projects.size()));
       if (i % 60 == 0 && projectDto != null) {
-        createUserTokensDto(userDto, projectDto);
+        createUserTokensDto(sqContext, userDto, projectDto);
       }
       if (i % 50 == 5 && projectDto != null) {
-        createUserDismissedMessages(userDto, projectDto);
+        createUserDismissedMessages(sqContext, userDto, projectDto);
       }
     }
     return allUsers;
   }
 
-  private static void createUserDismissedMessages(UserDto userDto, ProjectDto projectDto) {
-    CeTaskMessageType type = random.nextBoolean() ? CeTaskMessageType.GENERIC : CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE;
-    dbTester.users().insertUserDismissedMessage(userDto, projectDto, type);
+  private static void createUserDismissedMessages(SqContext sqContext, UserDto userDto, ProjectDto projectDto) {
+    CeTaskMessageType type = ThreadLocalRandom.current().nextBoolean() ? CeTaskMessageType.GENERIC : CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE;
+    sqContext.dbTester.users().insertUserDismissedMessage(userDto, projectDto, type);
   }
 
-  private static void createUserTokensDto(UserDto userDto, ProjectDto randomProject) {
+  private static void createUserTokensDto(SqContext sqContext, UserDto userDto, ProjectDto randomProject) {
     long now = System.currentTimeMillis();
-    Long expirationDate = random.nextBoolean() ? now + 123_123 : null;
-    dbTester.users().insertToken(userDto, a -> a.setCreatedAt(now).setExpirationDate(expirationDate).setProjectKey(randomProject.getKey())
+    Long expirationDate = ThreadLocalRandom.current().nextBoolean() ? now + 123_123 : null;
+    sqContext.dbTester.users().insertToken(userDto, a -> a.setCreatedAt(now).setExpirationDate(expirationDate).setProjectKey(randomProject.getKey())
       .setLastConnectionDate(now).setType(randomProject.getKey() != null ? TokenType.PROJECT_ANALYSIS_TOKEN.name() : TokenType.USER_TOKEN.name()));
   }
 
-  private record SqContext(Set<RuleDto> rules, Map<String, MetricDto> metricDtosByKey, DbTester dbTester) {
+  private record SqContext(List<ProjectDto> projects, Set<RuleDto> rules, Map<String, MetricDto> metricDtosByKey, GroupDto adminGroup,
+                           DbTester dbTester) {
     public RuleDto findNotSecurityHotspotRule() {
       return rules.stream().filter(r -> r.getType() != RuleType.SECURITY_HOTSPOT.getDbConstant()).findAny().orElseThrow();
     }
@@ -194,7 +189,7 @@ public class PopulateDb {
   }
 
   private record ProjectStructure(String projectName, int branchPerProject, int filePerBranch, int issuePerFile, int issueChangePerIssue,
-    int snapshotPerBranch) {
+                                  int snapshotPerBranch) {
   }
 
   private record PortfolioGenerationSettings(int currentPortfoliosSize, int numberOfPortolios, int maxProjectPerPortfolio) {
@@ -209,17 +204,17 @@ public class PopulateDb {
     ProjectDto projectDto = sqContext.dbTester.components().getProjectDto(projectCompoDto);
 
     Streams.concat(
-      // main branch
-      Stream.of(new BranchAndComponentDto(
-        sqContext.dbTester.getDbClient().branchDao().selectByBranchKey(sqContext.dbTester.getSession(), projectDto.getUuid(), "main").orElseThrow(),
-        projectCompoDto)),
-      // other branches
-      Stream.generate(() -> {
-        var branchDto = ComponentTesting.newBranchDto(projectDto.getUuid(), BRANCH);
-        return new BranchAndComponentDto(
-          branchDto,
-          sqContext.dbTester.components().insertProjectBranch(projectDto, branchDto));
-      }))
+        // main branch
+        Stream.of(new BranchAndComponentDto(
+          sqContext.dbTester.getDbClient().branchDao().selectByBranchKey(sqContext.dbTester.getSession(), projectDto.getUuid(), "main").orElseThrow(),
+          projectCompoDto)),
+        // other branches
+        Stream.generate(() -> {
+          var branchDto = ComponentTesting.newBranchDto(projectDto.getUuid(), BRANCH);
+          return new BranchAndComponentDto(
+            branchDto,
+            sqContext.dbTester.components().insertProjectBranch(projectDto, branchDto));
+        }))
       // until there are enough branches generated
       .limit(pj.branchPerProject)
       // for every branche (main included)
