@@ -71,7 +71,11 @@ export const NavBarTabLink = forwardRef<HTMLAnchorElement, NavBarTabLinkProps>(
 
           {children}
 
-          {withChevron && <IconChevronDown className="sw-ml-1" />}
+          {withChevron && (
+            <span className="sw-ml-1">
+              <IconChevronDown />
+            </span>
+          )}
         </NavLink>
       </NavBarTabLinkWrapper>
     );
