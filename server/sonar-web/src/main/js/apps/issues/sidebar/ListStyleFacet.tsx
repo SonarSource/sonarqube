@@ -499,7 +499,9 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
           <span className="it__search-navigator-facet-list">
             {this.renderSearch()}
 
-            {showList ? this.renderList() : this.renderSearchResults()}
+            <output aria-live="polite">
+              {showList ? this.renderList() : this.renderSearchResults()}
+            </output>
 
             <MultipleSelectionHint
               nbSelectableItems={nbSelectableItems}

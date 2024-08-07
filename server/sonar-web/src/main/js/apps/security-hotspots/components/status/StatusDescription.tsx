@@ -32,12 +32,12 @@ export default function StatusDescription(props: StatusDescriptionProps) {
 
   return (
     <div>
-      <h3>
+      <h2>
         <LightPrimary className="sw-body-sm-highlight">
           {`${translate('status')}: `}
           {translate('hotspots.status_option', statusOption)}
         </LightPrimary>
-      </h3>
+      </h2>
       <Description className="sw-mt-1">
         <LightLabel className="sw-body-sm">
           {translate('hotspots.status_option', statusOption, 'description')}

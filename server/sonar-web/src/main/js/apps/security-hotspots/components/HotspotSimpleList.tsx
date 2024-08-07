@@ -21,12 +21,10 @@ import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Badge, QualifierIcon, SubnavigationAccordion, themeColor } from 'design-system';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
 import ListFooter from '../../../components/controls/ListFooter';
 import Tooltip from '../../../components/controls/Tooltip';
 
 import { ComponentQualifier } from '~sonar-aligned/types/component';
-import { translate } from '../../../helpers/l10n';
 import { fileFromPath } from '../../../helpers/path';
 import { SecurityStandard, Standards } from '../../../types/security';
 import { RawHotspot } from '../../../types/security-hotspots';
@@ -74,15 +72,6 @@ export default function HotspotSimpleList(props: HotspotSimpleListProps) {
 
   return (
     <StyledContainer>
-      <span className="sw-body-sm">
-        <FormattedMessage
-          id="hotspots.list_title"
-          defaultMessage={translate('hotspots.list_title')}
-          values={{
-            0: <strong className="sw-body-sm-highlight">{hotspotsTotal}</strong>,
-          }}
-        />
-      </span>
       <div className="sw-mt-8 sw-mb-4">
         <SubnavigationAccordion
           header={

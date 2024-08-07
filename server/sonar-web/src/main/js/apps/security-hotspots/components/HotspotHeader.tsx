@@ -68,7 +68,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
     <div>
       <div className="sw-flex sw-justify-between sw-gap-8 hotspot-header">
         <div className="sw-flex-1">
-          <StyledPageTitle as="h2" className="sw-whitespace-normal sw-overflow-visible">
+          <StyledPageTitle as="h1" className="sw-whitespace-normal sw-overflow-visible">
             <LightPrimary>
               <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
             </LightPrimary>

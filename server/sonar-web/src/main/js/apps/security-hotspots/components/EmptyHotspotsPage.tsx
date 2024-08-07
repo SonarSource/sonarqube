@@ -26,24 +26,14 @@ import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 
 export interface EmptyHotspotsPageProps {
+  emptyTranslationKey: string;
   filterByFile: boolean;
   filtered: boolean;
   isStaticListOfHotspots: boolean;
 }
 
 export default function EmptyHotspotsPage(props: EmptyHotspotsPageProps) {
-  const { filtered, filterByFile, isStaticListOfHotspots } = props;
-
-  let translationRoot;
-  if (filterByFile) {
-    translationRoot = 'no_hotspots_for_file';
-  } else if (isStaticListOfHotspots) {
-    translationRoot = 'no_hotspots_for_keys';
-  } else if (filtered) {
-    translationRoot = 'no_hotspots_for_filters';
-  } else {
-    translationRoot = 'no_hotspots';
-  }
+  const { filtered, filterByFile, emptyTranslationKey, isStaticListOfHotspots } = props;
 
   return (
     <div className="sw-items-center sw-justify-center sw-flex-col sw-flex sw-pt-16">
@@ -53,11 +43,11 @@ export default function EmptyHotspotsPage(props: EmptyHotspotsPageProps) {
         height={100}
         src={`/images/${filtered && !filterByFile ? 'filter-large' : 'hotspot-large'}.svg`}
       />
-      <h1 className="sw-mt-10 sw-body-sm-highlight">
-        {translate(`hotspots.${translationRoot}.title`)}
-      </h1>
+      <span className="sw-mt-10 sw-body-sm-highlight">
+        {translate(`hotspots.${emptyTranslationKey}.title`)}
+      </span>
       <Note className="sw-w-abs-400 sw-text-center sw-mt-4">
-        {translate(`hotspots.${translationRoot}.description`)}
+        {translate(`hotspots.${emptyTranslationKey}.description`)}
       </Note>
       {!(filtered || isStaticListOfHotspots) && (
         <DocumentationLink className="sw-mt-4" to={DocLink.SecurityHotspots}>

@@ -22,10 +22,9 @@ import styled from '@emotion/styled';
 import { HotspotRating, HotspotRatingEnum, SubnavigationHeading, themeColor } from 'design-system';
 import { groupBy } from 'lodash';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
-import { HotspotStatusFilter, RawHotspot } from '../../../types/security-hotspots';
+import { RawHotspot } from '../../../types/security-hotspots';
 import { Dict, StandardSecurityCategories } from '../../../types/types';
 import { RISK_EXPOSURE_LEVELS, groupByCategory } from '../utils';
 import HotspotCategory from './HotspotCategory';
@@ -33,7 +32,6 @@ import HotspotCategory from './HotspotCategory';
 interface Props {
   hotspots: RawHotspot[];
   hotspotsTotal: number;
-  isStaticListOfHotspots: boolean;
   loadingMore: boolean;
   onHotspotClick: (hotspot: RawHotspot) => void;
   onLoadMore: () => void;
@@ -41,7 +39,6 @@ interface Props {
   securityCategories: StandardSecurityCategories;
   selectedHotspot: RawHotspot;
   selectedHotspotLocation?: number;
-  statusFilter: HotspotStatusFilter;
 }
 
 interface State {
@@ -112,47 +109,27 @@ export default class HotspotList extends React.Component<Props, State> {
   };
 
   render() {
-    const {
-      hotspots,
-      hotspotsTotal,
-      isStaticListOfHotspots,
-      loadingMore,
-      selectedHotspot,
-      selectedHotspotLocation,
-      statusFilter,
-    } = this.props;
+    const { hotspots, hotspotsTotal, loadingMore, selectedHotspot, selectedHotspotLocation } =
+      this.props;
 
     const { expandedCategories, groupedHotspots } = this.state;
 
     return (
       <StyledContainer>
-        <span className="sw-body-sm">
-          <FormattedMessage
-            id="hotspots.list_title"
-            defaultMessage={
-              isStaticListOfHotspots
-                ? translate('hotspots.list_title')
-                : translate(`hotspots.list_title.${statusFilter}`)
-            }
-            values={{
-              0: <strong className="sw-body-sm-highlight">{hotspotsTotal}</strong>,
-            }}
-          />
-        </span>
         <div className="sw-mt-8 sw-mb-4">
           {groupedHotspots.map((riskGroup, riskGroupIndex) => {
             const isLastRiskGroup = riskGroupIndex === groupedHotspots.length - 1;
 
             return (
               <div className="sw-mb-4" key={riskGroup.risk}>
-                <SubnavigationHeading className="sw-px-0">
-                  <div className="sw-flex sw-items-center">
+                <SubnavigationHeading as="h2" className="sw-px-0">
+                  <span className="sw-flex sw-items-center">
                     <span className="sw-body-sm-highlight">
                       {translate('hotspots.risk_exposure')}:
                     </span>
                     <HotspotRating className="sw-ml-2 sw-mr-1" rating={riskGroup.risk} />
                     {translate('risk_exposure', riskGroup.risk)}
-                  </div>
+                  </span>
                 </SubnavigationHeading>
                 <div>
                   {riskGroup.categories.map((category, categoryIndex) => {

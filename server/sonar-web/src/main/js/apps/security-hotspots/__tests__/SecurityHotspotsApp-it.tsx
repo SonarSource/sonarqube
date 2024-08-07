@@ -426,7 +426,8 @@ it('should be able to filter the hotspot list', async () => {
 
   await user.click(ui.filterAssigneeToMe.get());
 
-  expect(await ui.noHotspotForFilter.find()).toBeInTheDocument();
+  // No results message + screen reader announcement
+  expect(ui.noHotspotForFilter.getAll()).toHaveLength(2);
 
   await user.click(ui.filterToReview.get());
 

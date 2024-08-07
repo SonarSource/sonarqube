@@ -30,6 +30,7 @@ import {
   themeBorder,
   themeColor,
 } from 'design-system';
+import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
@@ -44,6 +45,7 @@ import { HotspotFilters, HotspotStatusFilter, RawHotspot } from '../../types/sec
 import { Component, StandardSecurityCategories } from '../../types/types';
 import EmptyHotspotsPage from './components/EmptyHotspotsPage';
 import HotspotList from './components/HotspotList';
+import HotspotListMeta from './components/HotspotListMeta';
 import HotspotSidebarHeader from './components/HotspotSidebarHeader';
 import HotspotSimpleList from './components/HotspotSimpleList';
 import HotspotFilterByStatus from './components/HotspotStatusFilter';
@@ -113,6 +115,26 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
   const footerVisibleHeight =
     distanceFromBottom > -LAYOUT_FOOTER_HEIGHT ? LAYOUT_FOOTER_HEIGHT + distanceFromBottom : 0;
 
+  function getTranslationEmptyRootKey() {
+    let translationRoot;
+
+    if (!isEmpty(filterByFile)) {
+      translationRoot = 'no_hotspots_for_file';
+    } else if (isStaticListOfHotspots) {
+      translationRoot = 'no_hotspots_for_keys';
+    } else if (
+      filters.assignedToMe ||
+      (isBranch(branchLike) && filters.inNewCodePeriod) ||
+      filters.status !== HotspotStatusFilter.TO_REVIEW
+    ) {
+      translationRoot = 'no_hotspots_for_filters';
+    } else {
+      translationRoot = 'no_hotspots';
+    }
+
+    return translationRoot;
+  }
+
   return (
     <>
       <Helmet title={translate('hotspots.page')} />
@@ -161,6 +183,14 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                   onChangeFilters={onChangeFilters}
                   onShowAllHotspots={onShowAllHotspots}
                 />
+                <HotspotListMeta
+                  loading={loading}
+                  hotspotsTotal={hotspotsTotal}
+                  statusFilter={filters.status}
+                  isStaticListOfHotspots={isStaticListOfHotspots}
+                  hasSelectedHotspot={Boolean(selectedHotspot)}
+                  emptyTranslationKey={getTranslationEmptyRootKey()}
+                />
                 <Spinner className="sw-mt-3" loading={loading}>
                   {hotspots.length > 0 && selectedHotspot && (
                     <>
@@ -183,7 +213,6 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                         <HotspotList
                           hotspots={hotspots}
                           hotspotsTotal={hotspotsTotal}
-                          isStaticListOfHotspots={isStaticListOfHotspots}
                           loadingMore={loadingMore}
                           onHotspotClick={props.onHotspotClick}
                           onLoadMore={props.onLoadMore}
@@ -191,7 +220,6 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                           securityCategories={securityCategories}
                           selectedHotspot={selectedHotspot}
                           selectedHotspotLocation={selectedHotspotLocation}
-                          statusFilter={filters.status}
                         />
                       )}
                     </>
@@ -210,6 +238,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                     filters.status !== HotspotStatusFilter.TO_REVIEW
                   }
                   isStaticListOfHotspots={isStaticListOfHotspots}
+                  emptyTranslationKey={getTranslationEmptyRootKey()}
                 />
               ) : (
                 <HotspotViewer
