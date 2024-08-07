@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { QualityGateIndicator } from 'design-system';
-import React from 'react';
+import { QualityGateIndicator, RatingEnum } from 'design-system';
+import React, { useCallback } from 'react';
 import { useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { Status } from '~sonar-aligned/types/common';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import RatingComponent from '../../../app/components/metrics/RatingComponent';
+import RatingTooltipContent from '../../../components/measure/RatingTooltipContent';
 
 interface Props {
   badgeSize?: 'xs' | 'sm' | 'md';
@@ -51,6 +52,19 @@ export default function Measure({
 }: Readonly<Props>) {
   const intl = useIntl();
   const classNameWithFont = classNames(className, fontClassName);
+
+  const getTooltip = useCallback(
+    () => value !== undefined && <RatingTooltipContent metricKey={metricKey} value={value} />,
+    [metricKey, value],
+  );
+
+  const getLabel = useCallback(
+    (rating: RatingEnum) =>
+      rating
+        ? intl.formatMessage({ id: 'metric.has_rating_X' }, { '0': rating })
+        : intl.formatMessage({ id: 'metric.no_rating' }),
+    [intl],
+  );
 
   if (value === undefined) {
     return (
@@ -90,18 +104,11 @@ export default function Measure({
     return <span className={classNameWithFont}>{formattedValue ?? '—'}</span>;
   }
 
-  // const tooltip = <RatingTooltipContent metricKey={metricKey} value={value} />;
   const rating = (
     <RatingComponent
       size={badgeSize ?? small ? 'sm' : 'md'}
-      // label={
-      //   value
-      //     ? intl.formatMessage(
-      //         { id: 'metric.has_rating_X' },
-      //         { '0': formatMeasure(value, MetricType.Rating) },
-      //       )
-      //     : intl.formatMessage({ id: 'metric.no_rating' })
-      // }
+      getLabel={getLabel}
+      getTooltip={getTooltip}
       componentKey={componentKey}
       ratingMetric={metricKey as MetricKey}
     />
@@ -109,12 +116,10 @@ export default function Measure({
 
   return (
     <>
-      {/* <Tooltip content={tooltip}> */}
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
       <span className={className} tabIndex={0}>
         {rating}
       </span>
-      {/* </Tooltip> */}
     </>
   );
 }

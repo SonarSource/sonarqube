@@ -19,11 +19,20 @@
  */
 
 import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
+import { groupBy } from 'lodash';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { getMeasures, getMeasuresForProjects } from '../api/measures';
 import { getAllTimeMachineData } from '../api/time-machine';
+import { MetricKey } from '../sonar-aligned/types/metrics';
 import { Measure } from '../types/types';
 import { createQueryHook } from './common';
+
+const NEW_METRICS = [
+  MetricKey.sqale_rating_new,
+  MetricKey.security_rating_new,
+  MetricKey.reliability_rating_new,
+  MetricKey.security_review_rating_new,
+];
 
 export function useAllMeasuresHistoryQuery(
   component: string | undefined,
@@ -52,12 +61,22 @@ export const useMeasuresForProjectsQuery = createQueryHook(
     return queryOptions({
       queryKey: ['measures', 'list', 'projects', projectKeys, metricKeys],
       queryFn: async () => {
-        const measures = await getMeasuresForProjects(projectKeys, metricKeys);
-        measures.forEach((measure) => {
-          queryClient.setQueryData<Measure>(
-            ['measures', 'details', measure.component, measure.metric],
-            measure,
-          );
+        // TODO remove this once all metrics are supported
+        const filteredMetricKeys = metricKeys.filter(
+          (metricKey) => !NEW_METRICS.includes(metricKey as MetricKey),
+        );
+        const measures = await getMeasuresForProjects(projectKeys, filteredMetricKeys);
+        const measuresMapByProjectKey = groupBy(measures, 'component');
+        projectKeys.forEach((projectKey) => {
+          const measuresForProject = measuresMapByProjectKey[projectKey] ?? [];
+          const measuresMapByMetricKey = groupBy(measuresForProject, 'metric');
+          metricKeys.forEach((metricKey) => {
+            const measure = measuresMapByMetricKey[metricKey]?.[0] ?? null;
+            queryClient.setQueryData<Measure>(
+              ['measures', 'details', projectKey, metricKey],
+              measure,
+            );
+          });
         });
         return measures;
       },
@@ -71,7 +90,7 @@ export const useMeasureQuery = createQueryHook(
       queryKey: ['measures', 'details', componentKey, metricKey],
       queryFn: () =>
         getMeasures({ component: componentKey, metricKeys: metricKey }).then(
-          (measures) => measures[0],
+          (measures) => measures[0] ?? null,
         ),
       staleTime: Infinity,
     });

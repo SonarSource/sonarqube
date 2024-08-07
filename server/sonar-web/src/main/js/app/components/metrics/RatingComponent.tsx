@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Spinner } from '@sonarsource/echoes-react';
+import { Spinner, Tooltip } from '@sonarsource/echoes-react';
 import { MetricsRatingBadge, RatingEnum } from 'design-system';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
@@ -30,6 +30,8 @@ import { useIsLegacyCCTMode } from '../../../queries/settings';
 interface Props {
   className?: string;
   componentKey: string;
+  getLabel?: (rating: RatingEnum) => string;
+  getTooltip?: (rating: RatingEnum) => React.ReactNode;
   ratingMetric: MetricKey;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 }
@@ -41,31 +43,54 @@ type RatingMetricKeys =
   | MetricKey.security_review_rating
   | MetricKey.releasability_rating;
 
-const ALLOW_NEW_METRICS = false;
-
 const useGetMetricKeyForRating = (ratingMetric: RatingMetricKeys): MetricKey | null => {
   const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
   if (isLoading) {
     return null;
   }
-  return isLegacy || !ALLOW_NEW_METRICS ? ratingMetric : ((ratingMetric + '_new') as MetricKey);
+  return isLegacy ? ratingMetric : ((ratingMetric + '_new') as MetricKey);
 };
 
-export default function RatingComponent({ componentKey, ratingMetric, size, className }: Props) {
+export default function RatingComponent(props: Readonly<Props>) {
+  const { componentKey, ratingMetric, size, className, getLabel, getTooltip } = props;
   const metricKey = useGetMetricKeyForRating(ratingMetric as RatingMetricKeys);
-  const { data: measure, isLoading } = useMeasureQuery(
+  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: targetMeasure, isLoading: isLoadingTargetMeasure } = useMeasureQuery(
     { componentKey, metricKey: metricKey ?? '' },
     { enabled: !!metricKey },
   );
+  const { data: oldMeasure, isLoading: isLoadingOldMeasure } = useMeasureQuery(
+    { componentKey, metricKey: ratingMetric },
+    { enabled: !isLegacy && targetMeasure === null },
+  );
+
+  const isLoading = isLoadingTargetMeasure || isLoadingOldMeasure;
+
+  const measure = targetMeasure ?? oldMeasure;
+
   const value = isDiffMetric(metricKey ?? '') ? getLeakValue(measure) : measure?.value;
+  const rating = formatMeasure(value, MetricType.Rating) as RatingEnum;
+
+  const badge = (
+    <MetricsRatingBadge
+      label={getLabel ? getLabel(rating) : value ?? '—'}
+      rating={rating}
+      size={size}
+      className={className}
+    />
+  );
+
   return (
     <Spinner isLoading={isLoading}>
-      <MetricsRatingBadge
-        label={value ?? '—'}
-        rating={formatMeasure(value, MetricType.Rating) as RatingEnum}
-        size={size}
-        className={className}
-      />
+      {getTooltip ? (
+        <>
+          <Tooltip content={getTooltip(rating)}>{badge}</Tooltip>
+          {/* The badge is not interactive, so show the tooltip content for screen-readers only */}
+          <span className="sw-sr-only">{getTooltip(rating)}</span>
+        </>
+      ) : (
+        badge
+      )}
     </Spinner>
   );
 }
