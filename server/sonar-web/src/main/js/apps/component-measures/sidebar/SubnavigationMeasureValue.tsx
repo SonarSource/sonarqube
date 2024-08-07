@@ -24,10 +24,11 @@ import { isDiffMetric } from '../../../helpers/measures';
 import { MeasureEnhanced } from '../../../types/types';
 
 interface Props {
+  componentKey: string;
   measure: MeasureEnhanced;
 }
 
-export default function SubnavigationMeasureValue({ measure }: Readonly<Props>) {
+export default function SubnavigationMeasureValue({ measure, componentKey }: Readonly<Props>) {
   const isDiff = isDiffMetric(measure.metric.key);
   const value = isDiff ? measure.leak : measure.value;
 
@@ -37,6 +38,7 @@ export default function SubnavigationMeasureValue({ measure }: Readonly<Props>) 
       id={`measure-${measure.metric.key}-${isDiff ? 'leak' : 'value'}`}
     >
       <Measure
+        componentKey={componentKey}
         badgeSize="xs"
         metricKey={measure.metric.key}
         metricType={measure.metric.type}

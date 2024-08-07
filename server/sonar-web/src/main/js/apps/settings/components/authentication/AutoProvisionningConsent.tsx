@@ -44,7 +44,7 @@ export default function AutoProvisioningConsent(props: Readonly<Props>) {
 
   const { mutate: updateGithubConfig } = useUpdateGitHubConfigurationMutation();
   const { mutate: updateGitlabConfig } = useUpdateGitLabConfigurationMutation();
-  const { data: userConsent } = useGetValueQuery(CONSENT_SETTING_KEY);
+  const { data: userConsent } = useGetValueQuery({ key: CONSENT_SETTING_KEY });
   const { mutateAsync: resetSettingValue } = useResetSettingsMutation();
 
   if (

@@ -57,7 +57,10 @@ export default function Definition(props: Readonly<Props>) {
   const [success, setSuccess] = React.useState(false);
   const [changedValue, setChangedValue] = React.useState<FieldValue>();
   const [validationMessage, setValidationMessage] = React.useState<string>();
-  const { data: loadedSettingValue, isLoading } = useGetValueQuery(definition.key, component?.key);
+  const { data: loadedSettingValue, isLoading } = useGetValueQuery({
+    key: definition.key,
+    component: component?.key,
+  });
   const settingValue = isLoading ? initialSettingValue : loadedSettingValue ?? undefined;
 
   const { mutateAsync: resetSettingValue } = useResetSettingsMutation();

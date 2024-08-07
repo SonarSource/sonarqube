@@ -145,7 +145,7 @@ export class QualityGateCondition extends React.PureComponent<Props> {
   };
 
   render() {
-    const { condition } = this.props;
+    const { condition, component } = this.props;
     const { measure } = condition;
     const { metric } = measure;
 
@@ -159,6 +159,7 @@ export class QualityGateCondition extends React.PureComponent<Props> {
         <MeasureIndicator
           className="sw-flex sw-justify-center sw-w-6 sw-mx-4"
           decimals={2}
+          componentKey={component.key}
           metricKey={measure.metric.key}
           metricType={measure.metric.type}
           value={actual}

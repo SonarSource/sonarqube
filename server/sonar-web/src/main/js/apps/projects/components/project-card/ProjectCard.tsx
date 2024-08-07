@@ -172,6 +172,7 @@ function renderFirstLine(
                 <div>
                   <span className="sw-body-sm-highlight sw-mr-1" data-key={MetricKey.new_lines}>
                     <Measure
+                      componentKey={key}
                       metricKey={MetricKey.new_lines}
                       metricType={MetricType.ShortInteger}
                       value={measures.new_lines}
@@ -189,6 +190,7 @@ function renderFirstLine(
                 <div>
                   <span className="sw-body-sm-highlight sw-mr-1" data-key={MetricKey.ncloc}>
                     <Measure
+                      componentKey={key}
                       metricKey={MetricKey.ncloc}
                       metricType={MetricType.ShortInteger}
                       value={measures.ncloc}
@@ -237,6 +239,7 @@ function renderSecondLine(
       <ProjectCardMeasures
         measures={measures}
         componentQualifier={qualifier}
+        componentKey={key}
         isNewCode={isNewCode}
       />
     );

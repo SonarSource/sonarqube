@@ -20,9 +20,7 @@
 import { invert } from 'lodash';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { Facet, getScannableProjects, searchProjects } from '../../api/components';
-import { getMeasuresForProjects } from '../../api/measures';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { isDiffMetric } from '../../helpers/measures';
 import { RequestData } from '../../helpers/request';
 import { Dict } from '../../types/types';
 import { Query, convertToFilter } from './query';
@@ -192,33 +190,14 @@ export function fetchProjects({
   });
 
   return searchProjects(data)
-    .then((response) =>
-      Promise.all([
-        fetchProjectMeasures(response.components, query),
-        Promise.resolve(response),
-        fetchScannableProjects(),
-      ]),
-    )
-    .then(([measures, { components, facets, paging }, { scannableProjects }]) => {
+    .then((response) => Promise.all([Promise.resolve(response), fetchScannableProjects()]))
+    .then(([{ components, facets, paging }, { scannableProjects }]) => {
       return {
         facets: getFacetsMap(facets),
-        projects: components.map((component) => {
-          const componentMeasures: Dict<string> = {};
-          measures
-            .filter((measure) => measure.component === component.key)
-            .forEach((measure) => {
-              const value = isDiffMetric(measure.metric) ? measure.period?.value : measure.value;
-              if (value !== undefined) {
-                componentMeasures[measure.metric] = value;
-              }
-            });
-
-          return {
-            ...component,
-            measures: componentMeasures,
-            isScannable: scannableProjects.find((p) => p.key === component.key) !== undefined,
-          };
-        }),
+        projects: components.map((component) => ({
+          ...component,
+          isScannable: scannableProjects.find((p) => p.key === component.key) !== undefined,
+        })),
         total: paging.total,
       };
     });
@@ -258,17 +237,6 @@ export function convertToQueryData(query: Query, isFavorite: boolean, defaultDat
   }
 
   return data;
-}
-
-export function fetchProjectMeasures(projects: Array<{ key: string }>, query: Query) {
-  if (!projects.length) {
-    return Promise.resolve([]);
-  }
-
-  const projectKeys = projects.map((project) => project.key);
-  const metrics = defineMetrics(query);
-
-  return getMeasuresForProjects(projectKeys, metrics);
 }
 
 function mapFacetValues(values: Array<{ count: number; val: string }>) {

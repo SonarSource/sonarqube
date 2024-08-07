@@ -65,9 +65,6 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
     (m) => m.metric.key === SOFTWARE_QUALITIES_METRIC_KEYS_MAP[softwareQuality].deprecatedMetric,
   );
 
-  // Find rating measure
-  const ratingMeasure = measures.find((m) => m.metric.key === ratingMetricKey);
-
   const count = formatMeasure(measure?.total ?? alternativeMeasure?.value, MetricType.ShortInteger);
 
   const totalLinkHref = getComponentIssuesUrl(component.key, {
@@ -140,7 +137,8 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
           <div className="sw-flex-grow sw-flex sw-justify-end">
             <SoftwareImpactMeasureRating
               softwareQuality={softwareQuality}
-              value={ratingMeasure?.value}
+              componentKey={component.key}
+              ratingMetricKey={ratingMetricKey}
             />
           </div>
         </div>

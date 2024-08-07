@@ -42,6 +42,7 @@ import {
 import DomainSubnavigationItem from './DomainSubnavigationItem';
 
 interface Props {
+  componentKey: string;
   domain: { measures: MeasureEnhanced[]; name: string };
   onChange: (metric: string) => void;
   open: boolean;
@@ -50,7 +51,7 @@ interface Props {
 }
 
 export default function DomainSubnavigation(props: Readonly<Props>) {
-  const { domain, onChange, open, selected, showFullMeasures } = props;
+  const { componentKey, domain, onChange, open, selected, showFullMeasures } = props;
   const helperMessageKey = `component_measures.domain_subnavigation.${domain.name}.help`;
   const helper = hasMessage(helperMessageKey) ? translate(helperMessageKey) : undefined;
   const items = addMeasureCategories(domain.name, domain.measures);
@@ -106,6 +107,7 @@ export default function DomainSubnavigation(props: Readonly<Props>) {
         ) : (
           <DomainSubnavigationItem
             key={item.metric.key}
+            componentKey={componentKey}
             measure={item}
             name={getMetricSubnavigationName(item.metric, translateMetric)}
             onChange={onChange}

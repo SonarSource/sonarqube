@@ -21,7 +21,6 @@ import styled from '@emotion/styled';
 import classNames from 'classnames';
 import {
   LightLabel,
-  MetricsRatingBadge,
   NoDataIcon,
   SnoozeCircleIcon,
   TextError,
@@ -39,10 +38,11 @@ import {
   getComponentSecurityHotspotsUrl,
 } from '~sonar-aligned/helpers/urls';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import RatingComponent from '../../../app/components/metrics/RatingComponent';
 import { getLeakValue } from '../../../components/measure/utils';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { translate } from '../../../helpers/l10n';
-import { findMeasure, formatRating, isDiffMetric } from '../../../helpers/measures';
+import { findMeasure, isDiffMetric } from '../../../helpers/measures';
 import { CodeScope, getComponentDrilldownUrl } from '../../../helpers/urls';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
@@ -291,9 +291,9 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
             showRequired={!isApp}
             icon={
               newSecurityReviewRating ? (
-                <MetricsRatingBadge
-                  label={newSecurityReviewRating}
-                  rating={formatRating(newSecurityReviewRating)}
+                <RatingComponent
+                  componentKey={component.key}
+                  ratingMetric={MetricKey.new_security_review_rating}
                   size="md"
                 />
               ) : (

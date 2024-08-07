@@ -20,30 +20,30 @@
 import {
   CoverageIndicator,
   DuplicationsIndicator,
-  MetricsRatingBadge,
   Note,
   PageContentFontWrapper,
-  RatingLabel,
 } from 'design-system';
 import * as React from 'react';
 import Measure from '~sonar-aligned/components/measure/Measure';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import RatingComponent from '../../../../app/components/metrics/RatingComponent';
 import { duplicationRatingConverter } from '../../../../components/measure/utils';
 import { translate } from '../../../../helpers/l10n';
-import { formatRating } from '../../../../helpers/measures';
 import { isDefined } from '../../../../helpers/types';
 import { Dict } from '../../../../types/types';
 import ProjectCardMeasure from './ProjectCardMeasure';
 
 export interface ProjectCardMeasuresProps {
+  // eslint-disable-next-line react/no-unused-prop-types
+  componentKey: string;
   componentQualifier: ComponentQualifier;
   isNewCode: boolean;
   measures: Dict<string | undefined>;
 }
 
 function renderNewIssues(props: ProjectCardMeasuresProps) {
-  const { measures, isNewCode } = props;
+  const { measures, isNewCode, componentKey } = props;
 
   if (!isNewCode) {
     return null;
@@ -55,6 +55,7 @@ function renderNewIssues(props: ProjectCardMeasuresProps) {
       label={translate(`metric.${MetricKey.new_violations}.description`)}
     >
       <Measure
+        componentKey={componentKey}
         metricKey={MetricKey.new_violations}
         metricType={MetricType.ShortInteger}
         value={measures[MetricKey.new_violations]}
@@ -65,7 +66,7 @@ function renderNewIssues(props: ProjectCardMeasuresProps) {
 }
 
 function renderCoverage(props: ProjectCardMeasuresProps) {
-  const { measures, isNewCode } = props;
+  const { measures, isNewCode, componentKey } = props;
   const coverageMetric = isNewCode ? MetricKey.new_coverage : MetricKey.coverage;
 
   return (
@@ -73,6 +74,7 @@ function renderCoverage(props: ProjectCardMeasuresProps) {
       <div>
         {measures[coverageMetric] && <CoverageIndicator value={measures[coverageMetric]} />}
         <Measure
+          componentKey={componentKey}
           metricKey={coverageMetric}
           metricType={MetricType.Percent}
           value={measures[coverageMetric]}
@@ -84,7 +86,7 @@ function renderCoverage(props: ProjectCardMeasuresProps) {
 }
 
 function renderDuplication(props: ProjectCardMeasuresProps) {
-  const { measures, isNewCode } = props;
+  const { measures, isNewCode, componentKey } = props;
   const duplicationMetric = isNewCode
     ? MetricKey.new_duplicated_lines_density
     : MetricKey.duplicated_lines_density;
@@ -102,6 +104,7 @@ function renderDuplication(props: ProjectCardMeasuresProps) {
       <div>
         {measures[duplicationMetric] != null && <DuplicationsIndicator rating={rating} />}
         <Measure
+          componentKey={componentKey}
           metricKey={duplicationMetric}
           metricType={MetricType.Percent}
           value={measures[duplicationMetric]}
@@ -113,7 +116,7 @@ function renderDuplication(props: ProjectCardMeasuresProps) {
 }
 
 function renderRatings(props: ProjectCardMeasuresProps) {
-  const { isNewCode, measures } = props;
+  const { isNewCode, measures, componentKey } = props;
 
   const measuresByCodeLeak = isNewCode
     ? []
@@ -165,7 +168,6 @@ function renderRatings(props: ProjectCardMeasuresProps) {
 
   return measureList.map((measure) => {
     const { iconLabel, metricKey, metricRatingKey, metricType } = measure;
-    const value = formatRating(measures[metricRatingKey]);
 
     const measureValue =
       [
@@ -178,8 +180,9 @@ function renderRatings(props: ProjectCardMeasuresProps) {
 
     return (
       <ProjectCardMeasure key={metricKey} metricKey={metricKey} label={iconLabel}>
-        <MetricsRatingBadge label={metricKey} rating={value as RatingLabel} />
+        <RatingComponent ratingMetric={metricRatingKey} componentKey={componentKey} />
         <Measure
+          componentKey={componentKey}
           metricKey={metricKey}
           metricType={metricType}
           value={measureValue}

@@ -26,6 +26,7 @@ import MeasureIndicator from '../MeasureIndicator';
 it('renders correctly for coverage', () => {
   render(
     <MeasureIndicator
+      componentKey="test"
       metricKey={MetricKey.coverage}
       metricType={MetricType.Percent}
       value="73.0"
@@ -37,6 +38,7 @@ it('renders correctly for coverage', () => {
 it('renders correctly for failed quality gate', () => {
   const wrapper = render(
     <MeasureIndicator
+      componentKey="test"
       metricKey={MetricKey.alert_status}
       metricType={MetricType.Level}
       small
@@ -49,6 +51,7 @@ it('renders correctly for failed quality gate', () => {
 it('renders correctly for passed quality gate', () => {
   const wrapper = render(
     <MeasureIndicator
+      componentKey="test"
       metricKey={MetricKey.alert_status}
       metricType={MetricType.Level}
       value={Status.OK}

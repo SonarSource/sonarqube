@@ -18,17 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { Spinner } from 'design-system';
 import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { List, ListRowProps } from 'react-virtualized/dist/commonjs/List';
 import EmptySearch from '../../../components/common/EmptySearch';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
+import { isDiffMetric } from '../../../helpers/measures';
+import { useMeasuresForProjectsQuery } from '../../../queries/measures';
 import { CurrentUser } from '../../../types/users';
 import { Query } from '../query';
 import { Project } from '../types';
+import { defineMetrics } from '../utils';
 import EmptyFavoriteSearch from './EmptyFavoriteSearch';
 import EmptyInstance from './EmptyInstance';
 import NoFavoriteProjects from './NoFavoriteProjects';
@@ -46,29 +49,40 @@ interface Props {
   isFiltered: boolean;
   loadMore: () => void;
   loading: boolean;
-  projects: Project[];
+  projects: Omit<Project, 'measures'>[];
   query: Query;
   total?: number;
 }
 
-export default class ProjectsList extends React.PureComponent<Props> {
-  renderNoProjects() {
-    const { currentUser, isFavorite, isFiltered, query } = this.props;
-    if (isFiltered) {
-      return isFavorite ? <EmptyFavoriteSearch query={query} /> : <EmptySearch />;
-    }
-    return isFavorite ? <NoFavoriteProjects /> : <EmptyInstance currentUser={currentUser} />;
-  }
+export default function ProjectsList(props: Readonly<Props>) {
+  const {
+    currentUser,
+    isFavorite,
+    handleFavorite,
+    cardType,
+    isFiltered,
+    query,
+    loading,
+    projects,
+    total,
+    loadMore,
+  } = props;
+  const { data: measures, isLoading: measuresLoading } = useMeasuresForProjectsQuery(
+    {
+      projectKeys: projects.map((p) => p.key),
+      metricKeys: defineMetrics(query),
+    },
+    { enabled: projects.length > 0 },
+  );
 
-  renderRow = ({ index, key, style }: ListRowProps) => {
-    const { loading, projects, total } = this.props;
+  const renderRow = ({ index, key, style }: ListRowProps) => {
     if (index === projects.length) {
       return (
         <div key="footer" style={{ ...style }}>
           <ListFooter
             loadMoreAriaLabel={translate('projects.show_more')}
             count={projects !== undefined ? projects.length : 0}
-            loadMore={this.props.loadMore}
+            loadMore={loadMore}
             loading={loading}
             ready={!loading}
             total={total ?? 0}
@@ -78,6 +92,19 @@ export default class ProjectsList extends React.PureComponent<Props> {
     }
 
     const project = projects[index];
+    const componentMeasures =
+      measures
+        ?.filter((measure) => measure.component === project.key)
+        .reduce(
+          (acc, measure) => {
+            const value = isDiffMetric(measure.metric) ? measure.period?.value : measure.value;
+            if (value !== undefined) {
+              acc[measure.metric] = value;
+            }
+            return acc;
+          },
+          {} as Record<string, string>,
+        ) ?? {};
 
     return (
       <div
@@ -88,53 +115,52 @@ export default class ProjectsList extends React.PureComponent<Props> {
       >
         <div className="sw-h-full" role="gridcell">
           <ProjectCard
-            currentUser={this.props.currentUser}
-            handleFavorite={this.props.handleFavorite}
+            currentUser={currentUser}
+            handleFavorite={handleFavorite}
             key={project.key}
-            project={project}
-            type={this.props.cardType}
+            project={{ ...project, measures: componentMeasures }}
+            type={cardType}
           />
         </div>
       </div>
     );
   };
 
-  renderList() {
-    return this.props.loading ? (
-      <Spinner />
-    ) : (
+  if (projects.length === 0) {
+    if (isFiltered) {
+      return isFavorite ? <EmptyFavoriteSearch query={query} /> : <EmptySearch />;
+    }
+    return isFavorite ? <NoFavoriteProjects /> : <EmptyInstance currentUser={currentUser} />;
+  }
+
+  return (
+    <Spinner isLoading={loading || measuresLoading}>
       <AutoSizer>
         {({ height, width }) => (
           <List
             aria-label={translate('project_plural')}
             height={height}
             overscanRowCount={2}
-            rowCount={this.props.projects.length + 1}
+            rowCount={projects.length + 1}
             rowHeight={({ index }) => {
               if (index === 0) {
                 // first card, double top and bottom margin
                 return PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN * 2;
               }
-              if (index === this.props.projects.length) {
+              if (index === projects.length) {
                 // Footer card, no margin
                 return PROJECT_LIST_FOOTER_HEIGHT;
               }
               // all other cards, only bottom margin
               return PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN;
             }}
-            rowRenderer={this.renderRow}
+            rowRenderer={renderRow}
             style={{ outline: 'none' }}
             tabIndex={-1}
             width={width}
           />
         )}
       </AutoSizer>
-    );
-  }
-
-  render() {
-    const { projects } = this.props;
-
-    return projects.length > 0 ? this.renderList() : this.renderNoProjects();
-  }
+    </Spinner>
+  );
 }

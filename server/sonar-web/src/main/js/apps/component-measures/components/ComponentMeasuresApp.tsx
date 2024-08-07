@@ -279,7 +279,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
   render() {
     const { branchLike } = this.props;
     const { measures } = this.state;
-    const { canBrowseAllChildProjects, qualifier } = this.props.component;
+    const { canBrowseAllChildProjects, qualifier, key } = this.props.component;
     const query = parseQuery(this.props.location.query);
     const showFullMeasures = hasFullMeasures(branchLike);
     const displayOverview = hasBubbleChart(query.metric);
@@ -295,6 +295,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
           {measures.length > 0 ? (
             <div className="sw-grid sw-grid-cols-12 sw-w-full">
               <Sidebar
+                componentKey={key}
                 measures={measures}
                 selectedMetric={metric ? metric.key : query.metric}
                 showFullMeasures={showFullMeasures}

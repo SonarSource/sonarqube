@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Tooltip } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { MetricsRatingBadge, QualityGateIndicator, RatingLabel } from 'design-system';
+import { QualityGateIndicator } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { Status } from '~sonar-aligned/types/common';
-import { MetricType } from '~sonar-aligned/types/metrics';
-import RatingTooltipContent from '../../../components/measure/RatingTooltipContent';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import RatingComponent from '../../../app/components/metrics/RatingComponent';
 
 interface Props {
   badgeSize?: 'xs' | 'sm' | 'md';
   className?: string;
+  componentKey: string;
   decimals?: number;
   fontClassName?: `sw-body-${string}` | `sw-heading-lg`;
   metricKey: string;
@@ -40,6 +40,7 @@ interface Props {
 
 export default function Measure({
   className,
+  componentKey,
   badgeSize,
   decimals,
   fontClassName,
@@ -89,28 +90,31 @@ export default function Measure({
     return <span className={classNameWithFont}>{formattedValue ?? '—'}</span>;
   }
 
-  const tooltip = <RatingTooltipContent metricKey={metricKey} value={value} />;
+  // const tooltip = <RatingTooltipContent metricKey={metricKey} value={value} />;
   const rating = (
-    <MetricsRatingBadge
+    <RatingComponent
       size={badgeSize ?? small ? 'sm' : 'md'}
-      label={
-        value
-          ? intl.formatMessage(
-              { id: 'metric.has_rating_X' },
-              { '0': formatMeasure(value, MetricType.Rating) },
-            )
-          : intl.formatMessage({ id: 'metric.no_rating' })
-      }
-      rating={formatMeasure(value, MetricType.Rating) as RatingLabel}
+      // label={
+      //   value
+      //     ? intl.formatMessage(
+      //         { id: 'metric.has_rating_X' },
+      //         { '0': formatMeasure(value, MetricType.Rating) },
+      //       )
+      //     : intl.formatMessage({ id: 'metric.no_rating' })
+      // }
+      componentKey={componentKey}
+      ratingMetric={metricKey as MetricKey}
     />
   );
 
   return (
-    <Tooltip content={tooltip}>
+    <>
+      {/* <Tooltip content={tooltip}> */}
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
       <span className={className} tabIndex={0}>
         {rating}
       </span>
-    </Tooltip>
+      {/* </Tooltip> */}
+    </>
   );
 }

@@ -63,6 +63,7 @@ export default function MeasureHeader(props: Readonly<Props>) {
 
           <div className="sw-flex sw-items-center sw-ml-2">
             <Measure
+              componentKey={component.key}
               className={classNames('it__measure-details-value sw-body-md')}
               metricKey={metric.key}
               metricType={metric.type}

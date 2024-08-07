@@ -23,6 +23,7 @@ import { MeasureEnhanced } from '../../../types/types';
 import SubnavigationMeasureValue from './SubnavigationMeasureValue';
 
 interface Props {
+  componentKey: string;
   measure: MeasureEnhanced;
   name: string;
   onChange: (metric: string) => void;
@@ -30,6 +31,7 @@ interface Props {
 }
 
 export default function DomainSubnavigationItem({
+  componentKey,
   measure,
   name,
   onChange,
@@ -47,7 +49,7 @@ export default function DomainSubnavigationItem({
       id={`measure-${key}-name`}
     >
       {name}
-      <SubnavigationMeasureValue measure={measure} />
+      <SubnavigationMeasureValue measure={measure} componentKey={componentKey} />
     </SubnavigationItem>
   );
 }

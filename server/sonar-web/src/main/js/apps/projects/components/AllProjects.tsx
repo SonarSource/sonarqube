@@ -66,7 +66,7 @@ interface State {
   facets?: Facets;
   loading: boolean;
   pageIndex?: number;
-  projects?: Project[];
+  projects?: Omit<Project, 'measures'>[];
   query: Query;
   total?: number;
 }

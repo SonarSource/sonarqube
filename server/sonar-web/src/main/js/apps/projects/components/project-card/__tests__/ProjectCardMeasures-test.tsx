@@ -92,6 +92,7 @@ function renderProjectCardMeasures(
 
   renderComponent(
     <ProjectCardMeasures
+      componentKey="test"
       componentQualifier={ComponentQualifier.Project}
       isNewCode={false}
       measures={measures}

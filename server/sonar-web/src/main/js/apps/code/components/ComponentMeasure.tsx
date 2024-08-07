@@ -17,19 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  ContentCell,
-  MetricsRatingBadge,
-  NumericalCell,
-  QualityGateIndicator,
-  RatingCell,
-  RatingEnum,
-} from 'design-system';
+import { ContentCell, NumericalCell, QualityGateIndicator, RatingCell } from 'design-system';
 import * as React from 'react';
 import Measure from '~sonar-aligned/components/measure/Measure';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { Status } from '~sonar-aligned/types/common';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import RatingComponent from '../../../app/components/metrics/RatingComponent';
 import { getLeakValue } from '../../../components/measure/utils';
 import {
   CCT_SOFTWARE_QUALITY_METRICS,
@@ -95,16 +89,18 @@ export default function ComponentMeasure(props: Props) {
     case MetricType.Rating:
       return (
         <RatingCell className="sw-whitespace-nowrap">
-          <MetricsRatingBadge
-            label={value ?? '—'}
-            rating={formatMeasure(value, MetricType.Rating) as RatingEnum}
-          />
+          <RatingComponent componentKey={component.key} ratingMetric={metric.key as MetricKey} />
         </RatingCell>
       );
     default:
       return (
         <NumericalCell className="sw-whitespace-nowrap">
-          <Measure metricKey={finalMetricKey} metricType={finalMetricType} value={value} />
+          <Measure
+            componentKey={component.key}
+            metricKey={finalMetricKey}
+            metricType={finalMetricType}
+            value={value}
+          />
         </NumericalCell>
       );
   }

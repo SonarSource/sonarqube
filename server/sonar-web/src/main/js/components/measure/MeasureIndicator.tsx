@@ -25,6 +25,7 @@ import { duplicationRatingConverter } from './utils';
 
 interface Props {
   className?: string;
+  componentKey: string;
   decimals?: number;
   metricKey: string;
   metricType: string;

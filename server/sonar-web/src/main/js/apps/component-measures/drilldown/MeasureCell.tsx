@@ -38,7 +38,13 @@ export default function MeasureCell({ component, measure, metric }: Readonly<Pro
 
   return (
     <NumericalCell className="sw-py-3">
-      <Measure metricKey={metric.key} metricType={metric.type} value={value} small />
+      <Measure
+        componentKey={component.key}
+        metricKey={metric.key}
+        metricType={metric.type}
+        value={value}
+        small
+      />
     </NumericalCell>
   );
 }

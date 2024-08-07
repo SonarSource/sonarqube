@@ -81,16 +81,19 @@ function HotspotSidebarHeader(props: SecurityHotspotsAppRendererProps) {
           <CoverageIndicator value={hotspotsReviewedMeasure} />
         )}
 
-        <Measure
-          className="it__hs-review-percentage sw-body-sm-highlight sw-ml-2"
-          metricKey={
-            isBranch(branchLike) && !filters.inNewCodePeriod
-              ? MetricKey.security_hotspots_reviewed
-              : MetricKey.new_security_hotspots_reviewed
-          }
-          metricType={MetricType.Percent}
-          value={hotspotsReviewedMeasure}
-        />
+        {component && (
+          <Measure
+            className="it__hs-review-percentage sw-body-sm-highlight sw-ml-2"
+            componentKey={component.key}
+            metricKey={
+              isBranch(branchLike) && !filters.inNewCodePeriod
+                ? MetricKey.security_hotspots_reviewed
+                : MetricKey.new_security_hotspots_reviewed
+            }
+            metricType={MetricType.Percent}
+            value={hotspotsReviewedMeasure}
+          />
+        )}
       </Spinner>
 
       <span className="sw-body-sm sw-ml-1">

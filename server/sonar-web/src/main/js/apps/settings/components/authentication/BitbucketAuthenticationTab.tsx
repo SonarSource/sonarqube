@@ -37,10 +37,10 @@ interface Props {
 export default function BitbucketAuthenticationTab(props: Readonly<Props>) {
   const { definitions } = props;
 
-  const { data: allowToSignUpEnabled } = useGetValueQuery(
-    'sonar.auth.bitbucket.allowUsersToSignUp',
-  );
-  const { data: workspaces } = useGetValueQuery('sonar.auth.bitbucket.workspaces');
+  const { data: allowToSignUpEnabled } = useGetValueQuery({
+    key: 'sonar.auth.bitbucket.allowUsersToSignUp',
+  });
+  const { data: workspaces } = useGetValueQuery({ key: 'sonar.auth.bitbucket.workspaces' });
 
   const isConfigurationUnsafe =
     allowToSignUpEnabled?.value === 'true' &&

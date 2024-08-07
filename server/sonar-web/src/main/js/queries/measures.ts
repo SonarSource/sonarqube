@@ -18,9 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
+import { getMeasures, getMeasuresForProjects } from '../api/measures';
 import { getAllTimeMachineData } from '../api/time-machine';
+import { Measure } from '../types/types';
+import { createQueryHook } from './common';
 
 export function useAllMeasuresHistoryQuery(
   component: string | undefined,
@@ -42,3 +45,35 @@ export function useAllMeasuresHistoryQuery(
     enabled,
   });
 }
+
+export const useMeasuresForProjectsQuery = createQueryHook(
+  ({ projectKeys, metricKeys }: { metricKeys: string[]; projectKeys: string[] }) => {
+    const queryClient = useQueryClient();
+    return queryOptions({
+      queryKey: ['measures', 'list', 'projects', projectKeys, metricKeys],
+      queryFn: async () => {
+        const measures = await getMeasuresForProjects(projectKeys, metricKeys);
+        measures.forEach((measure) => {
+          queryClient.setQueryData<Measure>(
+            ['measures', 'details', measure.component, measure.metric],
+            measure,
+          );
+        });
+        return measures;
+      },
+    });
+  },
+);
+
+export const useMeasureQuery = createQueryHook(
+  ({ componentKey, metricKey }: { componentKey: string; metricKey: string }) => {
+    return queryOptions({
+      queryKey: ['measures', 'details', componentKey, metricKey],
+      queryFn: () =>
+        getMeasures({ component: componentKey, metricKeys: metricKey }).then(
+          (measures) => measures[0],
+        ),
+      staleTime: Infinity,
+    });
+  },
+);

@@ -38,6 +38,7 @@ import { PROJECT_OVERVEW, Query, isProjectOverview, populateDomainsFromMeasures 
 import DomainSubnavigation from './DomainSubnavigation';
 
 interface Props {
+  componentKey: string;
   measures: MeasureEnhanced[];
   selectedMetric: string;
   showFullMeasures: boolean;
@@ -45,7 +46,7 @@ interface Props {
 }
 
 export default function Sidebar(props: Readonly<Props>) {
-  const { showFullMeasures, updateQuery, selectedMetric, measures } = props;
+  const { showFullMeasures, updateQuery, componentKey, selectedMetric, measures } = props;
   const { top: topScroll, scrolledOnce } = useFollowScroll();
   const domains = populateDomainsFromMeasures(measures);
 
@@ -99,6 +100,7 @@ export default function Sidebar(props: Readonly<Props>) {
 
         {domains.map((domain: Domain) => (
           <DomainSubnavigation
+            componentKey={componentKey}
             domain={domain}
             key={domain.name}
             onChange={handleChangeMetric}

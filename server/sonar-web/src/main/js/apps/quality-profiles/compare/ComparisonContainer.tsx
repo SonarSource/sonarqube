@@ -38,9 +38,9 @@ export function ComparisonContainer(props: Readonly<Props>) {
   const { profile, profiles } = props;
   const location = useLocation();
   const router = useRouter();
-  const { data: inheritRulesSetting } = useGetValueQuery(
-    SettingsKey.QPAdminCanDisableInheritedRules,
-  );
+  const { data: inheritRulesSetting } = useGetValueQuery({
+    key: SettingsKey.QPAdminCanDisableInheritedRules,
+  });
   const canDeactivateInheritedRules = inheritRulesSetting?.value === 'true';
 
   const { withKey } = location.query;
