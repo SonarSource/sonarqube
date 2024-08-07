@@ -83,6 +83,7 @@ const ui = {
   showPermissions: byRole('menuitem', { name: 'show_permissions' }),
   applyPermissionTemplate: byRole('menuitem', { name: 'projects_role.apply_template' }),
   restoreAccess: byRole('menuitem', { name: 'global_permissions.restore_access' }),
+  noActionsAvailable: byRole('menuitem', { name: 'global_permissions.no_actions_available' }),
   editPermissionsPage: byText('/project_roles?id=project1'),
 
   apply: byRole('button', { name: 'apply' }),
@@ -444,8 +445,9 @@ it('should edit permissions of single project', async () => {
   const user = userEvent.setup();
   renderProjectManagementApp();
   await user.click(await ui.firstProjectActions.find());
-  expect(ui.restoreAccess.query()).not.toBeInTheDocument();
   expect(ui.editPermissions.get()).toBeInTheDocument();
+  expect(ui.restoreAccess.query()).not.toBeInTheDocument();
+  expect(ui.noActionsAvailable.query()).not.toBeInTheDocument();
   await user.click(ui.editPermissions.get());
 
   expect(await ui.editPermissionsPage.find()).toBeInTheDocument();
@@ -455,6 +457,7 @@ it('should apply template for single object', async () => {
   const user = userEvent.setup();
   renderProjectManagementApp();
   await user.click(await ui.firstProjectActions.find());
+  expect(ui.noActionsAvailable.query()).not.toBeInTheDocument();
   await user.click(ui.applyPermissionTemplate.get());
 
   expect(ui.applyTemplateDialog.get()).toBeInTheDocument();
@@ -475,12 +478,14 @@ it('should restore access to admin', async () => {
   await user.click(await ui.firstProjectActions.find());
   expect(await ui.restoreAccess.find()).toBeInTheDocument();
   expect(ui.editPermissions.query()).not.toBeInTheDocument();
+  expect(ui.noActionsAvailable.query()).not.toBeInTheDocument();
   await user.click(ui.restoreAccess.get());
   expect(ui.restoreAccessDialog.get()).toBeInTheDocument();
   await user.click(ui.restoreAccessDialog.by(ui.restore).get());
   expect(ui.restoreAccessDialog.query()).not.toBeInTheDocument();
   await user.click(await ui.firstProjectActions.find());
   expect(ui.restoreAccess.query()).not.toBeInTheDocument();
+  expect(ui.noActionsAvailable.query()).not.toBeInTheDocument();
   expect(ui.editPermissions.get()).toBeInTheDocument();
 });
 
@@ -496,6 +501,7 @@ it('should restore access for github project', async () => {
   );
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
   await user.click(await ui.projectActions('Project 4').find());
+  expect(ui.noActionsAvailable.query()).not.toBeInTheDocument();
   expect(await ui.restoreAccess.find()).toBeInTheDocument();
   expect(ui.showPermissions.query()).not.toBeInTheDocument();
   await user.click(ui.restoreAccess.get());
@@ -503,6 +509,7 @@ it('should restore access for github project', async () => {
   await user.click(ui.restoreAccessDialog.by(ui.restore).get());
   expect(ui.restoreAccessDialog.query()).not.toBeInTheDocument();
   await user.click(await ui.projectActions('Project 4').find());
+  expect(ui.noActionsAvailable.query()).not.toBeInTheDocument();
   expect(ui.restoreAccess.query()).not.toBeInTheDocument();
   expect(ui.showPermissions.get()).toBeInTheDocument();
 });
@@ -521,6 +528,7 @@ it('should not allow to restore access on github project for GH user', async () 
   await user.click(await ui.projectActions('Project 4').find());
   expect(ui.restoreAccess.query()).not.toBeInTheDocument();
   await user.click(await ui.projectActions('Project 1').find());
+  expect(ui.noActionsAvailable.query()).not.toBeInTheDocument();
   expect(ui.restoreAccess.get()).toBeInTheDocument();
 });
 
@@ -547,9 +555,11 @@ it('should not apply permissions for github projects', async () => {
   await user.click(ui.projectActions('Project 4').get());
   expect(ui.applyPermissionTemplate.query()).not.toBeInTheDocument();
   expect(ui.editPermissions.query()).not.toBeInTheDocument();
+  expect(ui.noActionsAvailable.query()).not.toBeInTheDocument();
   expect(ui.showPermissions.get()).toBeInTheDocument();
   await user.click(ui.projectActions('Project 1').get());
   expect(ui.applyPermissionTemplate.get()).toBeInTheDocument();
+  expect(ui.noActionsAvailable.query()).not.toBeInTheDocument();
   expect(ui.editPermissions.get()).toBeInTheDocument();
   expect(ui.showPermissions.query()).not.toBeInTheDocument();
 });
@@ -572,6 +582,28 @@ it('should not show local badge if provisioning is not enabled', async () => {
   renderProjectManagementApp();
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
   expect(screen.queryByText('local')).not.toBeInTheDocument();
+});
+
+it('should display no action available for managed project if autoprovisioning is enabled for non admins', async () => {
+  const user = userEvent.setup();
+  dopTranslationHandler.gitHubConfigurations.push(
+    mockGitHubConfiguration({ provisioningType: ProvisioningType.auto }),
+  );
+  handler.setProjects([
+    mockProject({
+      key: `${ComponentQualifier.Project}${1}`,
+      name: 'Project 1',
+      qualifier: ComponentQualifier.Project,
+      managed: true,
+    }),
+  ]);
+  renderProjectManagementApp(
+    {},
+    { login: 'gooduser2', local: false },
+    { featureList: [Feature.GithubProvisioning] },
+  );
+  await user.click(await ui.firstProjectActions.find());
+  expect(ui.noActionsAvailable.get()).toBeInTheDocument();
 });
 
 function renderProjectManagementApp(

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ActionsDropdown, ItemButton, ItemLink, PopupZLevel, Spinner } from 'design-system';
+import { noop } from 'lodash';
 import React, { useState } from 'react';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getComponentNavigation } from '../../api/navigation';
@@ -86,14 +87,20 @@ export default function ProjectRowActions({ currentUser, project }: Props) {
             )}
 
             {hasAccess === false &&
-              (!project.managed || currentUser.local || !githubProvisioningEnabled) && (
-                <ItemButton
-                  className="it__restore-access"
-                  onClick={() => setRestoreAccessModal(true)}
-                >
-                  {translate('global_permissions.restore_access')}
+            (!project.managed || currentUser.local || !githubProvisioningEnabled) ? (
+              <ItemButton
+                className="it__restore-access"
+                onClick={() => setRestoreAccessModal(true)}
+              >
+                {translate('global_permissions.restore_access')}
+              </ItemButton>
+            ) : (
+              hasAccess === false && (
+                <ItemButton disabled onClick={noop}>
+                  {translate('global_permissions.no_actions_available')}
                 </ItemButton>
-              )}
+              )
+            )}
           </>
         </Spinner>
 
