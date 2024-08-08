@@ -51,4 +51,9 @@ public class UserIdDto implements UserId {
   public static UserIdDto from(UserDto dto) {
     return new UserIdDto(dto.getUuid(), dto.getLogin());
   }
+
+  @Override
+  public String toString() {
+    return "login='" + login + "'";
+  }
 }

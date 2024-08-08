@@ -19,6 +19,8 @@
  */
 package org.sonar.server.common.permission;
 
+import java.util.Optional;
+import java.util.StringJoiner;
 import javax.annotation.Nullable;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.UserId;
@@ -43,5 +45,15 @@ public class UserPermissionChange extends PermissionChange {
   @Override
   public String getUuidOfGrantee() {
     return userId.getUuid();
+  }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", UserPermissionChange.class.getSimpleName() + "[", "]")
+      .add("userId=" + userId)
+      .add("operation=" + getOperation())
+      .add("permission='" + getPermission() + "'")
+      .add("entity=" + Optional.ofNullable(getEntity()).map(EntityDto::getName).orElse("null"))
+      .toString();
   }
 }
