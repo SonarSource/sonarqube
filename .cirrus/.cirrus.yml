@@ -142,8 +142,8 @@ yarn_validate_task:
   depends_on: cache_dependencies
   container:
     dockerfile: .cirrus/Dockerfile
-    cpu: 8
-    memory: 15Gb
+    cpu: 10
+    memory: 32Gb
   <<: *DEFAULT_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
