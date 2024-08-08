@@ -159,6 +159,7 @@ import org.sonar.server.measure.index.ProjectsEsModule;
 import org.sonar.server.measure.live.LiveMeasureModule;
 import org.sonar.server.measure.ws.MeasuresWsModule;
 import org.sonar.server.metric.IssueCountMetrics;
+import org.sonar.server.metric.SoftwareQualitiesMetrics;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.metric.ws.MetricsWsModule;
 import org.sonar.server.monitoring.ComputeEngineMetricStatusTask;
@@ -394,6 +395,7 @@ public class PlatformLevel4 extends PlatformLevel {
       new MeasuresWsModule(),
       UnanalyzedLanguageMetrics.class,
       IssueCountMetrics.class,
+      SoftwareQualitiesMetrics.class,
 
       new QualityGateModule(),
       new QualityGateWsModule(),
