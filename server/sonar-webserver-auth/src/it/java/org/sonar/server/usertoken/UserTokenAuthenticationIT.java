@@ -150,7 +150,7 @@ public class UserTokenAuthenticationIT {
     String tokenHash = "123456789";
     when(tokenGenerator.hash(token)).thenReturn(tokenHash);
     UserDto user1 = db.users().insertUser();
-    UserTokenDto userTokenDto = db.users().insertToken(user1, t -> t.setTokenHash(tokenHash));
+    db.users().insertToken(user1, t -> t.setTokenHash(tokenHash));
     UserDto user2 = db.users().insertUser();
     db.users().insertToken(user2, t -> t.setTokenHash("another-token-hash"));
     return token;
@@ -206,7 +206,7 @@ public class UserTokenAuthenticationIT {
   public void throw_authentication_exception_if_token_is_expired() {
     String token = "known-token";
     String tokenHash = "123456789";
-    long expirationTimestamp = System.currentTimeMillis();
+    long expirationTimestamp = System.currentTimeMillis() - 1;
     when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(token + ":"));
     when(tokenGenerator.hash(token)).thenReturn(tokenHash);
     UserDto user1 = db.users().insertUser();
@@ -270,7 +270,7 @@ public class UserTokenAuthenticationIT {
   @Test
   public void does_not_authenticate_from_user_token_when_token_does_not_match_active_user() {
     UserDto user = db.users().insertDisabledUser();
-    String tokenName = db.users().insertToken(user, t -> t.setTokenHash(NEW_USER_TOKEN_HASH).setType(USER_TOKEN.name())).getName();
+    db.users().insertToken(user, t -> t.setTokenHash(NEW_USER_TOKEN_HASH).setType(USER_TOKEN.name())).getName();
 
     when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(EXAMPLE_NEW_USER_TOKEN + ":"));
 
