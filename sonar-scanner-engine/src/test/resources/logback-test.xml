@@ -6,13 +6,16 @@
   -->
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
-    </encoder>
+    <encoder class="org.sonar.scanner.bootstrap.ScannerLogbackEncoder"/>
   </appender>
 
   <!-- BeanUtils generate to many DEBUG logs when sonar.verbose is set -->
   <logger name="org.apache.commons.beanutils.converters" level="WARN"/>
+
+  <!-- FileSnapshot generate too many DEBUG logs when sonar.verbose is set -->
+  <logger name="org.eclipse.jgit.internal.storage.file.FileSnapshot" level="INFO">
+    <appender-ref ref="STDOUT"/>
+  </logger>
 
   <!-- sonar.showSql -->
   <!-- see also org.sonar.db.MyBatis#configureLogback() -->

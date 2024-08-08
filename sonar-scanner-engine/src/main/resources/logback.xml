@@ -19,6 +19,11 @@
   <!-- FileSnapshot generate too many DEBUG logs when sonar.verbose is set -->
   <logger name="org.eclipse.jgit.internal.storage.file" level="INFO"/>
 
+  <!-- FileSnapshot generate too many DEBUG logs when sonar.verbose is set -->
+  <logger name="org.eclipse.jgit.internal.storage.file.FileSnapshot" level="INFO">
+    <appender-ref ref="STDOUT"/>
+  </logger>
+
   <!-- Spring generates too many DEBUG logs when sonar.verbose is set -->
   <logger name="org.springframework" level="INFO"/>
 
