@@ -21,6 +21,8 @@ import { screen } from '@testing-library/react';
 import React from 'react';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { MeasuresServiceMock } from '../../../../../api/mocks/MeasuresServiceMock';
+import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { CurrentUser } from '../../../../../types/users';
@@ -49,6 +51,14 @@ const PROJECT: Project = {
 
 const USER_LOGGED_OUT = mockCurrentUser();
 const USER_LOGGED_IN = mockLoggedInUser();
+
+const settingsHandler = new SettingsServiceMock();
+const measuresHandler = new MeasuresServiceMock();
+
+beforeEach(() => {
+  settingsHandler.reset();
+  measuresHandler.reset();
+});
 
 it('should not display the quality gate', () => {
   const project = { ...PROJECT, analysisDate: undefined };

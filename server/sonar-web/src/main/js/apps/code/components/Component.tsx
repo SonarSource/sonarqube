@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from '@sonarsource/echoes-react';
 import { ContentCell, NumericalCell, TableRowInteractive } from 'design-system';
 import * as React from 'react';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { WorkspaceContext } from '../../../components/workspace/context';
+import { useComponentDataQuery } from '../../../queries/component';
 import { BranchLike } from '../../../types/branch-like';
 import { Metric, ComponentMeasure as TypeComponentMeasure } from '../../../types/types';
 import ComponentMeasure from './ComponentMeasure';
@@ -61,6 +63,17 @@ export default function Component(props: Props) {
     component.qualifier === ComponentQualifier.File ||
     component.qualifier === ComponentQualifier.TestFile;
 
+  const { data: analysisDate, isLoading } = useComponentDataQuery(
+    {
+      component: component.key,
+      branch: component.branch,
+    },
+    {
+      enabled: showAnalysisDate && !isBaseComponent,
+      select: (data) => data.component.analysisDate,
+    },
+  );
+
   return (
     <TableRowInteractive selected={selected} aria-label={component.name}>
       {canBePinned && (
@@ -96,8 +109,9 @@ export default function Component(props: Props) {
 
       {showAnalysisDate && (
         <NumericalCell className="sw-whitespace-nowrap">
-          {!isBaseComponent &&
-            (component.analysisDate ? <DateFromNow date={component.analysisDate} /> : '—')}
+          <Spinner isLoading={isLoading}>
+            {!isBaseComponent && (analysisDate ? <DateFromNow date={analysisDate} /> : '—')}
+          </Spinner>
         </NumericalCell>
       )}
     </TableRowInteractive>

@@ -140,67 +140,67 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
         </FlagMessage>
       )}
 
-      {!allComponentsHaveSoftwareQualityMeasures && (
-        <AnalysisMissingInfoMessage
-          qualifier={component.qualifier}
-          hide={isPortfolio}
-          className="sw-mb-4"
-        />
-      )}
+      <Spinner isLoading={loading}>
+        {!allComponentsHaveSoftwareQualityMeasures && (
+          <AnalysisMissingInfoMessage
+            qualifier={component.qualifier}
+            hide={isPortfolio}
+            className="sw-mb-4"
+          />
+        )}
 
-      <div className="sw-flex sw-justify-between">
-        <div>
-          {hasComponents && (
-            <Search
-              branchLike={branchLike}
-              className="sw-mb-4"
-              component={component}
-              newCodeSelected={newCodeSelected}
-              onNewCodeToggle={props.handleSelectNewCode}
-              onSearchClear={props.handleSearchClear}
-              onSearchResults={props.handleSearchResults}
-            />
-          )}
+        <div className="sw-flex sw-justify-between">
+          <div>
+            {hasComponents && (
+              <Search
+                branchLike={branchLike}
+                className="sw-mb-4"
+                component={component}
+                newCodeSelected={newCodeSelected}
+                onNewCodeToggle={props.handleSelectNewCode}
+                onSearchClear={props.handleSearchClear}
+                onSearchResults={props.handleSearchResults}
+              />
+            )}
 
-          {!hasComponents && sourceViewer === undefined && (
-            <div className="sw-flex sw-align-center sw-flex-col sw-fixed sw-top-1/2">
-              <LightLabel>
-                {translate(
-                  'code_viewer.no_source_code_displayed_due_to_empty_analysis',
-                  component.qualifier,
-                )}
-              </LightLabel>
+            {!hasComponents && sourceViewer === undefined && (
+              <div className="sw-flex sw-align-center sw-flex-col sw-fixed sw-top-1/2">
+                <LightLabel>
+                  {translate(
+                    'code_viewer.no_source_code_displayed_due_to_empty_analysis',
+                    component.qualifier,
+                  )}
+                </LightLabel>
+              </div>
+            )}
+
+            {showBreadcrumbs && (
+              <CodeBreadcrumbs
+                branchLike={branchLike}
+                breadcrumbs={breadcrumbs}
+                rootComponent={component}
+              />
+            )}
+          </div>
+
+          {(showComponentList || showSearch) && (
+            <div className="sw-flex sw-items-end sw-body-sm">
+              <KeyboardHint
+                className="sw-mr-4 sw-ml-6"
+                command={`${KeyboardKeys.DownArrow} ${KeyboardKeys.UpArrow}`}
+                title={translate('component_measures.select_files')}
+              />
+
+              <KeyboardHint
+                command={`${KeyboardKeys.LeftArrow} ${KeyboardKeys.RightArrow}`}
+                title={translate('component_measures.navigate')}
+              />
             </div>
-          )}
-
-          {showBreadcrumbs && (
-            <CodeBreadcrumbs
-              branchLike={branchLike}
-              breadcrumbs={breadcrumbs}
-              rootComponent={component}
-            />
           )}
         </div>
 
         {(showComponentList || showSearch) && (
-          <div className="sw-flex sw-items-end sw-body-sm">
-            <KeyboardHint
-              className="sw-mr-4 sw-ml-6"
-              command={`${KeyboardKeys.DownArrow} ${KeyboardKeys.UpArrow}`}
-              title={translate('component_measures.select_files')}
-            />
-
-            <KeyboardHint
-              command={`${KeyboardKeys.LeftArrow} ${KeyboardKeys.RightArrow}`}
-              title={translate('component_measures.navigate')}
-            />
-          </div>
-        )}
-      </div>
-
-      {(showComponentList || showSearch) && (
-        <Card className="sw-mt-2 sw-overflow-auto">
-          <Spinner isLoading={loading}>
+          <Card className="sw-mt-2 sw-overflow-auto">
             {showComponentList && (
               <Components
                 baseComponent={baseComponent}
@@ -230,26 +230,26 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
                 selected={highlighted}
               />
             )}
-          </Spinner>
-        </Card>
-      )}
+          </Card>
+        )}
 
-      {showComponentList && (
-        <ListFooter count={components.length} loadMore={props.handleLoadMore} total={total} />
-      )}
+        {showComponentList && (
+          <ListFooter count={components.length} loadMore={props.handleLoadMore} total={total} />
+        )}
 
-      {sourceViewer !== undefined && !showSearch && (
-        <div className="sw-mt-2">
-          <SourceViewerWrapper
-            branchLike={branchLike}
-            component={sourceViewer.key}
-            componentMeasures={sourceViewer.measures}
-            isFile
-            location={location}
-            onGoToParent={props.handleGoToParent}
-          />
-        </div>
-      )}
+        {sourceViewer !== undefined && !showSearch && (
+          <div className="sw-mt-2">
+            <SourceViewerWrapper
+              branchLike={branchLike}
+              component={sourceViewer.key}
+              componentMeasures={sourceViewer.measures}
+              isFile
+              location={location}
+              onGoToParent={props.handleGoToParent}
+            />
+          </div>
+        )}
+      </Spinner>
     </LargeCenteredLayout>
   );
 }

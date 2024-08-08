@@ -20,15 +20,20 @@
 import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
-import { Breadcrumb, ComponentQualifier } from '~sonar-aligned/types/component';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Location, Router } from '~sonar-aligned/types/router';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import { CodeScope, getCodeUrl, getProjectUrl } from '../../../helpers/urls';
 import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
+import {
+  useComponentBreadcrumbsQuery,
+  useComponentChildrenQuery,
+  useComponentQuery,
+} from '../../../queries/component';
+import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
-import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
-import { loadMoreChildren, retrieveComponent, retrieveComponentChildren } from '../utils';
+import { getCodeMetrics } from '../utils';
 import CodeAppRenderer from './CodeAppRenderer';
 
 interface Props extends WithBranchLikesProps {
@@ -38,191 +43,125 @@ interface Props extends WithBranchLikesProps {
   router: Router;
 }
 
-interface State {
-  baseComponent?: ComponentMeasure;
-  breadcrumbs: Breadcrumb[];
-  components?: ComponentMeasure[];
-  highlighted?: ComponentMeasure;
-  loading: boolean;
-  newCodeSelected: boolean;
-  page: number;
-  searchResults?: ComponentMeasure[];
-  sourceViewer?: ComponentMeasure;
-  total: number;
-}
+const PAGE_SIZE = 100;
 
-class CodeApp extends React.Component<Props, State> {
-  mounted = false;
-  state: State;
+function CodeApp(props: Readonly<Props>) {
+  const { component, metrics, router, location, branchLike } = props;
+  const [highlighted, setHighlighted] = React.useState<ComponentMeasure | undefined>();
+  const [newCodeSelected, setNewCodeSelected] = React.useState<boolean>(true);
+  const [searchResults, setSearchResults] = React.useState<ComponentMeasure[] | undefined>();
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      breadcrumbs: [],
-      loading: true,
-      newCodeSelected: true,
-      page: 0,
-      total: 0,
-    };
-  }
+  const { data: breadcrumbs, isLoading: isBreadcrumbsLoading } = useComponentBreadcrumbsQuery({
+    component: location.query.selected ?? component.key,
+    ...getBranchLikeQuery(branchLike),
+  });
+  const { data: baseComponent, isLoading: isBaseComponentLoading } = useComponentQuery(
+    {
+      component: location.query.selected ?? component.key,
+      metricKeys: getCodeMetrics(component.qualifier, branchLike).join(),
+      ...getBranchLikeQuery(branchLike),
+    },
+    {
+      select: (data) => data.component,
+    },
+  );
+  const {
+    data: componentWithChildren,
+    isLoading: isChildrenLoading,
+    fetchNextPage,
+  } = useComponentChildrenQuery({
+    strategy: 'children',
+    component: location.query.selected ?? component.key,
+    metrics: getCodeMetrics(component.qualifier, branchLike, {
+      includeQGStatus: true,
+    }),
+    additionalData: {
+      ps: PAGE_SIZE,
+      s: 'qualifier,name',
+      ...getBranchLikeQuery(branchLike),
+    },
+  });
 
-  componentDidMount() {
-    this.mounted = true;
-    this.handleComponentChange();
-  }
+  const isFile = baseComponent
+    ? [ComponentQualifier.File, ComponentQualifier.TestFile].includes(
+        baseComponent.qualifier as ComponentQualifier,
+      )
+    : false;
+  const loading = isBreadcrumbsLoading || isBaseComponentLoading || isChildrenLoading;
+  const total = componentWithChildren?.pages[0]?.paging.total ?? 0;
+  const components = componentWithChildren?.pages.flatMap((page) => page.components);
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.location.query.selected !== this.props.location.query.selected) {
-      this.handleUpdate();
-    }
-  }
+  React.useEffect(() => {
+    setSearchResults(undefined);
+  }, [location.query.selected]);
 
-  componentWillUnmount() {
-    clearBucket();
-    this.mounted = false;
-  }
-
-  loadComponent = (componentKey: string) => {
-    this.setState({ loading: true });
-    retrieveComponent(
-      componentKey,
-      this.props.component.qualifier,
-      this,
-      this.props.branchLike,
-    ).then((r) => {
-      if (
-        [ComponentQualifier.File, ComponentQualifier.TestFile].includes(
-          r.component.qualifier as ComponentQualifier,
-        )
-      ) {
-        this.setState({
-          breadcrumbs: r.breadcrumbs,
-          components: r.components,
-          loading: false,
-          page: 0,
-          searchResults: undefined,
-          sourceViewer: r.component,
-          total: 0,
-        });
-      } else {
-        this.setState({
-          baseComponent: r.component,
-          breadcrumbs: r.breadcrumbs,
-          components: r.components,
-          loading: false,
-          page: r.page,
-          searchResults: undefined,
-          sourceViewer: undefined,
-          total: r.total,
-        });
-      }
-    }, this.stopLoading);
-  };
-
-  stopLoading = () => {
-    this.setState({ loading: false });
-  };
-
-  handleComponentChange = () => {
-    const { branchLike, component } = this.props;
-
-    // we already know component's breadcrumbs,
-    addComponentBreadcrumbs(component.key, component.breadcrumbs);
-
-    this.setState({ loading: true });
-    retrieveComponentChildren(component.key, component.qualifier, this, branchLike).then(() => {
-      addComponent(component);
-      this.handleUpdate();
-    }, this.stopLoading);
-  };
-
-  handleLoadMore = () => {
-    const { baseComponent, components, page } = this.state;
+  const handleLoadMore = () => {
     if (!baseComponent || !components) {
       return;
     }
-    loadMoreChildren(
-      baseComponent.key,
-      page + 1,
-      this.props.component.qualifier,
-      this,
-      this.props.branchLike,
-    ).then((r) => {
-      if (r.components.length) {
-        this.setState({
-          components: [...components, ...r.components],
-          page: r.page,
-          total: r.total,
-        });
-      }
-    }, this.stopLoading);
+    fetchNextPage();
   };
 
-  handleGoToParent = () => {
-    const { branchLike, component } = this.props;
-    const { breadcrumbs = [] } = this.state;
-
-    if (breadcrumbs.length > 1) {
+  const handleGoToParent = () => {
+    if (breadcrumbs && breadcrumbs.length > 1) {
       const parentComponent = breadcrumbs[breadcrumbs.length - 2];
-      this.props.router.push(getCodeUrl(component.key, branchLike, parentComponent.key));
-      this.setState({ highlighted: breadcrumbs[breadcrumbs.length - 1] });
+      router.push(getCodeUrl(component.key, branchLike, parentComponent.key));
+      setHighlighted(breadcrumbs[breadcrumbs.length - 1]);
     }
   };
 
-  handleHighlight = (highlighted: ComponentMeasure) => {
-    this.setState({ highlighted });
+  const handleHighlight = (highlighted: ComponentMeasure) => {
+    setHighlighted(highlighted);
   };
 
-  handleSearchClear = () => {
-    this.setState({ searchResults: undefined });
+  const handleSearchClear = () => {
+    setSearchResults(undefined);
   };
 
-  handleSearchResults = (searchResults: ComponentMeasure[] = []) => {
-    this.setState({ searchResults });
+  const handleSearchResults = (searchResults: ComponentMeasure[] = []) => {
+    setSearchResults(searchResults);
   };
 
-  handleSelect = (component: ComponentMeasure) => {
-    const { branchLike, component: rootComponent } = this.props;
-    const { newCodeSelected } = this.state;
-
-    if (component.refKey) {
+  const handleSelect = (selectedComponent: ComponentMeasure) => {
+    if (selectedComponent.refKey) {
       const codeType = newCodeSelected ? CodeScope.New : CodeScope.Overall;
-      const url = getProjectUrl(component.refKey, component.branch, codeType);
-      this.props.router.push(url);
+      const url = getProjectUrl(selectedComponent.refKey, selectedComponent.branch, codeType);
+      router.push(url);
     } else {
-      this.props.router.push(getCodeUrl(rootComponent.key, branchLike, component.key));
+      router.push(getCodeUrl(component.key, branchLike, selectedComponent.key));
     }
 
-    this.setState({ highlighted: undefined });
+    setHighlighted(undefined);
   };
 
-  handleSelectNewCode = (newCodeSelected: boolean) => {
-    this.setState({ newCodeSelected });
+  const handleSelectNewCode = (newCodeSelected: boolean) => {
+    setNewCodeSelected(newCodeSelected);
   };
 
-  handleUpdate = () => {
-    const { component, location } = this.props;
-    const { selected } = location.query;
-    const finalKey = selected || component.key;
-
-    this.loadComponent(finalKey);
-  };
-
-  render() {
-    return (
-      <CodeAppRenderer
-        {...this.props}
-        {...this.state}
-        handleGoToParent={this.handleGoToParent}
-        handleHighlight={this.handleHighlight}
-        handleLoadMore={this.handleLoadMore}
-        handleSearchClear={this.handleSearchClear}
-        handleSearchResults={this.handleSearchResults}
-        handleSelect={this.handleSelect}
-        handleSelectNewCode={this.handleSelectNewCode}
-      />
-    );
-  }
+  return (
+    <CodeAppRenderer
+      location={location}
+      metrics={metrics}
+      branchLike={branchLike}
+      component={component}
+      baseComponent={isFile ? undefined : baseComponent}
+      breadcrumbs={breadcrumbs ?? []}
+      components={components}
+      highlighted={highlighted}
+      loading={loading}
+      newCodeSelected={newCodeSelected}
+      searchResults={searchResults}
+      sourceViewer={isFile ? baseComponent : undefined}
+      total={total}
+      handleGoToParent={handleGoToParent}
+      handleHighlight={handleHighlight}
+      handleLoadMore={handleLoadMore}
+      handleSearchClear={handleSearchClear}
+      handleSearchResults={handleSearchResults}
+      handleSelect={handleSelect}
+      handleSelectNewCode={handleSelectNewCode}
+    />
+  );
 }
 
 function withBranchLikes<P extends { component?: Component }>(

@@ -48,7 +48,7 @@ export const useGetValueQuery = createQueryHook(
 
 export const useIsLegacyCCTMode = () => {
   return useGetValueQuery(
-    { key: 'sonar.old_world' },
+    { key: 'sonar.legacy.ratings.mode.enabled' },
     { staleTime: Infinity, select: (data) => !!data },
   );
 };

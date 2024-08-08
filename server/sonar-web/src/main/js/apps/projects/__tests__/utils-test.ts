@@ -30,13 +30,6 @@ jest.mock('../../../api/components', () => ({
   getScannableProjects: jest.fn().mockResolvedValue({ projects: [] }),
 }));
 
-jest.mock('../../../api/measures', () => ({
-  getMeasuresForProjects: jest.fn().mockResolvedValue([
-    { component: 'foo', metric: 'new_coverage', period: { index: 1, value: '10' } },
-    { component: 'bar', metric: 'languages', value: '20' },
-  ]),
-}));
-
 describe('localizeSorting', () => {
   it('localizes default sorting', () => {
     expect(utils.localizeSorting()).toBe('projects.sort.name');
@@ -152,12 +145,6 @@ describe('fetchProjects', () => {
               measures: { languages?: string; new_coverage?: string };
             },
           ) => {
-            // eslint-disable-next-line jest/no-conditional-in-test
-            if (component.key === 'foo') {
-              component.measures = { new_coverage: '10' };
-            } else {
-              component.measures = { languages: '20' };
-            }
             component.isScannable = false;
             return component;
           },

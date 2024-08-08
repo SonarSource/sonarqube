@@ -25,6 +25,7 @@ import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { ProjectsServiceMock } from '../../../../api/mocks/ProjectsServiceMock';
+import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { save } from '../../../../helpers/storage';
 import { mockAppState, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
@@ -62,10 +63,12 @@ jest.mock('../../../../helpers/storage', () => {
 const BASE_PATH = 'projects';
 
 const projectHandler = new ProjectsServiceMock();
+const settingsHandler = new SettingsServiceMock();
 
 beforeEach(() => {
   jest.clearAllMocks();
   projectHandler.reset();
+  settingsHandler.reset();
 });
 
 it('renders correctly', async () => {
