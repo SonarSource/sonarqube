@@ -208,7 +208,7 @@ public class SoftwareQualitiesMetrics implements Metrics {
 
   public static final String SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT_KEY = "software_quality_reliability_remediation_effort";
 
-  public static final Metric<Long> RELIABILITY_REMEDIATION_EFFORT =
+  public static final Metric<Long> SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT =
     new Metric.Builder(SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT_KEY, "Software Quality Reliability Remediation Effort",
       Metric.ValueType.WORK_DUR)
       .setDescription("Software quality reliability remediation effort")
@@ -275,7 +275,7 @@ public class SoftwareQualitiesMetrics implements Metrics {
       NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT,
       SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT,
       NEW_SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT,
-      RELIABILITY_REMEDIATION_EFFORT,
+      SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT,
       NEW_SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT,
       SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO,
       NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO

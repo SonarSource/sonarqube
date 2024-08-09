@@ -28,16 +28,23 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.server.metric.SoftwareQualitiesMetrics;
 
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT_KEY;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT_KEY;
 
 /**
  * Compute effort related measures :
  * {@link CoreMetrics#TECHNICAL_DEBT_KEY}
  * {@link CoreMetrics#RELIABILITY_REMEDIATION_EFFORT_KEY}
  * {@link CoreMetrics#SECURITY_REMEDIATION_EFFORT_KEY}
+ * {@link SoftwareQualitiesMetrics#SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY}
+ * {@link SoftwareQualitiesMetrics#SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT_KEY}
+ * {@link SoftwareQualitiesMetrics#SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT_KEY}
  */
 public class EffortAggregator extends IssueVisitor {
 
@@ -48,13 +55,24 @@ public class EffortAggregator extends IssueVisitor {
   private final Metric reliabilityEffortMetric;
   private final Metric securityEffortMetric;
 
+  private final Metric softwareQualityMaintainabilityEffortMetric;
+  private final Metric softwareQualityReliabilityEffortMetric;
+  private final Metric softwareQualitySecurityEffortMetric;
+
   private EffortCounter effortCounter;
 
   public EffortAggregator(MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.measureRepository = measureRepository;
+
+    // Based on issue Type and Severity
     this.maintainabilityEffortMetric = metricRepository.getByKey(TECHNICAL_DEBT_KEY);
     this.reliabilityEffortMetric = metricRepository.getByKey(RELIABILITY_REMEDIATION_EFFORT_KEY);
     this.securityEffortMetric = metricRepository.getByKey(SECURITY_REMEDIATION_EFFORT_KEY);
+
+    // Based on software qualities
+    this.softwareQualityMaintainabilityEffortMetric = metricRepository.getByKey(SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY);
+    this.softwareQualityReliabilityEffortMetric = metricRepository.getByKey(SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT_KEY);
+    this.softwareQualitySecurityEffortMetric = metricRepository.getByKey(SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT_KEY);
   }
 
   @Override
@@ -90,14 +108,17 @@ public class EffortAggregator extends IssueVisitor {
 
   private void computeMaintainabilityEffortMeasure(Component component) {
     measureRepository.add(component, maintainabilityEffortMetric, Measure.newMeasureBuilder().create(effortCounter.maintainabilityEffort));
+    measureRepository.add(component, softwareQualityMaintainabilityEffortMetric, Measure.newMeasureBuilder().create(effortCounter.softwareQualityMaintainabilityEffort));
   }
 
   private void computeReliabilityEffortMeasure(Component component) {
     measureRepository.add(component, reliabilityEffortMetric, Measure.newMeasureBuilder().create(effortCounter.reliabilityEffort));
+    measureRepository.add(component, softwareQualityReliabilityEffortMetric, Measure.newMeasureBuilder().create(effortCounter.softwareQualityReliabilityEffort));
   }
 
   private void computeSecurityEffortMeasure(Component component) {
     measureRepository.add(component, securityEffortMetric, Measure.newMeasureBuilder().create(effortCounter.securityEffort));
+    measureRepository.add(component, softwareQualitySecurityEffortMetric, Measure.newMeasureBuilder().create(effortCounter.softwareQualitySecurityEffort));
   }
 
   private static class EffortCounter {
@@ -105,25 +126,52 @@ public class EffortAggregator extends IssueVisitor {
     private long reliabilityEffort = 0L;
     private long securityEffort = 0L;
 
+    private long softwareQualityMaintainabilityEffort = 0L;
+    private long softwareQualityReliabilityEffort = 0L;
+    private long softwareQualitySecurityEffort = 0L;
+
     void add(DefaultIssue issue) {
       Long issueEffort = issue.effortInMinutes();
       if (issueEffort != null && issueEffort != 0L) {
-        switch (issue.type()) {
-          case CODE_SMELL:
-            maintainabilityEffort += issueEffort;
+        computeTypeEffort(issue, issueEffort);
+        computeSoftwareQualityEffort(issue, issueEffort);
+      }
+    }
+
+    private void computeSoftwareQualityEffort(DefaultIssue issue, Long issueEffort) {
+      issue.impacts().forEach((sq, severity) -> {
+        switch (sq) {
+          case MAINTAINABILITY:
+            softwareQualityMaintainabilityEffort += issueEffort;
             break;
-          case BUG:
-            reliabilityEffort += issueEffort;
+          case RELIABILITY:
+            softwareQualityReliabilityEffort += issueEffort;
             break;
-          case VULNERABILITY:
-            securityEffort += issueEffort;
-            break;
-          case SECURITY_HOTSPOT:
-            // Not counted
+          case SECURITY:
+            softwareQualitySecurityEffort += issueEffort;
             break;
           default:
-            throw new IllegalStateException(String.format("Unknown type '%s'", issue.type()));
+            throw new IllegalStateException(String.format("Unknown software quality '%s'", sq));
         }
+      });
+    }
+
+    private void computeTypeEffort(DefaultIssue issue, Long issueEffort) {
+      switch (issue.type()) {
+        case CODE_SMELL:
+          maintainabilityEffort += issueEffort;
+          break;
+        case BUG:
+          reliabilityEffort += issueEffort;
+          break;
+        case VULNERABILITY:
+          securityEffort += issueEffort;
+          break;
+        case SECURITY_HOTSPOT:
+          // Not counted
+          break;
+        default:
+          throw new IllegalStateException(String.format("Unknown type '%s'", issue.type()));
       }
     }
 
@@ -131,6 +179,10 @@ public class EffortAggregator extends IssueVisitor {
       maintainabilityEffort += effortCounter.maintainabilityEffort;
       reliabilityEffort += effortCounter.reliabilityEffort;
       securityEffort += effortCounter.securityEffort;
+
+      softwareQualityMaintainabilityEffort += effortCounter.softwareQualityMaintainabilityEffort;
+      softwareQualityReliabilityEffort += effortCounter.softwareQualityReliabilityEffort;
+      softwareQualitySecurityEffort += effortCounter.softwareQualitySecurityEffort;
     }
   }
 }
