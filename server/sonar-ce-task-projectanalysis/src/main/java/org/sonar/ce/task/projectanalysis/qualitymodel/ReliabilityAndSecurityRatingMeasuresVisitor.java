@@ -19,8 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
@@ -30,7 +31,9 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.measure.RatingMeasures;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.measure.Rating;
+import org.sonar.server.metric.SoftwareQualitiesMetrics;
 
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
@@ -38,11 +41,15 @@ import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit.FILE;
 import static org.sonar.server.measure.Rating.RATING_BY_SEVERITY;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY;
 
 /**
  * Compute following measures for projects and descendants:
  * {@link CoreMetrics#RELIABILITY_RATING_KEY}
  * {@link CoreMetrics#SECURITY_RATING_KEY}
+ * {@link SoftwareQualitiesMetrics#SOFTWARE_QUALITY_RELIABILITY_RATING_KEY}
+ * {@link SoftwareQualitiesMetrics#SOFTWARE_QUALITY_SECURITY_RATING_KEY}
  */
 public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisitorAdapter<ReliabilityAndSecurityRatingMeasuresVisitor.Counter> {
 
@@ -58,10 +65,15 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
     // Output metrics
     Metric reliabilityRatingMetric = metricRepository.getByKey(RELIABILITY_RATING_KEY);
     Metric securityRatingMetric = metricRepository.getByKey(SECURITY_RATING_KEY);
+    Metric softwareQualityReliabilityRatingMetric = metricRepository.getByKey(SOFTWARE_QUALITY_RELIABILITY_RATING_KEY);
+    Metric softwareQualitySecurityRatingMetric = metricRepository.getByKey(SOFTWARE_QUALITY_SECURITY_RATING_KEY);
 
-    this.metricsByKey = ImmutableMap.of(
+    this.metricsByKey = Map.of(
       RELIABILITY_RATING_KEY, reliabilityRatingMetric,
-      SECURITY_RATING_KEY, securityRatingMetric);
+      SECURITY_RATING_KEY, securityRatingMetric,
+      SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, softwareQualityReliabilityRatingMetric,
+      SOFTWARE_QUALITY_SECURITY_RATING_KEY, softwareQualitySecurityRatingMetric)
+    ;
   }
 
   @Override
@@ -95,19 +107,39 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
       .stream()
       .filter(issue -> issue.resolution() == null)
       .forEach(issue -> {
-        Rating rating = RATING_BY_SEVERITY.get(issue.severity());
-        if (issue.type().equals(BUG)) {
-          path.current().ratingValueByMetric.get(RELIABILITY_RATING_KEY).increment(rating);
-        } else if (issue.type().equals(VULNERABILITY)) {
-          path.current().ratingValueByMetric.get(SECURITY_RATING_KEY).increment(rating);
-        }
+        processIssue(path, issue);
       });
   }
 
+  private static void processIssue(Path<Counter> path, DefaultIssue issue) {
+    Rating rating = RATING_BY_SEVERITY.get(issue.severity());
+    if (issue.type().equals(BUG)) {
+      path.current().ratingValueByMetric.get(RELIABILITY_RATING_KEY).increment(rating);
+    } else if (issue.type().equals(VULNERABILITY)) {
+      path.current().ratingValueByMetric.get(SECURITY_RATING_KEY).increment(rating);
+    }
+
+    processSoftwareQualityRating(path, issue, SoftwareQuality.RELIABILITY, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY);
+    processSoftwareQualityRating(path, issue, SoftwareQuality.SECURITY, SOFTWARE_QUALITY_SECURITY_RATING_KEY);
+  }
+
+  private static void processSoftwareQualityRating(Path<Counter> path, DefaultIssue issue, SoftwareQuality softwareQuality, String metricKey) {
+    Severity severity = issue.impacts().get(softwareQuality);
+    if (severity != null) {
+      Rating rating = Rating.RATING_BY_SOFTWARE_QUALITY_SEVERITY.get(severity);
+
+      if (rating != null) {
+        path.current().ratingValueByMetric.get(metricKey).increment(rating);
+      }
+    }
+  }
+
   static final class Counter {
-    private Map<String, RatingValue> ratingValueByMetric = ImmutableMap.of(
+    private final Map<String, RatingValue> ratingValueByMetric = Map.of(
       RELIABILITY_RATING_KEY, new RatingValue(),
-      SECURITY_RATING_KEY, new RatingValue());
+      SECURITY_RATING_KEY, new RatingValue(),
+      SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, new RatingValue(),
+      SOFTWARE_QUALITY_SECURITY_RATING_KEY, new RatingValue());
 
     private Counter() {
       // prevents instantiation

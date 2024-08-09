@@ -24,6 +24,8 @@ import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -39,6 +41,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.Uuids;
 import org.sonar.server.measure.Rating;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,6 +71,10 @@ import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
 import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY;
 
 class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
 
@@ -101,7 +108,9 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   @RegisterExtension
   private final MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(NEW_SECURITY_RATING)
-    .add(NEW_RELIABILITY_RATING);
+    .add(NEW_RELIABILITY_RATING)
+    .add(NEW_SOFTWARE_QUALITY_RELIABILITY_RATING)
+    .add(NEW_SOFTWARE_QUALITY_SECURITY_RATING);
 
   @RegisterExtension
   private final MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -130,6 +139,8 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
 
     verifyAddedRawMeasureOnLeakPeriod(1, NEW_SECURITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(1, NEW_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(1, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(1, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
   }
 
   @Test
@@ -167,6 +178,29 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
+  void compute_new_software_quality_security_rating() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
+      newImpactIssue(SoftwareQuality.SECURITY, Severity.MEDIUM),
+      // Should not be taken into account
+      oldImpactIssue(SoftwareQuality.SECURITY, Severity.HIGH));
+    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
+      newImpactIssue(SoftwareQuality.SECURITY, Severity.LOW),
+      newImpactIssue(SoftwareQuality.SECURITY, Severity.HIGH),
+      // Should not be taken into account
+      oldImpactIssue(SoftwareQuality.SECURITY, Severity.HIGH));
+    fillComponentIssuesVisitorRule.setIssues(ROOT_DIR_REF, newImpactIssue(SoftwareQuality.SECURITY, Severity.HIGH));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasureOnLeakPeriod(FILE_1_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, C);
+    verifyAddedRawMeasureOnLeakPeriod(FILE_2_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, D);
+    verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, D);
+    verifyAddedRawMeasureOnLeakPeriod(ROOT_DIR_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, D);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, D);
+  }
+
+  @Test
   void compute_new_security_rating_to_A_when_no_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF);
@@ -181,6 +215,20 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
+  void compute_new_software_quality_security_rating_to_A_when_no_issue() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF);
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasureOnLeakPeriod(FILE_1_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(FILE_2_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(ROOT_DIR_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+  }
+
+  @Test
   void compute_new_security_rating_to_A_when_no_new_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, oldVulnerabilityIssue(1L, MAJOR));
@@ -192,6 +240,20 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
     verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_SECURITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(ROOT_DIR_REF, NEW_SECURITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SECURITY_RATING_KEY, A);
+  }
+
+  @Test
+  void compute_new_software_quality_security_rating_to_A_when_no_new_issue() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, oldImpactIssue(SoftwareQuality.SECURITY, Severity.HIGH));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasureOnLeakPeriod(FILE_1_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(FILE_2_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(ROOT_DIR_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
   }
 
   @Test
@@ -220,6 +282,29 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
+  void compute_new_software_quality_reliability_rating() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
+      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.MEDIUM),
+      // Should not be taken into account
+      oldImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH));
+    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
+      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.LOW),
+      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH),
+      // Should not be taken into account
+      oldImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH));
+    fillComponentIssuesVisitorRule.setIssues(ROOT_DIR_REF, newImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasureOnLeakPeriod(FILE_1_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, C);
+    verifyAddedRawMeasureOnLeakPeriod(FILE_2_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, D);
+    verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, D);
+    verifyAddedRawMeasureOnLeakPeriod(ROOT_DIR_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, D);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, D);
+  }
+
+  @Test
   void compute_new_reliability_rating_to_A_when_no_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF);
@@ -234,6 +319,20 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
+  void compute_new_software_quality_reliability_rating_to_A_when_no_issue() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF);
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasureOnLeakPeriod(FILE_1_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(FILE_2_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(ROOT_DIR_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+  }
+
+  @Test
   void compute_new_reliability_rating_to_A_when_no_new_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, oldBugIssue(1L, MAJOR));
@@ -245,6 +344,20 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
     verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(ROOT_DIR_REF, NEW_RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_RELIABILITY_RATING_KEY, A);
+  }
+
+  @Test
+  void compute_new_software_quality_reliability_rating_to_A_when_no_new_issue() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, oldImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasureOnLeakPeriod(FILE_1_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(FILE_2_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(ROOT_DIR_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
   }
 
   @Test
@@ -278,6 +391,21 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
+  void compute_D_software_quality_reliability_and_security_rating_on_high_severity_issue() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
+      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH),
+      newImpactIssue(SoftwareQuality.SECURITY, Severity.HIGH),
+      // Should not be taken into account
+      newCodeSmellIssue(1L, MAJOR));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, D);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, D);
+  }
+
+  @Test
   void compute_C_reliability_and_security_rating_on_major_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
@@ -290,6 +418,21 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
 
     verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_RELIABILITY_RATING_KEY, C);
     verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SECURITY_RATING_KEY, C);
+  }
+
+  @Test
+  void compute_C_software_quality_reliability_and_security_rating_on_medium_severity_issue() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
+      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.MEDIUM),
+      newImpactIssue(SoftwareQuality.SECURITY, Severity.MEDIUM),
+      // Should not be taken into account
+      newCodeSmellIssue(1L, MAJOR));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, C);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, C);
   }
 
   @Test
@@ -308,6 +451,21 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
+  void compute_B_software_quality_reliability_and_security_rating_on_low_severity_issue() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
+      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.LOW),
+      newImpactIssue(SoftwareQuality.SECURITY, Severity.LOW),
+      // Should not be taken into account
+      newCodeSmellIssue(1L, MAJOR));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, B);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, B);
+  }
+
+  @Test
   void compute_A_reliability_and_security_rating_on_info_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
@@ -320,6 +478,19 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
 
     verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SECURITY_RATING_KEY, A);
+  }
+
+  @Test
+  void compute_A_software_quality_reliability_and_security_rating_when_no_issue() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
+      // Should not be taken into account
+      newCodeSmellIssue(1L, MAJOR));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
   }
 
   private void verifyAddedRawMeasureOnLeakPeriod(int componentRef, String metricKey, Rating rating) {
@@ -346,6 +517,14 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
     return createIssue(effort, severity, CODE_SMELL, true);
   }
 
+  private DefaultIssue newImpactIssue(SoftwareQuality softwareQuality, Severity severity) {
+    return createIssue(softwareQuality, severity, true);
+  }
+
+  private DefaultIssue oldImpactIssue(SoftwareQuality softwareQuality, Severity severity) {
+    return createIssue(softwareQuality, severity, false);
+  }
+
   private DefaultIssue createIssue(long effort, String severity, RuleType type, boolean isNew) {
     DefaultIssue issue = createIssue(severity, type)
       .setEffort(Duration.create(effort));
@@ -361,4 +540,14 @@ class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
       .setCreationDate(DEFAULT_ISSUE_CREATION_DATE);
   }
 
+  private DefaultIssue createIssue(SoftwareQuality softwareQuality, Severity severity, boolean isNew) {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey(Uuids.create())
+      .addImpact(softwareQuality, severity)
+      .setType(BUG)
+      .setSeverity("BLOCKER")
+      .setCreationDate(new Date(1000L));
+    when(newIssueClassifier.isNew(any(), eq(issue))).thenReturn(isNew);
+    return issue;
+  }
 }

@@ -19,9 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.api.ce.measure.Issue;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
@@ -33,6 +34,7 @@ import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.measure.Rating;
+import org.sonar.server.metric.SoftwareQualitiesMetrics;
 
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
@@ -51,15 +53,19 @@ import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
 import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY;
 
 /**
  * Compute following measures :
  * {@link CoreMetrics#NEW_RELIABILITY_RATING_KEY}
  * {@link CoreMetrics#NEW_SECURITY_RATING_KEY}
+ * {@link SoftwareQualitiesMetrics#NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY}
+ * {@link SoftwareQualitiesMetrics#NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY}
  */
 public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisitorAdapter<NewReliabilityAndSecurityRatingMeasuresVisitor.Counter> {
 
-  private static final Map<String, Rating> RATING_BY_SEVERITY = ImmutableMap.of(
+  private static final Map<String, Rating> RATING_BY_SEVERITY = Map.of(
     BLOCKER, E,
     CRITICAL, D,
     MAJOR, C,
@@ -78,9 +84,11 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
     this.componentIssuesRepository = componentIssuesRepository;
 
     // Output metrics
-    this.metricsByKey = ImmutableMap.of(
+    this.metricsByKey = Map.of(
       NEW_RELIABILITY_RATING_KEY, metricRepository.getByKey(NEW_RELIABILITY_RATING_KEY),
-      NEW_SECURITY_RATING_KEY, metricRepository.getByKey(NEW_SECURITY_RATING_KEY));
+      NEW_SECURITY_RATING_KEY, metricRepository.getByKey(NEW_SECURITY_RATING_KEY),
+      NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, metricRepository.getByKey(NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY),
+      NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, metricRepository.getByKey(NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY));
     this.newIssueClassifier = newIssueClassifier;
   }
 
@@ -105,6 +113,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
     }
     initRatingsToA(path);
     processIssues(component, path);
+    processIssuesForSoftwareQuality(component, path);
     path.current().newRatingValueByMetric.entrySet()
       .stream()
       .filter(entry -> entry.getValue().isSet())
@@ -128,6 +137,13 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
       .forEach(issue -> path.current().processIssue(issue));
   }
 
+  private void processIssuesForSoftwareQuality(Component component, Path<Counter> path) {
+    componentIssuesRepository.getIssues(component)
+      .stream()
+      .filter(issue -> issue.resolution() == null)
+      .forEach(issue -> path.current().processIssueForSoftwareQuality(issue));
+  }
+
   private static void addToParent(Path<Counter> path) {
     if (!path.isRoot()) {
       path.parent().add(path.current());
@@ -137,7 +153,9 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
   static class Counter {
     private final Map<String, RatingValue> newRatingValueByMetric = Map.of(
       NEW_RELIABILITY_RATING_KEY, new RatingValue(),
-      NEW_SECURITY_RATING_KEY, new RatingValue());
+      NEW_SECURITY_RATING_KEY, new RatingValue(),
+      NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, new RatingValue(),
+      NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, new RatingValue());
     private final NewIssueClassifier newIssueClassifier;
     private final Component component;
 
@@ -157,6 +175,24 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
           newRatingValueByMetric.get(NEW_RELIABILITY_RATING_KEY).increment(rating);
         } else if (issue.type().equals(VULNERABILITY)) {
           newRatingValueByMetric.get(NEW_SECURITY_RATING_KEY).increment(rating);
+        }
+      }
+    }
+
+    void processIssueForSoftwareQuality(Issue issue) {
+      if (newIssueClassifier.isNew(component, (DefaultIssue) issue)) {
+        processSoftwareQualityRating(issue, SoftwareQuality.RELIABILITY, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY);
+        processSoftwareQualityRating(issue, SoftwareQuality.SECURITY, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY);
+      }
+    }
+
+    private void processSoftwareQualityRating(Issue issue, SoftwareQuality softwareQuality, String metricKey) {
+      Severity severity = issue.impacts().get(softwareQuality);
+      if (severity != null) {
+        Rating rating = Rating.RATING_BY_SOFTWARE_QUALITY_SEVERITY.get(severity);
+
+        if (rating != null) {
+          newRatingValueByMetric.get(metricKey).increment(rating);
         }
       }
     }

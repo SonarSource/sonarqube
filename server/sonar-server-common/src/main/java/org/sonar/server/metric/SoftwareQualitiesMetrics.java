@@ -59,7 +59,8 @@ public class SoftwareQualitiesMetrics implements Metrics {
 
   public static final String SOFTWARE_QUALITY_RELIABILITY_RATING_KEY = "software_quality_reliability_rating";
 
-  public static final Metric<Integer> RELIABILITY_RATING = new Metric.Builder(SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, "Software Quality Reliability Rating", Metric.ValueType.RATING)
+  public static final Metric<Integer> SOFTWARE_QUALITY_RELIABILITY_RATING = new Metric.Builder(SOFTWARE_QUALITY_RELIABILITY_RATING_KEY,
+    "Software Quality Reliability Rating", Metric.ValueType.RATING)
     .setDescription("Software quality reliability rating")
     .setDomain(DOMAIN_RELIABILITY)
     .setDirection(Metric.DIRECTION_WORST)
@@ -70,7 +71,8 @@ public class SoftwareQualitiesMetrics implements Metrics {
 
   public static final String NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY = "new_software_quality_reliability_rating";
 
-  public static final Metric<Integer> NEW_RELIABILITY_RATING = new Metric.Builder(NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY,
+  public static final Metric<Integer> NEW_SOFTWARE_QUALITY_RELIABILITY_RATING =
+    new Metric.Builder(NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY,
     "Software Quality Reliability Rating on New Code", Metric.ValueType.RATING)
     .setDescription("Software quality reliability rating on new code")
     .setDomain(DOMAIN_RELIABILITY)
@@ -264,8 +266,8 @@ public class SoftwareQualitiesMetrics implements Metrics {
     return List.of(
       SOFTWARE_QUALITY_MAINTAINABILITY_RATING,
       NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING,
-      RELIABILITY_RATING,
-      NEW_RELIABILITY_RATING,
+      SOFTWARE_QUALITY_RELIABILITY_RATING,
+      NEW_SOFTWARE_QUALITY_RELIABILITY_RATING,
       SOFTWARE_QUALITY_SECURITY_RATING,
       NEW_SOFTWARE_QUALITY_SECURITY_RATING,
       SOFTWARE_QUALITY_SECURITY_REVIEW_RATING,

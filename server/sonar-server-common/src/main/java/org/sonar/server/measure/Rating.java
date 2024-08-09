@@ -19,8 +19,8 @@
  */
 package org.sonar.server.measure;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import org.sonar.api.issue.impact.Severity;
 
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
@@ -36,6 +36,18 @@ public enum Rating {
   C(3),
   B(2),
   A(1);
+
+  public static final Map<String, Rating> RATING_BY_SEVERITY = Map.of(
+    BLOCKER, E,
+    CRITICAL, D,
+    MAJOR, C,
+    MINOR, B,
+    INFO, A);
+
+  public static final Map<Severity, Rating> RATING_BY_SOFTWARE_QUALITY_SEVERITY = Map.of(
+    Severity.HIGH, Rating.D,
+    Severity.MEDIUM, Rating.C,
+    Severity.LOW, Rating.B);
 
   private final int index;
 
@@ -53,14 +65,6 @@ public enum Rating {
       .findFirst()
       .orElseThrow(() -> new IllegalArgumentException(format("Unknown value '%s'", index)));
   }
-
-  public static final Map<String, Rating> RATING_BY_SEVERITY = ImmutableMap.of(
-    BLOCKER, E,
-    CRITICAL, D,
-    MAJOR, C,
-    MINOR, B,
-    INFO, A);
-
 
   public static Rating ratingFromValue(String value) {
     return valueOf(Integer.parseInt(value));

@@ -21,8 +21,10 @@ package org.sonar.ce.task.projectanalysis.qualitymodel;
 
 import java.util.Arrays;
 import java.util.Date;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -65,8 +67,13 @@ import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
 import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY;
 
-public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
+class ReliabilityAndSecurityRatingMeasuresVisitorTest {
 
   static final String LANGUAGE_KEY_1 = "lKey1";
 
@@ -74,38 +81,41 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   static final int DIRECTORY_REF = 123;
   static final int FILE_1_REF = 1231;
   static final int FILE_2_REF = 1232;
+  static final int FILE_3_REF = 1233;
 
   static final Component ROOT_PROJECT = builder(Component.Type.PROJECT, PROJECT_REF).setKey("project")
     .addChildren(
       builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
         .addChildren(
           builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file1").build(),
-          builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file2").build())
+          builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file2").build(),
+          builder(FILE, FILE_3_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file3").build())
         .build())
     .build();
 
-  @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+  @RegisterExtension
+  TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  @Rule
-  public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
+  @RegisterExtension
+  MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(RELIABILITY_RATING)
-    .add(SECURITY_RATING);
+    .add(SECURITY_RATING)
+    .add(SOFTWARE_QUALITY_RELIABILITY_RATING)
+    .add(SOFTWARE_QUALITY_SECURITY_RATING);
 
-  @Rule
-  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+  @RegisterExtension
+  MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  @Rule
-  public ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
+  private final ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
 
-  @Rule
+  @RegisterExtension
   public FillComponentIssuesVisitorRule fillComponentIssuesVisitorRule = new FillComponentIssuesVisitorRule(componentIssuesRepositoryRule, treeRootHolder);
 
   VisitorsCrawler underTest = new VisitorsCrawler(
     Arrays.asList(fillComponentIssuesVisitorRule, new ReliabilityAndSecurityRatingMeasuresVisitor(metricRepository, measureRepository, componentIssuesRepositoryRule)));
 
   @Test
-  public void measures_created_for_project_are_all_A_when_they_have_no_FILE_child() {
+  void measures_created_for_project_are_all_A_when_they_have_no_FILE_child() {
     ReportComponent root = builder(PROJECT, 1).build();
     treeRootHolder.setRoot(root);
 
@@ -115,11 +125,13 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
       .entrySet().stream().map(e -> entryOf(e.getKey(), e.getValue())))
       .containsOnly(
         entryOf(RELIABILITY_RATING_KEY, createRatingMeasure(A)),
-        entryOf(SECURITY_RATING_KEY, createRatingMeasure(A)));
+        entryOf(SECURITY_RATING_KEY, createRatingMeasure(A)),
+        entryOf(SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, createRatingMeasure(A)),
+        entryOf(SOFTWARE_QUALITY_SECURITY_RATING_KEY, createRatingMeasure(A)));
   }
 
   @Test
-  public void compute_reliability_rating() {
+  void compute_reliability_rating() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, MAJOR), newBugIssue(1L, MAJOR),
       // Should not be taken into account
@@ -138,7 +150,33 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_security_rating() {
+  void compute_software_quality_reliability_rating() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
+      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.LOW),
+      // Should not be taken into account
+      newImpactIssue(SoftwareQuality.SECURITY, Severity.HIGH));
+    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
+      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.MEDIUM),
+      // Should not be taken into account
+      newImpactIssue(SoftwareQuality.SECURITY, Severity.HIGH));
+    fillComponentIssuesVisitorRule.setIssues(FILE_3_REF,
+      // Should not be taken into account
+      newImpactIssue(SoftwareQuality.SECURITY, Severity.HIGH));
+
+    fillComponentIssuesVisitorRule.setIssues(PROJECT_REF, newImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(FILE_1_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, B);
+    verifyAddedRawMeasure(FILE_2_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, C);
+    verifyAddedRawMeasure(FILE_3_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasure(DIRECTORY_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, C);
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, D);
+  }
+
+  @Test
+  void compute_security_rating() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newVulnerabilityIssue(10L, MAJOR), newVulnerabilityIssue(1L, MAJOR),
       // Should not be taken into account
@@ -157,7 +195,33 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_E_reliability_and_security_rating_on_blocker_issue() {
+  void compute_software_quality_security_rating() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
+      newImpactIssue(SoftwareQuality.SECURITY, Severity.LOW),
+      // Should not be taken into account
+      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH));
+    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
+      newImpactIssue(SoftwareQuality.SECURITY, Severity.MEDIUM),
+      // Should not be taken into account
+      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH));
+    fillComponentIssuesVisitorRule.setIssues(FILE_3_REF,
+      // Should not be taken into account
+      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH));
+
+    fillComponentIssuesVisitorRule.setIssues(PROJECT_REF, newImpactIssue(SoftwareQuality.SECURITY, Severity.HIGH));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(FILE_1_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, B);
+    verifyAddedRawMeasure(FILE_2_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, C);
+    verifyAddedRawMeasure(FILE_3_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasure(DIRECTORY_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, C);
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, D);
+  }
+
+  @Test
+  void compute_E_reliability_and_security_rating_on_blocker_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, BLOCKER), newVulnerabilityIssue(1L, BLOCKER),
       // Should not be taken into account
@@ -170,7 +234,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_D_reliability_and_security_rating_on_critical_issue() {
+  void compute_D_reliability_and_security_rating_on_critical_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, CRITICAL), newVulnerabilityIssue(15L, CRITICAL),
       // Should not be taken into account
@@ -183,7 +247,20 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_C_reliability_and_security_rating_on_major_issue() {
+  void compute_D_software_quality_reliability_and_security_rating_on_high_issue() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH), newImpactIssue(SoftwareQuality.SECURITY, Severity.HIGH),
+      // Should not be taken into account
+      newImpactIssue(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, D);
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, D);
+  }
+
+  @Test
+  void compute_C_reliability_and_security_rating_on_major_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, MAJOR), newVulnerabilityIssue(15L, MAJOR),
       // Should not be taken into account
@@ -196,7 +273,20 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_B_reliability_and_security_rating_on_minor_issue() {
+  void compute_C_software_quality_reliability_and_security_rating_on_medium_issue() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newImpactIssue(SoftwareQuality.RELIABILITY, Severity.MEDIUM), newImpactIssue(SoftwareQuality.SECURITY, Severity.MEDIUM),
+      // Should not be taken into account
+      newImpactIssue(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, C);
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, C);
+  }
+
+  @Test
+  void compute_B_reliability_and_security_rating_on_minor_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, MINOR), newVulnerabilityIssue(15L, MINOR),
       // Should not be taken into account
@@ -209,7 +299,20 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_A_reliability_and_security_rating_on_info_issue() {
+  void compute_B_software_quality_reliability_and_security_rating_on_low_issue() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newImpactIssue(SoftwareQuality.RELIABILITY, Severity.LOW), newImpactIssue(SoftwareQuality.SECURITY, Severity.LOW),
+      // Should not be taken into account
+      newImpactIssue(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, B);
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, B);
+  }
+
+  @Test
+  void compute_A_reliability_and_security_rating_on_info_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, INFO), newVulnerabilityIssue(15L, INFO),
       // Should not be taken into account
@@ -219,6 +322,19 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
 
     verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, A);
+  }
+
+  @Test
+  void compute_A_software_quality_reliability_and_security_rating_when_no_issue() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
+      // Should not be taken into account
+      newImpactIssue(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
   }
 
   private void verifyAddedRawMeasure(int componentRef, String metricKey, Rating rating) {
@@ -251,6 +367,15 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
       .setKey(Uuids.create())
       .setSeverity(severity)
       .setType(type)
+      .setCreationDate(new Date(1000L));
+  }
+
+  private static DefaultIssue newImpactIssue(SoftwareQuality softwareQuality, Severity severity) {
+    return new DefaultIssue()
+      .setKey(Uuids.create())
+      .addImpact(softwareQuality, severity)
+      .setType(BUG)
+      .setSeverity("BLOCKER")
       .setCreationDate(new Date(1000L));
   }
 
