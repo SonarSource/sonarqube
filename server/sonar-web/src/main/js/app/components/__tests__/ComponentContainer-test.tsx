@@ -51,6 +51,10 @@ jest.mock('../../../api/components', () => ({
     .mockResolvedValue({ component: { name: 'component name', analysisDate: '2018-07-30' } }),
 }));
 
+jest.mock('../../../queries/settings', () => ({
+  useIsLegacyCCTMode: jest.fn(),
+}));
+
 jest.mock('../../../api/navigation', () => ({
   getComponentNavigation: jest.fn().mockResolvedValue({
     breadcrumbs: [{ key: 'portfolioKey', name: 'portfolio', qualifier: 'VW' }],

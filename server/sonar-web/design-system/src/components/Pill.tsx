@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-import { ReactNode } from 'react';
+import { forwardRef, ReactNode } from 'react';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers/theme';
 import { ThemeColors } from '../types/theme';
@@ -43,34 +44,59 @@ interface PillProps {
   ['aria-label']?: string;
   children: ReactNode;
   className?: string;
+  onClick?: () => void;
   variant: PillVariant;
 }
 
-export function Pill({ children, variant, ...rest }: Readonly<PillProps>) {
-  return (
-    <StyledPill variant={variant} {...rest}>
-      {children}
-    </StyledPill>
-  );
-}
+// eslint-disable-next-line react/display-name
+export const Pill = forwardRef<HTMLButtonElement, Readonly<PillProps>>(
+  ({ children, variant, onClick, ...rest }, ref) => {
+    return onClick ? (
+      <StyledPillButton onClick={onClick} ref={ref} variant={variant} {...rest}>
+        {children}
+      </StyledPillButton>
+    ) : (
+      <StyledPill ref={ref} variant={variant} {...rest}>
+        {children}
+      </StyledPill>
+    );
+  },
+);
 
-const StyledPill = styled.span<{
-  variant: PillVariant;
-}>`
+const reusedStyles = css`
   ${tw`sw-body-xs`};
   ${tw`sw-w-fit`};
   ${tw`sw-inline-block`};
   ${tw`sw-whitespace-nowrap`};
   ${tw`sw-px-[8px] sw-py-[2px]`};
   ${tw`sw-rounded-pill`};
-
-  background-color: ${({ variant }) => themeColor(variantThemeColors[variant])};
-  color: ${({ variant }) => themeContrast(variantThemeColors[variant])};
-  border-style: ${({ variant }) => (variant === 'accent' ? 'hidden' : 'solid')};
-  border-color: ${({ variant }) => themeColor(variantThemeBorderColors[variant])};
   border-width: 1px;
 
   &:empty {
     ${tw`sw-hidden`}
   }
+`;
+
+const StyledPill = styled.span<{
+  variant: PillVariant;
+}>`
+  ${reusedStyles};
+
+  background-color: ${({ variant }) => themeColor(variantThemeColors[variant])};
+  color: ${({ variant }) => themeContrast(variantThemeColors[variant])};
+  border-style: ${({ variant }) => (variant === 'accent' ? 'hidden' : 'solid')};
+  border-color: ${({ variant }) => themeColor(variantThemeBorderColors[variant])};
+`;
+
+const StyledPillButton = styled.button<{
+  variant: PillVariant;
+}>`
+  ${reusedStyles};
+
+  background-color: ${({ variant }) => themeColor(variantThemeColors[variant])};
+  color: ${({ variant }) => themeContrast(variantThemeColors[variant])};
+  border-style: ${({ variant }) => (variant === 'accent' ? 'hidden' : 'solid')};
+  border-color: ${({ variant }) => themeColor(variantThemeBorderColors[variant])};
+
+  cursor: pointer;
 `;

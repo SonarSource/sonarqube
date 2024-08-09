@@ -49,7 +49,7 @@ export const useGetValueQuery = createQueryHook(
 export const useIsLegacyCCTMode = () => {
   return useGetValueQuery(
     { key: 'sonar.legacy.ratings.mode.enabled' },
-    { staleTime: Infinity, select: (data) => !!data },
+    { staleTime: Infinity, select: (data) => data?.value === 'true' },
   );
 };
 

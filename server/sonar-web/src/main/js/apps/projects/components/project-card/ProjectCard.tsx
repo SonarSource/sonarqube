@@ -42,6 +42,7 @@ import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { Status } from '~sonar-aligned/types/common';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import ChangeInCalculation from '../../../../app/components/ChangeInCalculationPill';
 import Favorite from '../../../../components/controls/Favorite';
 import Tooltip from '../../../../components/controls/Tooltip';
 import DateFromNow from '../../../../components/intl/DateFromNow';
@@ -67,12 +68,18 @@ function renderFirstLine(
   isNewCode: boolean,
 ) {
   const { analysisDate, isFavorite, key, measures, name, qualifier, tags, visibility } = project;
+  const noSoftwareQualityMetrics = [
+    MetricKey.reliability_issues,
+    MetricKey.maintainability_issues,
+    MetricKey.security_issues,
+  ].every((key) => measures[key] === undefined);
+  const noRatingMetrics = [
+    MetricKey.reliability_rating_new,
+    MetricKey.sqale_rating_new,
+    MetricKey.security_rating_new,
+  ].every((key) => measures[key] === undefined);
   const awaitingScan =
-    [
-      MetricKey.reliability_issues,
-      MetricKey.maintainability_issues,
-      MetricKey.security_issues,
-    ].every((key) => measures[key] === undefined) &&
+    (noSoftwareQualityMetrics || noRatingMetrics) &&
     !isNewCode &&
     !isEmpty(analysisDate) &&
     measures.ncloc !== undefined;
@@ -124,13 +131,7 @@ function renderFirstLine(
           </Tooltip>
 
           {awaitingScan && !isNewCode && !isEmpty(analysisDate) && measures.ncloc !== undefined && (
-            <Tooltip content={translate(`projects.awaiting_scan.description.${qualifier}`)}>
-              <span>
-                <Badge variant="new" className="sw-ml-2">
-                  {translate('projects.awaiting_scan')}
-                </Badge>
-              </span>
-            </Tooltip>
+            <ChangeInCalculation qualifier={qualifier} />
           )}
         </div>
 

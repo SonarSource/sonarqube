@@ -34,6 +34,7 @@ import { translateWithParameters } from '../../helpers/l10n';
 import { HttpStatus } from '../../helpers/request';
 import { getPortfolioUrl, getProjectUrl, getPullRequestUrl } from '../../helpers/urls';
 import { useBranchesQuery } from '../../queries/branch';
+import { useIsLegacyCCTMode } from '../../queries/settings';
 import { ProjectAlmBindingConfigurationErrors } from '../../types/alm-settings';
 import { Branch } from '../../types/branch-like';
 import { isFile } from '../../types/component';
@@ -71,6 +72,9 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
   const { data: { branchLike } = {}, isFetching } = useBranchesQuery(
     fixedInPullRequest ? component : undefined,
   );
+
+  //prefetch isLegacyCCTMode
+  useIsLegacyCCTMode();
 
   const isInTutorials = pathname.includes('tutorials');
 
