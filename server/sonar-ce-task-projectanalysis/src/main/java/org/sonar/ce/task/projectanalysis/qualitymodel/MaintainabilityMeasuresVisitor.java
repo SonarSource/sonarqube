@@ -30,6 +30,7 @@ import org.sonar.ce.task.projectanalysis.measure.RatingMeasures;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.measure.Rating;
+import org.sonar.server.metric.SoftwareQualitiesMetrics;
 
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
 import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY;
@@ -38,6 +39,10 @@ import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.EFFORT_TO_REACH_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_A_KEY;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY;
 
 /**
  * Compute measures related to maintainability for projects and descendants :
@@ -45,6 +50,9 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
  * {@link CoreMetrics#SQALE_DEBT_RATIO_KEY}
  * {@link CoreMetrics#SQALE_RATING_KEY}
  * {@link CoreMetrics#EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY}
+ * {@link SoftwareQualitiesMetrics#SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY}
+ * {@link SoftwareQualitiesMetrics#SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY}
+ * {@link SoftwareQualitiesMetrics#EFFORT_TO_REACH_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_A_KEY}
  */
 public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<MaintainabilityMeasuresVisitor.Counter> {
   private final MeasureRepository measureRepository;
@@ -53,10 +61,17 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
   private final Metric nclocMetric;
   private final Metric developmentCostMetric;
 
+  // Maintainability metrics based on RuleType
   private final Metric maintainabilityRemediationEffortMetric;
   private final Metric debtRatioMetric;
   private final Metric maintainabilityRatingMetric;
   private final Metric effortToMaintainabilityRatingAMetric;
+
+  // Maintainability metrics based on Software Quality
+  private final Metric softwareQualityMaintainabilityRemediationEffortMetric;
+  private final Metric softwareQualityDebtRatioMetric;
+  private final Metric softwareQualityEffortToMaintainabilityRatingAMetric;
+  private final Metric softwareQualityMaintainabilityRatingMetric;
 
   public MaintainabilityMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, RatingSettings ratingSettings) {
     super(CrawlerDepthLimit.FILE, Order.POST_ORDER, CounterFactory.INSTANCE);
@@ -66,12 +81,18 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
     // Input metrics
     this.nclocMetric = metricRepository.getByKey(NCLOC_KEY);
     this.maintainabilityRemediationEffortMetric = metricRepository.getByKey(TECHNICAL_DEBT_KEY);
+    this.softwareQualityMaintainabilityRemediationEffortMetric = metricRepository.getByKey(SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY);
 
     // Output metrics
     this.developmentCostMetric = metricRepository.getByKey(DEVELOPMENT_COST_KEY);
+
     this.debtRatioMetric = metricRepository.getByKey(SQALE_DEBT_RATIO_KEY);
     this.maintainabilityRatingMetric = metricRepository.getByKey(SQALE_RATING_KEY);
     this.effortToMaintainabilityRatingAMetric = metricRepository.getByKey(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY);
+
+    this.softwareQualityDebtRatioMetric = metricRepository.getByKey(SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY);
+    this.softwareQualityMaintainabilityRatingMetric = metricRepository.getByKey(SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY);
+    this.softwareQualityEffortToMaintainabilityRatingAMetric = metricRepository.getByKey(EFFORT_TO_REACH_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_A_KEY);
   }
 
   @Override
@@ -99,16 +120,21 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
   private void computeAndSaveMeasures(Component component, Path<Counter> path) {
     addDevelopmentCostMeasure(component, path.current());
 
-    double density = computeDensity(component, path.current());
-    addDebtRatioMeasure(component, density);
+    double density = computeDensity(maintainabilityRemediationEffortMetric, component, path.current());
+    addDebtRatioMeasure(debtRatioMetric, component, density);
     addMaintainabilityRatingMeasure(component, density);
-    addEffortToMaintainabilityRatingAMeasure(component, path);
+    addEffortToMaintainabilityRatingAMeasure(maintainabilityRemediationEffortMetric, effortToMaintainabilityRatingAMetric, component, path);
+
+    double densityBasedOnSoftwareQuality = computeDensity(softwareQualityMaintainabilityRemediationEffortMetric, component, path.current());
+    addDebtRatioMeasure(softwareQualityDebtRatioMetric, component, densityBasedOnSoftwareQuality);
+    addSoftwareQualityMaintainabilityRatingMeasure(component, densityBasedOnSoftwareQuality);
+    addEffortToMaintainabilityRatingAMeasure(softwareQualityMaintainabilityRemediationEffortMetric, softwareQualityEffortToMaintainabilityRatingAMetric, component, path);
 
     addToParent(path);
   }
 
-  private double computeDensity(Component component, Counter developmentCost) {
-    Optional<Measure> measure = measureRepository.getRawMeasure(component, maintainabilityRemediationEffortMetric);
+  private double computeDensity(Metric remediationEffortMetric, Component component, Counter developmentCost) {
+    Optional<Measure> measure = measureRepository.getRawMeasure(component, remediationEffortMetric);
     double maintainabilityRemediationEffort = measure.isPresent() ? measure.get().getLongValue() : 0L;
     if (Double.doubleToRawLongBits(developmentCost.devCosts) != 0L) {
       return maintainabilityRemediationEffort / developmentCost.devCosts;
@@ -121,7 +147,7 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
     measureRepository.add(component, developmentCostMetric, newMeasureBuilder().create(Long.toString(developmentCost.devCosts)));
   }
 
-  private void addDebtRatioMeasure(Component component, double density) {
+  private void addDebtRatioMeasure(Metric debtRatioMetric, Component component, double density) {
     measureRepository.add(component, debtRatioMetric, newMeasureBuilder().create(100.0 * density, debtRatioMetric.getDecimalScale()));
   }
 
@@ -130,7 +156,13 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
     measureRepository.add(component, maintainabilityRatingMetric, RatingMeasures.get(rating));
   }
 
-  private void addEffortToMaintainabilityRatingAMeasure(Component component, Path<Counter> path) {
+  private void addSoftwareQualityMaintainabilityRatingMeasure(Component component, double density) {
+    Rating rating = ratingSettings.getDebtRatingGrid().getAToDRatingForDensity(density);
+    measureRepository.add(component, softwareQualityMaintainabilityRatingMetric, RatingMeasures.get(rating));
+  }
+
+  private void addEffortToMaintainabilityRatingAMeasure(Metric maintainabilityRemediationEffortMetric, Metric effortToMaintainabilityRatingAMetric,
+    Component component, Path<Counter> path) {
     long developmentCostValue = path.current().devCosts;
     Optional<Measure> effortMeasure = measureRepository.getRawMeasure(component, maintainabilityRemediationEffortMetric);
     long effort = effortMeasure.isPresent() ? effortMeasure.get().getLongValue() : 0L;

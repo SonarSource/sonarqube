@@ -78,6 +78,17 @@ public class DebtRatingGrid {
       .orElseThrow(() -> new IllegalArgumentException(format("Invalid value '%s'", value)));
   }
 
+  /**
+   * Computes a rating from A to D, where E is converted to D.
+   */
+  public Rating getAToDRatingForDensity(double value) {
+    return ratingBounds.entrySet().stream()
+      .filter(e -> e.getValue().match(value))
+      .map(e -> e.getKey() == E ? D : e.getKey())
+      .findFirst()
+      .orElseThrow(() -> new IllegalArgumentException(format("Invalid value '%s'", value)));
+  }
+
   public double getGradeLowerBound(Rating rating) {
     if (rating.getIndex() > 1) {
       return gridValues[rating.getIndex() - 2];
