@@ -40,8 +40,6 @@ const PORTFOLIO_METRICS = [
   MetricKey.releasability_rating_new,
   MetricKey.security_rating,
   MetricKey.security_rating_new,
-  MetricKey.security_rating,
-  MetricKey.security_rating_new,
   MetricKey.reliability_rating,
   MetricKey.reliability_rating_new,
   MetricKey.sqale_rating,
