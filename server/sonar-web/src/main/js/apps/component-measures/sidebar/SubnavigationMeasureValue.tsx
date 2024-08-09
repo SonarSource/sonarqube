@@ -21,6 +21,7 @@ import { Note } from 'design-system';
 import React from 'react';
 import Measure from '~sonar-aligned/components/measure/Measure';
 import { isDiffMetric } from '../../../helpers/measures';
+import { useBranchesQuery } from '../../../queries/branch';
 import { MeasureEnhanced } from '../../../types/types';
 
 interface Props {
@@ -30,6 +31,7 @@ interface Props {
 
 export default function SubnavigationMeasureValue({ measure, componentKey }: Readonly<Props>) {
   const isDiff = isDiffMetric(measure.metric.key);
+  const { data: { branchLike } = {} } = useBranchesQuery();
   const value = isDiff ? measure.leak : measure.value;
 
   return (
@@ -38,6 +40,7 @@ export default function SubnavigationMeasureValue({ measure, componentKey }: Rea
       id={`measure-${measure.metric.key}-${isDiff ? 'leak' : 'value'}`}
     >
       <Measure
+        branchLike={branchLike}
         componentKey={componentKey}
         badgeSize="xs"
         metricKey={measure.metric.key}

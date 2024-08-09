@@ -27,6 +27,7 @@ import {
   CCT_SOFTWARE_QUALITY_METRICS,
   LEAK_CCT_SOFTWARE_QUALITY_METRICS,
   LEAK_OLD_TAXONOMY_METRICS,
+  SOFTWARE_QUALITY_RATING_METRICS,
 } from './constants';
 import { translate } from './l10n';
 import { isDefined } from './types';
@@ -109,6 +110,13 @@ export function areLeakCCTMeasuresComputed(measures?: Measure[] | MeasureEnhance
 
 export function areCCTMeasuresComputed(measures?: Measure[] | MeasureEnhanced[]) {
   return CCT_SOFTWARE_QUALITY_METRICS.every((metric) =>
+    measures?.find((measure) =>
+      isMeasureEnhanced(measure) ? measure.metric.key === metric : measure.metric === metric,
+    ),
+  );
+}
+export function areSoftwareQualityRatingsComputed(measures?: Measure[] | MeasureEnhanced[]) {
+  return SOFTWARE_QUALITY_RATING_METRICS.every((metric) =>
     measures?.find((measure) =>
       isMeasureEnhanced(measure) ? measure.metric.key === metric : measure.metric === metric,
     ),

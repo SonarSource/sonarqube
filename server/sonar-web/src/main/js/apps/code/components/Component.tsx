@@ -104,7 +104,12 @@ export default function Component(props: Props) {
       </ContentCell>
 
       {metrics.map((metric) => (
-        <ComponentMeasure component={component} key={metric.key} metric={metric} />
+        <ComponentMeasure
+          component={component}
+          branchLike={branchLike}
+          key={metric.key}
+          metric={metric}
+        />
       ))}
 
       {showAnalysisDate && (

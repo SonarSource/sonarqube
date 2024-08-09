@@ -28,29 +28,29 @@ import {
   themeBorder,
   themeColor,
 } from 'design-system';
-import { keyBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
-import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery, isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
-import { Location, Router } from '~sonar-aligned/types/router';
-import { getMeasuresWithPeriod } from '../../../api/measures';
-import { getAllMetrics } from '../../../api/metrics';
 import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
+import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { enhanceMeasure } from '../../../components/measure/utils';
 import '../../../components/search-navigator.css';
 import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
-import { isSameBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { areCCTMeasuresComputed } from '../../../helpers/measures';
-import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
+import {
+  areCCTMeasuresComputed,
+  areSoftwareQualityRatingsComputed,
+} from '../../../helpers/measures';
+import { useBranchesQuery } from '../../../queries/branch';
+import { useMeasuresComponentQuery } from '../../../queries/measures';
 import { MeasurePageView } from '../../../types/measures';
-import { ComponentMeasure, Dict, MeasureEnhanced, Metric, Period } from '../../../types/types';
+import { useBubbleChartMetrics } from '../hooks';
 import Sidebar from '../sidebar/Sidebar';
 import {
   Query,
@@ -67,123 +67,54 @@ import {
   sortMeasures,
 } from '../utils';
 import MeasureContent from './MeasureContent';
-import MeasureOverviewContainer from './MeasureOverviewContainer';
+import MeasureOverview from './MeasureOverview';
 import MeasuresEmpty from './MeasuresEmpty';
 
-interface Props extends WithBranchLikesProps {
-  component: ComponentMeasure;
-  location: Location;
-  router: Router;
-}
+export default function ComponentMeasuresApp() {
+  const { component } = React.useContext(ComponentContext);
+  const { data: { branchLike } = {} } = useBranchesQuery(component);
+  const { query: rawQuery, pathname } = useLocation();
+  const query = parseQuery(rawQuery);
+  const router = useRouter();
+  const metrics = useMetrics();
+  const filteredMetrics = getMeasuresPageMetricKeys(metrics, branchLike);
+  const componentKey =
+    query.selected !== undefined && query.selected !== '' ? query.selected : component?.key ?? '';
 
-interface State {
-  leakPeriod?: Period;
-  loading: boolean;
-  measures: MeasureEnhanced[];
-  metrics: Dict<Metric>;
-}
-
-class ComponentMeasuresApp extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State;
-
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      loading: true,
-      measures: [],
-      metrics: {},
-    };
-  }
-
-  componentDidMount() {
-    this.mounted = true;
-
-    getAllMetrics().then(
-      (metrics) => {
-        const byKey = keyBy(metrics, 'key');
-        this.setState({ metrics: byKey });
-      },
-      () => {},
+  const { data: { component: componentWithMeasures, period } = {}, isLoading } =
+    useMeasuresComponentQuery(
+      { componentKey, metricKeys: filteredMetrics, branchLike },
+      { enabled: Boolean(componentKey) },
     );
+
+  const measures = (
+    componentWithMeasures
+      ? filterMeasures(
+          banQualityGateMeasure(componentWithMeasures).map((measure) =>
+            enhanceMeasure(measure, metrics),
+          ),
+        )
+      : []
+  ).filter((measure) => measure.value !== undefined || measure.leak !== undefined);
+  const bubblesByDomain = useBubbleChartMetrics(measures);
+
+  const leakPeriod =
+    componentWithMeasures?.qualifier === ComponentQualifier.Project ? period : undefined;
+  const displayOverview = hasBubbleChart(bubblesByDomain, query.metric);
+
+  if (!component) {
+    return null;
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
-    const prevQuery = parseQuery(prevProps.location.query);
-    const query = parseQuery(this.props.location.query);
-
-    const hasSelectedQueryChanged = prevQuery.selected !== query.selected;
-
-    const hasBranchChanged = !isSameBranchLike(prevProps.branchLike, this.props.branchLike);
-
-    const isBranchReady =
-      isPortfolioLike(this.props.component.qualifier) || this.props.branchLike !== undefined;
-
-    const haveMetricsChanged =
-      Object.keys(this.state.metrics).length !== Object.keys(prevState.metrics).length;
-
-    const areMetricsReady = Object.keys(this.state.metrics).length > 0;
-
-    if (
-      areMetricsReady &&
-      isBranchReady &&
-      (haveMetricsChanged || hasBranchChanged || hasSelectedQueryChanged)
-    ) {
-      this.fetchMeasures(this.state.metrics);
-    }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchMeasures(metrics: State['metrics']) {
-    const { branchLike } = this.props;
-    const query = parseQuery(this.props.location.query);
-    const componentKey =
-      query.selected !== undefined && query.selected !== ''
-        ? query.selected
-        : this.props.component.key;
-
-    const filteredKeys = getMeasuresPageMetricKeys(metrics, branchLike);
-
-    getMeasuresWithPeriod(componentKey, filteredKeys, getBranchLikeQuery(branchLike)).then(
-      ({ component, period }) => {
-        if (this.mounted) {
-          const measures = filterMeasures(
-            banQualityGateMeasure(component).map((measure) => enhanceMeasure(measure, metrics)),
-          );
-          const leakPeriod =
-            component.qualifier === ComponentQualifier.Project ? period : undefined;
-
-          this.setState({
-            loading: false,
-            leakPeriod,
-            measures: measures.filter(
-              (measure) => measure.value !== undefined || measure.leak !== undefined,
-            ),
-          });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      },
-    );
-  }
-
-  getSelectedMetric = (query: Query, displayOverview: boolean) => {
+  const getSelectedMetric = (query: Query, displayOverview: boolean) => {
     if (displayOverview) {
       return undefined;
     }
 
-    const metric = this.state.metrics[query.metric];
+    const metric = metrics[query.metric];
 
     if (!metric) {
-      const domainMeasures = groupByDomains(this.state.measures);
-
+      const domainMeasures = groupByDomains(measures);
       const firstMeasure =
         domainMeasures[0] && sortMeasures(domainMeasures[0].name, domainMeasures[0].measures)[0];
 
@@ -194,10 +125,11 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
     return metric;
   };
 
-  updateQuery = (newQuery: Partial<Query>) => {
-    const query: Query = { ...parseQuery(this.props.location.query), ...newQuery };
+  const metric = getSelectedMetric(query, displayOverview);
 
-    const metric = this.getSelectedMetric(query, false);
+  const updateQuery = (newQuery: Partial<Query>) => {
+    const nextQuery: Query = { ...parseQuery(query), ...newQuery };
+    const metric = getSelectedMetric(nextQuery, false);
 
     if (metric) {
       if (query.view === MeasurePageView.treemap && !hasTreemap(metric.key, metric.type)) {
@@ -207,32 +139,27 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
       }
     }
 
-    this.props.router.push({
-      pathname: this.props.location.pathname,
+    router.push({
+      pathname,
       query: {
-        ...serializeQuery(query),
-        ...getBranchLikeQuery(this.props.branchLike),
-        id: this.props.component.key,
+        ...serializeQuery(nextQuery),
+        ...getBranchLikeQuery(branchLike),
+        id: component?.key,
       },
     });
   };
 
-  renderContent = (displayOverview: boolean, query: Query, metric?: Metric) => {
-    const { branchLike, component } = this.props;
-    const { leakPeriod } = this.state;
+  const showFullMeasures = hasFullMeasures(branchLike);
 
+  const renderContent = () => {
     if (displayOverview) {
       return (
         <StyledMain className="sw-rounded-1 sw-mb-4">
-          <MeasureOverviewContainer
-            branchLike={branchLike}
-            domain={query.metric}
+          <MeasureOverview
+            bubblesByDomain={bubblesByDomain}
             leakPeriod={leakPeriod}
-            metrics={this.state.metrics}
             rootComponent={component}
-            router={this.props.router}
-            selected={query.selected}
-            updateQuery={this.updateQuery}
+            updateQuery={updateQuery}
           />
         </StyledMain>
       );
@@ -261,89 +188,61 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
     return (
       <StyledMain className="sw-rounded-1 sw-mb-4">
         <MeasureContent
-          asc={query.asc}
-          branchLike={branchLike}
           leakPeriod={leakPeriod}
-          metrics={this.state.metrics}
           requestedMetric={metric}
           rootComponent={component}
-          router={this.props.router}
-          selected={query.selected}
-          updateQuery={this.updateQuery}
-          view={query.view}
+          updateQuery={updateQuery}
         />
       </StyledMain>
     );
   };
 
-  render() {
-    const { branchLike } = this.props;
-    const { measures } = this.state;
-    const { canBrowseAllChildProjects, qualifier, key } = this.props.component;
-    const query = parseQuery(this.props.location.query);
-    const showFullMeasures = hasFullMeasures(branchLike);
-    const displayOverview = hasBubbleChart(query.metric);
-    const metric = this.getSelectedMetric(query, displayOverview);
+  return (
+    <LargeCenteredLayout id="component-measures" className="sw-pt-8">
+      <Suggestions suggestionGroup="component_measures" />
+      <Helmet defer={false} title={translate('layout.measures')} />
+      <PageContentFontWrapper className="sw-body-sm">
+        <Spinner isLoading={isLoading} />
 
-    return (
-      <LargeCenteredLayout id="component-measures" className="sw-pt-8">
-        <Suggestions suggestionGroup="component_measures" />
-        <Helmet defer={false} title={translate('layout.measures')} />
-        <PageContentFontWrapper className="sw-body-sm">
-          <Spinner isLoading={this.state.loading} />
+        {measures.length > 0 ? (
+          <div className="sw-grid sw-grid-cols-12 sw-w-full">
+            <Sidebar
+              componentKey={componentKey}
+              measures={measures}
+              selectedMetric={metric ? metric.key : query.metric}
+              showFullMeasures={showFullMeasures}
+              updateQuery={updateQuery}
+            />
 
-          {measures.length > 0 ? (
-            <div className="sw-grid sw-grid-cols-12 sw-w-full">
-              <Sidebar
-                componentKey={key}
-                measures={measures}
-                selectedMetric={metric ? metric.key : query.metric}
-                showFullMeasures={showFullMeasures}
-                updateQuery={this.updateQuery}
-              />
-
-              <div className="sw-col-span-9 sw-ml-12">
-                {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
-                  <FlagMessage className="sw-mb-4 it__portfolio_warning" variant="warning">
-                    {translate('component_measures.not_all_measures_are_shown')}
-                    <HelpTooltip
-                      className="sw-ml-2"
-                      overlay={translate('component_measures.not_all_measures_are_shown.help')}
-                    />
-                  </FlagMessage>
-                )}
-                {!areCCTMeasuresComputed(measures) && (
-                  <AnalysisMissingInfoMessage className="sw-mb-4" qualifier={qualifier} />
-                )}
-                {this.renderContent(displayOverview, query, metric)}
-              </div>
+            <div className="sw-col-span-9 sw-ml-12">
+              {!component?.canBrowseAllChildProjects && isPortfolioLike(component?.qualifier) && (
+                <FlagMessage className="sw-mb-4 it__portfolio_warning" variant="warning">
+                  {translate('component_measures.not_all_measures_are_shown')}
+                  <HelpTooltip
+                    className="sw-ml-2"
+                    overlay={translate('component_measures.not_all_measures_are_shown.help')}
+                  />
+                </FlagMessage>
+              )}
+              {(!areCCTMeasuresComputed(measures) ||
+                !areSoftwareQualityRatingsComputed(measures)) && (
+                <AnalysisMissingInfoMessage
+                  className="sw-mb-4"
+                  qualifier={component?.qualifier as ComponentQualifier}
+                />
+              )}
+              {renderContent()}
             </div>
-          ) : (
-            <StyledMain className="sw-rounded-1 sw-p-6 sw-mb-4">
-              <MeasuresEmpty />
-            </StyledMain>
-          )}
-        </PageContentFontWrapper>
-      </LargeCenteredLayout>
-    );
-  }
+          </div>
+        ) : (
+          <StyledMain className="sw-rounded-1 sw-p-6 sw-mb-4">
+            <MeasuresEmpty />
+          </StyledMain>
+        )}
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
+  );
 }
-
-/*
- * This needs to be refactored: the issue
- * is that we can't use the usual withComponentContext HOC, because the type
- * of `component` isn't the same. It probably used to work because of the lazy loading
- */
-const WrappedApp = withRouter(ComponentMeasuresApp);
-
-function AppWithComponentContext() {
-  const { component } = React.useContext(ComponentContext);
-  const { data: { branchLike } = {} } = useBranchesQuery(component);
-
-  return <WrappedApp branchLike={branchLike} component={component as ComponentMeasure} />;
-}
-
-export default AppWithComponentContext;
 
 const StyledMain = withTheme(styled.main`
   background-color: ${themeColor('pageBlock')};

@@ -27,6 +27,7 @@ import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { MeasuresServiceMock } from '../../../api/mocks/MeasuresServiceMock';
+import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockMeasure, mockMetric } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
@@ -53,22 +54,23 @@ const componentsHandler = new ComponentsServiceMock();
 const measuresHandler = new MeasuresServiceMock();
 const issuesHandler = new IssuesServiceMock();
 const branchHandler = new BranchesServiceMock();
+const settingsHandler = new SettingsServiceMock();
 
 afterEach(() => {
   componentsHandler.reset();
   measuresHandler.reset();
   issuesHandler.reset();
   branchHandler.reset();
+  settingsHandler.reset();
 });
 
 describe('rendering', () => {
   it('should correctly render the default overview and navigation', async () => {
     const { ui, user } = getPageObject();
     renderMeasuresApp();
-    await ui.appLoaded();
 
     // Overview.
-    expect(ui.seeDataAsListLink.get()).toBeInTheDocument();
+    expect(await ui.seeDataAsListLink.find()).toBeInTheDocument();
     expect(ui.overviewDomainLink.get()).toHaveAttribute('aria-current', 'true');
     expect(ui.bubbleChart.get()).toBeInTheDocument();
     expect(within(ui.bubbleChart.get()).getAllByRole('link')).toHaveLength(8);
@@ -91,11 +93,11 @@ describe('rendering', () => {
       'component_measures.metric.new_maintainability_issues.name 5',
       'Added Technical Debt work_duration.x_minutes.1',
       'Technical Debt Ratio on New Code 1.0%',
-      'Maintainability Rating on New Code metric.has_rating_X.E',
+      'Maintainability Rating on New Code metric.has_rating_X.E metric.sqale_rating.tooltip.E.0.0%',
       'component_measures.metric.maintainability_issues.name 2',
       'Technical Debt work_duration.x_minutes.1',
       'Technical Debt Ratio 1.0%',
-      'Maintainability Rating metric.has_rating_X.E',
+      'Maintainability Rating metric.has_rating_X.E metric.sqale_rating.tooltip.E.0.0%',
       'Effort to Reach Maintainability Rating A work_duration.x_minutes.1',
     ].forEach((measure) => {
       expect(ui.measureLink(measure).get()).toBeInTheDocument();
@@ -116,11 +118,11 @@ describe('rendering', () => {
       'component_measures.metric.new_code_smells.name 9',
       'Added Technical Debt work_duration.x_minutes.1',
       'Technical Debt Ratio on New Code 1.0%',
-      'Maintainability Rating on New Code metric.has_rating_X.E',
+      'Maintainability Rating on New Code metric.has_rating_X.E metric.sqale_rating.tooltip.E.0.0%',
       'component_measures.metric.code_smells.name 9',
       'Technical Debt work_duration.x_minutes.1',
       'Technical Debt Ratio 1.0%',
-      'Maintainability Rating metric.has_rating_X.E',
+      'Maintainability Rating metric.has_rating_X.E metric.sqale_rating.tooltip.E.0.0%',
       'Effort to Reach Maintainability Rating A work_duration.x_minutes.1',
     ].forEach((measure) => {
       expect(ui.measureLink(measure).get()).toBeInTheDocument();
@@ -131,27 +133,26 @@ describe('rendering', () => {
   it('should correctly render a list view', async () => {
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures?id=foo&metric=code_smells&view=list');
-    await ui.appLoaded();
 
-    expect(ui.measuresTable.get()).toBeInTheDocument();
+    expect(await ui.measuresTable.find()).toBeInTheDocument();
     expect(ui.measuresRows.getAll()).toHaveLength(8);
   });
 
   it('should correctly render a tree view', async () => {
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures?id=foo&metric=code_smells&view=tree');
-    await ui.appLoaded();
 
-    expect(ui.measuresTable.get()).toBeInTheDocument();
+    expect(await ui.measuresTable.find()).toBeInTheDocument();
     expect(ui.measuresRows.getAll()).toHaveLength(7);
   });
 
   it('should correctly render a rating treemap view', async () => {
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures?id=foo&metric=sqale_rating&view=treemap');
-    await ui.appLoaded();
 
-    expect(ui.treeMap.byRole('link').getAll()).toHaveLength(7);
+    await waitFor(() => {
+      expect(ui.treeMap.byRole('link').getAll()).toHaveLength(7);
+    });
     expect(ui.treeMapCell(/folderA .+ Maintainability Rating: C/).get()).toBeInTheDocument();
     expect(ui.treeMapCell(/test1\.js .+ Maintainability Rating: B/).get()).toBeInTheDocument();
     expect(ui.treeMapCell(/index\.tsx .+ Maintainability Rating: A/).get()).toBeInTheDocument();
@@ -175,9 +176,10 @@ describe('rendering', () => {
 
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures?id=foo&metric=coverage&view=treemap');
-    await ui.appLoaded();
 
-    expect(ui.treeMap.byRole('link').getAll()).toHaveLength(7);
+    await waitFor(() => {
+      expect(ui.treeMap.byRole('link').getAll()).toHaveLength(7);
+    });
 
     expect(ui.treeMapCell(/folderA .+ Coverage: 74.2%/).get()).toBeInTheDocument();
     expect(ui.treeMapCell(/test1\.js .+ Coverage: —/).get()).toBeInTheDocument();
@@ -246,11 +248,9 @@ describe('rendering', () => {
   });
 
   it('should correctly render the language distribution', async () => {
-    const { ui } = getPageObject();
     renderMeasuresApp('component_measures?id=foo&metric=ncloc');
-    await ui.appLoaded();
 
-    expect(screen.getByText('10short_number_suffix.k')).toBeInTheDocument();
+    expect(await screen.findByText('10short_number_suffix.k')).toBeInTheDocument();
     expect(screen.getByText('java')).toBeInTheDocument();
     expect(screen.getByText('5short_number_suffix.k')).toBeInTheDocument();
     expect(screen.getByText('javascript')).toBeInTheDocument();
@@ -294,9 +294,8 @@ describe('rendering', () => {
 
     const { ui, user } = getPageObject();
     renderMeasuresApp('component_measures?id=foo&metric=sqale_rating&view=list');
-    await ui.appLoaded();
 
-    expect(ui.notShowingAllComponentsTxt.get()).toBeInTheDocument();
+    expect(await ui.notShowingAllComponentsTxt.find()).toBeInTheDocument();
     await user.click(ui.showAllBtn.get());
     expect(ui.notShowingAllComponentsTxt.query()).not.toBeInTheDocument();
   });
@@ -401,7 +400,13 @@ describe('navigation', () => {
     await ui.appLoaded();
 
     await user.click(ui.maintainabilityDomainBtn.get());
-    await user.click(ui.measureLink('Maintainability Rating metric.has_rating_X.E').get());
+    await user.click(
+      ui
+        .measureLink(
+          'Maintainability Rating metric.has_rating_X.E metric.sqale_rating.tooltip.E.0.0%',
+        )
+        .get(),
+    );
 
     // Click treemap option in view select
     await user.click(ui.viewSelect.get());
@@ -528,8 +533,7 @@ it('should allow to load more components', async () => {
 
   const { ui, user } = getPageObject();
   renderMeasuresApp('component_measures?id=foo&metric=code_smells&view=list');
-  await ui.appLoaded();
-  await user.click(ui.showAllBtn.get());
+  await user.click(await ui.showAllBtn.find());
 
   expect(ui.showingOutOfTxt('500', '1,008').get()).toBeInTheDocument();
   await ui.clickLoadMore();

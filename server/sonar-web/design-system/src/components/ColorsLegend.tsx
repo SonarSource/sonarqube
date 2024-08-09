@@ -21,7 +21,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../helpers';
-import { BubbleColorVal } from '../types/charts';
+import { BubbleColorVal } from '../types';
 import { Tooltip } from './Tooltip';
 import { Checkbox } from './input/Checkbox';
 
@@ -63,11 +63,15 @@ export function ColorsLegend(props: ColorLegendProps) {
                     color.selected
                       ? {
                           backgroundColor:
-                            color.borderColor ??
-                            themeColor(`bubble.${(idx + 1) as BubbleColorVal}`)({ theme }),
-                          borderColor:
                             color.backgroundColor ??
-                            themeContrast(`bubble.${(idx + 1) as BubbleColorVal}`)({ theme }),
+                            themeColor(`bubble.legacy.${(idx + 1) as BubbleColorVal}`)({
+                              theme,
+                            }),
+                          borderColor:
+                            color.borderColor ??
+                            themeContrast(`bubble.legacy.${(idx + 1) as BubbleColorVal}`)({
+                              theme,
+                            }),
                         }
                       : {}
                   }

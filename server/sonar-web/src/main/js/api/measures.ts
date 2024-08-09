@@ -35,32 +35,6 @@ export function getMeasures(
   return getJSON(COMPONENT_URL, data).then((r) => r.component.measures, throwGlobalError);
 }
 
-export function getMeasuresWithMetrics(
-  component: string,
-  metrics: string[],
-  branchParameters?: BranchParameters,
-): Promise<MeasuresAndMetaWithMetrics> {
-  return getJSON(COMPONENT_URL, {
-    additionalFields: 'metrics',
-    component,
-    metricKeys: metrics.join(','),
-    ...branchParameters,
-  }).catch(throwGlobalError);
-}
-
-export function getMeasuresWithPeriod(
-  component: string,
-  metrics: string[],
-  branchParameters?: BranchParameters,
-): Promise<MeasuresAndMetaWithPeriod> {
-  return getJSON(COMPONENT_URL, {
-    additionalFields: 'period',
-    component,
-    metricKeys: metrics.join(','),
-    ...branchParameters,
-  }).catch(throwGlobalError);
-}
-
 export function getMeasuresWithPeriodAndMetrics(
   component: string,
   metrics: string[],

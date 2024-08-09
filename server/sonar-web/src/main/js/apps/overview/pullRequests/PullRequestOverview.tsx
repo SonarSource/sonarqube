@@ -20,11 +20,10 @@
 import { BasicSeparator, CenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import { uniq } from 'lodash';
 import * as React from 'react';
-import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { useBranchStatusQuery } from '../../../queries/branch';
-import { useComponentMeasuresWithMetricsQuery } from '../../../queries/component';
+import { useMeasuresComponentQuery } from '../../../queries/measures';
 import { useComponentQualityGateQuery } from '../../../queries/quality-gates';
 import { PullRequest } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
@@ -55,13 +54,14 @@ export default function PullRequestOverview(props: Readonly<Readonly<Props>>) {
     component.key,
   );
 
-  const { data: componentMeasures, isLoading: isLoadingMeasures } =
-    useComponentMeasuresWithMetricsQuery(
-      component.key,
-      uniq([...PR_METRICS, ...(conditions?.map((c) => c.metric) ?? [])]),
-      getBranchLikeQuery(pullRequest),
-      !isLoadingBranchStatusesData,
-    );
+  const { data: componentMeasures, isLoading: isLoadingMeasures } = useMeasuresComponentQuery(
+    {
+      componentKey: component.key,
+      metricKeys: uniq([...PR_METRICS, ...(conditions?.map((c) => c.metric) ?? [])]),
+      branchLike: pullRequest,
+    },
+    { enabled: !isLoadingBranchStatusesData },
+  );
 
   const measures = componentMeasures
     ? enhanceMeasuresWithMetrics(

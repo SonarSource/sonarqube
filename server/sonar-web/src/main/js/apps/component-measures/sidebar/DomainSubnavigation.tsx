@@ -33,6 +33,7 @@ import {
   translate,
 } from '../../../helpers/l10n';
 import { MeasureEnhanced } from '../../../types/types';
+import { useBubbleChartMetrics } from '../hooks';
 import {
   addMeasureCategories,
   getMetricSubnavigationName,
@@ -44,6 +45,7 @@ import DomainSubnavigationItem from './DomainSubnavigationItem';
 interface Props {
   componentKey: string;
   domain: { measures: MeasureEnhanced[]; name: string };
+  measures: MeasureEnhanced[];
   onChange: (metric: string) => void;
   open: boolean;
   selected: string;
@@ -51,16 +53,17 @@ interface Props {
 }
 
 export default function DomainSubnavigation(props: Readonly<Props>) {
-  const { componentKey, domain, onChange, open, selected, showFullMeasures } = props;
+  const { componentKey, domain, onChange, open, selected, showFullMeasures, measures } = props;
   const helperMessageKey = `component_measures.domain_subnavigation.${domain.name}.help`;
   const helper = hasMessage(helperMessageKey) ? translate(helperMessageKey) : undefined;
   const items = addMeasureCategories(domain.name, domain.measures);
+  const bubbles = useBubbleChartMetrics(measures);
   const hasCategories = items.some((item) => typeof item === 'string');
   const translateMetric = hasCategories ? getLocalizedCategoryMetricName : getLocalizedMetricName;
   let sortedItems = sortMeasures(domain.name, items);
 
   const hasOverview = (domain: string) => {
-    return showFullMeasures && hasBubbleChart(domain);
+    return showFullMeasures && hasBubbleChart(bubbles, domain);
   };
 
   // sortedItems contains both measures (type object) and categories (type string)

@@ -34,16 +34,18 @@ import {
   areCCTMeasuresComputed as areCCTMeasuresComputedFn,
   isDiffMetric,
 } from '../../../helpers/measures';
+import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isProject } from '../../../types/component';
 import { Metric, ComponentMeasure as TypeComponentMeasure } from '../../../types/types';
 
 interface Props {
+  branchLike?: BranchLike;
   component: TypeComponentMeasure;
   metric: Metric;
 }
 
 export default function ComponentMeasure(props: Props) {
-  const { component, metric } = props;
+  const { component, metric, branchLike } = props;
   const isProjectLike = isProject(component.qualifier) || isApplication(component.qualifier);
   const isReleasability = metric.key === MetricKey.releasability_rating;
 
@@ -89,13 +91,18 @@ export default function ComponentMeasure(props: Props) {
     case MetricType.Rating:
       return (
         <RatingCell className="sw-whitespace-nowrap">
-          <RatingComponent componentKey={component.key} ratingMetric={metric.key as MetricKey} />
+          <RatingComponent
+            branchLike={branchLike}
+            componentKey={component.key}
+            ratingMetric={metric.key as MetricKey}
+          />
         </RatingCell>
       );
     default:
       return (
         <NumericalCell className="sw-whitespace-nowrap">
           <Measure
+            branchLike={branchLike}
             componentKey={component.key}
             metricKey={finalMetricKey}
             metricType={finalMetricType}

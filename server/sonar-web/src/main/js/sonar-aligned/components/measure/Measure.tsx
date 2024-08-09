@@ -26,9 +26,11 @@ import { Status } from '~sonar-aligned/types/common';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import RatingComponent from '../../../app/components/metrics/RatingComponent';
 import RatingTooltipContent from '../../../components/measure/RatingTooltipContent';
+import { BranchLike } from '../../../types/branch-like';
 
 interface Props {
   badgeSize?: 'xs' | 'sm' | 'md';
+  branchLike?: BranchLike;
   className?: string;
   componentKey: string;
   decimals?: number;
@@ -46,6 +48,7 @@ export default function Measure({
   decimals,
   fontClassName,
   metricKey,
+  branchLike,
   metricType,
   small,
   value,
@@ -106,6 +109,7 @@ export default function Measure({
 
   const rating = (
     <RatingComponent
+      branchLike={branchLike}
       size={badgeSize ?? small ? 'sm' : 'md'}
       getLabel={getLabel}
       getTooltip={getTooltip}

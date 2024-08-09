@@ -30,13 +30,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isDiffMetric, isPeriodBestValue } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { MeasurePageView } from '../../../types/measures';
-import {
-  ComponentMeasure,
-  ComponentMeasureEnhanced,
-  Dict,
-  Metric,
-  Paging,
-} from '../../../types/types';
+import { Component, ComponentMeasureEnhanced, Dict, Metric, Paging } from '../../../types/types';
 import ComponentsList from './ComponentsList';
 
 interface Props {
@@ -50,7 +44,7 @@ interface Props {
   metric: Metric;
   metrics: Dict<Metric>;
   paging?: Paging;
-  rootComponent: ComponentMeasure;
+  rootComponent: Component;
   selectedComponent?: ComponentMeasureEnhanced;
   selectedIdx?: number;
   view: MeasurePageView;

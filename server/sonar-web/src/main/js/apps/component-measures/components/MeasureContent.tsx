@@ -17,321 +17,191 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { keepPreviousData } from '@tanstack/react-query';
 import { Highlight, KeyboardHint } from 'design-system';
 import * as React from 'react';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { MetricKey } from '~sonar-aligned/types/metrics';
-import { Router } from '~sonar-aligned/types/router';
-import { getComponentTree } from '../../../api/components';
-import { getMeasures } from '../../../api/measures';
+import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import FilesCounter from '../../../components/ui/FilesCounter';
-import { isSameBranchLike } from '../../../helpers/branch-like';
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';
+import { SOFTWARE_QUALITY_RATING_METRICS_MAP } from '../../../helpers/constants';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
 import { RequestData } from '../../../helpers/request';
 import { isDefined } from '../../../helpers/types';
 import { getProjectUrl } from '../../../helpers/urls';
+import { useBranchesQuery } from '../../../queries/branch';
+import { useComponentTreeQuery, useMeasuresComponentQuery } from '../../../queries/measures';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useLocation, useRouter } from '../../../sonar-aligned/components/hoc/withRouter';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isFile, isView } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
 import {
-  ComponentMeasure,
+  Component,
   ComponentMeasureEnhanced,
   ComponentMeasureIntern,
-  Dict,
-  Measure,
   Metric,
-  Paging,
   Period,
 } from '../../../types/types';
 import { complementary } from '../config/complementary';
 import FilesView from '../drilldown/FilesView';
 import TreeMapView from '../drilldown/TreeMapView';
-import { Query, enhanceComponent } from '../utils';
+import { Query, enhanceComponent, parseQuery } from '../utils';
 import MeasureContentHeader from './MeasureContentHeader';
 import MeasureHeader from './MeasureHeader';
 import MeasureViewSelect from './MeasureViewSelect';
 import MeasuresBreadcrumbs from './MeasuresBreadcrumbs';
 
 interface Props {
-  asc?: boolean;
-  branchLike?: BranchLike;
   leakPeriod?: Period;
-  metrics: Dict<Metric>;
   requestedMetric: Pick<Metric, 'key' | 'direction'>;
-  rootComponent: ComponentMeasure;
-  router: Router;
-  selected?: string;
+  rootComponent: Component;
   updateQuery: (query: Partial<Query>) => void;
-  view: MeasurePageView;
 }
 
-interface State {
-  baseComponent?: ComponentMeasure;
-  components: ComponentMeasureEnhanced[];
-  loadingMoreComponents: boolean;
-  measure?: Measure;
-  metric?: Metric;
-  paging?: Paging;
-  secondaryMeasure?: Measure;
-  selectedComponent?: ComponentMeasureIntern;
-}
+export default function MeasureContent(props: Readonly<Props>) {
+  const { leakPeriod, requestedMetric, rootComponent, updateQuery } = props;
+  const metrics = useMetrics();
+  const { query: rawQuery } = useLocation();
+  const { data: { branchLike } = {} } = useBranchesQuery();
+  const router = useRouter();
+  const query = parseQuery(rawQuery);
+  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { selected, asc, view } = query;
 
-export default class MeasureContent extends React.PureComponent<Props, State> {
-  container?: HTMLElement | null;
-  mounted = false;
-  state: State = {
-    components: [],
-    loadingMoreComponents: false,
-  };
-
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchComponentTree();
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    const prevComponentKey =
-      prevProps.selected !== undefined && prevProps.selected !== ''
-        ? prevProps.selected
-        : prevProps.rootComponent.key;
-    const componentKey =
-      this.props.selected !== undefined && this.props.selected !== ''
-        ? this.props.selected
-        : this.props.rootComponent.key;
-    if (
-      prevComponentKey !== componentKey ||
-      !isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
-      prevProps.requestedMetric !== this.props.requestedMetric ||
-      prevProps.view !== this.props.view
-    ) {
-      this.fetchComponentTree();
-    }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchComponentTree = () => {
-    const { asc, branchLike, metrics, requestedMetric, rootComponent, selected, view } = this.props;
-    // if asc is undefined we dont want to pass it inside options
-    const { metricKeys, opts, strategy } = this.getComponentRequestParams(view, requestedMetric, {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  // if asc is undefined we dont want to pass it inside options
+  const { metricKeys, opts, strategy } = getComponentRequestParams(
+    view,
+    requestedMetric,
+    branchLike,
+    {
       ...(asc !== undefined && { asc }),
-    });
-    const componentKey = selected !== undefined && selected !== '' ? selected : rootComponent.key;
-    const baseComponentMetrics = [requestedMetric.key];
-    if (requestedMetric.key === MetricKey.ncloc) {
-      baseComponentMetrics.push(MetricKey.ncloc_language_distribution);
-    }
-    Promise.all([
-      getComponentTree(strategy, componentKey, metricKeys, opts),
-      getMeasures({
-        component: componentKey,
-        metricKeys: baseComponentMetrics.join(),
-        ...getBranchLikeQuery(branchLike),
-      }),
-    ]).then(
-      ([tree, measures]) => {
-        if (this.mounted) {
-          const metric = tree.metrics.find((m) => m.key === requestedMetric.key);
-          if (metric !== undefined) {
-            metric.direction = requestedMetric.direction;
-          }
+    },
+  );
+  const componentKey = selected !== undefined && selected !== '' ? selected : rootComponent.key;
+  const {
+    data: treeData,
+    isFetchingNextPage: fetchingMoreComponents,
+    fetchNextPage,
+  } = useComponentTreeQuery(
+    {
+      strategy,
+      component: componentKey,
+      metrics: metricKeys,
+      additionalData: opts,
+    },
+    {
+      placeholderData: keepPreviousData,
+    },
+  );
 
-          const components = tree.components.map((component) =>
-            enhanceComponent(component, metric, metrics),
-          );
+  const baseComponentMetrics = [requestedMetric.key];
 
-          const measure = measures.find((m) => m.metric === requestedMetric.key);
-          const secondaryMeasure = measures.find((m) => m.metric !== requestedMetric.key);
-
-          this.setState(({ selectedComponent }) => ({
-            baseComponent: tree.baseComponent,
-            components,
-            measure,
-            metric,
-            paging: tree.paging,
-            secondaryMeasure,
-            selectedComponent:
-              components.length > 0 &&
-              components.find(
-                (c) =>
-                  getComponentMeasureUniqueKey(c) ===
-                  getComponentMeasureUniqueKey(selectedComponent),
-              )
-                ? selectedComponent
-                : undefined,
-          }));
-        }
-      },
-      () => {
-        /* noop */
-      },
-    );
-  };
-
-  fetchMoreComponents = () => {
-    const { metrics, view, asc } = this.props;
-    const { baseComponent, metric, paging } = this.state;
-    if (!baseComponent || !paging || !metric) {
-      return;
-    }
-    // if asc is undefined we dont want to pass it inside options
-    const { metricKeys, opts, strategy } = this.getComponentRequestParams(view, metric, {
-      p: paging.pageIndex + 1,
-      ...(asc !== undefined && { asc }),
-    });
-    this.setState({ loadingMoreComponents: true });
-    getComponentTree(strategy, baseComponent.key, metricKeys, opts).then(
-      (r) => {
-        if (this.mounted && metric.key === this.props.requestedMetric.key) {
-          this.setState((state) => ({
-            components: [
-              ...state.components,
-              ...r.components.map((component) => enhanceComponent(component, metric, metrics)),
-            ],
-            loadingMoreComponents: false,
-            paging: r.paging,
-          }));
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loadingMoreComponents: false });
-        }
-      },
-    );
-  };
-
-  getComponentRequestParams(
-    view: MeasurePageView,
-    metric: Pick<Metric, 'key' | 'direction'>,
-    options: Object = {},
-  ) {
-    const strategy = view === MeasurePageView.list ? 'leaves' : 'children';
-    const metricKeys = [metric.key];
-    const opts: RequestData = {
-      ...getBranchLikeQuery(this.props.branchLike),
-      additionalFields: 'metrics',
-      ps: 500,
-    };
-
-    const setMetricSort = () => {
-      const isDiff = isDiffMetric(metric.key);
-      opts.s = isDiff ? 'metricPeriod' : 'metric';
-      opts.metricSortFilter = 'withMeasuresOnly';
-      if (isDiff) {
-        opts.metricPeriodSort = 1;
-      }
-    };
-
-    const isDiff = isDiffMetric(metric.key);
-    if (view === MeasurePageView.tree) {
-      metricKeys.push(...(complementary[metric.key] || []));
-      opts.asc = true;
-      opts.s = 'qualifier,name';
-    } else if (view === MeasurePageView.list) {
-      metricKeys.push(...(complementary[metric.key] || []));
-      opts.asc = metric.direction === 1;
-      opts.metricSort = metric.key;
-      setMetricSort();
-    } else if (view === MeasurePageView.treemap) {
-      const sizeMetric = isDiff ? MetricKey.new_lines : MetricKey.ncloc;
-      metricKeys.push(sizeMetric);
-      opts.asc = false;
-      opts.metricSort = sizeMetric;
-      setMetricSort();
-    }
-
-    return { metricKeys, opts: { ...opts, ...options }, strategy };
+  if (requestedMetric.key === MetricKey.ncloc) {
+    baseComponentMetrics.push(MetricKey.ncloc_language_distribution);
+  }
+  if (SOFTWARE_QUALITY_RATING_METRICS_MAP[requestedMetric.key]) {
+    baseComponentMetrics.push(SOFTWARE_QUALITY_RATING_METRICS_MAP[requestedMetric.key]);
   }
 
-  updateSelected = (component: string) => {
-    this.props.updateQuery({
-      selected: component !== this.props.rootComponent.key ? component : undefined,
+  const { data: measuresData } = useMeasuresComponentQuery(
+    { componentKey, metricKeys: baseComponentMetrics, branchLike },
+    { enabled: Boolean(componentKey) },
+  );
+
+  const [selectedComponent, setSelectedComponent] = React.useState<ComponentMeasureEnhanced>();
+
+  const metric = metrics[requestedMetric.key];
+  metric.direction = requestedMetric.direction;
+
+  const baseComponent = treeData?.pages[0].baseComponent;
+  if (!baseComponent) {
+    return null;
+  }
+
+  const components =
+    treeData?.pages
+      .flatMap((p) => p.components)
+      .map((component) => enhanceComponent(component, metric, metrics)) ?? [];
+
+  const measures = measuresData?.component.measures ?? [];
+  const measure = measures.find((m) => m.metric === requestedMetric.key);
+  const secondaryMeasure = measures.find((m) => m.metric !== requestedMetric.key);
+  const rawMeasureValue =
+    measure && (isDiffMetric(measure.metric) ? measure.period?.value : measure.value);
+  const measureValue = getCCTMeasureValue(metric.key, rawMeasureValue);
+  const isFileComponent = isFile(baseComponent.qualifier);
+
+  const paging = treeData?.pages[treeData?.pages.length - 1].paging;
+  const totalComponents = treeData?.pages[0].paging.total;
+
+  const getSelectedIndex = () => {
+    const componentKey = isFile(baseComponent?.qualifier)
+      ? getComponentMeasureUniqueKey(baseComponent)
+      : getComponentMeasureUniqueKey(selectedComponent);
+    const index = components.findIndex(
+      (component) => getComponentMeasureUniqueKey(component) === componentKey,
+    );
+    return index !== -1 ? index : undefined;
+  };
+  const selectedIdx = getSelectedIndex();
+
+  const updateSelected = (component: string) => {
+    updateQuery({
+      selected: component !== rootComponent.key ? component : undefined,
     });
   };
 
-  updateView = (view: MeasurePageView) => {
-    this.props.updateQuery({ view });
-  };
-
-  onOpenComponent = (component: ComponentMeasureIntern) => {
-    if (isView(this.props.rootComponent.qualifier)) {
-      const comp = this.state.components.find(
+  const onOpenComponent = (component: ComponentMeasureIntern) => {
+    if (isView(rootComponent.qualifier)) {
+      const comp = components.find(
         (c) =>
           c.refKey === component.key ||
           getComponentMeasureUniqueKey(c) === getComponentMeasureUniqueKey(component),
       );
 
       if (comp) {
-        this.props.router.push(getProjectUrl(comp.refKey || comp.key, component.branch));
+        router.push(getProjectUrl(comp.refKey ?? comp.key, component.branch));
       }
 
       return;
     }
 
-    this.setState((state) => ({ selectedComponent: state.baseComponent }));
-    this.updateSelected(component.key);
-    if (this.container) {
-      this.container.focus();
+    updateSelected(component.key);
+    if (containerRef.current) {
+      containerRef.current.focus();
     }
   };
 
-  onSelectComponent = (component: ComponentMeasureIntern) => {
-    this.setState({ selectedComponent: component });
+  const handleSelectRow = (component: ComponentMeasureEnhanced) => {
+    setSelectedComponent(component);
   };
 
-  getSelectedIndex = () => {
-    const componentKey = isFile(this.state.baseComponent?.qualifier)
-      ? getComponentMeasureUniqueKey(this.state.baseComponent)
-      : getComponentMeasureUniqueKey(this.state.selectedComponent);
-    const index = this.state.components.findIndex(
-      (component) => getComponentMeasureUniqueKey(component) === componentKey,
-    );
-    return index !== -1 ? index : undefined;
-  };
-
-  getDefaultShowBestMeasures() {
-    const { asc, view } = this.props;
-    if ((asc !== undefined && view === MeasurePageView.list) || view === MeasurePageView.tree) {
-      return true;
-    }
-    return false;
-  }
-
-  renderMeasure() {
-    const { view } = this.props;
-    const { metric } = this.state;
-    if (!metric) {
-      return null;
-    }
+  const renderMeasure = () => {
     if (view === MeasurePageView.list || view === MeasurePageView.tree) {
-      const selectedIdx = this.getSelectedIndex();
       return (
         <FilesView
-          branchLike={this.props.branchLike}
-          components={this.state.components}
-          defaultShowBestMeasures={this.getDefaultShowBestMeasures()}
-          fetchMore={this.fetchMoreComponents}
-          handleOpen={this.onOpenComponent}
-          handleSelect={this.onSelectComponent}
-          loadingMore={this.state.loadingMoreComponents}
-          metric={metric}
-          metrics={this.props.metrics}
-          paging={this.state.paging}
-          rootComponent={this.props.rootComponent}
-          selectedIdx={selectedIdx}
-          selectedComponent={
-            selectedIdx !== undefined
-              ? (this.state.selectedComponent as ComponentMeasureEnhanced)
-              : undefined
+          branchLike={branchLike}
+          components={components}
+          defaultShowBestMeasures={
+            (asc !== undefined && view === MeasurePageView.list) || view === MeasurePageView.tree
           }
+          fetchMore={fetchNextPage}
+          handleOpen={onOpenComponent}
+          handleSelect={handleSelectRow}
+          loadingMore={fetchingMoreComponents}
+          metric={metric}
+          metrics={metrics}
+          paging={paging}
+          rootComponent={rootComponent}
+          selectedIdx={selectedIdx}
+          selectedComponent={selectedComponent}
           view={view}
         />
       );
@@ -339,119 +209,150 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
 
     return (
       <TreeMapView
-        components={this.state.components}
-        handleSelect={this.onOpenComponent}
+        isLegacyMode={Boolean(isLegacy)}
+        components={components}
+        handleSelect={onOpenComponent}
         metric={metric}
       />
     );
-  }
+  };
 
-  render() {
-    const { branchLike, rootComponent, view } = this.props;
-    const { baseComponent, measure, metric, paging, secondaryMeasure } = this.state;
+  return (
+    <div ref={containerRef}>
+      <A11ySkipTarget anchor="measures_main" />
 
-    if (!baseComponent || !metric) {
-      return null;
-    }
-
-    const rawMeasureValue =
-      measure && (isDiffMetric(measure.metric) ? measure.period?.value : measure.value);
-    const measureValue = getCCTMeasureValue(metric.key, rawMeasureValue);
-
-    const isFileComponent = isFile(baseComponent.qualifier);
-    const selectedIdx = this.getSelectedIndex();
-
-    return (
-      <div ref={(container) => (this.container = container)}>
-        <A11ySkipTarget anchor="measures_main" />
-
-        <MeasureContentHeader
-          left={
-            <MeasuresBreadcrumbs
-              backToFirst={view === MeasurePageView.list}
-              branchLike={branchLike}
-              className="sw-flex-1"
-              component={baseComponent}
-              handleSelect={this.onOpenComponent}
-              rootComponent={rootComponent}
-            />
-          }
-          right={
-            <div className="sw-flex sw-items-center">
-              {!isFileComponent && metric && (
-                <>
-                  {!isApplication(baseComponent.qualifier) && (
-                    <>
-                      <Highlight
-                        className="sw-whitespace-nowrap"
-                        id="measures-view-selection-label"
-                      >
-                        {translate('component_measures.view_as')}
-                      </Highlight>
-                      <MeasureViewSelect
-                        className="measure-view-select sw-ml-2 sw-mr-4"
-                        handleViewChange={this.updateView}
-                        metric={metric}
-                        view={view}
-                      />
-                    </>
-                  )}
-
-                  {view !== MeasurePageView.treemap && (
-                    <>
-                      <KeyboardHint
-                        className="sw-mr-4 sw-ml-6"
-                        command={`${KeyboardKeys.DownArrow} ${KeyboardKeys.UpArrow}`}
-                        title={translate('component_measures.select_files')}
-                      />
-
-                      <KeyboardHint
-                        command={`${KeyboardKeys.LeftArrow} ${KeyboardKeys.RightArrow}`}
-                        title={translate('component_measures.navigate')}
-                      />
-                    </>
-                  )}
-
-                  {paging && paging.total > 0 && (
-                    <FilesCounter
-                      className="sw-min-w-24 sw-text-right"
-                      current={
-                        isDefined(selectedIdx) && view !== MeasurePageView.treemap
-                          ? selectedIdx + 1
-                          : undefined
-                      }
-                      total={paging.total}
-                    />
-                  )}
-                </>
-              )}
-            </div>
-          }
-        />
-
-        <div className="sw-p-6">
-          <MeasureHeader
+      <MeasureContentHeader
+        left={
+          <MeasuresBreadcrumbs
+            backToFirst={view === MeasurePageView.list}
             branchLike={branchLike}
+            className="sw-flex-1"
             component={baseComponent}
-            leakPeriod={this.props.leakPeriod}
-            measureValue={measureValue}
-            metric={metric}
-            secondaryMeasure={secondaryMeasure}
+            handleSelect={onOpenComponent}
+            rootComponent={rootComponent}
           />
-          {isFileComponent ? (
-            <div>
-              <SourceViewer
-                hideHeader
-                branchLike={branchLike}
-                component={baseComponent.key}
-                metricKey={this.state.metric?.key}
-              />
-            </div>
-          ) : (
-            this.renderMeasure()
-          )}
-        </div>
+        }
+        right={
+          <div className="sw-flex sw-items-center">
+            {!isFileComponent && metric && (
+              <>
+                {!isApplication(baseComponent.qualifier) && (
+                  <>
+                    <Highlight className="sw-whitespace-nowrap" id="measures-view-selection-label">
+                      {translate('component_measures.view_as')}
+                    </Highlight>
+                    <MeasureViewSelect
+                      className="measure-view-select sw-ml-2 sw-mr-4"
+                      handleViewChange={(view) => updateQuery({ view })}
+                      metric={metric}
+                      view={view}
+                    />
+                  </>
+                )}
+
+                {view !== MeasurePageView.treemap && (
+                  <>
+                    <KeyboardHint
+                      className="sw-mr-4 sw-ml-6"
+                      command={`${KeyboardKeys.DownArrow} ${KeyboardKeys.UpArrow}`}
+                      title={translate('component_measures.select_files')}
+                    />
+
+                    <KeyboardHint
+                      command={`${KeyboardKeys.LeftArrow} ${KeyboardKeys.RightArrow}`}
+                      title={translate('component_measures.navigate')}
+                    />
+                  </>
+                )}
+
+                {isDefined(totalComponents) && totalComponents > 0 && (
+                  <FilesCounter
+                    className="sw-min-w-24 sw-text-right"
+                    current={
+                      isDefined(selectedIdx) && view !== MeasurePageView.treemap
+                        ? selectedIdx + 1
+                        : undefined
+                    }
+                    total={totalComponents}
+                  />
+                )}
+              </>
+            )}
+          </div>
+        }
+      />
+
+      <div className="sw-p-6">
+        <MeasureHeader
+          branchLike={branchLike}
+          component={baseComponent}
+          leakPeriod={leakPeriod}
+          measureValue={measureValue}
+          metric={metric}
+          secondaryMeasure={secondaryMeasure}
+        />
+        {isFileComponent ? (
+          <div>
+            <SourceViewer
+              hideHeader
+              branchLike={branchLike}
+              component={baseComponent.key}
+              metricKey={metric.key}
+            />
+          </div>
+        ) : (
+          renderMeasure()
+        )}
       </div>
-    );
+    </div>
+  );
+}
+
+function getComponentRequestParams(
+  view: MeasurePageView,
+  metric: Pick<Metric, 'key' | 'direction'>,
+  branchLike?: BranchLike,
+  options: Object = {},
+) {
+  const strategy: 'leaves' | 'children' = view === MeasurePageView.list ? 'leaves' : 'children';
+  const metricKeys = [metric.key];
+  const softwareQualityRatingMetric = SOFTWARE_QUALITY_RATING_METRICS_MAP[metric.key];
+  if (softwareQualityRatingMetric) {
+    metricKeys.push(softwareQualityRatingMetric);
   }
+  const opts: RequestData = {
+    ...getBranchLikeQuery(branchLike),
+    additionalFields: 'metrics',
+    ps: 500,
+  };
+
+  const setMetricSort = () => {
+    const isDiff = isDiffMetric(metric.key);
+    opts.s = isDiff ? 'metricPeriod' : 'metric';
+    opts.metricSortFilter = 'withMeasuresOnly';
+    if (isDiff) {
+      opts.metricPeriodSort = 1;
+    }
+  };
+
+  const isDiff = isDiffMetric(metric.key);
+  if (view === MeasurePageView.tree) {
+    metricKeys.push(...(complementary[metric.key] || []));
+    opts.asc = true;
+    opts.s = 'qualifier,name';
+  } else if (view === MeasurePageView.list) {
+    metricKeys.push(...(complementary[metric.key] || []));
+    opts.asc = metric.direction === 1;
+    opts.metricSort = metric.key;
+    setMetricSort();
+  } else if (view === MeasurePageView.treemap) {
+    const sizeMetric = isDiff ? MetricKey.new_lines : MetricKey.ncloc;
+    metricKeys.push(...(complementary[metric.key] || []));
+    metricKeys.push(sizeMetric);
+    opts.asc = false;
+    opts.metricSort = sizeMetric;
+    setMetricSort();
+  }
+
+  return { metricKeys, opts: { ...opts, ...options }, strategy };
 }

@@ -23,16 +23,18 @@ import { useCallback } from 'react';
 import { useIntl } from 'react-intl';
 import RatingComponent from '../../../app/components/metrics/RatingComponent';
 import { MetricKey } from '../../../sonar-aligned/types/metrics';
+import { Branch } from '../../../types/branch-like';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 
 export interface SoftwareImpactMeasureRatingProps {
+  branch?: Branch;
   componentKey: string;
   ratingMetricKey: MetricKey;
   softwareQuality: SoftwareQuality;
 }
 
 export function SoftwareImpactMeasureRating(props: Readonly<SoftwareImpactMeasureRatingProps>) {
-  const { ratingMetricKey, componentKey, softwareQuality } = props;
+  const { ratingMetricKey, componentKey, softwareQuality, branch } = props;
 
   const intl = useIntl();
 
@@ -101,6 +103,7 @@ export function SoftwareImpactMeasureRating(props: Readonly<SoftwareImpactMeasur
 
   return (
     <RatingComponent
+      branchLike={branch}
       size="md"
       className="sw-text-sm"
       ratingMetric={ratingMetricKey}

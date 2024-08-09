@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { max, min } from 'd3-array';
@@ -31,13 +30,13 @@ import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers';
 import { ButtonSecondary } from '../sonar-aligned/components/buttons';
 import { Note } from '../sonar-aligned/components/typography';
-import { BubbleColorVal } from '../types/charts';
 import { Tooltip } from './Tooltip';
 
 const TICKS_COUNT = 5;
 
 interface BubbleItem<T> {
-  color?: BubbleColorVal;
+  backgroundColor?: string;
+  borderColor?: string;
   data?: T;
   key?: string;
   size: number;
@@ -312,7 +311,8 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
     const bubbles = sortBy(items, (b) => -b.size).map((item, index) => {
       return (
         <Bubble
-          color={item.color}
+          backgroundColor={item.backgroundColor}
+          borderColor={item.borderColor}
           data={item.data}
           key={item.key ?? index}
           onClick={props.onBubbleClick}
@@ -388,7 +388,8 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
 }
 
 interface BubbleProps<T> {
-  color?: BubbleColorVal;
+  backgroundColor?: string;
+  borderColor?: string;
   data?: T;
   onClick?: (ref?: T) => void;
   r: number;
@@ -399,8 +400,7 @@ interface BubbleProps<T> {
 }
 
 function Bubble<T>(props: BubbleProps<T>) {
-  const theme = useTheme();
-  const { color, data, onClick, r, scale, tooltip, x, y } = props;
+  const { backgroundColor, borderColor, data, onClick, r, scale, tooltip, x, y } = props;
   const handleClick = React.useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
       event.stopPropagation();
@@ -415,8 +415,8 @@ function Bubble<T>(props: BubbleProps<T>) {
       <BubbleStyled
         r={r}
         style={{
-          fill: color ? themeColor(`bubble.${color}`)({ theme }) : '',
-          stroke: color ? themeContrast(`bubble.${color}`)({ theme }) : '',
+          fill: backgroundColor ?? '',
+          stroke: borderColor ?? '',
         }}
         transform={`translate(${x}, ${y}) scale(${scale})`}
       />

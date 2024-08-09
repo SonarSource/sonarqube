@@ -195,6 +195,7 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
           icon={
             securityRating ? (
               <RatingComponent
+                branchLike={branch}
                 componentKey={component.key}
                 ratingMetric={MetricKey.security_review_rating}
                 size="md"

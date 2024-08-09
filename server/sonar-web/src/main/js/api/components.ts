@@ -91,14 +91,6 @@ export function getComponentTree(
   return getJSON(url, data).catch(throwGlobalError);
 }
 
-export function getComponentLeaves(
-  component: string,
-  metrics: string[] = [],
-  additional: RequestData = {},
-) {
-  return getComponentTree('leaves', component, metrics, additional);
-}
-
 export function getComponent(
   data: { component: string; metricKeys: string } & BranchParameters,
 ): Promise<{ component: ComponentMeasure }> {

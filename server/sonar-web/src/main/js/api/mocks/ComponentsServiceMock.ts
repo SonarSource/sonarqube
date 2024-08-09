@@ -43,7 +43,6 @@ import {
   getComponent,
   getComponentData,
   getComponentForSourceViewer,
-  getComponentLeaves,
   getComponentTree,
   getDuplications,
   getSources,
@@ -103,7 +102,6 @@ export default class ComponentsServiceMock {
     jest.mocked(getDuplications).mockImplementation(this.handleGetDuplications);
     jest.mocked(getSources).mockImplementation(this.handleGetSources);
     jest.mocked(changeKey).mockImplementation(this.handleChangeKey);
-    jest.mocked(getComponentLeaves).mockImplementation(this.handleGetComponentLeaves);
     jest.mocked(getBreadcrumbs).mockImplementation(this.handleGetBreadcrumbs);
     jest.mocked(setProjectTags).mockImplementation(this.handleSetProjectTags);
     jest.mocked(setApplicationTags).mockImplementation(this.handleSetApplicationTags);
@@ -381,19 +379,6 @@ export default class ComponentsServiceMock {
       return this.reply(undefined);
     }
     return Promise.reject({ status: 404, message: 'Component not found' });
-  };
-
-  handleGetComponentLeaves = (
-    component: string,
-    metrics: string[] = [],
-    data: RequestData = {},
-  ): Promise<{
-    baseComponent: ComponentMeasure;
-    components: ComponentMeasure[];
-    metrics: Metric[];
-    paging: Paging;
-  }> => {
-    return this.handleGetComponentTree('leaves', component, metrics, data);
   };
 
   handleGetBreadcrumbs = ({ component: key }: { component: string } & BranchParameters) => {

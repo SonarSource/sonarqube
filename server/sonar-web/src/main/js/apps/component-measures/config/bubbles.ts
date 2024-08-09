@@ -19,15 +19,96 @@
  */
 import { MetricKey } from '~sonar-aligned/types/metrics';
 
-export const bubbles: {
-  [domain: string]: {
+export type BubblesByDomain = Record<
+  string,
+  {
     colors?: string[];
     size: string;
     x: string;
     y: string;
     yDomain?: [number, number];
-  };
-} = {
+  }
+>;
+
+export const newTaxonomyBubbles: BubblesByDomain = {
+  Reliability: {
+    x: MetricKey.ncloc,
+    y: MetricKey.reliability_remediation_effort,
+    size: MetricKey.reliability_issues,
+    colors: [MetricKey.reliability_rating_new],
+  },
+  Security: {
+    x: MetricKey.ncloc,
+    y: MetricKey.security_remediation_effort,
+    size: MetricKey.security_issues,
+    colors: [MetricKey.security_rating_new],
+  },
+  Maintainability: {
+    x: MetricKey.ncloc,
+    y: MetricKey.sqale_index,
+    size: MetricKey.maintainability_issues,
+    colors: [MetricKey.sqale_rating_new],
+  },
+  Coverage: {
+    x: MetricKey.complexity,
+    y: MetricKey.coverage,
+    size: MetricKey.uncovered_lines,
+    yDomain: [100, 0],
+  },
+  Duplications: {
+    x: MetricKey.ncloc,
+    y: MetricKey.duplicated_lines,
+    size: MetricKey.duplicated_blocks,
+  },
+  project_overview: {
+    x: MetricKey.sqale_index,
+    y: MetricKey.coverage,
+    size: MetricKey.ncloc,
+    colors: [MetricKey.reliability_rating_new, MetricKey.security_rating_new],
+    yDomain: [100, 0],
+  },
+};
+
+export const newTaxonomyWithoutRatingsBubbles: BubblesByDomain = {
+  Reliability: {
+    x: MetricKey.ncloc,
+    y: MetricKey.reliability_remediation_effort,
+    size: MetricKey.reliability_issues,
+    colors: [MetricKey.reliability_rating],
+  },
+  Security: {
+    x: MetricKey.ncloc,
+    y: MetricKey.security_remediation_effort,
+    size: MetricKey.security_issues,
+    colors: [MetricKey.security_rating],
+  },
+  Maintainability: {
+    x: MetricKey.ncloc,
+    y: MetricKey.sqale_index,
+    size: MetricKey.maintainability_issues,
+    colors: [MetricKey.sqale_rating],
+  },
+  Coverage: {
+    x: MetricKey.complexity,
+    y: MetricKey.coverage,
+    size: MetricKey.uncovered_lines,
+    yDomain: [100, 0],
+  },
+  Duplications: {
+    x: MetricKey.ncloc,
+    y: MetricKey.duplicated_lines,
+    size: MetricKey.duplicated_blocks,
+  },
+  project_overview: {
+    x: MetricKey.sqale_index,
+    y: MetricKey.coverage,
+    size: MetricKey.ncloc,
+    colors: [MetricKey.reliability_rating, MetricKey.security_rating],
+    yDomain: [100, 0],
+  },
+};
+
+export const legacyBubbles: BubblesByDomain = {
   Reliability: {
     x: MetricKey.ncloc,
     y: MetricKey.reliability_remediation_effort,

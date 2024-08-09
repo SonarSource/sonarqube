@@ -18,18 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
-import { groupBy } from 'lodash';
+import {
+  infiniteQueryOptions,
+  queryOptions,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { groupBy, isUndefined, omitBy } from 'lodash';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
+import { getComponentTree } from '../api/components';
 import {
   getMeasures,
   getMeasuresForProjects,
   getMeasuresWithPeriodAndMetrics,
 } from '../api/measures';
 import { getAllTimeMachineData } from '../api/time-machine';
+import { SOFTWARE_QUALITY_RATING_METRICS } from '../helpers/constants';
+import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
+import { getBranchLikeQuery } from '../sonar-aligned/helpers/branch-like';
 import { MetricKey } from '../sonar-aligned/types/metrics';
+import { BranchLike } from '../types/branch-like';
 import { Measure } from '../types/types';
-import { createQueryHook } from './common';
+import {createInfiniteQueryHook, createQueryHook} from './common';
 
 const NEW_METRICS = [
   MetricKey.software_quality_maintainability_rating,
@@ -63,15 +73,125 @@ export function useAllMeasuresHistoryQuery(
   });
 }
 
+export const useMeasuresComponentQuery = createQueryHook(
+  ({
+    componentKey,
+    metricKeys,
+    branchLike,
+  }: {
+    branchLike?: BranchLike;
+    componentKey: string;
+    metricKeys: string[];
+  }) => {
+    const queryClient = useQueryClient();
+    const branchLikeQuery = getBranchLikeQuery(branchLike);
+
+    return queryOptions({
+      queryKey: ['measures', 'component', componentKey, 'branchLike', branchLikeQuery, metricKeys],
+      queryFn: async () => {
+        const data = await getMeasuresWithPeriodAndMetrics(
+          componentKey,
+          metricKeys.filter((m) => !SOFTWARE_QUALITY_RATING_METRICS.includes(m as MetricKey)),
+          branchLikeQuery,
+        );
+        metricKeys.forEach((metricKey) => {
+          const measure =
+            data.component.measures?.find((measure) => measure.metric === metricKey) ?? null;
+          queryClient.setQueryData<Measure | null>(
+            ['measures', 'details', componentKey, 'branchLike', branchLikeQuery, metricKey],
+            measure,
+          );
+        });
+
+        return data;
+      },
+    });
+  },
+);
+
+export const useComponentTreeQuery = createInfiniteQueryHook(
+  ({
+    strategy,
+    component,
+    metrics,
+    additionalData,
+  }: {
+    additionalData: Parameters<typeof getComponentTree>[3];
+    component: Parameters<typeof getComponentTree>[1];
+    metrics: Parameters<typeof getComponentTree>[2];
+    strategy: 'children' | 'leaves';
+  }) => {
+    const branchLikeQuery = omitBy(
+      {
+        branch: additionalData?.branch,
+        pullRequest: additionalData?.pullRequest,
+      },
+      isUndefined,
+    );
+
+    const queryClient = useQueryClient();
+    return infiniteQueryOptions({
+      queryKey: ['component', component, 'tree', strategy, { metrics, additionalData }],
+      queryFn: async ({ pageParam }) => {
+        const result = await getComponentTree(
+          strategy,
+          component,
+          metrics?.filter((m) => !SOFTWARE_QUALITY_RATING_METRICS.includes(m as MetricKey)),
+          { ...additionalData, p: pageParam, ...branchLikeQuery },
+        );
+
+        // const measuresMapByMetricKeyForBaseComponent = groupBy(
+        //   result.baseComponent.measures,
+        //   'metric',
+        // );
+        // metrics?.forEach((metricKey) => {
+        //   const measure = measuresMapByMetricKeyForBaseComponent[metricKey]?.[0] ?? null;
+        //   queryClient.setQueryData<Measure>(
+        //     [
+        //       'measures',
+        //       'details',
+        //       result.baseComponent.key,
+        //       'branchLike',
+        //       branchLikeQuery,
+        //       metricKey,
+        //     ],
+        //     measure,
+        //   );
+        // });
+        result.components.forEach((childComponent) => {
+          const measuresMapByMetricKeyForChildComponent = groupBy(
+            childComponent.measures,
+            'metric',
+          );
+
+          metrics?.forEach((metricKey) => {
+            const measure = measuresMapByMetricKeyForChildComponent[metricKey]?.[0] ?? null;
+            queryClient.setQueryData<Measure>(
+              ['measures', 'details', childComponent.key, 'branchLike', branchLikeQuery, metricKey],
+              measure,
+            );
+          });
+        });
+        return result;
+      },
+      getNextPageParam: (data) => getNextPageParam({ page: data.paging }),
+      getPreviousPageParam: (data) => getPreviousPageParam({ page: data.paging }),
+      initialPageParam: 1,
+      staleTime: 60_000,
+    });
+  },
+);
+
 export const useMeasuresForProjectsQuery = createQueryHook(
   ({ projectKeys, metricKeys }: { metricKeys: string[]; projectKeys: string[] }) => {
     const queryClient = useQueryClient();
+
     return queryOptions({
       queryKey: ['measures', 'list', 'projects', projectKeys, metricKeys],
       queryFn: async () => {
         // TODO remove this once all metrics are supported
         const filteredMetricKeys = metricKeys.filter(
-          (metricKey) => !NEW_METRICS.includes(metricKey as MetricKey),
+          (metricKey) => !SOFTWARE_QUALITY_RATING_METRICS.includes(metricKey as MetricKey),
         );
         const measures = await getMeasuresForProjects(projectKeys, filteredMetricKeys);
         const measuresMapByProjectKey = groupBy(measures, 'component');
@@ -81,7 +201,7 @@ export const useMeasuresForProjectsQuery = createQueryHook(
           metricKeys.forEach((metricKey) => {
             const measure = measuresMapByMetricKey[metricKey]?.[0] ?? null;
             queryClient.setQueryData<Measure>(
-              ['measures', 'details', projectKey, metricKey],
+              ['measures', 'details', projectKey, 'branchLike', {}, metricKey],
               measure,
             );
           });
@@ -130,9 +250,19 @@ export const useMeasuresAndLeakQuery = createQueryHook(
 );
 
 export const useMeasureQuery = createQueryHook(
-  ({ componentKey, metricKey }: { componentKey: string; metricKey: string }) => {
+  ({
+    componentKey,
+    metricKey,
+    branchLike,
+  }: {
+    branchLike?: BranchLike;
+    componentKey: string;
+    metricKey: string;
+  }) => {
+    const branchLikeQuery = getBranchLikeQuery(branchLike);
+
     return queryOptions({
-      queryKey: ['measures', 'details', componentKey, metricKey],
+      queryKey: ['measures', 'details', componentKey, 'branchLike', branchLikeQuery, metricKey],
       queryFn: () =>
         getMeasures({ component: componentKey, metricKeys: metricKey }).then(
           (measures) => measures[0] ?? null,

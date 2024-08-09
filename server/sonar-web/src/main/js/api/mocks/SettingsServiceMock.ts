@@ -137,6 +137,10 @@ export default class SettingsServiceMock {
       key: SettingsKey.QPAdminCanDisableInheritedRules,
       value: 'true',
     },
+    {
+      key: 'sonar.old_world',
+      value: 'false',
+    },
   ];
 
   #settingValues: SettingValue[] = cloneDeep(this.#defaultValues);

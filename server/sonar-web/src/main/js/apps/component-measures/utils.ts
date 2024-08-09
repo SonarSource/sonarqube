@@ -28,16 +28,20 @@ import {
   HIDDEN_METRICS,
   LEAK_CCT_SOFTWARE_QUALITY_METRICS,
   LEAK_OLD_TAXONOMY_METRICS,
+  LEAK_OLD_TAXONOMY_RATINGS,
   OLD_TAXONOMY_METRICS,
+  OLD_TAXONOMY_RATINGS,
+  SOFTWARE_QUALITY_RATING_METRICS,
 } from '../../helpers/constants';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import {
-  MEASURES_REDIRECTION,
   areCCTMeasuresComputed,
   areLeakCCTMeasuresComputed,
+  areSoftwareQualityRatingsComputed,
   getCCTMeasureValue,
   getDisplayMetrics,
   isDiffMetric,
+  MEASURES_REDIRECTION,
 } from '../../helpers/measures';
 import {
   cleanQuery,
@@ -55,7 +59,7 @@ import {
   MeasureEnhanced,
   Metric,
 } from '../../types/types';
-import { bubbles } from './config/bubbles';
+import { BubblesByDomain } from './config/bubbles';
 import { domains } from './config/domains';
 
 export const BUBBLES_FETCH_LIMIT = 500;
@@ -118,6 +122,16 @@ export const populateDomainsFromMeasures = memoize((measures: MeasureEnhanced[])
       (measure) => !LEAK_OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
     );
   }
+
+  // Both new and overall code will exist after next analysis
+  if (areSoftwareQualityRatingsComputed(measures)) {
+    populatedMeasures = populatedMeasures.filter(
+      (measure) =>
+        !OLD_TAXONOMY_RATINGS.includes(measure.metric.key as MetricKey) &&
+        !LEAK_OLD_TAXONOMY_RATINGS.includes(measure.metric.key as MetricKey),
+    );
+  }
+
   if (areCCTMeasuresComputed(measures)) {
     populatedMeasures = populatedMeasures.filter(
       (measure) => !OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
@@ -249,8 +263,8 @@ export function hasTreemap(metric: string, type: string): boolean {
   );
 }
 
-export function hasBubbleChart(domainName: string): boolean {
-  return bubbles[domainName] !== undefined;
+export function hasBubbleChart(bubblesByDomain: BubblesByDomain, domainName: string): boolean {
+  return bubblesByDomain[domainName] !== undefined;
 }
 
 export function hasFacetStat(metric: string): boolean {
@@ -262,7 +276,11 @@ export function hasFullMeasures(branch?: BranchLike) {
 }
 
 export function getMeasuresPageMetricKeys(metrics: Dict<Metric>, branch?: BranchLike) {
-  const metricKeys = getDisplayMetrics(Object.values(metrics)).map((metric) => metric.key);
+  // ToDo rollback once new metrics are available
+  const metricKeys = [
+    ...getDisplayMetrics(Object.values(metrics)).map((metric) => metric.key),
+    ...SOFTWARE_QUALITY_RATING_METRICS,
+  ];
 
   if (isPullRequest(branch)) {
     return metricKeys.filter((key) => isDiffMetric(key));
@@ -271,8 +289,12 @@ export function getMeasuresPageMetricKeys(metrics: Dict<Metric>, branch?: Branch
   return metricKeys;
 }
 
-export function getBubbleMetrics(domain: string, metrics: Dict<Metric>) {
-  const conf = bubbles[domain];
+export function getBubbleMetrics(
+  bubblesByDomain: BubblesByDomain,
+  domain: string,
+  metrics: Dict<Metric>,
+) {
+  const conf = bubblesByDomain[domain];
   return {
     x: metrics[conf.x],
     y: metrics[conf.y],
@@ -281,8 +303,8 @@ export function getBubbleMetrics(domain: string, metrics: Dict<Metric>) {
   };
 }
 
-export function getBubbleYDomain(domain: string) {
-  return bubbles[domain].yDomain;
+export function getBubbleYDomain(bubblesByDomain: BubblesByDomain, domain: string) {
+  return bubblesByDomain[domain].yDomain;
 }
 
 export function isProjectOverview(metric: string) {

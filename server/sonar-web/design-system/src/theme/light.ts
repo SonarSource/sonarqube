@@ -629,18 +629,31 @@ export const lightTheme = {
     // bubble charts
     bubbleChartLine: COLORS.grey[50],
     bubbleDefault: [...COLORS.blue[500], 0.3],
+    'bubble.legacy.1': [...COLORS.green[500], 0.3],
+    'bubble.legacy.2': [...COLORS.yellowGreen[500], 0.3],
+    'bubble.legacy.3': [...COLORS.yellow[500], 0.3],
+    'bubble.legacy.4': [...COLORS.orange[500], 0.3],
+    'bubble.legacy.5': [...COLORS.red[500], 0.3],
+
     'bubble.1': [...COLORS.green[500], 0.3],
     'bubble.2': [...COLORS.yellowGreen[500], 0.3],
     'bubble.3': [...COLORS.yellow[500], 0.3],
-    'bubble.4': [...COLORS.orange[500], 0.3],
+    'bubble.4': [...COLORS.red[500], 0.3],
     'bubble.5': [...COLORS.red[500], 0.3],
 
     // TreeMap Colors
+    'treeMap.legacy.A': COLORS.green[500],
+    'treeMap.legacy.B': COLORS.yellowGreen[500],
+    'treeMap.legacy.C': COLORS.yellow[500],
+    'treeMap.legacy.D': COLORS.orange[500],
+    'treeMap.legacy.E': COLORS.red[500],
+
     'treeMap.A': COLORS.green[500],
     'treeMap.B': COLORS.yellowGreen[500],
     'treeMap.C': COLORS.yellow[500],
-    'treeMap.D': COLORS.orange[500],
+    'treeMap.D': COLORS.red[500],
     'treeMap.E': COLORS.red[500],
+
     'treeMap.NA1': COLORS.blueGrey[300],
     'treeMap.NA2': COLORS.blueGrey[200],
     treeMapCellTextColor: COLORS.blueGrey[900],
@@ -907,10 +920,16 @@ export const lightTheme = {
 
     // bubble charts
     bubbleDefault: COLORS.blue[500],
+    'bubble.legacy.1': COLORS.green[500],
+    'bubble.legacy.2': COLORS.yellowGreen[500],
+    'bubble.legacy.3': COLORS.yellow[500],
+    'bubble.legacy.4': COLORS.orange[500],
+    'bubble.legacy.5': COLORS.red[500],
+
     'bubble.1': COLORS.green[500],
     'bubble.2': COLORS.yellowGreen[500],
     'bubble.3': COLORS.yellow[500],
-    'bubble.4': COLORS.orange[500],
+    'bubble.4': COLORS.red[500],
     'bubble.5': COLORS.red[500],
 
     // news bar

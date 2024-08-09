@@ -29,7 +29,7 @@ import { translate } from '../../../helpers/l10n';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
 import { BranchLike } from '../../../types/branch-like';
 import { isProject } from '../../../types/component';
-import { ComponentMeasure, ComponentMeasureIntern } from '../../../types/types';
+import { Component, ComponentMeasure, ComponentMeasureIntern } from '../../../types/types';
 
 interface Props {
   backToFirst: boolean;
@@ -37,7 +37,7 @@ interface Props {
   className?: string;
   component: ComponentMeasure;
   handleSelect: (component: ComponentMeasureIntern) => void;
-  rootComponent: ComponentMeasure;
+  rootComponent: Component;
 }
 
 interface State {

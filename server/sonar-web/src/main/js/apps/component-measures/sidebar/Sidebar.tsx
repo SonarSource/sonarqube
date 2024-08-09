@@ -104,6 +104,7 @@ export default function Sidebar(props: Readonly<Props>) {
             domain={domain}
             key={domain.name}
             onChange={handleChangeMetric}
+            measures={measures}
             open={isDomainSelected(selectedMetric, domain)}
             selected={selectedMetric}
             showFullMeasures={showFullMeasures}

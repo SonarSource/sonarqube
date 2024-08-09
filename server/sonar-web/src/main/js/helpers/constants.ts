@@ -111,6 +111,20 @@ export const LEAK_OLD_TAXONOMY_METRICS = [
   MetricKey.new_code_smells,
 ];
 
+export const OLD_TAXONOMY_RATINGS = [
+  MetricKey.sqale_rating,
+  MetricKey.security_rating,
+  MetricKey.reliability_rating,
+  MetricKey.security_review_rating,
+];
+
+export const LEAK_OLD_TAXONOMY_RATINGS = [
+  MetricKey.new_maintainability_rating,
+  MetricKey.new_security_rating,
+  MetricKey.new_reliability_rating,
+  MetricKey.new_security_review_rating,
+];
+
 export const OLD_TO_NEW_TAXONOMY_METRICS_MAP: { [key in MetricKey]?: MetricKey } = {
   [MetricKey.vulnerabilities]: MetricKey.security_issues,
   [MetricKey.bugs]: MetricKey.reliability_issues,
@@ -164,6 +178,30 @@ export const DEPRECATED_ACTIVITY_METRICS = [
   MetricKey.minor_violations,
   MetricKey.info_violations,
   MetricKey.confirmed_issues,
+];
+
+export const SOFTWARE_QUALITY_RATING_METRICS_MAP: Record<string, MetricKey> = {
+  [MetricKey.sqale_rating]: MetricKey.sqale_rating_new,
+  [MetricKey.security_rating]: MetricKey.security_rating_new,
+  [MetricKey.reliability_rating]: MetricKey.reliability_rating_new,
+  [MetricKey.security_review_rating]: MetricKey.security_review_rating_new,
+  [MetricKey.releasability_rating]: MetricKey.releasability_rating_new,
+  [MetricKey.new_maintainability_rating]: MetricKey.new_maintainability_rating_new,
+  [MetricKey.new_security_rating]: MetricKey.new_security_rating_new,
+  [MetricKey.new_reliability_rating]: MetricKey.new_reliability_rating_new,
+  [MetricKey.new_security_review_rating]: MetricKey.new_security_review_rating_new,
+};
+
+export const SOFTWARE_QUALITY_RATING_METRICS = [
+  MetricKey.sqale_rating_new,
+  MetricKey.security_rating_new,
+  MetricKey.reliability_rating_new,
+  MetricKey.security_review_rating_new,
+  MetricKey.releasability_rating_new,
+  MetricKey.new_maintainability_rating_new,
+  MetricKey.new_security_rating_new,
+  MetricKey.new_reliability_rating_new,
+  MetricKey.new_security_review_rating_new,
 ];
 
 export const PROJECT_KEY_MAX_LEN = 400;

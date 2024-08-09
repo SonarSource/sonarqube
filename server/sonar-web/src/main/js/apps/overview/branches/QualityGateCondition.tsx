@@ -145,7 +145,7 @@ export class QualityGateCondition extends React.PureComponent<Props> {
   };
 
   render() {
-    const { condition, component } = this.props;
+    const { condition, component, branchLike } = this.props;
     const { measure } = condition;
     const { metric } = measure;
 
@@ -157,6 +157,7 @@ export class QualityGateCondition extends React.PureComponent<Props> {
     return this.wrapWithLink(
       <div className="sw-flex sw-items-center sw-p-2">
         <MeasureIndicator
+          branchLike={branchLike}
           className="sw-flex sw-justify-center sw-w-6 sw-mx-4"
           decimals={2}
           componentKey={component.key}

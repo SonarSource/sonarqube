@@ -136,6 +136,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
 
           <div className="sw-flex-grow sw-flex sw-justify-end">
             <SoftwareImpactMeasureRating
+              branch={branch}
               softwareQuality={softwareQuality}
               componentKey={component.key}
               ratingMetricKey={ratingMetricKey}

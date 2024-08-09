@@ -22,7 +22,7 @@ import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { mockMetric, mockPeriod } from '../../helpers/testMocks';
 import { Metric, Period } from '../../types/types';
-import { getMeasures, getMeasuresWithPeriod, getMeasuresWithPeriodAndMetrics } from '../measures';
+import { getMeasures, getMeasuresWithPeriodAndMetrics } from '../measures';
 import { ComponentTree, mockFullComponentTree } from './data/components';
 import { mockIssuesList } from './data/issues';
 import { MeasureRecords, getMetricTypeFromKey, mockFullMeasureData } from './data/measures';
@@ -51,7 +51,6 @@ export class MeasuresServiceMock {
     };
 
     jest.mocked(getMeasures).mockImplementation(this.handleGetMeasures);
-    jest.mocked(getMeasuresWithPeriod).mockImplementation(this.handleGetMeasuresWithPeriod);
     jest
       .mocked(getMeasuresWithPeriodAndMetrics)
       .mockImplementation(this.handleGetMeasuresWithPeriodAndMetrics);
@@ -105,23 +104,6 @@ export class MeasuresServiceMock {
     const measures = this.filterMeasures(entry.component.key, metricKeys.split(','));
 
     return this.reply(measures);
-  };
-
-  handleGetMeasuresWithPeriod = (
-    component: string,
-    metrics: string[],
-    _branchParameters?: BranchParameters,
-  ) => {
-    const entry = this.findComponentTree(component);
-    const measures = this.filterMeasures(entry.component.key, metrics);
-
-    return this.reply({
-      component: {
-        ...entry.component,
-        measures,
-      },
-      period: this.#period,
-    });
   };
 
   handleGetMeasuresWithPeriodAndMetrics = (componentKey: string, metricKeys: string[]) => {

@@ -21,15 +21,17 @@ import { NumericalCell } from 'design-system';
 import * as React from 'react';
 import Measure from '~sonar-aligned/components/measure/Measure';
 import { getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
+import { BranchLike } from '../../../types/branch-like';
 import { ComponentMeasureEnhanced, MeasureEnhanced, Metric } from '../../../types/types';
 
 interface Props {
+  branchLike?: BranchLike;
   component: ComponentMeasureEnhanced;
   measure?: MeasureEnhanced;
   metric: Metric;
 }
 
-export default function MeasureCell({ component, measure, metric }: Readonly<Props>) {
+export default function MeasureCell({ component, measure, metric, branchLike }: Readonly<Props>) {
   const getValue = (item: { leak?: string; value?: string }) =>
     isDiffMetric(metric.key) ? item.leak : item.value;
 
@@ -39,6 +41,7 @@ export default function MeasureCell({ component, measure, metric }: Readonly<Pro
   return (
     <NumericalCell className="sw-py-3">
       <Measure
+        branchLike={branchLike}
         componentKey={component.key}
         metricKey={metric.key}
         metricType={metric.type}

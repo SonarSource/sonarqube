@@ -26,8 +26,10 @@ import { getLeakValue } from '../../../components/measure/utils';
 import { isDiffMetric } from '../../../helpers/measures';
 import { useMeasureQuery } from '../../../queries/measures';
 import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { BranchLike } from '../../../types/branch-like';
 
 interface Props {
+  branchLike?: BranchLike;
   className?: string;
   componentKey: string;
   getLabel?: (rating: RatingEnum) => string;
@@ -43,8 +45,17 @@ type RatingMetricKeys =
   | MetricKey.security_review_rating
   | MetricKey.releasability_rating;
 
+function isNewRatingMetric(metricKey: MetricKey) {
+  return metricKey.includes('_new');
+}
+
 const useGetMetricKeyForRating = (ratingMetric: RatingMetricKeys): MetricKey | null => {
   const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
+
+  if (isNewRatingMetric(ratingMetric)) {
+    return ratingMetric;
+  }
+
   if (isLoading) {
     return null;
   }
@@ -52,16 +63,18 @@ const useGetMetricKeyForRating = (ratingMetric: RatingMetricKeys): MetricKey | n
 };
 
 export default function RatingComponent(props: Readonly<Props>) {
-  const { componentKey, ratingMetric, size, className, getLabel, getTooltip } = props;
+  const { componentKey, ratingMetric, size, className, getLabel, branchLike, getTooltip } = props;
+
   const metricKey = useGetMetricKeyForRating(ratingMetric as RatingMetricKeys);
   const { data: isLegacy } = useIsLegacyCCTMode();
   const { data: targetMeasure, isLoading: isLoadingTargetMeasure } = useMeasureQuery(
-    { componentKey, metricKey: metricKey ?? '' },
+    { componentKey, metricKey: metricKey ?? '', branchLike },
     { enabled: !!metricKey },
   );
+
   const { data: oldMeasure, isLoading: isLoadingOldMeasure } = useMeasureQuery(
-    { componentKey, metricKey: ratingMetric },
-    { enabled: !isLegacy && targetMeasure === null },
+    { componentKey, metricKey: ratingMetric, branchLike },
+    { enabled: !isLegacy && !isNewRatingMetric(ratingMetric) && targetMeasure === null },
   );
 
   const isLoading = isLoadingTargetMeasure || isLoadingOldMeasure;

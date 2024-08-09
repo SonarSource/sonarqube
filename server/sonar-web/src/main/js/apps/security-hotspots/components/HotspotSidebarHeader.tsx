@@ -83,6 +83,7 @@ function HotspotSidebarHeader(props: SecurityHotspotsAppRendererProps) {
 
         {component && (
           <Measure
+            branchLike={branchLike}
             className="it__hs-review-percentage sw-body-sm-highlight sw-ml-2"
             componentKey={component.key}
             metricKey={

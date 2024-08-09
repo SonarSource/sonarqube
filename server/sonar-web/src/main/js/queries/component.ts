@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-  UseQueryResult,
   infiniteQueryOptions,
   queryOptions,
   useQuery,
@@ -33,10 +32,8 @@ import {
   getComponentData,
   getComponentTree,
 } from '../api/components';
-import { getMeasuresWithMetrics } from '../api/measures';
 import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
 import { MetricKey } from '../sonar-aligned/types/metrics';
-import { MeasuresAndMetaWithMetrics } from '../types/measures';
 import { Component, Measure } from '../types/types';
 import { StaleTime, createInfiniteQueryHook, createQueryHook } from './common';
 
@@ -72,37 +69,6 @@ export function useTaskForComponentQuery(component: Component) {
       return getTasksForComponent(key);
     },
     refetchInterval: TASK_RETRY,
-  });
-}
-
-export function useComponentMeasuresWithMetricsQuery(
-  key: string,
-  metricKeys: string[],
-  branchParameters: BranchParameters,
-  enabled = true,
-): UseQueryResult<MeasuresAndMetaWithMetrics> {
-  return useQuery({
-    enabled,
-    queryKey: [
-      'component',
-      key,
-      'measures',
-      'with_metrics',
-      {
-        metricKeys,
-        branchParameters,
-      },
-    ] as const,
-    queryFn: ({ queryKey: [, key, , , data] }) => {
-      return (
-        data &&
-        getMeasuresWithMetrics(
-          key,
-          data.metricKeys.filter((m) => !NEW_METRICS.includes(m as MetricKey)),
-          data.branchParameters,
-        )
-      );
-    },
   });
 }
 
