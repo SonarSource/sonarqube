@@ -378,6 +378,7 @@ public class EmailNotificationChannelTest {
   private void configure() {
     when(configuration.getSmtpHost()).thenReturn("localhost");
     when(configuration.getSmtpPort()).thenReturn(smtpServer.getServer().getPort());
+    when(configuration.getSecureConnection()).thenReturn("NONE");
     when(configuration.getFrom()).thenReturn("server@nowhere");
     when(configuration.getFromName()).thenReturn("SonarQube from NoWhere");
     when(configuration.getPrefix()).thenReturn(SUBJECT_PREFIX);

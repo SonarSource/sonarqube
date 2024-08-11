@@ -35,11 +35,11 @@ public final class EmailConfigurationBuilder {
   private String oauthClientSecret;
   private String oauthTenant;
 
-  private EmailConfigurationBuilder() {
-  }
-
   public static EmailConfigurationBuilder builder() {
     return new EmailConfigurationBuilder();
+  }
+
+  private EmailConfigurationBuilder() {
   }
 
   public EmailConfigurationBuilder id(String id) {

@@ -32,6 +32,7 @@ import org.sonarqube.ws.client.components.ComponentsService;
 import org.sonarqube.ws.client.developers.DevelopersService;
 import org.sonarqube.ws.client.duplications.DuplicationsService;
 import org.sonarqube.ws.client.editions.EditionsService;
+import org.sonarqube.ws.client.emails.EmailConfigurationService;
 import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
 import org.sonarqube.ws.client.github.configuration.GithubConfigurationService;
@@ -123,6 +124,8 @@ public interface WsClient {
   DuplicationsService duplications();
 
   EditionsService editions();
+
+  EmailConfigurationService emailConfiguration();
 
   EmailsService emails();
 

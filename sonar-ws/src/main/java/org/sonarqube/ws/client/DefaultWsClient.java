@@ -32,6 +32,7 @@ import org.sonarqube.ws.client.components.ComponentsService;
 import org.sonarqube.ws.client.developers.DevelopersService;
 import org.sonarqube.ws.client.duplications.DuplicationsService;
 import org.sonarqube.ws.client.editions.EditionsService;
+import org.sonarqube.ws.client.emails.EmailConfigurationService;
 import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
 import org.sonarqube.ws.client.github.configuration.GithubConfigurationService;
@@ -101,6 +102,7 @@ class DefaultWsClient implements WsClient {
   private final DevelopersService developersService;
   private final DuplicationsService duplicationsService;
   private final EditionsService editionsService;
+  private final EmailConfigurationService emailConfigurationService;
   private final EmailsService emailsService;
   private final FavoritesService favoritesService;
   private final GovernanceReportsService governanceReportsService;
@@ -164,6 +166,7 @@ class DefaultWsClient implements WsClient {
     this.developersService = new DevelopersService(wsConnector);
     this.duplicationsService = new DuplicationsService(wsConnector);
     this.editionsService = new EditionsService(wsConnector);
+    this.emailConfigurationService = new EmailConfigurationService(wsConnector);
     this.emailsService = new EmailsService(wsConnector);
     this.favoritesService = new FavoritesService(wsConnector);
     this.governanceReportsService = new GovernanceReportsService(wsConnector);
@@ -277,6 +280,11 @@ class DefaultWsClient implements WsClient {
   @Override
   public EditionsService editions() {
     return editionsService;
+  }
+
+  @Override
+  public EmailConfigurationService emailConfiguration() {
+    return emailConfigurationService;
   }
 
   @Override
