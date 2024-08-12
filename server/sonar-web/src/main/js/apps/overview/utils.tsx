@@ -50,13 +50,17 @@ export const BRANCH_OVERVIEW_METRICS: string[] = [
   MetricKey.bugs,
   MetricKey.new_bugs,
   MetricKey.reliability_rating,
+  MetricKey.software_quality_reliability_rating,
   MetricKey.new_reliability_rating,
+  MetricKey.new_software_quality_reliability_rating,
 
   // vulnerabilities
   MetricKey.vulnerabilities,
   MetricKey.new_vulnerabilities,
   MetricKey.security_rating,
+  MetricKey.software_quality_security_rating,
   MetricKey.new_security_rating,
+  MetricKey.new_software_quality_security_rating,
 
   // hotspots
   MetricKey.security_hotspots,
@@ -64,13 +68,17 @@ export const BRANCH_OVERVIEW_METRICS: string[] = [
   MetricKey.security_hotspots_reviewed,
   MetricKey.new_security_hotspots_reviewed,
   MetricKey.security_review_rating,
+  MetricKey.software_quality_security_review_rating,
   MetricKey.new_security_review_rating,
+  MetricKey.new_software_quality_security_review_rating,
 
   // code smells
   MetricKey.code_smells,
   MetricKey.new_code_smells,
   MetricKey.sqale_rating,
+  MetricKey.software_quality_maintainability_rating,
   MetricKey.new_maintainability_rating,
+  MetricKey.new_software_quality_maintainability_rating,
   MetricKey.sqale_index,
   MetricKey.new_technical_debt,
 

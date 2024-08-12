@@ -41,15 +41,15 @@ import { Component, Measure } from '../types/types';
 import { StaleTime, createInfiniteQueryHook, createQueryHook } from './common';
 
 const NEW_METRICS = [
-  MetricKey.sqale_rating_new,
-  MetricKey.security_rating_new,
-  MetricKey.reliability_rating_new,
-  MetricKey.security_review_rating_new,
-  MetricKey.releasability_rating_new,
-  MetricKey.new_security_rating_new,
-  MetricKey.new_reliability_rating_new,
-  MetricKey.new_maintainability_rating_new,
-  MetricKey.new_security_review_rating_new,
+  MetricKey.software_quality_maintainability_rating,
+  MetricKey.software_quality_security_rating,
+  MetricKey.software_quality_reliability_rating,
+  MetricKey.software_quality_security_review_rating,
+  MetricKey.software_quality_releasability_rating,
+  MetricKey.new_software_quality_security_rating,
+  MetricKey.new_software_quality_reliability_rating,
+  MetricKey.new_software_quality_maintainability_rating,
+  MetricKey.new_software_quality_security_review_rating,
 ];
 
 const TASK_RETRY = 10_000;

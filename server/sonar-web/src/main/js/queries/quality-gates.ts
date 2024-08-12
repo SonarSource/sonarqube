@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { addGlobalSuccessMessage } from 'design-system';
+import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import {
   copyQualityGate,
   createCondition,
@@ -28,7 +29,9 @@ import {
   deleteQualityGate,
   fetchQualityGate,
   fetchQualityGates,
+  getApplicationQualityGate,
   getGateForProject,
+  getQualityGateProjectStatus,
   renameQualityGate,
   setQualityGateAsDefault,
   updateCondition,
@@ -36,6 +39,7 @@ import {
 import { getCorrectCaycCondition } from '../apps/quality-gates/utils';
 import { translate } from '../helpers/l10n';
 import { Condition, QualityGate } from '../types/types';
+import { createQueryHook } from './common';
 
 const QUERY_STALE_TIME = 5 * 60 * 1000;
 
@@ -250,3 +254,29 @@ export function useDeleteConditionMutation(gateName: string) {
     },
   });
 }
+
+export const useProjectQualityGateStatus = createQueryHook(
+  ({
+    projectId,
+    projectKey,
+    branchParameters,
+  }: {
+    branchParameters?: BranchParameters;
+    projectId?: string;
+    projectKey?: string;
+  }) => {
+    return queryOptions({
+      queryKey: ['quality-gate', 'status', 'project', projectId, projectKey, branchParameters],
+      queryFn: () => getQualityGateProjectStatus({ projectId, projectKey, ...branchParameters }),
+    });
+  },
+);
+
+export const useApplicationQualityGateStatus = createQueryHook(
+  ({ application, branch }: { application: string; branch?: string }) => {
+    return queryOptions({
+      queryKey: ['quality-gate', 'status', 'application', application, branch],
+      queryFn: () => getApplicationQualityGate({ application, branch }),
+    });
+  },
+);

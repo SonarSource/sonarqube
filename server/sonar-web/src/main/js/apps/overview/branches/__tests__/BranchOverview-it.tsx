@@ -28,6 +28,7 @@ import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import { MeasuresServiceMock } from '../../../../api/mocks/MeasuresServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
+import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { TimeMachineServiceMock } from '../../../../api/mocks/TimeMachineServiceMock';
 import UsersServiceMock from '../../../../api/mocks/UsersServiceMock';
 import { PARENT_COMPONENT_KEY } from '../../../../api/mocks/data/ids';
@@ -42,6 +43,7 @@ import { mockAnalysis, mockAnalysisEvent } from '../../../../helpers/mocks/proje
 import { mockQualityGateProjectStatus } from '../../../../helpers/mocks/quality-gates';
 import { mockLoggedInUser, mockMeasure, mockPaging } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { ComponentPropsType } from '../../../../helpers/testUtils';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../../types/clean-code-taxonomy';
 import { ProjectAnalysisEventCategory } from '../../../../types/project-activity';
 import { CaycStatus } from '../../../../types/types';
@@ -49,6 +51,7 @@ import BranchOverview, { NO_CI_DETECTED } from '../BranchOverview';
 import { getPageObjects } from '../test-utils';
 
 const almHandler = new AlmSettingsServiceMock();
+const settingsHandler = new SettingsServiceMock();
 let branchesHandler: BranchesServiceMock;
 let measuresHandler: MeasuresServiceMock;
 let applicationHandler: ApplicationServiceMock;
@@ -124,6 +127,7 @@ afterEach(() => {
   timeMarchineHandler.reset();
   qualityGatesHandler.reset();
   almHandler.reset();
+  settingsHandler.reset();
 });
 
 describe('project overview', () => {
@@ -664,7 +668,7 @@ it.each([
 ])(
   "should correctly flag a project that wasn't analyzed using a CI (%s)",
   async (_, analyses, expected) => {
-    jest.mocked(getProjectActivity).mockResolvedValueOnce({ analyses, paging: mockPaging() });
+    jest.mocked(getProjectActivity).mockResolvedValue({ analyses, paging: mockPaging() });
 
     renderBranchOverview();
 
@@ -753,7 +757,7 @@ it.each([
       now: new Date('2023-04-25T12:00:00+0200'),
     });
 
-    jest.mocked(getProjectActivity).mockResolvedValueOnce({
+    jest.mocked(getProjectActivity).mockResolvedValue({
       analyses,
       paging: mockPaging(),
     });
@@ -775,7 +779,7 @@ it.each([
   },
 );
 
-function renderBranchOverview(props: Partial<BranchOverview['props']> = {}) {
+function renderBranchOverview(props: Partial<ComponentPropsType<typeof BranchOverview>> = {}) {
   const user = mockLoggedInUser();
   const component = mockComponent({
     breadcrumbs: [mockComponent({ key: 'foo' })],

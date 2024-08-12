@@ -37,29 +37,29 @@ const APPLICATION_METRICS = [MetricKey.alert_status, ...METRICS];
 
 const PORTFOLIO_METRICS = [
   MetricKey.releasability_rating,
-  MetricKey.releasability_rating_new,
+  MetricKey.software_quality_releasability_rating,
   MetricKey.security_rating,
-  MetricKey.security_rating_new,
+  MetricKey.software_quality_security_rating,
   MetricKey.reliability_rating,
-  MetricKey.reliability_rating_new,
+  MetricKey.software_quality_reliability_rating,
   MetricKey.sqale_rating,
-  MetricKey.sqale_rating_new,
+  MetricKey.software_quality_maintainability_rating,
   MetricKey.security_review_rating,
-  MetricKey.security_review_rating_new,
+  MetricKey.software_quality_security_review_rating,
   MetricKey.ncloc,
 ];
 
 const NEW_PORTFOLIO_METRICS = [
   MetricKey.releasability_rating,
-  MetricKey.releasability_rating_new,
+  MetricKey.software_quality_releasability_rating,
   MetricKey.new_security_rating,
-  MetricKey.new_security_rating_new,
+  MetricKey.new_software_quality_security_rating,
   MetricKey.new_reliability_rating,
-  MetricKey.new_reliability_rating_new,
+  MetricKey.new_software_quality_reliability_rating,
   MetricKey.new_maintainability_rating,
-  MetricKey.new_maintainability_rating_new,
+  MetricKey.new_software_quality_maintainability_rating,
   MetricKey.new_security_review_rating,
-  MetricKey.new_security_review_rating_new,
+  MetricKey.new_software_quality_security_review_rating,
   MetricKey.new_lines,
 ];
 
