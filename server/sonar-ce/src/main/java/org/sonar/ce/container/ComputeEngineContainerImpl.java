@@ -109,7 +109,7 @@ import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.metric.IssueCountMetrics;
-import org.sonar.server.metric.SoftwareQualitiesMetrics;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.notification.DefaultNotificationManager;
 import org.sonar.server.notification.NotificationService;

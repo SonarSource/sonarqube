@@ -36,7 +36,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
-import org.sonar.server.metric.SoftwareQualitiesMetrics;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 
 import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DEVELOPMENT_COST_KEY;
@@ -46,8 +46,8 @@ import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT_KEY;
 import static org.sonar.api.utils.KeyValueFormat.newIntegerConverter;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
-import static org.sonar.server.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY;
-import static org.sonar.server.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY;
 
 /**
  * This visitor depends on {@link IntegrateIssuesVisitor} for the computation of
