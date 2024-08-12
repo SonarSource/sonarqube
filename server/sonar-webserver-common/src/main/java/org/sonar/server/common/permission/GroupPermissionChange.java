@@ -20,6 +20,7 @@
 package org.sonar.server.common.permission;
 
 import java.util.Optional;
+import java.util.StringJoiner;
 import javax.annotation.Nullable;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.GroupDto;
@@ -49,5 +50,14 @@ public class GroupPermissionChange extends PermissionChange {
     return getGroupUuidOrAnyone().getUuid();
   }
 
-
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", GroupPermissionChange.class.getSimpleName() + "[", "]")
+      .add("groupDto=" + groupDto)
+      .add("operation=" + getOperation())
+      .add("permission='" + getPermission() + "'")
+      .add("entity=" + getEntity())
+      .add("permissionService=" + permissionService)
+      .toString();
+  }
 }
