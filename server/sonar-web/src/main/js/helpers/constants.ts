@@ -112,10 +112,16 @@ export const LEAK_OLD_TAXONOMY_METRICS = [
 ];
 
 export const OLD_TAXONOMY_RATINGS = [
+  MetricKey.releasability_rating,
   MetricKey.sqale_rating,
   MetricKey.security_rating,
   MetricKey.reliability_rating,
   MetricKey.security_review_rating,
+  MetricKey.sqale_index,
+  MetricKey.reliability_remediation_effort,
+  MetricKey.security_remediation_effort,
+  MetricKey.sqale_debt_ratio,
+  MetricKey.effort_to_reach_maintainability_rating_a,
 ];
 
 export const LEAK_OLD_TAXONOMY_RATINGS = [
@@ -123,6 +129,10 @@ export const LEAK_OLD_TAXONOMY_RATINGS = [
   MetricKey.new_security_rating,
   MetricKey.new_reliability_rating,
   MetricKey.new_security_review_rating,
+  MetricKey.new_technical_debt,
+  MetricKey.new_security_remediation_effort,
+  MetricKey.new_reliability_remediation_effort,
+  MetricKey.new_sqale_debt_ratio,
 ];
 
 export const OLD_TO_NEW_TAXONOMY_METRICS_MAP: { [key in MetricKey]?: MetricKey } = {
@@ -181,27 +191,49 @@ export const DEPRECATED_ACTIVITY_METRICS = [
 ];
 
 export const SOFTWARE_QUALITY_RATING_METRICS_MAP: Record<string, MetricKey> = {
-  [MetricKey.sqale_rating]: MetricKey.sqale_rating_new,
-  [MetricKey.security_rating]: MetricKey.security_rating_new,
-  [MetricKey.reliability_rating]: MetricKey.reliability_rating_new,
-  [MetricKey.security_review_rating]: MetricKey.security_review_rating_new,
-  [MetricKey.releasability_rating]: MetricKey.releasability_rating_new,
-  [MetricKey.new_maintainability_rating]: MetricKey.new_maintainability_rating_new,
-  [MetricKey.new_security_rating]: MetricKey.new_security_rating_new,
-  [MetricKey.new_reliability_rating]: MetricKey.new_reliability_rating_new,
-  [MetricKey.new_security_review_rating]: MetricKey.new_security_review_rating_new,
+  [MetricKey.releasability_rating]: MetricKey.software_quality_releasability_rating,
+  [MetricKey.sqale_rating]: MetricKey.software_quality_maintainability_rating,
+  [MetricKey.security_rating]: MetricKey.software_quality_security_rating,
+  [MetricKey.reliability_rating]: MetricKey.software_quality_reliability_rating,
+  [MetricKey.security_review_rating]: MetricKey.software_quality_security_review_rating,
+  [MetricKey.reliability_remediation_effort]:
+    MetricKey.software_quality_reliability_remediation_effort,
+  [MetricKey.security_remediation_effort]: MetricKey.software_quality_security_remediation_effort,
+  [MetricKey.sqale_index]: MetricKey.software_quality_maintainability_remediation_effort,
+  [MetricKey.sqale_debt_ratio]: MetricKey.software_quality_maintainability_debt_ratio,
+  [MetricKey.effort_to_reach_maintainability_rating_a]:
+    MetricKey.effort_to_reach_software_quality_maintainability_rating_a,
+  [MetricKey.new_maintainability_rating]: MetricKey.new_software_quality_maintainability_rating,
+  [MetricKey.new_security_rating]: MetricKey.new_software_quality_security_rating,
+  [MetricKey.new_reliability_rating]: MetricKey.new_software_quality_reliability_rating,
+  [MetricKey.new_security_review_rating]: MetricKey.new_software_quality_security_review_rating,
+  [MetricKey.new_technical_debt]: MetricKey.new_software_quality_maintainability_remediation_effort,
+  [MetricKey.new_reliability_remediation_effort]:
+    MetricKey.new_software_quality_reliability_remediation_effort,
+  [MetricKey.new_security_remediation_effort]:
+    MetricKey.new_software_quality_security_remediation_effort,
+  [MetricKey.new_sqale_debt_ratio]: MetricKey.new_software_quality_maintainability_debt_ratio,
 };
 
 export const SOFTWARE_QUALITY_RATING_METRICS = [
-  MetricKey.sqale_rating_new,
-  MetricKey.security_rating_new,
-  MetricKey.reliability_rating_new,
-  MetricKey.security_review_rating_new,
-  MetricKey.releasability_rating_new,
-  MetricKey.new_maintainability_rating_new,
-  MetricKey.new_security_rating_new,
-  MetricKey.new_reliability_rating_new,
-  MetricKey.new_security_review_rating_new,
+  MetricKey.software_quality_releasability_rating,
+  MetricKey.software_quality_maintainability_rating,
+  MetricKey.software_quality_security_rating,
+  MetricKey.software_quality_reliability_rating,
+  MetricKey.software_quality_security_review_rating,
+  MetricKey.software_quality_maintainability_remediation_effort,
+  MetricKey.software_quality_reliability_remediation_effort,
+  MetricKey.software_quality_security_remediation_effort,
+  MetricKey.software_quality_maintainability_debt_ratio,
+  MetricKey.effort_to_reach_software_quality_maintainability_rating_a,
+  MetricKey.new_software_quality_maintainability_rating,
+  MetricKey.new_software_quality_security_rating,
+  MetricKey.new_software_quality_reliability_rating,
+  MetricKey.new_software_quality_security_review_rating,
+  MetricKey.new_software_quality_maintainability_remediation_effort,
+  MetricKey.new_software_quality_reliability_remediation_effort,
+  MetricKey.new_software_quality_security_remediation_effort,
+  MetricKey.new_software_quality_maintainability_debt_ratio,
 ];
 
 export const PROJECT_KEY_MAX_LEN = 400;

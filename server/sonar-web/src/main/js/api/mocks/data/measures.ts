@@ -218,7 +218,24 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
           ...computeRating(issues, IssueType.Bug),
         });
 
+      case MetricKey.software_quality_reliability_rating:
+        return mockMeasure({
+          metric: metricKey,
+          period: undefined,
+          ...computeRating(issues, IssueType.Bug),
+        });
+
       case MetricKey.new_reliability_rating:
+        return mockMeasure({
+          metric: metricKey,
+          period: {
+            index: 0,
+            ...computeRating(issues, IssueType.Bug),
+          },
+          value: undefined,
+        });
+
+      case MetricKey.new_software_quality_reliability_rating:
         return mockMeasure({
           metric: metricKey,
           period: {
@@ -235,7 +252,24 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
           ...computeRating(issues, IssueType.CodeSmell),
         });
 
+      case MetricKey.software_quality_maintainability_rating:
+        return mockMeasure({
+          metric: metricKey,
+          period: undefined,
+          ...computeRating(issues, IssueType.CodeSmell),
+        });
+
       case MetricKey.new_maintainability_rating:
+        return mockMeasure({
+          metric: metricKey,
+          period: {
+            index: 0,
+            ...computeRating(issues, IssueType.CodeSmell),
+          },
+          value: undefined,
+        });
+
+      case MetricKey.new_software_quality_maintainability_rating:
         return mockMeasure({
           metric: metricKey,
           period: {
@@ -252,7 +286,24 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
           ...computeRating(issues, IssueType.Vulnerability),
         });
 
+      case MetricKey.software_quality_security_rating:
+        return mockMeasure({
+          metric: metricKey,
+          period: undefined,
+          ...computeRating(issues, IssueType.Vulnerability),
+        });
+
       case MetricKey.new_security_rating:
+        return mockMeasure({
+          metric: metricKey,
+          period: {
+            index: 0,
+            ...computeRating(issues, IssueType.Vulnerability),
+          },
+          value: undefined,
+        });
+
+      case MetricKey.new_software_quality_security_rating:
         return mockMeasure({
           metric: metricKey,
           period: {
@@ -312,11 +363,17 @@ function isIssueType(metricKey: MetricKey) {
 function isIssueRelatedRating(metricKey: MetricKey) {
   return [
     MetricKey.reliability_rating,
+    MetricKey.software_quality_reliability_rating,
     MetricKey.new_reliability_rating,
+    MetricKey.new_software_quality_reliability_rating,
     MetricKey.sqale_rating,
+    MetricKey.software_quality_maintainability_rating,
     MetricKey.new_maintainability_rating,
+    MetricKey.new_software_quality_maintainability_rating,
     MetricKey.security_rating,
+    MetricKey.software_quality_security_rating,
     MetricKey.new_security_rating,
+    MetricKey.new_software_quality_security_rating,
   ].includes(metricKey);
 }
 

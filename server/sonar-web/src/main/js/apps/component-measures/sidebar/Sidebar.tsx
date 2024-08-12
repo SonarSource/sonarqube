@@ -32,6 +32,7 @@ import * as React from 'react';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { translate } from '../../../helpers/l10n';
 import useFollowScroll from '../../../hooks/useFollowScroll';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { Domain } from '../../../types/measures';
 import { MeasureEnhanced } from '../../../types/types';
 import { PROJECT_OVERVEW, Query, isProjectOverview, populateDomainsFromMeasures } from '../utils';
@@ -48,7 +49,8 @@ interface Props {
 export default function Sidebar(props: Readonly<Props>) {
   const { showFullMeasures, updateQuery, componentKey, selectedMetric, measures } = props;
   const { top: topScroll, scrolledOnce } = useFollowScroll();
-  const domains = populateDomainsFromMeasures(measures);
+  const { data: isLegacy } = useIsLegacyCCTMode();
+  const domains = populateDomainsFromMeasures(measures, isLegacy);
 
   const handleChangeMetric = React.useCallback(
     (metric: string) => {

@@ -452,6 +452,7 @@ describe('navigation', () => {
       within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '2' }),
     ).toBeInTheDocument();
 
+    await ui.arrowDown(); // Select the 1st element ("folderA")
     await ui.arrowRight(); // Open "folderA"
 
     await ui.arrowDown(); // Select the 1st element ("out.tsx")

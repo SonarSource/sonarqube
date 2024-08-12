@@ -35,19 +35,19 @@ export const newTaxonomyBubbles: BubblesByDomain = {
     x: MetricKey.ncloc,
     y: MetricKey.reliability_remediation_effort,
     size: MetricKey.reliability_issues,
-    colors: [MetricKey.reliability_rating_new],
+    colors: [MetricKey.software_quality_reliability_rating],
   },
   Security: {
     x: MetricKey.ncloc,
     y: MetricKey.security_remediation_effort,
     size: MetricKey.security_issues,
-    colors: [MetricKey.security_rating_new],
+    colors: [MetricKey.software_quality_security_rating],
   },
   Maintainability: {
     x: MetricKey.ncloc,
     y: MetricKey.sqale_index,
     size: MetricKey.maintainability_issues,
-    colors: [MetricKey.sqale_rating_new],
+    colors: [MetricKey.software_quality_maintainability_rating],
   },
   Coverage: {
     x: MetricKey.complexity,
@@ -64,7 +64,10 @@ export const newTaxonomyBubbles: BubblesByDomain = {
     x: MetricKey.sqale_index,
     y: MetricKey.coverage,
     size: MetricKey.ncloc,
-    colors: [MetricKey.reliability_rating_new, MetricKey.security_rating_new],
+    colors: [
+      MetricKey.software_quality_reliability_rating,
+      MetricKey.software_quality_security_rating,
+    ],
     yDomain: [100, 0],
   },
 };

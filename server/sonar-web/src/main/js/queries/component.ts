@@ -17,25 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  infiniteQueryOptions,
-  queryOptions,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
 import { groupBy, omit } from 'lodash';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { getTasksForComponent } from '../api/ce';
-import {
-  getBreadcrumbs,
-  getComponent,
-  getComponentData,
-  getComponentTree,
-} from '../api/components';
-import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
+import { getBreadcrumbs, getComponent, getComponentData } from '../api/components';
 import { MetricKey } from '../sonar-aligned/types/metrics';
 import { Component, Measure } from '../types/types';
-import { StaleTime, createInfiniteQueryHook, createQueryHook } from './common';
+import { StaleTime, createQueryHook } from './common';
 
 const NEW_METRICS = [
   MetricKey.software_quality_maintainability_rating,
@@ -108,63 +97,6 @@ export const useComponentBreadcrumbsQuery = createQueryHook(
       queryKey: ['component', component, 'breadcrumbs', params],
       queryFn: () => getBreadcrumbs({ component, ...params }),
       staleTime: StaleTime.LONG,
-    });
-  },
-);
-
-export const useComponentChildrenQuery = createInfiniteQueryHook(
-  ({
-    strategy,
-    component,
-    metrics,
-    additionalData,
-  }: {
-    additionalData: Parameters<typeof getComponentTree>[3];
-    component: Parameters<typeof getComponentTree>[1];
-    metrics: Parameters<typeof getComponentTree>[2];
-    strategy: 'children' | 'leaves';
-  }) => {
-    const queryClient = useQueryClient();
-    return infiniteQueryOptions({
-      queryKey: ['component', component, 'tree', strategy, { metrics, additionalData }],
-      queryFn: async ({ pageParam }) => {
-        const result = await getComponentTree(
-          strategy,
-          component,
-          metrics?.filter((m) => !NEW_METRICS.includes(m as MetricKey)),
-          { ...additionalData, p: pageParam },
-        );
-        const measuresMapByMetricKeyForBaseComponent = groupBy(
-          result.baseComponent.measures,
-          'metric',
-        );
-        metrics?.forEach((metricKey) => {
-          const measure = measuresMapByMetricKeyForBaseComponent[metricKey]?.[0] ?? null;
-          queryClient.setQueryData<Measure>(
-            ['measures', 'details', result.baseComponent.key, metricKey],
-            measure,
-          );
-        });
-
-        result.components.forEach((childComponent) => {
-          const measuresMapByMetricKeyForChildComponent = groupBy(
-            childComponent.measures,
-            'metric',
-          );
-          metrics?.forEach((metricKey) => {
-            const measure = measuresMapByMetricKeyForChildComponent[metricKey]?.[0] ?? null;
-            queryClient.setQueryData<Measure>(
-              ['measures', 'details', childComponent.key, metricKey],
-              measure,
-            );
-          });
-        });
-        return result;
-      },
-      getNextPageParam: (data) => getNextPageParam({ page: data.paging }),
-      getPreviousPageParam: (data) => getPreviousPageParam({ page: data.paging }),
-      initialPageParam: 1,
-      staleTime: 60_000,
     });
   },
 );

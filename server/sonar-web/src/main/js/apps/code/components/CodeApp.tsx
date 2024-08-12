@@ -26,11 +26,8 @@ import withComponentContext from '../../../app/components/componentContext/withC
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import { CodeScope, getCodeUrl, getProjectUrl } from '../../../helpers/urls';
 import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
-import {
-  useComponentBreadcrumbsQuery,
-  useComponentChildrenQuery,
-  useComponentQuery,
-} from '../../../queries/component';
+import { useComponentBreadcrumbsQuery, useComponentQuery } from '../../../queries/component';
+import { useComponentTreeQuery } from '../../../queries/measures';
 import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
 import { getCodeMetrics } from '../utils';
@@ -69,7 +66,7 @@ function CodeApp(props: Readonly<Props>) {
     data: componentWithChildren,
     isLoading: isChildrenLoading,
     fetchNextPage,
-  } = useComponentChildrenQuery({
+  } = useComponentTreeQuery({
     strategy: 'children',
     component: location.query.selected ?? component.key,
     metrics: getCodeMetrics(component.qualifier, branchLike, {

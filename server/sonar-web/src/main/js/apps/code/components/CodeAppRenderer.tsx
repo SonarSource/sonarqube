@@ -36,10 +36,19 @@ import { Breadcrumb } from '~sonar-aligned/types/component';
 import { Location } from '~sonar-aligned/types/router';
 import ListFooter from '../../../components/controls/ListFooter';
 import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
-import { CCT_SOFTWARE_QUALITY_METRICS, OLD_TAXONOMY_METRICS } from '../../../helpers/constants';
+import {
+  CCT_SOFTWARE_QUALITY_METRICS,
+  LEAK_OLD_TAXONOMY_RATINGS,
+  OLD_TAXONOMY_METRICS,
+  OLD_TAXONOMY_RATINGS,
+  SOFTWARE_QUALITY_RATING_METRICS,
+} from '../../../helpers/constants';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
-import { areCCTMeasuresComputed } from '../../../helpers/measures';
+import {
+  areCCTMeasuresComputed,
+  areSoftwareQualityRatingsComputed,
+} from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication } from '../../../types/component';
 import { Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
@@ -107,11 +116,18 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
   const allComponentsHaveSoftwareQualityMeasures = components.every((component) =>
     areCCTMeasuresComputed(component.measures),
   );
+  const allComponentsHaveRatings = components.every((component) =>
+    areSoftwareQualityRatingsComputed(component.measures),
+  );
 
-  const filteredMetrics = difference(
-    metricKeys,
-    allComponentsHaveSoftwareQualityMeasures ? OLD_TAXONOMY_METRICS : CCT_SOFTWARE_QUALITY_METRICS,
-  ).map((key) => metrics[key]);
+  const filteredMetrics = difference(metricKeys, [
+    ...(allComponentsHaveSoftwareQualityMeasures
+      ? OLD_TAXONOMY_METRICS
+      : CCT_SOFTWARE_QUALITY_METRICS),
+    ...(allComponentsHaveRatings
+      ? [...OLD_TAXONOMY_RATINGS, ...LEAK_OLD_TAXONOMY_RATINGS]
+      : SOFTWARE_QUALITY_RATING_METRICS),
+  ]).map((key) => metrics[key]);
 
   let defaultTitle = translate('code.page');
   if (isApplication(baseComponent?.qualifier)) {

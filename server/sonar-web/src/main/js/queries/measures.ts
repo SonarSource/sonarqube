@@ -39,7 +39,7 @@ import { getBranchLikeQuery } from '../sonar-aligned/helpers/branch-like';
 import { MetricKey } from '../sonar-aligned/types/metrics';
 import { BranchLike } from '../types/branch-like';
 import { Measure } from '../types/types';
-import {createInfiniteQueryHook, createQueryHook} from './common';
+import { createInfiniteQueryHook, createQueryHook } from './common';
 
 const NEW_METRICS = [
   MetricKey.software_quality_maintainability_rating,
@@ -140,24 +140,27 @@ export const useComponentTreeQuery = createInfiniteQueryHook(
           { ...additionalData, p: pageParam, ...branchLikeQuery },
         );
 
-        // const measuresMapByMetricKeyForBaseComponent = groupBy(
-        //   result.baseComponent.measures,
-        //   'metric',
-        // );
-        // metrics?.forEach((metricKey) => {
-        //   const measure = measuresMapByMetricKeyForBaseComponent[metricKey]?.[0] ?? null;
-        //   queryClient.setQueryData<Measure>(
-        //     [
-        //       'measures',
-        //       'details',
-        //       result.baseComponent.key,
-        //       'branchLike',
-        //       branchLikeQuery,
-        //       metricKey,
-        //     ],
-        //     measure,
-        //   );
-        // });
+        if (result.baseComponent.measures && result.baseComponent.measures.length > 0) {
+          const measuresMapByMetricKeyForBaseComponent = groupBy(
+            result.baseComponent.measures,
+            'metric',
+          );
+          metrics?.forEach((metricKey) => {
+            const measure = measuresMapByMetricKeyForBaseComponent[metricKey]?.[0] ?? null;
+            queryClient.setQueryData<Measure>(
+              [
+                'measures',
+                'details',
+                result.baseComponent.key,
+                'branchLike',
+                branchLikeQuery,
+                metricKey,
+              ],
+              measure,
+            );
+          });
+        }
+
         result.components.forEach((childComponent) => {
           const measuresMapByMetricKeyForChildComponent = groupBy(
             childComponent.measures,

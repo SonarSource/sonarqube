@@ -81,7 +81,7 @@ function renderBubbleChart(props: Partial<FCProps<typeof BubbleChart>> = {}) {
       height={100}
       items={[
         { x: 1, y: 10, size: 7, data: 'foo' },
-        { x: 2, y: 30, size: 5, color: 3, data: 'bar' },
+        { x: 2, y: 30, size: 5, data: 'bar' },
       ]}
       padding={[0, 0, 0, 0]}
       {...props}

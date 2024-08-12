@@ -42,7 +42,7 @@ import PullRequestOverview from '../PullRequestOverview';
 jest.mock('../../../../api/measures', () => {
   return {
     ...jest.requireActual('../../../../sonar-aligned/types/metrics'),
-    getMeasuresWithMetrics: jest.fn().mockResolvedValue({
+    getMeasuresWithPeriodAndMetrics: jest.fn().mockResolvedValue({
       component: {
         key: '',
         name: '',

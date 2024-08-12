@@ -101,45 +101,59 @@ const ISSUES_METRICS = [
   MetricKey.new_violations,
 ];
 
-export const populateDomainsFromMeasures = memoize((measures: MeasureEnhanced[]): Domain[] => {
-  let populatedMeasures = measures
-    .filter((measure) => !DEPRECATED_METRICS.includes(measure.metric.key as MetricKey))
-    .map((measure) => {
-      const isDiff = isDiffMetric(measure.metric.key);
-      const calculatedValue = getCCTMeasureValue(
-        measure.metric.key,
-        isDiff ? measure.leak : measure.value,
+export const populateDomainsFromMeasures = memoize(
+  (measures: MeasureEnhanced[], isLegacy?: boolean): Domain[] => {
+    let populatedMeasures = measures
+      .filter((measure) => !DEPRECATED_METRICS.includes(measure.metric.key as MetricKey))
+      .map((measure) => {
+        const isDiff = isDiffMetric(measure.metric.key);
+        const calculatedValue = getCCTMeasureValue(
+          measure.metric.key,
+          isDiff ? measure.leak : measure.value,
+        );
+
+        return {
+          ...measure,
+          ...{ [isDiff ? 'leak' : 'value']: calculatedValue },
+        };
+      });
+
+    if (!isLegacy && areLeakCCTMeasuresComputed(measures)) {
+      populatedMeasures = populatedMeasures.filter(
+        (measure) => !LEAK_OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
       );
+    } else {
+      populatedMeasures = populatedMeasures.filter(
+        (measure) => !LEAK_CCT_SOFTWARE_QUALITY_METRICS.includes(measure.metric.key as MetricKey),
+      );
+    }
 
-      return {
-        ...measure,
-        ...{ [isDiff ? 'leak' : 'value']: calculatedValue },
-      };
-    });
+    // Both new and overall code will exist after next analysis
+    if (!isLegacy && areSoftwareQualityRatingsComputed(measures)) {
+      populatedMeasures = populatedMeasures.filter(
+        (measure) =>
+          !OLD_TAXONOMY_RATINGS.includes(measure.metric.key as MetricKey) &&
+          !LEAK_OLD_TAXONOMY_RATINGS.includes(measure.metric.key as MetricKey),
+      );
+    } else {
+      populatedMeasures = populatedMeasures.filter(
+        (measure) => !SOFTWARE_QUALITY_RATING_METRICS.includes(measure.metric.key as MetricKey),
+      );
+    }
 
-  if (areLeakCCTMeasuresComputed(measures)) {
-    populatedMeasures = populatedMeasures.filter(
-      (measure) => !LEAK_OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
-    );
-  }
+    if (!isLegacy && areCCTMeasuresComputed(measures)) {
+      populatedMeasures = populatedMeasures.filter(
+        (measure) => !OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
+      );
+    } else {
+      populatedMeasures = populatedMeasures.filter(
+        (measure) => !CCT_SOFTWARE_QUALITY_METRICS.includes(measure.metric.key as MetricKey),
+      );
+    }
 
-  // Both new and overall code will exist after next analysis
-  if (areSoftwareQualityRatingsComputed(measures)) {
-    populatedMeasures = populatedMeasures.filter(
-      (measure) =>
-        !OLD_TAXONOMY_RATINGS.includes(measure.metric.key as MetricKey) &&
-        !LEAK_OLD_TAXONOMY_RATINGS.includes(measure.metric.key as MetricKey),
-    );
-  }
-
-  if (areCCTMeasuresComputed(measures)) {
-    populatedMeasures = populatedMeasures.filter(
-      (measure) => !OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
-    );
-  }
-
-  return groupByDomains(populatedMeasures);
-});
+    return groupByDomains(populatedMeasures);
+  },
+);
 
 export function getMetricSubnavigationName(
   metric: Metric,

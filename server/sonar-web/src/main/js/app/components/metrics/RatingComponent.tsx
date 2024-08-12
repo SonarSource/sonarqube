@@ -23,6 +23,7 @@ import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { getLeakValue } from '../../../components/measure/utils';
+import { SOFTWARE_QUALITY_RATING_METRICS_MAP } from '../../../helpers/constants';
 import { isDiffMetric } from '../../../helpers/measures';
 import { useMeasureQuery } from '../../../queries/measures';
 import { useIsLegacyCCTMode } from '../../../queries/settings';
@@ -46,7 +47,7 @@ type RatingMetricKeys =
   | MetricKey.releasability_rating;
 
 function isNewRatingMetric(metricKey: MetricKey) {
-  return metricKey.includes('_new');
+  return metricKey.includes('software_quality_');
 }
 
 const useGetMetricKeyForRating = (ratingMetric: RatingMetricKeys): MetricKey | null => {
@@ -59,7 +60,7 @@ const useGetMetricKeyForRating = (ratingMetric: RatingMetricKeys): MetricKey | n
   if (isLoading) {
     return null;
   }
-  return isLegacy ? ratingMetric : ((ratingMetric + '_new') as MetricKey);
+  return isLegacy ? ratingMetric : SOFTWARE_QUALITY_RATING_METRICS_MAP[ratingMetric];
 };
 
 export default function RatingComponent(props: Readonly<Props>) {

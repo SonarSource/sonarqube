@@ -127,20 +127,20 @@ describe('upgrade scenario (awaiting scan)', () => {
   };
 
   const newRatings = {
-    [MetricKey.reliability_rating_new]: mockMeasure({
-      metric: MetricKey.reliability_rating_new,
+    [MetricKey.software_quality_reliability_rating]: mockMeasure({
+      metric: MetricKey.software_quality_reliability_rating,
       value: '2',
     }),
-    [MetricKey.sqale_rating_new]: mockMeasure({
-      metric: MetricKey.sqale_rating_new,
+    [MetricKey.software_quality_maintainability_rating]: mockMeasure({
+      metric: MetricKey.software_quality_maintainability_rating,
       value: '2',
     }),
-    [MetricKey.security_rating_new]: mockMeasure({
-      metric: MetricKey.security_rating_new,
+    [MetricKey.software_quality_security_rating]: mockMeasure({
+      metric: MetricKey.software_quality_security_rating,
       value: '2',
     }),
-    [MetricKey.security_review_rating_new]: mockMeasure({
-      metric: MetricKey.security_review_rating_new,
+    [MetricKey.software_quality_security_review_rating]: mockMeasure({
+      metric: MetricKey.software_quality_security_review_rating,
       value: '2',
     }),
   };
@@ -170,10 +170,10 @@ describe('upgrade scenario (awaiting scan)', () => {
           HIGH: 0,
           total: 3,
         }),
-        [MetricKey.sqale_rating_new]: '2',
-        [MetricKey.reliability_rating_new]: '2',
-        [MetricKey.security_rating_new]: '2',
-        [MetricKey.security_review_rating_new]: '2',
+        [MetricKey.software_quality_maintainability_rating]: '2',
+        [MetricKey.software_quality_reliability_rating]: '2',
+        [MetricKey.software_quality_security_rating]: '2',
+        [MetricKey.software_quality_security_review_rating]: '2',
         [MetricKey.code_smells]: '4',
         [MetricKey.bugs]: '5',
         [MetricKey.vulnerabilities]: '6',
@@ -319,10 +319,10 @@ describe('upgrade scenario (awaiting scan)', () => {
           HIGH: 0,
           total: 3,
         }),
-        [MetricKey.sqale_rating_new]: '2',
-        [MetricKey.reliability_rating_new]: '2',
-        [MetricKey.security_rating_new]: '2',
-        [MetricKey.security_review_rating_new]: '2',
+        [MetricKey.software_quality_maintainability_rating]: '2',
+        [MetricKey.software_quality_reliability_rating]: '2',
+        [MetricKey.software_quality_security_rating]: '2',
+        [MetricKey.software_quality_security_review_rating]: '2',
         [MetricKey.code_smells]: '4',
         [MetricKey.bugs]: '5',
         [MetricKey.vulnerabilities]: '6',
