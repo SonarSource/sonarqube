@@ -529,7 +529,8 @@
       i2.software_quality as softwareQuality,
       i2.severity as severity,
       count(i2.kee) as "count",
-      i2.inLeak as inLeak
+      i2.inLeak as inLeak,
+      sum(i2.effort) as effort
       from (
         select
           i.status,
@@ -537,6 +538,7 @@
           i.kee,
           ii.software_quality,
           ii.severity,
+          i.effort,
           <if test="leakPeriodBeginningDate &gt;= 0">
             case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then ${_true} else ${_false} end as inLeak
           </if>

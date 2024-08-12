@@ -223,8 +223,8 @@ class IssueDaoIT {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setLanguage("java")
       .replaceAllDefaultImpacts(List.of(new ImpactDto()
-          .setSoftwareQuality(MAINTAINABILITY)
-          .setSeverity(MEDIUM),
+        .setSoftwareQuality(MAINTAINABILITY)
+        .setSeverity(MEDIUM),
         new ImpactDto()
           .setSoftwareQuality(RELIABILITY)
           .setSeverity(LOW))));
@@ -343,7 +343,7 @@ class IssueDaoIT {
     IntStream.range(0, statusesB.size()).forEach(i -> insertBranchIssue(branchB, fileB, rule, "B" + i, statusesB.get(i), updatedAt));
 
     List<IssueDto> branchAIssuesA1 = underTest.selectByBranch(db.getSession(), Set.of("issueA0", "issueA1", "issueA3",
-        "issueWithResolution"),
+      "issueWithResolution"),
       buildSelectByBranchQuery(branchA, false, changedSince));
 
     assertThat(branchAIssuesA1)
@@ -565,25 +565,25 @@ class IssueDaoIT {
   }
 
   @ParameterizedTest
-  @ValueSource(booleans =  {true, false})
+  @ValueSource(booleans = {true, false})
   void selectIssueImpactGroupsByComponent_shouldReturnImpactGroups(boolean inLeak) {
 
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert();
     db.issues().insert(rule, project, file,
-      i -> i.setStatus(STATUS_OPEN).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH), createImpact(MAINTAINABILITY, LOW))));
+      i -> i.setStatus(STATUS_OPEN).setEffort(60L).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH), createImpact(MAINTAINABILITY, LOW))));
     db.issues().insert(rule, project, file,
-      i -> i.setStatus(STATUS_OPEN).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH), createImpact(MAINTAINABILITY, HIGH))));
+      i -> i.setStatus(STATUS_OPEN).setEffort(60L).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH), createImpact(MAINTAINABILITY, HIGH))));
     db.issues().insert(rule, project, file,
-      i -> i.setStatus(STATUS_REOPENED).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
+      i -> i.setStatus(STATUS_REOPENED).setEffort(60L).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
     db.issues().insert(rule, project, file,
-      i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
+      i -> i.setStatus(STATUS_RESOLVED).setEffort(60L).setResolution(RESOLUTION_WONT_FIX).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
     // issues in ignored status
     db.issues().insert(rule, project, file,
-      i -> i.setStatus(Issue.STATUS_CLOSED).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
+      i -> i.setStatus(Issue.STATUS_CLOSED).setEffort(60L).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
     db.issues().insert(rule, project, file,
-      i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FALSE_POSITIVE).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
+      i -> i.setStatus(STATUS_RESOLVED).setEffort(60L).setResolution(RESOLUTION_FALSE_POSITIVE).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
 
     Collection<IssueImpactGroupDto> result = underTest.selectIssueImpactGroupsByComponent(db.getSession(), file, inLeak ? 1L : Long.MAX_VALUE);
 
@@ -593,6 +593,9 @@ class IssueDaoIT {
 
     assertThat(result.stream().filter(g -> g.getSoftwareQuality() == SECURITY).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(4);
     assertThat(result.stream().filter(g -> g.getSoftwareQuality() == MAINTAINABILITY).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(2);
+
+    assertThat(result.stream().filter(g -> g.getSoftwareQuality() == SECURITY).mapToDouble(IssueImpactGroupDto::getEffort).sum()).isEqualTo(4 * 60);
+    assertThat(result.stream().filter(g -> g.getSoftwareQuality() == MAINTAINABILITY).mapToDouble(IssueImpactGroupDto::getEffort).sum()).isEqualTo(2 * 60);
 
     assertThat(result.stream().filter(g -> g.getSeverity() == HIGH).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(5);
     assertThat(result.stream().filter(g -> g.getSeverity() == LOW).mapToLong(IssueImpactGroupDto::getCount).sum()).isOne();
@@ -618,9 +621,9 @@ class IssueDaoIT {
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert();
     IssueDto issueInNewCodePeriod = db.issues().insert(rule, project, file,
-      i -> i.setStatus(STATUS_OPEN).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH), createImpact(MAINTAINABILITY, LOW))));
+      i -> i.setStatus(STATUS_OPEN).setEffort(1L).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH), createImpact(MAINTAINABILITY, LOW))));
     db.issues().insert(rule, project, file,
-      i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
+      i -> i.setStatus(STATUS_RESOLVED).setEffort(2L).setResolution(RESOLUTION_WONT_FIX).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
 
     db.issues().insertNewCodeReferenceIssue(issueInNewCodePeriod);
 
@@ -633,6 +636,10 @@ class IssueDaoIT {
     assertThat(result.stream().filter(g -> g.getSoftwareQuality() == SECURITY).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(2);
     assertThat(result.stream().filter(g -> g.getSoftwareQuality() == MAINTAINABILITY).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(1);
 
+    assertThat(result.stream().filter(g -> g.getSoftwareQuality() == SECURITY && g.isInLeak()).mapToDouble(IssueImpactGroupDto::getEffort).sum()).isEqualTo(1d);
+    assertThat(result.stream().filter(g -> g.getSoftwareQuality() == MAINTAINABILITY && g.isInLeak()).mapToDouble(IssueImpactGroupDto::getEffort).sum()).isEqualTo(1d);
+    assertThat(result.stream().filter(g -> g.getSoftwareQuality() == SECURITY && !g.isInLeak()).mapToDouble(IssueImpactGroupDto::getEffort).sum()).isEqualTo(2d);
+
     assertThat(result.stream().filter(g -> g.getSeverity() == HIGH).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(2);
     assertThat(result.stream().filter(g -> g.getSeverity() == LOW).mapToLong(IssueImpactGroupDto::getCount).sum()).isOne();
 
@@ -641,7 +648,6 @@ class IssueDaoIT {
     assertThat(result.stream().filter(g -> STATUS_RESOLVED.equals(g.getStatus())).mapToLong(IssueImpactGroupDto::getCount).sum()).isOne();
 
     assertThat(result.stream().filter(g -> RESOLUTION_WONT_FIX.equals(g.getResolution())).mapToLong(IssueImpactGroupDto::getCount).sum()).isOne();
-
 
     assertThat(result.stream().filter(IssueImpactGroupDto::isInLeak).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(2);
     assertThat(result.stream().filter(g -> g.isInLeak() && g.getSoftwareQuality() == SECURITY).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(1);
@@ -1017,7 +1023,7 @@ class IssueDaoIT {
     underTest.updateIfBeforeSelectedDate(db.getSession(), issueDto);
 
     assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).getImpacts()).extracting(i -> i.getSoftwareQuality(),
-        i -> i.getSeverity())
+      i -> i.getSeverity())
       .containsExactlyInAnyOrder(tuple(RELIABILITY, MEDIUM), tuple(SECURITY, LOW));
   }
 

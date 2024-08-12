@@ -24,6 +24,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
@@ -50,6 +51,8 @@ class IssueCounter {
   private long prioritizedRuleIssues = 0;
   private final Count highImpactAccepted = new Count();
   private final Map<SoftwareQuality, Map<Severity, Count>> bySoftwareQualityAndSeverity = new EnumMap<>(SoftwareQuality.class);
+  private final Map<SoftwareQuality, Effort> effortOfUnresolvedBySoftwareQuality = new EnumMap<>(SoftwareQuality.class);
+  private final Map<SoftwareQuality, HighestImpactSeverity> highestSeverityOfUnresolvedBySoftwareQuality = new EnumMap<>(SoftwareQuality.class);
 
   IssueCounter(Collection<IssueGroupDto> groups, Collection<IssueImpactGroupDto> impactGroups) {
     for (IssueGroupDto group : groups) {
@@ -117,6 +120,16 @@ class IssueCounter {
         .add(group);
     }
 
+    if (group.getResolution() == null) {
+      effortOfUnresolvedBySoftwareQuality
+        .computeIfAbsent(group.getSoftwareQuality(), k -> new Effort())
+        .add(group);
+
+      highestSeverityOfUnresolvedBySoftwareQuality
+        .computeIfAbsent(group.getSoftwareQuality(), k -> new HighestImpactSeverity())
+        .add(group);
+    }
+
     if (Severity.HIGH == group.getSeverity() && IssueStatus.ACCEPTED == issueStatus) {
       highImpactAccepted.add(group);
     }
@@ -127,8 +140,21 @@ class IssueCounter {
       .map(hs -> hs.severity(onlyInLeak));
   }
 
+  public Optional<Severity> getHighestSeverityOfUnresolved(SoftwareQuality softwareQuality, boolean onlyInLeak) {
+    return Optional.ofNullable(highestSeverityOfUnresolvedBySoftwareQuality.get(softwareQuality))
+      .map(hs -> hs.severity(onlyInLeak));
+  }
+
   public double sumEffortOfUnresolved(RuleType type, boolean onlyInLeak) {
     Effort effort = effortOfUnresolved.get(type);
+    if (effort == null) {
+      return 0.0;
+    }
+    return onlyInLeak ? effort.leak : effort.absolute;
+  }
+
+  public double sumEffortOfUnresolvedBySoftwareQuality(SoftwareQuality softwareQuality, boolean onlyInLeak) {
+    Effort effort = effortOfUnresolvedBySoftwareQuality.get(softwareQuality);
     if (effort == null) {
       return 0.0;
     }
@@ -220,6 +246,13 @@ class IssueCounter {
         leak += group.getEffort();
       }
     }
+
+    void add(IssueImpactGroupDto group) {
+      absolute += group.getEffort();
+      if (group.isInLeak()) {
+        leak += group.getEffort();
+      }
+    }
   }
 
   private static class HighestSeverity {
@@ -236,6 +269,34 @@ class IssueCounter {
 
     String severity(boolean inLeak) {
       return SeverityUtil.getSeverityFromOrdinal(inLeak ? leak : absolute);
+    }
+  }
+
+  private static class HighestImpactSeverity {
+    private Severity absolute = null;
+    private Severity leak = null;
+
+    void add(IssueImpactGroupDto group) {
+      absolute = getMaxSeverity(absolute, group.getSeverity());
+      if (group.isInLeak()) {
+        leak = getMaxSeverity(leak, group.getSeverity());
+      }
+    }
+
+    Severity getMaxSeverity(@Nullable Severity currentSeverity, Severity newSeverity) {
+      if (currentSeverity == null) {
+        return newSeverity;
+      }
+      if (newSeverity.ordinal() > currentSeverity.ordinal()) {
+        return newSeverity;
+      } else {
+        return currentSeverity;
+      }
+    }
+
+    @CheckForNull
+    Severity severity(boolean inLeak) {
+      return inLeak ? leak : absolute;
     }
   }
 }

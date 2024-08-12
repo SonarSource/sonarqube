@@ -32,6 +32,7 @@ public class IssueImpactGroupDto {
   private Severity severity;
   private long count;
   private boolean inLeak;
+  private double effort;
 
   public IssueImpactGroupDto() {
     // nothing to do
@@ -84,5 +85,13 @@ public class IssueImpactGroupDto {
 
   public void setInLeak(boolean inLeak) {
     this.inLeak = inLeak;
+  }
+
+  public double getEffort() {
+    return effort;
+  }
+
+  public void setEffort(double effort) {
+    this.effort = effort;
   }
 }
