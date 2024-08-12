@@ -23,9 +23,9 @@ import java.util.Arrays;
 import javax.annotation.Nullable;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
@@ -33,9 +33,9 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.VisitorsCrawler;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepositoryRule;
 import org.sonar.ce.task.projectanalysis.issue.FillComponentIssuesVisitorRule;
+import org.sonar.ce.task.projectanalysis.issue.NewIssueClassifier;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.ce.task.projectanalysis.issue.NewIssueClassifier;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
@@ -68,8 +68,10 @@ import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
 import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY;
 
-public class NewSecurityReviewMeasuresVisitorTest {
+class NewSecurityReviewMeasuresVisitorTest {
   private static final Offset<Double> VALUE_COMPARISON_OFFSET = Offset.offset(0.01);
   private static final String LANGUAGE_KEY_1 = "lKey1";
 
@@ -91,31 +93,32 @@ public class NewSecurityReviewMeasuresVisitorTest {
         .build())
     .build();
 
-  @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-  @Rule
-  public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
+  @RegisterExtension
+  private final TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+  @RegisterExtension
+  private final MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(NEW_SECURITY_REVIEW_RATING)
+    .add(NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING)
     .add(NEW_SECURITY_HOTSPOTS_REVIEWED)
     .add(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS)
     .add(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS);
-  @Rule
-  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
-  @Rule
-  public ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
-  @Rule
-  public FillComponentIssuesVisitorRule fillComponentIssuesVisitorRule = new FillComponentIssuesVisitorRule(componentIssuesRepositoryRule, treeRootHolder);
+  @RegisterExtension
+  private final MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+  private final ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
+  @RegisterExtension
+  private final FillComponentIssuesVisitorRule fillComponentIssuesVisitorRule =
+    new FillComponentIssuesVisitorRule(componentIssuesRepositoryRule, treeRootHolder);
   private final NewIssueClassifier newIssueClassifier = mock(NewIssueClassifier.class);
   private final VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(fillComponentIssuesVisitorRule,
     new NewSecurityReviewMeasuresVisitor(componentIssuesRepositoryRule, measureRepository, metricRepository, newIssueClassifier)));
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
   }
 
   @Test
-  public void compute_measures_when_100_percent_hotspots_reviewed() {
+  void compute_measures_when_100_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
@@ -131,15 +134,15 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, A, 100.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, 100.0);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, 100.0);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, A, A, 100.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, A, 100.0);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, A, 100.0);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, A, 100.0);
   }
 
   @Test
-  public void compute_measures_when_more_than_80_percent_hotspots_reviewed() {
+  void compute_measures_when_more_than_80_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
@@ -160,15 +163,15 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, A, 80.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, 87.5);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, 87.5);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, A, 87.5);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, A, B, 80.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, B, 87.5);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, B, 87.5);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, B, 87.5);
   }
 
   @Test
-  public void compute_measures_when_more_than_70_percent_hotspots_reviewed() {
+  void compute_measures_when_more_than_70_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
@@ -189,15 +192,15 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, B, 71.42);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, B, 75.0);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, B, 75.0);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, B, 75.0);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, B, B, 71.42);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, B, B, 75.0);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, B, B, 75.0);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, B, B, 75.0);
   }
 
   @Test
-  public void compute_measures_when_more_than_50_percent_hotspots_reviewed() {
+  void compute_measures_when_more_than_50_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_TO_REVIEW, null),
@@ -217,15 +220,15 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, C, 50.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, C, 60.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, C, 57.14);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, C, 57.14);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, C, 57.14);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, C, C, 50.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, C, C, 60.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, C, C, 57.14);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, C, C, 57.14);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, C, C, 57.14);
   }
 
   @Test
-  public void compute_measures_when_more_30_than_percent_hotspots_reviewed() {
+  void compute_measures_when_more_30_than_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_TO_REVIEW, null),
@@ -246,15 +249,15 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, D, 33.33);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, D, 40.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, D, 37.5);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, D, 37.5);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, D, 37.5);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, D, D, 33.33);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, D, D, 40.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, D, D, 37.5);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, D, D, 37.5);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, D, D, 37.5);
   }
 
   @Test
-  public void compute_measures_when_less_than_30_percent_hotspots_reviewed() {
+  void compute_measures_when_less_than_30_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_TO_REVIEW, null),
@@ -273,15 +276,15 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, D, 33.33);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, E, 0.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, E, 16.66);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, E, 16.66);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, E, 16.66);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, D, D, 33.33);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, E, D, 0.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, E, D, 16.66);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, E, D, 16.66);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, E, D, 16.66);
   }
 
   @Test
-  public void compute_A_rating_and_no_percent_when_no_new_hotspot_on_new_code() {
+  void compute_A_rating_and_no_percent_when_no_new_hotspot_on_new_code() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       oldHotspot(STATUS_TO_REVIEW, null),
@@ -290,11 +293,11 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(PROJECT_REF, A, null);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, A, null);
   }
 
   @Test
-  public void compute_status_related_measures() {
+  void compute_status_related_measures() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_TO_REVIEW, null),
@@ -319,7 +322,7 @@ public class NewSecurityReviewMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_0_status_related_measures_when_no_hotspot() {
+  void compute_0_status_related_measures_when_no_hotspot() {
     treeRootHolder.setRoot(ROOT_PROJECT);
 
     underTest.visit(ROOT_PROJECT);
@@ -328,7 +331,7 @@ public class NewSecurityReviewMeasuresVisitorTest {
   }
 
   @Test
-  public void no_measure_if_there_is_no_period() {
+  void no_measure_if_there_is_no_period() {
     when(newIssueClassifier.isEnabled()).thenReturn(false);
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
@@ -340,8 +343,10 @@ public class NewSecurityReviewMeasuresVisitorTest {
     assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF).values()).isEmpty();
   }
 
-  private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating, @Nullable Double expectedHotspotsReviewed) {
+  private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating,
+    Rating expectedSoftwareQualitySecurityReviewRating, @Nullable Double expectedHotspotsReviewed) {
     assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_REVIEW_RATING_KEY)).hasValue(expectedReviewRating.getIndex());
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY)).hasValue(expectedSoftwareQualitySecurityReviewRating.getIndex());
     if (expectedHotspotsReviewed != null) {
       assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY)).hasValue(expectedHotspotsReviewed,
         VALUE_COMPARISON_OFFSET);

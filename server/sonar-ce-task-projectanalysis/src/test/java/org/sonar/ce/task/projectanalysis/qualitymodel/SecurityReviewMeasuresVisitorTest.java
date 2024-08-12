@@ -20,8 +20,8 @@
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
@@ -59,8 +59,10 @@ import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
 import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REVIEW_RATING;
+import static org.sonar.server.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY;
 
-public class SecurityReviewMeasuresVisitorTest {
+class SecurityReviewMeasuresVisitorTest {
 
   private static final int PROJECT_REF = 1;
   private static final int ROOT_DIR_REF = 12;
@@ -68,7 +70,7 @@ public class SecurityReviewMeasuresVisitorTest {
   private static final int FILE_1_REF = 1231;
   private static final int FILE_2_REF = 1232;
 
-  static final Component ROOT_PROJECT = builder(Component.Type.PROJECT, PROJECT_REF).setKey("project")
+  private static final Component ROOT_PROJECT = builder(Component.Type.PROJECT, PROJECT_REF).setKey("project")
     .addChildren(
       builder(DIRECTORY, ROOT_DIR_REF).setKey("dir")
         .addChildren(
@@ -80,26 +82,27 @@ public class SecurityReviewMeasuresVisitorTest {
         .build())
     .build();
 
-  @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-  @Rule
-  public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
+  @RegisterExtension
+  private final TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+  @RegisterExtension
+  private final MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(SECURITY_REVIEW_RATING)
+    .add(SOFTWARE_QUALITY_SECURITY_REVIEW_RATING)
     .add(SECURITY_HOTSPOTS_REVIEWED)
     .add(SECURITY_HOTSPOTS_REVIEWED_STATUS)
     .add(SECURITY_HOTSPOTS_TO_REVIEW_STATUS);
-  @Rule
-  public ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
-  @Rule
-  public FillComponentIssuesVisitorRule fillComponentIssuesVisitorRule = new FillComponentIssuesVisitorRule(componentIssuesRepositoryRule, treeRootHolder);
-  @Rule
-  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+  private final ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
+  @RegisterExtension
+  private final FillComponentIssuesVisitorRule fillComponentIssuesVisitorRule =
+    new FillComponentIssuesVisitorRule(componentIssuesRepositoryRule, treeRootHolder);
+  @RegisterExtension
+  private final MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  private VisitorsCrawler underTest = new VisitorsCrawler(asList(fillComponentIssuesVisitorRule,
+  private final VisitorsCrawler underTest = new VisitorsCrawler(asList(fillComponentIssuesVisitorRule,
     new SecurityReviewMeasuresVisitor(componentIssuesRepositoryRule, measureRepository, metricRepository)));
 
   @Test
-  public void compute_rating_and_reviewed_measures_when_100_percent_hotspots_reviewed() {
+  void compute_rating_and_reviewed_measures_when_100_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
@@ -112,15 +115,15 @@ public class SecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, A, 100.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, 100.0);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, 100.0);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, A, A, 100.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, A, 100.0);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, A, 100.0);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, A, 100.0);
   }
 
   @Test
-  public void compute_rating_and_reviewed__measures_when_more_than_80_percent_hotspots_reviewed() {
+  void compute_rating_and_reviewed__measures_when_more_than_80_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
@@ -138,15 +141,15 @@ public class SecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, A, 80.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, 87.5);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, 87.5);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, A, 87.5);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, A, B, 80.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, B, 87.5);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, B, 87.5);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, B, 87.5);
   }
 
   @Test
-  public void compute_rating_and_reviewed__measures_when_more_than_70_percent_hotspots_reviewed() {
+  void compute_rating_and_reviewed__measures_when_more_than_70_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
@@ -164,15 +167,15 @@ public class SecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, B, 71.4);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, B, 75.0);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, B, 75.0);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, B, 75.0);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, B, B, 71.4);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, B, B, 75.0);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, B, B, 75.0);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, B, B, 75.0);
   }
 
   @Test
-  public void compute_rating_and_reviewed__measures_when_more_than_50_percent_hotspots_reviewed() {
+  void compute_rating_and_reviewed__measures_when_more_than_50_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_TO_REVIEW, null),
@@ -189,15 +192,15 @@ public class SecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, C, 50.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, C, 60.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, C, 57.1);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, C, 57.1);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, C, 57.1);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, C, C,50.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, C, C,60.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, C,C, 57.1);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, C, C,57.1);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, C, C,57.1);
   }
 
   @Test
-  public void compute_rating_and_reviewed__measures_when_more_30_than_percent_hotspots_reviewed() {
+  void compute_rating_and_reviewed__measures_when_more_30_than_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_TO_REVIEW, null),
@@ -215,15 +218,15 @@ public class SecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, D, 33.3);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, D, 40.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, D, 37.5);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, D, 37.5);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, D, 37.5);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, D, D,33.3);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, D, D,40.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, D,D, 37.5);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, D, D,37.5);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, D, D,37.5);
   }
 
   @Test
-  public void compute_rating_and_reviewed__measures_when_less_than_30_percent_hotspots_reviewed() {
+  void compute_rating_and_reviewed__measures_when_less_than_30_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_TO_REVIEW, null),
@@ -239,24 +242,24 @@ public class SecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, D, 33.3);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, E, 0.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, E, 16.7);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, E, 16.7);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, E, 16.7);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, D, D,33.3);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, E, D,0.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, E,D, 16.7);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, E, D,16.7);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, E, D,16.7);
   }
 
   @Test
-  public void compute_A_rating_and_no_reviewed_when_no_hotspot() {
+  void compute_A_rating_and_no_reviewed_when_no_hotspot() {
     treeRootHolder.setRoot(ROOT_PROJECT);
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(PROJECT_REF, A, null);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, A,null);
   }
 
   @Test
-  public void compute_status_related_measures() {
+  void compute_status_related_measures() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_TO_REVIEW, null),
@@ -281,7 +284,7 @@ public class SecurityReviewMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_0_status_related_measures_when_no_hotspot() {
+  void compute_0_status_related_measures_when_no_hotspot() {
     treeRootHolder.setRoot(ROOT_PROJECT);
 
     underTest.visit(ROOT_PROJECT);
@@ -289,8 +292,9 @@ public class SecurityReviewMeasuresVisitorTest {
     verifyHotspotStatusMeasures(PROJECT_REF, 0, 0);
   }
 
-  private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating, @Nullable Double expectedHotspotsReviewed) {
-    verifySecurityReviewRating(componentRef, expectedReviewRating);
+  private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating, Rating expectedSoftwareQualityReviewRating,
+    @Nullable Double expectedHotspotsReviewed) {
+    verifySecurityReviewRating(componentRef, expectedReviewRating, expectedSoftwareQualityReviewRating);
     if (expectedHotspotsReviewed != null) {
       verifySecurityHotspotsReviewed(componentRef, expectedHotspotsReviewed);
     } else {
@@ -298,10 +302,13 @@ public class SecurityReviewMeasuresVisitorTest {
     }
   }
 
-  private void verifySecurityReviewRating(int componentRef, Rating rating) {
+  private void verifySecurityReviewRating(int componentRef, Rating rating, Rating softwareQualityRating) {
     Measure measure = measureRepository.getAddedRawMeasure(componentRef, SECURITY_REVIEW_RATING_KEY).get();
+    Measure softwareQualityMeasure = measureRepository.getAddedRawMeasure(componentRef, SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY).get();
     assertThat(measure.getIntValue()).isEqualTo(rating.getIndex());
     assertThat(measure.getData()).isEqualTo(rating.name());
+    assertThat(softwareQualityMeasure.getIntValue()).isEqualTo(softwareQualityRating.getIndex());
+    assertThat(softwareQualityMeasure.getData()).isEqualTo(softwareQualityRating.name());
   }
 
   private void verifySecurityHotspotsReviewed(int componentRef, double percent) {

@@ -55,4 +55,15 @@ public class SecurityReviewRating {
     }
     return E;
   }
+
+  public static Rating computeAToDRating(@Nullable Double percent) {
+    if (percent == null || Math.abs(percent - 100.0D) < 10e-6) {
+      return A;
+    } else if (percent >= 70.0D) {
+      return B;
+    } else if (percent >= 50.0D) {
+      return C;
+    }
+    return D;
+  }
 }
