@@ -26,8 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -58,7 +62,9 @@ import static org.sonar.server.qualitygate.Condition.Operator.LESS_THAN;
 import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
 
 public class QualityGateConditionsUpdater {
-  public static final Set<String> INVALID_METRIC_KEYS = Set.of(ALERT_STATUS_KEY, SECURITY_HOTSPOTS_KEY, NEW_SECURITY_HOTSPOTS_KEY);
+  public static final Set<String> INVALID_METRIC_KEYS = Stream.concat(Stream.of(ALERT_STATUS_KEY, SECURITY_HOTSPOTS_KEY, NEW_SECURITY_HOTSPOTS_KEY),
+    new SoftwareQualitiesMetrics().getMetrics().stream().map(Metric::getKey))
+    .collect(Collectors.toUnmodifiableSet());
 
   private static final Map<Integer, Set<Condition.Operator>> VALID_OPERATORS_BY_DIRECTION = Map.of(
     DIRECTION_NONE, Set.of(GREATER_THAN, LESS_THAN),
@@ -213,7 +219,7 @@ public class QualityGateConditionsUpdater {
   }
 
   private static void checkRatingGreaterThanOperator(@Nullable String value, List<String> errors) {
-    check(isNullOrEmpty(value) || !Objects.equals(toRating(value), E), errors, "There's no worse rating than E (%s)"  , value);
+    check(isNullOrEmpty(value) || !Objects.equals(toRating(value), E), errors, "There's no worse rating than E (%s)", value);
   }
 
   private static Rating toRating(String value) {
