@@ -176,6 +176,8 @@ import org.sonar.server.monitoring.devops.GithubMetricsTask;
 import org.sonar.server.monitoring.devops.GitlabMetricsTask;
 import org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsModule;
 import org.sonar.server.notification.NotificationModule;
+import org.sonar.server.notification.email.telemetry.EmailConfigAuthMethodTelemetryProvider;
+import org.sonar.server.notification.email.telemetry.EmailConfigHostTelemetryProvider;
 import org.sonar.server.notification.ws.NotificationWsModule;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.ws.PermissionsWsModule;
@@ -681,6 +683,10 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // dismiss message
       new DismissMessageWsModule(),
+
+      // Email configuration
+      EmailConfigHostTelemetryProvider.class,
+      EmailConfigAuthMethodTelemetryProvider.class,
 
       AzureMetricsTask.class,
       BitbucketMetricsTask.class,

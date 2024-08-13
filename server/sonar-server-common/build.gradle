@@ -24,6 +24,7 @@ dependencies {
   api project(':server:sonar-db-dao')
   api project(':server:sonar-db-migration')
   api project(':server:sonar-process')
+  api project(':server:sonar-telemetry-core')
   api project(':sonar-core')
   api project(':sonar-markdown')
   api project(':sonar-ws')

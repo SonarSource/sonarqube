@@ -42,7 +42,7 @@ public class EmailSmtpConfiguration {
   public static final String EMAIL_CONFIG_PREFIX = "email.prefix";
   public static final String EMAIL_CONFIG_PREFIX_DEFAULT = "[SONARQUBE]";
   // Auth selection
-  public static final String EMAIL_CONFIG_SMTP_AUTH_METHOD= "email.smtp.auth.method";
+  public static final String EMAIL_CONFIG_SMTP_AUTH_METHOD = "email.smtp.auth.method";
   public static final String EMAIL_CONFIG_SMTP_AUTH_METHOD_DEFAULT = "BASIC";
   // Basic Auth
   public static final String EMAIL_CONFIG_SMTP_USERNAME = "email.smtp_username.secured";
