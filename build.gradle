@@ -275,7 +275,7 @@ subprojects {
       dependency 'org.sonarsource.javascript:sonar-javascript-plugin:10.14.0.26080'
       dependency 'org.sonarsource.php:sonar-php-plugin:3.36.0.11813'
       dependency 'org.sonarsource.plugins.cayc:sonar-cayc-plugin:2.4.0.2018'
-      dependency 'org.sonarsource.python:sonar-python-plugin:4.19.0.15616'
+      dependency 'org.sonarsource.python:sonar-python-plugin:4.20.0.16410'
       dependency 'org.sonarsource.kotlin:sonar-kotlin-plugin:2.20.0.4382'
       dependency "org.sonarsource.api.plugin:sonar-plugin-api:$pluginApiVersion"
       dependency "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures:$pluginApiVersion"
