@@ -23,8 +23,9 @@ import * as React from 'react';
 import UseQuery from '../../helpers/UseQuery';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
-import { useIsGitHubProjectQuery } from '../../queries/devops-integration';
+import { useIsGitHubProjectQuery, useIsGitLabProjectQuery } from '../../queries/devops-integration';
 import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
+import { useGilabProvisioningEnabledQuery } from '../../queries/identity-provider/gitlab';
 import { Dict, PermissionDefinitions, PermissionGroup, PermissionUser } from '../../types/types';
 import GroupHolder from './GroupHolder';
 import PermissionHeader from './PermissionHeader';
@@ -111,32 +112,56 @@ export default class HoldersList extends React.PureComponent<
     return (
       <UseQuery key={this.getKey(item)} query={useIsGitHubProjectQuery}>
         {({ data: isGitHubProject }) => (
-          <UseQuery query={useGithubProvisioningEnabledQuery}>
-            {({ data: githubProvisioningStatus }) => (
-              <>
-                {this.isPermissionUser(item) ? (
-                  <UserHolder
-                    key={`user-${item.login}`}
-                    onToggle={this.handleUserToggle}
-                    permissions={permissions}
-                    selectedPermission={selectedPermission}
-                    user={item}
-                    disabled={isGitHubProject && !!githubProvisioningStatus && item.managed}
-                    removeOnly={isGitHubProject && !!githubProvisioningStatus && !item.managed}
-                  />
-                ) : (
-                  <GroupHolder
-                    group={item}
-                    isComponentPrivate={isComponentPrivate}
-                    key={`group-${item.id || item.name}`}
-                    onToggle={this.handleGroupToggle}
-                    permissions={permissions}
-                    selectedPermission={selectedPermission}
-                    disabled={isGitHubProject && !!githubProvisioningStatus && item.managed}
-                    removeOnly={isGitHubProject && !!githubProvisioningStatus && !item.managed}
-                  />
+          <UseQuery key={this.getKey(item)} query={useIsGitLabProjectQuery}>
+            {({ data: isGitLabProject }) => (
+              <UseQuery query={useGilabProvisioningEnabledQuery}>
+                {({ data: gitlabProvisioningStatus }) => (
+                  <UseQuery query={useGithubProvisioningEnabledQuery}>
+                    {({ data: githubProvisioningStatus }) => (
+                      <>
+                        {this.isPermissionUser(item) ? (
+                          <UserHolder
+                            key={`user-${item.login}`}
+                            onToggle={this.handleUserToggle}
+                            permissions={permissions}
+                            selectedPermission={selectedPermission}
+                            user={item}
+                            isGitHubUser={
+                              isGitHubProject && !!githubProvisioningStatus && item.managed
+                            }
+                            isGitLabUser={
+                              isGitLabProject && !!gitlabProvisioningStatus && item.managed
+                            }
+                            removeOnly={
+                              (isGitHubProject && !!githubProvisioningStatus && !item.managed) ||
+                              (isGitLabProject && !!gitlabProvisioningStatus && !item.managed)
+                            }
+                          />
+                        ) : (
+                          <GroupHolder
+                            group={item}
+                            isComponentPrivate={isComponentPrivate}
+                            key={`group-${item.id || item.name}`}
+                            onToggle={this.handleGroupToggle}
+                            permissions={permissions}
+                            selectedPermission={selectedPermission}
+                            isGitHubUser={
+                              isGitHubProject && !!githubProvisioningStatus && item.managed
+                            }
+                            isGitLabUser={
+                              isGitLabProject && !!gitlabProvisioningStatus && item.managed
+                            }
+                            removeOnly={
+                              (isGitHubProject && !!githubProvisioningStatus && !item.managed) ||
+                              (isGitLabProject && !!gitlabProvisioningStatus && !item.managed)
+                            }
+                          />
+                        )}
+                      </>
+                    )}
+                  </UseQuery>
                 )}
-              </>
+              </UseQuery>
             )}
           </UseQuery>
         )}

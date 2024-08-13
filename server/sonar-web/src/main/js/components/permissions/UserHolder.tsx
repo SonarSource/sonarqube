@@ -21,7 +21,7 @@
 import { Avatar, ContentCell, Note, TableRowInteractive } from 'design-system';
 import * as React from 'react';
 import { Image } from '~sonar-aligned/components/common/Image';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
 import { isDefined } from '../../helpers/types';
 import { PermissionDefinitions, PermissionUser } from '../../types/types';
@@ -29,7 +29,8 @@ import PermissionCell from './PermissionCell';
 import usePermissionChange from './usePermissionChange';
 
 interface Props {
-  disabled?: boolean;
+  isGitHubUser: boolean | undefined;
+  isGitLabUser: boolean | undefined;
   onToggle: (user: PermissionUser, permission: string) => Promise<void>;
   permissions: PermissionDefinitions;
   removeOnly?: boolean;
@@ -38,7 +39,7 @@ interface Props {
 }
 
 export default function UserHolder(props: Props) {
-  const { user, disabled, removeOnly, permissions, selectedPermission } = props;
+  const { user, removeOnly, permissions, selectedPermission, isGitHubUser, isGitLabUser } = props;
   const { loading, handleCheck, modal } = usePermissionChange({
     holder: user,
     onToggle: props.onToggle,
@@ -52,7 +53,7 @@ export default function UserHolder(props: Props) {
       loading={loading}
       onCheck={handleCheck}
       permission={permission}
-      disabled={disabled}
+      disabled={isGitHubUser || isGitLabUser}
       removeOnly={removeOnly}
       permissionItem={user}
       prefixID={user.login}
@@ -91,13 +92,28 @@ export default function UserHolder(props: Props) {
                 <strong>{user.name}</strong>
                 <Note className="sw-ml-2">{user.login}</Note>
               </div>
-              {disabled && (
+              {isGitHubUser && (
                 <Image
                   alt="github"
                   className="sw-ml-2"
                   height={16}
-                  aria-label={translate('project_permission.github_managed')}
+                  aria-label={translateWithParameters(
+                    'project_permission.managed',
+                    translate('alm.github'),
+                  )}
                   src="/images/alm/github.svg"
+                />
+              )}
+              {isGitLabUser && (
+                <Image
+                  alt="gitlab"
+                  className="sw-ml-2"
+                  height={16}
+                  aria-label={translateWithParameters(
+                    'project_permission.managed',
+                    translate('alm.gitlab'),
+                  )}
+                  src="/images/alm/gitlab.svg"
                 />
               )}
             </div>

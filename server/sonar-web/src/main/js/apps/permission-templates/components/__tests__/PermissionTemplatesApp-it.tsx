@@ -23,8 +23,11 @@ import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { uniq } from 'lodash';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
+import ComputeEngineServiceMock from '../../../../api/mocks/ComputeEngineServiceMock';
 import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServiceMock';
 import GithubProvisioningServiceMock from '../../../../api/mocks/GithubProvisioningServiceMock';
+import GitlabProvisioningServiceMock from '../../../../api/mocks/GitlabProvisioningServiceMock';
 import PermissionsServiceMock from '../../../../api/mocks/PermissionsServiceMock';
 import { mockGitHubConfiguration } from '../../../../helpers/mocks/dop-translation';
 import { mockPermissionGroup, mockPermissionUser } from '../../../../helpers/mocks/permissions';
@@ -40,11 +43,17 @@ import routes from '../../routes';
 const serviceMock = new PermissionsServiceMock();
 const dopTranslationHandler = new DopTranslationServiceMock();
 const githubHandler = new GithubProvisioningServiceMock(dopTranslationHandler);
+const gitlabHandler = new GitlabProvisioningServiceMock();
+const almHandler = new AlmSettingsServiceMock();
+const computeEngineHandler = new ComputeEngineServiceMock();
 
 beforeEach(() => {
   serviceMock.reset();
   dopTranslationHandler.reset();
   githubHandler.reset();
+  gitlabHandler.reset();
+  almHandler.reset();
+  computeEngineHandler.reset();
 });
 
 describe('rendering', () => {

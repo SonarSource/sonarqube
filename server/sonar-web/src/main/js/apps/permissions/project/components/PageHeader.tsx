@@ -24,6 +24,7 @@ import * as React from 'react';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
+import GitLabSynchronisationWarning from '../../../../app/components/GitLabSynchronisationWarning';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';
 import {
@@ -106,6 +107,7 @@ export default function PageHeader(props: Readonly<Props>) {
               </p>
               <div className="sw-mt-2">
                 {provisionedByGitHub && <GitHubSynchronisationWarning short />}
+                {provisionedByGitLab && <GitLabSynchronisationWarning short />}
               </div>
             </>
           )}

@@ -21,7 +21,7 @@
 import { Badge, ContentCell, TableRowInteractive, UserGroupIcon } from 'design-system';
 import * as React from 'react';
 import { Image } from '~sonar-aligned/components/common/Image';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
 import { isDefined } from '../../helpers/types';
 import { Permissions } from '../../types/permissions';
@@ -30,9 +30,10 @@ import PermissionCell from './PermissionCell';
 import usePermissionChange from './usePermissionChange';
 
 interface Props {
-  disabled?: boolean;
   group: PermissionGroup;
   isComponentPrivate?: boolean;
+  isGitHubUser: boolean | undefined;
+  isGitLabUser: boolean | undefined;
   onToggle: (group: PermissionGroup, permission: string) => Promise<void>;
   permissions: PermissionDefinitions;
   removeOnly?: boolean;
@@ -42,8 +43,15 @@ interface Props {
 export const ANYONE = 'Anyone';
 
 export default function GroupHolder(props: Props) {
-  const { group, isComponentPrivate, permissions, selectedPermission, disabled, removeOnly } =
-    props;
+  const {
+    group,
+    isComponentPrivate,
+    permissions,
+    selectedPermission,
+    removeOnly,
+    isGitHubUser,
+    isGitLabUser,
+  } = props;
   const { loading, handleCheck, modal } = usePermissionChange({
     holder: group,
     onToggle: props.onToggle,
@@ -64,13 +72,28 @@ export default function GroupHolder(props: Props) {
               <div className="sw-flex-1 sw-text-ellipsis sw-whitespace-nowrap sw-overflow-hidden  sw-min-w-0">
                 <strong>{group.name}</strong>
               </div>
-              {disabled && (
+              {isGitHubUser && (
                 <Image
                   alt="github"
                   className="sw-ml-2"
-                  aria-label={translate('project_permission.github_managed')}
+                  aria-label={translateWithParameters(
+                    'project_permission.managed',
+                    translate('alm.github'),
+                  )}
                   height={16}
                   src="/images/alm/github.svg"
+                />
+              )}
+              {isGitLabUser && (
+                <Image
+                  alt="gitlab"
+                  className="sw-ml-2"
+                  aria-label={translateWithParameters(
+                    'project_permission.managed',
+                    translate('alm.gitlab'),
+                  )}
+                  height={16}
+                  src="/images/alm/gitlab.svg"
                 />
               )}
               {group.name === ANYONE && (
@@ -93,7 +116,9 @@ export default function GroupHolder(props: Props) {
         return (
           <PermissionCell
             disabled={
-              disabled || (group.name === ANYONE && (isComponentPrivate || isAdminPermission))
+              isGitHubUser ||
+              isGitLabUser ||
+              (group.name === ANYONE && (isComponentPrivate || isAdminPermission))
             }
             removeOnly={removeOnly}
             key={permissionKey}

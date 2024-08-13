@@ -21,6 +21,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
+import ComputeEngineServiceMock from '../../../../../api/mocks/ComputeEngineServiceMock';
 import DopTranslationServiceMock from '../../../../../api/mocks/DopTranslationServiceMock';
 import GithubProvisioningServiceMock from '../../../../../api/mocks/GithubProvisioningServiceMock';
 import GitlabProvisioningServiceMock from '../../../../../api/mocks/GitlabProvisioningServiceMock';
@@ -43,6 +44,7 @@ import { ComponentContextShape } from '../../../../../types/component';
 import { Feature } from '../../../../../types/features';
 import { Permissions } from '../../../../../types/permissions';
 import { ProvisioningType } from '../../../../../types/provisioning';
+import { TaskStatuses, TaskTypes } from '../../../../../types/tasks';
 import { Component, PermissionGroup, PermissionUser, Provider } from '../../../../../types/types';
 import { projectPermissionsRoutes } from '../../../routes';
 import { getPageObject } from '../../../test-utils';
@@ -53,6 +55,8 @@ let githubHandler: GithubProvisioningServiceMock;
 let gitlabHandler: GitlabProvisioningServiceMock;
 let almHandler: AlmSettingsServiceMock;
 let systemHandler: SystemServiceMock;
+let computeEngineHandler: ComputeEngineServiceMock;
+
 beforeAll(() => {
   serviceMock = new PermissionsServiceMock();
   dopTranslationHandler = new DopTranslationServiceMock();
@@ -60,6 +64,7 @@ beforeAll(() => {
   gitlabHandler = new GitlabProvisioningServiceMock();
   almHandler = new AlmSettingsServiceMock();
   systemHandler = new SystemServiceMock();
+  computeEngineHandler = new ComputeEngineServiceMock();
 });
 
 afterEach(() => {
@@ -68,6 +73,7 @@ afterEach(() => {
   githubHandler.reset();
   gitlabHandler.reset();
   almHandler.reset();
+  computeEngineHandler.reset();
 });
 
 describe('rendering', () => {
@@ -243,7 +249,7 @@ it('should correctly handle pagination', async () => {
   expect(screen.getAllByRole('row').length).toBe(21);
 });
 
-describe('GH provisioning', () => {
+describe('GitHub provisioning', () => {
   beforeEach(() => {
     systemHandler.setProvider(Provider.Github);
   });
@@ -442,9 +448,20 @@ describe('GH provisioning', () => {
   });
 });
 
-describe('GL provisioning', () => {
+describe('GitLab provisioning', () => {
   beforeEach(() => {
     systemHandler.setProvider(Provider.Gitlab);
+    computeEngineHandler.addTask({
+      status: TaskStatuses.InProgress,
+      executedAt: '2022-02-03T11:55:35+0200',
+      type: TaskTypes.GitlabProvisioning,
+    });
+    computeEngineHandler.addTask({
+      status: TaskStatuses.Failed,
+      executedAt: '2022-02-03T11:45:35+0200',
+      errorMessage: "T'es mauvais Jacques",
+      type: TaskTypes.GitlabProvisioning,
+    });
   });
 
   it('should not allow to change visibility for GitLab Project with auto-provisioning', async () => {
@@ -515,6 +532,137 @@ describe('GL provisioning', () => {
     expect(ui.visibilityRadio(Visibility.Private).get()).not.toHaveClass('disabled');
     await ui.turnProjectPrivate();
     expect(ui.visibilityRadio(Visibility.Private).get()).toBeChecked();
+  });
+
+  it('should have disabled permissions for GitLab Project', async () => {
+    const user = userEvent.setup();
+    const ui = getPageObject(user);
+    gitlabHandler.setGitlabConfigurations([
+      mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.auto }),
+    ]);
+    almHandler.handleSetProjectBinding(AlmKeys.GitLab, {
+      almSetting: 'test',
+      repository: 'test',
+      monorepo: false,
+      project: 'my-project',
+    });
+    renderPermissionsProjectApp(
+      {},
+      { featureList: [Feature.GitlabProvisioning] },
+      {
+        component: mockComponent({ visibility: Visibility.Private }),
+      },
+    );
+    await ui.appLoaded();
+
+    expect(ui.pageTitle.get()).toBeInTheDocument();
+    await waitFor(() =>
+      expect(ui.pageTitle.get()).toHaveAccessibleName(/project_permission.managed/),
+    );
+    expect(ui.pageTitle.byRole('img').get()).toBeInTheDocument();
+    expect(ui.gitlabExplanations.get()).toBeInTheDocument();
+
+    expect(ui.projectPermissionCheckbox('John', Permissions.Admin).get()).toBeChecked();
+    expect(ui.projectPermissionCheckbox('John', Permissions.Admin).get()).toBeDisabled();
+    expect(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get()).toBeChecked();
+    expect(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get()).toBeEnabled();
+    await ui.toggleProjectPermission('Alexa', Permissions.IssueAdmin);
+    expect(ui.confirmRemovePermissionDialog.get()).toBeInTheDocument();
+    expect(ui.confirmRemovePermissionDialog.get()).toHaveTextContent(
+      `${Permissions.IssueAdmin}Alexa`,
+    );
+    await user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get());
+    expect(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get()).not.toBeChecked();
+
+    expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).toBeChecked();
+    expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).toBeEnabled();
+    await ui.toggleProjectPermission('sonar-users', Permissions.Browse);
+    expect(ui.confirmRemovePermissionDialog.get()).toBeInTheDocument();
+    expect(ui.confirmRemovePermissionDialog.get()).toHaveTextContent(
+      `${Permissions.Browse}sonar-users`,
+    );
+    await user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get());
+    expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).not.toBeChecked();
+    expect(ui.projectPermissionCheckbox('sonar-admins', Permissions.Admin).get()).toBeChecked();
+    expect(ui.projectPermissionCheckbox('sonar-admins', Permissions.Admin).get()).toHaveAttribute(
+      'disabled',
+    );
+
+    const johnRow = screen.getAllByRole('row')[4];
+    expect(johnRow).toHaveTextContent('John');
+    expect(ui.gitlabLogo.get(johnRow)).toBeInTheDocument();
+    const alexaRow = screen.getAllByRole('row')[5];
+    expect(alexaRow).toHaveTextContent('Alexa');
+    expect(ui.gitlabLogo.query(alexaRow)).not.toBeInTheDocument();
+    const usersGroupRow = screen.getAllByRole('row')[1];
+    expect(usersGroupRow).toHaveTextContent('sonar-users');
+    expect(ui.gitlabLogo.query(usersGroupRow)).not.toBeInTheDocument();
+    const adminsGroupRow = screen.getAllByRole('row')[2];
+    expect(adminsGroupRow).toHaveTextContent('sonar-admins');
+    expect(ui.gitlabLogo.query(adminsGroupRow)).toBeInTheDocument();
+
+    expect(ui.applyTemplateBtn.query()).not.toBeInTheDocument();
+
+    // not possible to grant permissions at all
+    expect(
+      screen
+        .getAllByRole('checkbox', { checked: false })
+        .every((item) => item.getAttributeNames().includes('disabled')),
+    ).toBe(true);
+  });
+
+  it('should allow to change permissions for GitLab Project without auto-provisioning', async () => {
+    const user = userEvent.setup();
+    const ui = getPageObject(user);
+    gitlabHandler.setGitlabConfigurations([
+      mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.jit }),
+    ]);
+    almHandler.handleSetProjectBinding(AlmKeys.GitLab, {
+      almSetting: 'test',
+      repository: 'test',
+      monorepo: false,
+      project: 'my-project',
+    });
+    renderPermissionsProjectApp(
+      { visibility: Visibility.Private },
+      { featureList: [Feature.GitlabProvisioning] },
+    );
+    await ui.appLoaded();
+
+    expect(ui.pageTitle.get()).toBeInTheDocument();
+    expect(ui.pageTitle.byRole('img').query()).not.toBeInTheDocument();
+
+    expect(ui.applyTemplateBtn.get()).toBeInTheDocument();
+
+    // no restrictions
+    expect(
+      screen
+        .getAllByRole('checkbox')
+        .every((item) => item.getAttributeNames().includes('disabled')),
+    ).toBe(false);
+  });
+
+  it('should allow to change permissions for non-GitLab Project', async () => {
+    const user = userEvent.setup();
+    const ui = getPageObject(user);
+    gitlabHandler.setGitlabConfigurations([
+      mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.auto }),
+    ]);
+    renderPermissionsProjectApp({}, { featureList: [Feature.GitlabProvisioning] });
+    await ui.appLoaded();
+
+    expect(ui.pageTitle.get()).toBeInTheDocument();
+    expect(ui.nonGitLabProjectWarning.get()).toBeInTheDocument();
+    expect(ui.pageTitle.byRole('img').query()).not.toBeInTheDocument();
+
+    expect(ui.applyTemplateBtn.get()).toBeInTheDocument();
+
+    // no restrictions
+    expect(
+      screen
+        .getAllByRole('checkbox')
+        .every((item) => item.getAttributeNames().includes('disabled')),
+    ).toBe(false);
   });
 });
 

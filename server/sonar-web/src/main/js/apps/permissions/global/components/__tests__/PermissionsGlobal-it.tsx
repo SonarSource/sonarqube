@@ -21,6 +21,11 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { without } from 'lodash';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
+import ComputeEngineServiceMock from '../../../../../api/mocks/ComputeEngineServiceMock';
+import DopTranslationServiceMock from '../../../../../api/mocks/DopTranslationServiceMock';
+import GithubProvisioningServiceMock from '../../../../../api/mocks/GithubProvisioningServiceMock';
+import GitlabProvisioningServiceMock from '../../../../../api/mocks/GitlabProvisioningServiceMock';
 import PermissionsServiceMock from '../../../../../api/mocks/PermissionsServiceMock';
 import { mockPermissionGroup, mockPermissionUser } from '../../../../../helpers/mocks/permissions';
 import { PERMISSIONS_ORDER_GLOBAL } from '../../../../../helpers/permissions';
@@ -33,12 +38,28 @@ import { globalPermissionsRoutes } from '../../../routes';
 import { flattenPermissionsList, getPageObject } from '../../../test-utils';
 
 let serviceMock: PermissionsServiceMock;
+let dopTranslationHandler: DopTranslationServiceMock;
+let githubHandler: GithubProvisioningServiceMock;
+let gitlabHandler: GitlabProvisioningServiceMock;
+let almHandler: AlmSettingsServiceMock;
+let computeEngineHandler: ComputeEngineServiceMock;
+
 beforeAll(() => {
   serviceMock = new PermissionsServiceMock();
+  dopTranslationHandler = new DopTranslationServiceMock();
+  githubHandler = new GithubProvisioningServiceMock(dopTranslationHandler);
+  gitlabHandler = new GitlabProvisioningServiceMock();
+  almHandler = new AlmSettingsServiceMock();
+  computeEngineHandler = new ComputeEngineServiceMock();
 });
 
 afterEach(() => {
   serviceMock.reset();
+  dopTranslationHandler.reset();
+  githubHandler.reset();
+  gitlabHandler.reset();
+  almHandler.reset();
+  computeEngineHandler.reset();
 });
 
 describe('rendering', () => {

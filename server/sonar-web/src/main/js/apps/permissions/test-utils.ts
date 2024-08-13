@@ -40,12 +40,15 @@ export function getPageObject(user: UserEvent) {
       }),
     visibilityRadio: (visibility: Visibility) =>
       byRole('radio', { name: `visibility.${visibility}` }),
-    githubLogo: byRole('img', { name: 'project_permission.github_managed' }),
+    githubLogo: byRole('img', { name: 'project_permission.managed.alm.github' }),
     githubExplanations: byText('roles.page.description.github'),
+    gitlabLogo: byRole('img', { name: 'project_permission.managed.alm.gitlab' }),
+    gitlabExplanations: byText('roles.page.description.gitlab'),
     confirmRemovePermissionDialog: byRole('dialog', {
       name: 'project_permission.remove_only_confirmation_title',
     }),
     nonGHProjectWarning: byText('project_permission.local_project_with_github_provisioning'),
+    nonGitLabProjectWarning: byText('project_permission.local_project_with_gitlab_provisioning'),
     makePublicDisclaimer: byText(
       'projects_role.are_you_sure_to_turn_project_to_public.warning.TRK',
     ),
