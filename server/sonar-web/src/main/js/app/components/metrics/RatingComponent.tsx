@@ -29,6 +29,8 @@ import { useMeasureQuery } from '../../../queries/measures';
 import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { BranchLike } from '../../../types/branch-like';
 
+type SizeType = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
 interface Props {
   branchLike?: BranchLike;
   className?: string;
@@ -36,7 +38,7 @@ interface Props {
   getLabel?: (rating: RatingEnum) => string;
   getTooltip?: (rating: RatingEnum) => React.ReactNode;
   ratingMetric: MetricKey;
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  size?: SizeType;
 }
 
 type RatingMetricKeys =
@@ -88,6 +90,7 @@ export default function RatingComponent(props: Readonly<Props>) {
   const badge = (
     <MetricsRatingBadge
       label={getLabel ? getLabel(rating) : value ?? '—'}
+      isLegacy={measure?.metric ? !isNewRatingMetric(measure.metric as MetricKey) : false}
       rating={rating}
       size={size}
       className={className}

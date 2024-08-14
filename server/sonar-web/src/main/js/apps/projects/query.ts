@@ -19,7 +19,7 @@
  */
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { RawQuery } from '~sonar-aligned/types/router';
-import { Dict } from '../../types/types';
+import { propertyToMetricMap, propertyToMetricMapLegacy } from './utils';
 
 type Level = 'ERROR' | 'WARN' | 'OK';
 
@@ -74,7 +74,7 @@ export function parseUrlQuery(urlQuery: RawQuery): Query {
   };
 }
 
-export function convertToFilter(query: Query, isFavorite: boolean): string {
+export function convertToFilter(query: Query, isFavorite: boolean, isLegacy: boolean): string {
   const conditions: string[] = [];
 
   if (isFavorite) {
@@ -82,19 +82,19 @@ export function convertToFilter(query: Query, isFavorite: boolean): string {
   }
 
   if (query['gate'] != null) {
-    conditions.push(mapPropertyToMetric('gate') + ' = ' + query['gate']);
+    conditions.push(mapPropertyToMetric('gate', isLegacy) + ' = ' + query['gate']);
   }
 
   ['coverage', 'new_coverage'].forEach((property) =>
-    pushMetricToArray(query, property, conditions, convertCoverage),
+    pushMetricToArray(query, property, conditions, convertCoverage, isLegacy),
   );
 
   ['duplications', 'new_duplications'].forEach((property) =>
-    pushMetricToArray(query, property, conditions, convertDuplications),
+    pushMetricToArray(query, property, conditions, convertDuplications, isLegacy),
   );
 
   ['size', 'new_lines'].forEach((property) =>
-    pushMetricToArray(query, property, conditions, convertSize),
+    pushMetricToArray(query, property, conditions, convertSize, isLegacy),
   );
 
   [
@@ -106,14 +106,16 @@ export function convertToFilter(query: Query, isFavorite: boolean): string {
     'new_security',
     'new_security_review_rating',
     'new_maintainability',
-  ].forEach((property) => pushMetricToArray(query, property, conditions, convertIssuesRating));
+  ].forEach((property) =>
+    pushMetricToArray(query, property, conditions, convertIssuesRating, isLegacy),
+  );
 
   ['languages', 'tags', 'qualifier'].forEach((property) =>
-    pushMetricToArray(query, property, conditions, convertArrayMetric),
+    pushMetricToArray(query, property, conditions, convertArrayMetric, isLegacy),
   );
 
   if (query['search'] != null) {
-    conditions.push(`${mapPropertyToMetric('search')} = "${query['search']}"`);
+    conditions.push(`${mapPropertyToMetric('search', isLegacy)} = "${query['search']}"`);
   }
 
   return conditions.join(' and ');
@@ -233,30 +235,8 @@ function convertSize(metric: string, size: number): string {
   }
 }
 
-function mapPropertyToMetric(property?: string): string | undefined {
-  const map: Dict<string> = {
-    analysis_date: 'analysisDate',
-    reliability: 'reliability_rating',
-    new_reliability: 'new_reliability_rating',
-    security: 'security_rating',
-    new_security: 'new_security_rating',
-    security_review_rating: 'security_review_rating',
-    new_security_review_rating: 'new_security_review_rating',
-    maintainability: 'sqale_rating',
-    new_maintainability: 'new_maintainability_rating',
-    coverage: 'coverage',
-    new_coverage: 'new_coverage',
-    duplications: 'duplicated_lines_density',
-    new_duplications: 'new_duplicated_lines_density',
-    size: 'ncloc',
-    new_lines: 'new_lines',
-    gate: 'alert_status',
-    languages: 'languages',
-    tags: 'tags',
-    search: 'query',
-    qualifier: 'qualifier',
-  };
-  return property && map[property];
+function mapPropertyToMetric(property?: string, isLegacy: boolean = false): string | undefined {
+  return property && (isLegacy ? propertyToMetricMapLegacy : propertyToMetricMap)[property];
 }
 
 function pushMetricToArray(
@@ -264,8 +244,9 @@ function pushMetricToArray(
   property: string,
   conditionsArray: string[],
   convertFunction: (metric: string, value: Query[string]) => string,
+  isLegacy: boolean,
 ): void {
-  const metric = mapPropertyToMetric(property);
+  const metric = mapPropertyToMetric(property, isLegacy);
   if (query[property] !== undefined && metric !== undefined) {
     conditionsArray.push(convertFunction(metric, query[property]));
   }

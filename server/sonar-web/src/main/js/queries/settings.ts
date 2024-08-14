@@ -21,7 +21,7 @@ import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/r
 import { addGlobalSuccessMessage } from 'design-system';
 import { getValue, getValues, resetSettingValue, setSettingValue } from '../api/settings';
 import { translate } from '../helpers/l10n';
-import { ExtendedSettingDefinition } from '../types/settings';
+import { ExtendedSettingDefinition, SettingsKey } from '../types/settings';
 import { createQueryHook } from './common';
 
 type SettingValue = string | boolean | string[];
@@ -48,7 +48,7 @@ export const useGetValueQuery = createQueryHook(
 
 export const useIsLegacyCCTMode = () => {
   return useGetValueQuery(
-    { key: 'sonar.legacy.ratings.mode.enabled' },
+    { key: SettingsKey.LegacyMode },
     { staleTime: Infinity, select: (data) => data?.value === 'true' },
   );
 };

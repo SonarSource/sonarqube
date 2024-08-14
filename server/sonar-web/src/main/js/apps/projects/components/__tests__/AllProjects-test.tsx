@@ -81,7 +81,7 @@ it('changes sort and perspective', async () => {
   const user = userEvent.setup();
   renderProjects();
 
-  await user.click(ui.sortSelect.get());
+  await user.click(await ui.sortSelect.find());
   await user.click(screen.getByText('projects.sorting.size'));
 
   const projects = ui.projects.getAll();
@@ -108,7 +108,7 @@ it('handles showing favorite projects on load', async () => {
   const user = userEvent.setup();
   renderProjects(`${BASE_PATH}/favorite`);
 
-  expect(ui.myFavoritesToggleOption.get()).toHaveAttribute('aria-current', 'true');
+  expect(await ui.myFavoritesToggleOption.find()).toHaveAttribute('aria-current', 'true');
   expect(await ui.projects.findAll()).toHaveLength(2);
 
   await user.click(ui.allToggleOption.get());

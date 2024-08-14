@@ -27,18 +27,12 @@ import { Dict } from '../../../types/types';
 import CoverageFilter from '../filters/CoverageFilter';
 import DuplicationsFilter from '../filters/DuplicationsFilter';
 import LanguagesFilter from '../filters/LanguagesFilter';
-import MaintainabilityFilter from '../filters/MaintainabilityFilter';
 import NewCoverageFilter from '../filters/NewCoverageFilter';
 import NewDuplicationsFilter from '../filters/NewDuplicationsFilter';
 import NewLinesFilter from '../filters/NewLinesFilter';
-import NewMaintainabilityFilter from '../filters/NewMaintainabilityFilter';
-import NewReliabilityFilter from '../filters/NewReliabilityFilter';
-import NewSecurityFilter from '../filters/NewSecurityFilter';
 import QualifierFacet from '../filters/QualifierFilter';
 import QualityGateFacet from '../filters/QualityGateFilter';
-import ReliabilityFilter from '../filters/ReliabilityFilter';
-import SecurityFilter from '../filters/SecurityFilter';
-import SecurityReviewFilter from '../filters/SecurityReviewFilter';
+import RatingFilter from '../filters/RatingFilter';
 import SizeFilter from '../filters/SizeFilter';
 import TagsFacet from '../filters/TagsFilter';
 import { hasFilterParams } from '../query';
@@ -107,34 +101,38 @@ export default function PageSidebar(props: PageSidebarProps) {
 
       {!isLeakView && (
         <>
-          <ReliabilityFilter
+          <RatingFilter
             {...facetProps}
-            facet={getFacet(facets, 'reliability')}
-            value={query.reliability}
-          />
-
-          <BasicSeparator className="sw-my-4" />
-
-          <SecurityFilter
-            {...facetProps}
-            facet={getFacet(facets, 'security')}
+            facets={facets}
+            property="security"
             value={query.security}
           />
 
           <BasicSeparator className="sw-my-4" />
 
-          <SecurityReviewFilter
+          <RatingFilter
             {...facetProps}
-            facet={getFacet(facets, 'security_review')}
-            value={query.security_review_rating}
+            facets={facets}
+            property="reliability"
+            value={query.reliability}
           />
 
           <BasicSeparator className="sw-my-4" />
 
-          <MaintainabilityFilter
+          <RatingFilter
             {...facetProps}
-            facet={getFacet(facets, 'maintainability')}
+            facets={facets}
+            property="maintainability"
             value={query.maintainability}
+          />
+
+          <BasicSeparator className="sw-my-4" />
+
+          <RatingFilter
+            {...facetProps}
+            facets={facets}
+            property="security_review"
+            value={query.security_review_rating}
           />
 
           <BasicSeparator className="sw-my-4" />
@@ -160,35 +158,38 @@ export default function PageSidebar(props: PageSidebarProps) {
       )}
       {isLeakView && (
         <>
-          <NewReliabilityFilter
+          <RatingFilter
             {...facetProps}
-            facet={getFacet(facets, 'new_reliability')}
-            value={query.new_reliability}
-          />
-
-          <BasicSeparator className="sw-my-4" />
-
-          <NewSecurityFilter
-            {...facetProps}
-            facet={getFacet(facets, 'new_security')}
+            facets={facets}
+            property="new_security"
             value={query.new_security}
           />
 
           <BasicSeparator className="sw-my-4" />
 
-          <SecurityReviewFilter
+          <RatingFilter
             {...facetProps}
-            facet={getFacet(facets, 'new_security_review')}
-            property="new_security_review"
-            value={query.new_security_review_rating}
+            facets={facets}
+            property="new_reliability"
+            value={query.new_reliability}
           />
 
           <BasicSeparator className="sw-my-4" />
 
-          <NewMaintainabilityFilter
+          <RatingFilter
             {...facetProps}
-            facet={getFacet(facets, 'new_maintainability')}
+            facets={facets}
+            property="new_maintainability"
             value={query.new_maintainability}
+          />
+
+          <BasicSeparator className="sw-my-4" />
+
+          <RatingFilter
+            {...facetProps}
+            facets={facets}
+            property="security_review"
+            value={query.new_security_review_rating}
           />
 
           <BasicSeparator className="sw-my-4" />

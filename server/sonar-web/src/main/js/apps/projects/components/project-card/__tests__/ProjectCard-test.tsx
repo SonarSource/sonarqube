@@ -27,6 +27,7 @@ import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser, mockMeasure } from '../../../../../helpers/testMocks';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
+import { SettingsKey } from '../../../../../types/settings';
 import { CurrentUser } from '../../../../../types/users';
 import { Project } from '../../../types';
 import ProjectCard from '../ProjectCard';
@@ -282,7 +283,7 @@ describe('upgrade scenario (awaiting scan)', () => {
   });
 
   it('should not display awaiting analysis badge if legacy mode is enabled', async () => {
-    settingsHandler.set('sonar.legacy.ratings.mode.enabled', 'true');
+    settingsHandler.set(SettingsKey.LegacyMode, 'true');
     renderProjectCard({
       ...PROJECT,
       measures: {
@@ -300,7 +301,7 @@ describe('upgrade scenario (awaiting scan)', () => {
   });
 
   it('should not display new values if legacy mode is enabled', async () => {
-    settingsHandler.set('sonar.legacy.ratings.mode.enabled', 'true');
+    settingsHandler.set(SettingsKey.LegacyMode, 'true');
     measuresHandler.registerComponentMeasures({
       [PROJECT.key]: {
         ...newRatings,

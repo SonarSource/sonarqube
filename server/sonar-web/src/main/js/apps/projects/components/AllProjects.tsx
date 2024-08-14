@@ -44,6 +44,7 @@ import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthent
 import { translate } from '../../../helpers/l10n';
 import { get, save } from '../../../helpers/storage';
 import { isDefined } from '../../../helpers/types';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { AppState } from '../../../types/appstate';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { Query, hasFilterParams, parseUrlQuery } from '../query';
@@ -58,6 +59,7 @@ interface Props {
   appState: AppState;
   currentUser: CurrentUser;
   isFavorite: boolean;
+  isLegacy: boolean;
   location: Location;
   router: Router;
 }
@@ -104,13 +106,13 @@ export class AllProjects extends React.PureComponent<Props, State> {
   }
 
   fetchMoreProjects = () => {
-    const { isFavorite } = this.props;
+    const { isFavorite, isLegacy } = this.props;
     const { pageIndex, projects, query } = this.state;
 
     if (pageIndex && projects && Object.keys(query).length !== 0) {
       this.setState({ loading: true });
 
-      fetchProjects({ isFavorite, query, pageIndex: pageIndex + 1 }).then((response) => {
+      fetchProjects({ isFavorite, query, pageIndex: pageIndex + 1, isLegacy }).then((response) => {
         if (this.mounted) {
           this.setState({
             loading: false,
@@ -173,14 +175,14 @@ export class AllProjects extends React.PureComponent<Props, State> {
   };
 
   handleQueryChange() {
-    const { isFavorite } = this.props;
+    const { isFavorite, isLegacy } = this.props;
 
     const queryRaw = this.props.location.query;
     const query = parseUrlQuery(queryRaw);
 
     this.setState({ loading: true, query });
 
-    fetchProjects({ isFavorite, query }).then((response) => {
+    fetchProjects({ isFavorite, query, isLegacy }).then((response) => {
       // We ignore the request if the query changed since the time it was initiated
       // If that happened, another query will be initiated anyway
       if (this.mounted && queryRaw === this.props.location.query) {
@@ -202,10 +204,10 @@ export class AllProjects extends React.PureComponent<Props, State> {
   };
 
   loadSearchResultCount = (property: string, values: string[]) => {
-    const { isFavorite } = this.props;
+    const { isFavorite, isLegacy } = this.props;
     const { query = {} } = this.state;
 
-    const data = convertToQueryData({ ...query, [property]: values }, isFavorite, {
+    const data = convertToQueryData({ ...query, [property]: values }, isFavorite, isLegacy, {
       ps: 1,
       facets: property,
     });
@@ -347,9 +349,10 @@ function getStorageOptions() {
   return options;
 }
 
-function SetSearchParamsWrapper(props: Readonly<Props>) {
+function AllProjectsWrapper(props: Readonly<Omit<Props, 'isLegacy'>>) {
   const [searchParams, setSearchParams] = useSearchParams();
   const savedOptions = getStorageOptions();
+  const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
 
   React.useEffect(
     () => {
@@ -366,10 +369,14 @@ function SetSearchParamsWrapper(props: Readonly<Props>) {
     ],
   );
 
-  return <AllProjects {...props} />;
+  return (
+    <Spinner isLoading={isLoading}>
+      <AllProjects {...props} isLegacy={isLegacy ?? false} />
+    </Spinner>
+  );
 }
 
-export default withRouter(withCurrentUserContext(withAppStateContext(SetSearchParamsWrapper)));
+export default withRouter(withCurrentUserContext(withAppStateContext(AllProjectsWrapper)));
 
 const StyledWrapper = styled.div`
   background-color: ${themeColor('backgroundPrimary')};

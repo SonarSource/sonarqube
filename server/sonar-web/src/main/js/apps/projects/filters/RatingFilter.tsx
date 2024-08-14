@@ -19,17 +19,47 @@
  */
 import * as React from 'react';
 import { RawQuery } from '~sonar-aligned/types/router';
-import { Facet } from '../types';
+import { Facets } from '../types';
 import RatingFacet from './RatingFacet';
 
 interface Props {
-  facet?: Facet;
+  facets?: Facets;
   headerDetail?: React.ReactNode;
   maxFacetValue?: number;
   onQueryChange: (change: RawQuery) => void;
+  property: string;
   value?: any;
 }
 
-export default function SecurityFilter(props: Props) {
-  return <RatingFacet {...props} name="Security" property="security" />;
+export default function RatingFilter({ facets, ...props }: Readonly<Props>) {
+  return (
+    <RatingFacet
+      {...props}
+      facet={getFacet(facets, props.property)}
+      name={getFacetName(props.property)}
+    />
+  );
+}
+
+function getFacetName(property: string) {
+  switch (property) {
+    case 'new_security':
+    case 'security':
+      return 'Security';
+    case 'new_maintainability':
+    case 'maintainability':
+      return 'Maintainability';
+    case 'new_reliability':
+    case 'reliability':
+      return 'Reliability';
+    case 'new_security_review':
+    case 'security_review':
+      return 'SecurityReview';
+    default:
+      return property;
+  }
+}
+
+function getFacet(facets: Facets | undefined, name: string) {
+  return facets && facets[name];
 }

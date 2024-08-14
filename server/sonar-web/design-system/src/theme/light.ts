@@ -465,10 +465,17 @@ export const lightTheme = {
     sizeIndicator: COLORS.blue[500],
 
     // rating colors
+    'rating.legacy.A': COLORS.green[200],
+    'rating.legacy.B': COLORS.yellowGreen[200],
+    'rating.legacy.C': COLORS.yellow[200],
+    'rating.legacy.D': COLORS.orange[200],
+    'rating.legacy.E': COLORS.red[200],
+
+    // rating colors
     'rating.A': COLORS.green[200],
     'rating.B': COLORS.yellowGreen[200],
     'rating.C': COLORS.yellow[200],
-    'rating.D': COLORS.orange[200],
+    'rating.D': COLORS.red[200],
     'rating.E': COLORS.red[200],
 
     // rating donut outside circle indicators

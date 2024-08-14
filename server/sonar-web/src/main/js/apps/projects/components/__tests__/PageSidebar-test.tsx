@@ -20,11 +20,19 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { CurrentUserContext } from '../../../../app/components/current-user/CurrentUserContext';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { SettingsKey } from '../../../../types/settings';
 import { CurrentUser } from '../../../../types/users';
 import PageSidebar, { PageSidebarProps } from '../PageSidebar';
+
+const settingsHandler = new SettingsServiceMock();
+
+beforeEach(() => {
+  settingsHandler.reset();
+});
 
 it('should render the right facets for overview', () => {
   renderPageSidebar({
@@ -74,6 +82,26 @@ it('should allow to clear all filters', async () => {
   expect(onClearAll).toHaveBeenCalled();
 
   expect(screen.getByRole('heading', { level: 2, name: 'filters' })).toHaveFocus();
+});
+
+it('should show legacy filters', async () => {
+  settingsHandler.set(SettingsKey.LegacyMode, 'true');
+  renderPageSidebar();
+
+  expect(await screen.findAllByText('E')).toHaveLength(4);
+  expect(screen.queryByText(/projects.facets.rating_option/)).not.toBeInTheDocument();
+  expect(screen.queryByText('projects.facets.maintainability.description')).not.toBeInTheDocument();
+  expect(screen.queryByText('projects.facets.security_review.description')).not.toBeInTheDocument();
+});
+
+it('should show non legacy filters', async () => {
+  settingsHandler.set(SettingsKey.LegacyMode, 'false');
+  renderPageSidebar();
+
+  expect(await screen.findAllByText(/projects.facets.rating_option/)).toHaveLength(16);
+  expect(screen.queryAllByText('E')).toHaveLength(0);
+  expect(screen.getByText('projects.facets.maintainability.description')).toBeInTheDocument();
+  expect(screen.getByText('projects.facets.security_review.description')).toBeInTheDocument();
 });
 
 function renderPageSidebar(overrides: Partial<PageSidebarProps> = {}, currentUser?: CurrentUser) {

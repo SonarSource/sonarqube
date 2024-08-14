@@ -19,10 +19,12 @@
  */
 import { MetricsRatingBadge, RatingEnum } from 'design-system';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { RawQuery } from '~sonar-aligned/types/router';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { Facet } from '../types';
 import RangeFacetBase from './RangeFacetBase';
 
@@ -37,6 +39,7 @@ interface Props {
 
 export default function RatingFacet(props: Props) {
   const { facet, maxFacetValue, name, property, value } = props;
+  const { data: isLegacy } = useIsLegacyCCTMode();
 
   const renderAccessibleLabel = React.useCallback(
     (option: number) => {
@@ -61,22 +64,54 @@ export default function RatingFacet(props: Props) {
     <RangeFacetBase
       facet={facet}
       header={translate('metric_domain', name)}
+      description={
+        !isLegacy && hasDescription(property)
+          ? translate(`projects.facets.${property.replace('new_', '')}.description`)
+          : undefined
+      }
       highlightUnder={1}
       maxFacetValue={maxFacetValue}
       onQueryChange={props.onQueryChange}
-      options={[1, 2, 3, 4, 5]}
+      options={isLegacy ? [1, 2, 3, 4, 5] : [1, 2, 3, 4]}
       property={property}
       renderAccessibleLabel={renderAccessibleLabel}
-      renderOption={renderOption}
+      renderOption={(option) => renderOption(option, property)}
       value={value}
     />
   );
 }
 
-function renderOption(option: number) {
-  const ratingFormatted = formatMeasure(option, MetricType.Rating);
+const hasDescription = (property: string) => {
+  return ['maintainability', 'new_maintainability', 'security_review'].includes(property);
+};
 
+function renderOption(option: string | number, property: string) {
+  return <RatingOption option={option} property={property} />;
+}
+
+function RatingOption({
+  option,
+  property,
+}: Readonly<{ option: string | number; property: string }>) {
+  const { data: isLegacy } = useIsLegacyCCTMode();
+  const intl = useIntl();
+
+  const ratingFormatted = formatMeasure(option, MetricType.Rating);
   return (
-    <MetricsRatingBadge label={ratingFormatted} rating={ratingFormatted as RatingEnum} size="xs" />
+    <>
+      <MetricsRatingBadge
+        label={ratingFormatted}
+        rating={ratingFormatted as RatingEnum}
+        isLegacy={isLegacy}
+        size="xs"
+      />
+      {!isLegacy && (
+        <span className="sw-ml-2">
+          {intl.formatMessage({
+            id: `projects.facets.rating_option.${property.replace('new_', '')}.${option}`,
+          })}
+        </span>
+      )}
+    </>
   );
 }
