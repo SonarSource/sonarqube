@@ -29,4 +29,6 @@ public interface DevOpsPlatformSettings {
 
   boolean isUserConsentRequiredAfterUpgrade();
 
+  String getProjectsPermissionsProvisioningTaskName();
+
 }

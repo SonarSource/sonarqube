@@ -33,6 +33,7 @@ import org.sonar.db.alm.setting.ALM;
 import static java.lang.String.valueOf;
 import static org.sonar.api.PropertyType.BOOLEAN;
 import static org.sonar.api.PropertyType.PASSWORD;
+import static org.sonar.db.ce.CeTaskTypes.GITLAB_PROJECT_PERMISSIONS_PROVISIONING;
 
 @ComputeEngineSide
 public class GitLabSettings implements DevOpsPlatformSettings {
@@ -115,6 +116,11 @@ public class GitLabSettings implements DevOpsPlatformSettings {
   @Override
   public boolean isUserConsentRequiredAfterUpgrade() {
     return configuration.getBoolean(GITLAB_USER_CONSENT_FOR_PERMISSION_PROVISIONING_REQUIRED).isPresent();
+  }
+
+  @Override
+  public String getProjectsPermissionsProvisioningTaskName() {
+    return GITLAB_PROJECT_PERMISSIONS_PROVISIONING;
   }
 
   static List<PropertyDefinition> definitions() {

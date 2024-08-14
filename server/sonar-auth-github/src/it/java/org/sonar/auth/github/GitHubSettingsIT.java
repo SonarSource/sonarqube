@@ -39,6 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.auth.github.GitHubSettings.GITHUB_PROVISION_PROJECT_VISIBILITY;
 import static org.sonar.auth.github.GitHubSettings.GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE;
+import static org.sonar.db.ce.CeTaskTypes.GITHUB_PROJECT_PERMISSIONS_PROVISIONING;
 
 public class GitHubSettingsIT {
   @Rule
@@ -313,4 +314,10 @@ public class GitHubSettingsIT {
     settings.setProperty("sonar.auth.github.appId", "id");
     settings.setProperty("sonar.auth.github.privateKey.secured", "secret");
   }
+
+  @Test
+  public void getProjectsPermissionsProvisioningTaskName_returnsCorrectTaskName() {
+    assertThat(underTest.getProjectsPermissionsProvisioningTaskName()).isEqualTo(GITHUB_PROJECT_PERMISSIONS_PROVISIONING);
+  }
+
 }

@@ -42,6 +42,7 @@ import static org.sonar.api.PropertyType.BOOLEAN;
 import static org.sonar.api.PropertyType.PASSWORD;
 import static org.sonar.api.PropertyType.STRING;
 import static org.sonar.api.utils.Preconditions.checkState;
+import static org.sonar.db.ce.CeTaskTypes.GITHUB_PROJECT_PERMISSIONS_PROVISIONING;
 
 @ServerSide
 @ComputeEngineSide
@@ -171,6 +172,11 @@ public class GitHubSettings implements DevOpsPlatformSettings {
   @Override
   public boolean isUserConsentRequiredAfterUpgrade() {
     return configuration.get(GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE).isPresent();
+  }
+
+  @Override
+  public String getProjectsPermissionsProvisioningTaskName() {
+    return GITHUB_PROJECT_PERMISSIONS_PROVISIONING;
   }
 
   @Override
