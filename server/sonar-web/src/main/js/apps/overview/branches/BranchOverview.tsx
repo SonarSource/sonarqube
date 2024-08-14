@@ -116,6 +116,7 @@ export default function BranchOverview(props: Readonly<Props>) {
 
   const { data: measuresAndLeak } = useMeasuresAndLeakQuery({
     componentKey: component.key,
+    branchLike: branch,
     metricKeys:
       component.qualifier === ComponentQualifier.Project
         ? projectQualityGateStatus?.conditions !== undefined

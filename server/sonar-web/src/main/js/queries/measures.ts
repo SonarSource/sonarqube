@@ -219,15 +219,25 @@ export const useMeasuresAndLeakQuery = createQueryHook(
   ({
     componentKey,
     metricKeys,
+    branchLike,
     branchParameters,
   }: {
+    branchLike?: BranchLike;
     branchParameters?: BranchParameters;
     componentKey: string;
     metricKeys: string[];
   }) => {
     const queryClient = useQueryClient();
     return queryOptions({
-      queryKey: ['measures', 'details', 'component', componentKey, metricKeys, branchParameters],
+      queryKey: [
+        'measures',
+        'details',
+        'component',
+        componentKey,
+        metricKeys,
+        branchLike,
+        branchParameters,
+      ],
       queryFn: async () => {
         // TODO remove this once all metrics are supported
         const filteredMetricKeys = metricKeys.filter(
@@ -242,7 +252,7 @@ export const useMeasuresAndLeakQuery = createQueryHook(
         metricKeys.forEach((metricKey) => {
           const measure = measuresMapByMetricKey[metricKey]?.[0] ?? null;
           queryClient.setQueryData<Measure>(
-            ['measures', 'details', componentKey, metricKey],
+            ['measures', 'details', componentKey, 'branchLike', branchLike, metricKey],
             measure,
           );
         });
