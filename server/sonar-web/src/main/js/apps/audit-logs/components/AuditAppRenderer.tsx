@@ -124,7 +124,8 @@ export default function AuditAppRenderer(props: Readonly<AuditAppRendererProps>)
 
           <DateRangePicker
             className="sw-w-abs-350 sw-mt-4"
-            clearButtonLabel={translate('clear')}
+            startClearButtonLabel={translate('clear.start')}
+            endClearButtonLabel={translate('clear.end')}
             fromLabel={translate('start_date')}
             onChange={props.handleDateSelection}
             separatorText={translate('to_')}

@@ -33,13 +33,14 @@ interface DateRange {
 interface Props {
   alignEndDateCalandarRight?: boolean;
   className?: string;
-  clearButtonLabel: string;
+  endClearButtonLabel: string;
   fromLabel: string;
   inputSize?: InputSizeKeys;
   maxDate?: Date;
   minDate?: Date;
   onChange: (date: DateRange) => void;
   separatorText?: string;
+  startClearButtonLabel: string;
   toLabel: string;
   value?: DateRange;
   valueFormatter?: (date?: Date) => string;
@@ -75,7 +76,8 @@ export class DateRangePicker extends React.PureComponent<Props> {
   render() {
     const {
       alignEndDateCalandarRight,
-      clearButtonLabel,
+      startClearButtonLabel,
+      endClearButtonLabel,
       fromLabel,
       inputSize = 'full',
       minDate,
@@ -89,7 +91,7 @@ export class DateRangePicker extends React.PureComponent<Props> {
     return (
       <div className={classNames('sw-flex sw-items-center', this.props.className)}>
         <DatePicker
-          clearButtonLabel={clearButtonLabel}
+          clearButtonLabel={startClearButtonLabel}
           currentMonth={this.to}
           data-test="from"
           highlightTo={this.to}
@@ -106,7 +108,7 @@ export class DateRangePicker extends React.PureComponent<Props> {
         <LightLabel className="sw-mx-2">{separatorText ?? '–'}</LightLabel>
         <DatePicker
           alignRight={alignEndDateCalandarRight}
-          clearButtonLabel={clearButtonLabel}
+          clearButtonLabel={endClearButtonLabel}
           currentMonth={this.from}
           data-test="to"
           highlightFrom={this.from}

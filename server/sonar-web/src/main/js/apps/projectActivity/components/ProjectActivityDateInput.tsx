@@ -43,7 +43,8 @@ export default class ProjectActivityDateInput extends React.PureComponent<Props>
       <div className="sw-flex">
         <DateRangePicker
           className="sw-w-abs-350"
-          clearButtonLabel={translate('clear')}
+          startClearButtonLabel={translate('clear.start')}
+          endClearButtonLabel={translate('clear.end')}
           fromLabel={translate('start_date')}
           onChange={this.handleChange}
           separatorText={translate('to_')}

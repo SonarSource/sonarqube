@@ -82,9 +82,10 @@ function renderDateRangePicker(overrides: Partial<DateRangePicker['props']> = {}
   render(
     <IntlWrapper messages={{ next_: 'next', previous_: 'previous' }}>
       <DateRangePicker
-        clearButtonLabel="clear"
+        endClearButtonLabel="clear end date"
         fromLabel="from"
         onChange={jest.fn()}
+        startClearButtonLabel="clear start date"
         toLabel="to"
         valueFormatter={defaultFormatter}
         {...overrides}
