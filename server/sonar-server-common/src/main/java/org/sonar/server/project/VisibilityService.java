@@ -27,6 +27,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GroupPermissionDto;
@@ -40,6 +41,7 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.Preconditions.checkState;
 import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.db.ce.CeTaskTypes.GITHUB_PROJECT_PERMISSIONS_PROVISIONING;
+import static org.sonar.db.ce.CeTaskTypes.GITLAB_PROJECT_PERMISSIONS_PROVISIONING;
 
 @ServerSide
 @ComputeEngineSide
@@ -79,8 +81,12 @@ public class VisibilityService {
     EntityDto entityDto = dbClient.entityDao().selectByKey(dbSession, entityKey).orElseThrow(() -> new IllegalStateException("Can't find entity " + entityKey));
     return dbClient.ceQueueDao().selectByEntityUuid(dbSession, entityDto.getUuid())
       .stream()
-      .filter(task -> !task.getTaskType().equals(GITHUB_PROJECT_PERMISSIONS_PROVISIONING))
+      .filter(task -> !hasDevopsProjectPermissionsProvisioningTaskRunning(task))
       .count();
+  }
+
+  private static boolean hasDevopsProjectPermissionsProvisioningTaskRunning(CeQueueDto task) {
+    return task.getTaskType().equals(GITHUB_PROJECT_PERMISSIONS_PROVISIONING) || task.getTaskType().equals(GITLAB_PROJECT_PERMISSIONS_PROVISIONING);
   }
 
   private void setPrivateForRootComponentUuid(DbSession dbSession, EntityDto entity, boolean newIsPrivate) {
