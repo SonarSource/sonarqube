@@ -19,8 +19,10 @@
  */
 package org.sonar.server.notification.email.telemetry;
 
+import com.google.common.net.InternetDomainName;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.telemetry.core.Dimension;
@@ -60,7 +62,25 @@ public class EmailConfigHostTelemetryProvider implements TelemetryDataProvider<S
   @Override
   public Optional<String> getValue() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.internalPropertiesDao().selectByKey(dbSession, EMAIL_CONFIG_SMTP_HOST);
+      return dbClient.internalPropertiesDao()
+        .selectByKey(dbSession, EMAIL_CONFIG_SMTP_HOST)
+        .map(EmailConfigHostTelemetryProvider::extractDomain);
+    }
+  }
+
+  private static String extractDomain(String host) {
+    if (StringUtils.isEmpty(host)) {
+      return "EMPTY_DOMAIN";
+    }
+    try {
+      host = host.contains("://") ? StringUtils.substringBefore(StringUtils.substringAfter(host, "://"), "/") : StringUtils.substringBefore(host, "/");
+      return InternetDomainName.from(host).topPrivateDomain().toString();
+    } catch (RuntimeException e) {
+      return switch (StringUtils.substringBefore(e.getMessage(), ":")) {
+        case "Not a valid domain name" -> "NOT_VALID_DOMAIN_NAME";
+        case "Not under a public suffix" -> "DOMAIN_NOT_UNDER_PUBLIC_SUFFIX";
+        default -> "NOT_VALID_DOMAIN";
+      };
     }
   }
 }

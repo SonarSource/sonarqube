@@ -21,6 +21,8 @@ package org.sonar.server.notification.email.telemetry;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -37,7 +39,7 @@ class EmailConfigHostTelemetryProviderTest {
   private final DbSession dbSession = mock(DbSession.class);
 
   @Test
-  void getValue_returnsTheRightEmailConfHost() {
+  void emailConfigHostTelemetryProvider_returnCorrectFields() {
     EmailConfigHostTelemetryProvider emailConfigHostTelemetryProvider = new EmailConfigHostTelemetryProvider(dbClient);
 
     String host = "smtp.office365.com";
@@ -47,6 +49,30 @@ class EmailConfigHostTelemetryProviderTest {
     assertThat(emailConfigHostTelemetryProvider.getMetricKey()).isEqualTo("email_conf_host");
     assertThat(emailConfigHostTelemetryProvider.getGranularity()).isEqualTo(Granularity.WEEKLY);
     assertThat(emailConfigHostTelemetryProvider.getDimension()).isEqualTo(Dimension.INSTALLATION);
-    assertThat(emailConfigHostTelemetryProvider.getValue()).isEqualTo(Optional.of(host));
+    assertThat(emailConfigHostTelemetryProvider.getValue()).isEqualTo(Optional.of("office365.com"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("hostAndExpectedDomainValues")
+  void getValue_returnsTheCorrectlyExtractedTopLevelDomain(String host, String domain) {
+    EmailConfigHostTelemetryProvider emailConfigHostTelemetryProvider = new EmailConfigHostTelemetryProvider(dbClient);
+
+    when(dbClient.openSession(false)).thenReturn(dbSession);
+    when(dbClient.internalPropertiesDao().selectByKey(dbSession, EMAIL_CONFIG_SMTP_HOST)).thenReturn(Optional.of(host));
+
+    assertThat(emailConfigHostTelemetryProvider.getValue()).isEqualTo(Optional.of(domain));
+  }
+
+  private static Object[][] hostAndExpectedDomainValues() {
+    return new Object[][]{
+      {"", "EMPTY_DOMAIN"},
+      {"smtpasad.org.sdf", "DOMAIN_NOT_UNDER_PUBLIC_SUFFIX"},
+      {"127.0.0.0", "NOT_VALID_DOMAIN_NAME"},
+      {"smtp.office365.com", "office365.com"},
+      {"outlook.office365.com/smthng/extra", "office365.com"},
+      {"my.domain.org/", "domain.org"},
+      {"http://smtp.gmail.com", "gmail.com"},
+      {"https://smtp.office365.com/smthng/extra", "office365.com"}
+    };
   }
 }
