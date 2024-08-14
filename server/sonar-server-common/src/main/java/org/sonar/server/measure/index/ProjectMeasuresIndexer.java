@@ -211,7 +211,7 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
       .setTags(project.getTags())
       .setAnalysedAt(analysisDate == null ? null : new Date(analysisDate))
       .setCreatedAt(new Date(project.getCreationDate()))
-      .setMeasuresFromMap(projectMeasures.getMeasures().getNumericMeasures())
+      .setMeasuresFromMap(ProjectMeasuresSoftwareQualityRatingsInitializer.initializeSoftwareQualityRatings(projectMeasures.getMeasures().getNumericMeasures()))
       .setLanguages(new ArrayList<>(projectMeasures.getMeasures().getNclocByLanguages().keySet()))
       .setNclocLanguageDistributionFromMap(projectMeasures.getMeasures().getNclocByLanguages());
   }

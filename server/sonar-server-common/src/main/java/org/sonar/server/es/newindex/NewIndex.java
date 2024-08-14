@@ -47,6 +47,7 @@ public abstract class NewIndex<T extends NewIndex<T>> {
   private final Settings.Builder settings = DefaultIndexSettings.defaults();
   private final Map<String, Object> attributes = new TreeMap<>();
   private final Map<String, Object> properties = new TreeMap<>();
+  private final Map<String, String> customHashMetadata = new TreeMap<>();
 
   public NewIndex(Index index, SettingsConfiguration settingsConfiguration) {
     this.index = index;
@@ -158,4 +159,16 @@ public abstract class NewIndex<T extends NewIndex<T>> {
 
   public abstract BuiltIndex<T> build();
 
+  /**
+   * Set additional information to be used to compute the hash of the index.
+   * If hash metadata changes, the hash of index will also change.
+   */
+  public T addCustomHashMetadata(String key, String value) {
+    this.customHashMetadata.put(key, value);
+    return castThis();
+  }
+
+  public Map<String, String> getCustomHashMetadata() {
+    return customHashMetadata;
+  }
 }

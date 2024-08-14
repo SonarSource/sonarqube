@@ -22,6 +22,7 @@ package org.sonar.server.measure.index;
 import javax.inject.Inject;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.db.measure.ProjectMeasuresIndexerIterator;
 import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
@@ -65,6 +66,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final String FIELD_NCLOC_DISTRIBUTION_LANGUAGE = FIELD_NCLOC_DISTRIBUTION + "." + SUB_FIELD_DISTRIB_LANGUAGE;
   public static final String FIELD_NCLOC_DISTRIBUTION_NCLOC = FIELD_NCLOC_DISTRIBUTION + "." + SUB_FIELD_DISTRIB_NCLOC;
 
+  private static final String METRICS_CUSTOM_METADATA_KEY = "metrics";
   private final Configuration config;
   private final boolean enableSource;
 
@@ -94,7 +96,8 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
         .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
         .setDefaultNbOfShards(5)
         .build())
-      .setEnableSource(enableSource);
+      .setEnableSource(enableSource)
+      .addCustomHashMetadata(METRICS_CUSTOM_METADATA_KEY, String.join(",", ProjectMeasuresIndexerIterator.METRIC_KEYS));
 
     TypeMapping mapping = index.createTypeMapping(TYPE_PROJECT_MEASURES);
     mapping.keywordFieldBuilder(FIELD_UUID).disableNorms().build();

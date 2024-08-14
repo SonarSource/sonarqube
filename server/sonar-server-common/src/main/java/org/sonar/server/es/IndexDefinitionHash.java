@@ -45,7 +45,8 @@ class IndexDefinitionHash {
       index.getSettings().toString(),
       Map.of(mainType.getIndex(), mainType),
       index.getRelationTypes().stream().collect(Collectors.toMap(IndexType.IndexRelationType::getName, Function.identity())),
-      index.getAttributes());
+      index.getAttributes(),
+      index.getCustomHashMetadata());
   }
 
   private static String of(String str, Map<?, ?>... maps) {

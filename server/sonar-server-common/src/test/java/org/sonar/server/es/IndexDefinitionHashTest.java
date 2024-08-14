@@ -414,6 +414,30 @@ public class IndexDefinitionHashTest {
       .isNotEqualTo(hashOf(new TestNewIndex(mainType, someRefreshInterval)));
   }
 
+  @Test
+  public void hash_changes_if_customHashMetadata_changes() {
+    Index index = Index.simple("foo");
+    Configuration emptySettings = new MapSettings().asConfig();
+    SettingsConfiguration emptyConfiguration = SettingsConfiguration.newBuilder(emptySettings)
+      .build();
+    IndexMainType mainType = IndexMainType.main(index, "bar");
+    assertThat(hashOf(new TestNewIndex(mainType, emptyConfiguration)))
+      .isNotEqualTo(hashOf(new TestNewIndex(mainType, emptyConfiguration)
+        .addCustomHashMetadata("foo", "bar")));
+
+    assertThat(hashOf(new TestNewIndex(mainType, emptyConfiguration).addCustomHashMetadata("foo", "bar")))
+      .isNotEqualTo(hashOf(new TestNewIndex(mainType, emptyConfiguration).addCustomHashMetadata("foo2", "bar")));
+
+    assertThat(hashOf(new TestNewIndex(mainType, emptyConfiguration).addCustomHashMetadata("foo", "bar")))
+      .isNotEqualTo(hashOf(new TestNewIndex(mainType, emptyConfiguration).addCustomHashMetadata("foo", "bar,bar2")));
+
+    assertThat(hashOf(new TestNewIndex(mainType, emptyConfiguration).addCustomHashMetadata("foo", "bar")))
+      .isEqualTo(hashOf(new TestNewIndex(mainType, emptyConfiguration).addCustomHashMetadata("foo", "bar")));
+
+    assertThat(hashOf(new TestNewIndex(mainType, emptyConfiguration).addCustomHashMetadata("foo", "bar").addCustomHashMetadata("foo2", "bar2")))
+      .isEqualTo(hashOf(new TestNewIndex(mainType, emptyConfiguration).addCustomHashMetadata("foo2", "bar2").addCustomHashMetadata("foo", "bar")));
+  }
+
   private static SettingsConfiguration settingsConfigurationOf(MapSettings settings) {
     return SettingsConfiguration.newBuilder(settings.asConfig()).build();
   }

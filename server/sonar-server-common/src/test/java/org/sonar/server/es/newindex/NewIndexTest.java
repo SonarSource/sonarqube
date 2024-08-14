@@ -341,6 +341,17 @@ public class NewIndexTest {
   }
 
   @Test
+  @UseDataProvider("indexWithAndWithoutRelations")
+  public void index_withHashMetadata(Index index) {
+    NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), defaultSettingsConfiguration).addCustomHashMetadata("custom", "hash");
+
+    assertThat(newIndex.getCustomHashMetadata()).containsExactly(entry("custom", "hash"));
+
+    BuiltIndex build = newIndex.build();
+    assertThat(build.getCustomHashMetadata()).containsExactly(entry("custom", "hash"));
+  }
+
+  @Test
   public void createTypeMapping_with_IndexRelationType_fails_with_ISE_if_index_does_not_allow_relations() {
     IndexType.IndexRelationType indexRelationType = IndexType.relation(IndexType.main(Index.withRelations(someIndexName), "bar"), "bar");
 

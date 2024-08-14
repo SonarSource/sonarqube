@@ -23,6 +23,7 @@ import com.google.common.base.Joiner;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -95,6 +96,14 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY;
+import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_003;
@@ -127,8 +136,36 @@ public class SearchProjectsActionIT {
   }
 
   @DataProvider
+  public static Object[][] software_quality_rating_metric_keys() {
+    return new Object[][]{{SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY}, {SOFTWARE_QUALITY_RELIABILITY_RATING_KEY},
+      {SOFTWARE_QUALITY_SECURITY_RATING_KEY}, {SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY}};
+  }
+
+  @DataProvider
+  public static Object[][] all_rating_metric_keys() {
+    List<Object[]> result = new ArrayList<>();
+    result.addAll(Arrays.asList(rating_metric_keys()));
+    result.addAll(Arrays.asList(software_quality_rating_metric_keys()));
+    return result.toArray(new Object[result.size()][]);
+  }
+
+  @DataProvider
   public static Object[][] new_rating_metric_keys() {
     return new Object[][]{{NEW_MAINTAINABILITY_RATING_KEY}, {NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
+  }
+
+  @DataProvider
+  public static Object[][] new_software_quality_rating_metric_keys() {
+    return new Object[][]{{NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY}, {NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY},
+      {NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY}, {NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY}};
+  }
+
+  @DataProvider
+  public static Object[][] all_new_rating_metric_keys() {
+    List<Object[]> result = new ArrayList<>();
+    result.addAll(Arrays.asList(new_rating_metric_keys()));
+    result.addAll(Arrays.asList(new_software_quality_rating_metric_keys()));
+    return result.toArray(new Object[result.size()][]);
   }
 
   @DataProvider
@@ -207,7 +244,15 @@ public class SearchProjectsActionIT {
       "new_maintainability_rating",
       "name",
       "analysisDate",
-      "creationDate");
+      "creationDate",
+      "new_software_quality_maintainability_rating",
+      "new_software_quality_reliability_rating",
+      "new_software_quality_security_rating",
+      "new_software_quality_security_review_rating",
+      "software_quality_maintainability_rating",
+      "software_quality_reliability_rating",
+      "software_quality_security_rating",
+      "software_quality_security_review_rating");
 
     Param asc = def.param("asc");
     assertThat(asc.defaultValue()).isEqualTo("true");
@@ -223,7 +268,15 @@ public class SearchProjectsActionIT {
       , "security_rating", "alert_status",
       "languages", "tags", "qualifier", "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage",
       "new_duplicated_lines_density", "new_lines",
-      "security_review_rating", "security_hotspots_reviewed", "new_security_hotspots_reviewed", "new_security_review_rating");
+      "security_review_rating", "security_hotspots_reviewed", "new_security_hotspots_reviewed", "new_security_review_rating",
+      "new_software_quality_maintainability_rating",
+      "new_software_quality_reliability_rating",
+      "new_software_quality_security_rating",
+      "new_software_quality_security_review_rating",
+      "software_quality_maintainability_rating",
+      "software_quality_reliability_rating",
+      "software_quality_security_rating",
+      "software_quality_security_review_rating");
   }
 
   @Test
@@ -366,7 +419,7 @@ public class SearchProjectsActionIT {
   }
 
   @Test
-  @UseDataProvider("rating_metric_keys")
+  @UseDataProvider("all_rating_metric_keys")
   public void filter_projects_by_rating(String metricKey) {
     userSession.logIn();
     MetricDto ratingMetric = db.measures().insertMetric(c -> c.setKey(metricKey).setValueType(INT.name()));
@@ -381,7 +434,7 @@ public class SearchProjectsActionIT {
   }
 
   @Test
-  @UseDataProvider("new_rating_metric_keys")
+  @UseDataProvider("all_new_rating_metric_keys")
   public void filter_projects_by_new_rating(String newMetricKey) {
     userSession.logIn();
     MetricDto ratingMetric = db.measures().insertMetric(c -> c.setKey(newMetricKey).setValueType(INT.name()));
@@ -945,6 +998,30 @@ public class SearchProjectsActionIT {
   }
 
   @Test
+  @UseDataProvider("software_quality_rating_metric_keys")
+  public void return_software_quality_rating_facet(String ratingMetricKey) {
+    userSession.logIn();
+    MetricDto ratingMetric = db.measures().insertMetric(c -> c.setKey(ratingMetricKey).setValueType("RATING"));
+    insertProject(new Measure(ratingMetric, c -> c.setValue(1d)));
+    insertProject(new Measure(ratingMetric, c -> c.setValue(1d)));
+    insertProject(new Measure(ratingMetric, c -> c.setValue(3d)));
+    index();
+
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(ratingMetricKey)));
+
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> ratingMetricKey.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("1", 2L),
+        tuple("2", 0L),
+        tuple("3", 1L),
+        tuple("4", 0L));
+  }
+
+  @Test
   @UseDataProvider("new_rating_metric_keys")
   public void return_new_rating_facet(String newRatingMetricKey) {
     userSession.logIn();
@@ -968,6 +1045,30 @@ public class SearchProjectsActionIT {
         tuple("3", 1L),
         tuple("4", 0L),
         tuple("5", 1L));
+  }
+
+  @Test
+  @UseDataProvider("new_software_quality_rating_metric_keys")
+  public void return_new_software_quality_rating_facet(String newRatingMetricKey) {
+    userSession.logIn();
+    MetricDto newRatingMetric = db.measures().insertMetric(c -> c.setKey(newRatingMetricKey).setValueType("RATING"));
+    insertProject(new Measure(newRatingMetric, c -> c.setValue(1d)));
+    insertProject(new Measure(newRatingMetric, c -> c.setValue(1d)));
+    insertProject(new Measure(newRatingMetric, c -> c.setValue(3d)));
+    index();
+
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(newRatingMetricKey)));
+
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> newRatingMetricKey.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("1", 2L),
+        tuple("2", 0L),
+        tuple("3", 1L),
+        tuple("4", 0L));
   }
 
   @Test
