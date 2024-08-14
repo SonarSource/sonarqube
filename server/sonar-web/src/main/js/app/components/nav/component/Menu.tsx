@@ -259,7 +259,7 @@ export function Menu(props: Readonly<Props>) {
               : translate('layout.settings')
           }
           withChevron
-          to={{}}
+          to={{ search: new URLSearchParams(query).toString() }}
         />
       </DropdownMenu.Root>
     );
