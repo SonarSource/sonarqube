@@ -25,7 +25,7 @@ export default function ComponentsEmpty() {
   return (
     <TableRow>
       <ContentCell className="sw-col-span-full">
-        <Note role="status">{translate('no_results')}</Note>
+        <Note role="alert">{translate('no_results')}</Note>
       </ContentCell>
     </TableRow>
   );
