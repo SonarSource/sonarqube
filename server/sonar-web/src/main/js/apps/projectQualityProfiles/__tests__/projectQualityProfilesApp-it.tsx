@@ -126,7 +126,6 @@ const ui = {
     name: 'project_quality_profile.always_use_specific',
   }),
   buttonSave: byRole('button', { name: 'save' }),
-  buttonChangeProfile: byRole('button', { name: 'project_quality_profile.change_profile' }),
   htmlLanguage: byText('HTML'),
   htmlProfile: byText('html profile'),
   cssLanguage: byText('CSS'),
@@ -199,7 +198,7 @@ it('should be able to add and change profile for languages', async () => {
   expect(ui.builtInTag.query()).not.toBeInTheDocument();
 
   await user.click(
-    htmlRow.byRole('button', { name: 'project_quality_profile.change_profile' }).get(),
+    htmlRow.byRole('button', { name: 'project_quality_profile.change_profile_x.HTML' }).get(),
   );
 
   //Opens modal to change profile

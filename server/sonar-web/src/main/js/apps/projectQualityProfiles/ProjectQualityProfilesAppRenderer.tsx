@@ -42,7 +42,7 @@ import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { Profile } from '../../api/quality-profiles';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { DocLink } from '../../helpers/doc-links';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getRulesUrl } from '../../helpers/urls';
 import { Component } from '../../types/types';
 import BuiltInQualityProfileBadge from '../quality-profiles/components/BuiltInQualityProfileBadge';
@@ -150,7 +150,10 @@ export default function ProjectQualityProfilesAppRenderer(
                         <ActionCell>
                           <InteractiveIcon
                             Icon={PencilIcon}
-                            aria-label={translate('project_quality_profile.change_profile')}
+                            aria-label={translateWithParameters(
+                              'project_quality_profile.change_profile_x',
+                              profile.languageName,
+                            )}
                             onClick={() => {
                               props.onOpenSetProfileModal(projectProfile);
                             }}
