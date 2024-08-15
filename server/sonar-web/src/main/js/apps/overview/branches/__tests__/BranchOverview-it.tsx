@@ -46,6 +46,7 @@ import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentPropsType } from '../../../../helpers/testUtils';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../../types/clean-code-taxonomy';
 import { ProjectAnalysisEventCategory } from '../../../../types/project-activity';
+import { SettingsKey } from '../../../../types/settings';
 import { CaycStatus } from '../../../../types/types';
 import BranchOverview, { NO_CI_DETECTED } from '../BranchOverview';
 import { getPageObjects } from '../test-utils';
@@ -332,7 +333,7 @@ describe('project overview', () => {
 
     ui.expectSoftwareImpactMeasureCard(
       SoftwareQuality.Maintainability,
-      'E',
+      'D',
       {
         total: 2,
         [SoftwareImpactSeverity.High]: 0,
@@ -343,8 +344,8 @@ describe('project overview', () => {
     );
     await ui.expectSoftwareImpactMeasureCardRatingTooltip(
       SoftwareQuality.Maintainability,
-      'E',
-      'overview.measures.software_impact.improve_rating_tooltip.MAINTAINABILITY.software_quality.MAINTAINABILITY.software_quality.maintainability.E.overview.measures.software_impact.severity.HIGH.improve_tooltip',
+      'D',
+      'overview.measures.software_impact.improve_rating_tooltip.MAINTAINABILITY.software_quality.MAINTAINABILITY.software_quality.maintainability.D.overview.measures.software_impact.severity.HIGH.improve_tooltip',
     );
   });
 
@@ -357,7 +358,7 @@ describe('project overview', () => {
 
     ui.expectSoftwareImpactMeasureCard(
       SoftwareQuality.Maintainability,
-      'E',
+      'D',
       {
         total: 2,
         [SoftwareImpactSeverity.High]: 0,
@@ -372,8 +373,14 @@ describe('project overview', () => {
   it('should render old measures if software impact are missing', async () => {
     // Make as if new analysis after upgrade is missing
     measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.software_quality_maintainability_rating,
+    );
     measuresHandler.deleteComponentMeasure('foo', MetricKey.security_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_rating);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.reliability_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_rating);
 
     const { user, ui } = getPageObjects();
     renderBranchOverview();
@@ -406,12 +413,18 @@ describe('project overview', () => {
     // Make as if no measures at all
     measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.code_smells);
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.software_quality_maintainability_rating,
+    );
 
     measuresHandler.deleteComponentMeasure('foo', MetricKey.security_issues);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.vulnerabilities);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_rating);
 
     measuresHandler.deleteComponentMeasure('foo', MetricKey.reliability_issues);
     measuresHandler.deleteComponentMeasure('foo', MetricKey.bugs);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_rating);
 
     const { user, ui } = getPageObjects();
     renderBranchOverview();
@@ -460,6 +473,94 @@ describe('project overview', () => {
       expect(await screen.findByText('overview.missing_project_dataTRK')).toBeInTheDocument();
     },
   );
+
+  it('should display info about missing analysis if a project did not compute ratings', async () => {
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_rating);
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.software_quality_maintainability_rating,
+    );
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_rating);
+    const { user, ui } = getPageObjects();
+    renderBranchOverview();
+
+    await user.click(await ui.overallCodeButton.find());
+
+    expect(await ui.softwareImpactMeasureCard(SoftwareQuality.Security).find()).toBeInTheDocument();
+
+    await user.click(await ui.overallCodeButton.find());
+
+    expect(await screen.findByText('overview.missing_project_dataTRK')).toBeInTheDocument();
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Security);
+    expect(
+      ui.softwareImpactMeasureCardRating(SoftwareQuality.Security, 'B').get(),
+    ).toBeInTheDocument();
+
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Reliability);
+    expect(
+      ui.softwareImpactMeasureCardRating(SoftwareQuality.Reliability, 'A').get(),
+    ).toBeInTheDocument();
+
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability);
+    expect(
+      ui.softwareImpactMeasureCardRating(SoftwareQuality.Maintainability, 'E').get(),
+    ).toBeInTheDocument();
+  });
+
+  it('should display old measures if in legacy mode', async () => {
+    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+    const { user, ui } = getPageObjects();
+    renderBranchOverview();
+
+    await user.click(await ui.overallCodeButton.find());
+
+    expect(await ui.softwareImpactMeasureCard(SoftwareQuality.Security).find()).toBeInTheDocument();
+
+    await user.click(await ui.overallCodeButton.find());
+
+    expect(await ui.softwareImpactMeasureCard(SoftwareQuality.Security).find()).toBeInTheDocument();
+
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Security);
+    ui.expectSoftwareImpactMeasureCardToHaveOldMeasures(
+      SoftwareQuality.Security,
+      'B',
+      2,
+      'VULNERABILITY',
+    );
+
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Reliability);
+    ui.expectSoftwareImpactMeasureCardToHaveOldMeasures(SoftwareQuality.Reliability, 'A', 0, 'BUG');
+
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability);
+    ui.expectSoftwareImpactMeasureCardToHaveOldMeasures(
+      SoftwareQuality.Maintainability,
+      'E',
+      9,
+      'CODE_SMELL',
+    );
+  });
+
+  it('should not show analysis is missing message in legacy mode', async () => {
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_rating);
+    measuresHandler.deleteComponentMeasure(
+      'foo',
+      MetricKey.software_quality_maintainability_rating,
+    );
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_rating);
+    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+    const { user, ui } = getPageObjects();
+    renderBranchOverview();
+
+    await user.click(await ui.overallCodeButton.find());
+
+    expect(await ui.softwareImpactMeasureCard(SoftwareQuality.Security).find()).toBeInTheDocument();
+
+    await user.click(await ui.overallCodeButton.find());
+
+    expect(await ui.softwareImpactMeasureCard(SoftwareQuality.Security).find()).toBeInTheDocument();
+
+    expect(screen.queryByText('overview.missing_project_dataTRK')).not.toBeInTheDocument();
+  });
 
   it('should dismiss CaYC promoted section', async () => {
     qualityGatesHandler.setQualityGateProjectStatus(

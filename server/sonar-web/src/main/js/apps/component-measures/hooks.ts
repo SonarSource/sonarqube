@@ -28,9 +28,9 @@ import {
 } from './config/bubbles';
 
 export function useBubbleChartMetrics(measures: MeasureEnhanced[]) {
-  const { data: isLegacyFlag } = useIsLegacyCCTMode();
+  const { data: isLegacy } = useIsLegacyCCTMode();
 
-  if (isLegacyFlag || !areCCTMeasuresComputed(measures)) {
+  if (isLegacy || !areCCTMeasuresComputed(measures)) {
     return legacyBubbles;
   }
 

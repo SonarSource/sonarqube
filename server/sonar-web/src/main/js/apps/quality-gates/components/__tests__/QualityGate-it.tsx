@@ -237,6 +237,8 @@ it('should be able to add a condition on overall code', async () => {
   const dialog = byRole('dialog');
 
   await selectEvent.select(dialog.byRole('combobox').get(), ['Info Issues']);
+  // In real app there are no metrics with selectable condition operator
+  // so we manually changed direction for Info Issues to 0 to test this behavior
   await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
   await user.click(dialog.byLabelText('quality_gates.conditions.operator').get());
 

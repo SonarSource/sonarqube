@@ -33,24 +33,12 @@ import {
   getMeasuresWithPeriodAndMetrics,
 } from '../api/measures';
 import { getAllTimeMachineData } from '../api/time-machine';
-import { SOFTWARE_QUALITY_RATING_METRICS } from '../helpers/constants';
 import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
 import { getBranchLikeQuery } from '../sonar-aligned/helpers/branch-like';
 import { MetricKey } from '../sonar-aligned/types/metrics';
 import { BranchLike } from '../types/branch-like';
 import { Measure } from '../types/types';
 import { createInfiniteQueryHook, createQueryHook } from './common';
-
-const NEW_METRICS = [
-  MetricKey.software_quality_maintainability_rating,
-  MetricKey.software_quality_security_rating,
-  MetricKey.new_software_quality_security_rating,
-  MetricKey.software_quality_reliability_rating,
-  MetricKey.new_software_quality_reliability_rating,
-  MetricKey.software_quality_security_review_rating,
-  MetricKey.new_software_quality_security_review_rating,
-  MetricKey.new_software_quality_maintainability_rating,
-];
 
 export function useAllMeasuresHistoryQuery(
   component: string | undefined,
@@ -91,7 +79,9 @@ export const useMeasuresComponentQuery = createQueryHook(
       queryFn: async () => {
         const data = await getMeasuresWithPeriodAndMetrics(
           componentKey,
-          metricKeys.filter((m) => !SOFTWARE_QUALITY_RATING_METRICS.includes(m as MetricKey)),
+          metricKeys.filter(
+            (m) => ![MetricKey.software_quality_releasability_rating].includes(m as MetricKey),
+          ),
           branchLikeQuery,
         );
         metricKeys.forEach((metricKey) => {
@@ -136,7 +126,9 @@ export const useComponentTreeQuery = createInfiniteQueryHook(
         const result = await getComponentTree(
           strategy,
           component,
-          metrics?.filter((m) => !SOFTWARE_QUALITY_RATING_METRICS.includes(m as MetricKey)),
+          metrics?.filter(
+            (m) => ![MetricKey.software_quality_releasability_rating].includes(m as MetricKey),
+          ),
           { ...additionalData, p: pageParam, ...branchLikeQuery },
         );
 
@@ -192,11 +184,7 @@ export const useMeasuresForProjectsQuery = createQueryHook(
     return queryOptions({
       queryKey: ['measures', 'list', 'projects', projectKeys, metricKeys],
       queryFn: async () => {
-        // TODO remove this once all metrics are supported
-        const filteredMetricKeys = metricKeys.filter(
-          (metricKey) => !SOFTWARE_QUALITY_RATING_METRICS.includes(metricKey as MetricKey),
-        );
-        const measures = await getMeasuresForProjects(projectKeys, filteredMetricKeys);
+        const measures = await getMeasuresForProjects(projectKeys, metricKeys);
         const measuresMapByProjectKey = groupBy(measures, 'component');
         projectKeys.forEach((projectKey) => {
           const measuresForProject = measuresMapByProjectKey[projectKey] ?? [];
@@ -239,13 +227,9 @@ export const useMeasuresAndLeakQuery = createQueryHook(
         branchParameters,
       ],
       queryFn: async () => {
-        // TODO remove this once all metrics are supported
-        const filteredMetricKeys = metricKeys.filter(
-          (metricKey) => !NEW_METRICS.includes(metricKey as MetricKey),
-        );
         const { component, metrics, period } = await getMeasuresWithPeriodAndMetrics(
           componentKey,
-          filteredMetricKeys,
+          metricKeys,
           branchParameters,
         );
         const measuresMapByMetricKey = groupBy(component.measures, 'metric');

@@ -338,6 +338,7 @@ export interface Metric {
   domain?: string;
   hidden?: boolean;
   higherValuesAreBetter?: boolean;
+  id?: string;
   key: string;
   name: string;
   qualitative?: boolean;

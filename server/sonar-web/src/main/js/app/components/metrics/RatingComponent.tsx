@@ -35,6 +35,7 @@ interface Props {
   branchLike?: BranchLike;
   className?: string;
   componentKey: string;
+  forceMetric?: boolean;
   getLabel?: (rating: RatingEnum) => string;
   getTooltip?: (rating: RatingEnum) => React.ReactNode;
   ratingMetric: MetricKey;
@@ -66,23 +67,35 @@ const useGetMetricKeyForRating = (ratingMetric: RatingMetricKeys): MetricKey | n
 };
 
 export default function RatingComponent(props: Readonly<Props>) {
-  const { componentKey, ratingMetric, size, className, getLabel, branchLike, getTooltip } = props;
+  const {
+    componentKey,
+    ratingMetric,
+    size,
+    forceMetric,
+    className,
+    getLabel,
+    branchLike,
+    getTooltip,
+  } = props;
 
   const metricKey = useGetMetricKeyForRating(ratingMetric as RatingMetricKeys);
   const { data: isLegacy } = useIsLegacyCCTMode();
   const { data: targetMeasure, isLoading: isLoadingTargetMeasure } = useMeasureQuery(
     { componentKey, metricKey: metricKey ?? '', branchLike },
-    { enabled: !!metricKey },
+    { enabled: !forceMetric && !!metricKey },
   );
 
   const { data: oldMeasure, isLoading: isLoadingOldMeasure } = useMeasureQuery(
     { componentKey, metricKey: ratingMetric, branchLike },
-    { enabled: !isLegacy && !isNewRatingMetric(ratingMetric) && targetMeasure === null },
+    {
+      enabled:
+        forceMetric || (!isLegacy && !isNewRatingMetric(ratingMetric) && targetMeasure === null),
+    },
   );
 
   const isLoading = isLoadingTargetMeasure || isLoadingOldMeasure;
 
-  const measure = targetMeasure ?? oldMeasure;
+  const measure = forceMetric ? oldMeasure : targetMeasure ?? oldMeasure;
 
   const value = isDiffMetric(metricKey ?? '') ? getLeakValue(measure) : measure?.value;
   const rating = formatMeasure(value, MetricType.Rating) as RatingEnum;

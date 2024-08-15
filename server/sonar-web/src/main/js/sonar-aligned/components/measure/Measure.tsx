@@ -35,6 +35,7 @@ interface Props {
   componentKey: string;
   decimals?: number;
   fontClassName?: `sw-body-${string}` | `sw-heading-lg`;
+  forceRatingMetric?: boolean;
   metricKey: string;
   metricType: string;
   small?: boolean;
@@ -50,6 +51,7 @@ export default function Measure({
   metricKey,
   branchLike,
   metricType,
+  forceRatingMetric,
   small,
   value,
 }: Readonly<Props>) {
@@ -109,6 +111,7 @@ export default function Measure({
 
   const rating = (
     <RatingComponent
+      forceMetric={forceRatingMetric}
       branchLike={branchLike}
       size={badgeSize ?? small ? 'sm' : 'md'}
       getLabel={getLabel}

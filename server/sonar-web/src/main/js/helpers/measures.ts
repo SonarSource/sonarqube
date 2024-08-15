@@ -116,7 +116,7 @@ export function areCCTMeasuresComputed(measures?: Measure[] | MeasureEnhanced[])
 }
 export function areSoftwareQualityRatingsComputed(measures?: Measure[] | MeasureEnhanced[]) {
   return [
-    MetricKey.software_quality_security_rating,
+    MetricKey.software_quality_reliability_rating,
     MetricKey.software_quality_security_rating,
     MetricKey.software_quality_maintainability_rating,
   ].every((metric) =>

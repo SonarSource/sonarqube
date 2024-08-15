@@ -218,12 +218,17 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
           ...computeRating(issues, IssueType.Bug),
         });
 
-      case MetricKey.software_quality_reliability_rating:
+      case MetricKey.software_quality_reliability_rating: {
+        const rating = computeRating(issues, IssueType.Bug);
+        if (rating.value === '5.0') {
+          rating.value = '4.0';
+        }
         return mockMeasure({
           metric: metricKey,
           period: undefined,
           ...computeRating(issues, IssueType.Bug),
         });
+      }
 
       case MetricKey.new_reliability_rating:
         return mockMeasure({
@@ -235,15 +240,20 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
           value: undefined,
         });
 
-      case MetricKey.new_software_quality_reliability_rating:
+      case MetricKey.new_software_quality_reliability_rating: {
+        const rating = computeRating(issues, IssueType.Bug);
+        if (rating.value === '5.0') {
+          rating.value = '4.0';
+        }
         return mockMeasure({
           metric: metricKey,
           period: {
             index: 0,
-            ...computeRating(issues, IssueType.Bug),
+            ...rating,
           },
           value: undefined,
         });
+      }
 
       case MetricKey.sqale_rating:
         return mockMeasure({
@@ -252,12 +262,17 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
           ...computeRating(issues, IssueType.CodeSmell),
         });
 
-      case MetricKey.software_quality_maintainability_rating:
+      case MetricKey.software_quality_maintainability_rating: {
+        const rating = computeRating(issues, IssueType.CodeSmell);
+        if (rating.value === '5.0') {
+          rating.value = '4.0';
+        }
         return mockMeasure({
           metric: metricKey,
           period: undefined,
-          ...computeRating(issues, IssueType.CodeSmell),
+          ...rating,
         });
+      }
 
       case MetricKey.new_maintainability_rating:
         return mockMeasure({
@@ -269,15 +284,20 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
           value: undefined,
         });
 
-      case MetricKey.new_software_quality_maintainability_rating:
+      case MetricKey.new_software_quality_maintainability_rating: {
+        const rating = computeRating(issues, IssueType.CodeSmell);
+        if (rating.value === '5.0') {
+          rating.value = '4.0';
+        }
         return mockMeasure({
           metric: metricKey,
           period: {
             index: 0,
-            ...computeRating(issues, IssueType.CodeSmell),
+            ...rating,
           },
           value: undefined,
         });
+      }
 
       case MetricKey.security_rating:
         return mockMeasure({
@@ -286,12 +306,17 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
           ...computeRating(issues, IssueType.Vulnerability),
         });
 
-      case MetricKey.software_quality_security_rating:
+      case MetricKey.software_quality_security_rating: {
+        const rating = computeRating(issues, IssueType.Vulnerability);
+        if (rating.value === '5.0') {
+          rating.value = '4.0';
+        }
         return mockMeasure({
           metric: metricKey,
           period: undefined,
-          ...computeRating(issues, IssueType.Vulnerability),
+          ...rating,
         });
+      }
 
       case MetricKey.new_security_rating:
         return mockMeasure({
@@ -303,15 +328,20 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
           value: undefined,
         });
 
-      case MetricKey.new_software_quality_security_rating:
+      case MetricKey.new_software_quality_security_rating: {
+        const rating = computeRating(issues, IssueType.Vulnerability);
+        if (rating.value === '5.0') {
+          rating.value = '4.0';
+        }
         return mockMeasure({
           metric: metricKey,
           period: {
             index: 0,
-            ...computeRating(issues, IssueType.Vulnerability),
+            ...rating,
           },
           value: undefined,
         });
+      }
     }
   }
 

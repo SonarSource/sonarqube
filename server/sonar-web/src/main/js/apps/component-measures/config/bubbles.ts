@@ -33,19 +33,19 @@ export type BubblesByDomain = Record<
 export const newTaxonomyBubbles: BubblesByDomain = {
   Reliability: {
     x: MetricKey.ncloc,
-    y: MetricKey.reliability_remediation_effort,
+    y: MetricKey.software_quality_reliability_remediation_effort,
     size: MetricKey.reliability_issues,
     colors: [MetricKey.software_quality_reliability_rating],
   },
   Security: {
     x: MetricKey.ncloc,
-    y: MetricKey.security_remediation_effort,
+    y: MetricKey.software_quality_security_remediation_effort,
     size: MetricKey.security_issues,
     colors: [MetricKey.software_quality_security_rating],
   },
   Maintainability: {
     x: MetricKey.ncloc,
-    y: MetricKey.sqale_index,
+    y: MetricKey.software_quality_maintainability_remediation_effort,
     size: MetricKey.maintainability_issues,
     colors: [MetricKey.software_quality_maintainability_rating],
   },
@@ -61,7 +61,7 @@ export const newTaxonomyBubbles: BubblesByDomain = {
     size: MetricKey.duplicated_blocks,
   },
   project_overview: {
-    x: MetricKey.sqale_index,
+    x: MetricKey.software_quality_maintainability_remediation_effort,
     y: MetricKey.coverage,
     size: MetricKey.ncloc,
     colors: [

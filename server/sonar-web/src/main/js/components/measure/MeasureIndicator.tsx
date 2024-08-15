@@ -29,6 +29,7 @@ interface Props {
   className?: string;
   componentKey: string;
   decimals?: number;
+  forceRatingMetric?: boolean;
   metricKey: string;
   metricType: string;
   small?: boolean;

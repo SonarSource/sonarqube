@@ -17,14 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricKey } from '../../sonar-aligned/types/metrics';
 import { Dict, Measure, MeasureEnhanced, MeasureIntern, Metric } from '../../types/types';
 
 export const KNOWN_RATINGS = [
-  'sqale_rating',
+  MetricKey.sqale_rating,
+  MetricKey.reliability_rating,
+  MetricKey.security_rating,
+  MetricKey.security_review_rating,
+  MetricKey.software_quality_maintainability_rating,
+  MetricKey.software_quality_reliability_rating,
+  MetricKey.software_quality_security_rating,
+  MetricKey.software_quality_security_review_rating,
   'maintainability_rating', // Needed to provide the label for "new_maintainability_rating"
-  'reliability_rating',
-  'security_rating',
-  'security_review_rating',
 ];
 
 export function enhanceMeasure(measure: Measure, metrics: Dict<Metric>): MeasureEnhanced {
