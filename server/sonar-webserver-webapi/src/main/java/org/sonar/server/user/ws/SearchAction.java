@@ -106,7 +106,7 @@ public class SearchAction implements UsersWsAction {
     action.createParam(TEXT_QUERY)
       .setMinimumLength(2)
       .setDescription("Filter on login, name and email.<br />" +
-        "This parameter can either perform an exact match, or a partial match (contains), it is case insensitive.");
+        "This parameter performs a partial match (contains), it is case insensitive.");
     action.createParam(DEACTIVATED_PARAM)
       .setSince("9.7")
       .setDescription("Return deactivated users instead of active users")

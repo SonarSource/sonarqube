@@ -34,7 +34,7 @@ public record UsersSearchRestRequest(
 
   @Nullable
   @Schema(description = "Filter on login, name and email.\n"
-    + "This parameter can either perform an exact match, or a partial match (contains), it is case insensitive.")
+    + "This parameter performs a partial match (contains), it is case insensitive.")
   String q,
 
   @Nullable
