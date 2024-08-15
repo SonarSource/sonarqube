@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
-import { FlagMessage, Spinner, Title } from 'design-system';
+import { Spinner, Title } from 'design-system';
 import React, { useState } from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { Router } from '~sonar-aligned/types/router';
 import { createPermissionTemplate } from '../../../api/permissions';
 import { translate } from '../../../helpers/l10n';
-import { useGithubProvisioningEnabledQuery } from '../../../queries/identity-provider/github';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import Form from './Form';
+import ProvisioningWarning from './ProvisioningWarning';
 
 interface Props {
   ready?: boolean;
@@ -38,7 +38,6 @@ interface Props {
 function Header(props: Props) {
   const { ready, router } = props;
   const [createModal, setCreateModal] = useState(false);
-  const { data: gitHubProvisioningStatus } = useGithubProvisioningEnabledQuery();
 
   const handleCreateModalSubmit = async (data: {
     description: string;
@@ -72,13 +71,7 @@ function Header(props: Props) {
         </div>
         <div className="sw-mb-4">{translate('permission_templates.page.description')}</div>
       </div>
-      {gitHubProvisioningStatus && (
-        <span>
-          <FlagMessage variant="warning" className="sw-w-fit sw-mb-4">
-            {translate('permission_templates.github_warning')}
-          </FlagMessage>
-        </span>
-      )}
+      <ProvisioningWarning />
 
       {createModal && (
         <Form

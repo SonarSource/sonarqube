@@ -29,6 +29,7 @@ import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServi
 import GithubProvisioningServiceMock from '../../../../api/mocks/GithubProvisioningServiceMock';
 import GitlabProvisioningServiceMock from '../../../../api/mocks/GitlabProvisioningServiceMock';
 import PermissionsServiceMock from '../../../../api/mocks/PermissionsServiceMock';
+import { mockGitlabConfiguration } from '../../../../helpers/mocks/alm-integrations';
 import { mockGitHubConfiguration } from '../../../../helpers/mocks/dop-translation';
 import { mockPermissionGroup, mockPermissionUser } from '../../../../helpers/mocks/permissions';
 import { PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE } from '../../../../helpers/permissions';
@@ -419,6 +420,21 @@ it('should show github warning', async () => {
   expect(await ui.githubWarning.find()).toBeInTheDocument();
 });
 
+it('should show gitlab warning', async () => {
+  const user = userEvent.setup();
+  const ui = getPageObject(user);
+
+  gitlabHandler.setGitlabConfigurations([
+    mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.auto }),
+  ]);
+  renderPermissionTemplatesApp(undefined, [Feature.GitlabProvisioning]);
+
+  expect(await ui.gitlabWarning.find()).toBeInTheDocument();
+  await ui.openTemplateDetails('Permission Template 1');
+
+  expect(await ui.gitlabWarning.find()).toBeInTheDocument();
+});
+
 function getPageObject(user: UserEvent) {
   const ui = {
     loading: byText('loading'),
@@ -431,7 +447,8 @@ function getPageObject(user: UserEvent) {
       byRole('button', { name: `projects_role.${permission}` }),
     onlyUsersBtn: byRole('radio', { name: 'users.page' }),
     onlyGroupsBtn: byRole('radio', { name: 'user_groups.page' }),
-    githubWarning: byText('permission_templates.github_warning'),
+    githubWarning: byText('permission_templates.provisioning_warning.alm.github'),
+    gitlabWarning: byText('permission_templates.provisioning_warning.alm.gitlab'),
     showAllBtn: byRole('radio', { name: 'all' }),
     searchInput: byRole('searchbox', { name: 'search.search_for_users_or_groups' }),
     loadMoreBtn: byRole('button', { name: 'show_more' }),

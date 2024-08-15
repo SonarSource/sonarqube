@@ -31,9 +31,11 @@ import * as React from 'react';
 import { bulkApplyTemplate, getPermissionTemplates } from '../../api/permissions';
 import { Project } from '../../api/project-management';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
+import UseQuery from '../../helpers/UseQuery';
 import { toISO8601WithOffsetString } from '../../helpers/dates';
 import { addGlobalErrorMessageFromAPI } from '../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
+import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
 import { PermissionTemplate } from '../../types/types';
 
 export interface Props {
@@ -144,11 +146,16 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
 
     if (isSelectionOnlyManaged) {
       return (
-        <FlagMessage variant="error" className="sw-my-2">
-          {translate(
-            'permission_templates.bulk_apply_permission_template.apply_to_only_github_projects',
+        <UseQuery query={useGithubProvisioningEnabledQuery}>
+          {({ data: githubProvisioningStatus }) => (
+            <FlagMessage variant="error" className="sw-my-2">
+              {translateWithParameters(
+                'permission_templates.bulk_apply_permission_template.apply_to_only_managed_projects',
+                githubProvisioningStatus ? translate('alm.github') : translate('alm.gitlab'),
+              )}
+            </FlagMessage>
           )}
-        </FlagMessage>
+        </UseQuery>
       );
     } else if (isSelectionOnlyLocal) {
       return (
@@ -167,17 +174,22 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     }
 
     return (
-      <FlagMessage variant="warning" className="sw-my-2">
-        {translateWithParameters(
-          'permission_templates.bulk_apply_permission_template.apply_to_selected',
-          localProjects.length,
+      <UseQuery query={useGithubProvisioningEnabledQuery}>
+        {({ data: githubProvisioningStatus }) => (
+          <FlagMessage variant="warning" className="sw-my-2">
+            {translateWithParameters(
+              'permission_templates.bulk_apply_permission_template.apply_to_selected',
+              localProjects.length,
+            )}
+            <br />
+            {translateWithParameters(
+              'permission_templates.bulk_apply_permission_template.apply_to_managed_projects',
+              managedProjects.length,
+              githubProvisioningStatus ? translate('alm.github') : translate('alm.gitlab'),
+            )}
+          </FlagMessage>
         )}
-        <br />
-        {translateWithParameters(
-          'permission_templates.bulk_apply_permission_template.apply_to_github_projects',
-          managedProjects.length,
-        )}
-      </FlagMessage>
+      </UseQuery>
     );
   };
 

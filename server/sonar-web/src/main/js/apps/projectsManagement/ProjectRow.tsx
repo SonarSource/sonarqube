@@ -29,6 +29,7 @@ import DateFormatter from '../../components/intl/DateFormatter';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentOverviewUrl } from '../../helpers/urls';
 import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
+import { useGilabProvisioningEnabledQuery } from '../../queries/identity-provider/gitlab';
 import { LoggedInUser } from '../../types/users';
 import ProjectRowActions from './ProjectRowActions';
 
@@ -42,6 +43,7 @@ interface Props {
 export default function ProjectRow(props: Readonly<Props>) {
   const { currentUser, project, selected } = props;
   const { data: githubProvisioningEnabled } = useGithubProvisioningEnabledQuery();
+  const { data: gitlabProbivisioningEnabled } = useGilabProvisioningEnabledQuery();
 
   const handleProjectCheck = (checked: boolean) => {
     props.onProjectCheck(project, checked);
@@ -66,7 +68,7 @@ export default function ProjectRow(props: Readonly<Props>) {
           </Tooltip>
         </LinkStandalone>
         {project.qualifier === ComponentQualifier.Project &&
-          githubProvisioningEnabled &&
+          (githubProvisioningEnabled || gitlabProbivisioningEnabled) &&
           !project.managed && <Badge className="sw-ml-1">{translate('local')}</Badge>}
       </ContentCell>
       <ContentCell>

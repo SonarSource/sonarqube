@@ -23,6 +23,7 @@ import React, { useState } from 'react';
 import { Visibility } from '~sonar-aligned/types/component';
 import { translate } from '../../helpers/l10n';
 import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
+import { useGilabProvisioningEnabledQuery } from '../../queries/identity-provider/gitlab';
 
 export interface Props {
   defaultVisibility: Visibility;
@@ -35,6 +36,14 @@ const FORM_ID = 'change-default-visibility-form';
 export default function ChangeDefaultVisibilityForm(props: Readonly<Props>) {
   const [visibility, setVisibility] = useState(props.defaultVisibility);
   const { data: githubProbivisioningEnabled } = useGithubProvisioningEnabledQuery();
+  const { data: gitlabProbivisioningEnabled } = useGilabProvisioningEnabledQuery();
+
+  let changeVisibilityTranslationKey = 'settings.projects.change_visibility_form.warning';
+  if (githubProbivisioningEnabled) {
+    changeVisibilityTranslationKey += '.github';
+  } else if (gitlabProbivisioningEnabled) {
+    changeVisibilityTranslationKey += '.gitlab';
+  }
 
   const handleConfirmClick = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -62,13 +71,7 @@ export default function ChangeDefaultVisibilityForm(props: Readonly<Props>) {
         onChange={handleVisibilityChange}
       />
 
-      <FlagMessage variant="warning">
-        {translate(
-          `settings.projects.change_visibility_form.warning${
-            githubProbivisioningEnabled ? '.github' : ''
-          }`,
-        )}
-      </FlagMessage>
+      <FlagMessage variant="warning">{translate(changeVisibilityTranslationKey)}</FlagMessage>
     </form>
   );
 

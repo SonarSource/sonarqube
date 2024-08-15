@@ -24,9 +24,11 @@ import { byPlaceholderText, byRole, byText } from '~sonar-aligned/helpers/testSe
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import DopTranslationServiceMock from '../../../api/mocks/DopTranslationServiceMock';
 import GithubProvisioningServiceMock from '../../../api/mocks/GithubProvisioningServiceMock';
+import GitlabProvisioningServiceMock from '../../../api/mocks/GitlabProvisioningServiceMock';
 import PermissionsServiceMock from '../../../api/mocks/PermissionsServiceMock';
 import ProjectManagementServiceMock from '../../../api/mocks/ProjectsManagementServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
+import { mockGitlabConfiguration } from '../../../helpers/mocks/alm-integrations';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockGitHubConfiguration } from '../../../helpers/mocks/dop-translation';
 import { mockProject } from '../../../helpers/mocks/projects';
@@ -46,6 +48,7 @@ const permissionsHandler = new PermissionsServiceMock();
 const settingsHandler = new SettingsServiceMock();
 const dopTranslationHandler = new DopTranslationServiceMock();
 const githubHandler = new GithubProvisioningServiceMock(dopTranslationHandler);
+const gitlabHandler = new GitlabProvisioningServiceMock();
 const handler = new ProjectManagementServiceMock(settingsHandler);
 
 jest.mock('../../../api/navigation', () => ({
@@ -182,6 +185,7 @@ afterEach(() => {
   settingsHandler.reset();
   dopTranslationHandler.reset();
   githubHandler.reset();
+  gitlabHandler.reset();
   handler.reset();
 });
 
@@ -320,14 +324,17 @@ describe('Bulk permission templates', () => {
     ).toBeInTheDocument();
   });
 
-  it('should not be applied to managed projects', async () => {
+  it('should not be applied to managed GitHub projects', async () => {
     const user = userEvent.setup();
+    dopTranslationHandler.gitHubConfigurations.push(
+      mockGitHubConfiguration({ provisioningType: ProvisioningType.auto }),
+    );
     handler.setProjects(
       Array.from({ length: 11 }, (_, i) =>
         mockProject({ key: i.toString(), name: `Test ${i}`, managed: true }),
       ),
     );
-    renderProjectManagementApp();
+    renderProjectManagementApp({}, {}, { featureList: [Feature.GithubProvisioning] });
 
     expect(await ui.bulkApplyButton.find()).toBeDisabled();
     const projects = ui.row.getAll().slice(1);
@@ -339,13 +346,42 @@ describe('Bulk permission templates', () => {
     expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
     expect(
       within(ui.bulkApplyDialog.get()).getByText(
-        'permission_templates.bulk_apply_permission_template.apply_to_only_github_projects',
+        'permission_templates.bulk_apply_permission_template.apply_to_only_managed_projects.alm.github',
       ),
     ).toBeInTheDocument();
     expect(ui.bulkApplyDialog.by(ui.apply).get()).toBeDisabled();
   });
 
-  it('should not be applied to managed projects but to local project', async () => {
+  it('should not be applied to managed GitLab projects', async () => {
+    const user = userEvent.setup();
+    handler.setProjects(
+      Array.from({ length: 11 }, (_, i) =>
+        mockProject({ key: i.toString(), name: `Test ${i}`, managed: true }),
+      ),
+    );
+
+    gitlabHandler.setGitlabConfigurations([
+      mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.auto }),
+    ]);
+    renderProjectManagementApp({}, {}, { featureList: [Feature.GitlabProvisioning] });
+
+    expect(await ui.bulkApplyButton.find()).toBeDisabled();
+    const projects = ui.row.getAll().slice(1);
+    expect(projects).toHaveLength(11);
+    await user.click(ui.checkAll.get());
+    expect(ui.bulkApplyButton.get()).toBeEnabled();
+
+    await user.click(ui.bulkApplyButton.get());
+    expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
+    expect(
+      within(ui.bulkApplyDialog.get()).getByText(
+        'permission_templates.bulk_apply_permission_template.apply_to_only_managed_projects.alm.gitlab',
+      ),
+    ).toBeInTheDocument();
+    expect(ui.bulkApplyDialog.by(ui.apply).get()).toBeDisabled();
+  });
+
+  it('should not be applied to managed GitLab projects but to local project', async () => {
     const user = userEvent.setup();
     const allProjects = [
       ...Array.from({ length: 6 }, (_, i) =>
@@ -357,7 +393,10 @@ describe('Bulk permission templates', () => {
     ];
 
     handler.setProjects(allProjects);
-    renderProjectManagementApp();
+    gitlabHandler.setGitlabConfigurations([
+      mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.auto }),
+    ]);
+    renderProjectManagementApp({}, {}, { featureList: [Feature.GitlabProvisioning] });
 
     expect(await ui.bulkApplyButton.find()).toBeDisabled();
     const projects = ui.row.getAll().slice(1);
@@ -374,11 +413,49 @@ describe('Bulk permission templates', () => {
     ).toBeInTheDocument();
     expect(
       within(ui.bulkApplyDialog.get()).getByText(
-        /permission_templates.bulk_apply_permission_template.apply_to_github_projects.6/,
+        /permission_templates.bulk_apply_permission_template.apply_to_managed_projects.6.alm.gitlab/,
       ),
     ).toBeInTheDocument();
     expect(ui.bulkApplyDialog.by(ui.apply).get()).toBeEnabled();
   });
+});
+
+it('should not be applied to managed GitHub projects but to local project', async () => {
+  const user = userEvent.setup();
+  const allProjects = [
+    ...Array.from({ length: 6 }, (_, i) =>
+      mockProject({ key: `${i.toString()} managed`, name: `Test managed ${i}`, managed: true }),
+    ),
+    ...Array.from({ length: 5 }, (_, i) =>
+      mockProject({ key: `${i.toString()} local`, name: `Test local ${i}`, managed: false }),
+    ),
+  ];
+
+  handler.setProjects(allProjects);
+  dopTranslationHandler.gitHubConfigurations.push(
+    mockGitHubConfiguration({ provisioningType: ProvisioningType.auto }),
+  );
+  renderProjectManagementApp({}, {}, { featureList: [Feature.GithubProvisioning] });
+
+  expect(await ui.bulkApplyButton.find()).toBeDisabled();
+  const projects = ui.row.getAll().slice(1);
+  expect(projects).toHaveLength(11);
+  await user.click(ui.checkAll.get());
+  expect(ui.bulkApplyButton.get()).toBeEnabled();
+
+  await user.click(ui.bulkApplyButton.get());
+  expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
+  expect(
+    within(ui.bulkApplyDialog.get()).getByText(
+      /permission_templates.bulk_apply_permission_template.apply_to_selected.5/,
+    ),
+  ).toBeInTheDocument();
+  expect(
+    within(ui.bulkApplyDialog.get()).getByText(
+      /permission_templates.bulk_apply_permission_template.apply_to_managed_projects.6.alm.github/,
+    ),
+  ).toBeInTheDocument();
+  expect(ui.bulkApplyDialog.by(ui.apply).get()).toBeEnabled();
 });
 
 it('should load more and change the filter without caching old pages', async () => {

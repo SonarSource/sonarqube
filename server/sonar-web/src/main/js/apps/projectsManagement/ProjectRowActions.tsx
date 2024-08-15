@@ -25,7 +25,6 @@ import { getComponentNavigation } from '../../api/navigation';
 import { Project } from '../../api/project-management';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
-import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
 import { LoggedInUser } from '../../types/users';
 import ApplyTemplate from '../permissions/project/components/ApplyTemplate';
 import RestoreAccessModal from './RestoreAccessModal';
@@ -40,7 +39,6 @@ export default function ProjectRowActions({ currentUser, project }: Props) {
   const [hasAccess, setHasAccess] = useState<boolean | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [restoreAccessModal, setRestoreAccessModal] = useState(false);
-  const { data: githubProvisioningEnabled } = useGithubProvisioningEnabledQuery();
 
   const fetchPermissions = async () => {
     setLoading(true);
@@ -85,9 +83,7 @@ export default function ProjectRowActions({ currentUser, project }: Props) {
                 {translate(project.managed ? 'show_permissions' : 'edit_permissions')}
               </ItemLink>
             )}
-
-            {hasAccess === false &&
-            (!project.managed || currentUser.local || !githubProvisioningEnabled) ? (
+            {hasAccess === false && (!project.managed || currentUser.local) ? (
               <ItemButton
                 className="it__restore-access"
                 onClick={() => setRestoreAccessModal(true)}
