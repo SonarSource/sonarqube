@@ -89,7 +89,7 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
 
   const borderColor = themeColor('codeLineBorder')({ theme });
 
-  const IssueSourceViewerStyle = styled.div`
+  const IssueSourceViewerStyle = styled.section`
     border: 1px solid ${borderColor};
     border-bottom: none;
   `;
@@ -113,7 +113,6 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
         'sw-flex sw-justify-space-between sw-items-center sw-px-4 sw-py-3 sw-text-sm',
         className,
       )}
-      role="separator"
     >
       <div className="sw-flex-1">
         {displayProjectName && (

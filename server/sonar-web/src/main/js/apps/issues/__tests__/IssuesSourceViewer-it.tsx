@@ -104,8 +104,8 @@ describe('issues source viewer', () => {
     renderProjectIssuesApp('project/issues?issues=issue101&open=issue101&id=myproject');
     await waitOnDataLoaded();
 
-    expect(screen.getByRole('separator', { name: 'test1.js' })).toBeInTheDocument();
-    expect(screen.getByRole('separator', { name: 'test2.js' })).toBeInTheDocument();
+    expect(screen.getByLabelText('test1.js')).toBeInTheDocument();
+    expect(screen.getByLabelText('test2.js')).toBeInTheDocument();
 
     // Both line 1 of test1.js and test2.js should be rendered after expanding lines above snippet in test2.js
     expect(ui.line1.getAll()).toHaveLength(1);
