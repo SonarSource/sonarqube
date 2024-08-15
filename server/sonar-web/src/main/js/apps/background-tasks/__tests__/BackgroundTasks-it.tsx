@@ -410,7 +410,11 @@ function getPageObject() {
     async clickOnTaskAction(rowIndex: number, label: string) {
       const row = ui.getAllRows()[rowIndex];
       expect(row).toBeVisible();
-      await user.click(within(row).getByRole('button', { name: 'background_tasks.show_actions' }));
+      await user.click(
+        within(row).getByRole('button', {
+          name: `background_tasks.show_actions_for_task_x_in_list.${rowIndex}`,
+        }),
+      );
       await user.click(within(row).getByRole('menuitem', { name: label }));
     },
   };

@@ -31,6 +31,7 @@ interface Props {
   onCancelTask: (task: Task) => Promise<void>;
   onFilterTask: (task: Task) => void;
   task: Task;
+  taskIndex: number;
 }
 
 interface State {
@@ -89,7 +90,7 @@ export default class TaskActions extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { component, task } = this.props;
+    const { component, task, taskIndex } = this.props;
 
     const canFilter = component === undefined && task.componentName;
     const canCancel = task.status === TaskStatuses.Pending;
@@ -106,7 +107,10 @@ export default class TaskActions extends React.PureComponent<Props, State> {
       <ActionCell>
         <ActionsDropdown
           id={`task-${task.id}-actions`}
-          ariaLabel={translate('background_tasks.show_actions')}
+          ariaLabel={translateWithParameters(
+            'background_tasks.show_actions_for_task_x_in_list',
+            taskIndex,
+          )}
           className="js-task-action"
         >
           {canFilter && task.componentName && (

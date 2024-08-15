@@ -112,39 +112,41 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
 
     const body = (
       <Spinner loading={loading}>
-        {warnings.map(({ dismissable, key, message }) => (
-          <React.Fragment key={key}>
-            <div className="sw-flex sw-items-center sw-mt-2">
-              <FlagMessage variant="warning">
-                <HtmlFormatter>
-                  <span
-                    // eslint-disable-next-line react/no-danger
-                    dangerouslySetInnerHTML={{
-                      __html: sanitizeStringRestricted(message.trim().replace(/\n/g, '<br />')),
-                    }}
-                  />
-                </HtmlFormatter>
-              </FlagMessage>
-            </div>
-            <div>
-              {dismissable && currentUser.isLoggedIn && (
-                <div className="sw-mt-4">
-                  <Button
-                    isDisabled={Boolean(dismissedWarning)}
-                    onClick={() => {
-                      this.handleDismissMessage(key);
-                    }}
-                    variety={ButtonVariety.DangerOutline}
-                  >
-                    {translate('dismiss_permanently')}
-                  </Button>
+        <ul>
+          {warnings.map(({ dismissable, key, message }) => (
+            <li key={key}>
+              <div className="sw-flex sw-items-center sw-mt-2">
+                <FlagMessage variant="warning">
+                  <HtmlFormatter>
+                    <span
+                      // eslint-disable-next-line react/no-danger
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeStringRestricted(message.trim().replace(/\n/g, '<br />')),
+                      }}
+                    />
+                  </HtmlFormatter>
+                </FlagMessage>
+              </div>
+              <div>
+                {dismissable && currentUser.isLoggedIn && (
+                  <div className="sw-mt-4">
+                    <Button
+                      isDisabled={Boolean(dismissedWarning)}
+                      onClick={() => {
+                        this.handleDismissMessage(key);
+                      }}
+                      variety={ButtonVariety.DangerOutline}
+                    >
+                      {translate('dismiss_permanently')}
+                    </Button>
 
-                  <Spinner className="sw-ml-2" loading={dismissedWarning === key} />
-                </div>
-              )}
-            </div>
-          </React.Fragment>
-        ))}
+                    <Spinner className="sw-ml-2" loading={dismissedWarning === key} />
+                  </div>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
       </Spinner>
     );
 

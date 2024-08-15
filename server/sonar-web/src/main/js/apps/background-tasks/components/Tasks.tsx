@@ -59,10 +59,11 @@ export function Tasks({ tasks, component, onCancelTask, onFilterTask }: Readonly
         </TableRow>
       }
     >
-      {tasks.map((task) => (
+      {tasks.map((task, index) => (
         <Task
           component={component}
           key={task.id}
+          taskIndex={index}
           onCancelTask={onCancelTask}
           onFilterTask={onFilterTask}
           task={task}
