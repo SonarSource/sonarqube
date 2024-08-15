@@ -37,7 +37,7 @@ public class OkHttpClientBuilderTest {
     OkHttpClient okHttpClient = underTest.build();
 
     assertThat(okHttpClient.proxy()).isNull();
-    assertThat(okHttpClient.networkInterceptors()).hasSize(1);
+    assertThat(okHttpClient.networkInterceptors()).hasSize(2);
     assertThat(okHttpClient.sslSocketFactory()).isNotNull();
     assertThat(okHttpClient.followRedirects()).isTrue();
     assertThat(okHttpClient.followSslRedirects()).isTrue();

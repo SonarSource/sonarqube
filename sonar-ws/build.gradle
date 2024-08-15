@@ -29,6 +29,7 @@ dependencies {
   testImplementation 'org.hamcrest:hamcrest-core'
   testImplementation 'org.mockito:mockito-core'
   testImplementation project(':sonar-testing-harness')
+  testImplementation 'org.mockito:mockito-inline:2.13.0'
 }
 
 artifactoryPublish.skip = false
