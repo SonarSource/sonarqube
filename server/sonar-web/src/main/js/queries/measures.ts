@@ -311,7 +311,7 @@ export const useMeasuresQuery = createQueryHook(
         metricKeys.split(',').forEach((metricKey) => {
           const measure = measuresMapByMetricKey[metricKey]?.[0] ?? null;
           queryClient.setQueryData<Measure>(
-            ['measures', 'details', componentKey, 'branchLike', branchLike, metricKey],
+            ['measures', 'details', componentKey, 'branchLike', branchLike ?? {}, metricKey],
             measure,
           );
         });
