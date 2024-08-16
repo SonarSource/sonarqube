@@ -25,8 +25,10 @@ export interface DataPoint {
 }
 
 export interface DonutChartProps {
+  cornerRadius?: number;
   data: DataPoint[];
   height: number;
+  minPercent?: number;
   padAngle?: number;
   padding?: [number, number, number, number];
   thickness: number;
@@ -34,7 +36,7 @@ export interface DonutChartProps {
 }
 
 export function DonutChart(props: DonutChartProps) {
-  const { height, padding = [0, 0, 0, 0], width } = props;
+  const { height, cornerRadius, minPercent = 0, padding = [0, 0, 0, 0], width } = props;
 
   const availableWidth = width - padding[1] - padding[3];
   const availableHeight = height - padding[0] - padding[2];
@@ -42,9 +44,11 @@ export function DonutChart(props: DonutChartProps) {
   const size = Math.min(availableWidth, availableHeight);
   const radius = Math.floor(size / 2);
 
+  const total = props.data.reduce((acc, d) => acc + d.value, 0);
+
   const pie = d3Pie<any, DataPoint>()
     .sort(null)
-    .value((d) => d.value);
+    .value((d) => Math.max(d.value, (total / 100) * minPercent));
 
   if (props.padAngle !== undefined) {
     pie.padAngle(props.padAngle);
@@ -53,6 +57,7 @@ export function DonutChart(props: DonutChartProps) {
   const sectors = pie(props.data).map((d, i) => {
     return (
       <Sector
+        cornerRadius={cornerRadius}
         data={d}
         fill={props.data[i].fill}
         key={i}
@@ -72,6 +77,7 @@ export function DonutChart(props: DonutChartProps) {
 }
 
 interface SectorProps {
+  cornerRadius?: number;
   data: PieArcDatum<DataPoint>;
   fill: string;
   radius: number;
@@ -82,6 +88,10 @@ function Sector(props: SectorProps) {
   const arc = d3Arc<any, PieArcDatum<DataPoint>>()
     .outerRadius(props.radius)
     .innerRadius(props.radius - props.thickness);
+
+  if (props.cornerRadius) {
+    arc.cornerRadius(props.cornerRadius);
+  }
   const d = arc(props.data) as string;
   return <path d={d} style={{ fill: props.fill }} />;
 }

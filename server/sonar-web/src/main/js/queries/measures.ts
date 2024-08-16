@@ -38,7 +38,7 @@ import { getBranchLikeQuery } from '../sonar-aligned/helpers/branch-like';
 import { MetricKey } from '../sonar-aligned/types/metrics';
 import { BranchLike } from '../types/branch-like';
 import { Measure } from '../types/types';
-import { createInfiniteQueryHook, createQueryHook } from './common';
+import { createInfiniteQueryHook, createQueryHook, StaleTime } from './common';
 
 export function useAllMeasuresHistoryQuery(
   component: string | undefined,
@@ -265,6 +265,59 @@ export const useMeasureQuery = createQueryHook(
           (measures) => measures[0] ?? null,
         ),
       staleTime: Infinity,
+    });
+  },
+);
+
+const PORTFOLIO_OVERVIEW_METRIC_KEYS = [
+  MetricKey.software_quality_releasability_rating,
+  MetricKey.software_quality_releasability_rating_distribution,
+  MetricKey.software_quality_security_rating_distribution,
+  MetricKey.software_quality_security_review_rating_distribution,
+  MetricKey.software_quality_maintainability_rating_distribution,
+  MetricKey.software_quality_reliability_rating_distribution,
+  MetricKey.new_software_quality_security_rating_distribution,
+  MetricKey.new_software_quality_security_review_rating_distribution,
+  MetricKey.new_software_quality_maintainability_rating_distribution,
+  MetricKey.new_software_quality_reliability_rating_distribution,
+];
+
+export const useMeasuresQuery = createQueryHook(
+  ({
+    componentKey,
+    metricKeys,
+    branchLike,
+  }: {
+    branchLike?: BranchLike;
+    componentKey: string;
+    metricKeys: string;
+  }) => {
+    const queryClient = useQueryClient();
+    const branchLikeQuery = getBranchLikeQuery(branchLike);
+
+    return queryOptions({
+      queryKey: ['measures', 'list', componentKey, 'branchLike', branchLikeQuery, metricKeys],
+      queryFn: async () => {
+        const measures = await getMeasures({
+          component: componentKey,
+          // TODO Remove once BE is ready
+          metricKeys: metricKeys
+            .split(',')
+            .filter((key) => !PORTFOLIO_OVERVIEW_METRIC_KEYS.includes(key as MetricKey))
+            .join(),
+        });
+
+        const measuresMapByMetricKey = groupBy(measures, 'metric');
+        metricKeys.split(',').forEach((metricKey) => {
+          const measure = measuresMapByMetricKey[metricKey]?.[0] ?? null;
+          queryClient.setQueryData<Measure>(
+            ['measures', 'details', componentKey, 'branchLike', branchLike, metricKey],
+            measure,
+          );
+        });
+        return measures;
+      },
+      staleTime: StaleTime.LONG,
     });
   },
 );

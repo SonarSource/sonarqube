@@ -63,6 +63,7 @@ export enum DocLink {
   Issues = '/user-guide/issues/introduction/',
   IssueStatuses = '/user-guide/issues/solution-overview/#life-cycle',
   MainBranchAnalysis = '/project-administration/maintaining-the-branches-of-your-project/',
+  ManagingPortfolios = '/project-administration/managing-portfolios/',
   MetricDefinitions = '/user-guide/code-metrics/metrics-definition/',
   Monorepos = '/project-administration/monorepos/',
   NewCodeDefinition = '/project-administration/clean-as-you-code-settings/defining-new-code/',
