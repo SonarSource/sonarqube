@@ -38,6 +38,8 @@ export default function DismissableAlert(props: DismissableAlertProps) {
   React.useEffect(() => {
     if (get(DISMISSED_ALERT_STORAGE_KEY, alertKey) !== 'true') {
       setShow(true);
+    } else {
+      setShow(false);
     }
   }, [alertKey]);
 

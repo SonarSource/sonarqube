@@ -28,15 +28,16 @@ import A11ySkipLinks from '~sonar-aligned/components/a11y/A11ySkipLinks';
 import SuggestionsProvider from '../../components/embed-docs-modal/SuggestionsProvider';
 import NCDAutoUpdateMessage from '../../components/new-code-definition/NCDAutoUpdateMessage';
 import Workspace from '../../components/workspace/Workspace';
+import CalculationChangeMessage from './calculation-notification/CalculationChangeMessage';
 import GlobalFooter from './GlobalFooter';
-import StartupModal from './StartupModal';
-import SystemAnnouncement from './SystemAnnouncement';
 import IndexationContextProvider from './indexation/IndexationContextProvider';
 import IndexationNotification from './indexation/IndexationNotification';
 import LanguagesContextProvider from './languages/LanguagesContextProvider';
 import MetricsContextProvider from './metrics/MetricsContextProvider';
 import GlobalNav from './nav/global/GlobalNav';
 import PromotionNotification from './promotion-notification/PromotionNotification';
+import StartupModal from './StartupModal';
+import SystemAnnouncement from './SystemAnnouncement';
 import UpdateNotification from './update-notification/UpdateNotification';
 
 /*
@@ -98,6 +99,7 @@ export default function GlobalContainer() {
                         <NCDAutoUpdateMessage />
                         <UpdateNotification dismissable />
                         <GlobalNav location={location} />
+                        <CalculationChangeMessage />
                         {/* The following is the portal anchor point for the component nav
                          * See ComponentContainer.tsx
                          */}
