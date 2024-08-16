@@ -21,8 +21,9 @@ import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { noop, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Visibility } from '~sonar-aligned/types/component';
+import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import * as api from '../../../../api/permissions';
+import { getComponents } from '../../../../api/project-management';
 import withComponentContext from '../../../../app/components/componentContext/withComponentContext';
 import AllHoldersList from '../../../../components/permissions/AllHoldersList';
 import { FilterOption } from '../../../../components/permissions/SearchForm';
@@ -48,6 +49,7 @@ interface State {
   filter: FilterOption;
   groups: PermissionGroup[];
   groupsPaging?: Paging;
+  isProjectManaged: boolean;
   loading: boolean;
   query: string;
   selectedPermission?: string;
@@ -67,12 +69,14 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
       loading: true,
       query: '',
       users: [],
+      isProjectManaged: false,
     };
   }
 
   componentDidMount() {
     this.mounted = true;
     this.loadHolders();
+    this.getIsProjectManaged();
   }
 
   componentWillUnmount() {
@@ -120,6 +124,21 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
         });
       }
     }, this.stopLoading);
+  };
+
+  getIsProjectManaged = () => {
+    if (this.props.component.qualifier === ComponentQualifier.Project) {
+      getComponents({ projects: this.props.component.key })
+        .then((response) => {
+          if (this.mounted) {
+            const { managed } = response.components[0];
+            this.setState({
+              isProjectManaged: !!managed,
+            });
+          }
+        })
+        .catch(noop);
+    }
   };
 
   handleLoadMore = () => {
@@ -332,6 +351,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
       users,
       usersPaging,
       groupsPaging,
+      isProjectManaged,
     } = this.state;
 
     let order = PERMISSIONS_ORDER_BY_QUALIFIER[component.qualifier];
@@ -345,9 +365,14 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
         <PageContentFontWrapper className="sw-my-8 sw-body-sm">
           <Helmet defer={false} title={translate('permissions.page')} />
 
-          <PageHeader component={component} loadHolders={this.loadHolders} />
+          <PageHeader
+            isProjectManaged={isProjectManaged}
+            component={component}
+            loadHolders={this.loadHolders}
+          />
           <div>
             <PermissionsProjectVisibility
+              isProjectManaged={isProjectManaged}
               component={component}
               handleVisibilityChange={this.handleVisibilityChange}
               isLoading={loading}
@@ -380,6 +405,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
             users={users}
             usersPaging={usersPaging}
             permissions={permissions}
+            isProjectManaged={isProjectManaged}
           />
         </PageContentFontWrapper>
       </LargeCenteredLayout>

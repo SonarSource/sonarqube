@@ -24,7 +24,6 @@ import * as React from 'react';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
-import GitLabSynchronisationWarning from '../../../../app/components/GitLabSynchronisationWarning';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';
 import {
@@ -32,27 +31,27 @@ import {
   useIsGitLabProjectQuery,
 } from '../../../../queries/devops-integration';
 import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider/github';
-import { useGilabProvisioningEnabledQuery } from '../../../../queries/identity-provider/gitlab';
 import { isApplication, isProject } from '../../../../types/component';
 import { Component } from '../../../../types/types';
 import ApplyTemplate from './ApplyTemplate';
 
 interface Props {
   component: Component;
+  isProjectManaged: boolean;
   loadHolders: () => void;
 }
 
 export default function PageHeader(props: Readonly<Props>) {
-  const { component, loadHolders } = props;
+  const { component, loadHolders, isProjectManaged } = props;
   const { configuration, key, qualifier, visibility } = component;
   const [applyTemplateModal, setApplyTemplateModal] = React.useState(false);
   const { data: isGitHubProject } = useIsGitHubProjectQuery(key);
   const { data: isGitLabProject } = useIsGitLabProjectQuery(key);
   const { data: githubProvisioningStatus } = useGithubProvisioningEnabledQuery();
-  const { data: gitlabProvisioningStatus } = useGilabProvisioningEnabledQuery();
+  // to know if we are provisioning with GitLab: managed + GitLab project
 
   const provisionedByGitHub = isGitHubProject && !!githubProvisioningStatus;
-  const provisionedByGitLab = isGitLabProject && !!gitlabProvisioningStatus;
+  const provisionedByGitLab = isGitLabProject && isProjectManaged;
   const provisioned = provisionedByGitHub || provisionedByGitLab;
   const canApplyPermissionTemplate = configuration?.canApplyPermissionTemplate && !provisioned;
 
@@ -107,18 +106,12 @@ export default function PageHeader(props: Readonly<Props>) {
               </p>
               <div className="sw-mt-2">
                 {provisionedByGitHub && <GitHubSynchronisationWarning short />}
-                {provisionedByGitLab && <GitLabSynchronisationWarning short />}
               </div>
             </>
           )}
           {githubProvisioningStatus && !isGitHubProject && (
             <FlagMessage variant="warning" className="sw-mt-2">
               {translate('project_permission.local_project_with_github_provisioning')}
-            </FlagMessage>
-          )}
-          {gitlabProvisioningStatus && !isGitLabProject && (
-            <FlagMessage variant="warning" className="sw-mt-2">
-              {translate('project_permission.local_project_with_gitlab_provisioning')}
             </FlagMessage>
           )}
         </div>

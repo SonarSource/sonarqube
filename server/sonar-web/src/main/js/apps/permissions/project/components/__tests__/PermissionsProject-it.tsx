@@ -21,16 +21,17 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
-import ComputeEngineServiceMock from '../../../../../api/mocks/ComputeEngineServiceMock';
 import DopTranslationServiceMock from '../../../../../api/mocks/DopTranslationServiceMock';
 import GithubProvisioningServiceMock from '../../../../../api/mocks/GithubProvisioningServiceMock';
 import GitlabProvisioningServiceMock from '../../../../../api/mocks/GitlabProvisioningServiceMock';
 import PermissionsServiceMock from '../../../../../api/mocks/PermissionsServiceMock';
+import ProjectManagementServiceMock from '../../../../../api/mocks/ProjectsManagementServiceMock';
+import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
 import SystemServiceMock from '../../../../../api/mocks/SystemServiceMock';
-import { mockGitlabConfiguration } from '../../../../../helpers/mocks/alm-integrations';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockGitHubConfiguration } from '../../../../../helpers/mocks/dop-translation';
 import { mockPermissionGroup, mockPermissionUser } from '../../../../../helpers/mocks/permissions';
+import { mockProject } from '../../../../../helpers/mocks/projects';
 import {
   PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
   PERMISSIONS_ORDER_FOR_VIEW,
@@ -44,7 +45,6 @@ import { ComponentContextShape } from '../../../../../types/component';
 import { Feature } from '../../../../../types/features';
 import { Permissions } from '../../../../../types/permissions';
 import { ProvisioningType } from '../../../../../types/provisioning';
-import { TaskStatuses, TaskTypes } from '../../../../../types/tasks';
 import { Component, PermissionGroup, PermissionUser, Provider } from '../../../../../types/types';
 import { projectPermissionsRoutes } from '../../../routes';
 import { getPageObject } from '../../../test-utils';
@@ -54,8 +54,9 @@ let dopTranslationHandler: DopTranslationServiceMock;
 let githubHandler: GithubProvisioningServiceMock;
 let gitlabHandler: GitlabProvisioningServiceMock;
 let almHandler: AlmSettingsServiceMock;
+let settingsHandler: SettingsServiceMock;
+let projectHandler: ProjectManagementServiceMock;
 let systemHandler: SystemServiceMock;
-let computeEngineHandler: ComputeEngineServiceMock;
 
 beforeAll(() => {
   serviceMock = new PermissionsServiceMock();
@@ -63,8 +64,9 @@ beforeAll(() => {
   githubHandler = new GithubProvisioningServiceMock(dopTranslationHandler);
   gitlabHandler = new GitlabProvisioningServiceMock();
   almHandler = new AlmSettingsServiceMock();
+  settingsHandler = new SettingsServiceMock();
+  projectHandler = new ProjectManagementServiceMock(settingsHandler);
   systemHandler = new SystemServiceMock();
-  computeEngineHandler = new ComputeEngineServiceMock();
 });
 
 afterEach(() => {
@@ -73,7 +75,8 @@ afterEach(() => {
   githubHandler.reset();
   gitlabHandler.reset();
   almHandler.reset();
-  computeEngineHandler.reset();
+  settingsHandler.reset();
+  projectHandler.reset();
 });
 
 describe('rendering', () => {
@@ -451,17 +454,13 @@ describe('GitHub provisioning', () => {
 describe('GitLab provisioning', () => {
   beforeEach(() => {
     systemHandler.setProvider(Provider.Gitlab);
-    computeEngineHandler.addTask({
-      status: TaskStatuses.InProgress,
-      executedAt: '2022-02-03T11:55:35+0200',
-      type: TaskTypes.GitlabProvisioning,
+    almHandler.handleSetProjectBinding(AlmKeys.GitLab, {
+      almSetting: 'test',
+      repository: 'test',
+      monorepo: false,
+      project: 'my-project',
     });
-    computeEngineHandler.addTask({
-      status: TaskStatuses.Failed,
-      executedAt: '2022-02-03T11:45:35+0200',
-      errorMessage: "T'es mauvais Jacques",
-      type: TaskTypes.GitlabProvisioning,
-    });
+    projectHandler.setProjects([mockProject({ key: 'my-project', managed: true })]);
   });
 
   it('should not allow to change visibility for GitLab Project with auto-provisioning', async () => {
@@ -470,9 +469,6 @@ describe('GitLab provisioning', () => {
     dopTranslationHandler.gitHubConfigurations.push(
       mockGitHubConfiguration({ provisioningType: ProvisioningType.jit }),
     );
-    gitlabHandler.setGitlabConfigurations([
-      mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.auto }),
-    ]);
     almHandler.handleSetProjectBinding(AlmKeys.GitLab, {
       almSetting: 'test',
       repository: 'test',
@@ -493,9 +489,6 @@ describe('GitLab provisioning', () => {
   it('should allow to change visibility for non-GitLab Project', async () => {
     const user = userEvent.setup();
     const ui = getPageObject(user);
-    gitlabHandler.setGitlabConfigurations([
-      mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.auto }),
-    ]);
     almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
       almSetting: 'test',
       repository: 'test',
@@ -515,15 +508,13 @@ describe('GitLab provisioning', () => {
   it('should allow to change visibility for GitLab Project with disabled auto-provisioning', async () => {
     const user = userEvent.setup();
     const ui = getPageObject(user);
-    gitlabHandler.setGitlabConfigurations([
-      mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.jit }),
-    ]);
     almHandler.handleSetProjectBinding(AlmKeys.GitLab, {
       almSetting: 'test',
       repository: 'test',
       monorepo: false,
       project: 'my-project',
     });
+    projectHandler.setProjects([mockProject({ key: 'my-project', managed: false })]);
     renderPermissionsProjectApp({}, { featureList: [Feature.GitlabProvisioning] });
     await ui.appLoaded();
 
@@ -537,9 +528,6 @@ describe('GitLab provisioning', () => {
   it('should have disabled permissions for GitLab Project', async () => {
     const user = userEvent.setup();
     const ui = getPageObject(user);
-    gitlabHandler.setGitlabConfigurations([
-      mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.auto }),
-    ]);
     almHandler.handleSetProjectBinding(AlmKeys.GitLab, {
       almSetting: 'test',
       repository: 'test',
@@ -614,9 +602,8 @@ describe('GitLab provisioning', () => {
   it('should allow to change permissions for GitLab Project without auto-provisioning', async () => {
     const user = userEvent.setup();
     const ui = getPageObject(user);
-    gitlabHandler.setGitlabConfigurations([
-      mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.jit }),
-    ]);
+
+    projectHandler.setProjects([mockProject({ key: 'my-project', managed: false })]);
     almHandler.handleSetProjectBinding(AlmKeys.GitLab, {
       almSetting: 'test',
       repository: 'test',
@@ -644,15 +631,22 @@ describe('GitLab provisioning', () => {
 
   it('should allow to change permissions for non-GitLab Project', async () => {
     const user = userEvent.setup();
+    projectHandler.reset();
+    projectHandler.setProjects([mockProject({ key: 'my-project', managed: false })]);
+    almHandler.reset();
+    almHandler.handleSetProjectBinding(AlmKeys.BitbucketServer, {
+      almSetting: 'test',
+      repository: 'test',
+      monorepo: false,
+      project: 'my-project',
+    });
+
     const ui = getPageObject(user);
-    gitlabHandler.setGitlabConfigurations([
-      mockGitlabConfiguration({ id: '1', enabled: true, provisioningType: ProvisioningType.auto }),
-    ]);
+
     renderPermissionsProjectApp({}, { featureList: [Feature.GitlabProvisioning] });
     await ui.appLoaded();
 
     expect(ui.pageTitle.get()).toBeInTheDocument();
-    expect(ui.nonGitLabProjectWarning.get()).toBeInTheDocument();
     expect(ui.pageTitle.byRole('img').query()).not.toBeInTheDocument();
 
     expect(ui.applyTemplateBtn.get()).toBeInTheDocument();

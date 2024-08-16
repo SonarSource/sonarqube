@@ -25,29 +25,26 @@ import {
   useIsGitLabProjectQuery,
 } from '../../../../queries/devops-integration';
 import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider/github';
-import { useGilabProvisioningEnabledQuery } from '../../../../queries/identity-provider/gitlab';
 import { Component } from '../../../../types/types';
 
 interface Props {
   component: Component;
   handleVisibilityChange: (visibility: string) => void;
   isLoading: boolean;
+  isProjectManaged: boolean;
 }
 
 export default function PermissionsProjectVisibility(props: Readonly<Props>) {
-  const { component, handleVisibilityChange, isLoading } = props;
+  const { component, handleVisibilityChange, isLoading, isProjectManaged } = props;
   const canTurnToPrivate = component.configuration?.canUpdateProjectVisibilityToPrivate;
 
   const { data: isGitHubProject } = useIsGitHubProjectQuery(component.key);
   const { data: isGitLabProject } = useIsGitLabProjectQuery(component.key);
   const { data: gitHubProvisioningStatus, isFetching: isFetchingGitHubProvisioningStatus } =
     useGithubProvisioningEnabledQuery();
-  const { data: gitLabProvisioningStatus, isFetching: isFetchingGitLabProvisioningStatus } =
-    useGilabProvisioningEnabledQuery();
-  const isFetching = isFetchingGitHubProvisioningStatus || isFetchingGitLabProvisioningStatus;
+  const isFetching = isFetchingGitHubProvisioningStatus;
   const isDisabled =
-    (isGitHubProject && !!gitHubProvisioningStatus) ||
-    (isGitLabProject && !!gitLabProvisioningStatus);
+    (isGitHubProject && !!gitHubProvisioningStatus) || (isGitLabProject && isProjectManaged);
 
   return (
     <VisibilitySelector

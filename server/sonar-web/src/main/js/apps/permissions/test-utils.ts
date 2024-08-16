@@ -48,7 +48,6 @@ export function getPageObject(user: UserEvent) {
       name: 'project_permission.remove_only_confirmation_title',
     }),
     nonGHProjectWarning: byText('project_permission.local_project_with_github_provisioning'),
-    nonGitLabProjectWarning: byText('project_permission.local_project_with_gitlab_provisioning'),
     makePublicDisclaimer: byText(
       'projects_role.are_you_sure_to_turn_project_to_public.warning.TRK',
     ),
