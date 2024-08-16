@@ -28,6 +28,7 @@ module.exports = {
     '^~sonar-aligned/(.*)': '<rootDir>/src/main/js/sonar-aligned/$1',
     '^.+\\.css$': '<rootDir>/config/jest/CSSStub.js',
   },
+  globalSetup: '<rootDir>/config/jest/GlobalSetup.js',
   setupFiles: [
     '<rootDir>/config/polyfills.ts',
     '<rootDir>/config/jest/SetupTestEnvironment.ts',
