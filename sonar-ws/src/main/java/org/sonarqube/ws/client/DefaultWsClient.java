@@ -38,6 +38,7 @@ import org.sonarqube.ws.client.favorites.FavoritesService;
 import org.sonarqube.ws.client.github.configuration.GithubConfigurationService;
 import org.sonarqube.ws.client.github.provisioning.permissions.GithubPermissionsService;
 import org.sonarqube.ws.client.gitlab.configuration.GitlabConfigurationService;
+import org.sonarqube.ws.client.gitlab.provisioning.permissions.GitlabPermissionService;
 import org.sonarqube.ws.client.gitlab.synchronization.run.GitlabSynchronizationRunService;
 import org.sonarqube.ws.client.governancereports.GovernanceReportsService;
 import org.sonarqube.ws.client.hotspots.HotspotsService;
@@ -149,6 +150,7 @@ class DefaultWsClient implements WsClient {
   private final GithubConfigurationService githubConfigurationService;
   private final GithubPermissionsService githubPermissionsService;
   private final GitlabConfigurationService gitlabConfigurationService;
+  private final GitlabPermissionService gitlabPermissionsService;
 
   private final GitlabSynchronizationRunService gitlabSynchronizationRunService;
 
@@ -213,6 +215,7 @@ class DefaultWsClient implements WsClient {
     this.githubConfigurationService = new GithubConfigurationService(wsConnector);
     this.githubPermissionsService = new GithubPermissionsService(wsConnector);
     this.gitlabConfigurationService = new GitlabConfigurationService(wsConnector);
+    this.gitlabPermissionsService = new GitlabPermissionService(wsConnector);
     this.gitlabSynchronizationRunService = new GitlabSynchronizationRunService(wsConnector);
   }
 
@@ -310,6 +313,11 @@ class DefaultWsClient implements WsClient {
   @Override
   public GitlabConfigurationService gitlabConfigurationService() {
     return gitlabConfigurationService;
+  }
+
+  @Override
+  public GitlabPermissionService gitlabPermissionsService() {
+    return gitlabPermissionsService;
   }
 
   @Override

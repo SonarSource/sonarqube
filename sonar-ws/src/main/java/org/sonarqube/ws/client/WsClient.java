@@ -38,6 +38,7 @@ import org.sonarqube.ws.client.favorites.FavoritesService;
 import org.sonarqube.ws.client.github.configuration.GithubConfigurationService;
 import org.sonarqube.ws.client.github.provisioning.permissions.GithubPermissionsService;
 import org.sonarqube.ws.client.gitlab.configuration.GitlabConfigurationService;
+import org.sonarqube.ws.client.gitlab.provisioning.permissions.GitlabPermissionService;
 import org.sonarqube.ws.client.gitlab.synchronization.run.GitlabSynchronizationRunService;
 import org.sonarqube.ws.client.governancereports.GovernanceReportsService;
 import org.sonarqube.ws.client.hotspots.HotspotsService;
@@ -136,6 +137,8 @@ public interface WsClient {
   GithubPermissionsService githubPermissionsService();
 
   GitlabConfigurationService gitlabConfigurationService();
+
+  GitlabPermissionService gitlabPermissionsService();
 
   GitlabSynchronizationRunService gitlabSynchronizationRunService();
 
