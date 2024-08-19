@@ -212,6 +212,22 @@ export const SOFTWARE_QUALITY_RATING_METRICS_MAP: Record<string, MetricKey> = {
   [MetricKey.sqale_debt_ratio]: MetricKey.software_quality_maintainability_debt_ratio,
   [MetricKey.effort_to_reach_maintainability_rating_a]:
     MetricKey.effort_to_reach_software_quality_maintainability_rating_a,
+  [MetricKey.last_change_on_maintainability_rating]:
+    MetricKey.last_change_on_software_quality_maintainability_rating,
+  [MetricKey.last_change_on_releasability_rating]:
+    MetricKey.last_change_on_software_quality_releasability_rating,
+  [MetricKey.last_change_on_reliability_rating]:
+    MetricKey.last_change_on_software_quality_reliability_rating,
+  [MetricKey.last_change_on_security_rating]:
+    MetricKey.last_change_on_software_quality_security_rating,
+  [MetricKey.last_change_on_security_review_rating]:
+    MetricKey.last_change_on_software_quality_security_review_rating,
+  [MetricKey.maintainability_rating_effort]:
+    MetricKey.software_quality_maintainability_rating_effort,
+  [MetricKey.reliability_rating_effort]: MetricKey.software_quality_reliability_rating_effort,
+  [MetricKey.security_rating_effort]: MetricKey.software_quality_security_rating_effort,
+  [MetricKey.security_review_rating_effort]:
+    MetricKey.software_quality_security_review_rating_effort,
   [MetricKey.new_maintainability_rating]: MetricKey.new_software_quality_maintainability_rating,
   [MetricKey.new_maintainability_rating_distribution]:
     MetricKey.new_software_quality_maintainability_rating_distribution,
