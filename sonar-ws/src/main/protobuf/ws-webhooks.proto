@@ -78,7 +78,7 @@ message DeliveryWsResponse {
 message Delivery {
   optional string id = 1;
   optional string componentKey = 2;
-  optional string ceTaskId = 3;
+  optional string ceTaskId = 3 [deprecated=true];
   optional string name = 4;
   optional string url = 5;
   optional string at = 6;

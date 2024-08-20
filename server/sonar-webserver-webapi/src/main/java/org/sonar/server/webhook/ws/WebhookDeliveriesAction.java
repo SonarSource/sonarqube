@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -76,14 +77,22 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
         "Require 'Administer' permission on the related project.<br/>" +
         "Note that additional information are returned by api/webhooks/delivery.")
       .setResponseExample(getClass().getResource("example-deliveries.json"))
+      .setChangelog(
+        new Change("10.7",
+          "'ceTaskId' and 'componentKey' parameters are now deprecated. These parameters won't be replaced, the deliveries related to a " +
+            "specific project can be obtained by fetching the webhook first, and then fetching the associated deliveries."),
+        new Change("10.7",
+          "'ceTaskId' response field is now deprecated."))
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT)
       .setDescription("Key of the project")
+      .setDeprecatedSince("10.7")
       .setExampleValue("my-project");
 
     action.createParam(PARAM_TASK)
       .setDescription("Id of the Compute Engine task")
+      .setDeprecatedSince("10.7")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
 
     action.createParam(PARAM_WEBHOOK)
