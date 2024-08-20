@@ -31,6 +31,8 @@ public class DatabaseVersion {
    * Note that the value can't be less than current LTA version.
    */
   public static final long MIN_UPGRADE_VERSION = 6_802;
+  public static final String MIN_UPGRADE_VERSION_HUMAN_READABLE = "9.9";
+
 
   private final MigrationSteps migrationSteps;
   private final MigrationHistory migrationHistory;

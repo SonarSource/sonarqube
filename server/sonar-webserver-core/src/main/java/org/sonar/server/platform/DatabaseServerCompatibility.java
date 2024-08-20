@@ -27,6 +27,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static org.sonar.server.log.ServerProcessLogging.STARTUP_LOGGER_NAME;
+import static org.sonar.server.platform.db.migration.version.DatabaseVersion.MIN_UPGRADE_VERSION_HUMAN_READABLE;
 
 public class DatabaseServerCompatibility implements Startable {
 
@@ -48,7 +49,8 @@ public class DatabaseServerCompatibility implements Startable {
     if (status == DatabaseVersion.Status.REQUIRES_UPGRADE) {
       Optional<Long> currentVersion = this.version.getVersion();
       if (currentVersion.isPresent() && currentVersion.get() < DatabaseVersion.MIN_UPGRADE_VERSION) {
-        throw MessageException.of("The version of SonarQube is too old. Please upgrade to the Long-Term Active version first.");
+        throw MessageException.of("The version of SonarQube you are trying to upgrade from is too old. Please upgrade to the " +
+          MIN_UPGRADE_VERSION_HUMAN_READABLE + " Long-Term Active version first.");
       }
 
       String msg = "The database must be manually upgraded. Please backup the database and browse /setup. "

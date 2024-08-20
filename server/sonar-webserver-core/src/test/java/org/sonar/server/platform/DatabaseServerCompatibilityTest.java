@@ -56,7 +56,7 @@ public class DatabaseServerCompatibilityTest {
     var compatibility = new DatabaseServerCompatibility(version);
     assertThatThrownBy(compatibility::start)
       .isInstanceOf(MessageException.class)
-      .hasMessage("The version of SonarQube is too old. Please upgrade to the Long-Term Active version first.");
+      .hasMessage("The version of SonarQube you are trying to upgrade from is too old. Please upgrade to the 9.9 Long-Term Active version first.");
   }
 
   @Test
