@@ -21,6 +21,8 @@ task "yarn_design-system"(type: Exec) {
   outputs.cacheIf { true }
 }
 
+compileJava.onlyIf {false}
+
 task yarn_run(type: Exec) {
   dependsOn "yarn_design-system"
 
@@ -42,8 +44,6 @@ task yarn_run(type: Exec) {
 build.dependsOn(yarn_run)
 
 task "yarn_lint-report-ci"(type: Exec) {
-  dependsOn "yarn_design-system"
-  
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src/main/js'].each {
     inputs.dir(it)
@@ -59,7 +59,7 @@ task "yarn_lint-report-ci"(type: Exec) {
 
 task "yarn_validate-ci"(type: Exec) {
   dependsOn "yarn_design-system"
-  
+
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src/main/js', 'design-system'].each {
     inputs.dir(it)
@@ -75,7 +75,7 @@ task "yarn_validate-ci"(type: Exec) {
 
 task "yarn_check-ci"(type: Exec) {
   dependsOn "yarn_design-system"
-  
+
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src'].each {
     inputs.dir(it)

@@ -12,6 +12,10 @@ sonar {
   }
 }
 
+jar.onlyIf {false}
+compileJava.onlyIf {false}
+processResources.onlyIf {false}
+
 task "yarn_validate-ci"(type: Exec) {
   dependsOn ":server:sonar-web:yarn_run"
 

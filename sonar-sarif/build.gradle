@@ -1,3 +1,5 @@
+import nl.javadude.gradle.plugins.license.License
+
 plugins {
   id "org.jsonschema2pojo" version "1.2.1"
 }
@@ -17,5 +19,9 @@ jsonSchema2Pojo {
 }
 
 license {
-  excludes(["org/sonar/sarif/pojo/**/*"])
+  exclude("org/sonar/sarif/pojo/**/*")
+}
+
+tasks.withType(License).configureEach { licenseTask ->
+  licenseTask.mustRunAfter(tasks.named("generateJsonSchema2Pojo"))
 }
