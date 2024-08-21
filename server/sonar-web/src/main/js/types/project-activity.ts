@@ -99,6 +99,7 @@ export interface HistoryItem {
 export interface MeasureHistory {
   history: HistoryItem[];
   metric: MetricKey;
+  splitPointDate?: Date;
 }
 
 export interface Serie {

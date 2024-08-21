@@ -39,6 +39,8 @@ import { Chart } from '../../types/types';
 import { LINE_CHART_DASHES } from '../activity-graph/utils';
 import './AdvancedTimeline.css';
 import './LineChart.css';
+import SplitLine from './SplitLine';
+import SplitLinePopover from './SplitLinePopover';
 
 export interface PropsWithoutTheme {
   basisCurve?: boolean;
@@ -49,6 +51,7 @@ export interface PropsWithoutTheme {
   height: number;
   hideGrid?: boolean;
   hideXAxis?: boolean;
+  isLegacy?: boolean;
   leakPeriodDate?: Date;
   // used to avoid same y ticks labels
   maxYTicksCount?: number;
@@ -57,6 +60,7 @@ export interface PropsWithoutTheme {
   selectedDate?: Date;
   series: Chart.Serie[];
   showAreas?: boolean;
+  splitPointDate?: Date;
   startDate?: Date;
   updateSelectedDate?: (selectedDate?: Date) => void;
   updateTooltip?: (selectedDate?: Date, tooltipXPos?: number, tooltipIdx?: number) => void;
@@ -141,7 +145,10 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
   }
 
   getRatingScale = (availableHeight: number) => {
-    return scalePoint<number>().domain([5, 4, 3, 2, 1]).range([availableHeight, 0]);
+    const { isLegacy } = this.props;
+    return scalePoint<number>()
+      .domain(isLegacy ? [5, 4, 3, 2, 1] : [4, 3, 2, 1])
+      .range([availableHeight, 0]);
   };
 
   getLevelScale = (availableHeight: number) => {
@@ -627,7 +634,10 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
       hideXAxis,
       showAreas,
       graphDescription,
+      metricType,
+      splitPointDate,
     } = this.props as PropsWithDefaults;
+    const { xScale, yScale } = this.state;
 
     if (!width || !height) {
       return <div />;
@@ -637,24 +647,36 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
     const isZoomed = Boolean(startDate ?? endDate);
 
     return (
-      <svg
-        aria-label={graphDescription}
-        className={classNames('line-chart', { 'chart-zoomed': isZoomed })}
-        height={height}
-        width={width}
-      >
-        {zoomEnabled && this.renderClipPath()}
-        <g transform={`translate(${padding[3]}, ${padding[0]})`}>
-          {leakPeriodDate != null && this.renderLeak()}
-          {!hideGrid && this.renderHorizontalGrid()}
-          {!hideXAxis && this.renderXAxisTicks()}
-          {showAreas && this.renderAreas()}
-          {this.renderLines()}
-          {this.renderDots()}
-          {this.renderSelectedDate()}
-          {this.renderMouseEventsOverlay(zoomEnabled)}
-        </g>
-      </svg>
+      <div className="sw-relative">
+        <svg
+          aria-label={graphDescription}
+          className={classNames('line-chart', { 'chart-zoomed': isZoomed })}
+          height={height}
+          width={width}
+        >
+          {zoomEnabled && this.renderClipPath()}
+          <g transform={`translate(${padding[3]}, ${padding[0]})`}>
+            {leakPeriodDate != null && this.renderLeak()}
+            {!hideGrid && this.renderHorizontalGrid()}
+            {!hideXAxis && this.renderXAxisTicks()}
+            {showAreas && this.renderAreas()}
+            {this.renderLines()}
+            {this.renderDots()}
+            {this.renderSelectedDate()}
+            {this.renderMouseEventsOverlay(zoomEnabled)}
+            {metricType === MetricType.Rating && (
+              <SplitLine splitPointDate={splitPointDate} xScale={xScale} yScale={yScale} />
+            )}
+          </g>
+        </svg>
+        {metricType === MetricType.Rating && (
+          <SplitLinePopover
+            paddingLeft={padding[3]}
+            splitPointDate={splitPointDate}
+            xScale={xScale}
+          />
+        )}
+      </div>
     );
   }
 }

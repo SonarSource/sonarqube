@@ -23,7 +23,11 @@ import { Dropdown, TextMuted } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
-import { CCT_SOFTWARE_QUALITY_METRICS, HIDDEN_METRICS } from '../../helpers/constants';
+import {
+  CCT_SOFTWARE_QUALITY_METRICS,
+  HIDDEN_METRICS,
+  SOFTWARE_QUALITY_RATING_METRICS_MAP,
+} from '../../helpers/constants';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
 import { Metric } from '../../types/types';
@@ -77,6 +81,9 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
         if (HIDDEN_METRICS.includes(metric.key as MetricKey)) {
           return false;
         }
+        if (Object.values(SOFTWARE_QUALITY_RATING_METRICS_MAP).includes(metric.key as MetricKey)) {
+          return false;
+        }
         if (
           selectedMetrics.includes(metric.key) ||
           !getLocalizedMetricName(metric).toLowerCase().includes(query.toLowerCase())
@@ -93,7 +100,11 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
 
   getSelectedMetricsElements = (metrics: Metric[], selectedMetrics: string[]) => {
     return metrics
-      .filter((metric) => selectedMetrics.includes(metric.key))
+      .filter(
+        (metric) =>
+          selectedMetrics.includes(metric.key) &&
+          !Object.values(SOFTWARE_QUALITY_RATING_METRICS_MAP).includes(metric.key as MetricKey),
+      )
       .map((metric) => metric.key);
   };
 

@@ -41,6 +41,7 @@ interface Props {
   graphEndDate?: Date;
   graphStartDate?: Date;
   isCustom?: boolean;
+  isLegacy?: boolean;
   leakPeriodDate?: Date;
   measuresHistory: MeasureHistory[];
   metricsType: string;
@@ -53,120 +54,117 @@ interface Props {
   updateTooltip: (selectedDate?: Date) => void;
 }
 
-interface State {
-  tooltipIdx?: number;
-  tooltipXPos?: number;
-}
+export default function GraphHistory(props: Readonly<Props>) {
+  const {
+    analyses,
+    canShowDataAsTable = true,
+    graph,
+    graphEndDate,
+    graphStartDate,
+    isCustom,
+    leakPeriodDate,
+    measuresHistory,
+    metricsType,
+    selectedDate,
+    series,
+    showAreas,
+    graphDescription,
+    isLegacy,
+  } = props;
+  const [tooltipIdx, setTooltipIdx] = React.useState<number | undefined>(undefined);
+  const [tooltipXPos, setTooltipXPos] = React.useState<number | undefined>(undefined);
 
-export default class GraphHistory extends React.PureComponent<Props, State> {
-  state: State = {};
-
-  formatValue = (tick: string | number) => {
-    return formatMeasure(tick, getShortType(this.props.metricsType));
+  const formatValue = (tick: string | number) => {
+    return formatMeasure(tick, getShortType(metricsType));
   };
 
-  formatTooltipValue = (tick: string | number) => {
-    return formatMeasure(tick, this.props.metricsType);
+  const formatTooltipValue = (tick: string | number) => {
+    return formatMeasure(tick, metricsType);
   };
 
-  updateTooltip = (selectedDate?: Date, tooltipXPos?: number, tooltipIdx?: number) => {
-    this.props.updateTooltip(selectedDate);
-    this.setState({ tooltipXPos, tooltipIdx });
+  const updateTooltip = (selectedDate?: Date, tooltipXPos?: number, tooltipIdx?: number) => {
+    props.updateTooltip(selectedDate);
+    setTooltipIdx(tooltipIdx);
+    setTooltipXPos(tooltipXPos);
   };
 
-  render() {
-    const {
-      analyses,
-      canShowDataAsTable = true,
-      graph,
-      graphEndDate,
-      graphStartDate,
-      isCustom,
-      leakPeriodDate,
-      measuresHistory,
-      metricsType,
-      selectedDate,
-      series,
-      showAreas,
-      graphDescription,
-    } = this.props;
+  const modalProp = ({ onClose }: { onClose: () => void }) => (
+    <DataTableModal
+      analyses={analyses}
+      graphEndDate={graphEndDate}
+      graphStartDate={graphStartDate}
+      series={series}
+      onClose={onClose}
+    />
+  );
 
-    const modalProp = ({ onClose }: { onClose: () => void }) => (
-      <DataTableModal
-        analyses={analyses}
-        graphEndDate={graphEndDate}
-        graphStartDate={graphStartDate}
-        series={series}
-        onClose={onClose}
-      />
-    );
+  const events = getAnalysisEventsForDate(analyses, selectedDate);
 
-    const { tooltipIdx, tooltipXPos } = this.state;
-    const events = getAnalysisEventsForDate(analyses, selectedDate);
+  return (
+    <StyledGraphContainer className="sw-flex sw-flex-col sw-justify-center sw-items-stretch sw-grow sw-py-2">
+      {isCustom && props.removeCustomMetric ? (
+        <GraphsLegendCustom
+          leakPeriodDate={leakPeriodDate}
+          removeMetric={props.removeCustomMetric}
+          series={series}
+        />
+      ) : (
+        <GraphsLegendStatic leakPeriodDate={leakPeriodDate} series={series} />
+      )}
 
-    return (
-      <StyledGraphContainer className="sw-flex sw-flex-col sw-justify-center sw-items-stretch sw-grow sw-py-2">
-        {isCustom && this.props.removeCustomMetric ? (
-          <GraphsLegendCustom
-            leakPeriodDate={leakPeriodDate}
-            removeMetric={this.props.removeCustomMetric}
-            series={series}
-          />
-        ) : (
-          <GraphsLegendStatic leakPeriodDate={leakPeriodDate} series={series} />
-        )}
+      <div className="sw-flex-1">
+        <AutoSizer>
+          {({ height, width }) => (
+            <div>
+              <AdvancedTimeline
+                endDate={graphEndDate}
+                formatYTick={formatValue}
+                height={height}
+                leakPeriodDate={leakPeriodDate}
+                splitPointDate={measuresHistory.find((m) => m.splitPointDate)?.splitPointDate}
+                metricType={metricsType}
+                selectedDate={selectedDate}
+                isLegacy={isLegacy}
+                series={series}
+                showAreas={showAreas}
+                startDate={graphStartDate}
+                graphDescription={graphDescription}
+                updateSelectedDate={props.updateSelectedDate}
+                updateTooltip={updateTooltip}
+                updateZoom={props.updateGraphZoom}
+                width={width}
+              />
 
-        <div className="sw-flex-1">
-          <AutoSizer>
-            {({ height, width }) => (
-              <div>
-                <AdvancedTimeline
-                  endDate={graphEndDate}
-                  formatYTick={this.formatValue}
-                  height={height}
-                  leakPeriodDate={leakPeriodDate}
-                  metricType={metricsType}
-                  selectedDate={selectedDate}
-                  series={series}
-                  showAreas={showAreas}
-                  startDate={graphStartDate}
-                  graphDescription={graphDescription}
-                  updateSelectedDate={this.props.updateSelectedDate}
-                  updateTooltip={this.updateTooltip}
-                  updateZoom={this.props.updateGraphZoom}
-                  width={width}
-                />
-                {selectedDate !== undefined &&
-                  tooltipIdx !== undefined &&
-                  tooltipXPos !== undefined && (
-                    <GraphsTooltips
-                      events={events}
-                      formatValue={this.formatTooltipValue}
-                      graph={graph}
-                      graphWidth={width}
-                      measuresHistory={measuresHistory}
-                      selectedDate={selectedDate}
-                      series={series}
-                      tooltipIdx={tooltipIdx}
-                      tooltipPos={tooltipXPos}
-                    />
-                  )}
-              </div>
-            )}
-          </AutoSizer>
-        </div>
-        {canShowDataAsTable && (
-          <ModalButton modal={modalProp}>
-            {({ onClick }) => (
-              <ButtonSecondary className="sw-sr-only" onClick={onClick}>
-                {translate('project_activity.graphs.open_in_table')}
-              </ButtonSecondary>
-            )}
-          </ModalButton>
-        )}
-      </StyledGraphContainer>
-    );
-  }
+              {selectedDate !== undefined &&
+                tooltipIdx !== undefined &&
+                tooltipXPos !== undefined && (
+                  <GraphsTooltips
+                    events={events}
+                    formatValue={formatTooltipValue}
+                    graph={graph}
+                    graphWidth={width}
+                    measuresHistory={measuresHistory}
+                    selectedDate={selectedDate}
+                    series={series}
+                    tooltipIdx={tooltipIdx}
+                    tooltipPos={tooltipXPos}
+                  />
+                )}
+            </div>
+          )}
+        </AutoSizer>
+      </div>
+      {canShowDataAsTable && (
+        <ModalButton modal={modalProp}>
+          {({ onClick }) => (
+            <ButtonSecondary className="sw-sr-only" onClick={onClick}>
+              {translate('project_activity.graphs.open_in_table')}
+            </ButtonSecondary>
+          )}
+        </ModalButton>
+      )}
+    </StyledGraphContainer>
+  );
 }
 
 const StyledGraphContainer = styled.div`

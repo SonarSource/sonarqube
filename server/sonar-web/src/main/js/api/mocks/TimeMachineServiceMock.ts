@@ -57,6 +57,7 @@ const defaultMeasureHistory = [
 
 export class TimeMachineServiceMock {
   #measureHistory: MeasureHistory[];
+  toISO = false;
 
   constructor() {
     this.#measureHistory = cloneDeep(defaultMeasureHistory);
@@ -109,7 +110,10 @@ export class TimeMachineServiceMock {
   map = (list: MeasureHistory[]) => {
     return list.map((item) => ({
       ...item,
-      history: item.history.map((h) => ({ ...h, date: h.date.toDateString() })),
+      history: item.history.map((h) => ({
+        ...h,
+        date: this.toISO ? h.date.toISOString() : h.date.toDateString(),
+      })),
     }));
   };
 

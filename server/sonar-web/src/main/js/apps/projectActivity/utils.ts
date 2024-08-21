@@ -22,6 +22,7 @@ import { isEqual, uniq } from 'lodash';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { RawQuery } from '~sonar-aligned/types/router';
 import { DEFAULT_GRAPH } from '../../components/activity-graph/utils';
+import { SOFTWARE_QUALITY_RATING_METRICS_MAP } from '../../helpers/constants';
 import { parseDate } from '../../helpers/dates';
 import { MEASURES_REDIRECTION } from '../../helpers/measures';
 import {
@@ -113,7 +114,21 @@ export function getAnalysesByVersionByDay(
 
 export function parseQuery(urlQuery: RawQuery): Query {
   const parsedMetrics = parseAsArray(urlQuery['custom_metrics'], parseAsString<MetricKey>);
-  const customMetrics = uniq(parsedMetrics.map((metric) => MEASURES_REDIRECTION[metric] ?? metric));
+  let customMetrics = uniq(parsedMetrics.map((metric) => MEASURES_REDIRECTION[metric] ?? metric));
+
+  const reversedMetricMap = Object.fromEntries(
+    Object.entries(SOFTWARE_QUALITY_RATING_METRICS_MAP).map(
+      ([k, v]) => [v, k] as [MetricKey, MetricKey],
+    ),
+  );
+
+  customMetrics = uniq(customMetrics.map((metric) => reversedMetricMap[metric] ?? metric))
+    .map((metric) =>
+      SOFTWARE_QUALITY_RATING_METRICS_MAP[metric]
+        ? [metric, SOFTWARE_QUALITY_RATING_METRICS_MAP[metric]]
+        : metric,
+    )
+    .flat();
 
   return {
     category: parseAsString(urlQuery['category']),
@@ -136,7 +151,12 @@ export function serializeQuery(query: Query): RawQuery {
 export function serializeUrlQuery(query: Query): RawQuery {
   return cleanQuery({
     category: serializeString(query.category),
-    custom_metrics: serializeStringArray(query.customMetrics),
+    custom_metrics: serializeStringArray(
+      query.customMetrics.filter(
+        (metric) =>
+          !Object.values(SOFTWARE_QUALITY_RATING_METRICS_MAP).includes(metric as MetricKey),
+      ),
+    ),
     from: serializeDate(query.from),
     graph: serializeGraph(query.graph),
     id: serializeString(query.project),

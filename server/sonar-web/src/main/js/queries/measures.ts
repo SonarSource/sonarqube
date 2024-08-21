@@ -18,12 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import {
-  infiniteQueryOptions,
-  queryOptions,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { infiniteQueryOptions, queryOptions, useQueryClient } from '@tanstack/react-query';
 import { groupBy, isUndefined, omitBy } from 'lodash';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { getComponentTree } from '../api/components';
@@ -40,26 +35,28 @@ import { BranchLike } from '../types/branch-like';
 import { Measure } from '../types/types';
 import { createInfiniteQueryHook, createQueryHook, StaleTime } from './common';
 
-export function useAllMeasuresHistoryQuery(
-  component: string | undefined,
-  branchParams: BranchParameters,
-  metrics: string,
-  enabled = true,
-) {
-  return useQuery({
-    queryKey: ['measures', 'history', component, branchParams, metrics],
-    queryFn: () => {
-      if (metrics.length <= 0) {
-        return Promise.resolve({
-          measures: [],
-          paging: { pageIndex: 1, pageSize: 1, total: 0 },
-        });
-      }
-      return getAllTimeMachineData({ component, metrics, ...branchParams, p: 1 });
-    },
-    enabled,
-  });
-}
+export const useAllMeasuresHistoryQuery = createQueryHook(
+  ({
+    component,
+    branchParams,
+    metrics,
+  }: Omit<Parameters<typeof getAllTimeMachineData>[0], 'to' | 'from' | 'p'> & {
+    branchParams?: BranchParameters;
+  }) => {
+    return queryOptions({
+      queryKey: ['measures', 'history', component, branchParams, metrics],
+      queryFn: () => {
+        if (metrics.length <= 0) {
+          return Promise.resolve({
+            measures: [],
+            paging: { pageIndex: 1, pageSize: 1, total: 0 },
+          });
+        }
+        return getAllTimeMachineData({ component, metrics, ...branchParams, p: 1 });
+      },
+    });
+  },
+);
 
 export const useMeasuresComponentQuery = createQueryHook(
   ({
@@ -79,9 +76,7 @@ export const useMeasuresComponentQuery = createQueryHook(
       queryFn: async () => {
         const data = await getMeasuresWithPeriodAndMetrics(
           componentKey,
-          metricKeys.filter(
-            (m) => ![MetricKey.software_quality_releasability_rating].includes(m as MetricKey),
-          ),
+          metricKeys,
           branchLikeQuery,
         );
         metricKeys.forEach((metricKey) => {
@@ -123,14 +118,11 @@ export const useComponentTreeQuery = createInfiniteQueryHook(
     return infiniteQueryOptions({
       queryKey: ['component', component, 'tree', strategy, { metrics, additionalData }],
       queryFn: async ({ pageParam }) => {
-        const result = await getComponentTree(
-          strategy,
-          component,
-          metrics?.filter(
-            (m) => ![MetricKey.software_quality_releasability_rating].includes(m as MetricKey),
-          ),
-          { ...additionalData, p: pageParam, ...branchLikeQuery },
-        );
+        const result = await getComponentTree(strategy, component, metrics, {
+          ...additionalData,
+          p: pageParam,
+          ...branchLikeQuery,
+        });
 
         if (result.baseComponent.measures && result.baseComponent.measures.length > 0) {
           const measuresMapByMetricKeyForBaseComponent = groupBy(
@@ -270,7 +262,6 @@ export const useMeasureQuery = createQueryHook(
 );
 
 const PORTFOLIO_OVERVIEW_METRIC_KEYS = [
-  MetricKey.software_quality_releasability_rating,
   MetricKey.software_quality_releasability_rating_distribution,
   MetricKey.software_quality_security_rating_distribution,
   MetricKey.software_quality_security_review_rating_distribution,

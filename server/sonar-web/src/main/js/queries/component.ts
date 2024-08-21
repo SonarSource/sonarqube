@@ -22,21 +22,8 @@ import { groupBy, omit } from 'lodash';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { getTasksForComponent } from '../api/ce';
 import { getBreadcrumbs, getComponent, getComponentData } from '../api/components';
-import { MetricKey } from '../sonar-aligned/types/metrics';
 import { Component, Measure } from '../types/types';
 import { StaleTime, createQueryHook } from './common';
-
-const NEW_METRICS = [
-  MetricKey.software_quality_maintainability_rating,
-  MetricKey.software_quality_security_rating,
-  MetricKey.software_quality_reliability_rating,
-  MetricKey.software_quality_security_review_rating,
-  MetricKey.software_quality_releasability_rating,
-  MetricKey.new_software_quality_security_rating,
-  MetricKey.new_software_quality_reliability_rating,
-  MetricKey.new_software_quality_maintainability_rating,
-  MetricKey.new_software_quality_security_review_rating,
-];
 
 const TASK_RETRY = 10_000;
 
@@ -70,10 +57,7 @@ export const useComponentQuery = createQueryHook(
       queryFn: async () => {
         const result = await getComponent({
           component,
-          metricKeys: metricKeys
-            .split(',')
-            .filter((m) => !NEW_METRICS.includes(m as MetricKey))
-            .join(),
+          metricKeys,
           ...params,
         });
         const measuresMapByMetricKey = groupBy(result.component.measures, 'metric');

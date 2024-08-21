@@ -1913,6 +1913,698 @@ exports[`should render correctly: no height 1`] = `null`;
 
 exports[`should render correctly: no width 1`] = `null`;
 
+exports[`should render correctly: not legacy + split point 1`] = `
+<svg
+  class="line-chart"
+  height="100"
+  width="100"
+>
+  <g
+    transform="translate(50, 26)"
+  >
+    <g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="24"
+          y2="24"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="16"
+          y2="16"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="8"
+          y2="8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="0"
+          y2="0"
+        />
+      </g>
+    </g>
+    <g
+      transform="translate(0, 20)"
+    >
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 15, 24)"
+        x="15"
+        y="24"
+      >
+        October
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 20, 24)"
+        x="20"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 25, 24)"
+        x="25"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 30, 24)"
+        x="30"
+        y="24"
+      >
+        06 PM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 35, 24)"
+        x="35"
+        y="24"
+      >
+        Wed 02
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 40, 24)"
+        x="40"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 45, 24)"
+        x="45"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 50, 24)"
+        x="50"
+        y="24"
+      >
+        06 PM
+      </text>
+    </g>
+    <g>
+      <path
+        class="line-chart-path line-chart-path-0"
+        d="M0,0L20,8"
+        stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
+      />
+      <path
+        class="line-chart-path line-chart-path-1"
+        d="M40,16Z"
+        stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
+      />
+    </g>
+    <g>
+      <circle
+        cx="40"
+        cy="16"
+        fill="rgb(58,127,173)"
+        r="2"
+        stroke="white"
+        stroke-width="1"
+      />
+    </g>
+    <rect
+      class="chart-mouse-events-overlay"
+      height="24"
+      width="40"
+    />
+    <line
+      class="line-tooltip"
+      stroke-dasharray="2"
+      x1="20"
+      x2="20"
+      y1="24"
+      y2="-10"
+    />
+  </g>
+</svg>
+`;
+
+exports[`should render correctly: not legacy + split point, but not Rating 1`] = `
+<svg
+  class="line-chart"
+  height="100"
+  width="100"
+>
+  <g
+    transform="translate(50, 26)"
+  >
+    <g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="24"
+          y2="24"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="22.4"
+          y2="22.4"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="20.8"
+          y2="20.8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="19.200000000000003"
+          y2="19.200000000000003"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="17.6"
+          y2="17.6"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="16"
+          y2="16"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="14.400000000000002"
+          y2="14.400000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="12.800000000000002"
+          y2="12.800000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="11.2"
+          y2="11.2"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="9.600000000000001"
+          y2="9.600000000000001"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="8"
+          y2="8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="6.399999999999999"
+          y2="6.399999999999999"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="4.800000000000002"
+          y2="4.800000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="3.1999999999999993"
+          y2="3.1999999999999993"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="1.6000000000000023"
+          y2="1.6000000000000023"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="0"
+          y2="0"
+        />
+      </g>
+    </g>
+    <g
+      transform="translate(0, 20)"
+    >
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 15, 24)"
+        x="15"
+        y="24"
+      >
+        October
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 20, 24)"
+        x="20"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 25, 24)"
+        x="25"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 30, 24)"
+        x="30"
+        y="24"
+      >
+        06 PM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 35, 24)"
+        x="35"
+        y="24"
+      >
+        Wed 02
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 40, 24)"
+        x="40"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 45, 24)"
+        x="45"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 50, 24)"
+        x="50"
+        y="24"
+      >
+        06 PM
+      </text>
+    </g>
+    <g>
+      <path
+        class="line-chart-path line-chart-path-0"
+        d="M0,16L20,8"
+        stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
+      />
+      <path
+        class="line-chart-path line-chart-path-1"
+        d="M40,0Z"
+        stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
+      />
+    </g>
+    <g>
+      <circle
+        cx="40"
+        cy="0"
+        fill="rgb(58,127,173)"
+        r="2"
+        stroke="white"
+        stroke-width="1"
+      />
+    </g>
+    <rect
+      class="chart-mouse-events-overlay"
+      height="24"
+      width="40"
+    />
+  </g>
+</svg>
+`;
+
+exports[`should render correctly: not legacy 1`] = `
+<svg
+  class="line-chart"
+  height="100"
+  width="100"
+>
+  <g
+    transform="translate(50, 26)"
+  >
+    <g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="24"
+          y2="24"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="22.4"
+          y2="22.4"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="20.8"
+          y2="20.8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="19.200000000000003"
+          y2="19.200000000000003"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="17.6"
+          y2="17.6"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="16"
+          y2="16"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="14.400000000000002"
+          y2="14.400000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="12.800000000000002"
+          y2="12.800000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="11.2"
+          y2="11.2"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="9.600000000000001"
+          y2="9.600000000000001"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="8"
+          y2="8"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="6.399999999999999"
+          y2="6.399999999999999"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="4.800000000000002"
+          y2="4.800000000000002"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="3.1999999999999993"
+          y2="3.1999999999999993"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="1.6000000000000023"
+          y2="1.6000000000000023"
+        />
+      </g>
+      <g>
+        <line
+          class="line-chart-grid"
+          x1="0"
+          x2="40"
+          y1="0"
+          y2="0"
+        />
+      </g>
+    </g>
+    <g
+      transform="translate(0, 20)"
+    >
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 15, 24)"
+        x="15"
+        y="24"
+      >
+        October
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 20, 24)"
+        x="20"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 25, 24)"
+        x="25"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 30, 24)"
+        x="30"
+        y="24"
+      >
+        06 PM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 35, 24)"
+        x="35"
+        y="24"
+      >
+        Wed 02
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 40, 24)"
+        x="40"
+        y="24"
+      >
+        06 AM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 45, 24)"
+        x="45"
+        y="24"
+      >
+        12 PM
+      </text>
+      <text
+        class="line-chart-tick sw-body-sm"
+        text-anchor="end"
+        transform="rotate(-35, 50, 24)"
+        x="50"
+        y="24"
+      >
+        06 PM
+      </text>
+    </g>
+    <g>
+      <path
+        class="line-chart-path line-chart-path-0"
+        d="M0,16L20,8"
+        stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
+      />
+      <path
+        class="line-chart-path line-chart-path-1"
+        d="M40,0Z"
+        stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
+      />
+    </g>
+    <g>
+      <circle
+        cx="40"
+        cy="0"
+        fill="rgb(58,127,173)"
+        r="2"
+        stroke="white"
+        stroke-width="1"
+      />
+    </g>
+    <rect
+      class="chart-mouse-events-overlay"
+      height="24"
+      width="40"
+    />
+  </g>
+</svg>
+`;
+
 exports[`should render correctly: rating metric 1`] = `
 <svg
   class="line-chart"

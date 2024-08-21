@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from '@sonarsource/echoes-react';
 import React from 'react';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
@@ -33,11 +34,14 @@ import {
   getHistoryMetrics,
   isCustomGraph,
 } from '../../../components/activity-graph/utils';
+import { mergeRatingMeasureHistory } from '../../../helpers/activity-graph';
+import { SOFTWARE_QUALITY_RATING_METRICS } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import useApplicationLeakQuery from '../../../queries/applications';
 import { useBranchesQuery } from '../../../queries/branch';
 import { useAllMeasuresHistoryQuery } from '../../../queries/measures';
 import { useAllProjectAnalysesQuery } from '../../../queries/project-analyses';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { isApplication, isProject } from '../../../types/component';
 import { MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
 import { Query, parseQuery, serializeUrlQuery } from '../utils';
@@ -73,26 +77,22 @@ export function ProjectActivityApp() {
   );
 
   const { data: analysesData, isLoading: isLoadingAnalyses } = useAllProjectAnalysesQuery(enabled);
+  const { data: isLegacy, isLoading: isLoadingLegacy } = useIsLegacyCCTMode();
 
   const { data: historyData, isLoading: isLoadingHistory } = useAllMeasuresHistoryQuery(
-    componentKey,
-    getBranchLikeQuery(branchLike),
-    getHistoryMetrics(query.graph || DEFAULT_GRAPH, parsedQuery.customMetrics).join(','),
-    enabled,
+    {
+      component: componentKey,
+      branchParams: getBranchLikeQuery(branchLike),
+      metrics: getHistoryMetrics(query.graph || DEFAULT_GRAPH, parsedQuery.customMetrics).join(','),
+    },
+    { enabled },
   );
 
   const analyses = React.useMemo(() => analysesData ?? [], [analysesData]);
 
   const measuresHistory = React.useMemo(
-    () =>
-      historyData?.measures?.map((measure) => ({
-        metric: measure.metric,
-        history: measure.history.map((historyItem) => ({
-          date: parseDate(historyItem.date),
-          value: historyItem.value,
-        })),
-      })) ?? [],
-    [historyData],
+    () => (isLoadingLegacy ? [] : mergeRatingMeasureHistory(historyData, parseDate, isLegacy)),
+    [historyData, isLegacy, isLoadingLegacy],
   );
 
   const leakPeriodDate = React.useMemo(() => {
@@ -137,20 +137,31 @@ export function ProjectActivityApp() {
     });
   };
 
+  const firstSoftwareQualityRatingMetric = historyData?.measures.find((m) =>
+    SOFTWARE_QUALITY_RATING_METRICS.includes(m.metric),
+  );
+
   return (
     component && (
-      <ProjectActivityAppRenderer
-        analyses={analyses}
-        analysesLoading={isLoadingAnalyses}
-        graphLoading={isLoadingHistory}
-        leakPeriodDate={leakPeriodDate}
-        initializing={isLoadingAnalyses || isLoadingHistory}
-        measuresHistory={measuresHistory}
-        metrics={filteredMetrics}
-        project={component}
-        onUpdateQuery={handleUpdateQuery}
-        query={parsedQuery}
-      />
+      <Spinner isLoading={isLoadingLegacy}>
+        <ProjectActivityAppRenderer
+          analyses={analyses}
+          isLegacy={
+            isLegacy ||
+            !firstSoftwareQualityRatingMetric ||
+            firstSoftwareQualityRatingMetric.history.every((h) => h.value === undefined)
+          }
+          analysesLoading={isLoadingAnalyses}
+          graphLoading={isLoadingHistory}
+          leakPeriodDate={leakPeriodDate}
+          initializing={isLoadingAnalyses || isLoadingHistory}
+          measuresHistory={measuresHistory}
+          metrics={filteredMetrics}
+          project={component}
+          onUpdateQuery={handleUpdateQuery}
+          query={parsedQuery}
+        />
+      </Spinner>
     )
   );
 }

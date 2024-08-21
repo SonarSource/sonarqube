@@ -35,9 +35,13 @@ import {
   splitSeriesInGraphs,
 } from '../../../components/activity-graph/utils';
 import DocumentationLink from '../../../components/common/DocumentationLink';
-import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
+import {
+  CCT_SOFTWARE_QUALITY_METRICS,
+  SOFTWARE_QUALITY_RATING_METRICS_MAP,
+} from '../../../helpers/constants';
 import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
+import { MetricKey } from '../../../sonar-aligned/types/metrics';
 import {
   GraphType,
   MeasureHistory,
@@ -51,6 +55,7 @@ import { PROJECT_ACTIVITY_GRAPH } from './ProjectActivityApp';
 
 interface Props {
   analyses: ParsedAnalysis[];
+  isLegacy?: boolean;
   leakPeriodDate?: Date;
   loading: boolean;
   measuresHistory: MeasureHistory[];
@@ -205,25 +210,28 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
     }
   };
 
+  hasGaps = (value?: MeasureHistory) => {
+    const indexOfFirstMeasureWithValue = value?.history.findIndex((item) => item.value);
+
+    return indexOfFirstMeasureWithValue === -1
+      ? false
+      : value?.history.slice(indexOfFirstMeasureWithValue).some((item) => item.value === undefined);
+  };
+
   renderQualitiesMetricInfoMessage = () => {
-    const { measuresHistory } = this.props;
+    const { measuresHistory, isLegacy } = this.props;
 
     const qualityMeasuresHistory = measuresHistory.find((history) =>
       CCT_SOFTWARE_QUALITY_METRICS.includes(history.metric),
     );
-
-    const indexOfFirstMeasureWithValue = qualityMeasuresHistory?.history.findIndex(
-      (item) => item.value,
+    const ratingQualityMeasuresHistory = measuresHistory.find((history) =>
+      (Object.keys(SOFTWARE_QUALITY_RATING_METRICS_MAP) as MetricKey[]).includes(history.metric),
     );
 
-    const hasGaps =
-      indexOfFirstMeasureWithValue === -1
-        ? false
-        : qualityMeasuresHistory?.history
-            .slice(indexOfFirstMeasureWithValue)
-            .some((item) => item.value === undefined);
-
-    if (hasGaps) {
+    if (
+      this.hasGaps(qualityMeasuresHistory) ||
+      (!isLegacy && this.hasGaps(ratingQualityMeasuresHistory))
+    ) {
       return (
         <FlagMessage variant="info">
           <FormattedMessage
@@ -245,7 +253,8 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
   };
 
   render() {
-    const { analyses, leakPeriodDate, loading, measuresHistory, metrics, query } = this.props;
+    const { analyses, leakPeriodDate, loading, measuresHistory, metrics, query, isLegacy } =
+      this.props;
     const { graphEndDate, graphStartDate, series } = this.state;
 
     return (
@@ -269,6 +278,7 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
           graphs={this.state.graphs}
           leakPeriodDate={leakPeriodDate}
           loading={loading}
+          isLegacy={isLegacy}
           measuresHistory={measuresHistory}
           removeCustomMetric={this.handleRemoveCustomMetric}
           selectedDate={query.selectedDate}

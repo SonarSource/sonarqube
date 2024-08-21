@@ -27,6 +27,7 @@ import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import ApplicationServiceMock from '../../../../api/mocks/ApplicationServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
+import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { TimeMachineServiceMock } from '../../../../api/mocks/TimeMachineServiceMock';
 import { mockBranchList } from '../../../../api/mocks/data/branches';
 import { DEPRECATED_ACTIVITY_METRICS } from '../../../../helpers/constants';
@@ -46,10 +47,10 @@ import {
   GraphType,
   ProjectAnalysisEventCategory,
 } from '../../../../types/project-activity';
+import { SettingsKey } from '../../../../types/settings';
 import ProjectActivityAppContainer from '../ProjectActivityApp';
 
 jest.mock('../../../../api/projectActivity');
-jest.mock('../../../../api/time-machine');
 
 jest.mock('../../../../helpers/storage', () => ({
   ...jest.requireActual('../../../../helpers/storage'),
@@ -67,6 +68,7 @@ jest.mock('../../../../api/branches', () => ({
 const applicationHandler = new ApplicationServiceMock();
 const projectActivityHandler = new ProjectActivityServiceMock();
 const timeMachineHandler = new TimeMachineServiceMock();
+const settingsHandler = new SettingsServiceMock();
 
 let isBranchReady = false;
 
@@ -77,6 +79,7 @@ beforeEach(() => {
   applicationHandler.reset();
   projectActivityHandler.reset();
   timeMachineHandler.reset();
+  settingsHandler.reset();
 
   timeMachineHandler.setMeasureHistory(
     [
@@ -549,6 +552,204 @@ describe('graph interactions', () => {
   });
 });
 
+describe('ratings', () => {
+  it('should combine old and new rating + gaps', async () => {
+    timeMachineHandler.setMeasureHistory([
+      mockMeasureHistory({
+        metric: MetricKey.reliability_rating,
+        history: [
+          mockHistoryItem({
+            value: '5',
+            date: new Date('2022-01-11'),
+          }),
+          mockHistoryItem({
+            value: '2',
+            date: new Date('2022-01-12'),
+          }),
+          mockHistoryItem({
+            value: '2',
+            date: new Date('2022-01-13'),
+          }),
+          mockHistoryItem({
+            value: '2',
+            date: new Date('2022-01-14'),
+          }),
+        ],
+      }),
+      mockMeasureHistory({
+        metric: MetricKey.software_quality_reliability_rating,
+        history: [
+          mockHistoryItem({
+            value: undefined,
+            date: new Date('2022-01-11'),
+          }),
+          mockHistoryItem({
+            value: '3',
+            date: new Date('2022-01-12'),
+          }),
+          mockHistoryItem({
+            value: undefined,
+            date: new Date('2022-01-13'),
+          }),
+          mockHistoryItem({
+            value: '3',
+            date: new Date('2022-01-14'),
+          }),
+        ],
+      }),
+    ]);
+    const { ui } = getPageObject();
+    renderProjectActivityAppContainer();
+
+    await ui.changeGraphType(GraphType.custom);
+    await ui.openMetricsDropdown();
+    await ui.toggleMetric(MetricKey.reliability_rating);
+    await ui.closeMetricsDropdown();
+
+    expect(await ui.graphs.findAll()).toHaveLength(1);
+    expect(ui.metricChangedInfoBtn.get()).toBeInTheDocument();
+    expect(ui.gapInfoMessage.get()).toBeInTheDocument();
+    expect(byText('E').query()).not.toBeInTheDocument();
+  });
+
+  it('should not show old rating if new one was always there', async () => {
+    timeMachineHandler.setMeasureHistory([
+      mockMeasureHistory({
+        metric: MetricKey.reliability_rating,
+        history: [
+          mockHistoryItem({
+            value: '5',
+            date: new Date('2022-01-11'),
+          }),
+          mockHistoryItem({
+            value: '2',
+            date: new Date('2022-01-12'),
+          }),
+        ],
+      }),
+      mockMeasureHistory({
+        metric: MetricKey.software_quality_reliability_rating,
+        history: [
+          mockHistoryItem({
+            value: '4',
+            date: new Date('2022-01-11'),
+          }),
+          mockHistoryItem({
+            value: '3',
+            date: new Date('2022-01-12'),
+          }),
+        ],
+      }),
+    ]);
+    const { ui } = getPageObject();
+    renderProjectActivityAppContainer();
+
+    await ui.changeGraphType(GraphType.custom);
+    await ui.openMetricsDropdown();
+    await ui.toggleMetric(MetricKey.reliability_rating);
+    await ui.closeMetricsDropdown();
+
+    expect(await ui.graphs.findAll()).toHaveLength(1);
+    expect(ui.metricChangedInfoBtn.query()).not.toBeInTheDocument();
+    expect(ui.gapInfoMessage.query()).not.toBeInTheDocument();
+    expect(byText('E').query()).not.toBeInTheDocument();
+  });
+
+  it('should show E if no new metrics', async () => {
+    timeMachineHandler.setMeasureHistory([
+      mockMeasureHistory({
+        metric: MetricKey.reliability_rating,
+        history: [
+          mockHistoryItem({
+            value: '5',
+            date: new Date('2022-01-11'),
+          }),
+          mockHistoryItem({
+            value: '2',
+            date: new Date('2022-01-12'),
+          }),
+          mockHistoryItem({
+            value: '2',
+            date: new Date('2022-01-13'),
+          }),
+        ],
+      }),
+    ]);
+    const { ui } = getPageObject();
+    renderProjectActivityAppContainer();
+
+    await ui.changeGraphType(GraphType.custom);
+    await ui.openMetricsDropdown();
+    await ui.toggleMetric(MetricKey.reliability_rating);
+    await ui.closeMetricsDropdown();
+
+    expect(await ui.graphs.findAll()).toHaveLength(1);
+    expect(ui.metricChangedInfoBtn.query()).not.toBeInTheDocument();
+    expect(ui.gapInfoMessage.query()).not.toBeInTheDocument();
+    expect(byText('E').get()).toBeInTheDocument();
+  });
+
+  it('should not show gaps message and metric change button, but should show E in legacy mode', async () => {
+    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+    timeMachineHandler.setMeasureHistory([
+      mockMeasureHistory({
+        metric: MetricKey.reliability_rating,
+        history: [
+          mockHistoryItem({
+            value: '5',
+            date: new Date('2022-01-11'),
+          }),
+          mockHistoryItem({
+            value: '2',
+            date: new Date('2022-01-12'),
+          }),
+          mockHistoryItem({
+            value: '2',
+            date: new Date('2022-01-13'),
+          }),
+          mockHistoryItem({
+            value: '2',
+            date: new Date('2022-01-14'),
+          }),
+        ],
+      }),
+      mockMeasureHistory({
+        metric: MetricKey.software_quality_reliability_rating,
+        history: [
+          mockHistoryItem({
+            value: undefined,
+            date: new Date('2022-01-11'),
+          }),
+          mockHistoryItem({
+            value: '4',
+            date: new Date('2022-01-12'),
+          }),
+          mockHistoryItem({
+            value: undefined,
+            date: new Date('2022-01-13'),
+          }),
+          mockHistoryItem({
+            value: '3',
+            date: new Date('2022-01-14'),
+          }),
+        ],
+      }),
+    ]);
+    const { ui } = getPageObject();
+    renderProjectActivityAppContainer();
+
+    await ui.changeGraphType(GraphType.custom);
+    await ui.openMetricsDropdown();
+    await ui.toggleMetric(MetricKey.reliability_rating);
+    await ui.closeMetricsDropdown();
+
+    expect(await ui.graphs.findAll()).toHaveLength(1);
+    expect(ui.metricChangedInfoBtn.query()).not.toBeInTheDocument();
+    expect(ui.gapInfoMessage.query()).not.toBeInTheDocument();
+    expect(byText('E').get()).toBeInTheDocument();
+  });
+});
+
 function getPageObject() {
   const user = userEvent.setup();
 
@@ -562,6 +763,9 @@ function getPageObject() {
     graphs: byLabelText('project_activity.graphs.explanation_x', { exact: false }),
     noDataText: byText('project_activity.graphs.custom.no_history'),
     gapInfoMessage: byText('project_activity.graphs.data_table.data_gap', { exact: false }),
+    metricChangedInfoBtn: byRole('button', {
+      name: 'project_activity.graphs.rating_split.info_icon',
+    }),
 
     // Add metrics.
     addMetricBtn: byRole('button', { name: 'project_activity.graphs.custom.add' }),
@@ -623,7 +827,7 @@ function getPageObject() {
       },
 
       async changeGraphType(type: GraphType) {
-        await user.click(ui.graphTypeSelect.get());
+        await user.click(await ui.graphTypeSelect.find());
         const optionForType = await screen.findByText(`project_activity.graphs.${type}`);
         await user.click(optionForType);
       },
@@ -759,6 +963,7 @@ function renderProjectActivityAppContainer(
           mockMetric({ key: MetricKey.code_smells, type: MetricType.Integer }),
           mockMetric({ key: MetricKey.security_hotspots_reviewed }),
           mockMetric({ key: MetricKey.security_review_rating, type: MetricType.Rating }),
+          mockMetric({ key: MetricKey.reliability_rating, type: MetricType.Rating }),
         ],
         'key',
       ),
