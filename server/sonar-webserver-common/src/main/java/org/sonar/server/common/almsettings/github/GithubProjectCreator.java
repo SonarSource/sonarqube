@@ -30,7 +30,7 @@ import org.sonar.auth.github.GsonRepositoryPermissions;
 import org.sonar.auth.github.GsonRepositoryTeam;
 import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.db.DbClient;
-import org.sonar.db.provisioning.GithubPermissionsMappingDto;
+import org.sonar.db.provisioning.DevOpsPermissionsMappingDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.DefaultDevOpsProjectCreator;
@@ -74,7 +74,7 @@ public class GithubProjectCreator extends DefaultDevOpsProjectCreator {
     String organization = orgaAndRepoTokenified[0];
     String repository = orgaAndRepoTokenified[1];
 
-    Set<GithubPermissionsMappingDto> permissionsMappingDtos = dbClient.githubPermissionsMappingDao().findAll(dbClient.openSession(false));
+    Set<DevOpsPermissionsMappingDto> permissionsMappingDtos = dbClient.githubPermissionsMappingDao().findAll(dbClient.openSession(false), devOpsPlatformSettings.getDevOpsPlatform());
 
     boolean userHasDirectAccessToRepo = doesUserHaveScanPermission(organization, repository, permissionsMappingDtos);
     if (userHasDirectAccessToRepo) {
@@ -83,7 +83,7 @@ public class GithubProjectCreator extends DefaultDevOpsProjectCreator {
     return doesUserBelongToAGroupWithScanPermission(organization, repository, permissionsMappingDtos);
   }
 
-  private boolean doesUserHaveScanPermission(String organization, String repository, Set<GithubPermissionsMappingDto> permissionsMappingDtos) {
+  private boolean doesUserHaveScanPermission(String organization, String repository, Set<DevOpsPermissionsMappingDto> permissionsMappingDtos) {
     String url = requireNonNull(devOpsProjectCreationContext.almSettingDto().getUrl(), "GitHub url not defined");
     Set<GsonRepositoryCollaborator> repositoryCollaborators = githubApplicationClient.getRepositoryCollaborators(url, authAppInstallationToken, organization, repository);
 
@@ -100,7 +100,7 @@ public class GithubProjectCreator extends DefaultDevOpsProjectCreator {
   }
 
   private boolean doesUserBelongToAGroupWithScanPermission(String organization, String repository,
-    Set<GithubPermissionsMappingDto> permissionsMappingDtos) {
+    Set<DevOpsPermissionsMappingDto> permissionsMappingDtos) {
     String url = requireNonNull(devOpsProjectCreationContext.almSettingDto().getUrl(), "GitHub url not defined");
     Set<GsonRepositoryTeam> repositoryTeams = githubApplicationClient.getRepositoryTeams(url, authAppInstallationToken, organization, repository);
 
@@ -119,7 +119,7 @@ public class GithubProjectCreator extends DefaultDevOpsProjectCreator {
       .collect(toSet());
   }
 
-  private boolean hasScanPermission(Set<GithubPermissionsMappingDto> permissionsMappingDtos, String role, GsonRepositoryPermissions permissions) {
+  private boolean hasScanPermission(Set<DevOpsPermissionsMappingDto> permissionsMappingDtos, String role, GsonRepositoryPermissions permissions) {
     Set<String> sonarqubePermissions = githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(permissionsMappingDtos,
       role, permissions);
     return sonarqubePermissions.contains(UserRole.SCAN);

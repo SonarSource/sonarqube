@@ -66,7 +66,7 @@ import org.sonar.db.property.InternalComponentPropertiesDao;
 import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.provisioning.GithubOrganizationGroupDao;
-import org.sonar.db.provisioning.GithubPermissionsMappingDao;
+import org.sonar.db.provisioning.DevOpsPermissionsMappingDao;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.pushevent.PushEventDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
@@ -192,7 +192,7 @@ public class DbClient {
   private final ReportScheduleDao reportScheduleDao;
   private final ReportSubscriptionDao reportSubscriptionDao;
   private final GithubOrganizationGroupDao githubOrganizationGroupDao;
-  private final GithubPermissionsMappingDao githubPermissionsMappingDao;
+  private final DevOpsPermissionsMappingDao devopsPermissionsMappingDao;
   private final RuleChangeDao ruleChangeDao;
   private final ProjectExportDao projectExportDao;
   private final IssueFixedDao issueFixedDao;
@@ -254,7 +254,7 @@ public class DbClient {
     metricDao = getDao(map, MetricDao.class);
     groupDao = getDao(map, GroupDao.class);
     githubOrganizationGroupDao = getDao(map, GithubOrganizationGroupDao.class);
-    githubPermissionsMappingDao = getDao(map, GithubPermissionsMappingDao.class);
+    devopsPermissionsMappingDao = getDao(map, DevOpsPermissionsMappingDao.class);
     externalGroupDao = getDao(map, ExternalGroupDao.class);
     ruleDao = getDao(map, RuleDao.class);
     ruleRepositoryDao = getDao(map, RuleRepositoryDao.class);
@@ -513,8 +513,8 @@ public class DbClient {
     return githubOrganizationGroupDao;
   }
 
-  public GithubPermissionsMappingDao githubPermissionsMappingDao() {
-    return githubPermissionsMappingDao;
+  public DevOpsPermissionsMappingDao githubPermissionsMappingDao() {
+    return devopsPermissionsMappingDao;
   }
 
   public ExternalGroupDao externalGroupDao() {

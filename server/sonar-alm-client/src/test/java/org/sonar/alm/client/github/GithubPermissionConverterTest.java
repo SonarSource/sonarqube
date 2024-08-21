@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Suite;
 import org.sonar.auth.github.GsonRepositoryPermissions;
-import org.sonar.db.provisioning.GithubPermissionsMappingDto;
+import org.sonar.db.provisioning.DevOpsPermissionsMappingDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,12 +37,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 })
 public class GithubPermissionConverterTest {
 
-  private static final Set<GithubPermissionsMappingDto> ALL_PERMISSIONS_MAPPING_FROM_DB = Set.of(
-    new GithubPermissionsMappingDto("uuid1", "read", "roleRead"),
-    new GithubPermissionsMappingDto("uuid2", "triage", "roleTriage"),
-    new GithubPermissionsMappingDto("uuid3", "write", "roleWrite"),
-    new GithubPermissionsMappingDto("uuid4", "maintain", "roleMaintain"),
-    new GithubPermissionsMappingDto("uuid5", "admin", "roleAdmin")
+  private static final Set<DevOpsPermissionsMappingDto> ALL_PERMISSIONS_MAPPING_FROM_DB = Set.of(
+    new DevOpsPermissionsMappingDto("uuid1", "github", "read", "roleRead"),
+    new DevOpsPermissionsMappingDto("uuid2", "github", "triage", "roleTriage"),
+    new DevOpsPermissionsMappingDto("uuid3", "github", "write", "roleWrite"),
+    new DevOpsPermissionsMappingDto("uuid4", "github", "maintain", "roleMaintain"),
+    new DevOpsPermissionsMappingDto("uuid5", "github", "admin", "roleAdmin")
   ) ;
 
   private static final GsonRepositoryPermissions NO_PERMS = new GsonRepositoryPermissions(false, false, false, false, false);

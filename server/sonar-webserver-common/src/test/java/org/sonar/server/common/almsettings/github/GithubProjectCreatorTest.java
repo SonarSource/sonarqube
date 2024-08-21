@@ -39,7 +39,7 @@ import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.db.DbClient;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.db.provisioning.GithubPermissionsMappingDto;
+import org.sonar.db.provisioning.DevOpsPermissionsMappingDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.DevOpsProjectCreationContext;
@@ -58,9 +58,11 @@ import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.user.UserSession.IdentityProvider.GITHUB;
 
 @ExtendWith(MockitoExtension.class)
 class GithubProjectCreatorTest {
@@ -119,6 +121,8 @@ class GithubProjectCreatorTest {
     lenient().when(devOpsProjectCreationContext.devOpsPlatformIdentifier()).thenReturn(ORGANIZATION_NAME + "/" + REPOSITORY_NAME);
     lenient().when(devOpsProjectCreationContext.fullName()).thenReturn(ORGANIZATION_NAME + "/" + REPOSITORY_NAME);
     lenient().when(devOpsProjectCreationContext.defaultBranchName()).thenReturn(MAIN_BRANCH_NAME);
+
+    when(gitHubSettings.getDevOpsPlatform()).thenReturn(GITHUB.getKey());
 
     ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
     githubProjectCreator = new GithubProjectCreator(dbClient, devOpsProjectCreationContext, projectKeyGenerator, gitHubSettings, projectCreator, permissionService, permissionUpdater,
@@ -218,21 +222,21 @@ class GithubProjectCreatorTest {
   }
 
   private void mockPermissionsConversion(GsonRepositoryCollaborator collaborator, String... sqPermissions) {
-    Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos = mockPermissionsMappingsDtos();
-    lenient().when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(githubPermissionsMappingDtos, collaborator.roleName(), collaborator.permissions()))
+    Set<DevOpsPermissionsMappingDto> devOpsPermissionsMappingDtos = mockPermissionsMappingsDtos();
+    lenient().when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(devOpsPermissionsMappingDtos, collaborator.roleName(), collaborator.permissions()))
       .thenReturn(Arrays.stream(sqPermissions).collect(toSet()));
   }
 
   private void mockPermissionsConversion(GsonRepositoryTeam team, String... sqPermissions) {
-    Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos = mockPermissionsMappingsDtos();
-    lenient().when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(githubPermissionsMappingDtos, team.permission(), team.permissions()))
+    Set<DevOpsPermissionsMappingDto> devOpsPermissionsMappingDtos = mockPermissionsMappingsDtos();
+    lenient().when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(devOpsPermissionsMappingDtos, team.permission(), team.permissions()))
       .thenReturn(Arrays.stream(sqPermissions).collect(toSet()));
   }
 
-  private Set<GithubPermissionsMappingDto> mockPermissionsMappingsDtos() {
-    Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos = Set.of(mock(GithubPermissionsMappingDto.class));
-    when(dbClient.githubPermissionsMappingDao().findAll(any())).thenReturn(githubPermissionsMappingDtos);
-    return githubPermissionsMappingDtos;
+  private Set<DevOpsPermissionsMappingDto> mockPermissionsMappingsDtos() {
+    Set<DevOpsPermissionsMappingDto> devOpsPermissionsMappingDtos = Set.of(mock(DevOpsPermissionsMappingDto.class));
+    when(dbClient.githubPermissionsMappingDao().findAll(any(), eq(GITHUB.getKey()))).thenReturn(devOpsPermissionsMappingDtos);
+    return devOpsPermissionsMappingDtos;
   }
 
   private void bindGroupsToUser(String... groupNames) {

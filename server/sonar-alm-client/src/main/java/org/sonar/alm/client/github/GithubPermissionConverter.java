@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.auth.github.GsonRepositoryPermissions;
-import org.sonar.db.provisioning.GithubPermissionsMappingDto;
+import org.sonar.db.provisioning.DevOpsPermissionsMappingDto;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -68,7 +68,7 @@ public class GithubPermissionConverter {
       .collect(toMap(identity(), sonarqubeRoles::contains));
   }
 
-  public Set<String> toSonarqubeRolesWithFallbackOnRepositoryPermissions(Set<GithubPermissionsMappingDto> allPermissionsMappings,
+  public Set<String> toSonarqubeRolesWithFallbackOnRepositoryPermissions(Set<DevOpsPermissionsMappingDto> allPermissionsMappings,
     String githubRoleOrPermission, GsonRepositoryPermissions repositoryPermissions) {
     String roleName = toRoleName(githubRoleOrPermission);
     return toSonarqubeRoles(allPermissionsMappings, roleName, repositoryPermissions);
@@ -78,19 +78,19 @@ public class GithubPermissionConverter {
     return GITHUB_GROUP_PERMISSION_TO_ROLE_NAME.getOrDefault(permission, permission);
   }
 
-  public Set<String> toSonarqubeRolesForDefaultRepositoryPermission(Set<GithubPermissionsMappingDto> allPermissionsMappings, String roleName) {
+  public Set<String> toSonarqubeRolesForDefaultRepositoryPermission(Set<DevOpsPermissionsMappingDto> allPermissionsMappings, String roleName) {
     return toSonarqubeRoles(allPermissionsMappings, roleName, null);
   }
 
-  private static Set<String> toSonarqubeRoles(Set<GithubPermissionsMappingDto> allPermissionsMappings, String githubRoleName,
+  private static Set<String> toSonarqubeRoles(Set<DevOpsPermissionsMappingDto> allPermissionsMappings, String githubRoleName,
     @Nullable GsonRepositoryPermissions repositoryPermissions) {
-    Map<String, List<GithubPermissionsMappingDto>> permissionMappings = allPermissionsMappings.stream()
-      .collect(Collectors.groupingBy(GithubPermissionsMappingDto::githubRole));
+    Map<String, List<DevOpsPermissionsMappingDto>> permissionMappings = allPermissionsMappings.stream()
+      .collect(Collectors.groupingBy(DevOpsPermissionsMappingDto::role));
 
     Set<String> sonarqubePermissions = Optional.ofNullable(permissionMappings.get(githubRoleName))
       .orElse(GithubPermissionConverter.computeBaseRoleAndGetSqPermissions(permissionMappings, repositoryPermissions))
       .stream()
-      .map(GithubPermissionsMappingDto::sonarqubePermission)
+      .map(DevOpsPermissionsMappingDto::sonarqubePermission)
       .collect(Collectors.toSet());
 
     if (sonarqubePermissions.isEmpty()) {
@@ -99,7 +99,7 @@ public class GithubPermissionConverter {
     return sonarqubePermissions;
   }
 
-  private static List<GithubPermissionsMappingDto> computeBaseRoleAndGetSqPermissions(Map<String, List<GithubPermissionsMappingDto>> permissionMappings,
+  private static List<DevOpsPermissionsMappingDto> computeBaseRoleAndGetSqPermissions(Map<String, List<DevOpsPermissionsMappingDto>> permissionMappings,
     @Nullable GsonRepositoryPermissions repositoryPermissions) {
     return Optional.ofNullable(repositoryPermissions)
       .map(GITHUB_PERMISSION_TO_GITHUB_BASE_ROLE::get)

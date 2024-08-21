@@ -21,20 +21,22 @@ package org.sonar.db.audit.model;
 
 import com.google.common.annotations.VisibleForTesting;
 
-public class GithubPermissionsMappingNewValue extends NewValue {
+public class DevOpsPermissionsMappingNewValue extends NewValue {
 
   @VisibleForTesting
   public static final String ALL_PERMISSIONS = "all";
+  private final String devOpsPlatform;
   private final String githubRole;
   private final String sonarqubePermission;
 
-  public GithubPermissionsMappingNewValue(String githubRole, String sonarqubePermission) {
+  public DevOpsPermissionsMappingNewValue(String devOpsPlatform, String githubRole, String sonarqubePermission) {
+    this.devOpsPlatform = devOpsPlatform;
     this.githubRole = githubRole;
     this.sonarqubePermission = sonarqubePermission;
   }
 
-  public static GithubPermissionsMappingNewValue withAllPermissions(String githubRole) {
-    return new GithubPermissionsMappingNewValue(githubRole, ALL_PERMISSIONS);
+  public static DevOpsPermissionsMappingNewValue withAllPermissions(String devOpsPlatform, String githubRole) {
+    return new DevOpsPermissionsMappingNewValue(devOpsPlatform, githubRole, ALL_PERMISSIONS);
   }
 
   @VisibleForTesting
@@ -42,14 +44,21 @@ public class GithubPermissionsMappingNewValue extends NewValue {
     return githubRole;
   }
 
+  @VisibleForTesting
   public String getSonarqubePermission() {
     return sonarqubePermission;
+  }
+
+  @VisibleForTesting
+  public String getDevOpsPlatform() {
+    return devOpsPlatform;
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("{");
-    addField(sb, "\"githubRole\": ", this.githubRole, true);
+    addField(sb, "\"devOpsPlatform\": ", this.devOpsPlatform, true);
+    addField(sb, "\"devOpsRole\": ", this.githubRole, true);
     addField(sb, "\"sonarqubePermissions\": ", this.sonarqubePermission, true);
     endString(sb);
     return sb.toString();

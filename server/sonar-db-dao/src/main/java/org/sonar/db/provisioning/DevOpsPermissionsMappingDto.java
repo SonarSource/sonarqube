@@ -19,5 +19,5 @@
  */
 package org.sonar.db.provisioning;
 
-public record GithubPermissionsMappingDto(String uuid, String githubRole, String sonarqubePermission) {
+public record DevOpsPermissionsMappingDto(String uuid, String devOpsPlatform, String role, String sonarqubePermission) {
 }

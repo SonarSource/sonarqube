@@ -22,15 +22,15 @@ package org.sonar.db.provisioning;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 
-public interface GithubPermissionsMappingMapper {
+public interface DevOpsPermissionsMappingMapper {
 
-  Set<GithubPermissionsMappingDto> selectAll();
+  Set<DevOpsPermissionsMappingDto> selectAll(@Param("devOpsPlatform") String devOpsPlatform);
 
-  Set<GithubPermissionsMappingDto> selectAllForGithubRole(String githubRole);
+  Set<DevOpsPermissionsMappingDto> selectAllForRole(@Param("devOpsPlatform") String devOpsPlatform, @Param("role") String role);
 
-  void insert(GithubPermissionsMappingDto githubPermissionsMappingDto);
+  void insert(DevOpsPermissionsMappingDto devOpsPermissionsMappingDto);
 
-  void delete(@Param("githubRole") String githubRole, @Param("sonarqubePermission") String sonarqubePermission);
+  void delete(@Param("devOpsPlatform") String devOpsPlatform, @Param("role") String role, @Param("sonarqubePermission") String sonarqubePermission);
 
-  void deleteAllPermissionsForRole(String githubRole);
+  void deleteAllPermissionsForRole(@Param("devOpsPlatform") String devOpsPlatform, @Param("role") String role);
 }

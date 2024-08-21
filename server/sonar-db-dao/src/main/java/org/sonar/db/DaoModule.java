@@ -66,7 +66,7 @@ import org.sonar.db.property.InternalComponentPropertiesDao;
 import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.provisioning.GithubOrganizationGroupDao;
-import org.sonar.db.provisioning.GithubPermissionsMappingDao;
+import org.sonar.db.provisioning.DevOpsPermissionsMappingDao;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.pushevent.PushEventDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
@@ -127,13 +127,13 @@ public class DaoModule extends Module {
     ComponentDao.class,
     ComponentKeyUpdaterDao.class,
     DefaultQProfileDao.class,
+    DevOpsPermissionsMappingDao.class,
     DuplicationDao.class,
     EntityDao.class,
     EsQueueDao.class,
     EventDao.class,
     EventComponentChangeDao.class,
     GithubOrganizationGroupDao.class,
-    GithubPermissionsMappingDao.class,
     ExternalGroupDao.class,
     FileSourceDao.class,
     GroupDao.class,
