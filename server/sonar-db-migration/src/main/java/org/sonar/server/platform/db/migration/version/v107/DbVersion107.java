@@ -42,7 +42,16 @@ public class DbVersion107 implements DbVersion {
     registry
       .add(10_7_000, "Create 'telemetry_metrics_sent' table", CreateTelemetryMetricsSentTable.class)
       .add(10_7_001, "sonar.auth.gitlab.userConsentForPermissionProvisioningRequired", AddUserConsentRequiredIfGitlabAutoProvisioningEnabled.class)
-      .add(10_7_002, "Migrate SMTP configuration into internal_properties", MigrateSmtpConfiguration.class);
+      .add(10_7_002, "Migrate SMTP configuration into internal_properties", MigrateSmtpConfiguration.class)
+      .add(10_7_003, "Drop 'github_perms_mapping' table if exists and 'devops_perms_mapping' table exists", DropGithubPermsMappingTableIfDevopsPermsMappingTableExists.class)
+      .add(10_7_004, "Rename 'github_perms_mapping' table to 'devops_perms_mapping'", RenameGithubPermsMappingTable.class)
+      .add(10_7_005, "Rename 'github_role' column to 'devops_platform_role' in devops_perms_mapping", RenameGithubRoleInDevopsPermsMapping.class)
+      .add(10_7_006, "Add 'devops_platform' column to 'devops_perms_mapping' table", AddDevopsPlatformColumnInDevopsPermsMapping.class)
+      .add(10_7_007, "Drop constraint on 'uuid' for 'devops_perms_mapping' table", DropPrimaryKeyOnDevopsPermsMappingTable.class)
+      .add(10_7_008, "Create primary key on 'devops_perms_mapping.uuid'", CreatePrimaryKeyConstraintOnDevopsPermsMappingTable.class)
+      .add(10_7_009, "Drop index 'uniq_github_perm_mappings' in the 'devops_perms_mapping' table", DropIndexUniqGithubPermsMappingInDevopsPermsMappingTable.class)
+      .add(10_7_010, "Create uniq index on 'devops_perms_mapping' table for columns 'devops_platform_role', 'sonarqube_permission' and 'devops_platform'",
+        CreateUniqueIndexOnDevopsPermsMappingTable.class);
   }
 
 }
