@@ -290,11 +290,7 @@ export function hasFullMeasures(branch?: BranchLike) {
 }
 
 export function getMeasuresPageMetricKeys(metrics: Dict<Metric>, branch?: BranchLike) {
-  // ToDo rollback once new metrics are available
-  const metricKeys = [
-    ...getDisplayMetrics(Object.values(metrics)).map((metric) => metric.key),
-    ...SOFTWARE_QUALITY_RATING_METRICS,
-  ];
+  const metricKeys = getDisplayMetrics(Object.values(metrics)).map((metric) => metric.key);
 
   if (isPullRequest(branch)) {
     return metricKeys.filter((key) => isDiffMetric(key));

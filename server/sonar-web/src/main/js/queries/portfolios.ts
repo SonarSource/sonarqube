@@ -17,23 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
-import { searchProjects } from '../api/components';
-import { deleteProject } from '../api/project-management';
-import { createQueryHook } from './common';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { deletePortfolio } from '../api/project-management';
 import { invalidateMeasuresByComponentKey } from './measures';
 
-export const useProjectQuery = createQueryHook((key: string) => {
-  return queryOptions({
-    queryKey: ['project', key],
-    queryFn: ({ queryKey: [, key] }) => searchProjects({ filter: `query=${key}` }),
-  });
-});
-
-export function useDeleteProjectMutation() {
+export function useDeletePortfolioMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (key: string) => deleteProject(key),
+    mutationFn: (key: string) => deletePortfolio(key),
     onSuccess: (_, key) => {
       invalidateMeasuresByComponentKey(key, queryClient);
     },

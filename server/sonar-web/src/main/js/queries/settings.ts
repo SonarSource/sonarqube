@@ -23,6 +23,7 @@ import { getValue, getValues, resetSettingValue, setSettingValue } from '../api/
 import { translate } from '../helpers/l10n';
 import { ExtendedSettingDefinition, SettingsKey } from '../types/settings';
 import { createQueryHook } from './common';
+import { invalidateAllMeasures } from './measures';
 
 type SettingValue = string | boolean | string[];
 
@@ -125,6 +126,7 @@ export function useSaveValueMutation() {
     onSuccess: (_, { definition }) => {
       queryClient.invalidateQueries({ queryKey: ['settings', 'details', definition.key] });
       queryClient.invalidateQueries({ queryKey: ['settings', 'values'] });
+      invalidateAllMeasures(queryClient);
       addGlobalSuccessMessage(translate('settings.authentication.form.settings.save_success'));
     },
   });

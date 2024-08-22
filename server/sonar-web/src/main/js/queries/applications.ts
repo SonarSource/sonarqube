@@ -18,13 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { useQuery } from '@tanstack/react-query';
-import { getApplicationLeak } from '../api/application';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { deleteApplication, getApplicationLeak } from '../api/application';
+import { invalidateMeasuresByComponentKey } from './measures';
 
 export default function useApplicationLeakQuery(application: string, enabled = true) {
   return useQuery({
     queryKey: ['application', 'leak', application],
     queryFn: () => getApplicationLeak(application),
     enabled,
+  });
+}
+
+export function useDeleteApplicationMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (key: string) => deleteApplication(key),
+    onSuccess: (_, key) => {
+      invalidateMeasuresByComponentKey(key, queryClient);
+    },
   });
 }

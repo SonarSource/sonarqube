@@ -126,7 +126,6 @@ export default function BranchOverview(props: Readonly<Props>) {
             ])
           : BRANCH_OVERVIEW_METRICS
         : BRANCH_OVERVIEW_METRICS,
-    branchParameters: getBranchLikeQuery(branch),
   });
 
   const getEnhancedConditions = (

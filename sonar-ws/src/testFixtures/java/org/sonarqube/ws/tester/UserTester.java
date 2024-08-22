@@ -122,6 +122,10 @@ public class UserTester {
       new org.sonarqube.ws.client.permissions.AddUserRequest()
         .setLogin(u.getLogin())
         .setPermission("portfoliocreator"));
+    session.wsClient().permissions().addUser(
+      new org.sonarqube.ws.client.permissions.AddUserRequest()
+        .setLogin(u.getLogin())
+        .setPermission("admin"));
     return u;
   }
 

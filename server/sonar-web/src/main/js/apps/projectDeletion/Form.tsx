@@ -24,10 +24,11 @@ import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { Router } from '~sonar-aligned/types/router';
-import { deleteApplication } from '../../api/application';
-import { deletePortfolio, deleteProject } from '../../api/project-management';
 import ConfirmButton from '../../components/controls/ConfirmButton';
 import { translate, translateWithParameters } from '../../helpers/l10n';
+import { useDeleteApplicationMutation } from '../../queries/applications';
+import { useDeletePortfolioMutation } from '../../queries/portfolios';
+import { useDeleteProjectMutation } from '../../queries/projects';
 import { isApplication } from '../../types/component';
 import { Component } from '../../types/types';
 
@@ -36,9 +37,12 @@ interface Props {
   router: Router;
 }
 
-export class Form extends React.PureComponent<Props> {
-  handleDelete = async () => {
-    const { component } = this.props;
+export function Form({ component, router }: Readonly<Props>) {
+  const { mutate: deleteProject } = useDeleteProjectMutation();
+  const { mutate: deleteApplication } = useDeleteApplicationMutation();
+  const { mutate: deletePortfolio } = useDeletePortfolioMutation();
+
+  const handleDelete = () => {
     let deleteMethod = deleteProject;
     let redirectTo = '/';
 
@@ -49,36 +53,35 @@ export class Form extends React.PureComponent<Props> {
       deleteMethod = deleteApplication;
     }
 
-    await deleteMethod(component.key);
+    deleteMethod(component.key, {
+      onSuccess: () => {
+        addGlobalSuccessMessage(
+          translateWithParameters('project_deletion.resource_deleted', component.name),
+        );
 
-    addGlobalSuccessMessage(
-      translateWithParameters('project_deletion.resource_deleted', component.name),
-    );
-
-    this.props.router.replace(redirectTo);
+        router.replace(redirectTo);
+      },
+    });
   };
 
-  render() {
-    const { component } = this.props;
-    return (
-      <ConfirmButton
-        confirmButtonText={translate('delete')}
-        isDestructive
-        modalBody={translateWithParameters(
-          'project_deletion.delete_resource_confirmation',
-          component.name,
-        )}
-        modalHeader={translate('qualifier.delete', component.qualifier)}
-        onConfirm={this.handleDelete}
-      >
-        {({ onClick }) => (
-          <Button id="delete-project" onClick={onClick} variety={ButtonVariety.Danger}>
-            {translate('delete')}
-          </Button>
-        )}
-      </ConfirmButton>
-    );
-  }
+  return (
+    <ConfirmButton
+      confirmButtonText={translate('delete')}
+      isDestructive
+      modalBody={translateWithParameters(
+        'project_deletion.delete_resource_confirmation',
+        component.name,
+      )}
+      modalHeader={translate('qualifier.delete', component.qualifier)}
+      onConfirm={handleDelete}
+    >
+      {({ onClick }) => (
+        <Button id="delete-project" onClick={onClick} variety={ButtonVariety.Danger}>
+          {translate('delete')}
+        </Button>
+      )}
+    </ConfirmButton>
+  );
 }
 
 export default withRouter(Form);

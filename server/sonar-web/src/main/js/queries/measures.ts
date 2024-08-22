@@ -18,7 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { infiniteQueryOptions, queryOptions, useQueryClient } from '@tanstack/react-query';
+import {
+  infiniteQueryOptions,
+  QueryClient,
+  queryOptions,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { groupBy, isUndefined, omitBy } from 'lodash';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { getComponentTree } from '../api/components';
@@ -32,7 +37,29 @@ import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
 import { getBranchLikeQuery } from '../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../types/branch-like';
 import { Measure } from '../types/types';
-import { createInfiniteQueryHook, createQueryHook, StaleTime } from './common';
+import { createInfiniteQueryHook, createQueryHook } from './common';
+
+export const invalidateMeasuresByComponentKey = (
+  componentKey: string,
+  queryClient: QueryClient,
+) => {
+  queryClient.invalidateQueries({ queryKey: ['measures', 'history', componentKey] });
+  queryClient.invalidateQueries({ queryKey: ['measures', 'component', componentKey] });
+  queryClient.invalidateQueries({ queryKey: ['measures', 'details', componentKey] });
+  queryClient.invalidateQueries({ queryKey: ['measures', 'list', componentKey] });
+  queryClient.invalidateQueries({
+    predicate: (query) =>
+      query.queryKey[0] === 'measures' &&
+      query.queryKey[1] === 'list' &&
+      query.queryKey[2] === 'projects' &&
+      Array.isArray(query.queryKey[3]) &&
+      query.queryKey[3].includes(componentKey),
+  });
+};
+
+export const invalidateAllMeasures = (queryClient: QueryClient) => {
+  queryClient.invalidateQueries({ queryKey: ['measures'] });
+};
 
 export const useAllMeasuresHistoryQuery = createQueryHook(
   ({
@@ -71,7 +98,14 @@ export const useMeasuresComponentQuery = createQueryHook(
     const branchLikeQuery = getBranchLikeQuery(branchLike);
 
     return queryOptions({
-      queryKey: ['measures', 'component', componentKey, 'branchLike', branchLikeQuery, metricKeys],
+      queryKey: [
+        'measures',
+        'component',
+        componentKey,
+        'branchLike',
+        { ...branchLikeQuery },
+        metricKeys,
+      ],
       queryFn: async () => {
         const data = await getMeasuresWithPeriodAndMetrics(
           componentKey,
@@ -82,7 +116,7 @@ export const useMeasuresComponentQuery = createQueryHook(
           const measure =
             data.component.measures?.find((measure) => measure.metric === metricKey) ?? null;
           queryClient.setQueryData<Measure | null>(
-            ['measures', 'details', componentKey, 'branchLike', branchLikeQuery, metricKey],
+            ['measures', 'details', componentKey, 'branchLike', { ...branchLikeQuery }, metricKey],
             measure,
           );
         });
@@ -115,7 +149,7 @@ export const useComponentTreeQuery = createInfiniteQueryHook(
 
     const queryClient = useQueryClient();
     return infiniteQueryOptions({
-      queryKey: ['component', component, 'tree', strategy, { metrics, additionalData }],
+      queryKey: ['measures', 'component', component, 'tree', strategy, { metrics, additionalData }],
       queryFn: async ({ pageParam }) => {
         const result = await getComponentTree(strategy, component, metrics, {
           ...additionalData,
@@ -136,7 +170,7 @@ export const useComponentTreeQuery = createInfiniteQueryHook(
                 'details',
                 result.baseComponent.key,
                 'branchLike',
-                branchLikeQuery,
+                { ...branchLikeQuery },
                 metricKey,
               ],
               measure,
@@ -153,7 +187,14 @@ export const useComponentTreeQuery = createInfiniteQueryHook(
           metrics?.forEach((metricKey) => {
             const measure = measuresMapByMetricKeyForChildComponent[metricKey]?.[0] ?? null;
             queryClient.setQueryData<Measure>(
-              ['measures', 'details', childComponent.key, 'branchLike', branchLikeQuery, metricKey],
+              [
+                'measures',
+                'details',
+                childComponent.key,
+                'branchLike',
+                { ...branchLikeQuery },
+                metricKey,
+              ],
               measure,
             );
           });
@@ -199,23 +240,21 @@ export const useMeasuresAndLeakQuery = createQueryHook(
     componentKey,
     metricKeys,
     branchLike,
-    branchParameters,
   }: {
     branchLike?: BranchLike;
-    branchParameters?: BranchParameters;
     componentKey: string;
     metricKeys: string[];
   }) => {
     const queryClient = useQueryClient();
+    const branchParameters = getBranchLikeQuery(branchLike);
     return queryOptions({
       queryKey: [
         'measures',
         'details',
-        'component',
         componentKey,
+        'branchLike',
+        { ...branchParameters },
         metricKeys,
-        branchLike,
-        branchParameters,
       ],
       queryFn: async () => {
         const { component, metrics, period } = await getMeasuresWithPeriodAndMetrics(
@@ -227,7 +266,7 @@ export const useMeasuresAndLeakQuery = createQueryHook(
         metricKeys.forEach((metricKey) => {
           const measure = measuresMapByMetricKey[metricKey]?.[0] ?? null;
           queryClient.setQueryData<Measure>(
-            ['measures', 'details', componentKey, 'branchLike', branchLike, metricKey],
+            ['measures', 'details', componentKey, 'branchLike', { ...branchParameters }, metricKey],
             measure,
           );
         });
@@ -250,7 +289,14 @@ export const useMeasureQuery = createQueryHook(
     const branchLikeQuery = getBranchLikeQuery(branchLike);
 
     return queryOptions({
-      queryKey: ['measures', 'details', componentKey, 'branchLike', branchLikeQuery, metricKey],
+      queryKey: [
+        'measures',
+        'details',
+        componentKey,
+        'branchLike',
+        { ...branchLikeQuery },
+        metricKey,
+      ],
       queryFn: () =>
         getMeasures({ component: componentKey, metricKeys: metricKey }).then(
           (measures) => measures[0] ?? null,
@@ -274,7 +320,14 @@ export const useMeasuresQuery = createQueryHook(
     const branchLikeQuery = getBranchLikeQuery(branchLike);
 
     return queryOptions({
-      queryKey: ['measures', 'list', componentKey, 'branchLike', branchLikeQuery, metricKeys],
+      queryKey: [
+        'measures',
+        'list',
+        componentKey,
+        'branchLike',
+        { ...branchLikeQuery },
+        metricKeys,
+      ],
       queryFn: async () => {
         const measures = await getMeasures({
           component: componentKey,
@@ -285,13 +338,12 @@ export const useMeasuresQuery = createQueryHook(
         metricKeys.split(',').forEach((metricKey) => {
           const measure = measuresMapByMetricKey[metricKey]?.[0] ?? null;
           queryClient.setQueryData<Measure>(
-            ['measures', 'details', componentKey, 'branchLike', branchLike ?? {}, metricKey],
+            ['measures', 'details', componentKey, 'branchLike', { ...branchLikeQuery }, metricKey],
             measure,
           );
         });
         return measures;
       },
-      staleTime: StaleTime.LONG,
     });
   },
 );
