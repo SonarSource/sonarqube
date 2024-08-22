@@ -30,7 +30,6 @@ import {
 import { getAllTimeMachineData } from '../api/time-machine';
 import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
 import { getBranchLikeQuery } from '../sonar-aligned/helpers/branch-like';
-import { MetricKey } from '../sonar-aligned/types/metrics';
 import { BranchLike } from '../types/branch-like';
 import { Measure } from '../types/types';
 import { createInfiniteQueryHook, createQueryHook, StaleTime } from './common';
@@ -261,27 +260,6 @@ export const useMeasureQuery = createQueryHook(
   },
 );
 
-const PORTFOLIO_OVERVIEW_METRIC_KEYS = [
-  MetricKey.software_quality_releasability_rating_distribution,
-  MetricKey.software_quality_security_rating_distribution,
-  MetricKey.software_quality_security_review_rating_distribution,
-  MetricKey.software_quality_maintainability_rating_distribution,
-  MetricKey.software_quality_reliability_rating_distribution,
-  MetricKey.software_quality_security_rating_effort,
-  MetricKey.software_quality_security_review_rating_effort,
-  MetricKey.software_quality_maintainability_rating_effort,
-  MetricKey.software_quality_reliability_rating_effort,
-  MetricKey.last_change_on_software_quality_maintainability_rating,
-  MetricKey.last_change_on_software_quality_releasability_rating,
-  MetricKey.last_change_on_software_quality_reliability_rating,
-  MetricKey.last_change_on_software_quality_security_rating,
-  MetricKey.last_change_on_software_quality_security_review_rating,
-  MetricKey.new_software_quality_security_rating_distribution,
-  MetricKey.new_software_quality_security_review_rating_distribution,
-  MetricKey.new_software_quality_maintainability_rating_distribution,
-  MetricKey.new_software_quality_reliability_rating_distribution,
-];
-
 export const useMeasuresQuery = createQueryHook(
   ({
     componentKey,
@@ -300,11 +278,7 @@ export const useMeasuresQuery = createQueryHook(
       queryFn: async () => {
         const measures = await getMeasures({
           component: componentKey,
-          // TODO Remove once BE is ready
-          metricKeys: metricKeys
-            .split(',')
-            .filter((key) => !PORTFOLIO_OVERVIEW_METRIC_KEYS.includes(key as MetricKey))
-            .join(),
+          metricKeys,
         });
 
         const measuresMapByMetricKey = groupBy(measures, 'metric');
