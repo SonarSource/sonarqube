@@ -17,33 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.telemetry;
+@ParametersAreNonnullByDefault
+package org.sonar.telemetry.core.common;
 
-import java.util.Optional;
-import org.sonar.api.platform.Server;
-import org.sonar.telemetry.core.TelemetryDataType;
-import org.sonar.telemetry.core.common.DailyInstallationMetricProvider;
-
-public class TelemetryVersionProvider extends DailyInstallationMetricProvider<String> {
-
-  private final Server server;
-
-  public TelemetryVersionProvider(Server server) {
-    this.server = server;
-  }
-
-  @Override
-  public String getMetricKey() {
-    return "version";
-  }
-
-  @Override
-  public TelemetryDataType getType() {
-    return TelemetryDataType.STRING;
-  }
-
-  @Override
-  public Optional<String> getValue() {
-    return Optional.ofNullable(server.getVersion());
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

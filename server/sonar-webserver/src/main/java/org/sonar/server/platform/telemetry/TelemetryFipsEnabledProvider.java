@@ -20,30 +20,24 @@
 package org.sonar.server.platform.telemetry;
 
 import java.util.Optional;
-import org.sonar.api.platform.Server;
+import org.sonar.core.fips.FipsDetector;
 import org.sonar.telemetry.core.TelemetryDataType;
 import org.sonar.telemetry.core.common.DailyInstallationMetricProvider;
 
-public class TelemetryVersionProvider extends DailyInstallationMetricProvider<String> {
-
-  private final Server server;
-
-  public TelemetryVersionProvider(Server server) {
-    this.server = server;
-  }
+public class TelemetryFipsEnabledProvider extends DailyInstallationMetricProvider<Boolean> {
 
   @Override
   public String getMetricKey() {
-    return "version";
+    return "is_fips_enabled";
   }
 
   @Override
   public TelemetryDataType getType() {
-    return TelemetryDataType.STRING;
+    return TelemetryDataType.BOOLEAN;
   }
 
   @Override
-  public Optional<String> getValue() {
-    return Optional.ofNullable(server.getVersion());
+  public Optional<Boolean> getValue() {
+    return Optional.of(FipsDetector.isFipsEnabled());
   }
 }

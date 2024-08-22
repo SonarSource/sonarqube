@@ -17,33 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.telemetry;
+package org.sonar.telemetry.core.common;
 
-import java.util.Optional;
-import org.sonar.api.platform.Server;
-import org.sonar.telemetry.core.TelemetryDataType;
-import org.sonar.telemetry.core.common.DailyInstallationMetricProvider;
+import org.sonar.telemetry.core.Dimension;
+import org.sonar.telemetry.core.Granularity;
+import org.sonar.telemetry.core.TelemetryDataProvider;
 
-public class TelemetryVersionProvider extends DailyInstallationMetricProvider<String> {
+/**
+ * This class is used to provide daily installation metrics to the telemetry system.
+ */
+public abstract class DailyInstallationMetricProvider<T> implements TelemetryDataProvider<T> {
 
-  private final Server server;
-
-  public TelemetryVersionProvider(Server server) {
-    this.server = server;
+  @Override
+  public Dimension getDimension() {
+    return Dimension.INSTALLATION;
   }
 
   @Override
-  public String getMetricKey() {
-    return "version";
+  public Granularity getGranularity() {
+    return Granularity.DAILY;
   }
 
-  @Override
-  public TelemetryDataType getType() {
-    return TelemetryDataType.STRING;
-  }
-
-  @Override
-  public Optional<String> getValue() {
-    return Optional.ofNullable(server.getVersion());
-  }
 }

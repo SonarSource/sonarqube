@@ -17,33 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.telemetry;
+package org.sonar.core.fips;
 
-import java.util.Optional;
-import org.sonar.api.platform.Server;
-import org.sonar.telemetry.core.TelemetryDataType;
-import org.sonar.telemetry.core.common.DailyInstallationMetricProvider;
+import java.security.Provider;
+import java.security.Security;
+import java.util.Locale;
 
-public class TelemetryVersionProvider extends DailyInstallationMetricProvider<String> {
+public class FipsDetector {
 
-  private final Server server;
-
-  public TelemetryVersionProvider(Server server) {
-    this.server = server;
+  private FipsDetector() {
+    // Helper class
   }
 
-  @Override
-  public String getMetricKey() {
-    return "version";
+  public static boolean isFipsEnabled() {
+    Provider[] providers = Security.getProviders();
+    for (Provider provider : providers) {
+      String nameLowerCase = provider.getName().toUpperCase(Locale.ENGLISH);
+      if (nameLowerCase.contains("FIPS")) {
+        return true;
+      }
+    }
+    return false;
   }
 
-  @Override
-  public TelemetryDataType getType() {
-    return TelemetryDataType.STRING;
-  }
-
-  @Override
-  public Optional<String> getValue() {
-    return Optional.ofNullable(server.getVersion());
-  }
 }
