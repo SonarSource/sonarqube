@@ -18,25 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { useGithubRolesMappingQuery } from '../../../../queries/identity-provider/github';
+import { useGitlabRolesMappingQuery } from '../../../../queries/identity-provider/gitlab';
 import { AlmKeys } from '../../../../types/alm-settings';
-import { GitHubMapping } from '../../../../types/provisioning';
+import { GitLabMapping } from '../../../../types/provisioning';
 import { DevopsRolesMappingModal } from './DevopsRolesMappingModal';
 
 interface Props {
-  mapping: GitHubMapping[] | null;
+  mapping: GitLabMapping[] | null;
   onClose: () => void;
-  setMapping: React.Dispatch<React.SetStateAction<GitHubMapping[] | null>>;
+  setMapping: React.Dispatch<React.SetStateAction<GitLabMapping[] | null>>;
 }
 
-export default function GitHubMappingModal(props: Readonly<Props>) {
-  const { data: roles, isPending } = useGithubRolesMappingQuery();
+export default function GitLabMappingModal(props: Readonly<Props>) {
+  const { data: roles, isPending } = useGitlabRolesMappingQuery();
   return (
     <DevopsRolesMappingModal
-      canAddCustomRole
-      isLoading={isPending}
-      mappingFor={AlmKeys.GitHub}
       roles={roles}
+      isLoading={isPending}
+      mappingFor={AlmKeys.GitLab}
       {...props}
     />
   );

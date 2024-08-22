@@ -120,31 +120,31 @@ const ui = {
     name: 'settings.authentication.form.edit',
   }),
   editMappingButton: ghContainer.byRole('button', {
-    name: 'settings.authentication.github.configuration.roles_mapping.button_label',
+    name: 'settings.authentication.configuration.roles_mapping.button_label',
   }),
   mappingRow: byRole('dialog', {
-    name: 'settings.authentication.github.configuration.roles_mapping.dialog.title',
+    name: 'settings.authentication.configuration.roles_mapping.dialog.title.alm.github',
   }).byRole('row'),
   customRoleInput: byRole('textbox', {
-    name: 'settings.authentication.github.configuration.roles_mapping.dialog.add_custom_role',
+    name: 'settings.authentication.configuration.roles_mapping.dialog.add_custom_role',
   }),
   customRoleAddBtn: byRole('dialog', {
-    name: 'settings.authentication.github.configuration.roles_mapping.dialog.title',
+    name: 'settings.authentication.configuration.roles_mapping.dialog.title.alm.github',
   }).byRole('button', { name: 'add_verb' }),
   roleExistsError: byRole('dialog', {
-    name: 'settings.authentication.github.configuration.roles_mapping.dialog.title',
-  }).byText('settings.authentication.github.configuration.roles_mapping.role_exists'),
+    name: 'settings.authentication.configuration.roles_mapping.dialog.title.alm.github',
+  }).byText('settings.authentication.configuration.roles_mapping.role_exists'),
   emptyRoleError: byRole('dialog', {
-    name: 'settings.authentication.github.configuration.roles_mapping.dialog.title',
-  }).byText('settings.authentication.github.configuration.roles_mapping.empty_custom_role'),
+    name: 'settings.authentication.configuration.roles_mapping.dialog.title.alm.github',
+  }).byText('settings.authentication.configuration.roles_mapping.empty_custom_role'),
   deleteCustomRoleCustom2: byRole('button', {
-    name: 'settings.authentication.github.configuration.roles_mapping.dialog.delete_custom_role.custom2',
+    name: 'settings.authentication.configuration.roles_mapping.dialog.delete_custom_role.custom2',
   }),
   getMappingRowByRole: (text: string) =>
     ui.mappingRow.getAll().find((row) => within(row).queryByText(text) !== null),
   mappingCheckbox: byRole('checkbox'),
   mappingDialogClose: byRole('dialog', {
-    name: 'settings.authentication.github.configuration.roles_mapping.dialog.title',
+    name: 'settings.authentication.configuration.roles_mapping.dialog.title.alm.github',
   }).byRole('button', {
     name: 'close',
   }),

@@ -19,18 +19,23 @@
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { addGlobalSuccessMessage } from 'design-system';
+import { isEqual, keyBy, partition, pick, unionBy } from 'lodash';
 import { getActivity } from '../../api/ce';
 import {
   createGitLabConfiguration,
   deleteGitLabConfiguration,
   fetchGitLabConfigurations,
+  fetchGitlabRolesMapping,
   syncNowGitLabProvisioning,
   updateGitLabConfiguration,
+  updateGitlabRolesMapping,
 } from '../../api/gitlab-provisioning';
 import { translate } from '../../helpers/l10n';
 import { mapReactQueryResult } from '../../helpers/react-query';
-import { AlmSyncStatus, ProvisioningType } from '../../types/provisioning';
+import { AlmSyncStatus, GitLabMapping, ProvisioningType } from '../../types/provisioning';
 import { TaskStatuses, TaskTypes } from '../../types/tasks';
+
+const MAPPING_STALE_TIME = 60_000;
 
 export function useGitLabConfigurationsQuery() {
   return useQuery({
@@ -188,4 +193,53 @@ export function useSyncWithGitLabNow() {
     synchronizeNow: mutation.mutate,
     canSyncNow: autoProvisioningEnabled && !syncStatus?.nextSync && !mutation.isPending,
   };
+}
+
+// Order is reversed to put custom roles at the end (their index is -1)
+const defaultRoleOrder = ['owner', 'maintainer', 'developer', 'reporter', 'guest'];
+
+export function useGitlabRolesMappingQuery() {
+  return useQuery({
+    queryKey: ['identity_provider', 'gitlab_mapping'],
+    queryFn: fetchGitlabRolesMapping,
+    staleTime: MAPPING_STALE_TIME,
+    select: (data) =>
+      [...data].sort((a, b) => {
+        if (defaultRoleOrder.includes(a.id) || defaultRoleOrder.includes(b.id)) {
+          return defaultRoleOrder.indexOf(b.id) - defaultRoleOrder.indexOf(a.id);
+        }
+        return a.gitlabRole.localeCompare(b.gitlabRole);
+      }),
+  });
+}
+
+export function useGitlabRolesMappingMutation() {
+  const client = useQueryClient();
+  const queryKey = ['identity_provider', 'gitlab_mapping'];
+  return useMutation({
+    mutationFn: async (mapping: GitLabMapping[]) => {
+      const state = keyBy(client.getQueryData<GitLabMapping[]>(queryKey), (m) => m.id);
+
+      const [maybeChangedRoles] = partition(mapping, (m) => state[m.id]);
+      const changedRoles = maybeChangedRoles.filter((item) => !isEqual(item, state[item.id]));
+
+      return {
+        addedOrChanged: await Promise.all([
+          ...changedRoles.map((data) =>
+            updateGitlabRolesMapping(data.id, pick(data, 'permissions')),
+          ),
+        ]),
+      };
+    },
+    onSuccess: ({ addedOrChanged }) => {
+      const state = client.getQueryData<GitLabMapping[]>(queryKey);
+      if (state) {
+        const newData = unionBy(addedOrChanged, state, (el) => el.id);
+        client.setQueryData(queryKey, newData);
+      }
+      addGlobalSuccessMessage(
+        translate('settings.authentication.gitlab.configuration.roles_mapping.save_success'),
+      );
+    },
+  });
 }

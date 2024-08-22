@@ -21,12 +21,14 @@ import axios from 'axios';
 import {
   GitLabConfigurationCreateBody,
   GitLabConfigurationUpdateBody,
+  GitLabMapping,
   GitlabConfiguration,
   ProvisioningType,
 } from '../types/provisioning';
 import { Paging } from '../types/types';
 
 const GITLAB_CONFIGURATIONS = '/api/v2/dop-translation/gitlab-configurations';
+const GITLAB_PERMISSION_MAPPINGS = '/api/v2/dop-translation/gitlab-permission-mappings';
 
 export function fetchGitLabConfigurations() {
   return axios.get<{ gitlabConfigurations: GitlabConfiguration[]; page: Paging }>(
@@ -63,4 +65,20 @@ export function deleteGitLabConfiguration(id: string): Promise<void> {
 
 export function syncNowGitLabProvisioning(): Promise<void> {
   return axios.post('/api/v2/dop-translation/gitlab-synchronization-runs');
+}
+
+export function fetchGitlabRolesMapping() {
+  return axios
+    .get<{ gitlabPermissionsMappings: GitLabMapping[] }>(GITLAB_PERMISSION_MAPPINGS)
+    .then((data) => data.gitlabPermissionsMappings);
+}
+
+export function updateGitlabRolesMapping(
+  role: string,
+  data: Partial<Pick<GitLabMapping, 'permissions'>>,
+) {
+  return axios.patch<GitLabMapping>(
+    `${GITLAB_PERMISSION_MAPPINGS}/${encodeURIComponent(role)}`,
+    data,
+  );
 }

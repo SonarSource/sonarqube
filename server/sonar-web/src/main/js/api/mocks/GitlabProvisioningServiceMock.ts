@@ -20,13 +20,15 @@
 import { cloneDeep, omit } from 'lodash';
 import { mockGitlabConfiguration } from '../../helpers/mocks/alm-integrations';
 import { mockPaging } from '../../helpers/testMocks';
-import { GitlabConfiguration } from '../../types/provisioning';
+import { GitLabMapping, GitlabConfiguration } from '../../types/provisioning';
 import {
   createGitLabConfiguration,
   deleteGitLabConfiguration,
   fetchGitLabConfiguration,
   fetchGitLabConfigurations,
+  fetchGitlabRolesMapping,
   updateGitLabConfiguration,
+  updateGitlabRolesMapping,
 } from '../gitlab-provisioning';
 
 jest.mock('../gitlab-provisioning');
@@ -35,16 +37,60 @@ const defaultGitlabConfiguration: GitlabConfiguration[] = [
   mockGitlabConfiguration({ id: '1', enabled: true }),
 ];
 
+const gitlabMappingMock = (id: string, permissions: (keyof GitLabMapping['permissions'])[]) => ({
+  id,
+  gitlabRole: id,
+  permissions: {
+    user: permissions.includes('user'),
+    codeViewer: permissions.includes('codeViewer'),
+    issueAdmin: permissions.includes('issueAdmin'),
+    securityHotspotAdmin: permissions.includes('securityHotspotAdmin'),
+    admin: permissions.includes('admin'),
+    scan: permissions.includes('scan'),
+  },
+});
+
+const defaultMapping: GitLabMapping[] = [
+  gitlabMappingMock('guest', ['user', 'codeViewer']),
+  gitlabMappingMock('reporter', ['user', 'codeViewer']),
+  gitlabMappingMock('developer', [
+    'user',
+    'codeViewer',
+    'issueAdmin',
+    'securityHotspotAdmin',
+    'scan',
+  ]),
+  gitlabMappingMock('maintainer', [
+    'user',
+    'codeViewer',
+    'issueAdmin',
+    'securityHotspotAdmin',
+    'scan',
+  ]),
+  gitlabMappingMock('owner', [
+    'user',
+    'codeViewer',
+    'issueAdmin',
+    'securityHotspotAdmin',
+    'admin',
+    'scan',
+  ]),
+];
+
 export default class GitlabProvisioningServiceMock {
   gitlabConfigurations: GitlabConfiguration[];
+  gitlabMapping: GitLabMapping[];
 
   constructor() {
     this.gitlabConfigurations = cloneDeep(defaultGitlabConfiguration);
+    this.gitlabMapping = cloneDeep(defaultMapping);
     jest.mocked(fetchGitLabConfigurations).mockImplementation(this.handleFetchGitLabConfigurations);
     jest.mocked(fetchGitLabConfiguration).mockImplementation(this.handleFetchGitLabConfiguration);
     jest.mocked(createGitLabConfiguration).mockImplementation(this.handleCreateGitLabConfiguration);
     jest.mocked(updateGitLabConfiguration).mockImplementation(this.handleUpdateGitLabConfiguration);
     jest.mocked(deleteGitLabConfiguration).mockImplementation(this.handleDeleteGitLabConfiguration);
+    jest.mocked(fetchGitlabRolesMapping).mockImplementation(this.handleFetchGilabRolesMapping);
+    jest.mocked(updateGitlabRolesMapping).mockImplementation(this.handleUpdateGitlabRolesMapping);
   }
 
   handleFetchGitLabConfigurations: typeof fetchGitLabConfigurations = () => {
@@ -85,6 +131,20 @@ export default class GitlabProvisioningServiceMock {
 
   setGitlabConfigurations = (gitlabConfigurations: GitlabConfiguration[]) => {
     this.gitlabConfigurations = gitlabConfigurations;
+  };
+
+  handleFetchGilabRolesMapping: typeof fetchGitlabRolesMapping = () => {
+    return Promise.resolve(this.gitlabMapping);
+  };
+
+  handleUpdateGitlabRolesMapping: typeof updateGitlabRolesMapping = (id, data) => {
+    this.gitlabMapping = this.gitlabMapping.map((mapping) =>
+      mapping.id === id ? { ...mapping, ...data } : mapping,
+    );
+
+    return Promise.resolve(
+      this.gitlabMapping.find((mapping) => mapping.id === id) as GitLabMapping,
+    );
   };
 
   reset = () => {

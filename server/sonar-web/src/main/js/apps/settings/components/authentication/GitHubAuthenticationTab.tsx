@@ -285,13 +285,13 @@ export default function GitHubAuthenticationTab() {
                   <div className="sw-mt-6">
                     <div className="sw-flex">
                       <Highlight className="sw-mb-4 sw-mr-4 sw-flex sw-items-center sw-gap-2">
-                        <FormattedMessage id="settings.authentication.github.configuration.roles_mapping.title" />
+                        <FormattedMessage id="settings.authentication.configuration.roles_mapping.title" />
                       </Highlight>
                       <ButtonSecondary
                         className="sw--mt-2"
                         onClick={() => setIsMappingModalOpen(true)}
                       >
-                        <FormattedMessage id="settings.authentication.github.configuration.roles_mapping.button_label" />
+                        <FormattedMessage id="settings.authentication.configuration.roles_mapping.button_label" />
                       </ButtonSecondary>
                     </div>
                     <Note className="sw-mt-2">

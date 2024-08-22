@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
@@ -62,6 +63,9 @@ const ui = {
   }),
   editConfigButton: glContainer.byRole('button', {
     name: 'settings.authentication.form.edit',
+  }),
+  editMappingButton: glContainer.byRole('button', {
+    name: 'settings.authentication.configuration.roles_mapping.button_label',
   }),
   deleteConfigButton: glContainer.byRole('button', {
     name: 'settings.authentication.form.delete',
@@ -153,6 +157,17 @@ const ui = {
   consentDialog: byRole('dialog', {
     name: 'settings.authentication.confirm_auto_provisioning.header',
   }),
+  mappingRow: byRole('dialog', {
+    name: 'settings.authentication.configuration.roles_mapping.dialog.title.alm.gitlab',
+  }).byRole('row'),
+  mappingCheckbox: byRole('checkbox'),
+  mappingDialogClose: byRole('dialog', {
+    name: 'settings.authentication.configuration.roles_mapping.dialog.title.alm.gitlab',
+  }).byRole('button', {
+    name: 'close',
+  }),
+  getMappingRowByRole: (text: string) =>
+    ui.mappingRow.getAll().find((row) => within(row).queryByText(text) !== null),
 };
 
 it('should create a Gitlab configuration and disable it with proper validation', async () => {
@@ -633,6 +648,94 @@ describe('Gitlab Provisioning', () => {
 
     expect(await ui.jitProvisioningRadioButton.find()).toBeChecked();
     expect(ui.consentDialog.query()).not.toBeInTheDocument();
+  });
+
+  it('should sort mapping rows', async () => {
+    const user = userEvent.setup();
+    handler.setGitlabConfigurations([
+      mockGitlabConfiguration({
+        allowUsersToSignUp: false,
+        enabled: true,
+        provisioningType: ProvisioningType.auto,
+        allowedGroups: ['D12'],
+        isProvisioningTokenSet: true,
+      }),
+    ]);
+    renderAuthentication([Feature.GitlabProvisioning]);
+
+    expect(await ui.editMappingButton.find()).toBeInTheDocument();
+    await user.click(ui.editMappingButton.get());
+
+    const rows = (await ui.mappingRow.findAll()).filter(
+      (row) => within(row).queryAllByRole('checkbox').length > 0,
+    );
+
+    expect(rows).toHaveLength(5);
+
+    expect(rows[0]).toHaveTextContent('guest');
+    expect(rows[1]).toHaveTextContent('reporter');
+    expect(rows[2]).toHaveTextContent('developer');
+    expect(rows[3]).toHaveTextContent('maintainer');
+    expect(rows[4]).toHaveTextContent('owner');
+  });
+
+  it('should apply new mapping and new provisioning type at the same time', async () => {
+    const user = userEvent.setup();
+    handler.setGitlabConfigurations([
+      mockGitlabConfiguration({
+        allowUsersToSignUp: false,
+        enabled: true,
+        provisioningType: ProvisioningType.jit,
+        allowedGroups: ['D12'],
+        isProvisioningTokenSet: true,
+      }),
+    ]);
+    renderAuthentication([Feature.GitlabProvisioning]);
+
+    expect(await ui.jitProvisioningRadioButton.find()).toBeChecked();
+    expect(ui.editMappingButton.query()).not.toBeInTheDocument();
+    await user.click(ui.autoProvisioningRadioButton.get());
+    expect(await ui.editMappingButton.find()).toBeInTheDocument();
+    await user.click(ui.editMappingButton.get());
+
+    expect(await ui.mappingRow.findAll()).toHaveLength(6);
+
+    let guestCheckboxes = ui.mappingCheckbox.getAll(ui.getMappingRowByRole('guest'));
+    let ownerCheckboxes = ui.mappingCheckbox.getAll(ui.getMappingRowByRole('owner'));
+
+    expect(guestCheckboxes[0]).toBeChecked();
+    expect(guestCheckboxes[1]).toBeChecked();
+    expect(guestCheckboxes[2]).not.toBeChecked();
+    expect(guestCheckboxes[3]).not.toBeChecked();
+    expect(guestCheckboxes[4]).not.toBeChecked();
+    expect(guestCheckboxes[5]).not.toBeChecked();
+    expect(ownerCheckboxes[0]).toBeChecked();
+    expect(ownerCheckboxes[1]).toBeChecked();
+    expect(ownerCheckboxes[2]).toBeChecked();
+    expect(ownerCheckboxes[3]).toBeChecked();
+    expect(ownerCheckboxes[4]).toBeChecked();
+    expect(ownerCheckboxes[5]).toBeChecked();
+
+    await user.click(guestCheckboxes[0]);
+    await user.click(guestCheckboxes[5]);
+    await user.click(ownerCheckboxes[5]);
+    await user.click(ui.mappingDialogClose.get());
+
+    await user.click(ui.saveProvisioning.get());
+    await user.click(ui.confirmProvisioningChange.get());
+
+    // Clean local mapping state
+    await user.click(ui.jitProvisioningRadioButton.get());
+    await user.click(ui.autoProvisioningRadioButton.get());
+
+    await user.click(ui.editMappingButton.get());
+    guestCheckboxes = ui.mappingCheckbox.getAll(ui.getMappingRowByRole('guest'));
+    ownerCheckboxes = ui.mappingCheckbox.getAll(ui.getMappingRowByRole('owner'));
+
+    expect(guestCheckboxes[0]).not.toBeChecked();
+    expect(guestCheckboxes[5]).toBeChecked();
+    expect(ownerCheckboxes[5]).not.toBeChecked();
+    await user.click(ui.mappingDialogClose.get());
   });
 });
 

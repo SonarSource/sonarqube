@@ -78,9 +78,8 @@ export interface GitHubConfigurationStatus {
   }[];
 }
 
-export interface GitHubMapping {
+interface DevopsRolesMapping {
   readonly baseRole?: boolean;
-  readonly githubRole: string;
   readonly id: string;
   permissions: {
     admin: boolean;
@@ -90,6 +89,14 @@ export interface GitHubMapping {
     securityHotspotAdmin: boolean;
     user: boolean;
   };
+}
+
+export interface GitHubMapping extends DevopsRolesMapping {
+  readonly githubRole: string;
+}
+
+export interface GitLabMapping extends DevopsRolesMapping {
+  readonly gitlabRole: string;
 }
 
 export interface GitLabConfigurationCreateBody
