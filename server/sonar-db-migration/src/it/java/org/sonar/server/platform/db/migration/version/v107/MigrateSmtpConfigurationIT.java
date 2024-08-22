@@ -165,6 +165,7 @@ class MigrateSmtpConfigurationIT {
     return new Object[][]{
       {"ssl", "SSLTLS"},
       {"starttls", "STARTTLS"},
+      {null, "NONE"},
       {"", "NONE"},
       {"null", "NONE"},
       {"random", "NONE"}

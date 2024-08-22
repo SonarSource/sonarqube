@@ -138,7 +138,7 @@ public class MigrateSmtpConfiguration extends DataChange {
   }
 
   private static PropertyDb getSecureConnectionWithNewValues(PropertyDb currentProperty) {
-    String newValue = switch (currentProperty.value) {
+    String newValue = switch (currentProperty.value == null ? "" : currentProperty.value) {
       case "ssl" -> "SSLTLS";
       case "starttls" -> "STARTTLS";
       default -> "NONE";
