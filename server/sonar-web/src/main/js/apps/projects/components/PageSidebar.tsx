@@ -132,7 +132,7 @@ export default function PageSidebar(props: PageSidebarProps) {
             {...facetProps}
             facets={facets}
             property="security_review"
-            value={query.security_review_rating}
+            value={query.security_review}
           />
 
           <BasicSeparator className="sw-my-4" />
@@ -189,7 +189,7 @@ export default function PageSidebar(props: PageSidebarProps) {
             {...facetProps}
             facets={facets}
             property="security_review"
-            value={query.new_security_review_rating}
+            value={query.new_security_review}
           />
 
           <BasicSeparator className="sw-my-4" />
