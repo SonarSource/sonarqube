@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +38,7 @@ class PopulateGitlabDevopsPermissionsMappingIT {
   @RegisterExtension
   public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  private final PopulateGitlabDevOpsPermissionsMapping migration = new PopulateGitlabDevOpsPermissionsMapping(db.database(), UuidFactoryFast.getInstance());
+  private final PopulateGitlabDevOpsPermissionsMapping migration = new PopulateGitlabDevOpsPermissionsMapping(db.database(), UuidFactoryImpl.INSTANCE);
 
   @Test
   void execute_whenTableIsEmpty_shouldPopulate() throws SQLException {
@@ -57,7 +58,7 @@ class PopulateGitlabDevopsPermissionsMappingIT {
   @Test
   void execute_whenTableAlreadyPopulated_doesNothing() throws SQLException {
     db.executeInsert(DEVOPS_PERMS_MAPPING_TABLE_NAME,
-      "UUID", UuidFactoryFast.getInstance().create(),
+      "UUID", UuidFactoryImpl.INSTANCE.create(),
       "devops_platform", "gitlab",
       "devops_platform_role", "role1",
       "sonarqube_permission", "sq_perm");
@@ -72,7 +73,7 @@ class PopulateGitlabDevopsPermissionsMappingIT {
   @Test
   void execute_whenTableAlreadyPopulatedWithGithub_appliesMigration() throws SQLException {
     db.executeInsert(DEVOPS_PERMS_MAPPING_TABLE_NAME,
-      "UUID", UuidFactoryFast.getInstance().create(),
+      "UUID", UuidFactoryImpl.INSTANCE.create(),
       "devops_platform", "github",
       "devops_platform_role", "role1",
       "sonarqube_permission", "sq_perm");

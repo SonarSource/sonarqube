@@ -26,7 +26,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.platform.db.migration.version.v107.AddDevopsPlatformColumnInDevopsPermsMapping.DEVOPS_PLATFORM_COLUMN_NAME;
 import static org.sonar.server.platform.db.migration.version.v107.AddDevopsPlatformColumnInDevopsPermsMapping.DEFAULT_COLUMN_VALUE;
 import static org.sonar.server.platform.db.migration.version.v107.RenameGithubPermsMappingTable.DEVOPS_PERMS_MAPPING_TABLE_NAME;
@@ -62,7 +62,7 @@ class AddDevopsPlatformColumnInDevopsPermsMappingIT {
 
   private void assertDevopsPlatformColumnSetToDefault() {
     Map<String, Object> selectResult = db.selectFirst("select devops_platform from devops_perms_mapping where uuid = 'UUID'");
-    assertThat(selectResult.get("devops_platform")).isEqualTo(DEFAULT_COLUMN_VALUE);
+    assertThat(selectResult).containsEntry("devops_platform", DEFAULT_COLUMN_VALUE);
   }
 
   private void assertColumnExists() {

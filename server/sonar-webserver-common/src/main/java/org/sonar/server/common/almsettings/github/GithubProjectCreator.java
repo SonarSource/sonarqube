@@ -74,7 +74,8 @@ public class GithubProjectCreator extends DefaultDevOpsProjectCreator {
     String organization = orgaAndRepoTokenified[0];
     String repository = orgaAndRepoTokenified[1];
 
-    Set<DevOpsPermissionsMappingDto> permissionsMappingDtos = dbClient.githubPermissionsMappingDao().findAll(dbClient.openSession(false), devOpsPlatformSettings.getDevOpsPlatform());
+    Set<DevOpsPermissionsMappingDto> permissionsMappingDtos = dbClient.githubPermissionsMappingDao()
+      .findAll(dbClient.openSession(false), devOpsPlatformSettings.getDevOpsPlatform());
 
     boolean userHasDirectAccessToRepo = doesUserHaveScanPermission(organization, repository, permissionsMappingDtos);
     if (userHasDirectAccessToRepo) {

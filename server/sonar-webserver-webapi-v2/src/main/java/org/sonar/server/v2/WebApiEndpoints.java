@@ -45,6 +45,7 @@ public class WebApiEndpoints {
   public static final String BOUND_PROJECTS_ENDPOINT = DOP_TRANSLATION_DOMAIN + "/bound-projects";
   public static final String PROJECT_BINDINGS_ENDPOINT = DOP_TRANSLATION_DOMAIN + "/project-bindings";
   public static final String DOP_SETTINGS_ENDPOINT = DOP_TRANSLATION_DOMAIN + "/dop-settings";
+  public static final String GITLAB_PERMISSIONS_MAPPING_ENDPOINT = DOP_TRANSLATION_DOMAIN + "/gitlab-permission-mappings";
 
   public static final String ANALYSIS_DOMAIN = "/analysis";
   public static final String VERSION_ENDPOINT = ANALYSIS_DOMAIN + "/version";

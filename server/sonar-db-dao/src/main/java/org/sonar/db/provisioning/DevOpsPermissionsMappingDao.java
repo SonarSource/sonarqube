@@ -37,7 +37,7 @@ public class DevOpsPermissionsMappingDao implements Dao {
     return mapper(dbSession).selectAll(devOpsPlatform);
   }
 
-  public Set<DevOpsPermissionsMappingDto> findAllForRole(DbSession dbSession, String devOpsPlatform, String role) {
+  public Set<DevOpsPermissionsMappingDto> findAllForDevopsRole(DbSession dbSession, String devOpsPlatform, String role) {
     return mapper(dbSession).selectAllForRole(devOpsPlatform, role);
   }
 

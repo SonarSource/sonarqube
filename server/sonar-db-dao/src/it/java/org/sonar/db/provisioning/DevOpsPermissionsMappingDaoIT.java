@@ -152,7 +152,7 @@ class DevOpsPermissionsMappingDaoIT {
     underTest.insert(dbSession, mapping2);
     underTest.insert(dbSession, mapping3);
 
-    Set<DevOpsPermissionsMappingDto> forRole2 = underTest.findAllForRole(dbSession, DEV_OPS_PLATFORM, "GH_role2");
+    Set<DevOpsPermissionsMappingDto> forRole2 = underTest.findAllForDevopsRole(dbSession, DEV_OPS_PLATFORM, "GH_role2");
     assertThat(forRole2).hasSize(2)
       .containsExactlyInAnyOrder(mapping2, mapping3);
 
