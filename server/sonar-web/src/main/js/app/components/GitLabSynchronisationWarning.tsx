@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { useGitLabSyncStatusQuery } from '../../queries/identity-provider/gitlab';
+import { AlmKeys } from '../../types/alm-settings';
 import AlmSynchronisationWarning from './AlmSynchronisationWarning';
 
 interface Props {
@@ -32,7 +33,7 @@ function GitLabSynchronisationWarning({ short }: Readonly<Props>) {
     return null;
   }
 
-  return <AlmSynchronisationWarning short={short} data={data} />;
+  return <AlmSynchronisationWarning short={short} data={data} provisionedBy={AlmKeys.GitLab} />;
 }
 
 export default GitLabSynchronisationWarning;

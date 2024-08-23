@@ -25,20 +25,23 @@ import { CheckIcon, FlagMessage, FlagWarningIcon, themeColor } from 'design-syst
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate, translateWithParameters } from '../../helpers/l10n';
+import { AlmKeys } from '../../types/alm-settings';
 import { AlmSyncStatus } from '../../types/provisioning';
 import { TaskStatuses } from '../../types/tasks';
 
 interface SynchronisationWarningProps {
   data: AlmSyncStatus;
+  provisionedBy: AlmKeys.GitHub | AlmKeys.GitLab;
   short?: boolean;
 }
 
 interface LastSyncProps {
   info: AlmSyncStatus['lastSync'];
+  provisionedBy: AlmKeys.GitHub | AlmKeys.GitLab;
   short?: boolean;
 }
 
-function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
+function LastSyncAlert({ info, provisionedBy, short }: Readonly<LastSyncProps>) {
   if (info === undefined) {
     return null;
   }
@@ -62,21 +65,24 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
           {warningMessage ? (
             <FormattedMessage
               defaultMessage={translate(
-                'settings.authentication.github.synchronization_successful.with_warning',
+                'settings.authentication.synchronization_successful.with_warning',
               )}
-              id="settings.authentication.github.synchronization_successful.with_warning"
+              id="settings.authentication.synchronization_successful.with_warning"
               values={{
                 date: formattedDate,
                 details: (
-                  <Link className="sw-ml-2" to="/admin/settings?category=authentication&tab=github">
-                    {translate('settings.authentication.github.synchronization_details_link')}
+                  <Link
+                    className="sw-ml-2"
+                    to={`/admin/settings?category=authentication&tab=${provisionedBy}`}
+                  >
+                    {translate('settings.authentication.synchronization_details_link')}
                   </Link>
                 ),
               }}
             />
           ) : (
             translateWithParameters(
-              'settings.authentication.github.synchronization_successful',
+              'settings.authentication.synchronization_successful',
               formattedDate,
             )
           )}
@@ -86,14 +92,15 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
       <FlagMessage variant="error">
         <div>
           <FormattedMessage
-            defaultMessage={translate(
-              'settings.authentication.github.synchronization_failed_short',
-            )}
-            id="settings.authentication.github.synchronization_failed_short"
+            defaultMessage={translate('settings.authentication.synchronization_failed_short')}
+            id="settings.authentication.synchronization_failed_short"
             values={{
               details: (
-                <Link className="sw-ml-2" to="/admin/settings?category=authentication&tab=github">
-                  {translate('settings.authentication.github.synchronization_details_link')}
+                <Link
+                  className="sw-ml-2"
+                  to={`/admin/settings?category=authentication&tab=${provisionedBy}`}
+                >
+                  {translate('settings.authentication.synchronization_details_link')}
                 </Link>
               ),
             }}
@@ -114,7 +121,7 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
           {status === TaskStatuses.Success ? (
             <>
               {translateWithParameters(
-                'settings.authentication.github.synchronization_successful',
+                'settings.authentication.synchronization_successful',
                 formattedDate,
               )}
 
@@ -126,7 +133,7 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
             <React.Fragment key={`synch-alert-${finishedAt}`}>
               <div>
                 {translateWithParameters(
-                  'settings.authentication.github.synchronization_failed',
+                  'settings.authentication.synchronization_failed',
                   formattedDate,
                 )}
               </div>
@@ -146,16 +153,14 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
   );
 }
 
-export default function AlmSynchronisationWarning({
-  data,
-  short,
-}: Readonly<SynchronisationWarningProps>) {
+export default function AlmSynchronisationWarning(props: Readonly<SynchronisationWarningProps>) {
+  const { data, provisionedBy, short } = props;
   const loadingLabel =
     data.nextSync &&
     translate(
       data.nextSync.status === TaskStatuses.Pending
-        ? 'settings.authentication.github.synchronization_pending'
-        : 'settings.authentication.github.synchronization_in_progress',
+        ? 'settings.authentication.synchronization_pending'
+        : 'settings.authentication.synchronization_in_progress',
     );
 
   return (
@@ -168,7 +173,7 @@ export default function AlmSynchronisationWarning({
         </div>
       )}
 
-      <LastSyncAlert short={short} info={data.lastSync} />
+      <LastSyncAlert short={short} info={data.lastSync} provisionedBy={provisionedBy} />
     </>
   );
 }

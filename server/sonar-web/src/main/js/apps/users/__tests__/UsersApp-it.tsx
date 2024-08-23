@@ -152,6 +152,7 @@ const ui = {
   githubProvisioningSuccess: byText(/synchronization_successful/),
   githubProvisioningWarning: byText(/synchronization_successful.with_warning/),
   githubProvisioningAlert: byText(/synchronization_failed_short/),
+  githubProvisioningAlertDetailsLink: byText(/synchronization_failed_short/).byRole('link'),
   expiresInSelector: byRole('combobox', { name: 'users.tokens.expires_in' }),
 };
 
@@ -673,6 +674,10 @@ describe('in manage mode', () => {
       });
       renderUsersApp([Feature.GithubProvisioning]);
       expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument();
+      expect(ui.githubProvisioningAlertDetailsLink.get()).toHaveAttribute(
+        'href',
+        '/admin/settings?category=authentication&tab=github',
+      );
       expect(screen.queryByText('Error Message')).not.toBeInTheDocument();
       expect(ui.githubProvisioningSuccess.query()).not.toBeInTheDocument();
     });
