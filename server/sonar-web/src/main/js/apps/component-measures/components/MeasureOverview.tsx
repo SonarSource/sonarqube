@@ -103,12 +103,14 @@ export default function MeasureOverview(props: Readonly<Props>) {
 
   const loading = loadingComponent || loadingBubbles;
 
-  const updateSelected = (component: ComponentMeasureIntern) => {
+  const updateSelected = (selectedComponent: ComponentMeasureIntern) => {
     if (component && isView(component.qualifier)) {
-      router.push(getProjectUrl(component.refKey ?? component.key, component.branch));
+      router.push(
+        getProjectUrl(selectedComponent.refKey ?? selectedComponent.key, selectedComponent.branch),
+      );
     } else {
       updateQuery({
-        selected: component.key !== rootComponent.key ? component.key : undefined,
+        selected: selectedComponent.key !== rootComponent.key ? selectedComponent.key : undefined,
       });
     }
   };
