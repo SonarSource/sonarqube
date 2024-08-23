@@ -171,7 +171,8 @@ public class SoftwareQualitiesMetrics implements Metrics {
   public static final Metric<Long> NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT =
     new Metric.Builder(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY, "Software Quality Maintainability Remediation Effort on new code",
       Metric.ValueType.WORK_DUR)
-      .setDescription("Software quality total effort (in minutes) to fix all the maintainability issues on new code on the component and therefore to comply to all the requirements.")
+      .setDescription("Software quality total effort (in minutes) to fix all the maintainability issues on new code on the component " +
+        "and therefore to comply to all the requirements.")
       .setDomain(DOMAIN_MAINTAINABILITY)
       .setDirection(Metric.DIRECTION_WORST)
       .setOptimizedBestValue(true)
