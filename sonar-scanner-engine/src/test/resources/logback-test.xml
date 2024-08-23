@@ -28,6 +28,7 @@
 
   <logger name="ch.qos.logback" level="WARN"/>
 
+  <logger name="org.eclipse.jgit.internal.storage.file.FileSnapshot" level="INFO" additivity="false"/>
 
   <root level="INFO">
     <appender-ref ref="STDOUT"/>

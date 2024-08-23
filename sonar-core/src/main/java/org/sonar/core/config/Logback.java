@@ -22,7 +22,7 @@ package org.sonar.core.config;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
+import ch.qos.logback.core.util.StatusPrinter2;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
  * @since 2.12
  */
 public class Logback {
+
+  public static final StatusPrinter2 STATUS_PRINTER_2 = new StatusPrinter2();
 
   private Logback() {
     // only statics
@@ -65,16 +67,17 @@ public class Logback {
    */
   private static void configure(InputStream input, Map<String, String> substitutionVariables) {
     LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.reset();
     try {
       JoranConfigurator configurator = new JoranConfigurator();
       configurator.setContext(configureContext(lc, substitutionVariables));
       configurator.doConfigure(input);
     } catch (JoranException e) {
-      // StatusPrinter will handle this
+      // StatusPrinter2 will handle this
     } finally {
       IOUtils.closeQuietly(input);
     }
-    StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
+    STATUS_PRINTER_2.printInCaseOfErrorsOrWarnings(lc);
   }
 
   private static LoggerContext configureContext(LoggerContext context, Map<String, String> substitutionVariables) {
