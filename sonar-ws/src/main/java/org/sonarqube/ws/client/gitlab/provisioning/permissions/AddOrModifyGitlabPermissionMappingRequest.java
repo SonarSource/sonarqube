@@ -21,6 +21,6 @@ package org.sonarqube.ws.client.gitlab.provisioning.permissions;
 
 import org.sonarqube.ws.client.github.provisioning.permissions.SonarqubePermissions;
 
-public record AddGitlabPermissionMappingRequest(String gitlabRole, SonarqubePermissions permissions) {
+public record AddOrModifyGitlabPermissionMappingRequest(String gitlabRole, SonarqubePermissions permissions) {
 
 }

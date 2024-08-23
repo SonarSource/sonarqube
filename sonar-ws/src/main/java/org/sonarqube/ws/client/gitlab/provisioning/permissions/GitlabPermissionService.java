@@ -20,11 +20,14 @@
 package org.sonarqube.ws.client.gitlab.provisioning.permissions;
 
 import com.google.gson.Gson;
+import java.util.Locale;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.PatchRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.github.provisioning.permissions.SonarqubePermissions;
 
 public class GitlabPermissionService extends BaseService {
 
@@ -32,14 +35,22 @@ public class GitlabPermissionService extends BaseService {
     super(wsConnector, "api/v2");
   }
 
-  public void addPermissionMapping(AddGitlabPermissionMappingRequest addLabPermissionMappingRequest) {
+  public void addPermissionMapping(AddOrModifyGitlabPermissionMappingRequest addLabPermissionMappingRequest) {
     callEndpointToAddPermissionMapping(addLabPermissionMappingRequest).close();
   }
 
-  private WsResponse callEndpointToAddPermissionMapping(AddGitlabPermissionMappingRequest addGitlabPermissionMappingRequest) {
+  private WsResponse callEndpointToAddPermissionMapping(AddOrModifyGitlabPermissionMappingRequest addOrModifyGitlabPermissionMappingRequest) {
     return call(
       new PostRequest(path("dop-translation/gitlab-permission-mappings"))
-        .setBody(new Gson().toJson(addGitlabPermissionMappingRequest))
+        .setBody(new Gson().toJson(addOrModifyGitlabPermissionMappingRequest))
         .setMediaType(MediaTypes.JSON));
+  }
+
+  public void modifyPermissionMapping(String role, SonarqubePermissions permissions) {
+    call(
+      new PatchRequest(path("dop-translation/gitlab-permission-mappings/" + role.toLowerCase(Locale.getDefault())))
+        .setBody(new Gson().toJson(new AddOrModifyGitlabPermissionMappingRequest(role, permissions)))
+        .setContentType("application/merge-patch+json")
+        .setMediaType(MediaTypes.JSON)).close();
   }
 }

@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.MigrationDbTester;
 
