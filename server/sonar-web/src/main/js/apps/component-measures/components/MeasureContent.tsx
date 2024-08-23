@@ -117,11 +117,13 @@ export default function MeasureContent(props: Readonly<Props>) {
 
   const [selectedComponent, setSelectedComponent] = React.useState<ComponentMeasureEnhanced>();
 
-  const metric = metrics[requestedMetric.key];
-  metric.direction = requestedMetric.direction;
+  const metric = treeData?.pages[0]?.metrics.find((m) => m.key === requestedMetric.key);
+  if (metric !== undefined) {
+    metric.direction = requestedMetric.direction;
+  }
 
   const baseComponent = treeData?.pages[0].baseComponent;
-  if (!baseComponent) {
+  if (!baseComponent || !metric) {
     return null;
   }
 
