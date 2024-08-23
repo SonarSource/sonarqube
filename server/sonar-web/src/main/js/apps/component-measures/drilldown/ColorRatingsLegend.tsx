@@ -29,20 +29,18 @@ import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { translateWithParameters } from '../../../helpers/l10n';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
 
 export interface ColorRatingsLegendProps {
   className?: string;
   filters: { [rating: number]: boolean };
+  isLegacy?: boolean;
   onRatingClick: (selection: number) => void;
 }
 
 export default function ColorRatingsLegend(props: ColorRatingsLegendProps) {
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { className, filters, isLegacy } = props;
   const theme = useTheme();
   const RATINGS = isLegacy ? [1, 2, 3, 4, 5] : [1, 2, 3, 4];
-
-  const { className, filters } = props;
 
   const ratingsColors = RATINGS.map((rating: BubbleColorVal) => {
     const formattedMeasure = formatMeasure(rating, MetricType.Rating);

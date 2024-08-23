@@ -108,6 +108,9 @@ export function areLeakCCTMeasuresComputed(measures?: Measure[] | MeasureEnhance
 }
 
 export function areCCTMeasuresComputed(measures?: Measure[] | MeasureEnhanced[]) {
+  if (!measures || measures.length === 0) {
+    return true;
+  }
   return CCT_SOFTWARE_QUALITY_METRICS.every((metric) =>
     measures?.find((measure) =>
       isMeasureEnhanced(measure) ? measure.metric.key === metric : measure.metric === metric,

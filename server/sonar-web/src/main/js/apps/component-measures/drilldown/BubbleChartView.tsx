@@ -32,6 +32,7 @@ import * as React from 'react';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { SOFTWARE_QUALITY_RATING_METRICS } from '../../../helpers/constants';
 import {
   getLocalizedMetricDomain,
   getLocalizedMetricName,
@@ -224,6 +225,12 @@ export default function BubbleChartView(props: Readonly<Props>) {
           </div>
           {bubbleMetrics.colors && (
             <ColorRatingsLegend
+              isLegacy={
+                isLegacy ||
+                bubbleMetrics.colors.every(
+                  (m) => !SOFTWARE_QUALITY_RATING_METRICS.includes(m.key as MetricKey),
+                )
+              }
               className="sw-mt-2"
               filters={ratingFilters}
               onRatingClick={handleRatingFilterClick}

@@ -2337,6 +2337,14 @@ exports[`should render correctly: not legacy + split point, but not Rating 1`] =
       height="24"
       width="40"
     />
+    <line
+      class="line-tooltip"
+      stroke-dasharray="2"
+      x1="20"
+      x2="20"
+      y1="24"
+      y2="-10"
+    />
   </g>
 </svg>
 `;
