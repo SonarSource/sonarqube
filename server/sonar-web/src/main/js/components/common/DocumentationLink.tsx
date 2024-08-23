@@ -18,15 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Link, LinkProps } from '@sonarsource/echoes-react';
+import { Link, LinkProps, LinkStandalone } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { DocLink } from '../../helpers/doc-links';
 import { useDocUrl } from '../../helpers/docs';
 
-type Props = Omit<LinkProps, 'to'> & { innerRef?: React.Ref<HTMLAnchorElement>; to: DocLink };
+type Props = Omit<LinkProps, 'to'> & {
+  innerRef?: React.Ref<HTMLAnchorElement>;
+  standalone?: boolean;
+  to: DocLink;
+};
 
-export default function DocumentationLink({ to, innerRef, ...props }: Props) {
+export default function DocumentationLink({ to, innerRef, standalone = false, ...props }: Props) {
   const toStatic = useDocUrl(to);
 
-  return <Link ref={innerRef} to={toStatic} {...props} />;
+  return standalone ? (
+    <LinkStandalone ref={innerRef} to={toStatic} {...props} />
+  ) : (
+    <Link ref={innerRef} to={toStatic} {...props} />
+  );
 }

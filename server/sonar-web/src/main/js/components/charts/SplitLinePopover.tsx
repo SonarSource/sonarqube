@@ -45,7 +45,7 @@ export default function SplitLinePopover({ paddingLeft, splitPointDate, xScale }
       title={translate('project_activity.graphs.rating_split.title')}
       description={translate('project_activity.graphs.rating_split.description')}
       footer={
-        <DocumentationLink to={DocLink.MetricDefinitions}>
+        <DocumentationLink standalone to={DocLink.MetricDefinitions}>
           {translate('learn_more')}
         </DocumentationLink>
       }
