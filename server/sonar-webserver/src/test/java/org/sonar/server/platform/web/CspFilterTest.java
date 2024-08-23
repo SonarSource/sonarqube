@@ -62,8 +62,6 @@ public class CspFilterTest {
     HttpServletRequest request = newRequest("/");
     underTest.doFilter(request, response, chain);
     verify(response).setHeader("Content-Security-Policy", EXPECTED);
-    verify(response).setHeader("X-Content-Security-Policy", EXPECTED);
-    verify(response).setHeader("X-WebKit-CSP", EXPECTED);
     verify(chain).doFilter(request, response);
   }
 

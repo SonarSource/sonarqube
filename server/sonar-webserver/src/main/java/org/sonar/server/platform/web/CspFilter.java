@@ -38,8 +38,6 @@ public class CspFilter implements Filter {
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
     cspHeaders.add("Content-Security-Policy");
-    cspHeaders.add("X-Content-Security-Policy");
-    cspHeaders.add("X-WebKit-CSP");
 
     List<String> cspPolicies = new ArrayList<>();
     cspPolicies.add("default-src 'self'");
