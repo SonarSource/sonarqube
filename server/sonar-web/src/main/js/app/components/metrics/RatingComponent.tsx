@@ -37,7 +37,11 @@ interface Props {
   componentKey: string;
   forceMetric?: boolean;
   getLabel?: (rating: RatingEnum) => string;
-  getTooltip?: (rating: RatingEnum) => React.ReactNode;
+  getTooltip?: (
+    rating: RatingEnum,
+    value: string | undefined,
+    metricKey?: MetricKey,
+  ) => React.ReactNode;
   ratingMetric: MetricKey;
   size?: SizeType;
 }
@@ -114,9 +118,13 @@ export default function RatingComponent(props: Readonly<Props>) {
     <Spinner isLoading={isLoading}>
       {getTooltip ? (
         <>
-          <Tooltip content={getTooltip(rating)}>{badge}</Tooltip>
+          <Tooltip content={getTooltip(rating, value, measure?.metric as MetricKey)}>
+            {badge}
+          </Tooltip>
           {/* The badge is not interactive, so show the tooltip content for screen-readers only */}
-          <span className="sw-sr-only">{getTooltip(rating)}</span>
+          <span className="sw-sr-only">
+            {getTooltip(rating, value, measure?.metric as MetricKey)}
+          </span>
         </>
       ) : (
         badge

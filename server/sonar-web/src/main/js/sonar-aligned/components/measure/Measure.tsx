@@ -59,8 +59,10 @@ export default function Measure({
   const classNameWithFont = classNames(className, fontClassName);
 
   const getTooltip = useCallback(
-    () => value !== undefined && <RatingTooltipContent metricKey={metricKey} value={value} />,
-    [metricKey, value],
+    (_: RatingEnum, value: string | undefined, metric?: MetricKey) =>
+      value !== undefined &&
+      metric !== undefined && <RatingTooltipContent metricKey={metric} value={value} />,
+    [],
   );
 
   const getLabel = useCallback(
