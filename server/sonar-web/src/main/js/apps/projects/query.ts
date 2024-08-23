@@ -235,7 +235,7 @@ function convertSize(metric: string, size: number): string {
   }
 }
 
-function mapPropertyToMetric(property?: string, isLegacy: boolean = false): string | undefined {
+function mapPropertyToMetric(property?: string, isLegacy = false): string | undefined {
   return property && (isLegacy ? propertyToMetricMapLegacy : propertyToMetricMap)[property];
 }
 

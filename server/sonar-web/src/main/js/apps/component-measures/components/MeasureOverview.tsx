@@ -105,7 +105,7 @@ export default function MeasureOverview(props: Readonly<Props>) {
 
   const updateSelected = (component: ComponentMeasureIntern) => {
     if (component && isView(component.qualifier)) {
-      router.push(getProjectUrl(component.refKey || component.key, component.branch));
+      router.push(getProjectUrl(component.refKey ?? component.key, component.branch));
     } else {
       updateQuery({
         selected: component.key !== rootComponent.key ? component.key : undefined,

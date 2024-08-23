@@ -120,7 +120,7 @@ function CodeApp(props: Readonly<Props>) {
   };
 
   const handleSelect = (selectedComponent: ComponentMeasure) => {
-    if (selectedComponent.refKey) {
+    if (selectedComponent.refKey !== undefined) {
       const codeType = newCodeSelected ? CodeScope.New : CodeScope.Overall;
       const url = getProjectUrl(selectedComponent.refKey, selectedComponent.branch, codeType);
       router.push(url);

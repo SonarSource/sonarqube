@@ -102,7 +102,7 @@ const ISSUES_METRICS = [
 ];
 
 export const populateDomainsFromMeasures = memoize(
-  (measures: MeasureEnhanced[], isLegacy?: boolean): Domain[] => {
+  (measures: MeasureEnhanced[], isLegacy = false): Domain[] => {
     let populatedMeasures = measures
       .filter((measure) => !DEPRECATED_METRICS.includes(measure.metric.key as MetricKey))
       .map((measure) => {

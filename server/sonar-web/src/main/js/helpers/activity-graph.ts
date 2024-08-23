@@ -25,7 +25,7 @@ import { SOFTWARE_QUALITY_RATING_METRICS_MAP } from './constants';
 export const mergeRatingMeasureHistory = (
   historyData: TimeMachineResponse | undefined,
   parseDateFn: (date: string) => Date,
-  isLegacy: boolean = false,
+  isLegacy = false,
 ) => {
   const softwareQualityMeasures = Object.values(SOFTWARE_QUALITY_RATING_METRICS_MAP);
   const softwareQualityMeasuresMap = new Map<

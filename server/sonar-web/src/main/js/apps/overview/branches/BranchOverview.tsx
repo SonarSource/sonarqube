@@ -54,18 +54,6 @@ import '../styles.css';
 import { BRANCH_OVERVIEW_METRICS, HISTORY_METRICS_LIST, Status } from '../utils';
 import BranchOverviewRenderer from './BranchOverviewRenderer';
 
-// TODO: remove this once backend ready
-const NEW_METRICS = [
-  MetricKey.software_quality_maintainability_rating,
-  MetricKey.software_quality_security_rating,
-  MetricKey.new_software_quality_security_rating,
-  MetricKey.software_quality_reliability_rating,
-  MetricKey.new_software_quality_reliability_rating,
-  MetricKey.software_quality_security_review_rating,
-  MetricKey.new_software_quality_security_review_rating,
-  MetricKey.new_software_quality_maintainability_rating,
-];
-
 interface Props {
   branch?: Branch;
   branchesEnabled?: boolean;
@@ -118,13 +106,12 @@ export default function BranchOverview(props: Readonly<Props>) {
     componentKey: component.key,
     branchLike: branch,
     metricKeys:
-      component.qualifier === ComponentQualifier.Project
-        ? projectQualityGateStatus?.conditions !== undefined
-          ? uniq([
-              ...BRANCH_OVERVIEW_METRICS,
-              ...projectQualityGateStatus.conditions.map((c) => c.metricKey),
-            ])
-          : BRANCH_OVERVIEW_METRICS
+      component.qualifier === ComponentQualifier.Project &&
+      projectQualityGateStatus?.conditions !== undefined
+        ? uniq([
+            ...BRANCH_OVERVIEW_METRICS,
+            ...projectQualityGateStatus.conditions.map((c) => c.metricKey),
+          ])
         : BRANCH_OVERVIEW_METRICS,
   });
 
@@ -161,7 +148,7 @@ export default function BranchOverview(props: Readonly<Props>) {
     // We also need to load the application leak periods separately.
     getApplicationLeak(component.key, appBranchName).then(
       (leaks) => {
-        if (leaks && leaks.length) {
+        if (leaks && leaks.length > 0) {
           const sortedLeaks = sortBy(leaks, (leak) => {
             return new Date(leak.date);
           });
@@ -282,11 +269,7 @@ export default function BranchOverview(props: Readonly<Props>) {
   ) => {
     return getMeasuresWithPeriodAndMetrics(
       componentKey,
-      metricKeys.length > 0
-        ? metricKeys
-        : BRANCH_OVERVIEW_METRICS.filter(
-            (metricKey) => !NEW_METRICS.includes(metricKey as MetricKey),
-          ),
+      metricKeys.length > 0 ? metricKeys : BRANCH_OVERVIEW_METRICS,
       getBranchLikeQuery(branchLike),
     ).then(({ component: { measures }, metrics, period }) => {
       return {

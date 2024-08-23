@@ -104,7 +104,7 @@ export default function BubbleChartView(props: Readonly<Props>) {
         const y = getMeasureVal(component, bubbleMetrics.y);
         const size = getMeasureVal(component, bubbleMetrics.size);
         const colors = bubbleMetrics.colors?.map((metric) => getMeasureVal(component, metric));
-        if ((!x && x !== 0) || (!y && y !== 0) || (!size && size !== 0)) {
+        if (x === undefined || y === undefined || size === undefined) {
           return undefined;
         }
 
