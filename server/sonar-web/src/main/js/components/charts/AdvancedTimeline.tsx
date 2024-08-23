@@ -634,7 +634,6 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
       hideXAxis,
       showAreas,
       graphDescription,
-      metricType,
       splitPointDate,
     } = this.props as PropsWithDefaults;
     const { xScale, yScale } = this.state;
@@ -664,18 +663,14 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
             {this.renderDots()}
             {this.renderSelectedDate()}
             {this.renderMouseEventsOverlay(zoomEnabled)}
-            {metricType === MetricType.Rating && (
-              <SplitLine splitPointDate={splitPointDate} xScale={xScale} yScale={yScale} />
-            )}
+            <SplitLine splitPointDate={splitPointDate} xScale={xScale} yScale={yScale} />
           </g>
         </svg>
-        {metricType === MetricType.Rating && (
-          <SplitLinePopover
-            paddingLeft={padding[3]}
-            splitPointDate={splitPointDate}
-            xScale={xScale}
-          />
-        )}
+        <SplitLinePopover
+          paddingLeft={padding[3]}
+          splitPointDate={splitPointDate}
+          xScale={xScale}
+        />
       </div>
     );
   }
