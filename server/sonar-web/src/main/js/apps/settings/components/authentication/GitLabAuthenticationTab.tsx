@@ -413,11 +413,12 @@ export default function GitLabAuthenticationTab() {
           </>
         )}
       </div>
-      {showConfirmProvisioningModal && provisioningType && (
+      {provisioningType && (
         <ConfirmProvisioningModal
           allowUsersToSignUp={allowUsersToSignUp}
           hasProvisioningTypeChange={Boolean(changes?.provisioningType)}
           isAllowListEmpty={isEmpty(allowedGroups)}
+          isOpen={showConfirmProvisioningModal}
           onClose={() => setShowConfirmProvisioningModal(false)}
           onConfirm={updateProvisioning}
           provider={Provider.Gitlab}

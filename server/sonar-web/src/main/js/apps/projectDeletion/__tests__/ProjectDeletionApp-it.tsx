@@ -53,10 +53,11 @@ it('should be able to delete project', async () => {
 
   expect(byText('deletion.page').get()).toBeInTheDocument();
   expect(byText('project_deletion.page.description').get()).toBeInTheDocument();
-  await user.click(byRole('button', { name: 'delete' }).get());
-  expect(await byRole('dialog', { name: 'qualifier.delete.TRK' }).find()).toBeInTheDocument();
+  await user.click(ui.deleteButton.get());
+  expect(await ui.confirmationModal(ComponentQualifier.Project).find()).toBeInTheDocument();
+
   await user.click(
-    byRole('dialog', { name: 'qualifier.delete.TRK' }).byRole('button', { name: 'delete' }).get(),
+    ui.confirmationModal(ComponentQualifier.Project).byRole('button', { name: 'delete' }).get(),
   );
 
   expect(await byText(/project_deletion.resource_dele/).find()).toBeInTheDocument();
@@ -80,11 +81,11 @@ it('should be able to delete Portfolio', async () => {
   expect(byText('deletion.page').get()).toBeInTheDocument();
   expect(byText('portfolio_deletion.page.description').get()).toBeInTheDocument();
 
-  await user.click(byRole('button', { name: 'delete' }).get());
+  await user.click(ui.deleteButton.get());
 
-  expect(await byRole('dialog', { name: 'qualifier.delete.VW' }).find()).toBeInTheDocument();
+  expect(await ui.confirmationModal(ComponentQualifier.Portfolio).find()).toBeInTheDocument();
   await user.click(
-    byRole('dialog', { name: 'qualifier.delete.VW' }).byRole('button', { name: 'delete' }).get(),
+    ui.confirmationModal(ComponentQualifier.Portfolio).byRole('button', { name: 'delete' }).get(),
   );
 
   expect(await byText(/project_deletion.resource_dele/).find()).toBeInTheDocument();
@@ -108,10 +109,10 @@ it('should be able to delete Application', async () => {
   expect(byText('deletion.page').get()).toBeInTheDocument();
   expect(byText('application_deletion.page.description').get()).toBeInTheDocument();
 
-  await user.click(byRole('button', { name: 'delete' }).get());
-  expect(await byRole('dialog', { name: 'qualifier.delete.APP' }).find()).toBeInTheDocument();
+  await user.click(ui.deleteButton.get());
+  expect(await ui.confirmationModal(ComponentQualifier.Application).find()).toBeInTheDocument();
   await user.click(
-    byRole('dialog', { name: 'qualifier.delete.APP' }).byRole('button', { name: 'delete' }).get(),
+    ui.confirmationModal(ComponentQualifier.Application).byRole('button', { name: 'delete' }).get(),
   );
 
   expect(await byText(/project_deletion.resource_dele/).find()).toBeInTheDocument();
@@ -132,3 +133,9 @@ function renderProjectDeletionApp(component?: Component) {
     </ComponentContext.Provider>,
   );
 }
+
+const ui = {
+  confirmationModal: (qualifier: ComponentQualifier) =>
+    byRole('alertdialog', { name: `qualifier.delete.${qualifier}` }),
+  deleteButton: byRole('button', { name: 'delete' }),
+};

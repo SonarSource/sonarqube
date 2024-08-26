@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as Echoes from '@sonarsource/echoes-react';
 import * as React from 'react';
 
 export interface ChildrenProps {
@@ -37,6 +38,9 @@ interface State {
   modal: boolean;
 }
 
+/** @deprecated Use either {@link Echoes.Modal | Modal} or {@link Echoes.ModalAlert | ModalAlert} from Echoes instead.
+ * See the {@link https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3465543707/Modals | Migration Guide}
+ */
 export default class ModalButton extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { modal: false };

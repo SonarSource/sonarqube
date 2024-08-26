@@ -75,6 +75,29 @@ function hasNoChildren(props: Partial<Props>): props is PropsWithSections {
   return (props as PropsWithChildren).children === undefined;
 }
 
+/** @deprecated Use either Modal or ModalAlert from Echoes instead.
+ *
+ * The props have changed significantly:
+ * - `headerTitle` is now `title`
+ * - `headerDescription` is now `description` and is announced to screen readers.
+ * - `body` is replaced with `content`
+ * - `isLarge` is replaced with `size` (ModalSize.Default or ModalSize.Wide)
+ * - `isScrollable` and `isOverflowVisible` have been removed and the behavior is automatic!
+ * - `closeOnOverlayClick` has been removed and is either
+ *     - always false for ModalAlert (it requires an action)
+ *     or
+ *     - always true for Modal
+ *
+ * By default, the Modal will be controlled automatically by its Trigger (child element).
+ * This is the preferred way.
+ *
+ * If you need to control the Modal (e.g. open as a side effect, close after async action):
+ * - `onClose` has been removed. Instead, use:
+ * - `onOpenChange`: callback for `isOpen` value changes.
+ * - `IsOpen`: controls the display of the Modal (conditional rendering isn't necessary anymore)
+ *
+ * See the {@link https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3465543707/Modals | Migration Guide} for more
+ */
 export function Modal({
   closeOnOverlayClick = true,
   isLarge,

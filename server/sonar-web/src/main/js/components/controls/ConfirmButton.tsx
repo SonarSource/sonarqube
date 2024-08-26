@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as Echoes from '@sonarsource/echoes-react';
 import * as React from 'react';
 import ConfirmModal, { ConfirmModalProps } from './ConfirmModal';
 import ModalButton, { ChildrenProps, ModalProps } from './ModalButton';
 
-interface Props<T> extends Omit<ConfirmModalProps<T>, 'children'> {
+interface Props<T> extends Omit<ConfirmModalProps<T>, 'children' | 'isOpen'> {
   children: (props: ChildrenProps) => React.ReactNode;
   modalBody: React.ReactNode;
   modalHeader: string;
@@ -32,6 +33,9 @@ interface State {
   modal: boolean;
 }
 
+/** @deprecated Use {@link Echoes.ModalAlert | ModalAlert} from Echoes instead.
+ * See the {@link https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3465543707/Modals | Migration Guide}
+ */
 export default class ConfirmButton<T> extends React.PureComponent<Props<T>, State> {
   renderConfirmModal = ({ onClose }: ModalProps) => {
     const { children, modalBody, modalHeader, modalHeaderDescription, ...confirmModalProps } =
@@ -41,6 +45,7 @@ export default class ConfirmButton<T> extends React.PureComponent<Props<T>, Stat
         header={modalHeader}
         headerDescription={modalHeaderDescription}
         onClose={onClose}
+        isOpen
         {...confirmModalProps}
       >
         {modalBody}

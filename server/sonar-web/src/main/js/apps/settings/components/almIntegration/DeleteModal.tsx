@@ -23,7 +23,8 @@ import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 export interface DeleteModalProps {
-  id: string;
+  id?: string;
+  isOpen: boolean;
   onCancel: () => void;
   onDelete: (id: string) => void;
   projectCount?: number;
@@ -39,13 +40,20 @@ function showProjectCountWarning(projectCount?: number) {
   ) : null;
 }
 
-export default function DeleteModal({ id, onDelete, onCancel, projectCount }: DeleteModalProps) {
+export default function DeleteModal({
+  id,
+  isOpen,
+  onDelete,
+  onCancel,
+  projectCount,
+}: DeleteModalProps) {
   return (
     <ConfirmModal
       confirmButtonText={translate('delete')}
       confirmData={id}
       header={translate('settings.almintegration.delete.header')}
       isDestructive
+      isOpen={isOpen}
       onClose={onCancel}
       onConfirm={onDelete}
     >

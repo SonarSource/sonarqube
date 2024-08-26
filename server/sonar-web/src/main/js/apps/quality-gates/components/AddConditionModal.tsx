@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Button, ButtonVariety, RadioButtonGroup } from '@sonarsource/echoes-react';
-import { FormField, Modal } from 'design-system';
+import { Button, ButtonVariety, Modal, RadioButtonGroup } from '@sonarsource/echoes-react';
+import { FormField } from 'design-system';
+import { differenceWith, map } from 'lodash';
 import * as React from 'react';
+import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
+import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { useCreateConditionMutation } from '../../../queries/quality-gates';
-import { MetricKey } from '../../../sonar-aligned/types/metrics';
+import { MetricKey, MetricType } from '../../../sonar-aligned/types/metrics';
+import { Feature } from '../../../types/features';
 import { Condition, Metric, QualityGate } from '../../../types/types';
 import { getPossibleOperators, isNonEditableMetric } from '../utils';
 import ConditionOperator from './ConditionOperator';
@@ -31,38 +35,88 @@ import MetricSelect from './MetricSelect';
 import ThresholdInput from './ThresholdInput';
 
 interface Props {
-  metrics: Metric[];
-  onClose: () => void;
   qualityGate: QualityGate;
 }
 
+const FORBIDDEN_METRIC_TYPES = [MetricType.Data, MetricType.Distribution, 'STRING', 'BOOL'];
+const FORBIDDEN_METRICS: string[] = [
+  MetricKey.alert_status,
+  MetricKey.releasability_rating,
+  MetricKey.security_hotspots,
+  MetricKey.new_security_hotspots,
+  MetricKey.software_quality_maintainability_rating,
+  MetricKey.new_software_quality_maintainability_rating,
+  MetricKey.software_quality_reliability_rating,
+  MetricKey.new_software_quality_reliability_rating,
+  MetricKey.software_quality_security_rating,
+  MetricKey.new_software_quality_security_rating,
+  MetricKey.software_quality_security_review_rating,
+  MetricKey.new_software_quality_security_review_rating,
+  MetricKey.effort_to_reach_software_quality_maintainability_rating_a,
+  MetricKey.software_quality_maintainability_remediation_effort,
+  MetricKey.new_software_quality_maintainability_remediation_effort,
+  MetricKey.software_quality_security_remediation_effort,
+  MetricKey.new_software_quality_security_remediation_effort,
+  MetricKey.software_quality_reliability_remediation_effort,
+  MetricKey.new_software_quality_reliability_remediation_effort,
+  MetricKey.software_quality_maintainability_debt_ratio,
+  MetricKey.new_software_quality_maintainability_debt_ratio,
+];
+
 const ADD_CONDITION_MODAL_ID = 'add-condition-modal';
 
-export default function AddConditionModal({ metrics, onClose, qualityGate }: Readonly<Props>) {
+export default function AddConditionModal({ qualityGate }: Readonly<Props>) {
+  const [open, setOpen] = React.useState(false);
+  const closeModal = React.useCallback(() => setOpen(false), []);
+
   const [errorThreshold, setErrorThreshold] = React.useState('');
   const [scope, setScope] = React.useState<'new' | 'overall'>('new');
   const [selectedMetric, setSelectedMetric] = React.useState<Metric | undefined>();
   const [selectedOperator, setSelectedOperator] = React.useState<string | undefined>();
   const { mutateAsync: createCondition } = useCreateConditionMutation(qualityGate.name);
+  const { hasFeature } = useAvailableFeatures();
+  const metrics = useMetrics();
 
   const getSinglePossibleOperator = (metric: Metric) => {
     const operators = getPossibleOperators(metric);
     return Array.isArray(operators) ? undefined : operators;
   };
 
-  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const { conditions = [] } = qualityGate;
 
-    if (selectedMetric) {
-      const newCondition: Omit<Condition, 'id'> = {
-        metric: selectedMetric.key,
-        op: getSinglePossibleOperator(selectedMetric) ?? selectedOperator,
-        error: errorThreshold,
-      };
-      await createCondition(newCondition);
-      onClose();
-    }
-  };
+  const availableMetrics = React.useMemo(() => {
+    return differenceWith(
+      map(metrics, (metric) => metric).filter(
+        (metric) =>
+          !metric.hidden &&
+          !FORBIDDEN_METRIC_TYPES.includes(metric.type) &&
+          !FORBIDDEN_METRICS.includes(metric.key) &&
+          !(
+            metric.key === MetricKey.prioritized_rule_issues &&
+            !hasFeature(Feature.PrioritizedRules)
+          ),
+      ),
+      conditions,
+      (metric, condition) => metric.key === condition.metric,
+    );
+  }, [conditions, hasFeature, metrics]);
+
+  const handleFormSubmit = React.useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+
+      if (selectedMetric) {
+        const newCondition: Omit<Condition, 'id'> = {
+          metric: selectedMetric.key,
+          op: getSinglePossibleOperator(selectedMetric) ?? selectedOperator,
+          error: errorThreshold,
+        };
+        await createCondition(newCondition);
+        closeModal();
+      }
+    },
+    [closeModal, createCondition, errorThreshold, selectedMetric, selectedOperator],
+  );
 
   const handleScopeChange = (scope: 'new' | 'overall') => {
     let correspondingMetric;
@@ -70,7 +124,7 @@ export default function AddConditionModal({ metrics, onClose, qualityGate }: Rea
     if (selectedMetric) {
       const correspondingMetricKey =
         scope === 'new' ? `new_${selectedMetric.key}` : selectedMetric.key.replace(/^new_/, '');
-      correspondingMetric = metrics.find((m) => m.key === correspondingMetricKey);
+      correspondingMetric = availableMetrics.find((m) => m.key === correspondingMetricKey);
     }
 
     setScope(scope);
@@ -114,8 +168,8 @@ export default function AddConditionModal({ metrics, onClose, qualityGate }: Rea
           label={translate('quality_gates.conditions.fails_when')}
         >
           <MetricSelect
-            metric={selectedMetric}
-            metricsArray={metrics.filter((m) =>
+            selectedMetric={selectedMetric}
+            metricsArray={availableMetrics.filter((m) =>
               scope === 'new' ? isDiffMetric(m.key) : !isDiffMetric(m.key),
             )}
             onMetricChange={handleMetricChange}
@@ -155,14 +209,12 @@ export default function AddConditionModal({ metrics, onClose, qualityGate }: Rea
 
   return (
     <Modal
-      isScrollable={false}
-      isOverflowVisible
-      headerTitle={translate('quality_gates.add_condition')}
-      onClose={onClose}
-      body={renderBody()}
+      title={translate('quality_gates.add_condition')}
+      content={renderBody()}
+      isOpen={open}
+      onOpenChange={setOpen}
       primaryButton={
         <Button
-          hasAutoFocus
           isDisabled={selectedMetric === undefined}
           id="add-condition-button"
           form={ADD_CONDITION_MODAL_ID}
@@ -172,7 +224,11 @@ export default function AddConditionModal({ metrics, onClose, qualityGate }: Rea
           {translate('quality_gates.add_condition')}
         </Button>
       }
-      secondaryButtonLabel={translate('close')}
-    />
+      secondaryButton={<Button onClick={closeModal}>{translate('close')}</Button>}
+    >
+      <Button data-test="quality-gates__add-condition">
+        {translate('quality_gates.add_condition')}
+      </Button>
+    </Modal>
   );
 }

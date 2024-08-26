@@ -213,7 +213,9 @@ it('should be able to add a condition on new code', async () => {
 
   await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.new_code' }).get());
 
-  await selectEvent.select(dialog.byRole('combobox').get(), 'Issues');
+  await user.click(dialog.byLabelText('quality_gates.conditions.fails_when').get());
+  await user.click(dialog.byRole('option', { name: 'Issues' }).get());
+
   await user.click(
     await dialog.byRole('textbox', { name: 'quality_gates.conditions.value' }).find(),
   );
@@ -236,10 +238,14 @@ it('should be able to add a condition on overall code', async () => {
 
   const dialog = byRole('dialog');
 
-  await selectEvent.select(dialog.byRole('combobox').get(), ['Info Issues']);
+  await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
+
+  await user.click(dialog.byLabelText('quality_gates.conditions.fails_when').get());
+
   // In real app there are no metrics with selectable condition operator
   // so we manually changed direction for Info Issues to 0 to test this behavior
-  await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
+  await user.click(await dialog.byRole('option', { name: 'Info Issues' }).find());
+
   await user.click(dialog.byLabelText('quality_gates.conditions.operator').get());
 
   await user.click(dialog.byText('quality_gates.operator.LT').get());
@@ -268,7 +274,9 @@ it('should be able to select a rating', async () => {
   const dialog = byRole('dialog');
 
   await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
-  await selectEvent.select(dialog.byRole('combobox').get(), ['Maintainability Rating']);
+  await user.click(dialog.byLabelText('quality_gates.conditions.fails_when').get());
+  await user.click(dialog.byRole('option', { name: 'Maintainability Rating' }).get());
+
   await user.click(dialog.byLabelText('quality_gates.conditions.value').get());
   await user.click(dialog.byText('B').get());
   await user.click(dialog.byRole('button', { name: 'quality_gates.add_condition' }).get());
@@ -334,7 +342,7 @@ it('should be able to handle delete condition', async () => {
     newConditions.getByLabelText('quality_gates.condition.delete.Coverage on New Code'),
   );
 
-  const dialog = within(screen.getByRole('dialog'));
+  const dialog = within(screen.getByRole('alertdialog'));
   await user.click(dialog.getByRole('button', { name: 'delete' }));
 
   await waitFor(() => {
@@ -570,7 +578,8 @@ it('should not allow to change value of prioritized_rule_issues', async () => {
   const dialog = byRole('dialog');
 
   await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
-  await selectEvent.select(dialog.byRole('combobox').get(), ['Issues from prioritized rules']);
+  await user.click(dialog.byLabelText('quality_gates.conditions.fails_when').get());
+  await user.click(dialog.byRole('option', { name: 'Issues from prioritized rules' }).get());
 
   expect(dialog.byRole('textbox', { name: 'quality_gates.conditions.value' }).get()).toBeDisabled();
   expect(dialog.byRole('textbox', { name: 'quality_gates.conditions.value' }).get()).toHaveValue(

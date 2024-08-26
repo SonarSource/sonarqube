@@ -72,6 +72,7 @@ const ui = {
   compareDropdown: byRole('combobox', { name: 'quality_profiles.compare_with' }),
   changelogLink: byRole('link', { name: 'changelog' }),
   popup: byRole('dialog'),
+  confirmationModal: byRole('alertdialog'),
   restoreProfileDialog: byRole('dialog', { name: 'quality_profiles.restore_profile' }),
   copyRadio: byRole('radio', {
     name: 'quality_profiles.creation_from_copy quality_profiles.creation_from_copy_description_1 quality_profiles.creation_from_copy_description_2',
@@ -357,7 +358,7 @@ it('should be able to activate or deactivate rules in comparison page', async ()
 
   // Deactivate
   await user.click(await ui.deactivateRuleButton('java quality profile #2').find());
-  expect(ui.popup.get()).toBeInTheDocument();
+  expect(ui.confirmationModal.get()).toBeInTheDocument();
   await user.click(ui.deactivateConfirmButton.get());
   expect(ui.summaryAdditionalRules(1).query()).not.toBeInTheDocument();
 });

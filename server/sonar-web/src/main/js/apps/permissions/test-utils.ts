@@ -44,7 +44,7 @@ export function getPageObject(user: UserEvent) {
     githubExplanations: byText('roles.page.description.github'),
     gitlabLogo: byRole('img', { name: 'project_permission.managed.alm.gitlab' }),
     gitlabExplanations: byText('roles.page.description.gitlab'),
-    confirmRemovePermissionDialog: byRole('dialog', {
+    confirmRemovePermissionDialog: byRole('alertdialog', {
       name: 'project_permission.remove_only_confirmation_title',
     }),
     nonGHProjectWarning: byText('project_permission.local_project_with_github_provisioning'),

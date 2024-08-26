@@ -179,7 +179,7 @@ const selectors = {
   // Custom rule form
   createCustomRuleDialog: byRole('dialog', { name: 'coding_rules.create_custom_rule' }),
   updateCustomRuleDialog: byRole('dialog', { name: 'coding_rules.update_custom_rule' }),
-  deleteCustomRuleDialog: byRole('dialog', { name: 'coding_rules.delete_rule' }),
+  deleteCustomRuleDialog: byRole('alertdialog', { name: 'coding_rules.delete_rule' }),
   ruleNameTextbox: byRole('textbox', { name: 'name' }),
   keyTextbox: byRole('textbox', { name: 'key' }),
   cleanCodeCategorySelect: byRole('combobox', { name: 'category' }),

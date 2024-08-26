@@ -149,18 +149,17 @@ export default class TaskActions extends React.PureComponent<Props, State> {
           )}
         </ActionsDropdown>
 
-        {this.state.cancelTaskOpen && (
-          <ConfirmModal
-            cancelButtonText={translate('close')}
-            confirmButtonText={translate('background_tasks.cancel_task')}
-            header={translate('background_tasks.cancel_task')}
-            isDestructive
-            onClose={this.closeCancelTask}
-            onConfirm={this.handleCancelTask}
-          >
-            {translate('background_tasks.cancel_task.text')}
-          </ConfirmModal>
-        )}
+        <ConfirmModal
+          cancelButtonText={translate('close')}
+          confirmButtonText={translate('background_tasks.cancel_task')}
+          header={translate('background_tasks.cancel_task')}
+          isDestructive
+          isOpen={this.state.cancelTaskOpen}
+          onClose={this.closeCancelTask}
+          onConfirm={this.handleCancelTask}
+        >
+          {translate('background_tasks.cancel_task.text')}
+        </ConfirmModal>
 
         {this.state.scannerContextOpen && (
           <ScannerContext onClose={this.closeScannerContext} task={task} />

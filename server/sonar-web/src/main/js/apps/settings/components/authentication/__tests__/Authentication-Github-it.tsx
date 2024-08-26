@@ -76,7 +76,7 @@ const ui = {
   textbox1: byRole('textbox', { name: 'test1' }),
   textbox2: byRole('textbox', { name: 'test2' }),
   tab: byRole('tab', { name: 'github GitHub' }),
-  cancelDialogButton: byRole('dialog').byRole('button', { name: 'cancel' }),
+  cancelDialogButton: byRole('alertdialog').byRole('button', { name: 'cancel' }),
   noGithubConfiguration: byText('settings.authentication.github.form.not_configured'),
   createConfigButton: ghContainer.byRole('button', {
     name: 'settings.authentication.form.create',
@@ -153,7 +153,7 @@ const ui = {
       name: `settings.definition.delete_value.property.allowedOrganizations.name.${org}`,
     }),
   enableFirstMessage: ghContainer.byText('settings.authentication.github.enable_first'),
-  insecureConfigWarning: byRole('dialog').byText(
+  insecureConfigWarning: byRole('alertdialog').byText(
     'settings.authentication.github.provisioning_change.insecure_config',
   ),
   jitProvisioningButton: ghContainer.byRole('radio', {
@@ -277,6 +277,7 @@ describe('Github tab', () => {
     await user.click(ui.deleteOrg('organization1').get());
 
     await user.click(ui.saveConfigButton.get());
+    await user.click(ui.confirmProvisioningButton.get());
 
     await user.click(await ui.editConfigButton.find());
 
@@ -985,7 +986,7 @@ describe('Github tab', () => {
       await user.click(ui.saveGithubProvisioning.get());
 
       expect(ui.insecureConfigWarning.get()).toBeInTheDocument();
-      await user.click(ui.confirmProvisioningButton.get());
+      await user.click(await ui.confirmProvisioningButton.find());
 
       await user.click(ui.projectVisibility.get());
       await user.click(ui.saveGithubProvisioning.get());

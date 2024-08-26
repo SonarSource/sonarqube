@@ -345,17 +345,20 @@ export default function GitHubAuthenticationTab() {
               provisioningType={provisioningType ?? ProvisioningType.jit}
               synchronizationDetails={<GitHubSynchronisationWarning />}
             />
-            {isConfirmProvisioningModalOpen && provisioningType && (
+
+            {provisioningType && (
               <ConfirmProvisioningModal
                 allowUsersToSignUp={allowUsersToSignUp}
                 hasProvisioningTypeChange={changes?.provisioningType !== undefined}
                 isAllowListEmpty={isEmpty(gitHubConfiguration.allowedOrganizations)}
+                isOpen={isConfirmProvisioningModalOpen}
                 onClose={() => setIsConfirmProvisioningModalOpen(false)}
                 onConfirm={onUpdateProvisioning}
                 provider={Provider.Github}
                 provisioningStatus={provisioningType}
               />
             )}
+
             {isMappingModalOpen && (
               <GitHubMappingModal
                 mapping={rolesMapping}

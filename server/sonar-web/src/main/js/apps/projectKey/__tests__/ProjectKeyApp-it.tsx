@@ -77,7 +77,7 @@ function getPageObjects() {
 
   const ui = {
     pageTitle: byRole('heading', { name: 'update_key.page' }),
-    updateKeyDialog: byRole('dialog'),
+    updateKeyDialog: byRole('alertdialog'),
     newKeyInput: byRole('textbox'),
     updateInputButton: byRole('button', { name: 'update_verb' }),
     resetInputButton: byRole('button', { name: 'reset_verb' }),

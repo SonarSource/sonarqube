@@ -79,6 +79,7 @@ export default function usePermissionChange<T extends PermissionGroup | Permissi
           confirmButtonText={translate('confirm')}
           header={translate('project_permission.remove_only_confirmation_title')}
           isDestructive
+          isOpen
           onClose={() => setConfirmPermission(null)}
           onConfirm={() => handleChangePermission(confirmPermission.key)}
         >

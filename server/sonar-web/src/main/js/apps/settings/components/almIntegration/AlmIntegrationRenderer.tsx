@@ -165,14 +165,13 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
         onUpdateDefinitions={props.onUpdateDefinitions}
       />
 
-      {isDefined(definitionKeyForDeletion) && (
-        <DeleteModal
-          id={definitionKeyForDeletion}
-          onCancel={props.onCancelDelete}
-          onDelete={props.onConfirmDelete}
-          projectCount={projectCount}
-        />
-      )}
+      <DeleteModal
+        id={definitionKeyForDeletion}
+        isOpen={isDefined(definitionKeyForDeletion)}
+        onCancel={props.onCancelDelete}
+        onDelete={props.onConfirmDelete}
+        projectCount={projectCount}
+      />
     </>
   );
 }

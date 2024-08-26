@@ -28,6 +28,7 @@ interface Props {
   allowUsersToSignUp?: boolean;
   hasProvisioningTypeChange?: boolean;
   isAllowListEmpty: boolean;
+  isOpen: boolean;
   onClose: VoidFunction;
   onConfirm: VoidFunction;
   provider: Provider.Github | Provider.Gitlab;
@@ -39,6 +40,7 @@ export default function ConfirmProvisioningModal(props: Readonly<Props>) {
     allowUsersToSignUp,
     hasProvisioningTypeChange,
     isAllowListEmpty,
+    isOpen,
     onConfirm,
     onClose,
     provider,
@@ -49,6 +51,7 @@ export default function ConfirmProvisioningModal(props: Readonly<Props>) {
 
   return (
     <ConfirmModal
+      isOpen={isOpen}
       onConfirm={onConfirm}
       header={intl.formatMessage({
         id: `settings.authentication.${provider}.confirm.${hasProvisioningTypeChange ? provisioningStatus : 'insecure'}`,

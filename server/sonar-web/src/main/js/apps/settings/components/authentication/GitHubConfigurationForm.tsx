@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Button, ButtonVariety, Spinner } from '@sonarsource/echoes-react';
-import { FlagMessage, Modal } from 'design-system';
+import { Button, ButtonVariety, Modal } from '@sonarsource/echoes-react';
+import { FlagMessage } from 'design-system';
 import { isEmpty, keyBy } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -228,35 +228,34 @@ export default function GitHubConfigurationForm(props: Readonly<Props>) {
   return (
     <>
       <Modal
-        body={formBody}
-        headerTitle={header}
-        isScrollable
-        onClose={onClose}
+        content={formBody}
+        title={header}
+        isOpen
+        onOpenChange={onClose}
         primaryButton={
-          <>
-            <Spinner className="sw-ml-2" isLoading={isCreating || isUpdating} />
-            <Button
-              form={FORM_ID}
-              type="submit"
-              hasAutoFocus
-              isDisabled={!isFormValid}
-              variety={ButtonVariety.Primary}
-            >
-              <FormattedMessage id="settings.almintegration.form.save" />
-            </Button>
-          </>
+          <Button
+            form={FORM_ID}
+            type="submit"
+            hasAutoFocus
+            isDisabled={!isFormValid}
+            isLoading={isCreating || isUpdating}
+            variety={ButtonVariety.Primary}
+          >
+            <FormattedMessage id="settings.almintegration.form.save" />
+          </Button>
         }
+        secondaryButton={<Button onClick={onClose}>{translate('close')}</Button>}
       />
-      {isConfirmModalOpen && (
-        <ConfirmProvisioningModal
-          allowUsersToSignUp={gitHubConfiguration?.allowUsersToSignUp}
-          isAllowListEmpty={isEmpty(gitHubConfiguration?.allowedOrganizations)}
-          onClose={() => setIsConfirmModalOpen(false)}
-          onConfirm={onSave}
-          provider={Provider.Github}
-          provisioningStatus={gitHubConfiguration?.provisioningType ?? ProvisioningType.jit}
-        />
-      )}
+
+      <ConfirmProvisioningModal
+        allowUsersToSignUp={gitHubConfiguration?.allowUsersToSignUp}
+        isAllowListEmpty={isEmpty(gitHubConfiguration?.allowedOrganizations)}
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={onSave}
+        provider={Provider.Github}
+        provisioningStatus={gitHubConfiguration?.provisioningType ?? ProvisioningType.jit}
+      />
     </>
   );
 }

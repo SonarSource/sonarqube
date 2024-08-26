@@ -28,11 +28,12 @@ interface Props {
     name: string;
     qualifier: string;
   };
+  isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }
 
-export default function PublicProjectDisclaimer({ component, onClose, onConfirm }: Props) {
+export default function PublicProjectDisclaimer({ component, isOpen, onClose, onConfirm }: Props) {
   const { qualifier } = component;
   return (
     <ConfirmModal
@@ -40,6 +41,7 @@ export default function PublicProjectDisclaimer({ component, onClose, onConfirm 
       header={translateWithParameters('projects_role.turn_x_to_public', component.name)}
       onClose={onClose}
       onConfirm={onConfirm}
+      isOpen={isOpen}
     >
       <FlagMessage className="sw-mb-4" variant="warning">
         {translate('projects_role.are_you_sure_to_turn_project_to_public.warning', qualifier)}

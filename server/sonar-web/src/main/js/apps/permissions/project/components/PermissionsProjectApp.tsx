@@ -378,13 +378,12 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
               isLoading={loading}
             />
 
-            {disclaimer && (
-              <PublicProjectDisclaimer
-                component={component}
-                onClose={this.handleCloseDisclaimer}
-                onConfirm={this.handleTurnProjectToPublic}
-              />
-            )}
+            <PublicProjectDisclaimer
+              component={component}
+              onClose={this.handleCloseDisclaimer}
+              onConfirm={this.handleTurnProjectToPublic}
+              isOpen={disclaimer}
+            />
           </div>
 
           <AllHoldersList

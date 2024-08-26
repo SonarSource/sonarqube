@@ -118,10 +118,10 @@ const ui = {
   confirmAutoProvisioningDialog: byRole('dialog', {
     name: 'settings.authentication.gitlab.confirm.AUTO_PROVISIONING',
   }),
-  confirmJitProvisioningDialog: byRole('dialog', {
+  confirmJitProvisioningDialog: byRole('alertdialog', {
     name: 'settings.authentication.gitlab.confirm.JIT',
   }),
-  confirmInsecureProvisioningDialog: byRole('dialog', {
+  confirmInsecureProvisioningDialog: byRole('alertdialog', {
     name: 'settings.authentication.gitlab.confirm.insecure',
   }),
   confirmProvisioningChange: byRole('button', {

@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, DangerButtonPrimary, Modal } from 'design-system';
+import * as Echoes from '@sonarsource/echoes-react';
+import { Button, ButtonVariety, ModalAlert } from '@sonarsource/echoes-react';
 import React from 'react';
 import { translate } from '../../helpers/l10n';
-import ClickEventBoundary from './ClickEventBoundary';
 
 export interface ConfirmModalProps<T> {
   cancelButtonText?: string;
@@ -29,6 +29,7 @@ export interface ConfirmModalProps<T> {
   confirmData?: T;
   confirmDisable?: boolean;
   isDestructive?: boolean;
+  isOpen: boolean;
   onConfirm: (data?: T) => void | Promise<void | Response>;
 }
 
@@ -38,6 +39,9 @@ interface Props<T> extends ConfirmModalProps<T> {
   onClose: () => void;
 }
 
+/** @deprecated Use {@link Echoes.ModalAlert | ModalAlert} from Echoes instead.
+ * See the {@link https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3465543707/Modals | Migration Guide}
+ */
 export default function ConfirmModal<T = string>(props: Readonly<Props<T>>) {
   const {
     header,
@@ -49,6 +53,7 @@ export default function ConfirmModal<T = string>(props: Readonly<Props<T>>) {
     confirmDisable,
     headerDescription,
     isDestructive,
+    isOpen,
     cancelButtonText = translate('cancel'),
   } = props;
 
@@ -61,37 +66,38 @@ export default function ConfirmModal<T = string>(props: Readonly<Props<T>>) {
     if (result) {
       return result.then(
         () => {
+          setSubmitting(false);
           onClose();
         },
         () => {
-          /* noop */
+          setSubmitting(false);
         },
       );
     }
 
+    setSubmitting(false);
     onClose();
     return undefined;
   }, [confirmData, onClose, onConfirm, setSubmitting]);
 
-  const Button = isDestructive ? DangerButtonPrimary : ButtonPrimary;
-
   return (
-    <Modal
-      headerTitle={header}
-      headerDescription={headerDescription}
-      body={
-        <ClickEventBoundary>
-          <>{children}</>
-        </ClickEventBoundary>
-      }
+    <ModalAlert
+      title={header}
+      description={headerDescription}
+      isOpen={isOpen}
+      onOpenChange={onClose}
+      content={children}
       primaryButton={
-        <Button autoFocus disabled={submitting || confirmDisable} onClick={handleSubmit}>
+        <Button
+          variety={isDestructive ? ButtonVariety.Danger : ButtonVariety.Primary}
+          isDisabled={submitting || confirmDisable}
+          isLoading={submitting}
+          onClick={handleSubmit}
+        >
           {confirmButtonText}
         </Button>
       }
       secondaryButtonLabel={cancelButtonText}
-      loading={submitting}
-      onClose={onClose}
     />
   );
 }
