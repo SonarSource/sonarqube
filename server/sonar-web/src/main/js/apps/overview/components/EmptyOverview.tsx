@@ -32,6 +32,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectTutorialLocation } from '../../../helpers/urls';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { useTaskForComponentQuery } from '../../../queries/component';
+import { AlmKeys } from '../../../types/alm-settings';
 import { BranchLike } from '../../../types/branch-like';
 import { Permissions } from '../../../types/permissions';
 import { TaskTypes } from '../../../types/tasks';
@@ -57,10 +58,17 @@ export function EmptyOverview(props: Readonly<EmptyOverviewProps>) {
   const hasQueuedAnalyses =
     data && data.queue.filter((task) => task.type === TaskTypes.Report).length > 0;
 
+  let permissionInSyncFor: AlmKeys.GitHub | AlmKeys.GitLab = AlmKeys.GitHub;
+
   const hasPermissionSyncInProgess =
     data &&
-    data.queue.filter((task) => task.type === TaskTypes.GithubProjectPermissionsProvisioning)
-      .length > 0;
+    data.queue.filter((task) => {
+      if (task.type === TaskTypes.GitlabProjectPermissionsProvisioning) {
+        permissionInSyncFor = AlmKeys.GitLab;
+        return true;
+      }
+      return task.type === TaskTypes.GithubProjectPermissionsProvisioning;
+    }).length > 0;
 
   React.useEffect(() => {
     if (currentUserCanScanProject || !isLoggedIn(currentUser)) {
@@ -102,7 +110,10 @@ export function EmptyOverview(props: Readonly<EmptyOverviewProps>) {
         <PageContentFontWrapper>
           <SynchInProgress>
             <Spinner className="sw-mr-2" />
-            {translate('provisioning.permission_synch_in_progress')}
+            {translateWithParameters(
+              'provisioning.permission_synch_in_progress',
+              translate('alm', permissionInSyncFor),
+            )}
           </SynchInProgress>
         </PageContentFontWrapper>
       </LargeCenteredLayout>

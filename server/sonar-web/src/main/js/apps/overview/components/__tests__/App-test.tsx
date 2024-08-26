@@ -119,7 +119,7 @@ describe('Permission provisioning', () => {
   afterEach(() => {
     jest.useRealTimers();
   });
-  it('should render warning when permission is sync', async () => {
+  it('should render warning when permission is sync for github', async () => {
     handlerCe.addTask(
       mockTask({
         componentKey: 'my-project',
@@ -132,7 +132,7 @@ describe('Permission provisioning', () => {
 
     jest.runOnlyPendingTimers();
     expect(
-      await screen.findByText('provisioning.permission_synch_in_progress'),
+      await screen.findByText('provisioning.permission_synch_in_progress.alm.github'),
     ).toBeInTheDocument();
 
     handlerCe.clearTasks();
@@ -148,7 +148,41 @@ describe('Permission provisioning', () => {
 
     await waitFor(() => {
       expect(
-        screen.queryByText('provisioning.permission_synch_in_progress'),
+        screen.queryByText('provisioning.permission_synch_in_progress.alm.github'),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it('should render warning when permission is sync for gitlab', async () => {
+    handlerCe.addTask(
+      mockTask({
+        componentKey: 'my-project',
+        type: TaskTypes.GitlabProjectPermissionsProvisioning,
+        status: TaskStatuses.InProgress,
+      }),
+    );
+
+    renderApp();
+
+    jest.runOnlyPendingTimers();
+    expect(
+      await screen.findByText('provisioning.permission_synch_in_progress.alm.gitlab'),
+    ).toBeInTheDocument();
+
+    handlerCe.clearTasks();
+    handlerCe.addTask(
+      mockTask({
+        componentKey: 'my-project',
+        type: TaskTypes.GitlabProjectPermissionsProvisioning,
+        status: TaskStatuses.Success,
+      }),
+    );
+
+    jest.runOnlyPendingTimers();
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText('provisioning.permission_synch_in_progress.alm.gitlab'),
       ).not.toBeInTheDocument();
     });
   });

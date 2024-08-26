@@ -23,6 +23,7 @@ export enum TaskTypes {
   GithubProvisioning = 'GITHUB_AUTH_PROVISIONING',
   GithubProjectPermissionsProvisioning = 'GITHUB_PROJECT_PERMISSIONS_PROVISIONING',
   GitlabProvisioning = 'GITLAB_AUTH_PROVISIONING',
+  GitlabProjectPermissionsProvisioning = 'GITLAB_PROJECT_PERMISSIONS_PROVISIONING',
   AppRefresh = 'APP_REFRESH',
   ViewRefresh = 'VIEW_REFRESH',
   ProjectExport = 'PROJECT_EXPORT',
