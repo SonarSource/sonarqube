@@ -38,8 +38,7 @@ public final class LegacyRatingProperties {
       PropertyDefinition.builder(LEGACY_RATING_MODE_ENABLED)
         .defaultValue(Boolean.FALSE.toString())
         .name("Enable legacy mode")
-        .description("Ratings have updated logic and have grades ranging from A to D, while the old scale ranges from A to E " +
-          "(<a href=\"https://docs.sonarsource.com/sonarqube/latest/user-guide/code-metrics/metrics-definition/\">read more about why</a>)." +
+        .description("Ratings have updated logic and have grades ranging from A to D, while the old scale ranges from A to E." +
           "<br><br>" +
           "If you choose legacy mode, ratings and other counts will be calculated using the former logic. The old ratings scale (A-E) is " +
           "deprecated and is scheduled for replacement by the new scale (A-D) in the next LTA.")
