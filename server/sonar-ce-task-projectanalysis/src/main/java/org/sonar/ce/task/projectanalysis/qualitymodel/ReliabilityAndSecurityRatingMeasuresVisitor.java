@@ -32,17 +32,17 @@ import org.sonar.ce.task.projectanalysis.measure.RatingMeasures;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.measure.Rating;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
+import org.sonar.server.measure.Rating;
 
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit.FILE;
-import static org.sonar.server.measure.Rating.RATING_BY_SEVERITY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY;
+import static org.sonar.server.measure.Rating.RATING_BY_SEVERITY;
 
 /**
  * Compute following measures for projects and descendants:
@@ -57,7 +57,8 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
   private final ComponentIssuesRepository componentIssuesRepository;
   private final Map<String, Metric> metricsByKey;
 
-  public ReliabilityAndSecurityRatingMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ComponentIssuesRepository componentIssuesRepository) {
+  public ReliabilityAndSecurityRatingMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository,
+    ComponentIssuesRepository componentIssuesRepository) {
     super(FILE, Order.POST_ORDER, CounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
     this.componentIssuesRepository = componentIssuesRepository;
@@ -106,9 +107,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
     componentIssuesRepository.getIssues(component)
       .stream()
       .filter(issue -> issue.resolution() == null)
-      .forEach(issue -> {
-        processIssue(path, issue);
-      });
+      .forEach(issue -> processIssue(path, issue));
   }
 
   private static void processIssue(Path<Counter> path, DefaultIssue issue) {
@@ -123,7 +122,8 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
     processSoftwareQualityRating(path, issue, SoftwareQuality.SECURITY, SOFTWARE_QUALITY_SECURITY_RATING_KEY);
   }
 
-  private static void processSoftwareQualityRating(Path<Counter> path, DefaultIssue issue, SoftwareQuality softwareQuality, String metricKey) {
+  private static void processSoftwareQualityRating(Path<Counter> path, DefaultIssue issue, SoftwareQuality softwareQuality,
+    String metricKey) {
     Severity severity = issue.impacts().get(softwareQuality);
     if (severity != null) {
       Rating rating = Rating.RATING_BY_SOFTWARE_QUALITY_SEVERITY.get(severity);
