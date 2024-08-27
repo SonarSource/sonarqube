@@ -116,20 +116,15 @@ export default function BubbleChartView(props: Readonly<Props>) {
           return undefined;
         }
 
+        const bubbleColor =
+          `bubble.${isLegacy ? 'legacy.' : ''}${(colorRating ?? 1) as BubbleColorVal}` as const;
+
         return {
           x,
           y,
           size,
-          backgroundColor: themeColor(
-            `bubble.${isLegacy ? 'legacy.' : ''}${colorRating as BubbleColorVal}`,
-          )({
-            theme,
-          }),
-          borderColor: themeContrast(
-            `bubble.${isLegacy ? 'legacy.' : ''}${colorRating as BubbleColorVal}`,
-          )({
-            theme,
-          }),
+          backgroundColor: themeColor(bubbleColor)({ theme }),
+          borderColor: themeContrast(bubbleColor)({ theme }),
           data: component,
           tooltip: getTooltip(component, { x, y, size, colors }, bubbleMetrics),
         };
