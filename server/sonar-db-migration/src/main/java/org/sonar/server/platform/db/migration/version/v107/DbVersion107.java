@@ -57,7 +57,10 @@ public class DbVersion107 implements DbVersion {
       .add(10_7_013, "Create 'cve_cwe' table", CreateCveCweTable.class)
       .add(10_7_014, "Create 'issues_dependency' table", CreateIssuesDependencyTable.class)
       .add(10_7_015, "Add 'ai_code_assurance' column to 'projects' table", AddAiCodeAssuranceColumnInProjectsTable.class)
-    ;
+      .add(10_7_016, "Create 'measures' table", CreateMeasuresTable.class)
+      // TODO data migration
+      .add(10_7_018, "Create primary key on 'measures' table", CreatePrimaryKeyOnMeasuresTable.class)
+      .add(10_7_019, "Create index on column 'branch_uuid' in 'measures' table", CreateIndexOnMeasuresTable.class);
   }
 
 }
