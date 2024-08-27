@@ -110,8 +110,9 @@ async function run() {
               res,
               {
                 target: proxyTarget,
+                changeOrigin: true,
               },
-              (e) => console.error('req error', e)
+              (e) => console.error('req error', e),
             );
           } else {
             handleStaticFileRequest(req, res);
