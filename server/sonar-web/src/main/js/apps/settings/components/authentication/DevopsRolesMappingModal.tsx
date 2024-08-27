@@ -47,7 +47,6 @@ import { GitHubMapping, GitLabMapping } from '../../../../types/provisioning';
 type RolesMapping = GitHubMapping[] | GitLabMapping[] | null;
 
 interface Props {
-  canAddCustomRole?: boolean;
   isLoading: boolean;
   mapping: RolesMapping;
   mappingFor: AlmKeys.GitHub | AlmKeys.GitLab;
@@ -71,11 +70,21 @@ const DEFAULT_CUSTOM_ROLE_PERMISSIONS: GitHubMapping['permissions'] = {
 };
 
 function PermissionRow(props: Readonly<PermissionCellProps>) {
-  const { mapping } = props;
+  const { list, mapping } = props;
   const isGitHubMapping = 'githubRole' in mapping;
   const role = isGitHubMapping ? mapping.githubRole : mapping.gitlabRole;
-  const isBaseRole = isGitHubMapping ? mapping.baseRole : true;
-  const list = props.list as GitHubMapping[];
+  const isBaseRole = mapping.baseRole;
+
+  const setMapping = () => {
+    if (isGitHubMapping) {
+      return props.setMapping(
+        (list as GitHubMapping[])?.filter((r) => r.githubRole !== role) ?? null,
+      );
+    }
+    return props.setMapping(
+      (list as GitLabMapping[])?.filter((r) => r.gitlabRole !== role) ?? null,
+    );
+  };
 
   return (
     <TableRowInteractive>
@@ -92,9 +101,7 @@ function PermissionRow(props: Readonly<PermissionCellProps>) {
                 'settings.authentication.configuration.roles_mapping.dialog.delete_custom_role',
                 role,
               )}
-              onClick={() => {
-                props.setMapping(list?.filter((r) => r.githubRole !== role) ?? null);
-              }}
+              onClick={setMapping}
               Icon={TrashIcon}
               size="small"
             />
@@ -107,11 +114,11 @@ function PermissionRow(props: Readonly<PermissionCellProps>) {
             checked={value}
             onCheck={(newValue) =>
               props.setMapping(
-                list?.map((item) =>
+                (list?.map((item) =>
                   item.id === mapping.id
                     ? { ...item, permissions: { ...item.permissions, [key]: newValue } }
                     : item,
-                ) ?? null,
+                ) ?? null) as RolesMapping,
               )
             }
           />
@@ -122,7 +129,7 @@ function PermissionRow(props: Readonly<PermissionCellProps>) {
 }
 
 export function DevopsRolesMappingModal(props: Readonly<Props>) {
-  const { canAddCustomRole, isLoading, mapping, mappingFor, onClose, roles, setMapping } = props;
+  const { isLoading, mapping, mappingFor, onClose, roles, setMapping } = props;
   const permissions = convertToPermissionDefinitions(
     PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
     'projects_role',
@@ -141,6 +148,7 @@ export function DevopsRolesMappingModal(props: Readonly<Props>) {
     e.preventDefault();
     const value = customRoleInput.trim();
     if (
+      mappingFor === AlmKeys.GitHub &&
       !(list as GitHubMapping[])?.some((el) =>
         el.baseRole ? el.githubRole.toLowerCase() === value.toLowerCase() : el.githubRole === value,
       )
@@ -154,14 +162,29 @@ export function DevopsRolesMappingModal(props: Readonly<Props>) {
         ...((list as GitHubMapping[]) ?? []),
       ]);
       setCustomRoleInput('');
+    } else if (
+      mappingFor === AlmKeys.GitLab &&
+      !(list as GitLabMapping[])?.some((el) =>
+        el.baseRole ? el.gitlabRole.toLowerCase() === value.toLowerCase() : el.gitlabRole === value,
+      )
+    ) {
+      setMapping([
+        {
+          id: customRoleInput,
+          gitlabRole: customRoleInput,
+          permissions: { ...DEFAULT_CUSTOM_ROLE_PERMISSIONS },
+        },
+        ...((list as GitLabMapping[]) ?? []),
+      ]);
+      setCustomRoleInput('');
     } else {
       setCustomRoleError(true);
     }
   };
 
-  const haveEmptyCustomRoles =
-    mappingFor === AlmKeys.GitHub &&
-    !!mapping?.some((el) => !el.baseRole && !Object.values(el.permissions).some(Boolean));
+  const haveEmptyCustomRoles = !!mapping?.some(
+    (el) => !el.baseRole && !Object.values(el.permissions).some(Boolean),
+  );
 
   const formBody = (
     <div className="sw-p-0">
@@ -184,79 +207,68 @@ export function DevopsRolesMappingModal(props: Readonly<Props>) {
         }
       >
         {list
-          ?.filter((r) => ('githubRole' in r ? r.baseRole : true))
+          ?.filter((r) => r.baseRole)
           .map((mapping) => (
             <PermissionRow key={mapping.id} mapping={mapping} setMapping={setMapping} list={list} />
           ))}
-        {canAddCustomRole && (
-          <>
-            <TableRow>
-              <ContentCell colSpan={7}>
-                <div className="sw-flex sw-items-end">
-                  <form className="sw-flex sw-items-end" onSubmit={validateAndAddCustomRole}>
-                    <FormField
-                      htmlFor="custom-role-input"
-                      label={translate(
-                        'settings.authentication.configuration.roles_mapping.dialog.add_custom_role',
-                      )}
-                    >
-                      <InputField
-                        className="sw-w-[300px]"
-                        id="custom-role-input"
-                        maxLength={4000}
-                        value={customRoleInput}
-                        onChange={(event) => {
-                          setCustomRoleError(false);
-                          setCustomRoleInput(event.currentTarget.value);
-                        }}
-                        type="text"
-                      />
-                    </FormField>
-                    <ButtonSecondary
-                      type="submit"
-                      className="sw-ml-2 sw-mr-4"
-                      disabled={customRoleInput.trim() === '' || customRoleError}
-                    >
-                      {translate('add_verb')}
-                    </ButtonSecondary>
-                  </form>
-                  {customRoleError && (
-                    <FlagMessage variant="error">
-                      {translate('settings.authentication.configuration.roles_mapping.role_exists')}
-                    </FlagMessage>
+        <TableRow>
+          <ContentCell colSpan={7}>
+            <div className="sw-flex sw-items-end">
+              <form className="sw-flex sw-items-end" onSubmit={validateAndAddCustomRole}>
+                <FormField
+                  htmlFor="custom-role-input"
+                  label={translate(
+                    'settings.authentication.configuration.roles_mapping.dialog.add_custom_role',
                   )}
-                </div>
-              </ContentCell>
-            </TableRow>
+                >
+                  <InputField
+                    className="sw-w-[300px]"
+                    id="custom-role-input"
+                    maxLength={4000}
+                    value={customRoleInput}
+                    onChange={(event) => {
+                      setCustomRoleError(false);
+                      setCustomRoleInput(event.currentTarget.value);
+                    }}
+                    type="text"
+                  />
+                </FormField>
+                <ButtonSecondary
+                  type="submit"
+                  className="sw-ml-2 sw-mr-4"
+                  disabled={customRoleInput.trim() === '' || customRoleError}
+                >
+                  {translate('add_verb')}
+                </ButtonSecondary>
+              </form>
+              {customRoleError && (
+                <FlagMessage variant="error">
+                  {translate('settings.authentication.configuration.roles_mapping.role_exists')}
+                </FlagMessage>
+              )}
+            </div>
+          </ContentCell>
+        </TableRow>
 
-            {list
-              ?.filter((r) => !r.baseRole)
-              .map((mapping) => (
-                <PermissionRow
-                  key={mapping.id}
-                  mapping={mapping}
-                  setMapping={setMapping}
-                  list={list}
-                />
-              ))}
-          </>
-        )}
+        {list
+          ?.filter((r) => !r.baseRole)
+          .map((mapping) => (
+            <PermissionRow key={mapping.id} mapping={mapping} setMapping={setMapping} list={list} />
+          ))}
       </Table>
-
-      {canAddCustomRole && (
-        <FlagMessage variant="info">
-          {translate(
-            'settings.authentication.github.configuration.roles_mapping.dialog.custom_roles_description',
-          )}
-        </FlagMessage>
-      )}
+      <FlagMessage variant="info">
+        {translateWithParameters(
+          'settings.authentication.configuration.roles_mapping.dialog.custom_roles_description',
+          translate('alm', mappingFor),
+        )}
+      </FlagMessage>
 
       <Spinner isLoading={isLoading} />
     </div>
   );
 
   return (
-    <Modal onClose={onClose} isLarge>
+    <Modal closeOnOverlayClick={!haveEmptyCustomRoles} onClose={onClose} isLarge>
       <Modal.Header title={header} />
       <Modal.Body>{formBody}</Modal.Body>
       <Modal.Footer

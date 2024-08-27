@@ -166,6 +166,21 @@ const ui = {
   }).byRole('button', {
     name: 'close',
   }),
+  customRoleInput: byRole('textbox', {
+    name: 'settings.authentication.configuration.roles_mapping.dialog.add_custom_role',
+  }),
+  customRoleAddBtn: byRole('dialog', {
+    name: 'settings.authentication.configuration.roles_mapping.dialog.title.alm.gitlab',
+  }).byRole('button', { name: 'add_verb' }),
+  roleExistsError: byRole('dialog', {
+    name: 'settings.authentication.configuration.roles_mapping.dialog.title.alm.gitlab',
+  }).byText('settings.authentication.configuration.roles_mapping.role_exists'),
+  emptyRoleError: byRole('dialog', {
+    name: 'settings.authentication.configuration.roles_mapping.dialog.title.alm.gitlab',
+  }).byText('settings.authentication.configuration.roles_mapping.empty_custom_role'),
+  deleteCustomRoleCustom2: byRole('button', {
+    name: 'settings.authentication.configuration.roles_mapping.dialog.delete_custom_role.custom2',
+  }),
   getMappingRowByRole: (text: string) =>
     ui.mappingRow.getAll().find((row) => within(row).queryByText(text) !== null),
 };
@@ -697,8 +712,7 @@ describe('Gitlab Provisioning', () => {
     await user.click(ui.autoProvisioningRadioButton.get());
     expect(await ui.editMappingButton.find()).toBeInTheDocument();
     await user.click(ui.editMappingButton.get());
-
-    expect(await ui.mappingRow.findAll()).toHaveLength(6);
+    expect(await ui.mappingRow.findAll()).toHaveLength(7);
 
     let guestCheckboxes = ui.mappingCheckbox.getAll(ui.getMappingRowByRole('guest'));
     let ownerCheckboxes = ui.mappingCheckbox.getAll(ui.getMappingRowByRole('owner'));
@@ -735,6 +749,108 @@ describe('Gitlab Provisioning', () => {
     expect(guestCheckboxes[0]).not.toBeChecked();
     expect(guestCheckboxes[5]).toBeChecked();
     expect(ownerCheckboxes[5]).not.toBeChecked();
+    await user.click(ui.mappingDialogClose.get());
+  });
+
+  it('should add/remove/update custom roles', async () => {
+    const user = userEvent.setup();
+    handler.setGitlabConfigurations([
+      mockGitlabConfiguration({
+        allowUsersToSignUp: false,
+        enabled: true,
+        provisioningType: ProvisioningType.auto,
+        allowedGroups: ['D12'],
+        isProvisioningTokenSet: true,
+      }),
+    ]);
+    handler.addGitLabCustomRole('custom1', ['user', 'codeViewer', 'scan']);
+    handler.addGitLabCustomRole('custom2', ['user', 'codeViewer', 'issueAdmin', 'scan']);
+    renderAuthentication([Feature.GitlabProvisioning]);
+
+    expect(await ui.saveProvisioning.find()).toBeDisabled();
+    await user.click(ui.editMappingButton.get());
+
+    const rows = (await ui.mappingRow.findAll()).filter(
+      (row) => within(row).queryAllByRole('checkbox').length > 0,
+    );
+
+    expect(rows).toHaveLength(7);
+
+    let custom1Checkboxes = ui.mappingCheckbox.getAll(ui.getMappingRowByRole('custom1'));
+
+    expect(custom1Checkboxes[0]).toBeChecked();
+    expect(custom1Checkboxes[1]).toBeChecked();
+    expect(custom1Checkboxes[2]).not.toBeChecked();
+    expect(custom1Checkboxes[3]).not.toBeChecked();
+    expect(custom1Checkboxes[4]).not.toBeChecked();
+    expect(custom1Checkboxes[5]).toBeChecked();
+
+    await user.click(custom1Checkboxes[1]);
+    await user.click(custom1Checkboxes[2]);
+
+    await user.click(ui.deleteCustomRoleCustom2.get());
+
+    expect(ui.customRoleInput.get()).toHaveValue('');
+    await user.type(ui.customRoleInput.get(), 'guest');
+    await user.click(ui.customRoleAddBtn.get());
+    expect(await ui.roleExistsError.find()).toBeInTheDocument();
+    expect(ui.customRoleAddBtn.get()).toBeDisabled();
+    await user.clear(ui.customRoleInput.get());
+    expect(ui.roleExistsError.query()).not.toBeInTheDocument();
+    await user.type(ui.customRoleInput.get(), 'custom1');
+    await user.click(ui.customRoleAddBtn.get());
+    expect(await ui.roleExistsError.find()).toBeInTheDocument();
+    expect(ui.customRoleAddBtn.get()).toBeDisabled();
+    await user.clear(ui.customRoleInput.get());
+    await user.type(ui.customRoleInput.get(), 'custom3');
+    expect(ui.roleExistsError.query()).not.toBeInTheDocument();
+    expect(ui.customRoleAddBtn.get()).toBeEnabled();
+    await user.click(ui.customRoleAddBtn.get());
+
+    let custom3Checkboxes = ui.mappingCheckbox.getAll(ui.getMappingRowByRole('custom3'));
+    expect(custom3Checkboxes[0]).toBeChecked();
+    expect(custom3Checkboxes[1]).not.toBeChecked();
+    expect(custom3Checkboxes[2]).not.toBeChecked();
+    expect(custom3Checkboxes[3]).not.toBeChecked();
+    expect(custom3Checkboxes[4]).not.toBeChecked();
+    expect(custom3Checkboxes[5]).not.toBeChecked();
+    await user.click(custom3Checkboxes[0]);
+    expect(await ui.emptyRoleError.find()).toBeInTheDocument();
+    expect(ui.mappingDialogClose.get()).toBeDisabled();
+    await user.click(custom3Checkboxes[1]);
+    expect(ui.emptyRoleError.query()).not.toBeInTheDocument();
+    expect(ui.mappingDialogClose.get()).toBeEnabled();
+    await user.click(ui.mappingDialogClose.get());
+
+    expect(await ui.saveProvisioning.find()).toBeEnabled();
+    await user.click(ui.saveProvisioning.get());
+
+    // Clean local mapping state
+    await user.click(ui.jitProvisioningRadioButton.get());
+    await user.click(ui.autoProvisioningRadioButton.get());
+
+    await user.click(ui.editMappingButton.get());
+
+    expect(
+      (await ui.mappingRow.findAll()).filter(
+        (row) => within(row).queryAllByRole('checkbox').length > 0,
+      ),
+    ).toHaveLength(7);
+    custom1Checkboxes = ui.mappingCheckbox.getAll(ui.getMappingRowByRole('custom1'));
+    custom3Checkboxes = ui.mappingCheckbox.getAll(ui.getMappingRowByRole('custom3'));
+    expect(ui.getMappingRowByRole('custom2')).toBeUndefined();
+    expect(custom1Checkboxes[0]).toBeChecked();
+    expect(custom1Checkboxes[1]).not.toBeChecked();
+    expect(custom1Checkboxes[2]).toBeChecked();
+    expect(custom1Checkboxes[3]).not.toBeChecked();
+    expect(custom1Checkboxes[4]).not.toBeChecked();
+    expect(custom1Checkboxes[5]).toBeChecked();
+    expect(custom3Checkboxes[0]).not.toBeChecked();
+    expect(custom3Checkboxes[1]).toBeChecked();
+    expect(custom3Checkboxes[2]).not.toBeChecked();
+    expect(custom3Checkboxes[3]).not.toBeChecked();
+    expect(custom3Checkboxes[4]).not.toBeChecked();
+    expect(custom3Checkboxes[5]).not.toBeChecked();
     await user.click(ui.mappingDialogClose.get());
   });
 });

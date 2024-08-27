@@ -22,8 +22,10 @@ import { mockGitlabConfiguration } from '../../helpers/mocks/alm-integrations';
 import { mockPaging } from '../../helpers/testMocks';
 import { GitLabMapping, GitlabConfiguration } from '../../types/provisioning';
 import {
+  addGitlabRolesMapping,
   createGitLabConfiguration,
   deleteGitLabConfiguration,
+  deleteGitlabRolesMapping,
   fetchGitLabConfiguration,
   fetchGitLabConfigurations,
   fetchGitlabRolesMapping,
@@ -37,9 +39,14 @@ const defaultGitlabConfiguration: GitlabConfiguration[] = [
   mockGitlabConfiguration({ id: '1', enabled: true }),
 ];
 
-const gitlabMappingMock = (id: string, permissions: (keyof GitLabMapping['permissions'])[]) => ({
+const gitlabMappingMock = (
+  id: string,
+  permissions: (keyof GitLabMapping['permissions'])[],
+  baseRole = false,
+) => ({
   id,
   gitlabRole: id,
+  baseRole,
   permissions: {
     user: permissions.includes('user'),
     codeViewer: permissions.includes('codeViewer'),
@@ -51,30 +58,23 @@ const gitlabMappingMock = (id: string, permissions: (keyof GitLabMapping['permis
 });
 
 const defaultMapping: GitLabMapping[] = [
-  gitlabMappingMock('guest', ['user', 'codeViewer']),
-  gitlabMappingMock('reporter', ['user', 'codeViewer']),
-  gitlabMappingMock('developer', [
-    'user',
-    'codeViewer',
-    'issueAdmin',
-    'securityHotspotAdmin',
-    'scan',
-  ]),
-  gitlabMappingMock('maintainer', [
-    'user',
-    'codeViewer',
-    'issueAdmin',
-    'securityHotspotAdmin',
-    'scan',
-  ]),
-  gitlabMappingMock('owner', [
-    'user',
-    'codeViewer',
-    'issueAdmin',
-    'securityHotspotAdmin',
-    'admin',
-    'scan',
-  ]),
+  gitlabMappingMock('guest', ['user', 'codeViewer'], true),
+  gitlabMappingMock('reporter', ['user', 'codeViewer'], true),
+  gitlabMappingMock(
+    'developer',
+    ['user', 'codeViewer', 'issueAdmin', 'securityHotspotAdmin', 'scan'],
+    true,
+  ),
+  gitlabMappingMock(
+    'maintainer',
+    ['user', 'codeViewer', 'issueAdmin', 'securityHotspotAdmin', 'scan'],
+    true,
+  ),
+  gitlabMappingMock(
+    'owner',
+    ['user', 'codeViewer', 'issueAdmin', 'securityHotspotAdmin', 'admin', 'scan'],
+    true,
+  ),
 ];
 
 export default class GitlabProvisioningServiceMock {
@@ -145,6 +145,22 @@ export default class GitlabProvisioningServiceMock {
     return Promise.resolve(
       this.gitlabMapping.find((mapping) => mapping.id === id) as GitLabMapping,
     );
+  };
+
+  handleAddGitlabRolesMapping: typeof addGitlabRolesMapping = (data) => {
+    const newRole = { ...data, id: data.gitlabRole };
+    this.gitlabMapping = [...this.gitlabMapping, newRole];
+
+    return Promise.resolve(newRole);
+  };
+
+  handleDeleteGitlabRolesMapping: typeof deleteGitlabRolesMapping = (id) => {
+    this.gitlabMapping = this.gitlabMapping.filter((el) => el.id !== id);
+    return Promise.resolve();
+  };
+
+  addGitLabCustomRole = (id: string, permissions: (keyof GitLabMapping['permissions'])[]) => {
+    this.gitlabMapping = [...this.gitlabMapping, gitlabMappingMock(id, permissions)];
   };
 
   reset = () => {

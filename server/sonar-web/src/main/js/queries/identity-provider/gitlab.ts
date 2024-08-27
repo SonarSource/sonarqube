@@ -22,8 +22,10 @@ import { addGlobalSuccessMessage } from 'design-system';
 import { isEqual, keyBy, partition, pick, unionBy } from 'lodash';
 import { getActivity } from '../../api/ce';
 import {
+  addGitlabRolesMapping,
   createGitLabConfiguration,
   deleteGitLabConfiguration,
+  deleteGitlabRolesMapping,
   fetchGitLabConfigurations,
   fetchGitlabRolesMapping,
   syncNowGitLabProvisioning,
@@ -220,21 +222,32 @@ export function useGitlabRolesMappingMutation() {
     mutationFn: async (mapping: GitLabMapping[]) => {
       const state = keyBy(client.getQueryData<GitLabMapping[]>(queryKey), (m) => m.id);
 
-      const [maybeChangedRoles] = partition(mapping, (m) => state[m.id]);
+      const [maybeChangedRoles, newRoles] = partition(mapping, (m) => state[m.id]);
       const changedRoles = maybeChangedRoles.filter((item) => !isEqual(item, state[item.id]));
+      const deletedRoles = Object.values(state).filter(
+        (m) => !m.baseRole && !mapping.some((cm) => m.id === cm.id),
+      );
 
       return {
         addedOrChanged: await Promise.all([
           ...changedRoles.map((data) =>
             updateGitlabRolesMapping(data.id, pick(data, 'permissions')),
           ),
+          ...newRoles.map((m) => addGitlabRolesMapping(m)),
         ]),
+        deleted: await Promise.all([
+          deletedRoles.map((dm) => deleteGitlabRolesMapping(dm.id)),
+        ]).then(() => deletedRoles.map((dm) => dm.id)),
       };
     },
-    onSuccess: ({ addedOrChanged }) => {
+    onSuccess: ({ addedOrChanged, deleted }) => {
       const state = client.getQueryData<GitLabMapping[]>(queryKey);
       if (state) {
-        const newData = unionBy(addedOrChanged, state, (el) => el.id);
+        const newData = unionBy(
+          addedOrChanged,
+          state.filter((s) => deleted.find((id) => id === s.id) === undefined),
+          (el) => el.id,
+        );
         client.setQueryData(queryKey, newData);
       }
       addGlobalSuccessMessage(

@@ -134,7 +134,7 @@ export function useGithubRolesMappingMutation() {
       if (state) {
         const newData = unionBy(
           addedOrChanged,
-          state.filter((s) => !deleted.find((id) => id === s.id)),
+          state.filter((s) => deleted.find((id) => id === s.id) === undefined),
           (el) => el.id,
         );
         client.setQueryData(queryKey, newData);

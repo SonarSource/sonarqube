@@ -82,3 +82,11 @@ export function updateGitlabRolesMapping(
     data,
   );
 }
+
+export function addGitlabRolesMapping(data: Omit<GitLabMapping, 'id'>) {
+  return axios.post<GitLabMapping>(GITLAB_PERMISSION_MAPPINGS, data);
+}
+
+export function deleteGitlabRolesMapping(role: string) {
+  return axios.delete(`${GITLAB_PERMISSION_MAPPINGS}/${encodeURIComponent(role)}`);
+}

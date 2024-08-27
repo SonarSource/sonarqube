@@ -33,7 +33,6 @@ export default function GitHubMappingModal(props: Readonly<Props>) {
   const { data: roles, isPending } = useGithubRolesMappingQuery();
   return (
     <DevopsRolesMappingModal
-      canAddCustomRole
       isLoading={isPending}
       mappingFor={AlmKeys.GitHub}
       roles={roles}
