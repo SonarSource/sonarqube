@@ -61,7 +61,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
-import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
+import static org.sonar.db.measure.MeasureTesting.newProjectMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
@@ -115,8 +115,8 @@ public class ProjectStatusActionIT {
       .setPeriodMode("last_version")
       .setPeriodParam("2015-12-07")
       .setPeriodDate(956789123987L));
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(gateDetailsMetric, mainBranch, snapshot)
+    dbClient.projectMeasureDao().insert(dbSession,
+      newProjectMeasureDto(gateDetailsMetric, mainBranch, snapshot)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"), StandardCharsets.UTF_8)));
     dbSession.commit();
 
@@ -142,11 +142,11 @@ public class ProjectStatusActionIT {
       .setPeriodParam("2016-12-07")
       .setPeriodDate(1_500L));
     MetricDto gateDetailsMetric = insertGateDetailMetric();
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(gateDetailsMetric, mainBranch, pastAnalysis)
+    dbClient.projectMeasureDao().insert(dbSession,
+      newProjectMeasureDto(gateDetailsMetric, mainBranch, pastAnalysis)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"))));
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(gateDetailsMetric, mainBranch, lastAnalysis)
+    dbClient.projectMeasureDao().insert(dbSession,
+      newProjectMeasureDto(gateDetailsMetric, mainBranch, lastAnalysis)
         .setData("not_used"));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
@@ -196,11 +196,11 @@ public class ProjectStatusActionIT {
       .setPeriodParam("2016-12-07")
       .setPeriodDate(1_500L));
     MetricDto gateDetailsMetric = insertGateDetailMetric();
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(gateDetailsMetric, branch, pastAnalysis)
+    dbClient.projectMeasureDao().insert(dbSession,
+      newProjectMeasureDto(gateDetailsMetric, branch, pastAnalysis)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionIT/measure_data.json"))));
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(gateDetailsMetric, branch, lastAnalysis)
+    dbClient.projectMeasureDao().insert(dbSession,
+      newProjectMeasureDto(gateDetailsMetric, branch, lastAnalysis)
         .setData("not_used"));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());

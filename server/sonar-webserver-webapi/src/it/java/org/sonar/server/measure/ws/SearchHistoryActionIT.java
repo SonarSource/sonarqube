@@ -35,7 +35,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -62,7 +62,7 @@ import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
-import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
+import static org.sonar.db.measure.MeasureTesting.newProjectMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
@@ -146,8 +146,8 @@ public class SearchHistoryActionIT {
 
   @Test
   public void return_metrics() {
-    dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project.mainBranchUuid(), analysis).setValue(42.0d));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(acceptedIssuesMetric, project.mainBranchUuid(), analysis).setValue(10.0d));
+    dbClient.projectMeasureDao().insert(dbSession, newProjectMeasureDto(complexityMetric, project.mainBranchUuid(), analysis).setValue(42.0d));
+    dbClient.projectMeasureDao().insert(dbSession, newProjectMeasureDto(acceptedIssuesMetric, project.mainBranchUuid(), analysis).setValue(10.0d));
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
@@ -164,7 +164,7 @@ public class SearchHistoryActionIT {
 
   @Test
   public void return_renamed_and_deprecated_metric() {
-    dbClient.measureDao().insert(dbSession, newMeasureDto(acceptedIssuesMetric, project.mainBranchUuid(), analysis).setValue(10.0d));
+    dbClient.projectMeasureDao().insert(dbSession, newProjectMeasureDto(acceptedIssuesMetric, project.mainBranchUuid(), analysis).setValue(10.0d));
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
@@ -183,13 +183,13 @@ public class SearchHistoryActionIT {
   public void return_measures() {
     SnapshotDto laterAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project.getMainBranchDto()).setCreatedAt(analysis.getCreatedAt() + 42_000));
     ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent()));
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(complexityMetric, project.mainBranchUuid(), analysis).setValue(101d),
-      newMeasureDto(complexityMetric, project.mainBranchUuid(), laterAnalysis).setValue(100d),
-      newMeasureDto(complexityMetric, file, analysis).setValue(42d),
-      newMeasureDto(nclocMetric, project.mainBranchUuid(), analysis).setValue(201d),
-      newMeasureDto(newViolationMetric, project.mainBranchUuid(), analysis).setValue(5d),
-      newMeasureDto(newViolationMetric, project.mainBranchUuid(), laterAnalysis).setValue(10d));
+    dbClient.projectMeasureDao().insert(dbSession,
+      newProjectMeasureDto(complexityMetric, project.mainBranchUuid(), analysis).setValue(101d),
+      newProjectMeasureDto(complexityMetric, project.mainBranchUuid(), laterAnalysis).setValue(100d),
+      newProjectMeasureDto(complexityMetric, file, analysis).setValue(42d),
+      newProjectMeasureDto(nclocMetric, project.mainBranchUuid(), analysis).setValue(201d),
+      newProjectMeasureDto(newViolationMetric, project.mainBranchUuid(), analysis).setValue(5d),
+      newProjectMeasureDto(newViolationMetric, project.mainBranchUuid(), laterAnalysis).setValue(10d));
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
@@ -228,7 +228,7 @@ public class SearchHistoryActionIT {
       .registerBranches(project.getMainBranchDto());
     List<String> analysisDates = LongStream.rangeClosed(1, 9)
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project.mainBranchUuid()).setCreatedAt(i * 1_000_000_000)))
-      .peek(a -> dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project.mainBranchUuid(), a).setValue(101d)))
+      .peek(a -> dbClient.projectMeasureDao().insert(dbSession, newProjectMeasureDto(complexityMetric, project.mainBranchUuid(), a).setValue(101d)))
       .map(a -> formatDateTime(a.getCreatedAt()))
       .toList();
     db.commit();
@@ -253,7 +253,7 @@ public class SearchHistoryActionIT {
       .registerBranches(project.getMainBranchDto());
     List<String> analysisDates = LongStream.rangeClosed(1, 9)
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project.mainBranchUuid()).setCreatedAt(System2.INSTANCE.now() + i * 1_000_000_000L)))
-      .peek(a -> dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project.mainBranchUuid(), a).setValue(Double.valueOf(a.getCreatedAt()))))
+      .peek(a -> dbClient.projectMeasureDao().insert(dbSession, newProjectMeasureDto(complexityMetric, project.mainBranchUuid(), a).setValue(Double.valueOf(a.getCreatedAt()))))
       .map(a -> formatDateTime(a.getCreatedAt()))
       .toList();
     db.commit();
@@ -322,7 +322,7 @@ public class SearchHistoryActionIT {
     userSession.addProjectBranchMapping(project.projectUuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.mainBranchUuid()));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
-    MeasureDto measure = db.measures().insertMeasure(file, analysis, nclocMetric, m -> m.setValue(2d));
+    ProjectMeasureDto measure = db.measures().insertProjectMeasure(file, analysis, nclocMetric, m -> m.setValue(2d));
 
     SearchHistoryResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
@@ -346,7 +346,7 @@ public class SearchHistoryActionIT {
     userSession.addProjectBranchMapping(project.projectUuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.mainBranchUuid()));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
-    MeasureDto measure = db.measures().insertMeasure(file, analysis, nclocMetric, m -> m.setValue(2d));
+    ProjectMeasureDto measure = db.measures().insertProjectMeasure(file, analysis, nclocMetric, m -> m.setValue(2d));
 
     SearchHistoryResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
@@ -474,10 +474,10 @@ public class SearchHistoryActionIT {
     long now = parseDateTime("2017-01-23T17:00:53+0100").getTime();
     LongStream.rangeClosed(0, 2)
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project.getMainBranchDto()).setCreatedAt(now + i * 24 * 1_000 * 60 * 60)))
-      .forEach(analysis -> dbClient.measureDao().insert(dbSession,
-        newMeasureDto(complexityMetric, project.mainBranchUuid(), analysis).setValue(45d),
-        newMeasureDto(newViolationMetric, project.mainBranchUuid(), analysis).setValue(46d),
-        newMeasureDto(nclocMetric, project.mainBranchUuid(), analysis).setValue(47d)));
+      .forEach(locAnalysis -> dbClient.projectMeasureDao().insert(dbSession,
+        newProjectMeasureDto(complexityMetric, project.mainBranchUuid(), locAnalysis).setValue(45d),
+        newProjectMeasureDto(newViolationMetric, project.mainBranchUuid(), locAnalysis).setValue(46d),
+        newProjectMeasureDto(nclocMetric, project.mainBranchUuid(), locAnalysis).setValue(47d)));
     db.commit();
 
     String result = ws.newRequest()
@@ -490,7 +490,7 @@ public class SearchHistoryActionIT {
 
   @Test
   public void measure_without_values() {
-    dbClient.measureDao().insert(dbSession, newMeasureDto(stringMetric, project.mainBranchUuid(), analysis).setValue(null).setData(null));
+    dbClient.projectMeasureDao().insert(dbSession, newProjectMeasureDto(stringMetric, project.mainBranchUuid(), analysis).setValue(null).setData(null));
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()

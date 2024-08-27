@@ -33,12 +33,12 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.measure.MeasureDao;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDao;
+import org.sonar.db.measure.ProjectMeasureDto;
 
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
-public class PersistMeasuresStep implements ComputationStep {
+public class PersistProjectMeasuresStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final MetricRepository metricRepository;
@@ -46,7 +46,7 @@ public class PersistMeasuresStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final MeasureRepository measureRepository;
 
-  public PersistMeasuresStep(DbClient dbClient, MetricRepository metricRepository, MeasureToMeasureDto measureToMeasureDto, TreeRootHolder treeRootHolder,
+  public PersistProjectMeasuresStep(DbClient dbClient, MetricRepository metricRepository, MeasureToMeasureDto measureToMeasureDto, TreeRootHolder treeRootHolder,
     MeasureRepository measureRepository) {
     this.dbClient = dbClient;
     this.metricRepository = metricRepository;
@@ -57,7 +57,7 @@ public class PersistMeasuresStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Persist measures";
+    return "Persist project measures";
   }
 
   @Override
@@ -101,7 +101,7 @@ public class PersistMeasuresStep implements ComputationStep {
 
     private void persistMeasures(Component component) {
       Map<String, Measure> measures = measureRepository.getRawMeasures(component);
-      MeasureDao measureDao = dbClient.measureDao();
+      ProjectMeasureDao projectMeasureDao = dbClient.projectMeasureDao();
 
       for (Map.Entry<String, Measure> e : measures.entrySet()) {
         Measure measure = e.getValue();
@@ -111,8 +111,8 @@ public class PersistMeasuresStep implements ComputationStep {
         String metricKey = e.getKey();
         Metric metric = metricRepository.getByKey(metricKey);
         if (!metric.isDeleteHistoricalData()) {
-          MeasureDto measureDto = measureToMeasureDto.toMeasureDto(measure, metric, component);
-          measureDao.insert(session, measureDto);
+          ProjectMeasureDto projectMeasureDto = measureToMeasureDto.toProjectMeasureDto(measure, metric, component);
+          projectMeasureDao.insert(session, projectMeasureDto);
           inserts++;
         }
       }

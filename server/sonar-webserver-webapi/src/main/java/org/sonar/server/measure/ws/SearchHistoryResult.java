@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.Common;
 
@@ -43,7 +43,7 @@ public class SearchHistoryResult {
   private final int pageSize;
   private List<SnapshotDto> analyses;
   private List<MetricDto> metrics;
-  private List<MeasureDto> measures;
+  private List<ProjectMeasureDto> measures;
   private Common.Paging paging;
   private ComponentDto component;
   private List<String> requestedMetrics;
@@ -83,14 +83,14 @@ public class SearchHistoryResult {
     return this;
   }
 
-  public List<MeasureDto> getMeasures() {
+  public List<ProjectMeasureDto> getMeasures() {
     return requireNonNull(measures);
   }
 
-  public SearchHistoryResult setMeasures(List<MeasureDto> measures) {
+  public SearchHistoryResult setMeasures(List<ProjectMeasureDto> measures) {
     Set<String> analysisUuids = analyses.stream().map(SnapshotDto::getUuid).collect(Collectors.toSet());
-    ImmutableList.Builder<MeasureDto> measuresBuilder = ImmutableList.builder();
-    List<MeasureDto> filteredMeasures = measures.stream()
+    ImmutableList.Builder<ProjectMeasureDto> measuresBuilder = ImmutableList.builder();
+    List<ProjectMeasureDto> filteredMeasures = measures.stream()
       .filter(measure -> analysisUuids.contains(measure.getAnalysisUuid()))
       .toList();
     measuresBuilder.addAll(filteredMeasures);
@@ -108,7 +108,7 @@ public class SearchHistoryResult {
    * <li>metric is optimized for best value</li>
    * </ul>
    */
-  private List<MeasureDto> computeBestValues(List<MeasureDto> measures) {
+  private List<ProjectMeasureDto> computeBestValues(List<ProjectMeasureDto> measures) {
     if (!isEligibleForBestValue().test(component)) {
       return emptyList();
     }
@@ -116,9 +116,9 @@ public class SearchHistoryResult {
     requireNonNull(metrics);
     requireNonNull(analyses);
 
-    Table<String, String, MeasureDto> measuresByMetricUuidAndAnalysisUuid = HashBasedTable.create(metrics.size(), analyses.size());
+    Table<String, String, ProjectMeasureDto> measuresByMetricUuidAndAnalysisUuid = HashBasedTable.create(metrics.size(), analyses.size());
     measures.forEach(measure -> measuresByMetricUuidAndAnalysisUuid.put(measure.getMetricUuid(), measure.getAnalysisUuid(), measure));
-    List<MeasureDto> bestValues = new ArrayList<>();
+    List<ProjectMeasureDto> bestValues = new ArrayList<>();
     metrics.stream()
       .filter(isOptimizedForBestValue())
       .forEach(metric -> analyses.stream()
@@ -129,8 +129,8 @@ public class SearchHistoryResult {
     return bestValues;
   }
 
-  private static MeasureDto toBestValue(MetricDto metric, SnapshotDto analysis) {
-    return new MeasureDto()
+  private static ProjectMeasureDto toBestValue(MetricDto metric, SnapshotDto analysis) {
+    return new ProjectMeasureDto()
       .setMetricUuid(metric.getUuid())
       .setAnalysisUuid(analysis.getUuid())
       .setValue(metric.getBestValue());

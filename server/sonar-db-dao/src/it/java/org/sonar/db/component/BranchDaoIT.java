@@ -131,7 +131,7 @@ class BranchDaoIT {
 
     MetricDto qg = db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
     SnapshotDto analysis = db.components().insertSnapshot(dto);
-    db.measures().insertMeasure(dto, analysis, qg, pm -> pm.setData("OK"));
+    db.measures().insertProjectMeasure(dto, analysis, qg, pm -> pm.setData("OK"));
 
     var branchMeasures = underTest.selectBranchMeasuresWithCaycMetric(dbSession);
 

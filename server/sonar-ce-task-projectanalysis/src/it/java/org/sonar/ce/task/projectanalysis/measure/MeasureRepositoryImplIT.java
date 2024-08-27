@@ -46,7 +46,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
@@ -144,8 +144,8 @@ public class MeasureRepositoryImplIT {
     SnapshotDto oldAnalysis = dbTester.components().insertSnapshot(project, t -> t.setLast(false));
     MetricDto metric1 = dbTester.measures().insertMetric(t -> t.setValueType(org.sonar.api.measures.Metric.ValueType.STRING.name()));
     MetricDto metric2 = dbTester.measures().insertMetric(t -> t.setValueType(org.sonar.api.measures.Metric.ValueType.STRING.name()));
-    dbClient.measureDao().insert(dbSession, createMeasureDto(metric1.getUuid(), FILE_COMPONENT.getUuid(), lastAnalysis.getUuid()));
-    dbClient.measureDao().insert(dbSession, createMeasureDto(metric1.getUuid(), FILE_COMPONENT.getUuid(), oldAnalysis.getUuid()));
+    dbClient.projectMeasureDao().insert(dbSession, createMeasureDto(metric1.getUuid(), FILE_COMPONENT.getUuid(), lastAnalysis.getUuid()));
+    dbClient.projectMeasureDao().insert(dbSession, createMeasureDto(metric1.getUuid(), FILE_COMPONENT.getUuid(), oldAnalysis.getUuid()));
     dbSession.commit();
 
     // metric 1 is associated to snapshot with "last=true"
@@ -398,8 +398,8 @@ public class MeasureRepositoryImplIT {
     assertThat(rawMeasures.get(METRIC_KEY_2)).extracting(Measure::getStringValue).isEqualTo("some value");
   }
 
-  private static MeasureDto createMeasureDto(String metricUuid, String componentUuid, String analysisUuid) {
-    return new MeasureDto()
+  private static ProjectMeasureDto createMeasureDto(String metricUuid, String componentUuid, String analysisUuid) {
+    return new ProjectMeasureDto()
       .setComponentUuid(componentUuid)
       .setAnalysisUuid(analysisUuid)
       .setData(SOME_DATA)

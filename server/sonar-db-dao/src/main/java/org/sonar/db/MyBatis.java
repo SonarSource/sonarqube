@@ -83,8 +83,8 @@ import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.issue.PrIssueDto;
 import org.sonar.db.measure.LargestBranchNclocDto;
 import org.sonar.db.measure.LiveMeasureMapper;
-import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.MeasureMapper;
+import org.sonar.db.measure.ProjectMeasureDto;
+import org.sonar.db.measure.ProjectMeasureMapper;
 import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.metric.MetricMapper;
 import org.sonar.db.newcodeperiod.NewCodePeriodMapper;
@@ -226,7 +226,7 @@ public class MyBatis {
     confBuilder.loadAlias("Impact", ImpactDto.class);
     confBuilder.loadAlias("Issue", IssueDto.class);
     confBuilder.loadAlias("NewCodeReferenceIssue", NewCodeReferenceIssueDto.class);
-    confBuilder.loadAlias("Measure", MeasureDto.class);
+    confBuilder.loadAlias("ProjectMeasure", ProjectMeasureDto.class);
     confBuilder.loadAlias("LargestBranchNclocDto", LargestBranchNclocDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
     confBuilder.loadAlias("PermissionTemplateCharacteristic", PermissionTemplateCharacteristicDto.class);
@@ -304,7 +304,7 @@ public class MyBatis {
       IssueChangeMapper.class,
       IssueMapper.class,
       IssueFixedMapper.class,
-      MeasureMapper.class,
+      ProjectMeasureMapper.class,
       MetricMapper.class,
       NewCodePeriodMapper.class,
       NotificationQueueMapper.class,

@@ -30,7 +30,11 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.toLevel;
 
 public class LiveMeasureDtoToMeasure {
 
-  public Optional<Measure> toMeasure(@Nullable LiveMeasureDto measureDto, Metric metric) {
+  private LiveMeasureDtoToMeasure() {
+    // utility class
+  }
+
+  public static Optional<Measure> toMeasure(@Nullable LiveMeasureDto measureDto, Metric metric) {
     requireNonNull(metric);
     if (measureDto == null) {
       return Optional.empty();

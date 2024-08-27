@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 
-<mapper namespace="org.sonar.db.measure.MeasureMapper">
+<mapper namespace="org.sonar.db.measure.ProjectMeasureMapper">
 
   <sql id="measureColumns">
     pm.uuid as uuid,
@@ -15,7 +15,7 @@
     pm.measure_data as dataValue
   </sql>
 
-  <select id="selectLastMeasure" parameterType="map" resultType="Measure">
+  <select id="selectLastMeasure" parameterType="map" resultType="ProjectMeasure">
     select <include refid="measureColumns"/>
     from project_measures pm
     inner join metrics m on m.uuid = pm.metric_uuid
@@ -26,7 +26,7 @@
     s.islast= ${_true}
   </select>
 
-  <select id="selectMeasure" parameterType="map" resultType="Measure">
+  <select id="selectMeasure" parameterType="map" resultType="ProjectMeasure">
     select <include refid="measureColumns"/>
     from project_measures pm
     inner join metrics m on m.uuid = pm.metric_uuid
@@ -44,7 +44,7 @@
     </if>
   </sql>
 
-  <select id="selectPastMeasuresOnSeveralAnalyses" parameterType="map" resultType="Measure">
+  <select id="selectPastMeasuresOnSeveralAnalyses" parameterType="map" resultType="ProjectMeasure">
     select <include refid="measureColumns"/>
     from project_measures pm
     inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
@@ -60,7 +60,7 @@
     and analysis.status=#{query.status, jdbcType=VARCHAR}
   </select>
 
-  <insert id="insert" parameterType="Measure" useGeneratedKeys="false">
+  <insert id="insert" parameterType="ProjectMeasure" useGeneratedKeys="false">
     insert into project_measures (
     uuid,
     value,

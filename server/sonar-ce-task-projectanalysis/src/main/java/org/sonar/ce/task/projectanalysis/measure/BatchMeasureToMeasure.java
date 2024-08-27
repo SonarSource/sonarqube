@@ -31,7 +31,11 @@ import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 public class BatchMeasureToMeasure {
 
-  public Optional<Measure> toMeasure(@Nullable ScannerReport.Measure batchMeasure, Metric metric) {
+  private BatchMeasureToMeasure() {
+    // utility class
+  }
+
+  public static Optional<Measure> toMeasure(@Nullable ScannerReport.Measure batchMeasure, Metric metric) {
     Objects.requireNonNull(metric);
     if (batchMeasure == null) {
       return Optional.empty();

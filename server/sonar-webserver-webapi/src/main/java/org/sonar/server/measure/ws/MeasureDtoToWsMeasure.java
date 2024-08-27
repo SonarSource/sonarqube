@@ -21,7 +21,7 @@ package org.sonar.server.measure.ws;
 
 import javax.annotation.Nullable;
 import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.Measure;
@@ -36,10 +36,10 @@ class MeasureDtoToWsMeasure {
     // static methods
   }
 
-  static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metricDto, MeasureDto measureDto) {
-    double value = measureDto.getValue() == null ? Double.NaN : measureDto.getValue();
+  static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metricDto, ProjectMeasureDto projectMeasureDto) {
+    double value = projectMeasureDto.getValue() == null ? Double.NaN : projectMeasureDto.getValue();
     boolean onNewCode = metricDto.getKey().startsWith("new_");
-    updateMeasureBuilder(measureBuilder, metricDto, value, measureDto.getData(), onNewCode);
+    updateMeasureBuilder(measureBuilder, metricDto, value, projectMeasureDto.getData(), onNewCode);
   }
 
   static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metricDto, LiveMeasureDto measureDto) {

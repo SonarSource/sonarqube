@@ -318,10 +318,10 @@ class PurgeCommandsIT {
     int count = 5;
     Stream.of(metric1, metric2)
       .forEach(metric -> IntStream.range(0, count).forEach(i -> {
-        dbTester.measures().insertMeasure(projectOrView, analysis1, metric);
-        dbTester.measures().insertMeasure(projectOrView, analysis2, metric);
-        dbTester.measures().insertMeasure(otherProject, otherAnalysis1, metric);
-        dbTester.measures().insertMeasure(otherProject, otherAnalysis2, metric);
+        dbTester.measures().insertProjectMeasure(projectOrView, analysis1, metric);
+        dbTester.measures().insertProjectMeasure(projectOrView, analysis2, metric);
+        dbTester.measures().insertProjectMeasure(otherProject, otherAnalysis1, metric);
+        dbTester.measures().insertProjectMeasure(otherProject, otherAnalysis2, metric);
       }));
 
     underTest.deleteAnalyses(projectOrView.uuid());
@@ -457,8 +457,8 @@ class PurgeCommandsIT {
     int count = 5;
     Stream.of(metric1, metric2)
       .forEach(metric -> IntStream.range(0, count).forEach(i -> {
-        dbTester.measures().insertMeasure(projectOrView, analysis, metric);
-        dbTester.measures().insertMeasure(projectOrView, otherAnalysis, metric);
+        dbTester.measures().insertProjectMeasure(projectOrView, analysis, metric);
+        dbTester.measures().insertProjectMeasure(projectOrView, otherAnalysis, metric);
       }));
 
     underTest.deleteAnalyses(singletonList(analysis.getUuid()));

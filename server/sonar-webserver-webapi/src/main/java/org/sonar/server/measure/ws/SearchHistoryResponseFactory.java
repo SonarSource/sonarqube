@@ -28,7 +28,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.Measures.SearchHistoryResponse;
 import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryMeasure;
@@ -64,7 +64,7 @@ class SearchHistoryResponseFactory {
   private UnaryOperator<SearchHistoryResponse.Builder> addMeasures() {
     Map<String, MetricDto> metricsByUuid = result.getMetrics().stream().collect(Collectors.toMap(MetricDto::getUuid, Function.identity()));
     Map<String, SnapshotDto> analysesByUuid = result.getAnalyses().stream().collect(Collectors.toMap(SnapshotDto::getUuid, Function.identity()));
-    Table<MetricDto, SnapshotDto, MeasureDto> measuresByMetricByAnalysis = HashBasedTable.create(result.getMetrics().size(), result.getAnalyses().size());
+    Table<MetricDto, SnapshotDto, ProjectMeasureDto> measuresByMetricByAnalysis = HashBasedTable.create(result.getMetrics().size(), result.getAnalyses().size());
     result.getMeasures().forEach(m -> measuresByMetricByAnalysis.put(metricsByUuid.get(m.getMetricUuid()), analysesByUuid.get(m.getAnalysisUuid()), m));
 
     return response -> {
@@ -79,7 +79,7 @@ class SearchHistoryResponseFactory {
     };
   }
 
-  private UnaryOperator<MetricDto> addValues(Map<SnapshotDto, MeasureDto> measuresByAnalysis) {
+  private UnaryOperator<MetricDto> addValues(Map<SnapshotDto, ProjectMeasureDto> measuresByAnalysis) {
     return metric -> {
       result.getAnalyses().stream()
         .map(clearValue())
@@ -98,7 +98,7 @@ class SearchHistoryResponseFactory {
     };
   }
 
-  private SnapshotDto addValue(SnapshotDto analysis, MetricDto dbMetric, @Nullable MeasureDto dbMeasure) {
+  private SnapshotDto addValue(SnapshotDto analysis, MetricDto dbMetric, @Nullable ProjectMeasureDto dbMeasure) {
     if (dbMeasure != null) {
       String measureValue = formatMeasureValue(dbMeasure, dbMetric);
       if (measureValue != null) {

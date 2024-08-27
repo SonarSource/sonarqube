@@ -19,38 +19,27 @@
  */
 package org.sonar.db.measure;
 
+import java.util.List;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.apache.ibatis.annotations.Param;
 
-import static java.util.Objects.requireNonNull;
-
-public class PastMeasureDto {
-
-  private String metricUuid;
+public interface ProjectMeasureMapper {
 
   @CheckForNull
-  private Double value;
+  ProjectMeasureDto selectLastMeasure(
+    @Param("componentUuid") String componentUuid,
+    @Param("metricKey") String metricKey
+  );
 
-  public double getValue() {
-    requireNonNull(value);
-    return value;
-  }
+  @CheckForNull
+  ProjectMeasureDto selectMeasure(
+    @Param("analysisUuid") String analysisUuid,
+    @Param("componentUuid") String componentUuid,
+    @Param("metricKey") String metricKey
+  );
 
-  PastMeasureDto setValue(@Nullable Double value) {
-    this.value = value;
-    return this;
-  }
+  List<ProjectMeasureDto> selectPastMeasuresOnSeveralAnalyses(@Param("query") PastMeasureQuery query);
 
-  public boolean hasValue() {
-    return value != null;
-  }
+  void insert(ProjectMeasureDto projectMeasureDto);
 
-  public String getMetricUuid() {
-    return metricUuid;
-  }
-
-  PastMeasureDto setMetricUuid(String i) {
-    this.metricUuid = i;
-    return this;
-  }
 }

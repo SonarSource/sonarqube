@@ -19,39 +19,31 @@
  */
 package org.sonar.db.measure;
 
+import com.google.common.base.Strings;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class PastMeasureDtoTest {
+class ProjectMeasureDtoTest {
+
+  ProjectMeasureDto underTest = new ProjectMeasureDto();
 
   @Test
   void test_getter_and_setter() {
-    PastMeasureDto dto = new PastMeasureDto()
-      .setValue(1d)
-      .setMetricUuid("2");
-
-    assertThat(dto.hasValue()).isTrue();
-    assertThat(dto.getValue()).isEqualTo(1d);
-    assertThat(dto.getMetricUuid()).isEqualTo("2");
+    underTest
+      .setValue(2d)
+      .setData("text value");
+    assertThat(underTest.getValue()).isEqualTo(2d);
+    assertThat(underTest.getData()).isNotNull();
   }
 
   @Test
-  void test_has_value() {
-    PastMeasureDto measureWithValue = new PastMeasureDto()
-      .setValue(1d)
-      .setMetricUuid("2");
-    assertThat(measureWithValue.hasValue()).isTrue();
-
-    PastMeasureDto measureWithoutValue = new PastMeasureDto()
-      .setMetricUuid("2");
-    assertThat(measureWithoutValue.hasValue()).isFalse();
+  void value_with_text_over_4000_characters() {
+    assertThat(underTest.setData(Strings.repeat("1", 4001)).getData()).isNotNull();
   }
 
   @Test
-  void get_value_throw_a_NPE_if_value_is_null() {
-    assertThatThrownBy(() -> new PastMeasureDto().getValue())
-      .isInstanceOf(NullPointerException.class);
+  void text_value_under_4000_characters() {
+    assertThat(underTest.setData("text value").getData()).isEqualTo("text value");
   }
 }

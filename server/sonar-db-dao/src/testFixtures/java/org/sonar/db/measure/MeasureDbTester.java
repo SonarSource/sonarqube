@@ -31,7 +31,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
-import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
+import static org.sonar.db.measure.MeasureTesting.newProjectMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 public class MeasureDbTester {
@@ -44,21 +44,21 @@ public class MeasureDbTester {
   }
 
   @SafeVarargs
-  public final MeasureDto insertMeasure(ComponentDto component, SnapshotDto analysis, MetricDto metricDto, Consumer<MeasureDto>... consumers) {
-    MeasureDto measureDto = newMeasureDto(metricDto, component, analysis);
-    Arrays.stream(consumers).forEach(c -> c.accept(measureDto));
-    dbClient.measureDao().insert(dbSession, measureDto);
+  public final ProjectMeasureDto insertProjectMeasure(ComponentDto component, SnapshotDto analysis, MetricDto metricDto, Consumer<ProjectMeasureDto>... consumers) {
+    ProjectMeasureDto projectMeasureDto = newProjectMeasureDto(metricDto, component, analysis);
+    Arrays.stream(consumers).forEach(c -> c.accept(projectMeasureDto));
+    dbClient.projectMeasureDao().insert(dbSession, projectMeasureDto);
     dbSession.commit();
-    return measureDto;
+    return projectMeasureDto;
   }
 
   @SafeVarargs
-  public final MeasureDto insertMeasure(BranchDto branchDto, SnapshotDto analysis, MetricDto metricDto, Consumer<MeasureDto>... consumers) {
-    MeasureDto measureDto = newMeasureDto(metricDto, branchDto.getUuid(), analysis);
-    Arrays.stream(consumers).forEach(c -> c.accept(measureDto));
-    dbClient.measureDao().insert(dbSession, measureDto);
+  public final ProjectMeasureDto insertProjectMeasure(BranchDto branchDto, SnapshotDto analysis, MetricDto metricDto, Consumer<ProjectMeasureDto>... consumers) {
+    ProjectMeasureDto projectMeasureDto = MeasureTesting.newProjectMeasureDto(metricDto, branchDto.getUuid(), analysis);
+    Arrays.stream(consumers).forEach(c -> c.accept(projectMeasureDto));
+    dbClient.projectMeasureDao().insert(dbSession, projectMeasureDto);
     dbSession.commit();
-    return measureDto;
+    return projectMeasureDto;
   }
 
   @SafeVarargs

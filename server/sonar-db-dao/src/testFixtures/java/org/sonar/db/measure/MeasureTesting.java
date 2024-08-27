@@ -38,23 +38,23 @@ public class MeasureTesting {
     // static methods only
   }
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, ComponentDto component, SnapshotDto analysis) {
-    return newMeasureDto(metricDto, component.uuid(), analysis);
+  public static ProjectMeasureDto newProjectMeasureDto(MetricDto metricDto, ComponentDto component, SnapshotDto analysis) {
+    return newProjectMeasureDto(metricDto, component.uuid(), analysis);
   }
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, String branchUuid, SnapshotDto analysis) {
+  public static ProjectMeasureDto newProjectMeasureDto(MetricDto metricDto, String branchUuid, SnapshotDto analysis) {
     checkNotNull(metricDto.getUuid());
     checkNotNull(metricDto.getKey());
     checkNotNull(branchUuid);
     checkNotNull(analysis.getUuid());
-    return new MeasureDto()
+    return new ProjectMeasureDto()
       .setMetricUuid(metricDto.getUuid())
       .setComponentUuid(branchUuid)
       .setAnalysisUuid(analysis.getUuid());
   }
 
-  public static MeasureDto newMeasure() {
-    return new MeasureDto()
+  public static ProjectMeasureDto newProjectMeasure() {
+    return new ProjectMeasureDto()
       .setMetricUuid(String.valueOf(cursor++))
       .setComponentUuid(String.valueOf(cursor++))
       .setAnalysisUuid(String.valueOf(cursor++))

@@ -41,7 +41,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
-class MeasureDaoIT {
+class ProjectMeasureDaoIT {
 
   private MetricDto coverage;
   private MetricDto complexity;
@@ -51,7 +51,7 @@ class MeasureDaoIT {
   private final DbTester db = DbTester.create(System2.INSTANCE);
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private final MeasureDao underTest = db.getDbClient().measureDao();
+  private final ProjectMeasureDao underTest = db.getDbClient().projectMeasureDao();
 
   @BeforeEach
   void before() {
@@ -69,12 +69,12 @@ class MeasureDaoIT {
     SnapshotDto lastAnalysis = insertAnalysis(project.uuid(), true);
     SnapshotDto pastAnalysis = insertAnalysis(project.uuid(), false);
 
-    MeasureDto pastMeasure = MeasureTesting.newMeasureDto(metric, file, pastAnalysis);
-    MeasureDto lastMeasure = MeasureTesting.newMeasureDto(metric, file, lastAnalysis);
+    ProjectMeasureDto pastMeasure = MeasureTesting.newProjectMeasureDto(metric, file, pastAnalysis);
+    ProjectMeasureDto lastMeasure = MeasureTesting.newProjectMeasureDto(metric, file, lastAnalysis);
     underTest.insert(db.getSession(), pastMeasure);
     underTest.insert(db.getSession(), lastMeasure);
 
-    MeasureDto selected = underTest.selectLastMeasure(db.getSession(), file.uuid(), metric.getKey()).get();
+    ProjectMeasureDto selected = underTest.selectLastMeasure(db.getSession(), file.uuid(), metric.getKey()).get();
     assertThat(selected).isEqualToComparingFieldByField(lastMeasure);
 
     assertThat(underTest.selectLastMeasure(dbSession, "_missing_", metric.getKey())).isEmpty();
@@ -90,8 +90,8 @@ class MeasureDaoIT {
     SnapshotDto lastAnalysis = insertAnalysis(project.uuid(), true);
     SnapshotDto pastAnalysis = insertAnalysis(project.uuid(), false);
 
-    MeasureDto pastMeasure = MeasureTesting.newMeasureDto(metric, file, pastAnalysis);
-    MeasureDto lastMeasure = MeasureTesting.newMeasureDto(metric, file, lastAnalysis);
+    ProjectMeasureDto pastMeasure = MeasureTesting.newProjectMeasureDto(metric, file, pastAnalysis);
+    ProjectMeasureDto lastMeasure = MeasureTesting.newProjectMeasureDto(metric, file, lastAnalysis);
     underTest.insert(db.getSession(), pastMeasure);
     underTest.insert(db.getSession(), lastMeasure);
 
@@ -179,22 +179,22 @@ class MeasureDaoIT {
     db.commit();
 
     // Measures of project for last and previous analyses
-    List<MeasureDto> result = underTest.selectPastMeasures(db.getSession(),
+    List<ProjectMeasureDto> result = underTest.selectPastMeasures(db.getSession(),
       new PastMeasureQuery(project.uuid(), singletonList(ncloc.getUuid()), previousAnalysisDate, lastAnalysisDate + 1_000L));
 
-    assertThat(result).hasSize(2).extracting(MeasureDto::getData).containsOnly("PROJECT_M1", "PROJECT_M2");
+    assertThat(result).hasSize(2).extracting(ProjectMeasureDto::getData).containsOnly("PROJECT_M1", "PROJECT_M2");
   }
 
   private void verifyMeasure(String componentUuid, String metricKey, String analysisUuid, String value) {
-    Optional<MeasureDto> measure = underTest.selectMeasure(db.getSession(), analysisUuid, componentUuid, metricKey);
-    assertThat(measure.map(MeasureDto::getData)).contains(value);
-    assertThat(measure.map(MeasureDto::getUuid)).isNotEmpty();
+    Optional<ProjectMeasureDto> measure = underTest.selectMeasure(db.getSession(), analysisUuid, componentUuid, metricKey);
+    assertThat(measure.map(ProjectMeasureDto::getData)).contains(value);
+    assertThat(measure.map(ProjectMeasureDto::getUuid)).isNotEmpty();
   }
 
   private void verifyMeasure(String componentUuid, String metricKey, String value) {
-    Optional<MeasureDto> measure = underTest.selectLastMeasure(db.getSession(), componentUuid, metricKey);
-    assertThat(measure.map(MeasureDto::getData)).contains(value);
-    assertThat(measure.map(MeasureDto::getUuid)).isNotEmpty();
+    Optional<ProjectMeasureDto> measure = underTest.selectLastMeasure(db.getSession(), componentUuid, metricKey);
+    assertThat(measure.map(ProjectMeasureDto::getData)).contains(value);
+    assertThat(measure.map(ProjectMeasureDto::getUuid)).isNotEmpty();
   }
 
   private void verifyNoMeasure(String componentUuid, String metricKey, String analysisUuid) {
@@ -206,14 +206,14 @@ class MeasureDaoIT {
   }
 
   private void insertMeasure(String value, String analysisUuid, String componentUuid, String metricUuid) {
-    MeasureDto measure = MeasureTesting.newMeasure()
+    ProjectMeasureDto measure = MeasureTesting.newProjectMeasure()
       .setAnalysisUuid(analysisUuid)
       .setComponentUuid(componentUuid)
       .setMetricUuid(metricUuid)
       // as ids can't be forced when inserting measures, the field "data"
       // is used to store a virtual value. It is used then in assertions.
       .setData(value);
-    db.getDbClient().measureDao().insert(db.getSession(), measure);
+    db.getDbClient().projectMeasureDao().insert(db.getSession(), measure);
   }
 
   private SnapshotDto insertAnalysis(String projectUuid, boolean isLast) {

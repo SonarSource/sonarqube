@@ -27,19 +27,19 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
-public class MeasureDao implements Dao {
+public class ProjectMeasureDao implements Dao {
 
   private final UuidFactory uuidFactory;
 
-  public MeasureDao(UuidFactory uuidFactory) {
+  public ProjectMeasureDao(UuidFactory uuidFactory) {
     this.uuidFactory = uuidFactory;
   }
 
-  public Optional<MeasureDto> selectLastMeasure(DbSession dbSession, String componentUuid, String metricKey) {
+  public Optional<ProjectMeasureDto> selectLastMeasure(DbSession dbSession, String componentUuid, String metricKey) {
     return Optional.ofNullable(mapper(dbSession).selectLastMeasure(componentUuid, metricKey));
   }
 
-  public Optional<MeasureDto> selectMeasure(DbSession dbSession, String analysisUuid, String componentUuid, String metricKey) {
+  public Optional<ProjectMeasureDto> selectMeasure(DbSession dbSession, String analysisUuid, String componentUuid, String metricKey) {
     return Optional.ofNullable(mapper(dbSession).selectMeasure(analysisUuid, componentUuid, metricKey));
   }
 
@@ -52,28 +52,28 @@ public class MeasureDao implements Dao {
    *
    * If no constraints on dates, all the history is returned
    */
-  public List<MeasureDto> selectPastMeasures(DbSession dbSession, PastMeasureQuery query) {
+  public List<ProjectMeasureDto> selectPastMeasures(DbSession dbSession, PastMeasureQuery query) {
     return mapper(dbSession).selectPastMeasuresOnSeveralAnalyses(query);
   }
 
-  public void insert(DbSession session, MeasureDto measureDto) {
-    measureDto.setUuid(uuidFactory.create());
-    mapper(session).insert(measureDto);
+  public void insert(DbSession session, ProjectMeasureDto projectMeasureDto) {
+    projectMeasureDto.setUuid(uuidFactory.create());
+    mapper(session).insert(projectMeasureDto);
   }
 
-  public void insert(DbSession session, Collection<MeasureDto> items) {
-    for (MeasureDto item : items) {
+  public void insert(DbSession session, Collection<ProjectMeasureDto> items) {
+    for (ProjectMeasureDto item : items) {
       item.setUuid(uuidFactory.create());
       insert(session, item);
     }
   }
 
-  public void insert(DbSession session, MeasureDto item, MeasureDto... others) {
+  public void insert(DbSession session, ProjectMeasureDto item, ProjectMeasureDto... others) {
     insert(session, Lists.asList(item, others));
   }
 
-  private static MeasureMapper mapper(DbSession session) {
-    return session.getMapper(MeasureMapper.class);
+  private static ProjectMeasureMapper mapper(DbSession session) {
+    return session.getMapper(ProjectMeasureMapper.class);
   }
 
 }

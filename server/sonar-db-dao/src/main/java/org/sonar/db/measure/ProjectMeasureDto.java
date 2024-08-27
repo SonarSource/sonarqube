@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class MeasureDto {
+public class ProjectMeasureDto {
   private static final int MAX_TEXT_VALUE_LENGTH = 4000;
 
   private String uuid;
@@ -36,6 +36,10 @@ public class MeasureDto {
   private String componentUuid;
   private String analysisUuid;
   private String metricUuid;
+
+  public ProjectMeasureDto() {
+    // empty constructor
+  }
 
   public String getUuid() {
     return uuid;
@@ -50,7 +54,7 @@ public class MeasureDto {
     return value;
   }
 
-  public MeasureDto setValue(@Nullable Double value) {
+  public ProjectMeasureDto setValue(@Nullable Double value) {
     this.value = value;
     return this;
   }
@@ -59,7 +63,7 @@ public class MeasureDto {
     return componentUuid;
   }
 
-  public MeasureDto setComponentUuid(String s) {
+  public ProjectMeasureDto setComponentUuid(String s) {
     this.componentUuid = s;
     return this;
   }
@@ -72,7 +76,7 @@ public class MeasureDto {
     return textValue;
   }
 
-  public MeasureDto setData(@Nullable String data) {
+  public ProjectMeasureDto setData(@Nullable String data) {
     if (data == null) {
       this.textValue = null;
       this.dataValue = null;
@@ -92,7 +96,7 @@ public class MeasureDto {
     return alertStatus;
   }
 
-  public MeasureDto setAlertStatus(@Nullable String alertStatus) {
+  public ProjectMeasureDto setAlertStatus(@Nullable String alertStatus) {
     this.alertStatus = alertStatus;
     return this;
   }
@@ -102,7 +106,7 @@ public class MeasureDto {
     return alertText;
   }
 
-  public MeasureDto setAlertText(@Nullable String alertText) {
+  public ProjectMeasureDto setAlertText(@Nullable String alertText) {
     this.alertText = alertText;
     return this;
   }
@@ -111,7 +115,7 @@ public class MeasureDto {
     return metricUuid;
   }
 
-  public MeasureDto setMetricUuid(String metricUuid) {
+  public ProjectMeasureDto setMetricUuid(String metricUuid) {
     this.metricUuid = metricUuid;
     return this;
   }
@@ -120,7 +124,7 @@ public class MeasureDto {
     return analysisUuid;
   }
 
-  public MeasureDto setAnalysisUuid(String s) {
+  public ProjectMeasureDto setAnalysisUuid(String s) {
     this.analysisUuid = s;
     return this;
   }

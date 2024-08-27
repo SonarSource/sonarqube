@@ -44,7 +44,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.component.SnapshotQuery.SORT_FIELD;
 import org.sonar.db.component.SnapshotQuery.SORT_ORDER;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.measure.PastMeasureQuery;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.RemovedMetricConverter;
@@ -196,7 +196,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
     return component;
   }
 
-  private List<MeasureDto> searchMeasures(DbSession dbSession, SearchHistoryRequest request, SearchHistoryResult result) {
+  private List<ProjectMeasureDto> searchMeasures(DbSession dbSession, SearchHistoryRequest request, SearchHistoryResult result) {
     Date from = parseStartingDateOrDateTime(request.getFrom());
     Date to = parseEndingDateOrDateTime(request.getTo());
     PastMeasureQuery dbQuery = new PastMeasureQuery(
@@ -204,7 +204,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
       result.getMetrics().stream().map(MetricDto::getUuid).toList(),
       from == null ? null : from.getTime(),
       to == null ? null : (to.getTime() + 1_000L));
-    return dbClient.measureDao().selectPastMeasures(dbSession, dbQuery);
+    return dbClient.projectMeasureDao().selectPastMeasures(dbSession, dbQuery);
   }
 
   private List<SnapshotDto> searchAnalyses(DbSession dbSession, SearchHistoryRequest request, ComponentDto component) {

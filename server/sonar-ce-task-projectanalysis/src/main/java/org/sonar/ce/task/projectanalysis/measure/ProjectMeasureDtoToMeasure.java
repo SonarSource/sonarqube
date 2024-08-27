@@ -22,15 +22,19 @@ package org.sonar.ce.task.projectanalysis.measure;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.of;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.toLevel;
 
-public class MeasureDtoToMeasure {
+public class ProjectMeasureDtoToMeasure {
 
-  public Optional<Measure> toMeasure(@Nullable MeasureDto measureDto, Metric metric) {
+  private ProjectMeasureDtoToMeasure() {
+    // utility class
+  }
+
+  public static Optional<Measure> toMeasure(@Nullable ProjectMeasureDto measureDto, Metric metric) {
     requireNonNull(metric);
     if (measureDto == null) {
       return Optional.empty();
@@ -57,21 +61,21 @@ public class MeasureDtoToMeasure {
     }
   }
 
-  private static Optional<Measure> toIntegerMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
+  private static Optional<Measure> toIntegerMeasure(ProjectMeasureDto measureDto, @Nullable Double value, @Nullable String data) {
     if (value == null) {
       return toNoValueMeasure(measureDto);
     }
     return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(value.intValue(), data));
   }
 
-  private static Optional<Measure> toLongMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
+  private static Optional<Measure> toLongMeasure(ProjectMeasureDto measureDto, @Nullable Double value, @Nullable String data) {
     if (value == null) {
       return toNoValueMeasure(measureDto);
     }
     return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(value.longValue(), data));
   }
 
-  private static Optional<Measure> toDoubleMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
+  private static Optional<Measure> toDoubleMeasure(ProjectMeasureDto measureDto, @Nullable Double value, @Nullable String data) {
     if (value == null) {
       return toNoValueMeasure(measureDto);
     }
@@ -80,21 +84,21 @@ public class MeasureDtoToMeasure {
       .create(value, org.sonar.api.measures.Metric.MAX_DECIMAL_SCALE, data));
   }
 
-  private static Optional<Measure> toBooleanMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
+  private static Optional<Measure> toBooleanMeasure(ProjectMeasureDto measureDto, @Nullable Double value, @Nullable String data) {
     if (value == null) {
       return toNoValueMeasure(measureDto);
     }
     return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(Double.compare(value, 1.0D) == 0, data));
   }
 
-  private static Optional<Measure> toStringMeasure(MeasureDto measureDto, @Nullable String data) {
+  private static Optional<Measure> toStringMeasure(ProjectMeasureDto measureDto, @Nullable String data) {
     if (data == null) {
       return toNoValueMeasure(measureDto);
     }
     return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(data));
   }
 
-  private static Optional<Measure> toLevelMeasure(MeasureDto measureDto, @Nullable String data) {
+  private static Optional<Measure> toLevelMeasure(ProjectMeasureDto measureDto, @Nullable String data) {
     if (data == null) {
       return toNoValueMeasure(measureDto);
     }
@@ -105,11 +109,11 @@ public class MeasureDtoToMeasure {
     return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(level.get()));
   }
 
-  private static Optional<Measure> toNoValueMeasure(MeasureDto measureDto) {
+  private static Optional<Measure> toNoValueMeasure(ProjectMeasureDto measureDto) {
     return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).createNoValue());
   }
 
-  private static Measure.NewMeasureBuilder setCommonProperties(Measure.NewMeasureBuilder builder, MeasureDto measureDto) {
+  private static Measure.NewMeasureBuilder setCommonProperties(Measure.NewMeasureBuilder builder, ProjectMeasureDto measureDto) {
     if (measureDto.getAlertStatus() != null) {
       Optional<Measure.Level> qualityGateStatus = toLevel(measureDto.getAlertStatus());
       if (qualityGateStatus.isPresent()) {

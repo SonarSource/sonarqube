@@ -203,8 +203,8 @@ public class TelemetryDataLoaderImplIT {
 
     SnapshotDto project1Analysis = db.components().insertSnapshot(mainBranch1, t -> t.setLast(true).setAnalysisDate(analysisDate));
     SnapshotDto project2Analysis = db.components().insertSnapshot(mainBranch2, t -> t.setLast(true).setAnalysisDate(analysisDate));
-    db.measures().insertMeasure(mainBranch1, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
-    db.measures().insertMeasure(mainBranch2, project2Analysis, nclocDistrib, m -> m.setData("java=180;js=20"));
+    db.measures().insertProjectMeasure(mainBranch1, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
+    db.measures().insertProjectMeasure(mainBranch2, project2Analysis, nclocDistrib, m -> m.setData("java=180;js=20"));
 
     insertAnalysisProperty(project1Analysis, "prop-uuid-1", SONAR_ANALYSIS_DETECTEDCI, "ci-1");
     insertAnalysisProperty(project2Analysis, "prop-uuid-2", SONAR_ANALYSIS_DETECTEDCI, "ci-2");
@@ -347,9 +347,9 @@ public class TelemetryDataLoaderImplIT {
     SnapshotDto project1Analysis1 = db.components().insertSnapshot(mainBranch1, t -> t.setLast(true).setAnalysisDate(analysisDate));
     SnapshotDto project1Analysis2 = db.components().insertSnapshot(mainBranch1, t -> t.setLast(true).setAnalysisDate(analysisDate));
     SnapshotDto project2Analysis = db.components().insertSnapshot(mainBranch2, t -> t.setLast(true).setAnalysisDate(analysisDate));
-    db.measures().insertMeasure(mainBranch1, project1Analysis1, qg, pm -> pm.setData("OK"));
-    db.measures().insertMeasure(mainBranch1, project1Analysis2, qg, pm -> pm.setData("ERROR"));
-    db.measures().insertMeasure(mainBranch2, project2Analysis, qg, pm -> pm.setData("ERROR"));
+    db.measures().insertProjectMeasure(mainBranch1, project1Analysis1, qg, pm -> pm.setData("OK"));
+    db.measures().insertProjectMeasure(mainBranch1, project1Analysis2, qg, pm -> pm.setData("ERROR"));
+    db.measures().insertProjectMeasure(mainBranch2, project2Analysis, qg, pm -> pm.setData("ERROR"));
 
     var branch1 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("reference"));
     var branch2 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("custom"));
@@ -424,8 +424,8 @@ public class TelemetryDataLoaderImplIT {
 
     SnapshotDto project1Analysis = db.components().insertSnapshot(mainBranch, t -> t.setLast(true));
     SnapshotDto project2Analysis = db.components().insertSnapshot(branch, t -> t.setLast(true));
-    db.measures().insertMeasure(mainBranch, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
-    db.measures().insertMeasure(branch, project2Analysis, nclocDistrib, m -> m.setData("java=100;js=50;kotlin=30"));
+    db.measures().insertProjectMeasure(mainBranch, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
+    db.measures().insertProjectMeasure(branch, project2Analysis, nclocDistrib, m -> m.setData("java=100;js=50;kotlin=30"));
 
     TelemetryData data = communityUnderTest.load();
 
@@ -467,8 +467,8 @@ public class TelemetryDataLoaderImplIT {
 
     SnapshotDto project1Analysis = db.components().insertSnapshot(mainBranch, t -> t.setLast(true));
     SnapshotDto project2Analysis = db.components().insertSnapshot(branch, t -> t.setLast(true));
-    db.measures().insertMeasure(mainBranch, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
-    db.measures().insertMeasure(branch, project2Analysis, nclocDistrib, m -> m.setData("java=100;js=50;kotlin=30"));
+    db.measures().insertProjectMeasure(mainBranch, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
+    db.measures().insertProjectMeasure(branch, project2Analysis, nclocDistrib, m -> m.setData("java=100;js=50;kotlin=30"));
 
     TelemetryData data = communityUnderTest.load();
 

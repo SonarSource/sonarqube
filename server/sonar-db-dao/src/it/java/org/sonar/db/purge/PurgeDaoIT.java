@@ -78,7 +78,7 @@ import org.sonar.db.issue.AnticipatedTransitionDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
@@ -668,7 +668,7 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     MetricDto metric = db.measures().insertMetric();
     ProjectData project = db.components().insertPrivateProject();
     BranchDto mainBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getMainBranchDto().getUuid()).get();
-    RuleDto rule = db.rules().insert();
+    db.rules().insert();
 
     ProjectData app = db.components().insertPrivateApplication();
     BranchDto appBranch = db.components().insertProjectBranch(app.getProjectDto());
@@ -680,12 +680,12 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     SnapshotDto otherAppAnalysis = db.components().insertSnapshot(otherApp.getProjectDto());
     SnapshotDto otherAppBranchAnalysis = db.components().insertSnapshot(otherAppBranch);
 
-    MeasureDto appMeasure = db.measures().insertMeasure(app.getMainBranchComponent(), appAnalysis, metric);
+    db.measures().insertProjectMeasure(app.getMainBranchComponent(), appAnalysis, metric);
     ComponentDto appBranchComponent = db.components().getComponentDto(appBranch);
-    MeasureDto appBranchMeasure = db.measures().insertMeasure(appBranchComponent, appBranchAnalysis, metric);
-    MeasureDto otherAppMeasure = db.measures().insertMeasure(otherApp.getMainBranchComponent(), otherAppAnalysis, metric);
+    db.measures().insertProjectMeasure(appBranchComponent, appBranchAnalysis, metric);
+    ProjectMeasureDto otherAppMeasure = db.measures().insertProjectMeasure(otherApp.getMainBranchComponent(), otherAppAnalysis, metric);
     ComponentDto otherAppBranchComponent = db.components().getComponentDto(otherAppBranch);
-    MeasureDto otherAppBranchMeasure = db.measures().insertMeasure(otherAppBranchComponent, otherAppBranchAnalysis, metric);
+    ProjectMeasureDto otherAppBranchMeasure = db.measures().insertProjectMeasure(otherAppBranchComponent, otherAppBranchAnalysis, metric);
 
     db.components().addApplicationProject(app.getProjectDto(), project.getProjectDto());
     db.components().addApplicationProject(otherApp.getProjectDto(), project.getProjectDto());
@@ -714,7 +714,7 @@ mainBranch);
     MetricDto metric = db.measures().insertMetric();
     ProjectData project = db.components().insertPrivateProject();
     BranchDto projectBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.getMainBranchDto().getUuid()).get();
-    RuleDto rule = db.rules().insert();
+    db.rules().insert();
 
     ProjectData app = db.components().insertPrivateApplication();
     BranchDto appBranch = db.components().insertProjectBranch(app.getProjectDto());
@@ -726,12 +726,12 @@ mainBranch);
     SnapshotDto otherAppAnalysis = db.components().insertSnapshot(otherApp.getProjectDto());
     SnapshotDto otherAppBranchAnalysis = db.components().insertSnapshot(otherAppBranch);
 
-    MeasureDto appMeasure = db.measures().insertMeasure(app.getMainBranchComponent(), appAnalysis, metric);
+    ProjectMeasureDto appMeasure = db.measures().insertProjectMeasure(app.getMainBranchComponent(), appAnalysis, metric);
     ComponentDto appBranchComponent = db.components().getComponentDto(appBranch);
-    MeasureDto appBranchMeasure = db.measures().insertMeasure(appBranchComponent, appBranchAnalysis, metric);
-    MeasureDto otherAppMeasure = db.measures().insertMeasure(otherApp.getMainBranchComponent(), otherAppAnalysis, metric);
+    db.measures().insertProjectMeasure(appBranchComponent, appBranchAnalysis, metric);
+    ProjectMeasureDto otherAppMeasure = db.measures().insertProjectMeasure(otherApp.getMainBranchComponent(), otherAppAnalysis, metric);
     ComponentDto otherAppBranchComponent = db.components().getComponentDto(otherAppBranch);
-    MeasureDto otherAppBranchMeasure = db.measures().insertMeasure(otherAppBranchComponent, otherAppBranchAnalysis, metric);
+    ProjectMeasureDto otherAppBranchMeasure = db.measures().insertProjectMeasure(otherAppBranchComponent, otherAppBranchAnalysis, metric);
 
     db.components().addApplicationProject(app.getProjectDto(), project.getProjectDto());
     db.components().addApplicationProject(otherApp.getProjectDto(), project.getProjectDto());
@@ -2027,7 +2027,7 @@ oldCreationDate));
   }
 
   private void insertMeasureFor(ComponentDto... components) {
-    Arrays.stream(components).forEach(componentDto -> db.getDbClient().measureDao().insert(dbSession, new MeasureDto()
+    Arrays.stream(components).forEach(componentDto -> db.getDbClient().projectMeasureDao().insert(dbSession, new ProjectMeasureDto()
       .setMetricUuid(randomAlphabetic(3))
       .setComponentUuid(componentDto.uuid())
       .setAnalysisUuid(randomAlphabetic(3))));

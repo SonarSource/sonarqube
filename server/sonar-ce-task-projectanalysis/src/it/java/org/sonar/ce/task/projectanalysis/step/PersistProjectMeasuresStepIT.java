@@ -38,7 +38,7 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +50,7 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
-public class PersistMeasuresStepIT extends BaseStepTest {
+public class PersistProjectMeasuresStepIT extends BaseStepTest {
 
   private static final Metric STRING_METRIC = new Metric.Builder("string-metric", "String metric", Metric.ValueType.STRING).create();
   private static final Metric INT_METRIC = new Metric.Builder("int-metric", "int metric", Metric.ValueType.INT).create();
@@ -96,7 +96,7 @@ public class PersistMeasuresStepIT extends BaseStepTest {
     TestComputationStepContext context = execute();
 
     assertThatMeasureIsNotPersisted("project-uuid", NON_HISTORICAL_METRIC);
-    MeasureDto persistedMeasure = selectMeasure("project-uuid", INT_METRIC).get();
+    ProjectMeasureDto persistedMeasure = selectMeasure("project-uuid", INT_METRIC).get();
     assertThat(persistedMeasure.getValue()).isEqualTo(2);
     assertNbOfInserts(context, 1);
   }
@@ -140,7 +140,7 @@ public class PersistMeasuresStepIT extends BaseStepTest {
 
     TestComputationStepContext context = execute();
 
-    MeasureDto persistedMeasure = selectMeasure("project-uuid", INT_METRIC).get();
+    ProjectMeasureDto persistedMeasure = selectMeasure("project-uuid", INT_METRIC).get();
     assertThat(persistedMeasure.getValue()).isEqualTo(42.0);
     assertNbOfInserts(context, 1);
   }
@@ -211,13 +211,13 @@ public class PersistMeasuresStepIT extends BaseStepTest {
 
   private TestComputationStepContext execute() {
     TestComputationStepContext context = new TestComputationStepContext();
-    new PersistMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(analysisMetadataHolder, treeRootHolder), treeRootHolder, measureRepository)
+    new PersistProjectMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(analysisMetadataHolder, treeRootHolder), treeRootHolder, measureRepository)
       .execute(context);
     return context;
   }
 
-  private Optional<MeasureDto> selectMeasure(String componentUuid, Metric metric) {
-    return dbClient.measureDao().selectMeasure(db.getSession(), ANALYSIS_UUID, componentUuid, metric.getKey());
+  private Optional<ProjectMeasureDto> selectMeasure(String componentUuid, Metric metric) {
+    return dbClient.projectMeasureDao().selectMeasure(db.getSession(), ANALYSIS_UUID, componentUuid, metric.getKey());
   }
 
   private ComponentDto insertComponent(String key, String uuid) {
@@ -236,6 +236,6 @@ public class PersistMeasuresStepIT extends BaseStepTest {
 
   @Override
   protected ComputationStep step() {
-    return new PersistMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(analysisMetadataHolder, treeRootHolder), treeRootHolder, measureRepository);
+    return new PersistProjectMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(analysisMetadataHolder, treeRootHolder), treeRootHolder, measureRepository);
   }
 }

@@ -34,7 +34,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -129,11 +129,11 @@ public class ExportMeasuresStepIT {
   @Test
   public void export_measures() {
     SnapshotDto firstAnalysis = insertSnapshot("U_1", PROJECT, STATUS_PROCESSED);
-    insertMeasure(firstAnalysis, PROJECT, new MeasureDto().setValue(100.0).setMetricUuid(NCLOC.getUuid()));
+    insertMeasure(firstAnalysis, PROJECT, new ProjectMeasureDto().setValue(100.0).setMetricUuid(NCLOC.getUuid()));
     SnapshotDto secondAnalysis = insertSnapshot("U_2", PROJECT, STATUS_PROCESSED);
-    insertMeasure(secondAnalysis, PROJECT, new MeasureDto().setValue(110.0).setMetricUuid(NCLOC.getUuid()));
+    insertMeasure(secondAnalysis, PROJECT, new ProjectMeasureDto().setValue(110.0).setMetricUuid(NCLOC.getUuid()));
     SnapshotDto anotherProjectAnalysis = insertSnapshot("U_3", ANOTHER_PROJECT, STATUS_PROCESSED);
-    insertMeasure(anotherProjectAnalysis, ANOTHER_PROJECT, new MeasureDto().setValue(500.0).setMetricUuid(NCLOC.getUuid()));
+    insertMeasure(anotherProjectAnalysis, ANOTHER_PROJECT, new ProjectMeasureDto().setValue(500.0).setMetricUuid(NCLOC.getUuid()));
     dbTester.commit();
 
     underTest.execute(new TestComputationStepContext());
@@ -149,7 +149,7 @@ public class ExportMeasuresStepIT {
   @Test
   public void do_not_export_measures_on_unprocessed_snapshots() {
     SnapshotDto firstAnalysis = insertSnapshot("U_1", PROJECT, STATUS_UNPROCESSED);
-    insertMeasure(firstAnalysis, PROJECT, new MeasureDto().setValue(100.0).setMetricUuid(NCLOC.getUuid()));
+    insertMeasure(firstAnalysis, PROJECT, new ProjectMeasureDto().setValue(100.0).setMetricUuid(NCLOC.getUuid()));
     dbTester.commit();
 
     underTest.execute(new TestComputationStepContext());
@@ -161,7 +161,7 @@ public class ExportMeasuresStepIT {
   @Test
   public void do_not_export_measures_on_disabled_metrics() {
     SnapshotDto firstAnalysis = insertSnapshot("U_1", PROJECT, STATUS_PROCESSED);
-    insertMeasure(firstAnalysis, PROJECT, new MeasureDto().setValue(100.0).setMetricUuid(DISABLED_METRIC.getUuid()));
+    insertMeasure(firstAnalysis, PROJECT, new ProjectMeasureDto().setValue(100.0).setMetricUuid(DISABLED_METRIC.getUuid()));
     dbTester.commit();
 
     underTest.execute(new TestComputationStepContext());
@@ -173,7 +173,7 @@ public class ExportMeasuresStepIT {
   @Test
   public void test_exported_fields() {
     SnapshotDto analysis = insertSnapshot("U_1", PROJECT, STATUS_PROCESSED);
-    MeasureDto dto = new MeasureDto()
+    ProjectMeasureDto dto = new ProjectMeasureDto()
       .setMetricUuid(NCLOC.getUuid())
       .setValue(100.0)
       .setData("data")
@@ -198,7 +198,7 @@ public class ExportMeasuresStepIT {
   @Test
   public void test_exported_fields_new_metric() {
     SnapshotDto analysis = insertSnapshot("U_1", PROJECT, STATUS_PROCESSED);
-    MeasureDto dto = new MeasureDto()
+    ProjectMeasureDto dto = new ProjectMeasureDto()
       .setMetricUuid(NEW_NCLOC.getUuid())
       .setValue(100.0)
       .setData("data")
@@ -223,7 +223,7 @@ public class ExportMeasuresStepIT {
   @Test
   public void test_null_exported_fields() {
     SnapshotDto analysis = insertSnapshot("U_1", PROJECT, STATUS_PROCESSED);
-    insertMeasure(analysis, PROJECT, new MeasureDto().setMetricUuid(NCLOC.getUuid()));
+    insertMeasure(analysis, PROJECT, new ProjectMeasureDto().setMetricUuid(NCLOC.getUuid()));
     dbTester.commit();
 
     underTest.execute(new TestComputationStepContext());
@@ -251,10 +251,10 @@ public class ExportMeasuresStepIT {
     return snapshot;
   }
 
-  private void insertMeasure(SnapshotDto analysisDto, ComponentDto componentDto, MeasureDto measureDto) {
-    measureDto
+  private void insertMeasure(SnapshotDto analysisDto, ComponentDto componentDto, ProjectMeasureDto projectMeasureDto) {
+    projectMeasureDto
       .setAnalysisUuid(analysisDto.getUuid())
       .setComponentUuid(componentDto.uuid());
-    dbTester.getDbClient().measureDao().insert(dbTester.getSession(), measureDto);
+    dbTester.getDbClient().projectMeasureDao().insert(dbTester.getSession(), projectMeasureDto);
   }
 }
