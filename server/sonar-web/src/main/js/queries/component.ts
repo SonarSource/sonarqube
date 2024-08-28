@@ -21,7 +21,14 @@ import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
 import { groupBy, omit } from 'lodash';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { getTasksForComponent } from '../api/ce';
-import { getBreadcrumbs, getComponent, getComponentData } from '../api/components';
+import {
+  getBreadcrumbs,
+  getComponent,
+  getComponentData,
+  getComponentForSourceViewer,
+} from '../api/components';
+import { getBranchLikeQuery } from '../sonar-aligned/helpers/branch-like';
+import { BranchLike } from '../types/branch-like';
 import { Component, Measure } from '../types/types';
 import { StaleTime, createQueryHook } from './common';
 
@@ -94,3 +101,12 @@ export const useComponentDataQuery = createQueryHook(
     });
   },
 );
+
+export function useComponentForSourceViewer(fileKey: string, branchLike?: BranchLike) {
+  return useQuery({
+    queryKey: ['component', 'source-viewer', fileKey, branchLike] as const,
+    queryFn: ({ queryKey: [_1, _2, fileKey, branchLike] }) =>
+      getComponentForSourceViewer({ component: fileKey, ...getBranchLikeQuery(branchLike) }),
+    staleTime: Infinity,
+  });
+}

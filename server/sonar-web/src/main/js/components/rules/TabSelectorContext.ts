@@ -17,17 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum Feature {
-  Announcement = 'announcement',
-  BranchSupport = 'branch-support',
-  LoginMessage = 'login-message',
-  MonoRepositoryPullRequestDecoration = 'monorepo',
-  MultipleAlm = 'multiple-alm',
-  ProjectImport = 'project-import',
-  RegulatoryReport = 'regulatory-reports',
-  Scim = 'scim',
-  GithubProvisioning = 'github-provisioning',
-  GitlabProvisioning = 'gitlab-provisioning',
-  PrioritizedRules = 'prioritized-rules',
-  FixSuggestions = 'fix-suggestions',
-}
+import { noop } from 'lodash';
+import { createContext } from 'react';
+import { TabKeys } from './IssueTabViewer';
+
+export const TabSelectorContext = createContext<(selectedTab: TabKeys) => void>(noop);

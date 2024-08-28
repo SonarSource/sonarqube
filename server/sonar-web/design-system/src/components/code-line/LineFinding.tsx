@@ -26,6 +26,7 @@ import { BareButton } from '../../sonar-aligned/components/buttons';
 interface Props {
   as?: React.ElementType;
   className?: string;
+  getFixButton?: React.ReactNode;
   issueKey: string;
   message: React.ReactNode;
   onIssueSelect?: (issueKey: string) => void;
@@ -33,10 +34,31 @@ interface Props {
 }
 
 function LineFindingFunc(
-  { as, message, issueKey, selected = true, className, onIssueSelect }: Props,
+  { as, getFixButton, message, issueKey, selected = true, className, onIssueSelect }: Props,
   ref: Ref<HTMLButtonElement>,
 ) {
-  return (
+  return selected ? (
+    <LineFindingStyled
+      as="div"
+      className={className}
+      data-issue={issueKey}
+      ref={ref}
+      selected={selected}
+    >
+      {onIssueSelect ? (
+        <BareButton
+          onClick={() => {
+            onIssueSelect(issueKey);
+          }}
+        >
+          {message}
+        </BareButton>
+      ) : (
+        message
+      )}
+      {getFixButton}
+    </LineFindingStyled>
+  ) : (
     <LineFindingStyled
       as={as}
       className={className}
@@ -65,6 +87,7 @@ const LineFindingStyled = styled(BareButton)<{ selected: boolean }>`
   ${tw`sw-box-border`}
   ${(props) => (props.selected ? tw`sw-py-3` : tw`sw-py-2`)};
   ${(props) => (props.selected ? tw`sw-body-md-highlight` : tw`sw-body-sm`)};
+  ${(props) => (props.selected ? tw`sw-cursor-default` : tw`sw-cursor-pointer`)};
 
   border: ${(props) =>
     props.selected

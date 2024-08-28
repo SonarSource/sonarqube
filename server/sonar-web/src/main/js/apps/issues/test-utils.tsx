@@ -23,6 +23,7 @@ import { Outlet, Route } from 'react-router-dom';
 import { byPlaceholderText, byRole, byTestId, byText } from '~sonar-aligned/helpers/testSelector';
 import BranchesServiceMock from '../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../api/mocks/ComponentsServiceMock';
+import FixIssueServiceMock from '../../api/mocks/FixIssueServiceMock';
 import IssuesServiceMock from '../../api/mocks/IssuesServiceMock';
 import SourcesServiceMock from '../../api/mocks/SourcesServiceMock';
 import UsersServiceMock from '../../api/mocks/UsersServiceMock';
@@ -45,9 +46,13 @@ export const issuesHandler = new IssuesServiceMock(usersHandler);
 export const componentsHandler = new ComponentsServiceMock();
 export const sourcesHandler = new SourcesServiceMock();
 export const branchHandler = new BranchesServiceMock();
+export const fixIssueHanlder = new FixIssueServiceMock();
 
 export const ui = {
   loading: byText('issues.loading_issues'),
+  fixGenerated: byText('issues.code_fix.fix_is_being_generated'),
+  noFixAvailable: byText('issues.code_fix.something_went_wrong'),
+  suggestedExplanation: byText(fixIssueHanlder.fixSuggestion.explanation),
   issuePageHeadering: byRole('heading', { level: 1, name: 'issues.page' }),
   issueItemAction1: byRole('link', { name: 'Issue with no location message' }),
   issueItemAction2: byRole('link', { name: 'FlowIssue' }),
@@ -90,6 +95,10 @@ export const ui = {
   issueStatusFacet: byRole('button', { name: 'issues.facet.issueStatuses' }),
   tagFacet: byRole('button', { name: 'issues.facet.tags' }),
   typeFacet: byRole('button', { name: 'issues.facet.types' }),
+  getFixSuggestion: byRole('button', { name: 'issues.code_fix.get_fix_suggestion' }),
+  getAFixSuggestion: byRole('button', { name: 'issues.code_fix.get_a_fix_suggestion' }),
+
+  seeFixSuggestion: byRole('button', { name: 'issues.code_fix.see_fix_suggestion' }),
   cleanCodeAttributeCategoryFacet: byRole('button', {
     name: 'issues.facet.cleanCodeAttributeCategories',
   }),
@@ -147,6 +156,8 @@ export const ui = {
   ruleFacetSearch: byPlaceholderText('search.search_for_rules'),
   tagFacetSearch: byPlaceholderText('search.search_for_tags'),
 
+  issueCodeFixTab: byRole('tab', { name: 'coding_rules.description_section.title.code_fix' }),
+  issueCodeTab: byRole('tab', { name: 'issue.tabs.code' }),
   issueActivityTab: byRole('tab', { name: 'coding_rules.description_section.title.activity' }),
   issueActivityAddComment: byRole('button', {
     name: `issue.activity.add_comment`,
@@ -184,6 +195,7 @@ export function renderProjectIssuesApp(
       [NoticeType.ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE]: true,
     },
   }),
+  featureList = [Feature.BranchSupport],
 ) {
   renderAppWithComponentContext(
     'project/issues',
@@ -198,7 +210,7 @@ export function renderProjectIssuesApp(
         {projectIssuesRoutes()}
       </Route>
     ),
-    { navigateTo, currentUser, featureList: [Feature.BranchSupport] },
+    { navigateTo, currentUser, featureList },
     { component: mockComponent(overrides) },
   );
 }

@@ -28,6 +28,7 @@ exports[`should render correctly as button 1`] = `
   font-size: 1rem;
   line-height: 1.5rem;
   font-weight: 600;
+  cursor: default;
   border: 1px solid rgb(253,162,155);
   color: rgb(62,67,87);
   word-break: break-word;
@@ -42,12 +43,25 @@ exports[`should render correctly as button 1`] = `
   box-shadow: 0px 1px 3px 0px rgba(29,33,47,0.05),0px 1px 25px 0px rgba(29,33,47,0.05);
 }
 
+.emotion-2 {
+  all: unset;
+  cursor: pointer;
+}
+
+.emotion-2:focus-visible {
+  background-color: rgb(239,242,249);
+}
+
 <div>
-  <button
+  <div
     class="emotion-0 emotion-1"
     data-issue="key"
   >
-    message
-  </button>
+    <button
+      class="emotion-2 emotion-3"
+    >
+      message
+    </button>
+  </div>
 </div>
 `;

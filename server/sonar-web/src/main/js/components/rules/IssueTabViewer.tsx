@@ -23,6 +23,7 @@ import { cloneDeep, debounce, groupBy } from 'lodash';
 import * as React from 'react';
 import { Location } from 'react-router-dom';
 import { dismissNotice } from '../../api/users';
+import withAvailableFeatures from '../../app/components/available-features/withAvailableFeatures';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
@@ -31,17 +32,21 @@ import IssueHeader from '../../apps/issues/components/IssueHeader';
 import StyledHeader from '../../apps/issues/components/StyledHeader';
 import { fillBranchLike } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
+import { Feature } from '../../types/features';
 import { Issue, RuleDetails } from '../../types/types';
-import { NoticeType } from '../../types/users';
+import { CurrentUser, NoticeType } from '../../types/users';
 import ScreenPositionHelper from '../common/ScreenPositionHelper';
 import withLocation from '../hoc/withLocation';
 import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
+import { TabSelectorContext } from './TabSelectorContext';
 
 interface IssueTabViewerProps extends CurrentUserContextInterface {
   activityTabContent?: React.ReactNode;
   codeTabContent?: React.ReactNode;
+  currentUser: CurrentUser;
   extendedDescription?: string;
+  hasFeature: (feature: string) => boolean;
   issue: Issue;
   location: Location;
   onIssueChange: (issue: Issue) => void;
@@ -49,6 +54,7 @@ interface IssueTabViewerProps extends CurrentUserContextInterface {
   ruleDetails: RuleDetails;
   selectedFlowIndex?: number;
   selectedLocationIndex?: number;
+  suggestionTabContent?: React.ReactNode;
 }
 interface State {
   displayEducationalPrinciplesNotification?: boolean;
@@ -70,6 +76,7 @@ export enum TabKeys {
   WhyIsThisAnIssue = 'why',
   HowToFixIt = 'how_to_fix',
   AssessTheIssue = 'assess_the_problem',
+  CodeFix = 'code_fix',
   Activity = 'activity',
   MoreInfo = 'more_info',
 }
@@ -127,7 +134,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
       prevProps.ruleDescriptionContextKey !== ruleDescriptionContextKey ||
       prevProps.issue !== issue ||
       prevProps.selectedFlowIndex !== selectedFlowIndex ||
-      prevProps.selectedLocationIndex !== selectedLocationIndex ||
+      (prevProps.selectedLocationIndex ?? -1) !== (selectedLocationIndex ?? -1) ||
       prevProps.currentUser !== currentUser
     ) {
       this.setState((pState) =>
@@ -172,9 +179,12 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
 
     const tabs = this.computeTabs(displayEducationalPrinciplesNotification);
 
+    const selectedTab =
+      resetSelectedTab || !prevState.selectedTab ? tabs[0] : prevState.selectedTab;
+
     return {
       tabs,
-      selectedTab: resetSelectedTab || !prevState.selectedTab ? tabs[0] : prevState.selectedTab,
+      selectedTab,
       displayEducationalPrinciplesNotification,
     };
   };
@@ -182,11 +192,14 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
   computeTabs = (displayEducationalPrinciplesNotification: boolean) => {
     const {
       codeTabContent,
+      currentUser: { isLoggedIn },
       ruleDetails: { descriptionSections, educationPrinciples, lang: ruleLanguage, type: ruleType },
       ruleDescriptionContextKey,
       extendedDescription,
       activityTabContent,
       issue,
+      suggestionTabContent,
+      hasFeature,
     } = this.props;
 
     // As we might tamper with the description later on, we clone to avoid any side effect
@@ -253,6 +266,16 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
           />
         ),
       },
+      ...(hasFeature(Feature.FixSuggestions) && isLoggedIn
+        ? [
+            {
+              value: TabKeys.CodeFix,
+              key: TabKeys.CodeFix,
+              label: translate('coding_rules.description_section.title', TabKeys.CodeFix),
+              content: suggestionTabContent,
+            },
+          ]
+        : []),
       {
         value: TabKeys.Activity,
         key: TabKeys.Activity,
@@ -330,9 +353,11 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
   };
 
   handleSelectTabs = (currentTabKey: TabKeys) => {
-    this.setState(({ tabs }) => ({
-      selectedTab: tabs.find((tab) => tab.key === currentTabKey) || tabs[0],
-    }));
+    this.setState(({ tabs }) => {
+      return {
+        selectedTab: tabs.find((tab) => tab.key === currentTabKey) || tabs[0],
+      };
+    });
   };
 
   render() {
@@ -390,7 +415,9 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
                     })}
                     key={tab.key}
                   >
-                    {tab.content}
+                    <TabSelectorContext.Provider value={this.handleSelectTabs}>
+                      {tab.content}
+                    </TabSelectorContext.Provider>
                   </div>
                 ))
               }
@@ -402,4 +429,4 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
   }
 }
 
-export default withCurrentUserContext(withLocation(IssueTabViewer));
+export default withCurrentUserContext(withLocation(withAvailableFeatures(IssueTabViewer)));

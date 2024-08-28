@@ -19,10 +19,13 @@
  */
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { range } from 'lodash';
 import React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { ISSUE_101 } from '../../../api/mocks/data/ids';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
-import { mockLoggedInUser } from '../../../helpers/testMocks';
+import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
+import { Feature } from '../../../types/features';
 import { RestUserDetailed } from '../../../types/users';
 import {
   branchHandler,
@@ -30,6 +33,7 @@ import {
   issuesHandler,
   renderIssueApp,
   renderProjectIssuesApp,
+  sourcesHandler,
   ui,
   usersHandler,
 } from '../test-utils';
@@ -74,6 +78,57 @@ describe('issue app', () => {
     expect(await ui.conciseIssueTotal.find()).toHaveTextContent('4');
     expect(ui.conciseIssueItem4.get()).toBeInTheDocument();
     expect(ui.conciseIssueItem2.get()).toBeInTheDocument();
+  });
+
+  it('should be able to trigger a fix when feature is available', async () => {
+    sourcesHandler.setSource(
+      range(0, 20)
+        .map((n) => `line: ${n}`)
+        .join('\n'),
+    );
+    const user = userEvent.setup();
+    renderProjectIssuesApp(
+      'project/issues?issueStatuses=CONFIRMED&open=issue2&id=myproject',
+      {},
+      mockLoggedInUser(),
+      [Feature.BranchSupport, Feature.FixSuggestions],
+    );
+
+    expect(await ui.getFixSuggestion.find()).toBeInTheDocument();
+    await user.click(ui.getFixSuggestion.get());
+
+    expect(await ui.suggestedExplanation.find()).toBeInTheDocument();
+
+    await user.click(ui.issueCodeTab.get());
+
+    expect(ui.seeFixSuggestion.get()).toBeInTheDocument();
+  });
+
+  it('should not be able to trigger a fix when user is not logged in', async () => {
+    renderProjectIssuesApp(
+      'project/issues?issueStatuses=CONFIRMED&open=issue2&id=myproject',
+      {},
+      mockCurrentUser(),
+      [Feature.BranchSupport, Feature.FixSuggestions],
+    );
+    expect(await ui.issueCodeTab.find()).toBeInTheDocument();
+    expect(ui.getFixSuggestion.query()).not.toBeInTheDocument();
+    expect(ui.issueCodeFixTab.query()).not.toBeInTheDocument();
+  });
+
+  it('should show error when no fix is available', async () => {
+    const user = userEvent.setup();
+    renderProjectIssuesApp(
+      `project/issues?issueStatuses=CONFIRMED&open=${ISSUE_101}&id=myproject`,
+      {},
+      mockLoggedInUser(),
+      [Feature.BranchSupport, Feature.FixSuggestions],
+    );
+
+    await user.click(await ui.issueCodeFixTab.find());
+    await user.click(ui.getAFixSuggestion.get());
+
+    expect(await ui.noFixAvailable.find()).toBeInTheDocument();
   });
 
   it('should navigate to Why is this an issue tab', async () => {

@@ -17,17 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum Feature {
-  Announcement = 'announcement',
-  BranchSupport = 'branch-support',
-  LoginMessage = 'login-message',
-  MonoRepositoryPullRequestDecoration = 'monorepo',
-  MultipleAlm = 'multiple-alm',
-  ProjectImport = 'project-import',
-  RegulatoryReport = 'regulatory-reports',
-  Scim = 'scim',
-  GithubProvisioning = 'github-provisioning',
-  GitlabProvisioning = 'gitlab-provisioning',
-  PrioritizedRules = 'prioritized-rules',
-  FixSuggestions = 'fix-suggestions',
+import { IconProps } from '~components/icons/Icon';
+import { UnfoldDownIcon } from './UnfoldDownIcon';
+import { UnfoldIcon } from './UnfoldIcon';
+import { UnfoldUpIcon } from './UnfoldUpIcon';
+
+export const enum CodeEllipsisDirection {
+  Up = 'up',
+  Down = 'down',
+  Middle = 'middle',
+}
+
+interface Props extends IconProps {
+  direction: CodeEllipsisDirection;
+}
+
+export function CodeEllipsisIcon({ direction, ...props }: Readonly<Props>) {
+  if (direction === CodeEllipsisDirection.Up) {
+    return <UnfoldUpIcon {...props} />;
+  } else if (direction === CodeEllipsisDirection.Down) {
+    return <UnfoldDownIcon {...props} />;
+  }
+  return <UnfoldIcon {...props} />;
 }

@@ -47,3 +47,17 @@ export function LineWrapper(props: Props) {
     />
   );
 }
+
+export function SuggestedLineWrapper(props: Readonly<HTMLAttributes<HTMLDivElement>>) {
+  const theme = useTheme();
+  return (
+    <LineStyled
+      as="div"
+      style={{
+        '--columns': `44px 26px 1rem 1fr`,
+        '--line-background': themeColor('codeLine')({ theme }),
+      }}
+      {...props}
+    />
+  );
+}

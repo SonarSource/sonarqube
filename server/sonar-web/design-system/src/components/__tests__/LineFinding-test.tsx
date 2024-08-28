@@ -31,7 +31,7 @@ it('should render correctly as button', async () => {
 });
 
 it('should render as non-button', () => {
-  setupWithProps({ as: 'div' });
+  setupWithProps({ as: 'div', onIssueSelect: undefined });
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });
 

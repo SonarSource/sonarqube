@@ -18,23 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import { Button, ButtonVariety, Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { FlagMessage, IssueMessageHighlighting, LineFinding, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { getSources } from '../../../api/components';
+import { AvailableFeaturesContext } from '../../../app/components/available-features/AvailableFeaturesContext';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
+import { TabKeys } from '../../../components/rules/IssueTabViewer';
+import { TabSelectorContext } from '../../../components/rules/TabSelectorContext';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import { translate } from '../../../helpers/l10n';
+import {
+  usePrefetchSuggestion,
+  useUnifiedSuggestionsQuery,
+} from '../../../queries/fix-suggestions';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile } from '../../../types/component';
+import { Feature } from '../../../types/features';
 import { IssueDeprecatedStatus } from '../../../types/issues';
 import {
   Dict,
   Duplication,
   ExpandDirection,
   FlowLocation,
+  Issue,
   IssuesByLine,
   Snippet,
   SnippetGroup,
@@ -42,6 +53,7 @@ import {
   SourceViewerFile,
   Issue as TypeIssue,
 } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { IssueSourceViewerScrollContext } from '../components/IssueSourceViewerScrollContext';
 import { IssueSourceViewerHeader } from './IssueSourceViewerHeader';
 import SnippetViewer from './SnippetViewer';
@@ -56,6 +68,7 @@ import {
 
 interface Props {
   branchLike: BranchLike | undefined;
+  currentUser: CurrentUser;
   duplications?: Duplication[];
   duplicationsByLine?: { [line: number]: number[] };
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
@@ -81,10 +94,7 @@ interface State {
   snippets: Snippet[];
 }
 
-export default class ComponentSourceSnippetGroupViewer extends React.PureComponent<
-  Readonly<Props>,
-  State
-> {
+class ComponentSourceSnippetGroupViewer extends React.PureComponent<Readonly<Props>, State> {
   mounted = false;
 
   constructor(props: Readonly<Props>) {
@@ -219,7 +229,8 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   };
 
   renderIssuesList = (line: SourceLine) => {
-    const { isLastOccurenceOfPrimaryComponent, issue, issuesByLine, snippetGroup } = this.props;
+    const { isLastOccurenceOfPrimaryComponent, issue, issuesByLine, snippetGroup, currentUser } =
+      this.props;
     const locations =
       issue.component === snippetGroup.component.key && issue.textRange !== undefined
         ? locationsByLine([issue])
@@ -243,6 +254,8 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
               <IssueSourceViewerScrollContext.Consumer key={issueToDisplay.key}>
                 {(ctx) => (
                   <LineFinding
+                    as={isSelectedIssue ? 'div' : undefined}
+                    className="sw-justify-between"
                     issueKey={issueToDisplay.key}
                     message={
                       <IssueMessageHighlighting
@@ -253,6 +266,11 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
                     selected={isSelectedIssue}
                     ref={isSelectedIssue ? ctx?.registerPrimaryLocationRef : undefined}
                     onIssueSelect={this.props.onIssueSelect}
+                    getFixButton={
+                      isSelectedIssue ? (
+                        <GetFixButton issue={issueToDisplay} currentUser={currentUser} />
+                      ) : undefined
+                    }
                   />
                 )}
               </IssueSourceViewerScrollContext.Consumer>
@@ -394,3 +412,48 @@ function isExpandable(snippets: Snippet[], snippetGroup: SnippetGroup) {
 const FileLevelIssueStyle = styled.div`
   border: 1px solid ${themeColor('codeLineBorder')};
 `;
+
+function GetFixButton({
+  currentUser,
+  issue,
+}: Readonly<{ currentUser: CurrentUser; issue: Issue }>) {
+  const handler = React.useContext(TabSelectorContext);
+  const { data: suggestion, isLoading } = useUnifiedSuggestionsQuery(issue, false);
+  const prefetchSuggestion = usePrefetchSuggestion(issue.key);
+
+  const isSuggestionFeatureEnabled = React.useContext(AvailableFeaturesContext).includes(
+    Feature.FixSuggestions,
+  );
+
+  if (!isLoggedIn(currentUser) || !isSuggestionFeatureEnabled) {
+    return null;
+  }
+  return (
+    <Spinner ariaLabel={translate('issues.code_fix.fix_is_being_generated')} isLoading={isLoading}>
+      {suggestion !== undefined && (
+        <Button
+          className="sw-shrink-0"
+          onClick={() => {
+            handler(TabKeys.CodeFix);
+          }}
+        >
+          {translate('issues.code_fix.see_fix_suggestion')}
+        </Button>
+      )}
+      {suggestion === undefined && (
+        <Button
+          className="sw-ml-2 sw-shrink-0"
+          onClick={() => {
+            handler(TabKeys.CodeFix);
+            prefetchSuggestion();
+          }}
+          variety={ButtonVariety.Primary}
+        >
+          {translate('issues.code_fix.get_fix_suggestion')}
+        </Button>
+      )}
+    </Spinner>
+  );
+}
+
+export default withCurrentUserContext(ComponentSourceSnippetGroupViewer);

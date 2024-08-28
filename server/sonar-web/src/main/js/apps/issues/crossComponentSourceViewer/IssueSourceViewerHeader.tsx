@@ -55,6 +55,8 @@ export interface Props {
   linkToProject?: boolean;
   loading?: boolean;
   onExpand?: () => void;
+  shouldShowOpenInIde?: boolean;
+  shouldShowViewAllIssues?: boolean;
   sourceViewerFile: SourceViewerFile;
 }
 
@@ -68,6 +70,8 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
     loading,
     onExpand,
     sourceViewerFile,
+    shouldShowOpenInIde = true,
+    shouldShowViewAllIssues = true,
   } = props;
 
   const { measures, path, project, projectName, q } = sourceViewerFile;
@@ -146,7 +150,7 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
         )}
       </div>
 
-      {!isProjectRoot && isLoggedIn(currentUser) && !isLoadingBranches && (
+      {!isProjectRoot && shouldShowOpenInIde && isLoggedIn(currentUser) && !isLoadingBranches && (
         <IssueOpenInIdeButton
           branchName={branchName}
           issueKey={issueKey}
@@ -156,7 +160,7 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
         />
       )}
 
-      {!isProjectRoot && measures.issues !== undefined && (
+      {!isProjectRoot && shouldShowViewAllIssues && measures.issues !== undefined && (
         <div
           className={classNames('sw-ml-4', {
             'sw-mr-1': (!expandable || loading) ?? isLoadingBranches,

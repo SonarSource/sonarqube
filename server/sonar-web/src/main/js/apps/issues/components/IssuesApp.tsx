@@ -52,6 +52,7 @@ import withIndexationContext, {
   WithIndexationContextProps,
 } from '../../../components/hoc/withIndexationContext';
 import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
+import { IssueSuggestionCodeTab } from '../../../components/rules/IssueSuggestionCodeTab';
 import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import '../../../components/search-navigator.css';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
@@ -1244,6 +1245,13 @@ export class App extends React.PureComponent<Props, State> {
                       openIssue={openIssue}
                       selectedFlowIndex={this.state.selectedFlowIndex}
                       selectedLocationIndex={this.state.selectedLocationIndex}
+                    />
+                  }
+                  suggestionTabContent={
+                    <IssueSuggestionCodeTab
+                      branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
+                      issue={openIssue}
+                      language={openRuleDetails.lang}
                     />
                   }
                   extendedDescription={openRuleDetails.htmlNote}

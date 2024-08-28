@@ -44,6 +44,7 @@ hljs.addPlugin(hljsUnderlinePlugin);
 
 interface Props {
   className?: string;
+  escapeDom?: boolean;
   htmlAsString: string;
   language?: string;
   wrap?: boolean | 'words';
@@ -60,15 +61,14 @@ const htmlDecode = (escapedCode: string) => {
 };
 
 export function CodeSyntaxHighlighter(props: Props) {
-  const { className, htmlAsString, language, wrap } = props;
+  const { className, htmlAsString, language, wrap, escapeDom = true } = props;
   let highlightedHtmlAsString = htmlAsString;
 
   htmlAsString.match(GLOBAL_REGEXP)?.forEach((codeBlock) => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const [, tag, attributes, code] = SINGLE_REGEXP.exec(codeBlock)!;
 
-    const unescapedCode = htmlDecode(code);
-
+    const unescapedCode = escapeDom ? htmlDecode(code) : code;
     let highlightedCode: HighlightResult;
 
     try {

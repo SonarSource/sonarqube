@@ -20,6 +20,7 @@
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
+import { BareButton } from '../../sonar-aligned';
 
 export const SCMHighlight = styled.h6`
   color: ${themeColor('tooltipHighlight')};
@@ -142,4 +143,22 @@ export const CoveredUnderlineLabel = styled(UnderlineLabel)`
 export const UncoveredUnderlineLabel = styled(UnderlineLabel)`
   color: ${themeContrast('codeLineUncoveredUnderline')};
   background-color: ${themeColor('codeLineUncoveredUnderline')};
+`;
+
+export const LineCodeEllipsisStyled = styled(BareButton)`
+  ${tw`sw-flex sw-items-center sw-gap-2`}
+  ${tw`sw-px-2 sw-py-1`}
+${tw`sw-code`}
+${tw`sw-w-full`}
+${tw`sw-box-border`}
+color: ${themeColor('codeLineEllipsisContrast')};
+  background-color: ${themeColor('codeLineEllipsis')};
+
+  border-top: ${themeBorder('default', 'codeLineBorder')};
+  border-bottom: ${themeBorder('default', 'codeLineBorder')};
+
+  &:hover {
+    color: ${themeColor('codeLineEllipsisHoverContrast')};
+    background-color: ${themeColor('codeLineEllipsisHover')};
+  }
 `;

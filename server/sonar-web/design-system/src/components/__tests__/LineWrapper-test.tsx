@@ -19,7 +19,7 @@
  */
 import { render } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
-import { LineWrapper } from '../code-line/LineWrapper';
+import { LineWrapper, SuggestedLineWrapper } from '../code-line/LineWrapper';
 
 it('should render with correct styling', () => {
   expect(setupWithProps().container).toMatchSnapshot();
@@ -41,6 +41,15 @@ it('should properly setup css grid columns', () => {
 it('should set a highlighted background color in css props', () => {
   const { container } = setupWithProps({ highlighted: true });
   expect(container.firstChild).toHaveStyle({ '--line-background': 'rgb(225,230,243)' });
+});
+
+it('should properly setup css grid columns for Suggested Line', () => {
+  const container = render(<SuggestedLineWrapper />, {
+    container: document.createElement('div'),
+  });
+  expect(container.container.firstChild).toHaveStyle({
+    '--columns': '44px 26px 1rem 1fr',
+  });
 });
 
 function setupWithProps(props: Partial<FCProps<typeof LineWrapper>> = {}) {
