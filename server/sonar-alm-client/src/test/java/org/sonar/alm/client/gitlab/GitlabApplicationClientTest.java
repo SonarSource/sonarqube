@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -42,6 +43,7 @@ import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.auth.gitlab.GsonGroup;
 import org.sonar.auth.gitlab.GsonProjectMember;
 import org.sonar.auth.gitlab.GsonUser;
+import org.sonar.auth.gitlab.GsonMemberRole;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -57,7 +59,7 @@ public class GitlabApplicationClientTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private GitlabPaginatedHttpClient gitlabPaginatedHttpClient = mock();
+  private final GitlabPaginatedHttpClient gitlabPaginatedHttpClient = mock();
 
   private final MockWebServer server = new MockWebServer();
   private GitlabApplicationClient underTest;
@@ -683,7 +685,6 @@ public class GitlabApplicationClientTest {
   public void getAllProjectMembers_whenCallIsInError_rethrows() {
     String token = "token-toto";
     GitlabToken gitlabToken = new GitlabToken(token);
-    List<GsonProjectMember> expectedProjectMembers = expectedProjectMembers();
     when(gitlabPaginatedHttpClient.get(eq(gitlabUrl), eq(gitlabToken), eq("/projects/42/members/all"), any())).thenThrow(new IllegalStateException("exception"));
 
     assertThatIllegalStateException()
@@ -692,13 +693,14 @@ public class GitlabApplicationClientTest {
   }
 
   private static List<GsonProjectMember> expectedProjectMembers() {
-    GsonProjectMember user1 = createGsonProjectMember(12818153, 5);
-    GsonProjectMember user2 = createGsonProjectMember(22330087, 50);
-    return List.of(user1, user2);
+    GsonProjectMember user1 = createGsonProjectMember(12818153, 5, null);
+    GsonProjectMember user2 = createGsonProjectMember(22330087, 50, null);
+    GsonProjectMember user3 = createGsonProjectMember(20824381, 40, new GsonMemberRole("custom-role"));
+    return List.of(user1, user2, user3);
   }
 
-  private static GsonProjectMember createGsonProjectMember(int id, int accessLevel) {
-    return new GsonProjectMember(id, accessLevel);
+  private static GsonProjectMember createGsonProjectMember(int id, int accessLevel, @Nullable GsonMemberRole gsonMemberRole) {
+    return new GsonProjectMember(id, accessLevel, gsonMemberRole);
   }
 
   private static String getResponseContent(String path) throws IOException {
