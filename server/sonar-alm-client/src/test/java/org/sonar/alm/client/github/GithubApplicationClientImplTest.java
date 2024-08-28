@@ -24,6 +24,9 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -43,6 +46,7 @@ import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.auth.github.AppInstallationToken;
+import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.auth.github.GithubAppInstallation;
@@ -55,6 +59,7 @@ import org.sonar.auth.github.security.AccessToken;
 import org.sonar.auth.github.security.UserAccessToken;
 import org.sonarqube.ws.client.HttpException;
 
+import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -126,13 +131,13 @@ public class GithubApplicationClientImplTest {
   private AppInstallationToken appInstallationToken = mock();
   private GithubApplicationClient underTest;
 
-
+  private Clock clock = Clock.fixed(Instant.EPOCH, ZoneId.systemDefault());
   private String appUrl = "Any URL";
 
   @Before
   public void setup() {
     when(githubAppConfiguration.getApiEndpoint()).thenReturn(appUrl);
-    underTest = new GithubApplicationClientImpl(githubApplicationHttpClient, appSecurity, gitHubSettings, githubPaginatedHttpClient);
+    underTest = new GithubApplicationClientImpl(clock, githubApplicationHttpClient, appSecurity, gitHubSettings, githubPaginatedHttpClient);
     logTester.clear();
   }
 
@@ -225,13 +230,15 @@ public class GithubApplicationClientImplTest {
   public void checkAppPermissions_IncorrectPermissions() throws IOException {
     AppToken appToken = mockAppToken();
 
-    String json = "{"
-                  + "      \"permissions\": {\n"
-                  + "        \"checks\": \"read\",\n"
-                  + "        \"metadata\": \"read\",\n"
-                  + "        \"pull_requests\": \"read\"\n"
-                  + "      }\n"
-                  + "}";
+    String json = """
+      {
+            "permissions": {
+              "checks": "read",
+              "metadata": "read",
+              "pull_requests": "read"
+            }
+      }
+      """;
 
     when(githubApplicationHttpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse(json));
 
@@ -244,13 +251,15 @@ public class GithubApplicationClientImplTest {
   public void checkAppPermissions() throws IOException {
     AppToken appToken = mockAppToken();
 
-    String json = "{"
-                  + "      \"permissions\": {\n"
-                  + "        \"checks\": \"write\",\n"
-                  + "        \"metadata\": \"read\",\n"
-                  + "        \"pull_requests\": \"write\"\n"
-                  + "      }\n"
-                  + "}";
+    String json = """
+      {
+            "permissions": {
+              "checks": "write",
+              "metadata": "read",
+              "pull_requests": "write"
+            }
+      }
+      """;
 
     when(githubApplicationHttpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse(json));
 
@@ -262,12 +271,13 @@ public class GithubApplicationClientImplTest {
     AppToken appToken = new AppToken(APP_JWT_TOKEN);
     when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
     when(githubApplicationHttpClient.get(appUrl, appToken, "/repos/torvalds/linux/installation"))
-      .thenReturn(new OkGetResponse("{" +
-        "  \"id\": 2," +
-        "  \"account\": {" +
-        "    \"login\": \"torvalds\"" +
-        "  }" +
-        "}"));
+      .thenReturn(new OkGetResponse("""
+        {
+          "id": 2,
+          "account": {
+            "login": "torvalds"
+          }
+        }"""));
 
     assertThat(underTest.getInstallationId(githubAppConfiguration, "torvalds/linux")).hasValue(2L);
   }
@@ -381,7 +391,7 @@ public class GithubApplicationClientImplTest {
     String appUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, String.format("/user/installations?page=%s&per_page=%s", 1, 100)))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, format("/user/installations?page=%s&per_page=%s", 1, 100)))
       .thenThrow(new IOException("OOPS"));
 
     assertThatThrownBy(() -> underTest.listOrganizations(appUrl, accessToken, 1, 100))
@@ -412,11 +422,13 @@ public class GithubApplicationClientImplTest {
   public void listOrganizations_returns_no_installations() throws IOException {
     String appUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
-    String responseJson = "{\n"
-                          + "  \"total_count\": 0\n"
-                          + "} ";
+    String responseJson = """
+      {
+        "total_count": 0
+      }
+      """;
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, String.format("/user/installations?page=%s&per_page=%s", 1, 100)))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, format("/user/installations?page=%s&per_page=%s", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
 
     GithubApplicationClient.Organizations organizations = underTest.listOrganizations(appUrl, accessToken, 1, 100);
@@ -429,85 +441,87 @@ public class GithubApplicationClientImplTest {
   public void listOrganizations_returns_pages_results() throws IOException {
     String appUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
-    String responseJson = "{\n"
-                          + "  \"total_count\": 2,\n"
-                          + "  \"installations\": [\n"
-                          + "    {\n"
-                          + "      \"id\": 1,\n"
-                          + "      \"account\": {\n"
-                          + "        \"login\": \"github\",\n"
-                          + "        \"id\": 1,\n"
-                          + "        \"node_id\": \"MDEyOk9yZ2FuaXphdGlvbjE=\",\n"
-                          + "        \"url\": \"https://github.sonarsource.com/api/v3/orgs/github\",\n"
-                          + "        \"repos_url\": \"https://github.sonarsource.com/api/v3/orgs/github/repos\",\n"
-                          + "        \"events_url\": \"https://github.sonarsource.com/api/v3/orgs/github/events\",\n"
-                          + "        \"hooks_url\": \"https://github.sonarsource.com/api/v3/orgs/github/hooks\",\n"
-                          + "        \"issues_url\": \"https://github.sonarsource.com/api/v3/orgs/github/issues\",\n"
-                          + "        \"members_url\": \"https://github.sonarsource.com/api/v3/orgs/github/members{/member}\",\n"
-                          + "        \"public_members_url\": \"https://github.sonarsource.com/api/v3/orgs/github/public_members{/member}\",\n"
-                          + "        \"avatar_url\": \"https://github.com/images/error/octocat_happy.gif\",\n"
-                          + "        \"description\": \"A great organization\"\n"
-                          + "      },\n"
-                          + "      \"access_tokens_url\": \"https://github.sonarsource.com/api/v3/app/installations/1/access_tokens\",\n"
-                          + "      \"repositories_url\": \"https://github.sonarsource.com/api/v3/installation/repositories\",\n"
-                          + "      \"html_url\": \"https://github.com/organizations/github/settings/installations/1\",\n"
-                          + "      \"app_id\": 1,\n"
-                          + "      \"target_id\": 1,\n"
-                          + "      \"target_type\": \"Organization\",\n"
-                          + "      \"permissions\": {\n"
-                          + "        \"checks\": \"write\",\n"
-                          + "        \"metadata\": \"read\",\n"
-                          + "        \"contents\": \"read\"\n"
-                          + "      },\n"
-                          + "      \"events\": [\n"
-                          + "        \"push\",\n"
-                          + "        \"pull_request\"\n"
-                          + "      ],\n"
-                          + "      \"single_file_name\": \"config.yml\"\n"
-                          + "    },\n"
-                          + "    {\n"
-                          + "      \"id\": 3,\n"
-                          + "      \"account\": {\n"
-                          + "        \"login\": \"octocat\",\n"
-                          + "        \"id\": 2,\n"
-                          + "        \"node_id\": \"MDQ6VXNlcjE=\",\n"
-                          + "        \"avatar_url\": \"https://github.com/images/error/octocat_happy.gif\",\n"
-                          + "        \"gravatar_id\": \"\",\n"
-                          + "        \"url\": \"https://github.sonarsource.com/api/v3/users/octocat\",\n"
-                          + "        \"html_url\": \"https://github.com/octocat\",\n"
-                          + "        \"followers_url\": \"https://github.sonarsource.com/api/v3/users/octocat/followers\",\n"
-                          + "        \"following_url\": \"https://github.sonarsource.com/api/v3/users/octocat/following{/other_user}\",\n"
-                          + "        \"gists_url\": \"https://github.sonarsource.com/api/v3/users/octocat/gists{/gist_id}\",\n"
-                          + "        \"starred_url\": \"https://github.sonarsource.com/api/v3/users/octocat/starred{/owner}{/repo}\",\n"
-                          + "        \"subscriptions_url\": \"https://github.sonarsource.com/api/v3/users/octocat/subscriptions\",\n"
-                          + "        \"organizations_url\": \"https://github.sonarsource.com/api/v3/users/octocat/orgs\",\n"
-                          + "        \"repos_url\": \"https://github.sonarsource.com/api/v3/users/octocat/repos\",\n"
-                          + "        \"events_url\": \"https://github.sonarsource.com/api/v3/users/octocat/events{/privacy}\",\n"
-                          + "        \"received_events_url\": \"https://github.sonarsource.com/api/v3/users/octocat/received_events\",\n"
-                          + "        \"type\": \"User\",\n"
-                          + "        \"site_admin\": false\n"
-                          + "      },\n"
-                          + "      \"access_tokens_url\": \"https://github.sonarsource.com/api/v3/app/installations/1/access_tokens\",\n"
-                          + "      \"repositories_url\": \"https://github.sonarsource.com/api/v3/installation/repositories\",\n"
-                          + "      \"html_url\": \"https://github.com/organizations/github/settings/installations/1\",\n"
-                          + "      \"app_id\": 1,\n"
-                          + "      \"target_id\": 1,\n"
-                          + "      \"target_type\": \"Organization\",\n"
-                          + "      \"permissions\": {\n"
-                          + "        \"checks\": \"write\",\n"
-                          + "        \"metadata\": \"read\",\n"
-                          + "        \"contents\": \"read\"\n"
-                          + "      },\n"
-                          + "      \"events\": [\n"
-                          + "        \"push\",\n"
-                          + "        \"pull_request\"\n"
-                          + "      ],\n"
-                          + "      \"single_file_name\": \"config.yml\"\n"
-                          + "    }\n"
-                          + "  ]\n"
-                          + "} ";
+    String responseJson = """
+      {
+        "total_count": 2,
+        "installations": [
+          {
+            "id": 1,
+            "account": {
+              "login": "github",
+              "id": 1,
+              "node_id": "MDEyOk9yZ2FuaXphdGlvbjE=",
+              "url": "https://github.sonarsource.com/api/v3/orgs/github",
+              "repos_url": "https://github.sonarsource.com/api/v3/orgs/github/repos",
+              "events_url": "https://github.sonarsource.com/api/v3/orgs/github/events",
+              "hooks_url": "https://github.sonarsource.com/api/v3/orgs/github/hooks",
+              "issues_url": "https://github.sonarsource.com/api/v3/orgs/github/issues",
+              "members_url": "https://github.sonarsource.com/api/v3/orgs/github/members{/member}",
+              "public_members_url": "https://github.sonarsource.com/api/v3/orgs/github/public_members{/member}",
+              "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+              "description": "A great organization"
+            },
+            "access_tokens_url": "https://github.sonarsource.com/api/v3/app/installations/1/access_tokens",
+            "repositories_url": "https://github.sonarsource.com/api/v3/installation/repositories",
+            "html_url": "https://github.com/organizations/github/settings/installations/1",
+            "app_id": 1,
+            "target_id": 1,
+            "target_type": "Organization",
+            "permissions": {
+              "checks": "write",
+              "metadata": "read",
+              "contents": "read"
+            },
+            "events": [
+              "push",
+              "pull_request"
+            ],
+            "single_file_name": "config.yml"
+          },
+          {
+            "id": 3,
+            "account": {
+              "login": "octocat",
+              "id": 2,
+              "node_id": "MDQ6VXNlcjE=",
+              "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+              "gravatar_id": "",
+              "url": "https://github.sonarsource.com/api/v3/users/octocat",
+              "html_url": "https://github.com/octocat",
+              "followers_url": "https://github.sonarsource.com/api/v3/users/octocat/followers",
+              "following_url": "https://github.sonarsource.com/api/v3/users/octocat/following{/other_user}",
+              "gists_url": "https://github.sonarsource.com/api/v3/users/octocat/gists{/gist_id}",
+              "starred_url": "https://github.sonarsource.com/api/v3/users/octocat/starred{/owner}{/repo}",
+              "subscriptions_url": "https://github.sonarsource.com/api/v3/users/octocat/subscriptions",
+              "organizations_url": "https://github.sonarsource.com/api/v3/users/octocat/orgs",
+              "repos_url": "https://github.sonarsource.com/api/v3/users/octocat/repos",
+              "events_url": "https://github.sonarsource.com/api/v3/users/octocat/events{/privacy}",
+              "received_events_url": "https://github.sonarsource.com/api/v3/users/octocat/received_events",
+              "type": "User",
+              "site_admin": false
+            },
+            "access_tokens_url": "https://github.sonarsource.com/api/v3/app/installations/1/access_tokens",
+            "repositories_url": "https://github.sonarsource.com/api/v3/installation/repositories",
+            "html_url": "https://github.com/organizations/github/settings/installations/1",
+            "app_id": 1,
+            "target_id": 1,
+            "target_type": "Organization",
+            "permissions": {
+              "checks": "write",
+              "metadata": "read",
+              "contents": "read"
+            },
+            "events": [
+              "push",
+              "pull_request"
+            ],
+            "single_file_name": "config.yml"
+          }
+        ]
+      }
+      """;
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, String.format("/user/installations?page=%s&per_page=%s", 1, 100)))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, format("/user/installations?page=%s&per_page=%s", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
 
     GithubApplicationClient.Organizations organizations = underTest.listOrganizations(appUrl, accessToken, 1, 100);
@@ -599,7 +613,7 @@ public class GithubApplicationClientImplTest {
     String appUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "org:test", 1, 100)))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, format("/search/repositories?q=%s&page=%s&per_page=%s", "org:test", 1, 100)))
       .thenThrow(new IOException("OOPS"));
 
     assertThatThrownBy(() -> underTest.listRepositories(appUrl, accessToken, "test", null, 1, 100))
@@ -631,10 +645,10 @@ public class GithubApplicationClientImplTest {
     String appUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
     String responseJson = "{\n"
-                          + "  \"total_count\": 0\n"
-                          + "}";
+      + "  \"total_count\": 0\n"
+      + "}";
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
 
     GithubApplicationClient.Repositories repositories = underTest.listRepositories(appUrl, accessToken, "github", null, 1, 100);
@@ -647,82 +661,83 @@ public class GithubApplicationClientImplTest {
   public void listRepositories_returns_pages_results() throws IOException {
     String appUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
-    String responseJson = "{\n"
-                          + "  \"total_count\": 2,\n"
-                          + "  \"incomplete_results\": false,\n"
-                          + "  \"items\": [\n"
-                          + "    {\n"
-                          + "      \"id\": 3081286,\n"
-                          + "      \"node_id\": \"MDEwOlJlcG9zaXRvcnkzMDgxMjg2\",\n"
-                          + "      \"name\": \"HelloWorld\",\n"
-                          + "      \"full_name\": \"github/HelloWorld\",\n"
-                          + "      \"owner\": {\n"
-                          + "        \"login\": \"github\",\n"
-                          + "        \"id\": 872147,\n"
-                          + "        \"node_id\": \"MDQ6VXNlcjg3MjE0Nw==\",\n"
-                          + "        \"avatar_url\": \"https://github.sonarsource.com/images/error/octocat_happy.gif\",\n"
-                          + "        \"gravatar_id\": \"\",\n"
-                          + "        \"url\": \"https://github.sonarsource.com/api/v3/users/github\",\n"
-                          + "        \"received_events_url\": \"https://github.sonarsource.com/api/v3/users/github/received_events\",\n"
-                          + "        \"type\": \"User\"\n"
-                          + "      },\n"
-                          + "      \"private\": false,\n"
-                          + "      \"html_url\": \"https://github.com/github/HelloWorld\",\n"
-                          + "      \"description\": \"A C implementation of HelloWorld\",\n"
-                          + "      \"fork\": false,\n"
-                          + "      \"url\": \"https://github.sonarsource.com/api/v3/repos/github/HelloWorld\",\n"
-                          + "      \"created_at\": \"2012-01-01T00:31:50Z\",\n"
-                          + "      \"updated_at\": \"2013-01-05T17:58:47Z\",\n"
-                          + "      \"pushed_at\": \"2012-01-01T00:37:02Z\",\n"
-                          + "      \"homepage\": \"\",\n"
-                          + "      \"size\": 524,\n"
-                          + "      \"stargazers_count\": 1,\n"
-                          + "      \"watchers_count\": 1,\n"
-                          + "      \"language\": \"Assembly\",\n"
-                          + "      \"forks_count\": 0,\n"
-                          + "      \"open_issues_count\": 0,\n"
-                          + "      \"master_branch\": \"master\",\n"
-                          + "      \"default_branch\": \"master\",\n"
-                          + "      \"score\": 1.0\n"
-                          + "    },\n"
-                          + "    {\n"
-                          + "      \"id\": 3081286,\n"
-                          + "      \"node_id\": \"MDEwOlJlcG9zaXRvcnkzMDgxMjg2\",\n"
-                          + "      \"name\": \"HelloUniverse\",\n"
-                          + "      \"full_name\": \"github/HelloUniverse\",\n"
-                          + "      \"owner\": {\n"
-                          + "        \"login\": \"github\",\n"
-                          + "        \"id\": 872147,\n"
-                          + "        \"node_id\": \"MDQ6VXNlcjg3MjE0Nw==\",\n"
-                          + "        \"avatar_url\": \"https://github.sonarsource.com/images/error/octocat_happy.gif\",\n"
-                          + "        \"gravatar_id\": \"\",\n"
-                          + "        \"url\": \"https://github.sonarsource.com/api/v3/users/github\",\n"
-                          + "        \"received_events_url\": \"https://github.sonarsource.com/api/v3/users/github/received_events\",\n"
-                          + "        \"type\": \"User\"\n"
-                          + "      },\n"
-                          + "      \"private\": false,\n"
-                          + "      \"html_url\": \"https://github.com/github/HelloUniverse\",\n"
-                          + "      \"description\": \"A C implementation of HelloUniverse\",\n"
-                          + "      \"fork\": false,\n"
-                          + "      \"url\": \"https://github.sonarsource.com/api/v3/repos/github/HelloUniverse\",\n"
-                          + "      \"created_at\": \"2012-01-01T00:31:50Z\",\n"
-                          + "      \"updated_at\": \"2013-01-05T17:58:47Z\",\n"
-                          + "      \"pushed_at\": \"2012-01-01T00:37:02Z\",\n"
-                          + "      \"homepage\": \"\",\n"
-                          + "      \"size\": 524,\n"
-                          + "      \"stargazers_count\": 1,\n"
-                          + "      \"watchers_count\": 1,\n"
-                          + "      \"language\": \"Assembly\",\n"
-                          + "      \"forks_count\": 0,\n"
-                          + "      \"open_issues_count\": 0,\n"
-                          + "      \"master_branch\": \"master\",\n"
-                          + "      \"default_branch\": \"master\",\n"
-                          + "      \"score\": 1.0\n"
-                          + "    }\n"
-                          + "  ]\n"
-                          + "}";
+    String responseJson = """
+      {
+        "total_count": 2,
+        "incomplete_results": false,
+        "items": [
+          {
+            "id": 3081286,
+            "node_id": "MDEwOlJlcG9zaXRvcnkzMDgxMjg2",
+            "name": "HelloWorld",
+            "full_name": "github/HelloWorld",
+            "owner": {
+              "login": "github",
+              "id": 872147,
+              "node_id": "MDQ6VXNlcjg3MjE0Nw==",
+              "avatar_url": "https://github.sonarsource.com/images/error/octocat_happy.gif",
+              "gravatar_id": "",
+              "url": "https://github.sonarsource.com/api/v3/users/github",
+              "received_events_url": "https://github.sonarsource.com/api/v3/users/github/received_events",
+              "type": "User"
+            },
+            "private": false,
+            "html_url": "https://github.com/github/HelloWorld",
+            "description": "A C implementation of HelloWorld",
+            "fork": false,
+            "url": "https://github.sonarsource.com/api/v3/repos/github/HelloWorld",
+            "created_at": "2012-01-01T00:31:50Z",
+            "updated_at": "2013-01-05T17:58:47Z",
+            "pushed_at": "2012-01-01T00:37:02Z",
+            "homepage": "",
+            "size": 524,
+            "stargazers_count": 1,
+            "watchers_count": 1,
+            "language": "Assembly",
+            "forks_count": 0,
+            "open_issues_count": 0,
+            "master_branch": "master",
+            "default_branch": "master",
+            "score": 1.0
+          },
+          {
+            "id": 3081286,
+            "node_id": "MDEwOlJlcG9zaXRvcnkzMDgxMjg2",
+            "name": "HelloUniverse",
+            "full_name": "github/HelloUniverse",
+            "owner": {
+              "login": "github",
+              "id": 872147,
+              "node_id": "MDQ6VXNlcjg3MjE0Nw==",
+              "avatar_url": "https://github.sonarsource.com/images/error/octocat_happy.gif",
+              "gravatar_id": "",
+              "url": "https://github.sonarsource.com/api/v3/users/github",
+              "received_events_url": "https://github.sonarsource.com/api/v3/users/github/received_events",
+              "type": "User"
+            },
+            "private": false,
+            "html_url": "https://github.com/github/HelloUniverse",
+            "description": "A C implementation of HelloUniverse",
+            "fork": false,
+            "url": "https://github.sonarsource.com/api/v3/repos/github/HelloUniverse",
+            "created_at": "2012-01-01T00:31:50Z",
+            "updated_at": "2013-01-05T17:58:47Z",
+            "pushed_at": "2012-01-01T00:37:02Z",
+            "homepage": "",
+            "size": 524,
+            "stargazers_count": 1,
+            "watchers_count": 1,
+            "language": "Assembly",
+            "forks_count": 0,
+            "open_issues_count": 0,
+            "master_branch": "master",
+            "default_branch": "master",
+            "score": 1.0
+          }
+        ]
+      }""";
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
     GithubApplicationClient.Repositories repositories = underTest.listRepositories(appUrl, accessToken, "github", null, 1, 100);
 
@@ -736,48 +751,49 @@ public class GithubApplicationClientImplTest {
   public void listRepositories_returns_search_results() throws IOException {
     String appUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
-    String responseJson = "{\n"
-                          + "  \"total_count\": 2,\n"
-                          + "  \"incomplete_results\": false,\n"
-                          + "  \"items\": [\n"
-                          + "    {\n"
-                          + "      \"id\": 3081286,\n"
-                          + "      \"node_id\": \"MDEwOlJlcG9zaXRvcnkzMDgxMjg2\",\n"
-                          + "      \"name\": \"HelloWorld\",\n"
-                          + "      \"full_name\": \"github/HelloWorld\",\n"
-                          + "      \"owner\": {\n"
-                          + "        \"login\": \"github\",\n"
-                          + "        \"id\": 872147,\n"
-                          + "        \"node_id\": \"MDQ6VXNlcjg3MjE0Nw==\",\n"
-                          + "        \"avatar_url\": \"https://github.sonarsource.com/images/error/octocat_happy.gif\",\n"
-                          + "        \"gravatar_id\": \"\",\n"
-                          + "        \"url\": \"https://github.sonarsource.com/api/v3/users/github\",\n"
-                          + "        \"received_events_url\": \"https://github.sonarsource.com/api/v3/users/github/received_events\",\n"
-                          + "        \"type\": \"User\"\n"
-                          + "      },\n"
-                          + "      \"private\": false,\n"
-                          + "      \"html_url\": \"https://github.com/github/HelloWorld\",\n"
-                          + "      \"description\": \"A C implementation of HelloWorld\",\n"
-                          + "      \"fork\": false,\n"
-                          + "      \"url\": \"https://github.sonarsource.com/api/v3/repos/github/HelloWorld\",\n"
-                          + "      \"created_at\": \"2012-01-01T00:31:50Z\",\n"
-                          + "      \"updated_at\": \"2013-01-05T17:58:47Z\",\n"
-                          + "      \"pushed_at\": \"2012-01-01T00:37:02Z\",\n"
-                          + "      \"homepage\": \"\",\n"
-                          + "      \"size\": 524,\n"
-                          + "      \"stargazers_count\": 1,\n"
-                          + "      \"watchers_count\": 1,\n"
-                          + "      \"language\": \"Assembly\",\n"
-                          + "      \"forks_count\": 0,\n"
-                          + "      \"open_issues_count\": 0,\n"
-                          + "      \"master_branch\": \"master\",\n"
-                          + "      \"default_branch\": \"master\",\n"
-                          + "      \"score\": 1.0\n"
-                          + "    }\n"
-                          + "  ]\n"
-                          + "}";
+    String responseJson = """
+      {
+        "total_count": 2,
+        "incomplete_results": false,
+        "items": [
+          {
+            "id": 3081286,
+            "node_id": "MDEwOlJlcG9zaXRvcnkzMDgxMjg2",
+            "name": "HelloWorld",
+            "full_name": "github/HelloWorld",
+            "owner": {
+              "login": "github",
+              "id": 872147,
+              "node_id": "MDQ6VXNlcjg3MjE0Nw==",
+              "avatar_url": "https://github.sonarsource.com/images/error/octocat_happy.gif",
+              "gravatar_id": "",
+              "url": "https://github.sonarsource.com/api/v3/users/github",
+              "received_events_url": "https://github.sonarsource.com/api/v3/users/github/received_events",
+              "type": "User"
+            },
+            "private": false,
+            "html_url": "https://github.com/github/HelloWorld",
+            "description": "A C implementation of HelloWorld",
+            "fork": false,
+            "url": "https://github.sonarsource.com/api/v3/repos/github/HelloWorld",
+            "created_at": "2012-01-01T00:31:50Z",
+            "updated_at": "2013-01-05T17:58:47Z",
+            "pushed_at": "2012-01-01T00:37:02Z",
+            "homepage": "",
+            "size": 524,
+            "stargazers_count": 1,
+            "watchers_count": 1,
+            "language": "Assembly",
+            "forks_count": 0,
+            "open_issues_count": 0,
+            "master_branch": "master",
+            "default_branch": "master",
+            "score": 1.0
+          }
+        ]
+      }""";
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "world+fork:true+org:github", 1, 100)))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, format("/search/repositories?q=%s&page=%s&per_page=%s", "world+fork:true+org:github", 1, 100)))
       .thenReturn(new GetResponse() {
         @Override
         public Optional<String> getNextEndPoint() {
@@ -836,142 +852,142 @@ public class GithubApplicationClientImplTest {
     String appUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
     String responseJson = "{\n"
-                          + "  \"id\": 1296269,\n"
-                          + "  \"node_id\": \"MDEwOlJlcG9zaXRvcnkxMjk2MjY5\",\n"
-                          + "  \"name\": \"Hello-World\",\n"
-                          + "  \"full_name\": \"octocat/Hello-World\",\n"
-                          + "  \"owner\": {\n"
-                          + "    \"login\": \"octocat\",\n"
-                          + "    \"id\": 1,\n"
-                          + "    \"node_id\": \"MDQ6VXNlcjE=\",\n"
-                          + "    \"avatar_url\": \"https://github.sonarsource.com/images/error/octocat_happy.gif\",\n"
-                          + "    \"gravatar_id\": \"\",\n"
-                          + "    \"url\": \"https://github.sonarsource.com/api/v3/users/octocat\",\n"
-                          + "    \"html_url\": \"https://github.com/octocat\",\n"
-                          + "    \"followers_url\": \"https://github.sonarsource.com/api/v3/users/octocat/followers\",\n"
-                          + "    \"following_url\": \"https://github.sonarsource.com/api/v3/users/octocat/following{/other_user}\",\n"
-                          + "    \"gists_url\": \"https://github.sonarsource.com/api/v3/users/octocat/gists{/gist_id}\",\n"
-                          + "    \"starred_url\": \"https://github.sonarsource.com/api/v3/users/octocat/starred{/owner}{/repo}\",\n"
-                          + "    \"subscriptions_url\": \"https://github.sonarsource.com/api/v3/users/octocat/subscriptions\",\n"
-                          + "    \"organizations_url\": \"https://github.sonarsource.com/api/v3/users/octocat/orgs\",\n"
-                          + "    \"repos_url\": \"https://github.sonarsource.com/api/v3/users/octocat/repos\",\n"
-                          + "    \"events_url\": \"https://github.sonarsource.com/api/v3/users/octocat/events{/privacy}\",\n"
-                          + "    \"received_events_url\": \"https://github.sonarsource.com/api/v3/users/octocat/received_events\",\n"
-                          + "    \"type\": \"User\",\n"
-                          + "    \"site_admin\": false\n"
-                          + "  },\n"
-                          + "  \"private\": false,\n"
-                          + "  \"html_url\": \"https://github.com/octocat/Hello-World\",\n"
-                          + "  \"description\": \"This your first repo!\",\n"
-                          + "  \"fork\": false,\n"
-                          + "  \"url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World\",\n"
-                          + "  \"archive_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/{archive_format}{/ref}\",\n"
-                          + "  \"assignees_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/assignees{/user}\",\n"
-                          + "  \"blobs_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/blobs{/sha}\",\n"
-                          + "  \"branches_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/branches{/branch}\",\n"
-                          + "  \"collaborators_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/collaborators{/collaborator}\",\n"
-                          + "  \"comments_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/comments{/number}\",\n"
-                          + "  \"commits_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/commits{/sha}\",\n"
-                          + "  \"compare_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/compare/{base}...{head}\",\n"
-                          + "  \"contents_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/contents/{+path}\",\n"
-                          + "  \"contributors_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/contributors\",\n"
-                          + "  \"deployments_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/deployments\",\n"
-                          + "  \"downloads_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/downloads\",\n"
-                          + "  \"events_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/events\",\n"
-                          + "  \"forks_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/forks\",\n"
-                          + "  \"git_commits_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/commits{/sha}\",\n"
-                          + "  \"git_refs_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/refs{/sha}\",\n"
-                          + "  \"git_tags_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/tags{/sha}\",\n"
-                          + "  \"git_url\": \"git:github.com/octocat/Hello-World.git\",\n"
-                          + "  \"issue_comment_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/issues/comments{/number}\",\n"
-                          + "  \"issue_events_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/issues/events{/number}\",\n"
-                          + "  \"issues_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/issues{/number}\",\n"
-                          + "  \"keys_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/keys{/key_id}\",\n"
-                          + "  \"labels_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/labels{/name}\",\n"
-                          + "  \"languages_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/languages\",\n"
-                          + "  \"merges_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/merges\",\n"
-                          + "  \"milestones_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/milestones{/number}\",\n"
-                          + "  \"notifications_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/notifications{?since,all,participating}\",\n"
-                          + "  \"pulls_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/pulls{/number}\",\n"
-                          + "  \"releases_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/releases{/id}\",\n"
-                          + "  \"ssh_url\": \"git@github.com:octocat/Hello-World.git\",\n"
-                          + "  \"stargazers_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/stargazers\",\n"
-                          + "  \"statuses_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/statuses/{sha}\",\n"
-                          + "  \"subscribers_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/subscribers\",\n"
-                          + "  \"subscription_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/subscription\",\n"
-                          + "  \"tags_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/tags\",\n"
-                          + "  \"teams_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/teams\",\n"
-                          + "  \"trees_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/trees{/sha}\",\n"
-                          + "  \"clone_url\": \"https://github.com/octocat/Hello-World.git\",\n"
-                          + "  \"mirror_url\": \"git:git.example.com/octocat/Hello-World\",\n"
-                          + "  \"hooks_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/hooks\",\n"
-                          + "  \"svn_url\": \"https://svn.github.com/octocat/Hello-World\",\n"
-                          + "  \"homepage\": \"https://github.com\",\n"
-                          + "  \"language\": null,\n"
-                          + "  \"forks_count\": 9,\n"
-                          + "  \"stargazers_count\": 80,\n"
-                          + "  \"watchers_count\": 80,\n"
-                          + "  \"size\": 108,\n"
-                          + "  \"default_branch\": \"master\",\n"
-                          + "  \"open_issues_count\": 0,\n"
-                          + "  \"is_template\": true,\n"
-                          + "  \"topics\": [\n"
-                          + "    \"octocat\",\n"
-                          + "    \"atom\",\n"
-                          + "    \"electron\",\n"
-                          + "    \"api\"\n"
-                          + "  ],\n"
-                          + "  \"has_issues\": true,\n"
-                          + "  \"has_projects\": true,\n"
-                          + "  \"has_wiki\": true,\n"
-                          + "  \"has_pages\": false,\n"
-                          + "  \"has_downloads\": true,\n"
-                          + "  \"archived\": false,\n"
-                          + "  \"disabled\": false,\n"
-                          + "  \"visibility\": \"public\",\n"
-                          + "  \"pushed_at\": \"2011-01-26T19:06:43Z\",\n"
-                          + "  \"created_at\": \"2011-01-26T19:01:12Z\",\n"
-                          + "  \"updated_at\": \"2011-01-26T19:14:43Z\",\n"
-                          + "  \"permissions\": {\n"
-                          + "    \"admin\": false,\n"
-                          + "    \"push\": false,\n"
-                          + "    \"pull\": true\n"
-                          + "  },\n"
-                          + "  \"allow_rebase_merge\": true,\n"
-                          + "  \"template_repository\": null,\n"
-                          + "  \"allow_squash_merge\": true,\n"
-                          + "  \"allow_merge_commit\": true,\n"
-                          + "  \"subscribers_count\": 42,\n"
-                          + "  \"network_count\": 0,\n"
-                          + "  \"anonymous_access_enabled\": false,\n"
-                          + "  \"license\": {\n"
-                          + "    \"key\": \"mit\",\n"
-                          + "    \"name\": \"MIT License\",\n"
-                          + "    \"spdx_id\": \"MIT\",\n"
-                          + "    \"url\": \"https://github.sonarsource.com/api/v3/licenses/mit\",\n"
-                          + "    \"node_id\": \"MDc6TGljZW5zZW1pdA==\"\n"
-                          + "  },\n"
-                          + "  \"organization\": {\n"
-                          + "    \"login\": \"octocat\",\n"
-                          + "    \"id\": 1,\n"
-                          + "    \"node_id\": \"MDQ6VXNlcjE=\",\n"
-                          + "    \"avatar_url\": \"https://github.com/images/error/octocat_happy.gif\",\n"
-                          + "    \"gravatar_id\": \"\",\n"
-                          + "    \"url\": \"https://github.sonarsource.com/api/v3/users/octocat\",\n"
-                          + "    \"html_url\": \"https://github.com/octocat\",\n"
-                          + "    \"followers_url\": \"https://github.sonarsource.com/api/v3/users/octocat/followers\",\n"
-                          + "    \"following_url\": \"https://github.sonarsource.com/api/v3/users/octocat/following{/other_user}\",\n"
-                          + "    \"gists_url\": \"https://github.sonarsource.com/api/v3/users/octocat/gists{/gist_id}\",\n"
-                          + "    \"starred_url\": \"https://github.sonarsource.com/api/v3/users/octocat/starred{/owner}{/repo}\",\n"
-                          + "    \"subscriptions_url\": \"https://github.sonarsource.com/api/v3/users/octocat/subscriptions\",\n"
-                          + "    \"organizations_url\": \"https://github.sonarsource.com/api/v3/users/octocat/orgs\",\n"
-                          + "    \"repos_url\": \"https://github.sonarsource.com/api/v3/users/octocat/repos\",\n"
-                          + "    \"events_url\": \"https://github.sonarsource.com/api/v3/users/octocat/events{/privacy}\",\n"
-                          + "    \"received_events_url\": \"https://github.sonarsource.com/api/v3/users/octocat/received_events\",\n"
-                          + "    \"type\": \"Organization\",\n"
-                          + "    \"site_admin\": false\n"
-                          + "  }"
-                          + "}";
+      + "  \"id\": 1296269,\n"
+      + "  \"node_id\": \"MDEwOlJlcG9zaXRvcnkxMjk2MjY5\",\n"
+      + "  \"name\": \"Hello-World\",\n"
+      + "  \"full_name\": \"octocat/Hello-World\",\n"
+      + "  \"owner\": {\n"
+      + "    \"login\": \"octocat\",\n"
+      + "    \"id\": 1,\n"
+      + "    \"node_id\": \"MDQ6VXNlcjE=\",\n"
+      + "    \"avatar_url\": \"https://github.sonarsource.com/images/error/octocat_happy.gif\",\n"
+      + "    \"gravatar_id\": \"\",\n"
+      + "    \"url\": \"https://github.sonarsource.com/api/v3/users/octocat\",\n"
+      + "    \"html_url\": \"https://github.com/octocat\",\n"
+      + "    \"followers_url\": \"https://github.sonarsource.com/api/v3/users/octocat/followers\",\n"
+      + "    \"following_url\": \"https://github.sonarsource.com/api/v3/users/octocat/following{/other_user}\",\n"
+      + "    \"gists_url\": \"https://github.sonarsource.com/api/v3/users/octocat/gists{/gist_id}\",\n"
+      + "    \"starred_url\": \"https://github.sonarsource.com/api/v3/users/octocat/starred{/owner}{/repo}\",\n"
+      + "    \"subscriptions_url\": \"https://github.sonarsource.com/api/v3/users/octocat/subscriptions\",\n"
+      + "    \"organizations_url\": \"https://github.sonarsource.com/api/v3/users/octocat/orgs\",\n"
+      + "    \"repos_url\": \"https://github.sonarsource.com/api/v3/users/octocat/repos\",\n"
+      + "    \"events_url\": \"https://github.sonarsource.com/api/v3/users/octocat/events{/privacy}\",\n"
+      + "    \"received_events_url\": \"https://github.sonarsource.com/api/v3/users/octocat/received_events\",\n"
+      + "    \"type\": \"User\",\n"
+      + "    \"site_admin\": false\n"
+      + "  },\n"
+      + "  \"private\": false,\n"
+      + "  \"html_url\": \"https://github.com/octocat/Hello-World\",\n"
+      + "  \"description\": \"This your first repo!\",\n"
+      + "  \"fork\": false,\n"
+      + "  \"url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World\",\n"
+      + "  \"archive_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/{archive_format}{/ref}\",\n"
+      + "  \"assignees_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/assignees{/user}\",\n"
+      + "  \"blobs_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/blobs{/sha}\",\n"
+      + "  \"branches_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/branches{/branch}\",\n"
+      + "  \"collaborators_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/collaborators{/collaborator}\",\n"
+      + "  \"comments_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/comments{/number}\",\n"
+      + "  \"commits_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/commits{/sha}\",\n"
+      + "  \"compare_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/compare/{base}...{head}\",\n"
+      + "  \"contents_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/contents/{+path}\",\n"
+      + "  \"contributors_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/contributors\",\n"
+      + "  \"deployments_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/deployments\",\n"
+      + "  \"downloads_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/downloads\",\n"
+      + "  \"events_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/events\",\n"
+      + "  \"forks_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/forks\",\n"
+      + "  \"git_commits_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/commits{/sha}\",\n"
+      + "  \"git_refs_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/refs{/sha}\",\n"
+      + "  \"git_tags_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/tags{/sha}\",\n"
+      + "  \"git_url\": \"git:github.com/octocat/Hello-World.git\",\n"
+      + "  \"issue_comment_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/issues/comments{/number}\",\n"
+      + "  \"issue_events_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/issues/events{/number}\",\n"
+      + "  \"issues_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/issues{/number}\",\n"
+      + "  \"keys_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/keys{/key_id}\",\n"
+      + "  \"labels_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/labels{/name}\",\n"
+      + "  \"languages_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/languages\",\n"
+      + "  \"merges_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/merges\",\n"
+      + "  \"milestones_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/milestones{/number}\",\n"
+      + "  \"notifications_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/notifications{?since,all,participating}\",\n"
+      + "  \"pulls_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/pulls{/number}\",\n"
+      + "  \"releases_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/releases{/id}\",\n"
+      + "  \"ssh_url\": \"git@github.com:octocat/Hello-World.git\",\n"
+      + "  \"stargazers_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/stargazers\",\n"
+      + "  \"statuses_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/statuses/{sha}\",\n"
+      + "  \"subscribers_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/subscribers\",\n"
+      + "  \"subscription_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/subscription\",\n"
+      + "  \"tags_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/tags\",\n"
+      + "  \"teams_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/teams\",\n"
+      + "  \"trees_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/git/trees{/sha}\",\n"
+      + "  \"clone_url\": \"https://github.com/octocat/Hello-World.git\",\n"
+      + "  \"mirror_url\": \"git:git.example.com/octocat/Hello-World\",\n"
+      + "  \"hooks_url\": \"https://github.sonarsource.com/api/v3/repos/octocat/Hello-World/hooks\",\n"
+      + "  \"svn_url\": \"https://svn.github.com/octocat/Hello-World\",\n"
+      + "  \"homepage\": \"https://github.com\",\n"
+      + "  \"language\": null,\n"
+      + "  \"forks_count\": 9,\n"
+      + "  \"stargazers_count\": 80,\n"
+      + "  \"watchers_count\": 80,\n"
+      + "  \"size\": 108,\n"
+      + "  \"default_branch\": \"master\",\n"
+      + "  \"open_issues_count\": 0,\n"
+      + "  \"is_template\": true,\n"
+      + "  \"topics\": [\n"
+      + "    \"octocat\",\n"
+      + "    \"atom\",\n"
+      + "    \"electron\",\n"
+      + "    \"api\"\n"
+      + "  ],\n"
+      + "  \"has_issues\": true,\n"
+      + "  \"has_projects\": true,\n"
+      + "  \"has_wiki\": true,\n"
+      + "  \"has_pages\": false,\n"
+      + "  \"has_downloads\": true,\n"
+      + "  \"archived\": false,\n"
+      + "  \"disabled\": false,\n"
+      + "  \"visibility\": \"public\",\n"
+      + "  \"pushed_at\": \"2011-01-26T19:06:43Z\",\n"
+      + "  \"created_at\": \"2011-01-26T19:01:12Z\",\n"
+      + "  \"updated_at\": \"2011-01-26T19:14:43Z\",\n"
+      + "  \"permissions\": {\n"
+      + "    \"admin\": false,\n"
+      + "    \"push\": false,\n"
+      + "    \"pull\": true\n"
+      + "  },\n"
+      + "  \"allow_rebase_merge\": true,\n"
+      + "  \"template_repository\": null,\n"
+      + "  \"allow_squash_merge\": true,\n"
+      + "  \"allow_merge_commit\": true,\n"
+      + "  \"subscribers_count\": 42,\n"
+      + "  \"network_count\": 0,\n"
+      + "  \"anonymous_access_enabled\": false,\n"
+      + "  \"license\": {\n"
+      + "    \"key\": \"mit\",\n"
+      + "    \"name\": \"MIT License\",\n"
+      + "    \"spdx_id\": \"MIT\",\n"
+      + "    \"url\": \"https://github.sonarsource.com/api/v3/licenses/mit\",\n"
+      + "    \"node_id\": \"MDc6TGljZW5zZW1pdA==\"\n"
+      + "  },\n"
+      + "  \"organization\": {\n"
+      + "    \"login\": \"octocat\",\n"
+      + "    \"id\": 1,\n"
+      + "    \"node_id\": \"MDQ6VXNlcjE=\",\n"
+      + "    \"avatar_url\": \"https://github.com/images/error/octocat_happy.gif\",\n"
+      + "    \"gravatar_id\": \"\",\n"
+      + "    \"url\": \"https://github.sonarsource.com/api/v3/users/octocat\",\n"
+      + "    \"html_url\": \"https://github.com/octocat\",\n"
+      + "    \"followers_url\": \"https://github.sonarsource.com/api/v3/users/octocat/followers\",\n"
+      + "    \"following_url\": \"https://github.sonarsource.com/api/v3/users/octocat/following{/other_user}\",\n"
+      + "    \"gists_url\": \"https://github.sonarsource.com/api/v3/users/octocat/gists{/gist_id}\",\n"
+      + "    \"starred_url\": \"https://github.sonarsource.com/api/v3/users/octocat/starred{/owner}{/repo}\",\n"
+      + "    \"subscriptions_url\": \"https://github.sonarsource.com/api/v3/users/octocat/subscriptions\",\n"
+      + "    \"organizations_url\": \"https://github.sonarsource.com/api/v3/users/octocat/orgs\",\n"
+      + "    \"repos_url\": \"https://github.sonarsource.com/api/v3/users/octocat/repos\",\n"
+      + "    \"events_url\": \"https://github.sonarsource.com/api/v3/users/octocat/events{/privacy}\",\n"
+      + "    \"received_events_url\": \"https://github.sonarsource.com/api/v3/users/octocat/received_events\",\n"
+      + "    \"type\": \"Organization\",\n"
+      + "    \"site_admin\": false\n"
+      + "  }"
+      + "}";
 
     when(githubApplicationHttpClient.get(appUrl, accessToken, "/repos/octocat/Hello-World"))
       .thenReturn(new GetResponse() {
@@ -1022,7 +1038,7 @@ public class GithubApplicationClientImplTest {
   public void createAppInstallationToken_returns_empty_if_post_throws_IOE() throws IOException {
     mockAppToken();
     when(githubApplicationHttpClient.post(anyString(), any(AccessToken.class), anyString())).thenThrow(IOException.class);
-    Optional<AppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID);
+    Optional<ExpiringAppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID);
 
     assertThat(accessToken).isEmpty();
     assertThat(logTester.getLogs(Level.WARN)).extracting(LogAndArguments::getRawMsg).anyMatch(s -> s.startsWith("Failed to request"));
@@ -1033,7 +1049,7 @@ public class GithubApplicationClientImplTest {
     AppToken appToken = mockAppToken();
     mockAccessTokenCallingGithubFailure();
 
-    Optional<AppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID);
+    Optional<ExpiringAppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID);
 
     assertThat(accessToken).isEmpty();
     verify(githubApplicationHttpClient).post(appUrl, appToken, "/app/installations/" + INSTALLATION_ID + "/access_tokens");
@@ -1042,9 +1058,9 @@ public class GithubApplicationClientImplTest {
   @Test
   public void createAppInstallationToken_from_installation_id_returns_access_token() throws IOException {
     AppToken appToken = mockAppToken();
-    AppInstallationToken installToken = mockCreateAccessTokenCallingGithub();
+    ExpiringAppInstallationToken installToken = mockCreateAccessTokenCallingGithub();
 
-    Optional<AppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID);
+    Optional<ExpiringAppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID);
 
     assertThat(accessToken).hasValue(installToken);
     verify(githubApplicationHttpClient).post(appUrl, appToken, "/app/installations/" + INSTALLATION_ID + "/access_tokens");
@@ -1128,15 +1144,25 @@ public class GithubApplicationClientImplTest {
     return new AppToken(jwt);
   }
 
-  private AppInstallationToken mockCreateAccessTokenCallingGithub() throws IOException {
+  private ExpiringAppInstallationToken mockCreateAccessTokenCallingGithub() throws IOException {
     String token = randomAlphanumeric(5);
     Response response = mock(Response.class);
-    when(response.getContent()).thenReturn(Optional.of("{" +
-                                                       "  \"token\": \"" + token + "\"" +
-                                                       "}"));
+    when(response.getContent()).thenReturn(Optional.of(format("""
+          {
+        	"token": "%s",
+        	"expires_at": "2024-08-28T10:44:51Z",
+        	"permissions": {
+        		"members": "read",
+        		"organization_administration": "read",
+        		"administration": "read",
+        		"metadata": "read"
+        	},
+        	"repository_selection": "all"
+        }
+      """, token)));
     when(response.getCode()).thenReturn(HTTP_CREATED);
     when(githubApplicationHttpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"))).thenReturn(response);
-    return new AppInstallationToken(token);
+    return new ExpiringAppInstallationToken(clock, token, "2024-08-28T10:44:51Z");
   }
 
   private static class OkGetResponse extends Response {

@@ -31,6 +31,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.auth.github.AppInstallationToken;
+import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.db.DbClient;
@@ -94,9 +95,9 @@ public class GithubProjectCreatorFactoryTest {
   @Mock
   private GithubPermissionConverter githubPermissionConverter;
   @Mock
-  private AppInstallationToken appInstallationToken;
+  private ExpiringAppInstallationToken appInstallationToken;
   @Mock
-  private AppInstallationToken authAppInstallationToken;
+  private ExpiringAppInstallationToken authAppInstallationToken;
   @Mock
   private PermissionService permissionService;
   @Mock

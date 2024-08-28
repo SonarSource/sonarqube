@@ -485,8 +485,15 @@ public class GithubBinding {
     @SerializedName("token")
     String token;
 
+    @SerializedName("expires_at")
+    String expiresAt;
+
     public String getToken() {
       return token;
+    }
+
+    public String getExpiresAt() {
+      return expiresAt;
     }
   }
 }

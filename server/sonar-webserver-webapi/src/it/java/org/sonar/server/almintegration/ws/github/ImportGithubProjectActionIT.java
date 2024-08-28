@@ -30,7 +30,7 @@ import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.auth.github.AppInstallationToken;
+import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.GsonRepositoryCollaborator;
 import org.sonar.auth.github.GsonRepositoryPermissions;
@@ -355,7 +355,7 @@ public class ImportGithubProjectActionIT {
     when(gitHubSettings.privateKey()).thenReturn("private key");
     when(gitHubSettings.apiURL()).thenReturn("http://www.url.com");
 
-    AppInstallationToken appInstallationToken = mock();
+    ExpiringAppInstallationToken appInstallationToken = mock();
 
     when(appClient.getInstallationId(any(), any())).thenReturn(Optional.of(321L));
     when(appClient.createAppInstallationToken(any(), eq(321L))).thenReturn(Optional.of(appInstallationToken));

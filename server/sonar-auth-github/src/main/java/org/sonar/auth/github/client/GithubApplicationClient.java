@@ -27,7 +27,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.server.ServerSide;
-import org.sonar.auth.github.AppInstallationToken;
+import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.auth.github.GithubAppInstallation;
 import org.sonar.auth.github.GithubBinding;
@@ -60,7 +60,7 @@ public interface GithubApplicationClient {
    * @return {@code Optional.empty()} if Github is not configured or if token failed to be
    *         created (network issue, parsing error, Github error, ...).
    */
-  Optional<AppInstallationToken> createAppInstallationToken(GithubAppConfiguration githubAppConfiguration, long installationId);
+  Optional<ExpiringAppInstallationToken> createAppInstallationToken(GithubAppConfiguration githubAppConfiguration, long installationId);
 
   GithubBinding.GsonApp getApp(GithubAppConfiguration githubAppConfiguration);
 

@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.net.URI;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.ApplicationHttpClient;
@@ -41,8 +43,7 @@ import org.sonar.alm.client.ApplicationHttpClient.GetResponse;
 import org.sonar.alm.client.github.security.AppToken;
 import org.sonar.alm.client.github.security.GithubAppSecurity;
 import org.sonar.alm.client.gitlab.GsonApp;
-import org.apache.commons.lang3.StringUtils;
-import org.sonar.auth.github.AppInstallationToken;
+import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.auth.github.GithubAppInstallation;
@@ -78,13 +79,15 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   };
   private static final TypeToken<List<GithubBinding.GsonInstallation>> ORGANIZATION_LIST_TYPE = new TypeToken<>() {
   };
+  private final Clock clock;
   protected final GithubApplicationHttpClient githubApplicationHttpClient;
   protected final GithubAppSecurity appSecurity;
   private final GitHubSettings gitHubSettings;
   private final GithubPaginatedHttpClient githubPaginatedHttpClient;
 
-  public GithubApplicationClientImpl(GithubApplicationHttpClient githubApplicationHttpClient, GithubAppSecurity appSecurity, GitHubSettings gitHubSettings,
+  public GithubApplicationClientImpl(Clock clock, GithubApplicationHttpClient githubApplicationHttpClient, GithubAppSecurity appSecurity, GitHubSettings gitHubSettings,
     GithubPaginatedHttpClient githubPaginatedHttpClient) {
+    this.clock = clock;
     this.githubApplicationHttpClient = githubApplicationHttpClient;
     this.appSecurity = appSecurity;
     this.gitHubSettings = gitHubSettings;
@@ -97,13 +100,12 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   }
 
   @Override
-  public Optional<AppInstallationToken> createAppInstallationToken(GithubAppConfiguration githubAppConfiguration, long installationId) {
+  public Optional<ExpiringAppInstallationToken> createAppInstallationToken(GithubAppConfiguration githubAppConfiguration, long installationId) {
     AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
     String endPoint = "/app/installations/" + installationId + "/access_tokens";
     return post(githubAppConfiguration.getApiEndpoint(), appToken, endPoint, GithubBinding.GsonInstallationToken.class)
-      .map(GithubBinding.GsonInstallationToken::getToken)
-      .filter(Objects::nonNull)
-      .map(AppInstallationToken::new);
+      .filter(token -> token.getToken() != null)
+      .map(appInstallToken -> new ExpiringAppInstallationToken(clock, appInstallToken.getToken(), appInstallToken.getExpiresAt()));
   }
 
   private <T> Optional<T> post(String baseUrl, AccessToken token, String endPoint, Class<T> gsonClass) {

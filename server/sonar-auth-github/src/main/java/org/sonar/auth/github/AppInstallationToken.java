@@ -19,71 +19,16 @@
  */
 package org.sonar.auth.github;
 
-import javax.annotation.concurrent.Immutable;
 import org.sonar.auth.github.security.AccessToken;
 
-import static java.util.Objects.requireNonNull;
-
-/**
- * Token that provides access to the Github API on behalf of
- * the Github organization that installed the Github App.
- *
- * It expires after one hour.
- *
- * IMPORTANT
- * Rate limit is 5'000 API requests per hour for the Github organization.
- * Two different Github organizations don't share rate limits.
- * Two different instances of {@link AppInstallationToken} of the same Github organization
- * share the same quotas (two calls from the two different instances consume
- * two hits).
- *
- * The limit can be higher than 5'000, depending on the number of repositories
- * and users present in the organization. See
- * https://developer.github.com/apps/building-github-apps/understanding-rate-limits-for-github-apps/
- *
- * When the token is expired, the rate limit is 60 calls per hour for the public IP
- * of the machine. BE CAREFUL, THAT SHOULD NEVER OCCUR.
- *
- * See https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#authenticating-as-an-installation
- */
-@Immutable
-public class AppInstallationToken implements AccessToken {
-
-  private final String token;
-
-  public AppInstallationToken(String token) {
-    this.token = requireNonNull(token, "token can't be null");
-  }
+public interface AppInstallationToken extends AccessToken {
 
   @Override
-  public String getValue() {
-    return token;
-  }
+  String getValue();
 
   @Override
-  public String getAuthorizationHeaderPrefix() {
+  default String getAuthorizationHeaderPrefix() {
     return "Token";
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    AppInstallationToken that = (AppInstallationToken) o;
-    return token.equals(that.token);
-  }
-
-  @Override
-  public int hashCode() {
-    return token.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    return token;
-  }
 }
