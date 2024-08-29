@@ -56,6 +56,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.webhook.WebhookDto;
 
 import static org.sonar.db.component.BranchType.BRANCH;
 
@@ -85,7 +86,7 @@ public class PopulateDb {
 
     IntStream.rangeClosed(1, 1)
       .map(i -> i + allProjects.size())
-      .mapToObj(i -> new ProjectStructure("project " + i, 10, 100, 10, 2, 5))
+      .mapToObj(i -> new ProjectStructure("project " + i, 10, 100, 10, 2, 5, 1))
       .forEach(projectStructure -> {
         executorService.submit(() -> {
           sqContext.dbTester.getSession(true);
@@ -189,7 +190,7 @@ public class PopulateDb {
   }
 
   private record ProjectStructure(String projectName, int branchPerProject, int filePerBranch, int issuePerFile, int issueChangePerIssue,
-                                  int snapshotPerBranch) {
+                                  int snapshotPerBranch, int webhookDeliveriesPerComponent) {
   }
 
   private record PortfolioGenerationSettings(int currentPortfoliosSize, int numberOfPortolios, int maxProjectPerPortfolio) {
@@ -199,10 +200,10 @@ public class PopulateDb {
   }
 
   private static ProjectDto generateProject(SqContext sqContext, ProjectStructure pj) {
-    ComponentDto projectCompoDto = sqContext.dbTester.components().insertPublicProject(p -> p.setName(pj.projectName));
+    final ComponentDto projectCompoDto = sqContext.dbTester.components().insertPublicProject(p -> p.setName(pj.projectName));
     sqContext.dbTester.forceCommit();
-    ProjectDto projectDto = sqContext.dbTester.components().getProjectDto(projectCompoDto);
-
+    final ProjectDto projectDto = sqContext.dbTester.components().getProjectDto(projectCompoDto);
+    final WebhookDto projectWebHook = sqContext.dbTester.webhooks().insertWebhook(projectDto);
     Streams.concat(
         // main branch
         Stream.of(new BranchAndComponentDto(
@@ -217,38 +218,19 @@ public class PopulateDb {
         }))
       // until there are enough branches generated
       .limit(pj.branchPerProject)
-      // for every branche (main included)
+      // for every branch (main included)
       .forEach(branchAndComponentDto -> {
-        // for every file in branch
-        for (int file = 0; file < pj.filePerBranch; file++) {
-          ComponentDto fileComponentDto = sqContext.dbTester.components().insertFile(branchAndComponentDto.compo);
-          sqContext.dbTester.fileSources().insertFileSource(fileComponentDto, pj.issuePerFile,
-          fs -> fs.setSourceData(fs.getSourceData()));
-          // for every issue in file
-          for (int issue = 0; issue < pj.issuePerFile; issue++) {
-            final int issueLine = issue + 1;
-            IssueDto issueDto = sqContext.dbTester.issues().insertIssue(sqContext.findNotSecurityHotspotRule(), branchAndComponentDto.compo, fileComponentDto,
-              iDto -> iDto.setLine(issueLine));
-            // for every issue change in issue
-            for (int issueChange = 0; issueChange < pj.issueChangePerIssue; issueChange++) {
-              sqContext.dbTester.issues().insertChange(issueDto);
-            }
-          }
-          // create live measure for this file
-          fileLiveMeasureMetrics.stream()
-            .map(sqContext.metricDtosByKey::get)
-            .forEach(metricDto -> sqContext.dbTester().measures().insertLiveMeasureWithSensibleValues(fileComponentDto, metricDto));
-        }
 
         // create live measure for the branch
         projectLiveMeasureMetrics.stream()
           .map(sqContext.metricDtosByKey::get)
           .forEach(metricDto -> sqContext.dbTester().measures().insertLiveMeasureWithSensibleValues(branchAndComponentDto.compo, metricDto));
 
+        // create snapshots for the current branch
         long time = System2.INSTANCE.now();
         List<SnapshotDto> snapshots = new ArrayList<>();
         // for every snapshot on the current branch
-        for (int snapshot = 0; snapshot < pj.snapshotPerBranch; snapshot++) {
+        for (int snapshotNum = 0; snapshotNum < pj.snapshotPerBranch; snapshotNum++) {
           SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(branchAndComponentDto.branch);
           snapshotDto.setLast(false);
           snapshotDto.setCreatedAt(time);
@@ -262,6 +244,36 @@ public class PopulateDb {
         SnapshotDto lastSnapshotDto = snapshots.get(0);
         lastSnapshotDto.setLast(true);
         sqContext.dbTester.components().insertSnapshots(snapshots.toArray(new SnapshotDto[0]));
+
+        // for every file in branch
+        for (int fileNum = 0; fileNum < pj.filePerBranch; fileNum++) {
+          ComponentDto fileComponentDto = sqContext.dbTester.components().insertFile(branchAndComponentDto.compo);
+          sqContext.dbTester.fileSources().insertFileSource(fileComponentDto, pj.issuePerFile,
+            fs -> fs.setSourceData(fs.getSourceData()));
+          // for every issue in file
+          for (int issueNum = 0; issueNum < pj.issuePerFile; issueNum++) {
+            IssueDto issueDto = sqContext.dbTester.issues().insertIssue(sqContext.findNotSecurityHotspotRule(), branchAndComponentDto.compo, fileComponentDto);
+            // for every issue change in issue
+            for (int issueChangeNum = 0; issueChangeNum < pj.issueChangePerIssue; issueChangeNum++) {
+              sqContext.dbTester.issues().insertChange(issueDto);
+            }
+          }
+          // create live measure for this file
+          fileLiveMeasureMetrics.stream()
+            .map(sqContext.metricDtosByKey::get)
+            .forEach(metricDto -> sqContext.dbTester().measures().insertLiveMeasureWithSensibleValues(fileComponentDto, metricDto));
+
+          // create webhook deliveries for every file and snapshot
+          for (SnapshotDto snapshotDto : snapshots) {
+            for (int whdNum = 0; whdNum < pj.webhookDeliveriesPerComponent; whdNum++) {
+              sqContext.dbTester.webhookDelivery().insert(whd -> whd
+                  .setAnalysisUuid(snapshotDto.getUuid())
+                  .setComponentUuid(fileComponentDto.uuid())
+                  .setWebhookUuid(projectWebHook.getUuid()));
+            }
+          }
+        }
+
         sqContext.dbTester.forceCommit();
       });
 
