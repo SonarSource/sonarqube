@@ -89,6 +89,7 @@ import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.issue.PrIssueDto;
 import org.sonar.db.measure.LargestBranchNclocDto;
 import org.sonar.db.measure.LiveMeasureMapper;
+import org.sonar.db.measure.MeasureMapper;
 import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.measure.ProjectMeasureMapper;
@@ -316,6 +317,7 @@ public class MyBatis {
       IssueMapper.class,
       IssueFixedMapper.class,
       IssuesDependencyMapper.class,
+      MeasureMapper.class,
       ProjectMeasureMapper.class,
       MetricMapper.class,
       NewCodePeriodMapper.class,

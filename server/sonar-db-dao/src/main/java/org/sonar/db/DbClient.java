@@ -51,6 +51,7 @@ import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueFixedDao;
 import org.sonar.db.measure.LiveMeasureDao;
+import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.ProjectMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
@@ -129,6 +130,7 @@ public class DbClient {
   private final SnapshotDao snapshotDao;
   private final ComponentDao componentDao;
   private final ComponentKeyUpdaterDao componentKeyUpdaterDao;
+  private final MeasureDao measureDao;
   private final ProjectMeasureDao projectMeasureDao;
   private final UserDao userDao;
   private final UserGroupDao userGroupDao;
@@ -225,6 +227,7 @@ public class DbClient {
     snapshotDao = getDao(map, SnapshotDao.class);
     componentDao = getDao(map, ComponentDao.class);
     componentKeyUpdaterDao = getDao(map, ComponentKeyUpdaterDao.class);
+    measureDao = getDao(map, MeasureDao.class);
     projectMeasureDao = getDao(map, ProjectMeasureDao.class);
     userDao = getDao(map, UserDao.class);
     userGroupDao = getDao(map, UserGroupDao.class);
@@ -395,6 +398,10 @@ public class DbClient {
 
   public ComponentKeyUpdaterDao componentKeyUpdaterDao() {
     return componentKeyUpdaterDao;
+  }
+
+  public MeasureDao measureDao() {
+    return measureDao;
   }
 
   public ProjectMeasureDao projectMeasureDao() {

@@ -90,4 +90,22 @@ public class MeasureTesting {
       .setData(String.valueOf(cursor++))
       .setValue((double) cursor++);
   }
+
+  public static MeasureDto newMeasure() {
+    MeasureDto measureDto = new MeasureDto()
+      .setComponentUuid(String.valueOf(cursor++))
+      .setBranchUuid(String.valueOf(cursor++))
+      .addValue("metric" + cursor++, (double) cursor++);
+    measureDto.computeJsonValueHash();
+    return measureDto;
+  }
+
+  public static MeasureDto newMeasure(ComponentDto component, MetricDto metric, Object value) {
+    MeasureDto measureDto = new MeasureDto()
+      .setComponentUuid(component.uuid())
+      .setBranchUuid(component.branchUuid())
+      .addValue(metric.getKey(), value);
+    measureDto.computeJsonValueHash();
+    return measureDto;
+  }
 }

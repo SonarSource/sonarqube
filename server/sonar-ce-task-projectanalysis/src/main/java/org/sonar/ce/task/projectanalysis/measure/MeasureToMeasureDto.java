@@ -20,12 +20,12 @@
 package org.sonar.ce.task.projectanalysis.measure;
 
 import javax.annotation.CheckForNull;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.ProjectMeasureDto;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 
 public class MeasureToMeasureDto {
 
@@ -58,6 +58,14 @@ public class MeasureToMeasureDto {
     out.setValue(valueAsDouble(measure));
     out.setData(data(measure));
     return out;
+  }
+
+  public static Object getMeasureValue(Measure measure) {
+    Double doubleValue = valueAsDouble(measure);
+    if (doubleValue != null) {
+      return doubleValue;
+    }
+    return data(measure);
   }
 
   private static void setAlert(ProjectMeasureDto projectMeasureDto, QualityGateStatus qualityGateStatus) {
