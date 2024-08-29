@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { addGlobalSuccessMessage } from 'design-system';
 import { isEqual, keyBy, partition, pick, unionBy } from 'lodash';
 import { useContext } from 'react';
@@ -34,9 +34,8 @@ import { AvailableFeaturesContext } from '../../app/components/available-feature
 import { translate } from '../../helpers/l10n';
 import { mapReactQueryResult } from '../../helpers/react-query';
 import { Feature } from '../../types/features';
-import { GitHubMapping } from '../../types/provisioning';
-
-const MAPPING_STALE_TIME = 60_000;
+import { DevopsRolesMapping } from '../../types/provisioning';
+import { StaleTime, createQueryHook } from '../common';
 
 export const useCheckGitHubConfigQuery = (githubEnabled: boolean) => {
   return useQuery({
@@ -89,27 +88,30 @@ export function useSyncWithGitHubNow() {
 // Order is reversed to put custom roles at the end (their index is -1)
 const defaultRoleOrder = ['admin', 'maintain', 'write', 'triage', 'read'];
 
-export function useGithubRolesMappingQuery() {
-  return useQuery({
-    queryKey: ['identity_provider', 'github_mapping'],
-    queryFn: fetchGithubRolesMapping,
-    staleTime: MAPPING_STALE_TIME,
-    select: (data) =>
-      [...data].sort((a, b) => {
-        if (defaultRoleOrder.includes(a.id) || defaultRoleOrder.includes(b.id)) {
-          return defaultRoleOrder.indexOf(b.id) - defaultRoleOrder.indexOf(a.id);
-        }
-        return a.githubRole.localeCompare(b.githubRole);
-      }),
+function sortGithubRoles(data: DevopsRolesMapping[]) {
+  return [...data].sort((a, b) => {
+    if (defaultRoleOrder.includes(a.id) || defaultRoleOrder.includes(b.id)) {
+      return defaultRoleOrder.indexOf(b.id) - defaultRoleOrder.indexOf(a.id);
+    }
+    return a.role.localeCompare(b.role);
   });
 }
+
+export const useGithubRolesMappingQuery = createQueryHook(() => {
+  return queryOptions({
+    queryKey: ['identity_provider', 'github_mapping'],
+    queryFn: fetchGithubRolesMapping,
+    staleTime: StaleTime.LONG,
+    select: sortGithubRoles, // uses a stable function reference
+  });
+});
 
 export function useGithubRolesMappingMutation() {
   const client = useQueryClient();
   const queryKey = ['identity_provider', 'github_mapping'];
   return useMutation({
-    mutationFn: async (mapping: GitHubMapping[]) => {
-      const state = keyBy(client.getQueryData<GitHubMapping[]>(queryKey), (m) => m.id);
+    mutationFn: async (mapping: DevopsRolesMapping[]) => {
+      const state = keyBy(client.getQueryData<DevopsRolesMapping[]>(queryKey), (m) => m.id);
 
       const [maybeChangedRoles, newRoles] = partition(mapping, (m) => state[m.id]);
       const changedRoles = maybeChangedRoles.filter((item) => !isEqual(item, state[item.id]));
@@ -130,7 +132,7 @@ export function useGithubRolesMappingMutation() {
       };
     },
     onSuccess: ({ addedOrChanged, deleted }) => {
-      const state = client.getQueryData<GitHubMapping[]>(queryKey);
+      const state = client.getQueryData<DevopsRolesMapping[]>(queryKey);
       if (state) {
         const newData = unionBy(
           addedOrChanged,

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { addGlobalSuccessMessage } from 'design-system';
 import { isEqual, keyBy, partition, pick, unionBy } from 'lodash';
 import { getActivity } from '../../api/ce';
@@ -34,10 +34,9 @@ import {
 } from '../../api/gitlab-provisioning';
 import { translate } from '../../helpers/l10n';
 import { mapReactQueryResult } from '../../helpers/react-query';
-import { AlmSyncStatus, GitLabMapping, ProvisioningType } from '../../types/provisioning';
+import { AlmSyncStatus, DevopsRolesMapping, ProvisioningType } from '../../types/provisioning';
 import { TaskStatuses, TaskTypes } from '../../types/tasks';
-
-const MAPPING_STALE_TIME = 60_000;
+import { createQueryHook, StaleTime } from '../common';
 
 export function useGitLabConfigurationsQuery() {
   return useQuery({
@@ -200,27 +199,30 @@ export function useSyncWithGitLabNow() {
 // Order is reversed to put custom roles at the end (their index is -1)
 const defaultRoleOrder = ['owner', 'maintainer', 'developer', 'reporter', 'guest'];
 
-export function useGitlabRolesMappingQuery() {
-  return useQuery({
-    queryKey: ['identity_provider', 'gitlab_mapping'],
-    queryFn: fetchGitlabRolesMapping,
-    staleTime: MAPPING_STALE_TIME,
-    select: (data) =>
-      [...data].sort((a, b) => {
-        if (defaultRoleOrder.includes(a.id) || defaultRoleOrder.includes(b.id)) {
-          return defaultRoleOrder.indexOf(b.id) - defaultRoleOrder.indexOf(a.id);
-        }
-        return a.gitlabRole.localeCompare(b.gitlabRole);
-      }),
+function sortGitlabRoles(data: DevopsRolesMapping[]) {
+  return [...data].sort((a, b) => {
+    if (defaultRoleOrder.includes(a.id) || defaultRoleOrder.includes(b.id)) {
+      return defaultRoleOrder.indexOf(b.id) - defaultRoleOrder.indexOf(a.id);
+    }
+    return a.role.localeCompare(b.role);
   });
 }
+
+export const useGitlabRolesMappingQuery = createQueryHook(() => {
+  return queryOptions({
+    queryKey: ['identity_provider', 'gitlab_mapping'],
+    queryFn: fetchGitlabRolesMapping,
+    staleTime: StaleTime.LONG,
+    select: sortGitlabRoles,
+  });
+});
 
 export function useGitlabRolesMappingMutation() {
   const client = useQueryClient();
   const queryKey = ['identity_provider', 'gitlab_mapping'];
   return useMutation({
-    mutationFn: async (mapping: GitLabMapping[]) => {
-      const state = keyBy(client.getQueryData<GitLabMapping[]>(queryKey), (m) => m.id);
+    mutationFn: async (mapping: DevopsRolesMapping[]) => {
+      const state = keyBy(client.getQueryData<DevopsRolesMapping[]>(queryKey), (m) => m.id);
 
       const [maybeChangedRoles, newRoles] = partition(mapping, (m) => state[m.id]);
       const changedRoles = maybeChangedRoles.filter((item) => !isEqual(item, state[item.id]));
@@ -241,7 +243,7 @@ export function useGitlabRolesMappingMutation() {
       };
     },
     onSuccess: ({ addedOrChanged, deleted }) => {
-      const state = client.getQueryData<GitLabMapping[]>(queryKey);
+      const state = client.getQueryData<DevopsRolesMapping[]>(queryKey);
       if (state) {
         const newData = unionBy(
           addedOrChanged,

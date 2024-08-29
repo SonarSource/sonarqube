@@ -42,25 +42,23 @@ import {
   isPermissionDefinitionGroup,
 } from '../../../../helpers/permissions';
 import { AlmKeys } from '../../../../types/alm-settings';
-import { GitHubMapping, GitLabMapping } from '../../../../types/provisioning';
-
-type RolesMapping = GitHubMapping[] | GitLabMapping[] | null;
+import { DevopsRolesMapping } from '../../../../types/provisioning';
 
 interface Props {
   isLoading: boolean;
-  mapping: RolesMapping;
+  mapping: DevopsRolesMapping[] | null;
   mappingFor: AlmKeys.GitHub | AlmKeys.GitLab;
   onClose: () => void;
-  roles?: RolesMapping;
-  setMapping: React.Dispatch<React.SetStateAction<RolesMapping>>;
+  roles?: DevopsRolesMapping[] | null;
+  setMapping: React.Dispatch<React.SetStateAction<DevopsRolesMapping[] | null>>;
 }
 
 interface PermissionCellProps extends Pick<Props, 'setMapping'> {
-  list?: GitHubMapping[] | GitLabMapping[];
-  mapping: GitHubMapping | GitLabMapping;
+  list?: DevopsRolesMapping[];
+  mapping: DevopsRolesMapping;
 }
 
-const DEFAULT_CUSTOM_ROLE_PERMISSIONS: GitHubMapping['permissions'] = {
+const DEFAULT_CUSTOM_ROLE_PERMISSIONS: DevopsRolesMapping['permissions'] = {
   user: true,
   codeViewer: false,
   issueAdmin: false,
@@ -71,30 +69,21 @@ const DEFAULT_CUSTOM_ROLE_PERMISSIONS: GitHubMapping['permissions'] = {
 
 function PermissionRow(props: Readonly<PermissionCellProps>) {
   const { list, mapping } = props;
-  const isGitHubMapping = 'githubRole' in mapping;
-  const role = isGitHubMapping ? mapping.githubRole : mapping.gitlabRole;
-  const isBaseRole = mapping.baseRole;
+  const { role, baseRole } = mapping;
 
   const setMapping = () => {
-    if (isGitHubMapping) {
-      return props.setMapping(
-        (list as GitHubMapping[])?.filter((r) => r.githubRole !== role) ?? null,
-      );
-    }
-    return props.setMapping(
-      (list as GitLabMapping[])?.filter((r) => r.gitlabRole !== role) ?? null,
-    );
+    return props.setMapping(list?.filter((r) => r.role !== role) ?? null);
   };
 
   return (
     <TableRowInteractive>
       <ContentCell scope="row" className="sw-whitespace-nowrap">
         <div className="sw-flex sw-max-w-[330px] sw-items-center">
-          <b className={isBaseRole ? 'sw-capitalize' : 'sw-truncate'} title={role}>
+          <b className={baseRole ? 'sw-capitalize' : 'sw-truncate'} title={role}>
             {role}
           </b>
 
-          {!isBaseRole && (
+          {!baseRole && (
             <DestructiveIcon
               className="sw-ml-1"
               aria-label={translateWithParameters(
@@ -114,11 +103,11 @@ function PermissionRow(props: Readonly<PermissionCellProps>) {
             checked={value}
             onCheck={(newValue) =>
               props.setMapping(
-                (list?.map((item) =>
+                list?.map((item) =>
                   item.id === mapping.id
                     ? { ...item, permissions: { ...item.permissions, [key]: newValue } }
                     : item,
-                ) ?? null) as RolesMapping,
+                ) ?? null,
               )
             }
           />
@@ -148,33 +137,17 @@ export function DevopsRolesMappingModal(props: Readonly<Props>) {
     e.preventDefault();
     const value = customRoleInput.trim();
     if (
-      mappingFor === AlmKeys.GitHub &&
-      !(list as GitHubMapping[])?.some((el) =>
-        el.baseRole ? el.githubRole.toLowerCase() === value.toLowerCase() : el.githubRole === value,
+      !list?.some((el) =>
+        el.baseRole ? el.role.toLowerCase() === value.toLowerCase() : el.role === value,
       )
     ) {
       setMapping([
         {
           id: customRoleInput,
-          githubRole: customRoleInput,
+          role: customRoleInput,
           permissions: { ...DEFAULT_CUSTOM_ROLE_PERMISSIONS },
         },
-        ...((list as GitHubMapping[]) ?? []),
-      ]);
-      setCustomRoleInput('');
-    } else if (
-      mappingFor === AlmKeys.GitLab &&
-      !(list as GitLabMapping[])?.some((el) =>
-        el.baseRole ? el.gitlabRole.toLowerCase() === value.toLowerCase() : el.gitlabRole === value,
-      )
-    ) {
-      setMapping([
-        {
-          id: customRoleInput,
-          gitlabRole: customRoleInput,
-          permissions: { ...DEFAULT_CUSTOM_ROLE_PERMISSIONS },
-        },
-        ...((list as GitLabMapping[]) ?? []),
+        ...(list ?? []),
       ]);
       setCustomRoleInput('');
     } else {

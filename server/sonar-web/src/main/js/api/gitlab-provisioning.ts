@@ -19,9 +19,9 @@
  */
 import axios from 'axios';
 import {
+  DevopsRolesMapping,
   GitLabConfigurationCreateBody,
   GitLabConfigurationUpdateBody,
-  GitLabMapping,
   GitlabConfiguration,
   ProvisioningType,
 } from '../types/provisioning';
@@ -69,22 +69,22 @@ export function syncNowGitLabProvisioning(): Promise<void> {
 
 export function fetchGitlabRolesMapping() {
   return axios
-    .get<{ gitlabPermissionsMappings: GitLabMapping[] }>(GITLAB_PERMISSION_MAPPINGS)
-    .then((data) => data.gitlabPermissionsMappings);
+    .get<{ permissionMappings: DevopsRolesMapping[] }>(GITLAB_PERMISSION_MAPPINGS)
+    .then((data) => data.permissionMappings);
 }
 
 export function updateGitlabRolesMapping(
   role: string,
-  data: Partial<Pick<GitLabMapping, 'permissions'>>,
+  data: Partial<Pick<DevopsRolesMapping, 'permissions'>>,
 ) {
-  return axios.patch<GitLabMapping>(
+  return axios.patch<DevopsRolesMapping>(
     `${GITLAB_PERMISSION_MAPPINGS}/${encodeURIComponent(role)}`,
     data,
   );
 }
 
-export function addGitlabRolesMapping(data: Omit<GitLabMapping, 'id'>) {
-  return axios.post<GitLabMapping>(GITLAB_PERMISSION_MAPPINGS, data);
+export function addGitlabRolesMapping(data: Omit<DevopsRolesMapping, 'id'>) {
+  return axios.post<DevopsRolesMapping>(GITLAB_PERMISSION_MAPPINGS, data);
 }
 
 export function deleteGitlabRolesMapping(role: string) {

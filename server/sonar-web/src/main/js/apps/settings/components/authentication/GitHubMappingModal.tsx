@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { useGithubRolesMappingQuery } from '../../../../queries/identity-provider/github';
 import { AlmKeys } from '../../../../types/alm-settings';
-import { GitHubMapping } from '../../../../types/provisioning';
+import { DevopsRolesMapping } from '../../../../types/provisioning';
 import { DevopsRolesMappingModal } from './DevopsRolesMappingModal';
 
 interface Props {
-  mapping: GitHubMapping[] | null;
+  mapping: DevopsRolesMapping[] | null;
   onClose: () => void;
-  setMapping: React.Dispatch<React.SetStateAction<GitHubMapping[] | null>>;
+  setMapping: React.Dispatch<React.SetStateAction<DevopsRolesMapping[] | null>>;
 }
 
 export default function GitHubMappingModal(props: Readonly<Props>) {

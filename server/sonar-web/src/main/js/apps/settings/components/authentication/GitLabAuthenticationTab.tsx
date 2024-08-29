@@ -37,8 +37,8 @@ import {
 } from '../../../../queries/identity-provider/gitlab';
 import { Feature } from '../../../../types/features';
 import {
+  DevopsRolesMapping,
   GitLabConfigurationUpdateBody,
-  GitLabMapping,
   ProvisioningType,
 } from '../../../../types/provisioning';
 import { DefinitionV2, SettingType } from '../../../../types/settings';
@@ -95,7 +95,7 @@ export default function GitLabAuthenticationTab() {
   const [tokenKey, setTokenKey] = useState<number>(0);
   const [showConfirmProvisioningModal, setShowConfirmProvisioningModal] = useState(false);
   const [isMappingModalOpen, setIsMappingModalOpen] = useState(false);
-  const [rolesMapping, setRolesMapping] = useState<GitLabMapping[] | null>(null);
+  const [rolesMapping, setRolesMapping] = useState<DevopsRolesMapping[] | null>(null);
   const { mutateAsync: updateMapping } = useGitlabRolesMappingMutation();
 
   const hasGitlabProvisioningFeature = useContext(AvailableFeaturesContext).includes(

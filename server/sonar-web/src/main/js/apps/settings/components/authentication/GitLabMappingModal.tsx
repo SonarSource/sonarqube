@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { useGitlabRolesMappingQuery } from '../../../../queries/identity-provider/gitlab';
 import { AlmKeys } from '../../../../types/alm-settings';
-import { GitLabMapping } from '../../../../types/provisioning';
+import { DevopsRolesMapping } from '../../../../types/provisioning';
 import { DevopsRolesMappingModal } from './DevopsRolesMappingModal';
 
 interface Props {
-  mapping: GitLabMapping[] | null;
+  mapping: DevopsRolesMapping[] | null;
   onClose: () => void;
-  setMapping: React.Dispatch<React.SetStateAction<GitLabMapping[] | null>>;
+  setMapping: React.Dispatch<React.SetStateAction<DevopsRolesMapping[] | null>>;
 }
 
 export default function GitLabMappingModal(props: Readonly<Props>) {

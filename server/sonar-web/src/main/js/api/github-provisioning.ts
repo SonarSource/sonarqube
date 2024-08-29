@@ -21,7 +21,7 @@ import axios from 'axios';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
 import { post, postJSON } from '../helpers/request';
-import { GitHubConfigurationStatus, GitHubMapping, GithubStatus } from '../types/provisioning';
+import { DevopsRolesMapping, GitHubConfigurationStatus, GithubStatus } from '../types/provisioning';
 
 const GITHUB_PERMISSION_MAPPINGS = '/api/v2/dop-translation/github-permission-mappings';
 
@@ -39,22 +39,22 @@ export function syncNowGithubProvisioning(): Promise<void> {
 
 export function fetchGithubRolesMapping() {
   return axios
-    .get<{ githubPermissionsMappings: GitHubMapping[] }>(GITHUB_PERMISSION_MAPPINGS)
-    .then((data) => data.githubPermissionsMappings);
+    .get<{ permissionMappings: DevopsRolesMapping[] }>(GITHUB_PERMISSION_MAPPINGS)
+    .then((data) => data.permissionMappings);
 }
 
 export function updateGithubRolesMapping(
   role: string,
-  data: Partial<Pick<GitHubMapping, 'permissions'>>,
+  data: Partial<Pick<DevopsRolesMapping, 'permissions'>>,
 ) {
-  return axios.patch<GitHubMapping>(
+  return axios.patch<DevopsRolesMapping>(
     `${GITHUB_PERMISSION_MAPPINGS}/${encodeURIComponent(role)}`,
     data,
   );
 }
 
-export function addGithubRolesMapping(data: Omit<GitHubMapping, 'id'>) {
-  return axios.post<GitHubMapping>(GITHUB_PERMISSION_MAPPINGS, data);
+export function addGithubRolesMapping(data: Omit<DevopsRolesMapping, 'id'>) {
+  return axios.post<DevopsRolesMapping>(GITHUB_PERMISSION_MAPPINGS, data);
 }
 
 export function deleteGithubRolesMapping(role: string) {

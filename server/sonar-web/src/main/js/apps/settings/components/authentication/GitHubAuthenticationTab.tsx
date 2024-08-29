@@ -40,7 +40,7 @@ import {
 } from '../../../../queries/identity-provider/github';
 import { GitHubConfigurationPayload } from '../../../../types/dop-translation';
 import { Feature } from '../../../../types/features';
-import { GitHubMapping, ProvisioningType } from '../../../../types/provisioning';
+import { DevopsRolesMapping, ProvisioningType } from '../../../../types/provisioning';
 import { Provider } from '../../../../types/types';
 import AuthenticationFormField from './AuthenticationFormField';
 import AutoProvisioningConsent from './AutoProvisionningConsent';
@@ -63,7 +63,7 @@ export default function GitHubAuthenticationTab() {
   const [tokenKey, setTokenKey] = React.useState<number>(0);
   const [isConfirmProvisioningModalOpen, setIsConfirmProvisioningModalOpen] = React.useState(false);
   const [isMappingModalOpen, setIsMappingModalOpen] = useState(false);
-  const [rolesMapping, setRolesMapping] = useState<GitHubMapping[] | null>(null);
+  const [rolesMapping, setRolesMapping] = useState<DevopsRolesMapping[] | null>(null);
 
   const hasGithubProvisioning = useContext(AvailableFeaturesContext).includes(
     Feature.GithubProvisioning,
