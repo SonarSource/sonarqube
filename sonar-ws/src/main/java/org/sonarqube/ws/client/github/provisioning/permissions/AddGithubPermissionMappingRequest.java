@@ -19,13 +19,6 @@
  */
 package org.sonarqube.ws.client.github.provisioning.permissions;
 
-public class AddGithubPermissionMappingRequest {
-  private final String githubRole;
-  private final SonarqubePermissions permissions;
-
-  public AddGithubPermissionMappingRequest(String githubRole, SonarqubePermissions permissions) {
-    this.githubRole = githubRole;
-    this.permissions = permissions;
-  }
+public record AddGithubPermissionMappingRequest(String role, SonarqubePermissions permissions) {
 
 }
