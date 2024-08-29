@@ -98,7 +98,7 @@ public class PopulateDb {
     executorService.shutdown();
     executorService.awaitTermination(100, TimeUnit.DAYS);
 
-    createUsers(sqContext, 100_000);
+    createUsers(sqContext, 100);
 
     allPortfolios = new ArrayList<>(dbTester.getDbClient().portfolioDao().selectAll(initSession));
     allPortfolios.addAll(createPortfolios(sqContext, new PortfolioGenerationSettings(allPortfolios.size(), 100, 10)));
@@ -222,9 +222,13 @@ public class PopulateDb {
         // for every file in branch
         for (int file = 0; file < pj.filePerBranch; file++) {
           ComponentDto fileComponentDto = sqContext.dbTester.components().insertFile(branchAndComponentDto.compo);
+          sqContext.dbTester.fileSources().insertFileSource(fileComponentDto, pj.issuePerFile,
+          fs -> fs.setSourceData(fs.getSourceData()));
           // for every issue in file
           for (int issue = 0; issue < pj.issuePerFile; issue++) {
-            IssueDto issueDto = sqContext.dbTester.issues().insertIssue(sqContext.findNotSecurityHotspotRule(), branchAndComponentDto.compo, fileComponentDto);
+            final int issueLine = issue + 1;
+            IssueDto issueDto = sqContext.dbTester.issues().insertIssue(sqContext.findNotSecurityHotspotRule(), branchAndComponentDto.compo, fileComponentDto,
+              iDto -> iDto.setLine(issueLine));
             // for every issue change in issue
             for (int issueChange = 0; issueChange < pj.issueChangePerIssue; issueChange++) {
               sqContext.dbTester.issues().insertChange(issueDto);
