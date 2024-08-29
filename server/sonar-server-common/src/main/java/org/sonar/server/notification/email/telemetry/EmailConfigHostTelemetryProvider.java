@@ -21,7 +21,6 @@ package org.sonar.server.notification.email.telemetry;
 
 import com.google.common.net.InternetDomainName;
 import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -50,21 +49,22 @@ public class EmailConfigHostTelemetryProvider implements TelemetryDataProvider<S
   }
 
   @Override
-  public Granularity getGranularity() {
-    return Granularity.WEEKLY;
-  }
-
-  @Override
   public TelemetryDataType getType() {
     return TelemetryDataType.STRING;
   }
 
   @Override
+  public Granularity getGranularity() {
+    return Granularity.WEEKLY;
+  }
+
+  @Override
   public Optional<String> getValue() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.internalPropertiesDao()
+      return Optional.of(dbClient.internalPropertiesDao()
         .selectByKey(dbSession, EMAIL_CONFIG_SMTP_HOST)
-        .map(EmailConfigHostTelemetryProvider::extractDomain);
+        .map(EmailConfigHostTelemetryProvider::extractDomain)
+        .orElse("NOT_SET"));
     }
   }
 

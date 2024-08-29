@@ -63,8 +63,18 @@ class EmailConfigHostTelemetryProviderTest {
     assertThat(emailConfigHostTelemetryProvider.getValue()).isEqualTo(Optional.of(domain));
   }
 
+  @Test
+  void getValue_returnsNotSetWhenEmpty() {
+    EmailConfigHostTelemetryProvider emailConfigHostTelemetryProvider = new EmailConfigHostTelemetryProvider(dbClient);
+
+    when(dbClient.openSession(false)).thenReturn(dbSession);
+    when(dbClient.internalPropertiesDao().selectByKey(dbSession, EMAIL_CONFIG_SMTP_HOST)).thenReturn(Optional.empty());
+
+    assertThat(emailConfigHostTelemetryProvider.getValue()).isEqualTo(Optional.of("NOT_SET"));
+  }
+
   private static Object[][] hostAndExpectedDomainValues() {
-    return new Object[][]{
+    return new Object[][] {
       {"", "EMPTY_DOMAIN"},
       {"smtpasad.org.sdf", "DOMAIN_NOT_UNDER_PUBLIC_SUFFIX"},
       {"127.0.0.0", "NOT_VALID_DOMAIN_NAME"},

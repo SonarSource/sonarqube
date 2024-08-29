@@ -20,7 +20,6 @@
 package org.sonar.server.notification.email.telemetry;
 
 import java.util.Optional;
-
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.telemetry.core.Dimension;
@@ -60,7 +59,7 @@ public class EmailConfigAuthMethodTelemetryProvider implements TelemetryDataProv
   @Override
   public Optional<String> getValue() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.internalPropertiesDao().selectByKey(dbSession, EMAIL_CONFIG_SMTP_AUTH_METHOD);
+      return Optional.of(dbClient.internalPropertiesDao().selectByKey(dbSession, EMAIL_CONFIG_SMTP_AUTH_METHOD).orElse("NOT_SET"));
     }
   }
 }

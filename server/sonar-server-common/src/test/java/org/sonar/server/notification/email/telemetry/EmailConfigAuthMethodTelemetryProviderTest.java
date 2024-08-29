@@ -30,6 +30,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_AUTH_METHOD;
 import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_AUTH_METHOD_DEFAULT;
+
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
 
@@ -48,5 +49,15 @@ class EmailConfigAuthMethodTelemetryProviderTest {
     assertThat(emailConfigAuthMethodTelemetryProvider.getGranularity()).isEqualTo(Granularity.WEEKLY);
     assertThat(emailConfigAuthMethodTelemetryProvider.getDimension()).isEqualTo(Dimension.INSTALLATION);
     assertThat(emailConfigAuthMethodTelemetryProvider.getValue()).isEqualTo(Optional.of("BASIC"));
+  }
+
+  @Test
+  void getValue_returnsNotSetWhenEmpty() {
+    EmailConfigAuthMethodTelemetryProvider emailConfigAuthMethodTelemetryProvider = new EmailConfigAuthMethodTelemetryProvider(dbClient);
+
+    when(dbClient.openSession(false)).thenReturn(dbSession);
+    when(dbClient.internalPropertiesDao().selectByKey(dbSession, EMAIL_CONFIG_SMTP_AUTH_METHOD)).thenReturn(Optional.empty());
+
+    assertThat(emailConfigAuthMethodTelemetryProvider.getValue()).isEqualTo(Optional.of("NOT_SET"));
   }
 }
