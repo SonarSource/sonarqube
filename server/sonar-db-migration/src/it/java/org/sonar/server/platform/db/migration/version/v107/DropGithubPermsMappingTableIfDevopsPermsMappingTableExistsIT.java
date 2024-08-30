@@ -30,7 +30,7 @@ import static org.sonar.server.platform.db.migration.version.v107.RenameGithubPe
 class DropGithubPermsMappingTableIfDevopsPermsMappingTableExistsIT {
 
   @RegisterExtension
-  public static MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropGithubPermsMappingTableIfDevopsPermsMappingTableExists.class);
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropGithubPermsMappingTableIfDevopsPermsMappingTableExists.class);
 
   private final DropGithubPermsMappingTableIfDevopsPermsMappingTableExists underTest = new DropGithubPermsMappingTableIfDevopsPermsMappingTableExists(db.database());
 
