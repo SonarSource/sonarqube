@@ -167,6 +167,15 @@ class PurgeCommands {
         });
     profiler.stop();
 
+    profiler.start("purgeDisabledComponents (measures)");
+    executeLargeInputs(
+      purgeMapper.selectDisabledComponentsWithMeasures(rootComponentUuid),
+      input -> {
+        purgeMapper.deleteMeasuresByComponentUuids(input);
+        return input;
+      });
+    profiler.stop();
+
     session.commit();
   }
 
@@ -452,6 +461,13 @@ class PurgeCommands {
   void deleteLiveMeasures(String rootUuid) {
     profiler.start("deleteLiveMeasures (live_measures)");
     purgeMapper.deleteLiveMeasuresByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
+
+  void deleteMeasures(String rootUuid) {
+    profiler.start("deleteMeasures (measures)");
+    purgeMapper.deleteMeasuresByBranchUuid(rootUuid);
     session.commit();
     profiler.stop();
   }

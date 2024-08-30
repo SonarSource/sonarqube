@@ -28,7 +28,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
@@ -108,6 +107,17 @@ public class MeasureDbTester {
     return insertLiveMeasure(projectData.getMainBranchComponent(), metric, consumers);
   }
 
+  @SafeVarargs
+  public final MeasureDto insertMeasure(ComponentDto component, Consumer<MeasureDto>... consumers) {
+    MeasureDto dto = new MeasureDto()
+      .setComponentUuid(component.uuid())
+      .setBranchUuid(component.branchUuid());
+    Arrays.stream(consumers).forEach(c -> c.accept(dto));
+    dto.computeJsonValueHash();
+    dbClient.measureDao().insert(db.getSession(), dto);
+    db.getSession().commit();
+    return dto;
+  }
 
   @SafeVarargs
   public final MetricDto insertMetric(Consumer<MetricDto>... consumers) {
