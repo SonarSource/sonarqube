@@ -5970,6 +5970,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/validator@npm:13.12.0":
+  version: 13.12.0
+  resolution: "@types/validator@npm:13.12.0"
+  checksum: 10/b3344ef630ff9a3ffab4ce10da268e7be98ca2df9cbd956fb5cac860bd661c7ff6e82e0cdc7b253f037a98cf3b233fff3d04d28330bcd3ca2cafb0c52253976e
+  languageName: node
+  linkType: hard
+
 "@types/yargs-parser@npm:*":
   version: 15.0.0
   resolution: "@types/yargs-parser@npm:15.0.0"
@@ -6465,6 +6472,7 @@ __metadata:
     "@types/react-modal": "npm:3.16.3"
     "@types/react-virtualized": "npm:9.21.30"
     "@types/valid-url": "npm:1.0.7"
+    "@types/validator": "npm:13.12.0"
     "@typescript-eslint/eslint-plugin": "npm:6.21.0"
     "@typescript-eslint/parser": "npm:6.21.0"
     "@typescript-eslint/rule-tester": "npm:6.21.0"
@@ -6539,6 +6547,7 @@ __metadata:
     turbo: "npm:1.11.3"
     typescript: "npm:5.5.3"
     valid-url: "npm:1.0.9"
+    validator: "npm:13.12.0"
     whatwg-fetch: "npm:3.6.20"
   languageName: unknown
   linkType: soft
@@ -17149,6 +17158,13 @@ __metadata:
   version: 1.0.9
   resolution: "valid-url@npm:1.0.9"
   checksum: 10/343dfaf85eb3691dc8eb93f7bc007be1ee6091e6c6d1a68bf633cb85e4bf2930e34ca9214fb2c3330de5b652510b257a8ee1ff0a0a37df0925e9dabf93ee512d
+  languageName: node
+  linkType: hard
+
+"validator@npm:13.12.0":
+  version: 13.12.0
+  resolution: "validator@npm:13.12.0"
+  checksum: 10/db6eb0725e2b67d60d30073ae8573982713b5903195d031dc3c7db7e82df8b74e8c13baef8e2106d146d979599fd61a06cde1fec5c148e4abd53d52817ff0fd9
   languageName: node
   linkType: hard
 

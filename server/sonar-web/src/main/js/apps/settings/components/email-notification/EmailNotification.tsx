@@ -17,30 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SubTitle } from 'design-system';
+import { Spinner } from '@sonarsource/echoes-react';
+import { SubTitle } from 'design-system/lib';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { AdditionalCategoryComponentProps } from '../AdditionalCategories';
-import CategoryDefinitionsList from '../CategoryDefinitionsList';
-import EmailForm from './EmailForm';
+import { useGetEmailConfiguration } from '../../../../queries/system';
+import EmailNotificationConfiguration from './EmailNotificationConfiguration';
 
-export default function EmailNotification(props: Readonly<AdditionalCategoryComponentProps>) {
-  const { component, definitions } = props;
+export default function EmailNotification() {
+  const { data: configuration, isLoading } = useGetEmailConfiguration();
 
   return (
-    <div>
+    <div className="sw-p-6">
       <SubTitle as="h3">
-        <FormattedMessage id="settings.email_notification.header" />
+        <FormattedMessage id="email_notification.header" />
       </SubTitle>
-      <CategoryDefinitionsList
-        category="general"
-        component={component}
-        definitions={definitions}
-        displaySubCategoryTitle={false}
-        noPadding
-        subCategory="email"
-      />
-      <EmailForm />
+      <FormattedMessage id="email_notification.description" />
+      <Spinner isLoading={isLoading}>
+        <EmailNotificationConfiguration emailConfiguration={configuration ?? null} />
+      </Spinner>
     </div>
   );
 }

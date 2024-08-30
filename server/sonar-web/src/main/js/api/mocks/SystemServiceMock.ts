@@ -17,12 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep } from 'lodash';
+import { cloneDeep, uniqueId } from 'lodash';
 import { Provider, SysInfoCluster, SysInfoLogging, SysInfoStandalone } from '../../types/types';
 
 import { LogsLevels } from '../../apps/system/utils';
-import { mockClusterSysInfo, mockLogs, mockStandaloneSysInfo } from '../../helpers/testMocks';
-import { getSystemInfo, getSystemUpgrades, setLogLevel } from '../system';
+import { mockEmailConfiguration } from '../../helpers/mocks/system';
+import {
+  mockClusterSysInfo,
+  mockLogs,
+  mockPaging,
+  mockStandaloneSysInfo,
+} from '../../helpers/testMocks';
+import { EmailConfiguration } from '../../types/system';
+import {
+  getEmailConfigurations,
+  getSystemInfo,
+  getSystemUpgrades,
+  patchEmailConfiguration,
+  postEmailConfiguration,
+  setLogLevel,
+} from '../system';
 
 jest.mock('../system');
 
@@ -44,11 +58,15 @@ export default class SystemServiceMock {
     installedVersionActive: true,
   };
 
+  emailConfigurations: EmailConfiguration[] = [];
+
   constructor() {
     this.updateSystemInfo();
     jest.mocked(getSystemInfo).mockImplementation(this.handleGetSystemInfo);
     jest.mocked(setLogLevel).mockImplementation(this.handleSetLogLevel);
     jest.mocked(getSystemUpgrades).mockImplementation(this.handleGetSystemUpgrades);
+    jest.mocked(getEmailConfigurations).mockImplementation(this.handleGetEmailConfigurations);
+    jest.mocked(postEmailConfiguration).mockImplementation(this.handlePostEmailConfiguration);
   }
 
   handleGetSystemInfo = () => {
@@ -97,10 +115,41 @@ export default class SystemServiceMock {
     this.updateSystemInfo();
   };
 
+  handleGetEmailConfigurations: typeof getEmailConfigurations = () => {
+    return this.reply({
+      emailConfigurations: this.emailConfigurations,
+      page: mockPaging({ total: this.emailConfigurations.length }),
+    });
+  };
+
+  handlePostEmailConfiguration: typeof postEmailConfiguration = (configuration) => {
+    const returnVal = mockEmailConfiguration(configuration.authMethod, {
+      ...configuration,
+      id: uniqueId('email-configuration-'),
+    });
+
+    this.emailConfigurations.push(returnVal);
+    return this.reply(returnVal);
+  };
+
+  handlePatchEmailConfiguration: typeof patchEmailConfiguration = (id, configuration) => {
+    const index = this.emailConfigurations.findIndex((c) => c.id === id);
+    this.emailConfigurations[index] = mockEmailConfiguration(configuration.authMethod, {
+      ...this.emailConfigurations[index],
+      ...configuration,
+    });
+    return this.reply(this.emailConfigurations[index]);
+  };
+
+  addEmailConfiguration = (configuration: EmailConfiguration) => {
+    this.emailConfigurations.push(configuration);
+  };
+
   reset = () => {
     this.logging = mockLogs();
     this.setIsCluster(false);
     this.updateSystemInfo();
+    this.emailConfigurations = [];
   };
 
   reply<T>(response: T): Promise<T> {

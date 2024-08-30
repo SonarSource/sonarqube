@@ -53,3 +53,37 @@ export interface MigrationsStatusResponse {
   status: MigrationStatus;
   totalSteps?: number;
 }
+
+export enum AuthMethod {
+  Basic = 'BASIC',
+  OAuth = 'OAUTH',
+}
+
+export type EmailConfiguration = (
+  | {
+      authMethod: AuthMethod.Basic;
+      basicPassword: string;
+      readonly isBasicPasswordSet?: boolean;
+    }
+  | {
+      authMethod: AuthMethod.OAuth;
+      readonly isOauthClientIdSet?: boolean;
+      readonly isOauthClientSecretSet?: boolean;
+      oauthAuthenticationHost: string;
+      oauthClientId: string;
+      oauthClientSecret: string;
+      oauthTenant: string;
+    }
+) &
+  EmailConfigurationCommon;
+
+interface EmailConfigurationCommon {
+  fromAddress: string;
+  fromName: string;
+  host: string;
+  id?: string;
+  port: string;
+  securityProtocol: string;
+  subjectPrefix: string;
+  username: string;
+}

@@ -157,6 +157,8 @@ const StyledRecommended = styled.div`
   ${tw`sw-py-2 sw-px-4`}
   ${tw`sw-box-border`}
   ${tw`sw-rounded-b-2`}
+  ${tw`sw-w-full`}
+  ${tw`sw-text-left`}
 
   color: ${themeContrast('infoBackground')};
   background-color: ${themeColor('infoBackground')};

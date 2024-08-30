@@ -107,7 +107,7 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
   },
   {
     key: EMAIL_NOTIFICATION_CATEGORY,
-    name: translate('settings.email_notification.category'),
+    name: translate('email_notification.category'),
     renderComponent: getEmailNotificationComponent,
     availableGlobally: true,
     availableForProject: false,
@@ -139,6 +139,6 @@ function getPullRequestDecorationBindingComponent(props: AdditionalCategoryCompo
   return props.component && <PullRequestDecorationBinding component={props.component} />;
 }
 
-function getEmailNotificationComponent(props: AdditionalCategoryComponentProps) {
-  return <EmailNotification {...props} />;
+function getEmailNotificationComponent() {
+  return <EmailNotification />;
 }

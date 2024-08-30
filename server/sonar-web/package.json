@@ -15,6 +15,7 @@
     "@react-spring/web": "9.7.3",
     "@sonarsource/echoes-react": "0.6.0",
     "@tanstack/react-query": "5.18.1",
+    "@types/validator": "13.12.0",
     "axios": "1.7.2",
     "classnames": "2.5.1",
     "clipboard": "2.0.11",
@@ -46,7 +47,8 @@
     "react-virtualized": "9.22.5",
     "regenerator-runtime": "0.14.1",
     "shared-store-hook": "0.0.4",
-    "valid-url": "1.0.9"
+    "valid-url": "1.0.9",
+    "validator": "13.12.0"
   },
   "devDependencies": {
     "@emotion/jest": "11.11.0",

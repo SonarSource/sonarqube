@@ -21,10 +21,16 @@ import axios from 'axios';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
 import { post, postJSON, requestTryAndRepeatUntil } from '../helpers/request';
-import { MigrationStatus, MigrationsStatusResponse, SystemUpgrade } from '../types/system';
-import { SysInfoCluster, SysInfoStandalone, SysStatus } from '../types/types';
+import {
+  EmailConfiguration,
+  MigrationStatus,
+  MigrationsStatusResponse,
+  SystemUpgrade,
+} from '../types/system';
+import { Paging, SysInfoCluster, SysInfoStandalone, SysStatus } from '../types/types';
 
 const MIGRATIONS_STATUS_ENDPOINT = '/api/v2/system/migrations-status';
+const EMAIL_NOTIFICATION_PATH = '/api/v2/system/email-configurations';
 
 export function setLogLevel(level: string): Promise<void | Response> {
   return post('/api/system/change_log_level', { level }).catch(throwGlobalError);
@@ -72,5 +78,26 @@ export function waitSystemUPStatus(): Promise<{
     getSystemStatus,
     { max: -1, slowThreshold: -15 },
     ({ status }) => status === 'UP',
+  );
+}
+
+export function getEmailConfigurations(): Promise<{
+  emailConfigurations: EmailConfiguration[];
+  page: Paging;
+}> {
+  return axios.get(EMAIL_NOTIFICATION_PATH);
+}
+
+export function postEmailConfiguration(data: EmailConfiguration): Promise<EmailConfiguration> {
+  return axios.post<EmailConfiguration, EmailConfiguration>(EMAIL_NOTIFICATION_PATH, data);
+}
+
+export function patchEmailConfiguration(
+  id: string,
+  emailConfiguration: EmailConfiguration,
+): Promise<EmailConfiguration> {
+  return axios.patch<EmailConfiguration, EmailConfiguration>(
+    `${EMAIL_NOTIFICATION_PATH}/${id}`,
+    emailConfiguration,
   );
 }
