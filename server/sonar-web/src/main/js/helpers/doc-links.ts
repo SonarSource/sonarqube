@@ -79,7 +79,7 @@ export enum DocLink {
   SonarLintConnectedMode = '/user-guide/sonarlint-connected-mode/',
   SonarScanner = '/analyzing-source-code/scanners/sonarscanner/',
   SonarScannerRequirements = '/analyzing-source-code/scanners/general-requirements/',
-  SonarScannerDotNet = '/analyzing-source-code/scanners/sonarscanner-for-dotnet/',
+  SonarScannerDotNet = '/analyzing-source-code/scanners/dotnet/introduction/',
   SonarScannerGradle = '/analyzing-source-code/scanners/sonarscanner-for-gradle/',
   SonarScannerMaven = '/analyzing-source-code/scanners/sonarscanner-for-maven/',
   Webhooks = '/project-administration/webhooks/',
