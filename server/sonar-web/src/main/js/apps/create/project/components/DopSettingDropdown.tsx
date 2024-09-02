@@ -37,6 +37,10 @@ export interface DopSettingDropdownProps {
 const MIN_SIZE_INSTANCES = 2;
 
 function optionRenderer(props: OptionProps<LabelValueSelectOption<DopSetting>, false>) {
+  // For tests and a11y
+  props.innerProps.role = 'option';
+  props.innerProps['aria-selected'] = props.isSelected;
+
   return <components.Option {...props}>{customOptions(props.data.value)}</components.Option>;
 }
 

@@ -19,7 +19,6 @@
  */
 import { waitFor } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
-import selectEvent from 'react-select-event';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { Visibility } from '~sonar-aligned/types/component';
 import { Permissions } from '../../types/permissions';
@@ -95,7 +94,9 @@ export function getPageObject(user: UserEvent) {
       await user.click(ui.closeModalBtn.get());
     },
     async chooseTemplate(name: string) {
-      await selectEvent.select(ui.templateSelect.get(), [name]);
+      await user.click(ui.templateSelect.get());
+      await user.click(byRole('option', { name }).get());
+
       await user.click(ui.confirmApplyTemplateBtn.get());
     },
     async toggleFilterByPermission(permission: Permissions) {

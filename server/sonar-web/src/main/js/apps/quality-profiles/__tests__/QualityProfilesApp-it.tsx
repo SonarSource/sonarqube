@@ -19,7 +19,6 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import selectEvent from 'react-select-event';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
@@ -136,7 +135,8 @@ it('should list Quality Profiles and filter by language', async () => {
   expect(await ui.listLinkCQualityProfile.find()).toBeInTheDocument();
   expect(ui.listLinkJavaQualityProfile.get()).toBeInTheDocument();
 
-  await selectEvent.select(ui.filterByLang.get(), 'C');
+  await user.click(ui.filterByLang.get());
+  await user.click(byRole('option', { name: 'C' }).get());
 
   expect(ui.listLinkJavaQualityProfile.query()).not.toBeInTheDocument();
 
@@ -326,7 +326,9 @@ it('should be able to compare profiles', async () => {
   expect(ui.profileActions('java quality profile', 'Java').query()).not.toBeInTheDocument();
   expect(ui.changelogLink.query()).not.toBeInTheDocument();
 
-  await selectEvent.select(ui.compareDropdown.get(), 'java quality profile #2');
+  await user.click(ui.compareDropdown.get());
+  await user.click(byRole('option', { name: 'java quality profile #2' }).get());
+
   expect(await ui.comparisonDiffTableHeading(1, 'java quality profile').find()).toBeInTheDocument();
   expect(ui.comparisonDiffTableHeading(1, 'java quality profile #2').get()).toBeInTheDocument();
   expect(ui.comparisonModifiedTableHeading(1).get()).toBeInTheDocument();
@@ -344,7 +346,9 @@ it('should be able to activate or deactivate rules in comparison page', async ()
 
   await user.click(await ui.listProfileActions('java quality profile #2', 'Java').find());
   await user.click(ui.compareButton.get());
-  await selectEvent.select(ui.compareDropdown.get(), 'java quality profile');
+
+  await user.click(ui.compareDropdown.get());
+  await user.click(byRole('option', { name: 'java quality profile' }).get());
 
   expect(await ui.summaryFewerRules(1).find()).toBeInTheDocument();
   expect(ui.summaryAdditionalRules(1).get()).toBeInTheDocument();

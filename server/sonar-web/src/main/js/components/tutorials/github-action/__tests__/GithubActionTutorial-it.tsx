@@ -19,13 +19,13 @@
  */
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import selectEvent from 'react-select-event';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { RenderContext, renderApp } from '../../../../helpers/testReactTestingUtils';
+import { byRole } from '../../../../sonar-aligned/helpers/testSelector';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import {
@@ -162,7 +162,10 @@ it('should generate/delete a new token or use existing one', async () => {
   // Revoke current token and create new one
   await user.click(ui.deleteTokenButton.get());
   await user.type(ui.tokenNameInput.get(), 'newtoken');
-  await selectEvent.select(ui.expiresInSelect.get(), 'users.tokens.expiration.365');
+
+  await user.click(ui.expiresInSelect.get());
+  await user.click(byRole('option', { name: 'users.tokens.expiration.365' }).get());
+
   await user.click(ui.generateTokenButton.get());
   expect(ui.tokenValue.get()).toBeInTheDocument();
   await user.click(ui.continueButton.getAll()[0]);

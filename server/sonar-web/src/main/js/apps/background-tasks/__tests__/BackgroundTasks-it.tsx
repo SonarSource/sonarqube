@@ -19,7 +19,6 @@
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import selectEvent from 'react-select-event';
 import {
   byLabelText,
   byPlaceholderText,
@@ -354,7 +353,9 @@ function getPageObject() {
     },
 
     async changeTaskFilter(fieldLabel: string, value: string) {
-      await selectEvent.select(screen.getByRole('combobox', { name: fieldLabel }), [value]);
+      await user.click(byRole('combobox', { name: fieldLabel }).get());
+      await user.click(byRole('option', { name: value }).get());
+
       expect(await screen.findByRole('button', { name: 'reload' })).toBeEnabled();
     },
 

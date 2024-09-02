@@ -52,6 +52,10 @@ export interface BranchOption {
 function renderBranchOption(props: OptionProps<BranchOption, false>) {
   const { data: option } = props;
 
+  // For tests and a11y
+  props.innerProps.role = 'option';
+  props.innerProps['aria-selected'] = props.isSelected;
+
   return (
     <components.Option {...props}>
       {option.isInvalid ? (

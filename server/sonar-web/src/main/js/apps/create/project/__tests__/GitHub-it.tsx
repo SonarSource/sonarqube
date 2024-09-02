@@ -21,7 +21,6 @@ import { screen, waitFor } from '@testing-library/react';
 
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import selectEvent from 'react-select-event';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { getGithubRepositories } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
@@ -92,25 +91,29 @@ afterAll(() => {
 });
 
 it('should redirect to github authorization page when not already authorized', async () => {
+  const user = userEvent.setup();
   renderCreateProject('project/create?mode=github');
 
   expect(await screen.findByText('onboarding.create_project.github.title')).toBeInTheDocument();
   expect(screen.getByText('alm.configuration.selector.placeholder')).toBeInTheDocument();
   expect(ui.instanceSelector.get()).toBeInTheDocument();
 
-  await selectEvent.select(await ui.instanceSelector.find(), [/conf-github-1/]);
+  await user.click(ui.instanceSelector.get());
+  await user.click(byRole('option', { name: /conf-github-1/ }).get());
 
   expect(window.location.replace).toHaveBeenCalled();
 });
 
 it('should not redirect to github when url is malformated', async () => {
+  const user = userEvent.setup();
   renderCreateProject('project/create?mode=github');
 
   expect(await screen.findByText('onboarding.create_project.github.title')).toBeInTheDocument();
   expect(screen.getByText('alm.configuration.selector.placeholder')).toBeInTheDocument();
   expect(ui.instanceSelector.get()).toBeInTheDocument();
 
-  await waitFor(() => selectEvent.select(ui.instanceSelector.get(), [/conf-github-3/]));
+  await user.click(ui.instanceSelector.get());
+  await user.click(byRole('option', { name: /conf-github-3/ }).get());
 
   expect(await ui.createErrorMessage.find()).toBeInTheDocument();
 
@@ -124,7 +127,8 @@ it('should show import project feature when the authentication is successfull', 
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await waitFor(() => selectEvent.select(ui.organizationSelector.get(), [/org-1/]));
+  await user.click(ui.organizationSelector.get());
+  await user.click(byRole('option', { name: /org-1/ }).get());
 
   expect(await ui.project1.find()).toBeInTheDocument();
   expect(ui.project2.get()).toBeInTheDocument();
@@ -176,7 +180,8 @@ it('should import several projects', async () => {
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await waitFor(() => selectEvent.select(ui.organizationSelector.get(), [/org-1/]));
+  await user.click(ui.organizationSelector.get());
+  await user.click(byRole('option', { name: /org-1/ }).get());
 
   expect(await ui.project1.find()).toBeInTheDocument();
   expect(ui.project1Checkbox.get()).not.toBeChecked();
@@ -241,7 +246,8 @@ it('should show search filter when the authentication is successful', async () =
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await waitFor(() => selectEvent.select(ui.organizationSelector.get(), [/org-1/]));
+  await user.click(ui.organizationSelector.get());
+  await user.click(byRole('option', { name: /org-1/ }).get());
 
   const inputSearch = screen.getByRole('searchbox');
   await user.click(inputSearch);
@@ -266,7 +272,8 @@ it('should have load more', async () => {
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await waitFor(() => selectEvent.select(ui.organizationSelector.get(), [/org-1/]));
+  await user.click(ui.organizationSelector.get());
+  await user.click(byRole('option', { name: /org-1/ }).get());
 
   const loadMore = await screen.findByRole('button', { name: 'show_more' });
   expect(loadMore).toBeInTheDocument();
@@ -288,13 +295,15 @@ it('should have load more', async () => {
 });
 
 it('should show no result message when there are no projects', async () => {
+  const user = userEvent.setup();
   almIntegrationHandler.setGithubRepositories([]);
 
   renderCreateProject('project/create?mode=github&dopSetting=conf-github-2&code=213321213');
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await waitFor(() => selectEvent.select(ui.organizationSelector.get(), [/org-1/]));
+  await user.click(ui.organizationSelector.get());
+  await user.click(byRole('option', { name: /org-1/ }).get());
 
   expect(screen.getByText('no_results')).toBeInTheDocument();
 });

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { fireEvent, screen, within } from '@testing-library/react';
-import selectEvent from 'react-select-event';
 import CodingRulesServiceMock, { RULE_TAGS_MOCK } from '../../../api/mocks/CodingRulesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { QP_2, RULE_1, RULE_10, RULE_9 } from '../../../api/mocks/data/ids';
 import { CLEAN_CODE_CATEGORIES, SOFTWARE_QUALITIES } from '../../../helpers/constants';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
+import { byRole } from '../../../sonar-aligned/helpers/testSelector';
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
@@ -114,12 +114,15 @@ describe('Rules app list', () => {
       const monthSelector = within(ui.dateInputMonthSelect.get()).getByRole('combobox');
 
       await user.click(monthSelector);
-      await selectEvent.select(ui.dateInputMonthSelect.byRole('combobox').get(), 'Nov');
+      await user.click(ui.dateInputMonthSelect.byRole('combobox').get());
+      await user.click(byRole('option', { name: 'Nov' }).get());
 
       const yearSelector = within(ui.dateInputYearSelect.get()).getByRole('combobox');
 
       await user.click(yearSelector);
-      await selectEvent.select(ui.dateInputYearSelect.byRole('combobox').get(), '2022');
+      await user.click(ui.dateInputYearSelect.byRole('combobox').get());
+      await user.click(byRole('option', { name: '2022' }).get());
+
       await user.click(await screen.findByText('1', { selector: 'button' }));
 
       expect(ui.getAllRuleListItems()).toHaveLength(1);
@@ -351,7 +354,9 @@ describe('Rules app list', () => {
     await user.click(ui.activateButton.getAll()[0]);
     expect(ui.selectValue.get(ui.activateQPDialog.get())).toHaveTextContent('severity.MAJOR');
     expect(ui.prioritizedSwitch.get(ui.activateQPDialog.get())).not.toBeChecked();
-    await selectEvent.select(ui.oldSeveritySelect.get(), 'severity.MINOR');
+    await user.click(ui.oldSeveritySelect.get());
+    await user.click(byRole('option', { name: 'severity.MINOR' }).get());
+
     await user.click(ui.prioritizedSwitch.get(ui.activateQPDialog.get()));
     await user.click(ui.activateButton.get(ui.activateQPDialog.get()));
 
@@ -363,7 +368,8 @@ describe('Rules app list', () => {
     await user.click(ui.changeButton('QP Bar').get());
     expect(ui.selectValue.get(ui.changeQPDialog.get())).toHaveTextContent('severity.MINOR');
     expect(ui.prioritizedSwitch.get(ui.changeQPDialog.get())).toBeChecked();
-    await selectEvent.select(ui.oldSeveritySelect.get(), 'severity.BLOCKER');
+    await user.click(ui.oldSeveritySelect.get());
+    await user.click(byRole('option', { name: 'severity.BLOCKER' }).get());
     await user.click(ui.prioritizedSwitch.get(ui.changeQPDialog.get()));
     await user.click(ui.saveButton.get(ui.changeQPDialog.get()));
 
@@ -642,7 +648,7 @@ describe('Rule app details', () => {
     // Activate rule in quality profile
     expect(ui.prioritizedRuleCell.query()).not.toBeInTheDocument();
     await user.click(ui.activateButton.get());
-    await selectEvent.select(ui.qualityProfileSelect.get(), 'QP FooBar');
+
     await user.click(ui.prioritizedSwitch.get());
     await user.click(ui.activateButton.get(ui.activateQPDialog.get()));
     expect(ui.qpLink('QP FooBar').get()).toBeInTheDocument();

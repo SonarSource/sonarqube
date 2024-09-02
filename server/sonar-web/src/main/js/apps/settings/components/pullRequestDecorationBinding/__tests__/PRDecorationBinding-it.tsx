@@ -19,7 +19,6 @@
  */
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import selectEvent from 'react-select-event';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import CurrentUserContextProvider from '../../../../../app/components/current-user/CurrentUserContextProvider';
@@ -96,10 +95,8 @@ it.each([
     const { rerender } = renderPRDecorationBinding();
     expect(await ui.mainTitle.find()).toBeInTheDocument();
 
-    // Set form data
-    await selectEvent.select(ui.input('name', 'combobox').get(), (content) =>
-      content.includes(key),
-    );
+    await user.click(ui.input('name', 'combobox').get());
+    await user.click(byRole('option', { name: new RegExp(key) }).get());
 
     const list = inputsList[alm];
     for (const [inputId, value] of Object.entries(list)) {

@@ -19,7 +19,6 @@
  */
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import selectEvent from 'react-select-event';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
@@ -65,7 +64,9 @@ it('should generate/delete a new token or use existing one', async () => {
 
   // Generating token
   await user.type(ui.tokenNameInput.get(), 'Testing token');
-  await selectEvent.select(ui.expiresInSelect.get(), 'users.tokens.expiration.365');
+  await user.click(ui.expiresInSelect.get());
+  await user.click(byRole('option', { name: 'users.tokens.expiration.365' }).get());
+
   await user.click(ui.generateTokenButton.get());
 
   expect(ui.continueButton.get()).toBeEnabled();

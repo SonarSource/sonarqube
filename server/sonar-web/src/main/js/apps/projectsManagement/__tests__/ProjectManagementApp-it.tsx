@@ -19,7 +19,6 @@
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import selectEvent from 'react-select-event';
 import { byPlaceholderText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import DopTranslationServiceMock from '../../../api/mocks/DopTranslationServiceMock';
@@ -76,6 +75,7 @@ jest.mock('../../../api/navigation', () => ({
 }));
 
 const ui = {
+  pageDescription: byText('projects_management.page.description'),
   row: byRole('row'),
   firstProjectActions: byRole('button', {
     name: 'projects_management.show_actions_for_x.Project 1',
@@ -193,12 +193,10 @@ it('should filter projects', async () => {
   const user = userEvent.setup();
   renderProjectManagementApp();
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
-  // Should return Promise: (and same for all similar cases below)
-  // await waitFor(() => selectEvent.select(ui.visibilityFilter.get(), ‘visibility.public’));
-  // Can be fixed by migrating ProjectManagementApp to functional component
-  await waitFor(() => {
-    selectEvent.select(ui.visibilityFilter.get(), 'visibility.public');
-  });
+
+  await user.click(ui.visibilityFilter.get());
+  await user.click(byRole('option', { name: 'visibility.public' }).get());
+
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(4));
   await user.click(ui.analysisDateFilter.get());
   await user.click(await screen.findByRole('gridcell', { name: '5' }));
@@ -206,15 +204,17 @@ it('should filter projects', async () => {
   await user.click(ui.provisionedFilter.get());
   expect(ui.row.getAll()).toHaveLength(2);
   expect(ui.row.getAll()[1]).toHaveTextContent('Project 4');
-  await waitFor(() => {
-    selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
-  });
+
+  await user.click(ui.qualifierFilter.get());
+  await user.click(byRole('option', { name: 'qualifiers.VW' }).get());
+
   await waitFor(() => expect(ui.provisionedFilter.query()).not.toBeInTheDocument());
   expect(ui.row.getAll()).toHaveLength(2);
   await waitFor(() => expect(ui.row.getAll()[1]).toHaveTextContent('Portfolio 1'));
-  await waitFor(() => {
-    selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.APP');
-  });
+
+  await user.click(ui.qualifierFilter.get());
+  await user.click(byRole('option', { name: 'qualifiers.APP' }).get());
+
   expect(ui.provisionedFilter.query()).not.toBeInTheDocument();
   expect(ui.row.getAll()).toHaveLength(2);
   await waitFor(() => expect(ui.row.getAll()[1]).toHaveTextContent('Application 1'));
@@ -226,29 +226,35 @@ it('should search by text', async () => {
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
   await user.type(ui.searchFilter.get(), 'provision');
   expect(ui.row.getAll()).toHaveLength(2);
-  await waitFor(() => {
-    selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
-  });
+
+  await user.click(ui.qualifierFilter.get());
+  await user.click(byRole('option', { name: 'qualifiers.VW' }).get());
+
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(4));
   expect(ui.searchFilter.get()).toHaveValue('');
   await user.type(ui.searchFilter.get(), 'Portfolio 2');
   expect(ui.row.getAll()).toHaveLength(2);
-  await waitFor(() => {
-    selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.APP');
-  });
+
+  await user.click(ui.qualifierFilter.get());
+  await user.click(byRole('option', { name: 'qualifiers.APP' }).get());
+
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(4));
   expect(ui.searchFilter.get()).toHaveValue('');
   await user.type(ui.searchFilter.get(), 'Application 3');
   expect(ui.row.getAll()).toHaveLength(2);
 });
 
-it('should hide quilifier filter', () => {
+it('should hide qualifier filter', async () => {
   renderProjectManagementApp({ qualifiers: [ComponentQualifier.Project] });
+  // pretext to wait for loading
+  expect(await ui.pageDescription.find()).toBeInTheDocument();
   expect(ui.qualifierFilter.query()).not.toBeInTheDocument();
 });
 
-it('should hide create Project button', () => {
+it('should hide create Project button', async () => {
   renderProjectManagementApp();
+  // pretext to wait for loading
+  expect(await ui.pageDescription.find()).toBeInTheDocument();
   expect(ui.createProject.query()).not.toBeInTheDocument();
 });
 
@@ -313,10 +319,10 @@ describe('Bulk permission templates', () => {
         .byText('permission_templates.bulk_apply_permission_template.apply_to_selected.2')
         .get(),
     ).toBeInTheDocument();
-    await selectEvent.select(
-      ui.bulkApplyDialog.by(ui.selectTemplate('required')).get(),
-      'Permission Template 2',
-    );
+
+    await user.click(ui.bulkApplyDialog.by(ui.selectTemplate('required')).get());
+    await user.click(byRole('option', { name: 'Permission Template 2' }).get());
+
     await user.click(ui.bulkApplyDialog.by(ui.apply).get());
 
     expect(
@@ -492,9 +498,9 @@ it('should load more and change the filter without caching old pages', async () 
   expect(projectRows[1]).toHaveTextContent('Project 0');
   expect(projectRows[60]).toHaveTextContent('Project 59');
 
-  await waitFor(() => {
-    selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
-  });
+  await user.click(ui.qualifierFilter.get());
+  await user.click(byRole('option', { name: 'qualifiers.VW' }).get());
+
   await waitFor(() => expect(projectRows[1]).not.toBeInTheDocument());
   const portfolioRows = ui.row.getAll();
   expect(portfolioRows).toHaveLength(51);
@@ -538,10 +544,10 @@ it('should apply template for single object', async () => {
   await user.click(ui.applyPermissionTemplate.get());
 
   expect(ui.applyTemplateDialog.get()).toBeInTheDocument();
-  await selectEvent.select(
-    ui.applyTemplateDialog.by(ui.selectTemplate('required')).get(),
-    'Permission Template 2',
-  );
+
+  await user.click(ui.applyTemplateDialog.by(ui.selectTemplate('required')).get());
+  await user.click(byRole('option', { name: 'Permission Template 2' }).get());
+
   await user.click(ui.applyTemplateDialog.by(ui.apply).get());
 
   expect(
@@ -642,16 +648,21 @@ it('should not apply permissions for github projects', async () => {
 });
 
 it('should not show local badge for applications and portfolios', async () => {
+  const user = userEvent.setup();
   dopTranslationHandler.gitHubConfigurations.push(
     mockGitHubConfiguration({ provisioningType: ProvisioningType.auto }),
   );
   renderProjectManagementApp({}, {}, { featureList: [Feature.GithubProvisioning] });
   await waitFor(() => expect(screen.getAllByText('local')).toHaveLength(3));
 
-  await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
+  await user.click(ui.qualifierFilter.get());
+  await user.click(byRole('option', { name: 'qualifiers.VW' }).get());
+
   await waitFor(() => expect(screen.queryByText('local')).not.toBeInTheDocument());
 
-  await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.APP');
+  await user.click(ui.qualifierFilter.get());
+  await user.click(byRole('option', { name: 'qualifiers.APP' }).get());
+
   expect(screen.queryByText('local')).not.toBeInTheDocument();
 });
 

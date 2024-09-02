@@ -115,9 +115,15 @@ class Search extends React.PureComponent<Props, State> {
   handleVisibilityChange = ({ value }: LabelValueSelectOption) =>
     this.props.onVisibilityChanged(value);
 
-  optionRenderer = (props: OptionProps<LabelValueSelectOption, false>) => (
-    <components.Option {...props}>{this.renderQualifierOption(props.data)}</components.Option>
-  );
+  optionRenderer = (props: OptionProps<LabelValueSelectOption, false>) => {
+    // For tests and a11y
+    props.innerProps.role = 'option';
+    props.innerProps['aria-selected'] = props.isSelected;
+
+    return (
+      <components.Option {...props}>{this.renderQualifierOption(props.data)}</components.Option>
+    );
+  };
 
   singleValueRenderer = (props: SingleValueProps<LabelValueSelectOption, false>) => (
     <components.SingleValue {...props}>

@@ -21,7 +21,6 @@
 import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { addGlobalErrorMessage, addGlobalSuccessMessage } from 'design-system';
-import selectEvent from 'react-select-event';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { QualityGatesServiceMock } from '../../../api/mocks/QualityGatesServiceMock';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
@@ -73,36 +72,45 @@ it('should require authorization if no permissions set', () => {
 });
 
 it('should be able to select and save specific Quality Gate', async () => {
+  const user = userEvent.setup();
   renderProjectQualityGateApp();
 
   expect(await ui.qualityGateHeading.find()).toBeInTheDocument();
   expect(ui.defaultRadioQualityGate.get()).toBeChecked();
 
-  await userEvent.click(ui.specificRadioQualityGate.get());
+  await user.click(ui.specificRadioQualityGate.get());
   expect(ui.qualityGatesSelect.get()).toBeEnabled();
 
-  await selectEvent.select(ui.qualityGatesSelect.get(), 'Sonar way');
-  await userEvent.click(ui.saveButton.get());
+  await user.click(ui.qualityGatesSelect.get());
+  await user.click(byText('Sonar way').get());
+
+  await user.click(ui.saveButton.get());
   expect(addGlobalSuccessMessage).toHaveBeenCalledWith('project_quality_gate.successfully_updated');
 
   // Set back default QG
-  await userEvent.click(ui.defaultRadioQualityGate.get());
+  await user.click(ui.defaultRadioQualityGate.get());
   expect(ui.qualityGatesSelect.get()).toBeDisabled();
   expect(ui.defaultRadioQualityGate.get()).toBeChecked();
 
-  await userEvent.click(ui.saveButton.get());
+  await user.click(ui.saveButton.get());
   expect(addGlobalSuccessMessage).toHaveBeenCalledWith('project_quality_gate.successfully_updated');
 });
 
 it('shows warning for quality gate that doesnt have conditions on new code', async () => {
+  const user = userEvent.setup();
   handler.setGetGateForProjectName('Sonar way');
   renderProjectQualityGateApp();
 
-  await userEvent.click(await ui.specificRadioQualityGate.find());
-  await selectEvent.select(ui.qualityGatesSelect.get(), 'QG without conditions');
+  await user.click(await ui.specificRadioQualityGate.find());
+
+  await user.click(ui.qualityGatesSelect.get());
+  await user.click(byText('QG without conditions').get());
+
   expect(ui.QGWithoutConditionsOptionLabel.query()).not.toBeInTheDocument();
 
-  await selectEvent.select(ui.qualityGatesSelect.get(), 'QG without new code conditions');
+  await user.click(ui.qualityGatesSelect.get());
+  await user.click(byText('QG without new code conditions').get());
+
   expect(ui.noConditionsNewCodeWarning.get()).toBeInTheDocument();
 });
 

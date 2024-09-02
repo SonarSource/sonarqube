@@ -19,7 +19,6 @@
  */
 import userEvent from '@testing-library/user-event';
 import { last } from 'lodash';
-import selectEvent from 'react-select-event';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { MessageTypes } from '../../../../api/messages';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
@@ -429,13 +428,18 @@ function getPageObjects() {
   async function setReferenceBranchSetting(branch: string) {
     await user.click(ui.specificSettingRadio.get());
     await user.click(ui.referenceBranchRadio.get());
-    await selectEvent.select(ui.chooseBranchSelect.get(), branch);
+
+    await user.click(ui.chooseBranchSelect.get());
+    await user.click(byRole('option', { name: new RegExp(branch) }).get());
   }
 
   async function setBranchReferenceToBranchSetting(branch: string, branchRef: string) {
     await openBranchSettingModal(branch);
     await user.click(last(ui.referenceBranchRadio.getAll()) as HTMLElement);
-    await selectEvent.select(ui.chooseBranchSelect.get(), branchRef);
+
+    await user.click(ui.chooseBranchSelect.get());
+    await user.click(byRole('option', { name: new RegExp(branchRef) }).get());
+
     await user.click(last(ui.saveButton.getAll()) as HTMLElement);
   }
 

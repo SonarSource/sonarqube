@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import selectEvent from 'react-select-event';
-import { byText } from '~sonar-aligned/helpers/testSelector';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
@@ -58,19 +57,19 @@ describe('custom rule', () => {
     await user.clear(ui.keyTextbox.get());
     await user.type(ui.keyTextbox.get(), 'new_custom_rule');
 
-    await selectEvent.select(
-      ui.cleanCodeCategorySelect.get(),
-      'rule.clean_code_attribute_category.CONSISTENT',
-    );
-    await selectEvent.select(
-      ui.cleanCodeAttributeSelect.get(),
-      'rule.clean_code_attribute.IDENTIFIABLE',
+    await user.click(ui.cleanCodeCategorySelect.get());
+    await user.click(
+      byRole('option', { name: 'rule.clean_code_attribute_category.CONSISTENT' }).get(),
     );
 
-    await selectEvent.select(
-      ui.cleanCodeCategorySelect.get(),
-      'rule.clean_code_attribute_category.INTENTIONAL',
+    await user.click(ui.cleanCodeAttributeSelect.get());
+    await user.click(byRole('option', { name: 'rule.clean_code_attribute.IDENTIFIABLE' }).get());
+
+    await user.click(ui.cleanCodeCategorySelect.get());
+    await user.click(
+      byRole('option', { name: 'rule.clean_code_attribute_category.INTENTIONAL' }).get(),
     );
+
     // Setting default clean code category of a template should set corresponding attribute
     expect(
       ui.createCustomRuleDialog.byText('rule.clean_code_attribute.CLEAR').get(),
@@ -85,13 +84,14 @@ describe('custom rule', () => {
     ).toBeInTheDocument();
 
     await user.click(ui.cleanCodeQualityCheckbox(SoftwareQuality.Reliability).get());
-    await selectEvent.select(
-      ui.cleanCodeSeveritySelect(SoftwareQuality.Reliability).get(),
-      'severity.MEDIUM',
-    );
+
+    await user.click(ui.cleanCodeSeveritySelect(SoftwareQuality.Reliability).get());
+    await user.click(byRole('option', { name: 'severity.MEDIUM severity.MEDIUM' }).get());
+
     expect(ui.createCustomRuleDialog.byText('severity.MEDIUM').get()).toBeInTheDocument();
 
-    await selectEvent.select(ui.statusSelect.get(), 'rules.status.BETA');
+    await user.click(ui.statusSelect.get());
+    await user.click(byRole('option', { name: 'rules.status.BETA' }).get());
 
     await user.type(ui.descriptionTextbox.get(), 'Some description for custom rule');
     await user.type(ui.paramInput('1').get(), 'Default value');

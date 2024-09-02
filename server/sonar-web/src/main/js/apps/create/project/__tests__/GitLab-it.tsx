@@ -20,7 +20,6 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import selectEvent from 'react-select-event';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { getGitlabProjects } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
@@ -113,7 +112,8 @@ it('should ask for PAT when it is not set yet and show the import project featur
 
   expect(await ui.importProjectsTitle.find()).toBeInTheDocument();
   expect(ui.instanceSelector.get()).toBeInTheDocument();
-  await selectEvent.select(ui.instanceSelector.get(), [/conf-final-1/]);
+  await user.click(ui.instanceSelector.get());
+  await user.click(byRole('option', { name: /conf-final-1/ }).get());
 
   expect(await screen.findByText('onboarding.create_project.enter_pat')).toBeInTheDocument();
   expect(ui.patHelpInstructions.get()).toBeInTheDocument();
@@ -127,10 +127,12 @@ it('should ask for PAT when it is not set yet and show the import project featur
 });
 
 it('should show import project feature when PAT is already set', async () => {
+  const user = userEvent.setup();
   renderCreateProject();
 
   expect(await ui.importProjectsTitle.find()).toBeInTheDocument();
-  await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
+  await user.click(ui.instanceSelector.get());
+  await user.click(byRole('option', { name: /conf-final-2/ }).get());
 
   expect(await ui.project1.find()).toBeInTheDocument();
   expect(ui.project1Link.get()).toHaveAttribute('href', '/dashboard?id=key');
@@ -146,7 +148,8 @@ it('should show search filter when PAT is already set', async () => {
 
   expect(await ui.importProjectsTitle.find()).toBeInTheDocument();
 
-  await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
+  await user.click(ui.instanceSelector.get());
+  await user.click(byRole('option', { name: /conf-final-2/ }).get());
 
   const inputSearch = await screen.findByRole('searchbox');
   await user.click(inputSearch);
@@ -173,7 +176,8 @@ it('should import several projects', async () => {
   renderCreateProject();
 
   expect(await ui.importProjectsTitle.find()).toBeInTheDocument();
-  await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
+  await user.click(ui.instanceSelector.get());
+  await user.click(byRole('option', { name: /conf-final-2/ }).get());
 
   expect(await ui.project1.find()).toBeInTheDocument();
   expect(ui.project1Checkbox.get()).not.toBeChecked();
@@ -237,7 +241,9 @@ it('should have load more', async () => {
   almIntegrationHandler.createRandomGitlabProjectsWithLoadMore(50, 75);
   renderCreateProject();
 
-  await selectEvent.select(await ui.instanceSelector.find(), [/conf-final-2/]);
+  await user.click(await ui.instanceSelector.find());
+  await user.click(byRole('option', { name: /conf-final-2/ }).get());
+
   const loadMore = await screen.findByRole('button', { name: 'show_more' });
   expect(loadMore).toBeInTheDocument();
 
@@ -257,11 +263,13 @@ it('should have load more', async () => {
 });
 
 it('should show no result message when there are no projects', async () => {
+  const user = userEvent.setup();
   almIntegrationHandler.setGitlabProjects([]);
   renderCreateProject();
 
   expect(await ui.importProjectsTitle.find()).toBeInTheDocument();
-  await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
+  await user.click(ui.instanceSelector.get());
+  await user.click(byRole('option', { name: /conf-final-2/ }).get());
 
   expect(await screen.findByText('no_results')).toBeInTheDocument();
 });

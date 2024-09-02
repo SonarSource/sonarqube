@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import selectEvent from 'react-select-event';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getProjectBadgesToken } from '../../../../api/project-badges';
@@ -28,6 +27,7 @@ import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { Location } from '../../../../helpers/urls';
+import { byRole } from '../../../../sonar-aligned/helpers/testSelector';
 import ProjectBadges, { ProjectBadgesProps } from '../ProjectBadges';
 import { BadgeType } from '../utils';
 
@@ -84,6 +84,7 @@ it('should renew token', async () => {
 });
 
 it('should update params', async () => {
+  const user = userEvent.setup();
   renderProjectBadges();
   await appLoaded();
 
@@ -93,10 +94,7 @@ it('should update params', async () => {
     ),
   ).toBeInTheDocument();
 
-  await selectEvent.select(
-    screen.getByLabelText('overview.badges.format'),
-    'overview.badges.options.formats.url',
-  );
+  await user.click(byRole('radio', { name: 'overview.badges.options.formats.url' }).get());
 
   expect(
     screen.getByText(
@@ -104,8 +102,8 @@ it('should update params', async () => {
     ),
   ).toBeInTheDocument();
 
-  await selectEvent.openMenu(screen.getByLabelText('overview.badges.metric'));
-  fireEvent.click(screen.getByText(`metric.${MetricKey.coverage}.name`));
+  await user.click(screen.getByLabelText('overview.badges.metric'));
+  await user.click(screen.getByText(`metric.${MetricKey.coverage}.name`));
 
   expect(
     screen.getByText(
@@ -113,7 +111,7 @@ it('should update params', async () => {
     ),
   ).toBeInTheDocument();
 
-  fireEvent.click(
+  await user.click(
     screen.getByRole('button', {
       name: `overview.badges.${BadgeType.qualityGate}.alt overview.badges.${BadgeType.qualityGate}.description.${ComponentQualifier.Project}`,
     }),
@@ -125,7 +123,7 @@ it('should update params', async () => {
     ),
   ).toBeInTheDocument();
 
-  fireEvent.click(
+  await user.click(
     screen.getByRole('button', {
       name: `overview.badges.${BadgeType.measure}.alt overview.badges.${BadgeType.measure}.description.${ComponentQualifier.Project}`,
     }),
@@ -139,11 +137,12 @@ it('should update params', async () => {
 });
 
 it('should warn about deprecated metrics', async () => {
+  const user = userEvent.setup();
   renderProjectBadges();
   await appLoaded();
 
-  await selectEvent.openMenu(screen.getByLabelText('overview.badges.metric'));
-  fireEvent.click(screen.getByText(`metric.${MetricKey.bugs}.name (deprecated)`));
+  await user.click(screen.getByLabelText('overview.badges.metric'));
+  await user.click(screen.getByText(`metric.${MetricKey.bugs}.name (deprecated)`));
 
   expect(
     screen.getByText(

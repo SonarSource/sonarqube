@@ -20,7 +20,6 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import selectEvent from 'react-select-event';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import DopTranslationServiceMock from '../../../api/mocks/DopTranslationServiceMock';
@@ -207,9 +206,9 @@ describe('different filters combinations', () => {
     await user.click(await ui.localFilter.find());
     await waitFor(() => expect(ui.activityFilter.get()).toBeEnabled());
 
-    await selectEvent.select(
-      ui.activityFilter.get(),
-      'users.activity_filter.active_sonarlint_users',
+    await user.click(ui.activityFilter.get());
+    await user.click(
+      byRole('option', { name: 'users.activity_filter.active_sonarlint_users' }).get(),
     );
 
     expect(await ui.userRows.findAll()).toHaveLength(1);
@@ -223,9 +222,9 @@ describe('different filters combinations', () => {
     await user.click(await ui.managedByScimFilter.find());
     await waitFor(() => expect(ui.activityFilter.get()).toBeEnabled());
 
-    await selectEvent.select(
-      ui.activityFilter.get(),
-      'users.activity_filter.active_sonarqube_users',
+    await user.click(ui.activityFilter.get());
+    await user.click(
+      byRole('option', { name: 'users.activity_filter.active_sonarqube_users' }).get(),
     );
 
     expect(await ui.userRows.findAll()).toHaveLength(1);
@@ -239,7 +238,8 @@ describe('different filters combinations', () => {
     await user.click(await ui.localAndManagedFilter.find());
     await waitFor(() => expect(ui.activityFilter.get()).toBeEnabled());
 
-    await selectEvent.select(ui.activityFilter.get(), 'users.activity_filter.inactive_users');
+    await user.click(ui.activityFilter.get());
+    await user.click(byRole('option', { name: 'users.activity_filter.inactive_users' }).get());
 
     expect(await ui.userRows.findAll()).toHaveLength(2);
     expect(ui.evaRow.get()).toBeInTheDocument();
@@ -626,7 +626,9 @@ describe('in manage mode', () => {
     expect(getTokensList()).toHaveLength(2); // header + "No tokens"
     expect(await screen.findByText('users.no_tokens')).toBeInTheDocument();
 
-    await selectEvent.select(ui.expiresInSelector.get(), 'users.tokens.expiration.0');
+    await user.click(ui.expiresInSelector.get());
+    await user.click(byRole('option', { name: 'users.tokens.expiration.0' }).get());
+
     await user.click(ui.generateButton.get());
     expect(getTokensList()).toHaveLength(2); // header + "test" token
     expect(screen.queryByText('users.no_tokens')).not.toBeInTheDocument();

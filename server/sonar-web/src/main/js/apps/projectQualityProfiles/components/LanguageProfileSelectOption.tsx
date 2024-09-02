@@ -53,6 +53,10 @@ export default function LanguageProfileSelectOption(props: LanguageProfileSelect
     [option.label, option.language],
   );
 
+  // For tests and a11y
+  props.innerProps.role = 'option';
+  props.innerProps['aria-selected'] = props.isSelected;
+
   return (
     <components.Option {...props}>
       <div>

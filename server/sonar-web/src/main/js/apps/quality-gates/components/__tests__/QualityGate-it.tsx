@@ -19,7 +19,6 @@
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import selectEvent from 'react-select-event';
 import { byLabelText, byRole, byTestId } from '~sonar-aligned/helpers/testSelector';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
 import UsersServiceMock from '../../../../api/mocks/UsersServiceMock';
@@ -614,7 +613,7 @@ it('should not allow to add prioritized_rule_issues condition if feature is not 
   const dialog = byRole('dialog');
 
   await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
-  await selectEvent.openMenu(dialog.byRole('combobox').get());
+  await user.click(dialog.byRole('combobox').get());
   expect(
     byRole('option', { name: 'Issues from prioritized rules' }).query(),
   ).not.toBeInTheDocument();

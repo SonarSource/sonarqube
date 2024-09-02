@@ -24,6 +24,10 @@ import { translate } from '../../helpers/l10n';
 import { AlmInstanceBase } from '../../types/alm-settings';
 
 function optionRenderer(props: OptionProps<LabelValueSelectOption<AlmInstanceBase>, false>) {
+  // For tests and a11y
+  props.innerProps.role = 'option';
+  props.innerProps['aria-selected'] = props.isSelected;
+
   return <components.Option {...props}>{customOptions(props.data.value)}</components.Option>;
 }
 

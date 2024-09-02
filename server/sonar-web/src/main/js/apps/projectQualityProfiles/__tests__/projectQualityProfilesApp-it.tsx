@@ -19,7 +19,6 @@
  */
 import userEvent from '@testing-library/user-event';
 import { addGlobalSuccessMessage } from 'design-system';
-import selectEvent from 'react-select-event';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import {
   ProfileProject,
@@ -170,9 +169,14 @@ it('should be able to add and change profile for languages', async () => {
   expect(ui.selectProfile.get()).toBeDisabled();
   expect(ui.buttonSave.get()).toBeInTheDocument();
 
-  await selectEvent.select(ui.selectLanguage.get(), 'HTML');
+  await user.click(ui.selectLanguage.get());
+  await user.click(byRole('option', { name: 'HTML' }).get());
+
   expect(ui.selectProfile.get()).toBeEnabled();
-  await selectEvent.select(ui.selectProfile.get(), 'html profile');
+
+  await user.click(ui.selectProfile.get());
+  await user.click(byRole('option', { name: 'html profile' }).get());
+
   await user.click(ui.buttonSave.get());
   expect(associateProject).toHaveBeenLastCalledWith(
     expect.objectContaining({ key: 'html', name: 'html profile' }),
@@ -207,7 +211,9 @@ it('should be able to add and change profile for languages', async () => {
   expect(ui.newAnalysisWarningMessage.get()).toBeInTheDocument();
   expect(ui.selectUseSpecificProfile.get()).toBeInTheDocument();
 
-  await selectEvent.select(ui.selectUseSpecificProfile.get(), 'html default profile');
+  await user.click(ui.selectUseSpecificProfile.get());
+  await user.click(byRole('option', { name: 'html default profile' }).get());
+
   await user.click(ui.buttonSave.get());
 
   expect(addGlobalSuccessMessage).toHaveBeenCalledWith(

@@ -55,9 +55,9 @@
     "@jupyterlab/nbformat": "4.2.4",
     "@swc/core": "1.6.6",
     "@swc/jest": "0.2.36",
-    "@testing-library/dom": "9.3.4",
-    "@testing-library/jest-dom": "6.4.6",
-    "@testing-library/react": "14.2.1",
+    "@testing-library/dom": "10.2.0",
+    "@testing-library/jest-dom": "6.5.0",
+    "@testing-library/react": "16.0.1",
     "@testing-library/user-event": "14.5.2",
     "@types/cheerio": "0.22.35",
     "@types/classnames": "2.3.1",
@@ -117,7 +117,6 @@
     "postcss-custom-properties": "12.1.11",
     "prettier": "3.3.2",
     "prettier-plugin-organize-imports": "3.2.4",
-    "react-select-event": "5.5.1",
     "tailwindcss": "3.4.4",
     "turbo": "1.11.3",
     "typescript": "5.5.3",
@@ -144,7 +143,7 @@
     "dep-check": "node scripts/validate-package-json.js"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=18.20"
   },
   "browser": {
     "path": "path-browserify"

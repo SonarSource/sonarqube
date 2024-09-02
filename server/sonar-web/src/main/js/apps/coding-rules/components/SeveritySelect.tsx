@@ -32,6 +32,10 @@ export interface SeveritySelectProps {
 }
 
 function Option(props: Readonly<OptionProps<LabelValueSelectOption<IssueSeverity>, false>>) {
+  // For tests and a11y
+  props.innerProps.role = 'option';
+  props.innerProps['aria-selected'] = props.isSelected;
+
   return (
     <components.Option {...props}>
       <SeverityHelper className="sw-flex sw-items-center" severity={props.data.value} />

@@ -19,7 +19,6 @@
  */
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import selectEvent from 'react-select-event';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
@@ -109,7 +108,10 @@ describe('Admin or user with permission', () => {
       // Add user
       await user.click(ui.grantPermissionButton.get());
       expect(ui.dialog.get()).toBeInTheDocument();
-      await selectEvent.select(ui.selectUserOrGroup.get(), 'Buzz');
+
+      await user.click(ui.selectUserOrGroup.get());
+      await user.click(byRole('option', { name: /^Buzz/ }).get());
+
       await user.click(ui.addButton.get());
       expect(ui.permissionSection.byText('Buzz').get()).toBeInTheDocument();
 
@@ -134,7 +136,10 @@ describe('Admin or user with permission', () => {
       // Add Group
       await user.click(ui.grantPermissionButton.get());
       expect(ui.dialog.get()).toBeInTheDocument();
-      await selectEvent.select(ui.selectUserOrGroup.get(), 'ACDC');
+
+      await user.click(ui.selectUserOrGroup.get());
+      await user.click(byRole('option', { name: /^ACDC/ }).get());
+
       await user.click(ui.addButton.get());
       expect(ui.permissionSection.byText('ACDC').get()).toBeInTheDocument();
 
@@ -252,7 +257,10 @@ describe('Admin or user with permission', () => {
       await user.click(ui.changeParentButton.get());
       expect(await ui.dialog.find()).toBeInTheDocument();
       expect(ui.changeButton.get()).toBeDisabled();
-      await selectEvent.select(ui.selectField.get(), 'PHP Sonar way 2');
+
+      await user.click(ui.selectField.get());
+      await user.click(byRole('option', { name: 'PHP Sonar way 2' }).get());
+
       await user.click(ui.changeButton.get());
       expect(ui.dialog.query()).not.toBeInTheDocument();
 

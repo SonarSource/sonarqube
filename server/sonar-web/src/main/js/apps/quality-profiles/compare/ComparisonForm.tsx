@@ -77,6 +77,10 @@ function OptionRenderer(props: Readonly<OptionProps<Option, false>>) {
   const { isDefault, label } = props.data;
   const intl = useIntl();
 
+  // For tests and a11y
+  props.innerProps.role = 'option';
+  props.innerProps['aria-selected'] = props.isSelected;
+
   return (
     <components.Option {...props}>
       <span>{label}</span>

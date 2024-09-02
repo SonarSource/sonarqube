@@ -61,9 +61,13 @@ export function IconOption<
   const { label, isSelected } = props;
   const { Icon } = props.data as { Icon: JSX.Element };
 
+  // For tests and a11y
+  props.innerProps.role = 'option';
+  props.innerProps['aria-selected'] = isSelected;
+
   return (
     <components.Option {...props}>
-      <div aria-selected={isSelected} className="sw-flex sw-items-center sw-gap-1" role="option">
+      <div className="sw-flex sw-items-center sw-gap-1">
         {Icon}
         <SearchHighlighter>{label}</SearchHighlighter>
       </div>
