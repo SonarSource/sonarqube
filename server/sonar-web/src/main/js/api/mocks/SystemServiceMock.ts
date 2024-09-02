@@ -67,6 +67,7 @@ export default class SystemServiceMock {
     jest.mocked(getSystemUpgrades).mockImplementation(this.handleGetSystemUpgrades);
     jest.mocked(getEmailConfigurations).mockImplementation(this.handleGetEmailConfigurations);
     jest.mocked(postEmailConfiguration).mockImplementation(this.handlePostEmailConfiguration);
+    jest.mocked(patchEmailConfiguration).mockImplementation(this.handlePatchEmailConfiguration);
   }
 
   handleGetSystemInfo = () => {

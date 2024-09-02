@@ -57,6 +57,7 @@ export function AuthenticationSelector(props: Readonly<EmailNotificationGroupPro
           title={translate('email_notification.form.oauth_auth.title')}
         >
           <Note>{translate('email_notification.form.oauth_auth.description')}</Note>
+          <Note>{translate('email_notification.form.oauth_auth.supported')}</Note>
         </SelectionCard>
       </div>
       <BasicSeparator />
@@ -77,33 +78,30 @@ export function AuthenticationSelector(props: Readonly<EmailNotificationGroupPro
             onChange={(value) => onChange({ oauthAuthenticationHost: value })}
             name={translate('email_notification.form.oauth_authentication_host')}
             required
-            value={
-              configuration.authMethod === AuthMethod.OAuth
-                ? configuration.oauthAuthenticationHost
-                : ''
-            }
+            value={configuration.oauthAuthenticationHost ?? ''}
           />
           <BasicSeparator />
           <EmailNotificationFormField
             description={translate('email_notification.form.oauth_client_id.description')}
+            hasValue={configuration.isOauthClientIdSet}
             id={OAUTH_CLIENT_ID}
             onChange={(value) => onChange({ oauthClientId: value })}
             name={translate('email_notification.form.oauth_client_id')}
             required
             type="password"
-            value={configuration.authMethod === AuthMethod.OAuth ? configuration.oauthClientId : ''}
+            value={configuration.oauthClientId ?? ''}
           />
           <BasicSeparator />
           <EmailNotificationFormField
             description={translate('email_notification.form.oauth_client_secret.description')}
+            hasValue={configuration.isOauthClientSecretSet}
             id={OAUTH_CLIENT_SECRET}
             onChange={(value) => onChange({ oauthClientSecret: value })}
             name={translate('email_notification.form.oauth_client_secret')}
             required
+            requiresRevaluation
             type="password"
-            value={
-              configuration.authMethod === AuthMethod.OAuth ? configuration.oauthClientSecret : ''
-            }
+            value={configuration.oauthClientSecret ?? ''}
           />
           <BasicSeparator />
           <EmailNotificationFormField
@@ -112,18 +110,20 @@ export function AuthenticationSelector(props: Readonly<EmailNotificationGroupPro
             onChange={(value) => onChange({ oauthTenant: value })}
             name={translate('email_notification.form.oauth_tenant')}
             required
-            value={configuration.authMethod === AuthMethod.OAuth ? configuration.oauthTenant : ''}
+            value={configuration.oauthTenant ?? ''}
           />
         </>
       ) : (
         <EmailNotificationFormField
           description={translate('email_notification.form.basic_password.description')}
           id={BASIC_PASSWORD}
+          hasValue={configuration.isBasicPasswordSet}
           onChange={(value) => onChange({ basicPassword: value })}
           name={translate('email_notification.form.basic_password')}
           required
+          requiresRevaluation
           type="password"
-          value={configuration.authMethod === AuthMethod.Basic ? configuration.basicPassword : ''}
+          value={configuration.basicPassword ?? ''}
         />
       )}
       <BasicSeparator />

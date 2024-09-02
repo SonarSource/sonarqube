@@ -19,6 +19,7 @@
  */
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import { NumberedList, NumberedListItem } from 'design-system/lib';
+import { noop } from 'lodash';
 import React, { useCallback, useEffect } from 'react';
 import { translate } from '../../../../helpers/l10n';
 import {
@@ -29,10 +30,12 @@ import { AuthMethod, EmailConfiguration } from '../../../../types/system';
 import { AuthenticationSelector } from './AuthenticationSelector';
 import { CommonSMTP } from './CommonSMTP';
 import { SenderInformation } from './SenderInformation';
-import { checkEmailConfigurationValidity } from './utils';
+import { checkEmailConfigurationHasChanges } from './utils';
 
 interface Props {
   emailConfiguration: EmailConfiguration | null;
+  onCancel: () => void;
+  onSubmitted: () => void;
 }
 
 const FORM_ID = 'email-notifications';
@@ -49,7 +52,7 @@ const EMAIL_CONFIGURATION_DEFAULT: EmailConfiguration = {
 };
 
 export default function EmailNotificationConfiguration(props: Readonly<Props>) {
-  const { emailConfiguration } = props;
+  const { emailConfiguration, onCancel, onSubmitted } = props;
   const [canSave, setCanSave] = React.useState(false);
 
   const [newConfiguration, setNewConfiguration] = React.useState<EmailConfiguration>(
@@ -59,16 +62,20 @@ export default function EmailNotificationConfiguration(props: Readonly<Props>) {
   const { mutateAsync: saveEmailConfiguration } = useSaveEmailConfigurationMutation();
   const { mutateAsync: updateEmailConfiguration } = useUpdateEmailConfigurationMutation();
 
+  const hasConfiguration = emailConfiguration !== undefined;
+
   const onChange = useCallback(
     (newValue: Partial<EmailConfiguration>) => {
       const newConfig = {
         ...newConfiguration,
         ...newValue,
       };
-      setCanSave(checkEmailConfigurationValidity(newConfig as EmailConfiguration));
+      setCanSave(
+        checkEmailConfigurationHasChanges(newConfig as EmailConfiguration, emailConfiguration),
+      );
       setNewConfiguration(newConfig as EmailConfiguration);
     },
-    [newConfiguration, setNewConfiguration],
+    [emailConfiguration, newConfiguration],
   );
 
   const onSubmit = useCallback(
@@ -92,18 +99,24 @@ export default function EmailNotificationConfiguration(props: Readonly<Props>) {
           ...authConfiguration,
         };
 
-        if (newConfiguration?.id === undefined) {
-          saveEmailConfiguration(newEmailConfiguration);
+        if (emailConfiguration?.id === undefined) {
+          saveEmailConfiguration(newEmailConfiguration).then(() => onSubmitted(), noop);
         } else {
-          newEmailConfiguration.id = newConfiguration.id;
           updateEmailConfiguration({
             emailConfiguration: newEmailConfiguration,
-            id: newEmailConfiguration.id,
-          });
+            id: emailConfiguration.id,
+          }).then(() => onSubmitted(), noop);
         }
       }
     },
-    [canSave, newConfiguration, saveEmailConfiguration, updateEmailConfiguration],
+    [
+      canSave,
+      emailConfiguration,
+      onSubmitted,
+      newConfiguration,
+      saveEmailConfiguration,
+      updateEmailConfiguration,
+    ],
   );
 
   useEffect(() => {
@@ -142,6 +155,11 @@ export default function EmailNotificationConfiguration(props: Readonly<Props>) {
       >
         {translate('email_notification.form.save_configuration')}
       </Button>
+      {hasConfiguration && (
+        <Button className="sw-ml-2" onClick={onCancel} variety={ButtonVariety.Primary}>
+          Cancel
+        </Button>
+      )}
     </form>
   );
 }

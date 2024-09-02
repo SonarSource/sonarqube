@@ -23,8 +23,10 @@ import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useGetEmailConfiguration } from '../../../../queries/system';
 import EmailNotificationConfiguration from './EmailNotificationConfiguration';
+import EmailNotificationOverview from './EmailNotificationOverview';
 
 export default function EmailNotification() {
+  const [isEditing, setIsEditing] = React.useState(false);
   const { data: configuration, isLoading } = useGetEmailConfiguration();
 
   return (
@@ -34,7 +36,18 @@ export default function EmailNotification() {
       </SubTitle>
       <FormattedMessage id="email_notification.description" />
       <Spinner isLoading={isLoading}>
-        <EmailNotificationConfiguration emailConfiguration={configuration ?? null} />
+        {configuration == null || isEditing ? (
+          <EmailNotificationConfiguration
+            emailConfiguration={configuration ?? null}
+            onCancel={() => setIsEditing(false)}
+            onSubmitted={() => setIsEditing(false)}
+          />
+        ) : (
+          <EmailNotificationOverview
+            onEditClicked={() => setIsEditing(true)}
+            emailConfiguration={configuration}
+          />
+        )}
       </Spinner>
     </div>
   );

@@ -17,10 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InputSize, Select } from '@sonarsource/echoes-react';
+import {
+  ButtonIcon,
+  ButtonVariety,
+  IconDelete,
+  IconEdit,
+  InputSize,
+  Select,
+} from '@sonarsource/echoes-react';
 import { FormField, InputField, TextError } from 'design-system/lib';
 import { isEmpty, isUndefined } from 'lodash';
-import React from 'react';
+import React, { useEffect } from 'react';
 import isEmail from 'validator/lib/isEmail';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
@@ -28,23 +35,35 @@ type InputType = 'email' | 'number' | 'password' | 'select' | 'text';
 
 interface Props {
   children?: (props: { onChange: (value: string) => void }) => React.ReactNode;
-  description: string;
+  description: React.ReactNode;
+  hasValue?: boolean;
   id: string;
   name: string;
-  onChange: (value: string) => void;
+  onChange: (value: string | undefined) => void;
   options?: string[];
   required?: boolean;
+  requiresRevaluation?: boolean;
   type?: InputType;
   value: string | undefined;
 }
 
 export function EmailNotificationFormField(props: Readonly<Props>) {
-  const { description, id, name, options, required, type = 'text', value } = props;
+  const {
+    description,
+    hasValue,
+    id,
+    name,
+    options,
+    required,
+    requiresRevaluation,
+    type = 'text',
+    value,
+  } = props;
 
   const [validationMessage, setValidationMessage] = React.useState<string>();
 
-  const handleCheck = (changedValue?: string) => {
-    if (isEmpty(changedValue) && required) {
+  const handleCheck = (changedValue: string | undefined) => {
+    if (changedValue !== undefined && isEmpty(changedValue) && required) {
       setValidationMessage(translate('settings.state.value_cant_be_empty_no_default'));
       return false;
     }
@@ -58,7 +77,7 @@ export function EmailNotificationFormField(props: Readonly<Props>) {
     return true;
   };
 
-  const onChange = (newValue: string) => {
+  const onChange = (newValue: string | undefined) => {
     handleCheck(newValue);
     props.onChange(newValue);
   };
@@ -74,25 +93,17 @@ export function EmailNotificationFormField(props: Readonly<Props>) {
       requiredAriaLabel={translate('field_required')}
     >
       <div className="sw-row-span-2 sw-grid">
-        {type === 'select' ? (
-          <SelectInput
-            id={id}
-            name={name}
-            options={options ?? []}
-            onChange={onChange}
-            required={required}
-            value={value}
-          />
-        ) : (
-          <BasicInput
-            id={id}
-            name={name}
-            type={type}
-            onChange={onChange}
-            required={required}
-            value={value}
-          />
-        )}
+        <EmailInput
+          hasValue={hasValue}
+          id={id}
+          name={name}
+          options={options ?? []}
+          onChange={onChange}
+          required={required}
+          requiresRevaluation={requiresRevaluation}
+          type={type}
+          value={value}
+        />
 
         {hasValidationMessage && (
           <TextError
@@ -109,8 +120,33 @@ export function EmailNotificationFormField(props: Readonly<Props>) {
   );
 }
 
+function EmailInput(
+  props: Readonly<{
+    hasValue: boolean | undefined;
+    id: string;
+    name: string;
+    onChange: (value: string | undefined) => void;
+    options: string[];
+    required?: boolean;
+    requiresRevaluation?: boolean;
+    type: InputType;
+    value: string | undefined;
+  }>,
+) {
+  const { type } = props;
+  switch (type) {
+    case 'password':
+      return <PasswordInput {...props} />;
+    case 'select':
+      return <SelectInput {...props} />;
+    default:
+      return <BasicInput {...props} />;
+  }
+}
+
 function BasicInput(
   props: Readonly<{
+    hasValue: boolean | undefined;
     id: string;
     name: string;
     onChange: (value: string) => void;
@@ -119,7 +155,7 @@ function BasicInput(
     value: string | undefined;
   }>,
 ) {
-  const { id, onChange, name, required, type, value } = props;
+  const { hasValue, id, onChange, name, required, type, value } = props;
 
   return (
     <InputField
@@ -127,12 +163,70 @@ function BasicInput(
       min={type === 'number' ? 0 : undefined}
       name={name}
       onChange={(event) => onChange(event.target.value)}
+      placeholder={
+        type === 'password' && hasValue ? translate('email_notification.form.private') : undefined
+      }
       required={required}
       size="large"
       step={type === 'number' ? 1 : undefined}
       type={type}
       value={value ?? ''}
     />
+  );
+}
+
+function PasswordInput(
+  props: Readonly<{
+    hasValue: boolean | undefined;
+    id: string;
+    name: string;
+    onChange: (value: string | undefined) => void;
+    required?: boolean;
+    requiresRevaluation?: boolean;
+    value: string | undefined;
+  }>,
+) {
+  const { hasValue, id, onChange, name, required, requiresRevaluation, value } = props;
+  const [isEditing, setIsEditing] = React.useState<boolean>(requiresRevaluation === true);
+
+  useEffect(() => {
+    if (!requiresRevaluation) {
+      setIsEditing(!hasValue);
+    }
+  }, [hasValue, requiresRevaluation]);
+
+  return (
+    <div className="sw-flex">
+      <InputField
+        disabled={!isEditing && !requiresRevaluation}
+        id={id}
+        name={name}
+        onChange={(event) => onChange(event.target.value)}
+        required={isEditing && required}
+        size="large"
+        type="password"
+        value={
+          hasValue && !isEditing && !requiresRevaluation
+            ? translate('email_notification.form.private')
+            : value ?? ''
+        }
+      />
+      {!requiresRevaluation && (
+        <ButtonIcon
+          ariaLabel={isEditing ? translate('reset_verb') : translate('edit')}
+          data-testid={`${name}-${isEditing ? 'reset' : 'edit'}`}
+          className="sw-ml-2"
+          Icon={isEditing ? IconDelete : IconEdit}
+          onClick={() => {
+            if (isEditing) {
+              onChange(undefined);
+            }
+            setIsEditing(!isEditing);
+          }}
+          variety={ButtonVariety.Default}
+        />
+      )}
+    </div>
   );
 }
 

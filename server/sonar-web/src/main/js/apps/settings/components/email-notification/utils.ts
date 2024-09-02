@@ -17,8 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isUndefined } from 'lodash';
-import { AuthMethod, EmailConfiguration } from '../../../../types/system';
+import {
+  AuthMethod,
+  EmailConfiguration,
+  EmailConfigurationBasicAuth,
+  EmailConfigurationOAuth,
+} from '../../../../types/system';
 
 export const AUTH_METHOD = 'auth-method';
 
@@ -48,36 +52,57 @@ export interface EmailNotificationGroupProps {
   onChange: (newValue: Partial<EmailConfiguration>) => void;
 }
 
-export function checkEmailConfigurationValidity(configuration: EmailConfiguration): boolean {
-  let isValid = false;
-  const commonProps: (keyof EmailConfiguration)[] = [
-    'authMethod',
-    'username',
-    'host',
-    'port',
-    'securityProtocol',
-    'fromAddress',
-    'fromName',
-    'subjectPrefix',
-  ];
+const COMMON_EMAIL_PROPS: (keyof EmailConfiguration)[] = [
+  'authMethod',
+  'username',
+  'host',
+  'port',
+  'securityProtocol',
+  'fromAddress',
+  'fromName',
+  'subjectPrefix',
+];
 
-  if (configuration.authMethod === AuthMethod.Basic) {
-    isValid = checkRequiredPropsAreValid(configuration, [...commonProps, 'basicPassword']);
-  } else {
-    isValid = checkRequiredPropsAreValid(configuration, [
-      ...commonProps,
+export function checkEmailConfigurationHasChanges(
+  configuration: EmailConfiguration | null,
+  originalConfiguration: EmailConfiguration | null,
+): boolean {
+  if (!configuration) {
+    return false;
+  }
+
+  const isEditing = originalConfiguration !== null;
+  const isOAuth = configuration.authMethod === AuthMethod.OAuth;
+
+  let isValid = false;
+
+  if (isOAuth) {
+    const oauthClientIdChanged =
+      configuration.isOauthClientIdSet === true &&
+      checkRequiredPropsAreValid(configuration as EmailConfigurationOAuth, ['oauthClientId']);
+
+    const privatePropsToCheck: (keyof EmailConfigurationOAuth)[] = ['oauthClientSecret'];
+    if (!isEditing || oauthClientIdChanged || !configuration.isOauthClientIdSet) {
+      privatePropsToCheck.push('oauthClientId');
+    }
+
+    isValid = checkRequiredPropsAreValid(configuration as EmailConfigurationOAuth, [
+      ...COMMON_EMAIL_PROPS,
       'oauthAuthenticationHost',
-      'oauthClientId',
-      'oauthClientSecret',
       'oauthTenant',
+      ...privatePropsToCheck,
+    ]);
+  } else {
+    isValid = checkRequiredPropsAreValid(configuration as EmailConfigurationBasicAuth, [
+      ...COMMON_EMAIL_PROPS,
+      'basicPassword',
     ]);
   }
 
   return isValid;
 }
 
+// Check if required props are present and contain a value that is not an empty string.
 function checkRequiredPropsAreValid<T>(obj: T, props: (keyof T)[]): boolean {
-  return props.every(
-    (prop) => !isUndefined(obj[prop]) && typeof obj[prop] === 'string' && obj[prop].length > 0,
-  );
+  return props.every((prop) => typeof obj[prop] === 'string' && obj[prop]);
 }
