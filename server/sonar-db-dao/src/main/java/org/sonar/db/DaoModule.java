@@ -38,6 +38,9 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.ProjectLinkDao;
 import org.sonar.db.component.SnapshotDao;
+import org.sonar.db.dependency.CveCweDao;
+import org.sonar.db.dependency.CveDao;
+import org.sonar.db.dependency.IssuesDependencyDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.entity.EntityDao;
 import org.sonar.db.es.EsQueueDao;
@@ -65,8 +68,8 @@ import org.sonar.db.project.ProjectExportDao;
 import org.sonar.db.property.InternalComponentPropertiesDao;
 import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
-import org.sonar.db.provisioning.GithubOrganizationGroupDao;
 import org.sonar.db.provisioning.DevOpsPermissionsMappingDao;
+import org.sonar.db.provisioning.GithubOrganizationGroupDao;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.pushevent.PushEventDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
@@ -126,6 +129,8 @@ public class DaoModule extends Module {
     CeTaskMessageDao.class,
     ComponentDao.class,
     ComponentKeyUpdaterDao.class,
+    CveDao.class,
+    CveCweDao.class,
     DefaultQProfileDao.class,
     DevOpsPermissionsMappingDao.class,
     DuplicationDao.class,
@@ -147,6 +152,7 @@ public class DaoModule extends Module {
     IssueChangeDao.class,
     IssueDao.class,
     IssueFixedDao.class,
+    IssuesDependencyDao.class,
     LiveMeasureDao.class,
     ProjectMeasureDao.class,
     MetricDao.class,

@@ -63,6 +63,12 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotMapper;
 import org.sonar.db.component.UuidWithBranchUuidDto;
 import org.sonar.db.component.ViewsSnapshotDto;
+import org.sonar.db.dependency.CveCweDto;
+import org.sonar.db.dependency.CveCweMapper;
+import org.sonar.db.dependency.CveDto;
+import org.sonar.db.dependency.CveMapper;
+import org.sonar.db.dependency.IssuesDependencyDto;
+import org.sonar.db.dependency.IssuesDependencyMapper;
 import org.sonar.db.duplication.DuplicationMapper;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.db.entity.EntityDto;
@@ -83,9 +89,9 @@ import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.issue.PrIssueDto;
 import org.sonar.db.measure.LargestBranchNclocDto;
 import org.sonar.db.measure.LiveMeasureMapper;
+import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.measure.ProjectMeasureMapper;
-import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.metric.MetricMapper;
 import org.sonar.db.newcodeperiod.NewCodePeriodMapper;
 import org.sonar.db.notification.NotificationQueueDto;
@@ -119,10 +125,10 @@ import org.sonar.db.property.InternalPropertiesMapper;
 import org.sonar.db.property.InternalPropertyDto;
 import org.sonar.db.property.PropertiesMapper;
 import org.sonar.db.property.ScrapPropertyDto;
-import org.sonar.db.provisioning.GithubOrganizationGroupDto;
-import org.sonar.db.provisioning.GithubOrganizationGroupMapper;
 import org.sonar.db.provisioning.DevOpsPermissionsMappingDto;
 import org.sonar.db.provisioning.DevOpsPermissionsMappingMapper;
+import org.sonar.db.provisioning.GithubOrganizationGroupDto;
+import org.sonar.db.provisioning.GithubOrganizationGroupMapper;
 import org.sonar.db.purge.PurgeMapper;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 import org.sonar.db.pushevent.PushEventDto;
@@ -208,6 +214,8 @@ public class MyBatis {
     confBuilder.loadAlias("AnticipatedTransition", AnticipatedTransitionDto.class);
     confBuilder.loadAlias("CeTaskCharacteristic", CeTaskCharacteristicDto.class);
     confBuilder.loadAlias("Component", ComponentDto.class);
+    confBuilder.loadAlias("Cve", CveDto.class);
+    confBuilder.loadAlias("CveCwe", CveCweDto.class);
     confBuilder.loadAlias("DevOpsPermissionsMapping", DevOpsPermissionsMappingDto.class);
     confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);
     confBuilder.loadAlias("Entity", EntityDto.class);
@@ -225,6 +233,7 @@ public class MyBatis {
     confBuilder.loadAlias("KeyLongValue", KeyLongValue.class);
     confBuilder.loadAlias("Impact", ImpactDto.class);
     confBuilder.loadAlias("Issue", IssueDto.class);
+    confBuilder.loadAlias("IssueDependency", IssuesDependencyDto.class);
     confBuilder.loadAlias("NewCodeReferenceIssue", NewCodeReferenceIssueDto.class);
     confBuilder.loadAlias("ProjectMeasure", ProjectMeasureDto.class);
     confBuilder.loadAlias("LargestBranchNclocDto", LargestBranchNclocDto.class);
@@ -284,6 +293,8 @@ public class MyBatis {
       CeTaskMessageMapper.class,
       ComponentKeyUpdaterMapper.class,
       ComponentMapper.class,
+      CveMapper.class,
+      CveCweMapper.class,
       LiveMeasureMapper.class,
       DefaultQProfileMapper.class,
       DuplicationMapper.class,
@@ -304,6 +315,7 @@ public class MyBatis {
       IssueChangeMapper.class,
       IssueMapper.class,
       IssueFixedMapper.class,
+      IssuesDependencyMapper.class,
       ProjectMeasureMapper.class,
       MetricMapper.class,
       NewCodePeriodMapper.class,

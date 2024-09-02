@@ -38,6 +38,9 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.ProjectLinkDao;
 import org.sonar.db.component.SnapshotDao;
+import org.sonar.db.dependency.CveCweDao;
+import org.sonar.db.dependency.CveDao;
+import org.sonar.db.dependency.IssuesDependencyDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.entity.EntityDao;
 import org.sonar.db.es.EsQueueDao;
@@ -65,8 +68,8 @@ import org.sonar.db.project.ProjectExportDao;
 import org.sonar.db.property.InternalComponentPropertiesDao;
 import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
-import org.sonar.db.provisioning.GithubOrganizationGroupDao;
 import org.sonar.db.provisioning.DevOpsPermissionsMappingDao;
+import org.sonar.db.provisioning.GithubOrganizationGroupDao;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.pushevent.PushEventDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
@@ -188,7 +191,6 @@ public class DbClient {
   private final ScimGroupDao scimGroupDao;
   private final EntityDao entityDao;
   private final AnticipatedTransitionDao anticipatedTransitionDao;
-
   private final ReportScheduleDao reportScheduleDao;
   private final ReportSubscriptionDao reportSubscriptionDao;
   private final GithubOrganizationGroupDao githubOrganizationGroupDao;
@@ -197,6 +199,9 @@ public class DbClient {
   private final ProjectExportDao projectExportDao;
   private final IssueFixedDao issueFixedDao;
   private final TelemetryMetricsSentDao telemetryMetricsSentDao;
+  private final CveDao cveDao;
+  private final CveCweDao cveCweDao;
+  private final IssuesDependencyDao issuesDependencyDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -291,6 +296,9 @@ public class DbClient {
     projectExportDao = getDao(map, ProjectExportDao.class);
     issueFixedDao = getDao(map, IssueFixedDao.class);
     telemetryMetricsSentDao = getDao(map, TelemetryMetricsSentDao.class);
+    cveDao = getDao(map, CveDao.class);
+    cveCweDao = getDao(map, CveCweDao.class);
+    issuesDependencyDao = getDao(map, IssuesDependencyDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -645,5 +653,17 @@ public class DbClient {
 
   public ProjectExportDao projectExportDao() {
     return projectExportDao;
+  }
+
+  public CveDao cveDao() {
+    return cveDao;
+  }
+
+  public CveCweDao cveCweDao() {
+    return cveCweDao;
+  }
+
+  public IssuesDependencyDao issuesDependencyDao() {
+    return issuesDependencyDao;
   }
 }

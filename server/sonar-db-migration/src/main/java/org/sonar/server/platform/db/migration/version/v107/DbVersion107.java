@@ -52,7 +52,11 @@ public class DbVersion107 implements DbVersion {
       .add(10_7_009, "Drop index 'uniq_github_perm_mappings' in the 'devops_perms_mapping' table", DropIndexUniqGithubPermsMappingInDevopsPermsMappingTable.class)
       .add(10_7_010, "Create uniq index on 'devops_perms_mapping' table for columns 'devops_platform_role', 'sonarqube_permission' and 'devops_platform'",
         CreateUniqueIndexOnDevopsPermsMappingTable.class)
-      .add(10_7_011, "Add default permissions for GitLab in 'devops_perms_mapping'", PopulateGitlabDevOpsPermissionsMapping.class);
+      .add(10_7_011, "Add default permissions for GitLab in 'devops_perms_mapping'", PopulateGitlabDevOpsPermissionsMapping.class)
+      .add(10_7_012, "Create 'cves' table", CreateCvesTable.class)
+      .add(10_7_013, "Create 'cve_cwe' table", CreateCveCweTable.class)
+      .add(10_7_014, "Create 'issues_dependency' table", CreateIssuesDependencyTable.class)
+    ;
   }
 
 }
