@@ -17,115 +17,113 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Button } from '@sonarsource/echoes-react';
-import { FlagMessage, Link, Spinner } from 'design-system';
+import { Button, Spinner } from '@sonarsource/echoes-react';
+import { FlagMessage, Link } from 'design-system';
+import { noop } from 'lodash';
 import * as React from 'react';
-import { doExport } from '../../../api/project-dump';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { DumpStatus, DumpTask } from '../../../types/project-dump';
+import { useLastActivityQuery } from '../../../queries/ce';
+import { useProjectDumpStatusQuery, useProjectExportMutation } from '../../../queries/project-dump';
+import { DumpTask } from '../../../types/project-dump';
+import { TaskStatuses, TaskTypes } from '../../../types/tasks';
+import { getImportExportActivityParams } from '../utils';
 
 interface Props {
   componentKey: string;
-  loadStatus: () => void;
-  status: DumpStatus;
-  task?: DumpTask;
 }
+const PROGRESS_STATUS = [TaskStatuses.Pending, TaskStatuses.InProgress];
+const REFRESH_INTERVAL = 5000;
 
-export default function Export(props: Readonly<Props>) {
+export default function Export({ componentKey }: Readonly<Props>) {
+  const { data: task, refetch: refetchLastActivity } = useLastActivityQuery(
+    getImportExportActivityParams(componentKey, TaskTypes.ProjectExport),
+    {
+      refetchInterval: ({ state: { data } }) => {
+        return data && PROGRESS_STATUS.includes(data.status) ? REFRESH_INTERVAL : undefined;
+      },
+    },
+  );
+  const { data: status, refetch: refetchDumpStatus } = useProjectDumpStatusQuery(componentKey, {
+    refetchInterval: () => {
+      return task && PROGRESS_STATUS.includes(task.status) ? REFRESH_INTERVAL : undefined;
+    },
+  });
+  const { mutateAsync: doExport } = useProjectExportMutation();
+
+  const isDumpAvailable = Boolean(status?.exportedDump);
+
   const handleExport = async () => {
     try {
-      await doExport(props.componentKey);
-      props.loadStatus();
-    } catch (error) {
-      /* no catch needed */
+      await doExport(componentKey);
+      refetchLastActivity();
+      refetchDumpStatus();
+    } catch (_) {
+      noop();
     }
   };
 
-  function renderHeader() {
-    return (
-      <div className="sw-mb-4">
-        <span className="sw-heading-md">{translate('project_dump.export')}</span>
-      </div>
-    );
-  }
-
   function renderWhenCanNotExport() {
     return (
-      <>
-        {renderHeader()}
-        <FlagMessage className="sw-mb-4" variant="warning">
-          {translate('project_dump.can_not_export')}
-        </FlagMessage>
-      </>
+      <FlagMessage className="sw-mb-4" variant="warning">
+        {translate('project_dump.can_not_export')}
+      </FlagMessage>
     );
   }
 
   function renderWhenExportPending(task: DumpTask) {
     return (
-      <>
-        {renderHeader()}
-        <div>
-          <Spinner />
-          <DateTimeFormatter date={task.submittedAt}>
-            {(formatted) => (
-              <span>{translateWithParameters('project_dump.pending_export', formatted)}</span>
-            )}
-          </DateTimeFormatter>
-        </div>
-      </>
+      <div className="sw-flex sw-gap-2">
+        <Spinner />
+        <DateTimeFormatter date={task.submittedAt}>
+          {(formatted) => (
+            <output>{translateWithParameters('project_dump.pending_export', formatted)}</output>
+          )}
+        </DateTimeFormatter>
+      </div>
     );
   }
 
   function renderWhenExportInProgress(task: DumpTask) {
     return (
-      <>
-        {renderHeader()}
-        <div>
-          <Spinner />
-          {task.startedAt && (
-            <DateFromNow date={task.startedAt}>
-              {(fromNow) => (
-                <span>{translateWithParameters('project_dump.in_progress_export', fromNow)}</span>
-              )}
-            </DateFromNow>
-          )}
-        </div>
-      </>
+      <div className="sw-flex sw-gap-2">
+        <Spinner />
+        {task.startedAt && (
+          <DateFromNow date={task.startedAt}>
+            {(fromNow) => (
+              <output>{translateWithParameters('project_dump.in_progress_export', fromNow)}</output>
+            )}
+          </DateFromNow>
+        )}
+      </div>
     );
   }
 
   function renderWhenExportFailed() {
-    const { componentKey } = props;
     const detailsUrl = `/project/background_tasks?id=${encodeURIComponent(
       componentKey,
     )}&status=FAILED&taskType=PROJECT_EXPORT`;
 
     return (
-      <>
-        {renderHeader()}
-        <div>
-          <FlagMessage className="sw-mb-4" variant="error">
-            {translate('project_dump.failed_export')}
-            <Link className="sw-ml-1" to={detailsUrl}>
-              {translate('project_dump.see_details')}
-            </Link>
-          </FlagMessage>
+      <div>
+        <FlagMessage className="sw-mb-4" variant="error">
+          {translate('project_dump.failed_export')}
+          <Link className="sw-ml-1" to={detailsUrl}>
+            {translate('project_dump.see_details')}
+          </Link>
+        </FlagMessage>
 
-          {renderExport()}
-        </div>
-      </>
+        {renderExport()}
+      </div>
     );
   }
 
-  function renderDump(task?: DumpTask) {
-    const { status } = props;
-
+  function renderDump(task?: DumpTask | null) {
     return (
       <FlagMessage className="sw-mb-4" variant="success">
         <div>
-          {task && task.executedAt && (
+          {task?.executedAt && (
             <DateTimeFormatter date={task.executedAt}>
               {(formatted) => (
                 <div>
@@ -137,7 +135,7 @@ export default function Export(props: Readonly<Props>) {
           <div>
             {!task && <div>{translate('project_dump.export_available')}</div>}
 
-            <p className="sw-mt-2">{status.exportedDump}</p>
+            <p className="sw-mt-2">{status?.exportedDump}</p>
           </div>
         </div>
       </FlagMessage>
@@ -159,33 +157,30 @@ export default function Export(props: Readonly<Props>) {
     );
   }
 
-  const { task, status } = props;
+  if (status === undefined || task === undefined) {
+    return <Spinner />;
+  }
 
   if (!status.canBeExported) {
     return renderWhenCanNotExport();
   }
 
-  if (task && task.status === 'PENDING') {
+  if (task?.status === TaskStatuses.Pending) {
     return renderWhenExportPending(task);
   }
 
-  if (task && task.status === 'IN_PROGRESS') {
+  if (task?.status === TaskStatuses.InProgress) {
     return renderWhenExportInProgress(task);
   }
 
-  if (task && task.status === 'FAILED') {
+  if (task?.status === TaskStatuses.Failed) {
     return renderWhenExportFailed();
   }
 
-  const isDumpAvailable = Boolean(status.exportedDump);
-
   return (
-    <>
-      {renderHeader()}
-      <div>
-        {isDumpAvailable && renderDump(task)}
-        {renderExport()}
-      </div>
-    </>
+    <div>
+      {isDumpAvailable && renderDump(task)}
+      {renderExport()}
+    </div>
   );
 }
