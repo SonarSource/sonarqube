@@ -82,6 +82,10 @@ public class FileStructure {
     return new File(dir, "adhocrules.pb");
   }
 
+  public File cves() {
+    return new File(dir, "cves.pb");
+  }
+
   public File fileFor(Domain domain, int componentRef) {
     return new File(dir, domain.filePrefix + componentRef + domain.fileSuffix);
   }

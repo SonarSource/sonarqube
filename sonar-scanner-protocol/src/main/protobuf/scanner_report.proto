@@ -230,6 +230,17 @@ message AdHocRule {
   repeated Impact defaultImpacts = 8;
 }
 
+message Cve {
+  string cve_id = 1;
+  string description = 2;
+  float cvss_score = 3;
+  float epss_score = 4;
+  float epss_percentile = 5;
+  int64 published_date = 6;
+  int64 last_modified_date = 7;
+  repeated string cwe = 8;
+}
+
 enum IssueType {
   UNSET = 0;
   CODE_SMELL = 1;

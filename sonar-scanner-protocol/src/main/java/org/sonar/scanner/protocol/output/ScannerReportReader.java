@@ -61,6 +61,14 @@ public class ScannerReportReader {
     return Protobuf.readStream(file, ScannerReport.AdHocRule.parser());
   }
 
+  public CloseableIterator<ScannerReport.Cve> readCves() {
+    File file = fileStructure.cves();
+    if (!fileExists(file)) {
+      return emptyCloseableIterator();
+    }
+    return Protobuf.readStream(file, ScannerReport.Cve.parser());
+  }
+
   public CloseableIterator<ScannerReport.Measure> readComponentMeasures(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
     if (fileExists(file)) {
