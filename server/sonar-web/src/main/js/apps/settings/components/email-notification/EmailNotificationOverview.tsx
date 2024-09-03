@@ -23,6 +23,7 @@ import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import { AuthMethod, EmailConfiguration } from '../../../../types/system';
+import EmailTestModal from './EmailTestModal';
 
 interface EmailTestModalProps {
   emailConfiguration: EmailConfiguration;
@@ -34,6 +35,8 @@ export default function EmailNotificationOverview(props: Readonly<EmailTestModal
 
   return (
     <>
+      <BasicSeparator className="sw-my-6" />
+      <EmailTestModal />
       <BasicSeparator className="sw-my-6" />
       <div className="sw-flex sw-justify-between">
         <div className="sw-grid sw-gap-4">

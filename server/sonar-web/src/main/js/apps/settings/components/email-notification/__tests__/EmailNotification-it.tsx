@@ -23,9 +23,13 @@ import { addGlobalSuccessMessage } from 'design-system/lib';
 import React from 'react';
 import { byLabelText, byRole, byTestId, byText } from '~sonar-aligned/helpers/testSelector';
 import SystemServiceMock from '../../../../../api/mocks/SystemServiceMock';
+import * as settingsApi from '../../../../../api/settings';
 import * as api from '../../../../../api/system';
+import { CurrentUserContext } from '../../../../../app/components/current-user/CurrentUserContext';
 import { mockEmailConfiguration } from '../../../../../helpers/mocks/system';
+import { mockCurrentUser } from '../../../../../helpers/testMocks';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
+import { Permissions } from '../../../../../types/permissions';
 import { AuthMethod } from '../../../../../types/system';
 import EmailNotification from '../EmailNotification';
 
@@ -112,6 +116,16 @@ const ui = {
   edit: byRole('button', {
     name: 'edit',
   }),
+
+  // test modal
+  test_email: byRole('button', { name: 'email_notification.test.create_test_email' }),
+  test_email_title: byRole('heading', { name: 'email_notification.test.modal_title' }),
+  test_email_to_address: byRole('textbox', {
+    name: 'email_notification.test.to_address required',
+  }),
+  test_email_subject: byRole('textbox', { name: 'email_notification.test.subject' }),
+  test_email_message: byRole('textbox', { name: 'email_notification.test.message required' }),
+  test_email_submit: byRole('button', { name: 'email_notification.test.submit' }),
 };
 
 describe('Email Basic Configuration', () => {
@@ -474,6 +488,71 @@ describe('Email Oauth Configuration', () => {
   });
 });
 
+describe('EmailNotification send test email', () => {
+  it('should render the EmailTestModal', async () => {
+    const user = userEvent.setup();
+    systemHandler.addEmailConfiguration(
+      mockEmailConfiguration(AuthMethod.Basic, { id: 'email-1' }),
+    );
+
+    renderEmailNotifications();
+    expect(await ui.overviewHeading.find()).toBeInTheDocument();
+
+    await user.click(ui.test_email.get());
+
+    expect(ui.test_email_title.get()).toBeVisible();
+    expect(ui.test_email_to_address.get()).toBeVisible();
+    expect(ui.test_email_to_address.get()).toHaveValue('');
+    expect(ui.test_email_subject.get()).toBeVisible();
+    expect(ui.test_email_subject.get()).toHaveValue('email_notification.test.subject');
+    expect(ui.test_email_message.get()).toBeVisible();
+    expect(ui.test_email_message.get()).toHaveValue('email_notification.test.message_text');
+  });
+
+  it('should be possible to send a test email', async () => {
+    jest.spyOn(settingsApi, 'sendTestEmail');
+    const user = userEvent.setup();
+    systemHandler.addEmailConfiguration(
+      mockEmailConfiguration(AuthMethod.Basic, { id: 'email-1' }),
+    );
+
+    renderEmailNotifications();
+    expect(await ui.overviewHeading.find()).toBeInTheDocument();
+
+    await user.click(ui.test_email.get());
+
+    expect(ui.test_email_submit.get()).toBeDisabled();
+    await user.type(ui.test_email_to_address.get(), 'test@test.com');
+    expect(ui.test_email_submit.get()).toBeEnabled();
+
+    await user.clear(ui.test_email_subject.get());
+    await user.type(ui.test_email_subject.get(), 'Test subject');
+    await user.clear(ui.test_email_message.get());
+    await user.type(ui.test_email_message.get(), 'This is a test message');
+
+    await user.click(ui.test_email_submit.get());
+    expect(settingsApi.sendTestEmail).toHaveBeenCalledTimes(1);
+    expect(settingsApi.sendTestEmail).toHaveBeenCalledWith(
+      'test@test.com',
+      'Test subject',
+      'This is a test message',
+    );
+  });
+});
+
 function renderEmailNotifications() {
-  return renderComponent(<EmailNotification />);
+  return renderComponent(
+    <CurrentUserContext.Provider
+      value={{
+        currentUser: mockCurrentUser({
+          isLoggedIn: true,
+          permissions: { global: [Permissions.Admin] },
+        }),
+        updateCurrentUserHomepage: () => {},
+        updateDismissedNotices: () => {},
+      }}
+    >
+      <EmailNotification />
+    </CurrentUserContext.Provider>,
+  );
 }
