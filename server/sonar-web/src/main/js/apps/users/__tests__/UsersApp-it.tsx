@@ -138,6 +138,7 @@ const ui = {
   userNameInput: byRole('textbox', { name: /name/ }),
   emailInput: byRole('textbox', { name: /email/ }),
   passwordInput: byLabelText(/password/),
+  confirmPasswordInput: byLabelText(/confirm_password/),
   dialogSCMInputs: byRole('textbox', { name: /users.create_user.scm_account/ }),
   dialogSCMInput: (value?: string) =>
     byRole('textbox', { name: `users.create_user.scm_account_${value ? `x.${value}` : 'new'}` }),
@@ -264,7 +265,8 @@ describe('in non managed mode', () => {
 
     await user.type(ui.loginInput.get(), 'Login');
     await user.type(ui.userNameInput.get(), 'Jack');
-    await user.type(ui.passwordInput.get(), 'Password');
+    await user.type(ui.passwordInput.getAll()[0], 'P@ssword12345');
+    await user.type(ui.passwordInput.getAll()[1], 'P@ssword12345');
     // Add SCM account
     expect(ui.dialogSCMInputs.queryAll()).toHaveLength(0);
     await user.click(ui.scmAddButton.get());
@@ -736,7 +738,7 @@ it('accessibility', async () => {
   // user creation dialog should be accessible
   await user.click(await ui.createUserButton.find());
   expect(await ui.dialogCreateUser.find()).toBeInTheDocument();
-  await expect(ui.dialogCreateUser.get()).toHaveNoA11yViolations();
+  await expect(await ui.dialogCreateUser.find()).toHaveNoA11yViolations();
 
   await user.click(ui.cancelButton.get());
 

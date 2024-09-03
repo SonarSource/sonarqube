@@ -30,6 +30,7 @@ import {
   addGlobalErrorMessage,
 } from 'design-system';
 import * as React from 'react';
+import UserPasswordInput from '../../../components/common/UserPasswordInput';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseErrorResponse } from '../../../helpers/request';
@@ -55,7 +56,10 @@ export default function UserForm(props: Props) {
   const [email, setEmail] = React.useState<string>(user?.email ?? '');
   const [login, setLogin] = React.useState<string>(user?.login ?? '');
   const [name, setName] = React.useState<string>(user?.name ?? '');
-  const [password, setPassword] = React.useState<string>('');
+  const [password, setPassword] = React.useState<{ isValid: boolean; value: string }>({
+    value: '',
+    isValid: false,
+  });
   const [scmAccounts, setScmAccounts] = React.useState<string[]>(user?.scmAccounts ?? []);
   const [error, setError] = React.useState<string | undefined>(undefined);
 
@@ -88,7 +92,7 @@ export default function UserForm(props: Props) {
         email: email || undefined,
         login,
         name,
-        password,
+        password: password.value,
         scmAccounts,
       },
       { onSuccess: props.onClose, onError: handleError },
@@ -215,17 +219,10 @@ export default function UserForm(props: Props) {
           </FormField>
 
           {!user && (
-            <FormField required label={translate('password')} htmlFor="create-user-password">
-              <InputField
-                autoComplete="off"
-                size="full"
-                id="create-user-password"
-                name="password"
-                onChange={(e) => setPassword(e.currentTarget.value)}
-                type="password"
-                value={password}
-              />
-            </FormField>
+            <UserPasswordInput
+              value={password.value}
+              onChange={(password) => setPassword(password)}
+            />
           )}
 
           <FormField
