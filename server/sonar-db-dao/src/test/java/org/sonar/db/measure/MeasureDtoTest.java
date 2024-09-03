@@ -19,13 +19,36 @@
  */
 package org.sonar.db.measure;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MeasureDtoTest {
+
+  @ParameterizedTest
+  @MethodSource("valuesOfDifferentTypes")
+  void getString_returns_string_value(Object value) {
+    String metricKey = randomAlphabetic(7);
+    MeasureDto measureDto = new MeasureDto().addValue(metricKey, value);
+    assertThat(measureDto.getString(metricKey)).isEqualTo(String.valueOf(value));
+  }
+
+  private static List<Object> valuesOfDifferentTypes() {
+    return List.of(2, 3.14, "foo");
+  }
+
+  @Test
+  void getString_returns_null_for_nonexistent_metric() {
+    String metricKey = randomAlphabetic(7);
+    MeasureDto measureDto = new MeasureDto();
+    assertThat(measureDto.getString(metricKey)).isNull();
+  }
 
   @Test
   void compute_json_value_hash() {

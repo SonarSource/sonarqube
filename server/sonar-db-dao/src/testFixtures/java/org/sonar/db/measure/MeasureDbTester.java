@@ -113,8 +113,7 @@ public class MeasureDbTester {
       .setComponentUuid(component.uuid())
       .setBranchUuid(component.branchUuid());
     Arrays.stream(consumers).forEach(c -> c.accept(dto));
-    dto.computeJsonValueHash();
-    dbClient.measureDao().insert(db.getSession(), dto);
+    dbClient.measureDao().insertOrUpdate(db.getSession(), dto);
     db.getSession().commit();
     return dto;
   }

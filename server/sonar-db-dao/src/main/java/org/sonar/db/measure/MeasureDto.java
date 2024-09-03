@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.util.Map;
 import java.util.TreeMap;
+import javax.annotation.CheckForNull;
 import org.apache.commons.codec.digest.MurmurHash3;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -87,6 +88,15 @@ public class MeasureDto {
   public long computeJsonValueHash() {
     jsonValueHash = MurmurHash3.hash128(getJsonValue().getBytes(UTF_8))[0];
     return jsonValueHash;
+  }
+
+  @CheckForNull
+  public String getString(String metricKey) {
+    Object value = metricValues.get(metricKey);
+    if (value == null) {
+      return null;
+    }
+    return String.valueOf(value);
   }
 
   @Override

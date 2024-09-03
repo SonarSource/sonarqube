@@ -19,12 +19,16 @@
  */
 package org.sonar.db.measure;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class MeasureDao implements Dao {
 
@@ -38,8 +42,30 @@ public class MeasureDao implements Dao {
     return mapper(dbSession).insert(dto, system2.now());
   }
 
+  /**
+   * Update a measure. The measure json value will be overwritten.
+   */
   public int update(DbSession dbSession, MeasureDto dto) {
     return mapper(dbSession).update(dto, system2.now());
+  }
+
+  /**
+   * Unlike {@link #update(DbSession, MeasureDto)}, this method will not overwrite the entire json value,
+   * but will update the measures inside the json.
+   */
+  public int insertOrUpdate(DbSession dbSession, MeasureDto dto) {
+    long now = system2.now();
+    Optional<MeasureDto> existingMeasureOpt = selectMeasure(dbSession, dto.getComponentUuid());
+    if (existingMeasureOpt.isPresent()) {
+      MeasureDto existingDto = existingMeasureOpt.get();
+      existingDto.getMetricValues().putAll(dto.getMetricValues());
+      dto.getMetricValues().putAll(existingDto.getMetricValues());
+      dto.computeJsonValueHash();
+      return mapper(dbSession).update(dto, now);
+    } else {
+      dto.computeJsonValueHash();
+      return mapper(dbSession).insert(dto, now);
+    }
   }
 
   public Optional<MeasureDto> selectMeasure(DbSession dbSession, String componentUuid) {
@@ -49,6 +75,31 @@ public class MeasureDao implements Dao {
       return Optional.of(measures.get(0));
     }
     return Optional.empty();
+  }
+
+  public Optional<MeasureDto> selectMeasure(DbSession dbSession, String componentUuid, String metricKey) {
+    List<MeasureDto> measures = selectByComponentUuidsAndMetricKeys(dbSession, List.of(componentUuid), List.of(metricKey));
+    // component_uuid column is unique. List can't have more than 1 item.
+    if (measures.size() == 1) {
+      return Optional.of(measures.get(0));
+    }
+    return Optional.empty();
+  }
+
+  public List<MeasureDto> selectByComponentUuidsAndMetricKeys(DbSession dbSession, Collection<String> largeComponentUuids, Collection<String> metricKeys) {
+    if (largeComponentUuids.isEmpty() || metricKeys.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return executeLargeInputs(
+      largeComponentUuids,
+      componentUuids -> mapper(dbSession).selectByComponentUuids(componentUuids)).stream()
+      .map(measureDto -> {
+        measureDto.getMetricValues().entrySet().removeIf(entry -> !metricKeys.contains(entry.getKey()));
+        return measureDto;
+      })
+      .filter(measureDto -> !measureDto.getMetricValues().isEmpty())
+      .toList();
   }
 
   public Set<MeasureHash> selectBranchMeasureHashes(DbSession dbSession, String branchUuid) {

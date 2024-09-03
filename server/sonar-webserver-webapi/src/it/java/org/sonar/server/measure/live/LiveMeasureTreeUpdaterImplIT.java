@@ -36,7 +36,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.rule.RuleDto;
@@ -51,6 +51,7 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY;
+import static org.sonar.api.measures.Metric.ValueType.*;
 
 public class LiveMeasureTreeUpdaterImplIT {
   @Rule
@@ -79,8 +80,8 @@ public class LiveMeasureTreeUpdaterImplIT {
     file2 = db.components().insertComponent(ComponentTesting.newFileDto(project, dir));
 
     // other needed data
-    metricDto = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.INT.name()));
-    metric = new Metric.Builder(metricDto.getKey(), metricDto.getShortName(), Metric.ValueType.valueOf(metricDto.getValueType())).create();
+    metricDto = db.measures().insertMetric(m -> m.setValueType(INT.name()));
+    metric = new Metric.Builder(metricDto.getKey(), metricDto.getShortName(), valueOf(metricDto.getValueType())).create();
     matrix = new MeasureMatrix(List.of(project, dir, file1, file2), List.of(metricDto), List.of());
     componentIndex = new ComponentIndexImpl(db.getDbClient());
   }
@@ -91,16 +92,16 @@ public class LiveMeasureTreeUpdaterImplIT {
     treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new AggregateValuesFormula());
 
     componentIndex.load(db.getSession(), List.of(file1));
-    List<LiveMeasureDto> initialValues = List.of(
-      new LiveMeasureDto().setComponentUuid(file1.uuid()).setValue(1d).setMetricUuid(metricDto.getUuid()),
-      new LiveMeasureDto().setComponentUuid(file2.uuid()).setValue(1d).setMetricUuid(metricDto.getUuid()),
-      new LiveMeasureDto().setComponentUuid(dir.uuid()).setValue(1d).setMetricUuid(metricDto.getUuid()),
-      new LiveMeasureDto().setComponentUuid(project.uuid()).setValue(1d).setMetricUuid(metricDto.getUuid())
+    List<MeasureDto> initialValues = List.of(
+      new MeasureDto().setComponentUuid(file1.uuid()).addValue(metricDto.getKey(), 1d),
+      new MeasureDto().setComponentUuid(file2.uuid()).addValue(metricDto.getKey(), 1d),
+      new MeasureDto().setComponentUuid(dir.uuid()).addValue(metricDto.getKey(), 1d),
+      new MeasureDto().setComponentUuid(project.uuid()).addValue(metricDto.getKey(), 1d)
     );
     matrix = new MeasureMatrix(List.of(project, dir, file1, file2), List.of(metricDto), initialValues);
     treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
 
-    assertThat(matrix.getChanged()).extracting(LiveMeasureDto::getComponentUuid).containsOnly(project.uuid(), dir.uuid());
+    assertThat(matrix.getChanged()).extracting(MeasureMatrix.Measure::getComponentUuid).containsOnly(project.uuid(), dir.uuid());
     assertThat(matrix.getMeasure(project, metric.getKey()).get().getValue()).isEqualTo(4d);
     assertThat(matrix.getMeasure(dir, metric.getKey()).get().getValue()).isEqualTo(3d);
     assertThat(matrix.getMeasure(file1, metric.getKey()).get().getValue()).isEqualTo(1d);
@@ -115,7 +116,7 @@ public class LiveMeasureTreeUpdaterImplIT {
     componentIndex.load(db.getSession(), List.of(file1));
     treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
 
-    assertThat(matrix.getChanged()).extracting(LiveMeasureDto::getComponentUuid).containsOnly(project.uuid(), dir.uuid(), file1.uuid());
+    assertThat(matrix.getChanged()).extracting(MeasureMatrix.Measure::getComponentUuid).containsOnly(project.uuid(), dir.uuid(), file1.uuid());
     assertThat(matrix.getMeasure(project, metric.getKey()).get().getValue()).isEqualTo(1d);
     assertThat(matrix.getMeasure(dir, metric.getKey()).get().getValue()).isEqualTo(1d);
     assertThat(matrix.getMeasure(file1, metric.getKey()).get().getValue()).isEqualTo(1d);
@@ -130,7 +131,7 @@ public class LiveMeasureTreeUpdaterImplIT {
     componentIndex.load(db.getSession(), List.of(file1));
     treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
 
-    assertThat(matrix.getChanged()).extracting(LiveMeasureDto::getComponentUuid).isEmpty();
+    assertThat(matrix.getChanged()).extracting(MeasureMatrix.Measure::getComponentUuid).isEmpty();
   }
 
   @Test
@@ -142,7 +143,7 @@ public class LiveMeasureTreeUpdaterImplIT {
     componentIndex.load(db.getSession(), List.of(file1));
     treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
 
-    assertThat(matrix.getChanged()).extracting(LiveMeasureDto::getComponentUuid).containsOnly(project.uuid(), dir.uuid(), file1.uuid());
+    assertThat(matrix.getChanged()).extracting(MeasureMatrix.Measure::getComponentUuid).containsOnly(project.uuid(), dir.uuid(), file1.uuid());
   }
 
   @Test
@@ -153,7 +154,7 @@ public class LiveMeasureTreeUpdaterImplIT {
     componentIndex.load(db.getSession(), List.of(file1));
     treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
 
-    assertThat(matrix.getChanged()).extracting(LiveMeasureDto::getComponentUuid).containsOnly(project.uuid(), dir.uuid(), file1.uuid());
+    assertThat(matrix.getChanged()).extracting(MeasureMatrix.Measure::getComponentUuid).containsOnly(project.uuid(), dir.uuid(), file1.uuid());
   }
 
   @Test
@@ -188,8 +189,11 @@ public class LiveMeasureTreeUpdaterImplIT {
 
   @Test
   public void context_calculates_hotspot_counts_from_percentage() {
-    List<MetricDto> metrics = List.of(new MetricDto().setKey(SECURITY_HOTSPOTS_KEY), new MetricDto().setKey(SECURITY_HOTSPOTS_REVIEWED_KEY),
-      new MetricDto().setKey(SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY), new MetricDto().setKey(SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY));
+    List<MetricDto> metrics = List.of(
+      new MetricDto().setKey(SECURITY_HOTSPOTS_KEY).setValueType(PERCENT.name()),
+      new MetricDto().setKey(SECURITY_HOTSPOTS_REVIEWED_KEY).setValueType(PERCENT.name()),
+      new MetricDto().setKey(SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY).setValueType(INT.name()),
+      new MetricDto().setKey(SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY).setValueType(INT.name()));
     componentIndex.load(db.getSession(), List.of(file1));
     matrix = new MeasureMatrix(List.of(project, dir, file1, file2), metrics, List.of());
 
@@ -207,8 +211,11 @@ public class LiveMeasureTreeUpdaterImplIT {
 
   @Test
   public void context_calculates_new_hotspot_counts_from_percentage() {
-    List<MetricDto> metrics = List.of(new MetricDto().setKey(NEW_SECURITY_HOTSPOTS_KEY), new MetricDto().setKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY),
-      new MetricDto().setKey(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY), new MetricDto().setKey(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY));
+    List<MetricDto> metrics = List.of(
+      new MetricDto().setKey(NEW_SECURITY_HOTSPOTS_KEY).setValueType(PERCENT.name()),
+      new MetricDto().setKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY).setValueType(PERCENT.name()),
+      new MetricDto().setKey(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY).setValueType(INT.name()),
+      new MetricDto().setKey(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY).setValueType(INT.name()));
     componentIndex.load(db.getSession(), List.of(file1));
     matrix = new MeasureMatrix(List.of(project, dir, file1, file2), metrics, List.of());
 
@@ -226,8 +233,11 @@ public class LiveMeasureTreeUpdaterImplIT {
 
   @Test
   public void context_returns_hotspots_counts_from_measures() {
-    List<MetricDto> metrics = List.of(new MetricDto().setKey(SECURITY_HOTSPOTS_KEY), new MetricDto().setKey(SECURITY_HOTSPOTS_REVIEWED_KEY),
-      new MetricDto().setKey(SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY), new MetricDto().setKey(SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY));
+    List<MetricDto> metrics = List.of(
+      new MetricDto().setKey(SECURITY_HOTSPOTS_KEY).setValueType(PERCENT.name()),
+      new MetricDto().setKey(SECURITY_HOTSPOTS_REVIEWED_KEY).setValueType(PERCENT.name()),
+      new MetricDto().setKey(SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY).setValueType(INT.name()),
+      new MetricDto().setKey(SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY).setValueType(INT.name()));
     componentIndex.load(db.getSession(), List.of(file1));
     matrix = new MeasureMatrix(List.of(project, dir, file1, file2), metrics, List.of());
 
@@ -253,8 +263,7 @@ public class LiveMeasureTreeUpdaterImplIT {
     treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new AggregateValuesFormula());
 
     componentIndex.load(db.getSession(), List.of(file1));
-    List<LiveMeasureDto> initialValues =
-      List.of(new LiveMeasureDto().setComponentUuid(file1.uuid()).setValue(1d).setMetricUuid(metricDto.getUuid()));
+    List<MeasureDto> initialValues = List.of(new MeasureDto().setComponentUuid(file1.uuid()).addValue(metricDto.getKey(), 1d));
     matrix = new MeasureMatrix(List.of(project, dir, file1, file2), List.of(metricDto), initialValues);
     treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
 
@@ -268,12 +277,11 @@ public class LiveMeasureTreeUpdaterImplIT {
     treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new SetValuesFormula());
 
     componentIndex.load(db.getSession(), List.of(file1));
-    List<LiveMeasureDto> initialValues =
-      List.of(new LiveMeasureDto().setComponentUuid(file1.uuid()).setValue(1d).setMetricUuid(metricDto.getUuid()));
+    List<MeasureDto> initialValues = List.of(new MeasureDto().setComponentUuid(file1.uuid()).addValue(metricDto.getKey(), 1d));
     matrix = new MeasureMatrix(List.of(project, dir, file1, file2), List.of(metricDto), initialValues);
     treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
 
-    assertThat(matrix.getChanged()).extracting(LiveMeasureDto::getComponentUuid).containsOnly(project.uuid(), dir.uuid());
+    assertThat(matrix.getChanged()).extracting(MeasureMatrix.Measure::getComponentUuid).containsOnly(project.uuid(), dir.uuid());
     assertThat(matrix.getMeasure(project, metric.getKey()).get().getValue()).isEqualTo(1d);
     assertThat(matrix.getMeasure(dir, metric.getKey()).get().getValue()).isEqualTo(1d);
     assertThat(matrix.getMeasure(file1, metric.getKey()).get().getValue()).isEqualTo(1d);

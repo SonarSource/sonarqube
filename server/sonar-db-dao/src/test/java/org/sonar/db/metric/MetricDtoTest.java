@@ -19,11 +19,27 @@
  */
 package org.sonar.db.metric;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.sonar.api.measures.Metric;
 
 import static com.google.common.base.Strings.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.api.measures.Metric.ValueType.BOOL;
+import static org.sonar.api.measures.Metric.ValueType.DATA;
+import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
+import static org.sonar.api.measures.Metric.ValueType.FLOAT;
+import static org.sonar.api.measures.Metric.ValueType.INT;
+import static org.sonar.api.measures.Metric.ValueType.LEVEL;
+import static org.sonar.api.measures.Metric.ValueType.MILLISEC;
+import static org.sonar.api.measures.Metric.ValueType.PERCENT;
+import static org.sonar.api.measures.Metric.ValueType.RATING;
+import static org.sonar.api.measures.Metric.ValueType.STRING;
+import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
 
 class MetricDtoTest {
 
@@ -97,5 +113,27 @@ class MetricDtoTest {
     assertThatThrownBy(() -> underTest.setDomain(a65))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Metric domain length (65) is longer than the maximum authorized (64). '" + a65 + "' was provided.");
+  }
+
+  @ParameterizedTest
+  @MethodSource("metric_types")
+  void isNumeric_returns_true_for_numeric_types(Metric.ValueType type, boolean expected) {
+    assertThat(underTest.setValueType(type.name()).isNumeric()).isEqualTo(expected);
+  }
+
+  private static Stream<Arguments> metric_types() {
+    return Stream.of(
+      Arguments.of(INT, true),
+      Arguments.of(FLOAT, true),
+      Arguments.of(PERCENT, true),
+      Arguments.of(BOOL, true),
+      Arguments.of(STRING, false),
+      Arguments.of(MILLISEC, true),
+      Arguments.of(DATA, false),
+      Arguments.of(LEVEL, false),
+      Arguments.of(DISTRIB, false),
+      Arguments.of(RATING, true),
+      Arguments.of(WORK_DUR, true)
+    );
   }
 }

@@ -21,6 +21,7 @@ package org.sonar.server.measure.live;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +38,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.LiveMeasureComparator;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.Indexers;
@@ -113,30 +113,46 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
 
   private MeasureMatrix loadMeasureMatrix(DbSession dbSession, Set<String> componentUuids, QualityGate qualityGate) {
     Collection<String> metricKeys = getKeysOfAllInvolvedMetrics(qualityGate);
-    Map<String, MetricDto> metricsPerUuid = dbClient.metricDao().selectByKeys(dbSession, metricKeys).stream().collect(Collectors.toMap(MetricDto::getUuid, Function.identity()));
-    List<LiveMeasureDto> measures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, componentUuids, metricsPerUuid.keySet());
-    return new MeasureMatrix(componentUuids, metricsPerUuid.values(), measures);
+    Map<String, MetricDto> metricPerKey =
+      dbClient.metricDao().selectByKeys(dbSession, metricKeys).stream().collect(Collectors.toMap(MetricDto::getKey, Function.identity()));
+    List<MeasureDto> measures = dbClient.measureDao()
+      .selectByComponentUuidsAndMetricKeys(dbSession, componentUuids, metricPerKey.keySet());
+    return new MeasureMatrix(componentUuids, metricPerKey.values(), measures);
   }
 
   private void persistAndIndex(DbSession dbSession, MeasureMatrix matrix, BranchDto branch) {
     // persist the measures that have been created or updated
-    matrix.getChanged().sorted(LiveMeasureComparator.INSTANCE).forEach(m -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, m));
+    Map<String, MeasureDto> measureDtoPerComponent = new HashMap<>();
+    matrix.getChanged().sorted(MeasureMatrix.Measure.COMPARATOR)
+      .filter(m -> m.getValue() != null)
+      .forEach(m -> measureDtoPerComponent.compute(m.getComponentUuid(), (componentUuid, measureDto) -> {
+      if (measureDto == null) {
+        measureDto = new MeasureDto()
+          .setComponentUuid(componentUuid)
+          .setBranchUuid(m.getBranchUuid());
+      }
+      return measureDto.addValue(
+        m.getMetricKey(),
+        m.getValue()
+      );
+    }));
+    measureDtoPerComponent.values().forEach(m -> dbClient.measureDao().insertOrUpdate(dbSession, m));
     projectIndexer.commitAndIndexBranches(dbSession, singleton(branch), Indexers.BranchEvent.MEASURE_CHANGE);
   }
 
   @CheckForNull
   private Metric.Level loadPreviousStatus(DbSession dbSession, ComponentDto branchComponent) {
-    Optional<LiveMeasureDto> measure = dbClient.liveMeasureDao().selectMeasure(dbSession, branchComponent.uuid(), ALERT_STATUS_KEY);
-    if (measure.isEmpty()) {
-      return null;
-    }
-
-    try {
-      return Metric.Level.valueOf(measure.get().getTextValue());
-    } catch (IllegalArgumentException e) {
-      LoggerFactory.getLogger(LiveMeasureComputerImpl.class).trace("Failed to parse value of metric '{}'", ALERT_STATUS_KEY, e);
-      return null;
-    }
+    return dbClient.measureDao().selectMeasure(dbSession, branchComponent.uuid())
+      .map(m -> m.getString(ALERT_STATUS_KEY))
+      .map(m -> {
+        try {
+          return Metric.Level.valueOf(m);
+        } catch (IllegalArgumentException e) {
+          LoggerFactory.getLogger(LiveMeasureComputerImpl.class).trace("Failed to parse value of metric '{}'", ALERT_STATUS_KEY, e);
+          return null;
+        }
+      })
+      .orElse(null);
   }
 
   private Set<String> getKeysOfAllInvolvedMetrics(QualityGate gate) {

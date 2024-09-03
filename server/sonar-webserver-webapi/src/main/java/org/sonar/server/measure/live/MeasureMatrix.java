@@ -23,8 +23,8 @@ import com.google.common.collect.ArrayTable;
 import com.google.common.collect.Table;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,9 +34,10 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.measure.Rating;
 
@@ -55,33 +56,31 @@ class MeasureMatrix {
   private final Table<String, String, MeasureCell> table;
 
   private final Map<String, MetricDto> metricsByKeys = new HashMap<>();
-  private final Map<String, MetricDto> metricsByUuids = new HashMap<>();
 
-  MeasureMatrix(Collection<ComponentDto> components, Collection<MetricDto> metrics, List<LiveMeasureDto> dbMeasures) {
+  MeasureMatrix(Collection<ComponentDto> components, Collection<MetricDto> metrics, List<MeasureDto> dbMeasures) {
     this(components.stream().map(ComponentDto::uuid).collect(Collectors.toSet()), metrics, dbMeasures);
   }
 
-  MeasureMatrix(Set<String> componentUuids, Collection<MetricDto> metrics, List<LiveMeasureDto> dbMeasures) {
+  MeasureMatrix(Set<String> componentUuids, Collection<MetricDto> metrics, List<MeasureDto> dbMeasures) {
     for (MetricDto metric : metrics) {
       this.metricsByKeys.put(metric.getKey(), metric);
-      this.metricsByUuids.put(metric.getUuid(), metric);
     }
     this.table = ArrayTable.create(componentUuids, metricsByKeys.keySet());
-
-    for (LiveMeasureDto dbMeasure : dbMeasures) {
-      table.put(dbMeasure.getComponentUuid(), metricsByUuids.get(dbMeasure.getMetricUuid()).getKey(), new MeasureCell(dbMeasure));
-    }
+    dbMeasures.forEach(dbMeasure -> {
+      String branchUuid = dbMeasure.getBranchUuid();
+      String componentUuid = dbMeasure.getComponentUuid();
+      dbMeasure.getMetricValues().forEach((metricKey, value) -> {
+        Measure measure = new Measure(componentUuid, branchUuid, metricsByKeys.get(metricKey), value);
+        table.put(componentUuid, metricKey, new MeasureCell(measure));
+      });
+    });
   }
 
-  MetricDto getMetricByUuid(String uuid) {
-    return requireNonNull(metricsByUuids.get(uuid), () -> String.format("Metric with uuid %s not found", uuid));
-  }
-
-  private MetricDto getMetric(String key) {
+  MetricDto getMetric(String key) {
     return requireNonNull(metricsByKeys.get(key), () -> String.format("Metric with key %s not found", key));
   }
 
-  Optional<LiveMeasureDto> getMeasure(ComponentDto component, String metricKey) {
+  Optional<Measure> getMeasure(ComponentDto component, String metricKey) {
     checkArgument(table.containsColumn(metricKey), "Metric with key %s is not registered", metricKey);
     MeasureCell cell = table.get(component.uuid(), metricKey);
     return cell == null ? Optional.empty() : Optional.of(cell.measure);
@@ -92,30 +91,24 @@ class MeasureMatrix {
   }
 
   void setValue(ComponentDto component, String metricKey, Rating value) {
-    changeCell(component, metricKey, m -> {
-      m.setData(value.name());
-      m.setValue((double) value.getIndex());
-    });
+    changeCell(component, metricKey, m -> m.setValue((double) value.getIndex()));
   }
 
   void setValue(ComponentDto component, String metricKey, @Nullable String data) {
-    changeCell(component, metricKey, m -> m.setData(data));
+    changeCell(component, metricKey, m -> m.setValue(data));
   }
 
-  Stream<LiveMeasureDto> getChanged() {
+  Stream<Measure> getChanged() {
     return table.values().stream()
       .filter(Objects::nonNull)
       .filter(MeasureCell::isChanged)
       .map(MeasureCell::getMeasure);
   }
 
-  private void changeCell(ComponentDto component, String metricKey, Consumer<LiveMeasureDto> changer) {
+  private void changeCell(ComponentDto component, String metricKey, Consumer<Measure> changer) {
     MeasureCell cell = table.get(component.uuid(), metricKey);
     if (cell == null) {
-      LiveMeasureDto measure = new LiveMeasureDto()
-        .setComponentUuid(component.uuid())
-        .setProjectUuid(component.branchUuid())
-        .setMetricUuid(metricsByKeys.get(metricKey).getUuid());
+      Measure measure = new Measure(component.uuid(), component.branchUuid(), metricsByKeys.get(metricKey), null);
       cell = new MeasureCell(measure);
       table.put(component.uuid(), metricKey, cell);
     }
@@ -135,24 +128,75 @@ class MeasureMatrix {
   }
 
   private static class MeasureCell {
-    private final LiveMeasureDto measure;
-    private final Double initialValue;
-    private final byte[] initialData;
-    private final String initialTextValue;
+    private final Measure measure;
+    private final Object initialValue;
 
-    private MeasureCell(LiveMeasureDto measure) {
+    private MeasureCell(Measure measure) {
       this.measure = measure;
       this.initialValue = measure.getValue();
-      this.initialData = measure.getData();
-      this.initialTextValue = measure.getTextValue();
     }
 
-    public LiveMeasureDto getMeasure() {
+    public Measure getMeasure() {
       return measure;
     }
 
     public boolean isChanged() {
-      return !Objects.equals(initialValue, measure.getValue()) || !Arrays.equals(initialData, measure.getData()) || !Objects.equals(initialTextValue, measure.getTextValue());
+      return !Objects.equals(initialValue, measure.getValue());
+    }
+  }
+
+  static class Measure {
+    static final Comparator<Measure> COMPARATOR = Comparator
+      .comparing((Measure m) -> m.componentUuid)
+      .thenComparing(m -> m.metricDto.getKey());
+
+    private final String componentUuid;
+    private final String branchUuid;
+    private final MetricDto metricDto;
+    private Object value;
+
+    Measure(String componentUuid, String branchUuid, MetricDto metricDto, @Nullable Object value) {
+      this.componentUuid = componentUuid;
+      this.branchUuid = branchUuid;
+      this.metricDto = metricDto;
+      this.value = value;
+    }
+
+    @CheckForNull
+    public Double doubleValue() {
+      if (value == null || !metricDto.isNumeric()) {
+        return null;
+      }
+      return Double.parseDouble(value.toString());
+    }
+
+    @CheckForNull
+    public String stringValue() {
+      if (value == null || metricDto.isNumeric()) {
+        return null;
+      }
+      return String.valueOf(value);
+    }
+
+    public void setValue(@Nullable Object newValue) {
+      this.value = newValue;
+    }
+
+    public String getBranchUuid() {
+      return branchUuid;
+    }
+
+    public String getComponentUuid() {
+      return componentUuid;
+    }
+
+    public String getMetricKey() {
+      return metricDto.getKey();
+    }
+
+    @Nullable
+    public Object getValue() {
+      return value;
     }
   }
 }

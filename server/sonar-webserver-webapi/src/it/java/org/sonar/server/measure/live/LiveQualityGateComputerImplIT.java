@@ -35,7 +35,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
@@ -53,6 +53,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.sonar.db.measure.MeasureTesting.newMeasure;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 public class LiveQualityGateComputerImplIT {
@@ -118,8 +119,8 @@ public class LiveQualityGateComputerImplIT {
   public void refreshGateStatus_generates_gate_related_measures() {
     ComponentDto project = ComponentTesting.newPublicProjectDto();
     MetricDto conditionMetric = newMetricDto();
-    MetricDto statusMetric = newMetricDto().setKey(CoreMetrics.ALERT_STATUS_KEY);
-    MetricDto detailsMetric = newMetricDto().setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY);
+    MetricDto statusMetric = newMetricDto().setKey(CoreMetrics.ALERT_STATUS_KEY).setValueType(Metric.ValueType.STRING.name());
+    MetricDto detailsMetric = newMetricDto().setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY).setValueType(Metric.ValueType.STRING.name());
     Condition condition = new Condition(conditionMetric.getKey(), Condition.Operator.GREATER_THAN, "10");
     QualityGate gate = new QualityGate("1", "foo", ImmutableSet.of(condition));
     MeasureMatrix matrix = new MeasureMatrix(singleton(project), asList(conditionMetric, statusMetric, detailsMetric), emptyList());
@@ -133,8 +134,8 @@ public class LiveQualityGateComputerImplIT {
     assertThat(result.getEvaluatedConditions())
       .extracting(EvaluatedCondition::getStatus)
       .containsExactly(EvaluatedCondition.EvaluationStatus.OK);
-    assertThat(matrix.getMeasure(project, CoreMetrics.ALERT_STATUS_KEY).get().getDataAsString()).isEqualTo(Metric.Level.OK.name());
-    assertThat(matrix.getMeasure(project, CoreMetrics.QUALITY_GATE_DETAILS_KEY).get().getDataAsString())
+    assertThat(matrix.getMeasure(project, CoreMetrics.ALERT_STATUS_KEY).get().stringValue()).isEqualTo(Metric.Level.OK.name());
+    assertThat(matrix.getMeasure(project, CoreMetrics.QUALITY_GATE_DETAILS_KEY).get().stringValue())
       .isNotEmpty()
       // json format
       .startsWith("{").endsWith("}");
@@ -149,9 +150,9 @@ public class LiveQualityGateComputerImplIT {
     MetricDto statusMetric = newMetricDto().setKey(CoreMetrics.ALERT_STATUS_KEY);
     MetricDto detailsMetric = newMetricDto().setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY);
     QualityGate gate = new QualityGate("1", "foo", Collections.emptySet());
-    LiveMeasureDto numericMeasure = new LiveMeasureDto().setMetricUuid(numericMetric.getUuid()).setValue(1.23).setComponentUuid(project.uuid());
-    LiveMeasureDto numericNewMeasure = new LiveMeasureDto().setMetricUuid(numericNewMetric.getUuid()).setValue(8.9).setComponentUuid(project.uuid());
-    LiveMeasureDto stringMeasure = new LiveMeasureDto().setMetricUuid(stringMetric.getUuid()).setData("bar").setComponentUuid(project.uuid());
+    MeasureDto numericMeasure = newMeasure(project, numericMetric, 1.23);
+    MeasureDto numericNewMeasure = newMeasure(project, numericNewMetric, 8.9);
+    MeasureDto stringMeasure = newMeasure(project, stringMetric, "bar");
     MeasureMatrix matrix = new MeasureMatrix(singleton(project), asList(statusMetric, detailsMetric, numericMetric, numericNewMetric, stringMetric),
       asList(numericMeasure, numericNewMeasure, stringMeasure));
 
