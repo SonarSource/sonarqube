@@ -126,7 +126,8 @@ public class SearchResponseLoader {
       .toList();
 
     return issueKeys.stream()
-      .map(new KeyToIssueFunction(unorderedIssues)).filter(Objects::nonNull)
+      .map(new KeyToIssueFunction(unorderedIssues))
+      .filter(Objects::nonNull)
       .toList();
   }
 

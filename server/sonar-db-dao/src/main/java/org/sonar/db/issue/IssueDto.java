@@ -119,6 +119,9 @@ public final class IssueDto implements Serializable {
   private CleanCodeAttribute cleanCodeAttribute;
   private CleanCodeAttribute ruleCleanCodeAttribute;
 
+  //issues dependency fields, one-one relationship
+  private String cveId;
+
   public IssueDto() {
     // nothing to do
   }
@@ -871,6 +874,14 @@ public final class IssueDto implements Serializable {
   public IssueDto setPrioritizedRule(boolean isBlockerRule) {
     this.prioritizedRule = isBlockerRule;
     return this;
+  }
+
+  public String getCveId() {
+    return cveId;
+  }
+
+  public void setCveId(String cveId) {
+    this.cveId = cveId;
   }
 
   @Override

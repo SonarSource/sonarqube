@@ -50,6 +50,7 @@ message SearchWsResponse {
     repeated sonarqube.ws.commons.Flow flows = 15;
     optional string ruleKey = 16;
     repeated sonarqube.ws.commons.MessageFormatting messageFormattings = 17;
+    optional string cveId = 18;
   }
 }
 

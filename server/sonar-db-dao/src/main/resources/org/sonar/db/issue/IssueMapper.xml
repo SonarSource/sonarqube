@@ -402,7 +402,8 @@
   <select id="selectByKeys" parameterType="map" resultMap="issueResultMap">
     select
     <include refid="issueColumns"/>,
-    u.login as assigneeLogin
+    u.login as assigneeLogin,
+    cve.id as cveId
     from issues i
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
@@ -411,6 +412,8 @@
     left join new_code_reference_issues n on i.kee = n.issue_key
     left outer join issues_impacts ii on i.kee = ii.issue_key
     left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    left join issues_dependency dep on i.kee = dep.issue_uuid
+    left join cves cve on dep.cve_uuid = cve.uuid
     where i.kee in
     <foreach collection="list" open="(" close=")" item="key" separator=",">
       #{key,jdbcType=VARCHAR}

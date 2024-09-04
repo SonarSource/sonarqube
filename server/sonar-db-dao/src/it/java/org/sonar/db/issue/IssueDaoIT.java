@@ -53,6 +53,8 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.dependency.CveDto;
+import org.sonar.db.dependency.IssuesDependencyDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
@@ -216,6 +218,21 @@ class IssueDaoIT {
       .containsExactlyInAnyOrder(
         tuple(MEDIUM, RELIABILITY),
         tuple(LOW, SECURITY));
+  }
+
+  @Test
+  void selectByKeys_shouldFetchCveIds() {
+    prepareTables();
+    var cveDto1 = new CveDto("cve_uuid_1", "CVE-123", "Some CVE description", 1.0, 2.0, 3.0, 4L, 5L, 6L, 7L);
+    db.getDbClient().cveDao().insert(db.getSession(), cveDto1);
+    var cveDto2 = new CveDto("cve_uuid_2", "CVE-456", "Some CVE description", 1.0, 2.0, 3.0, 4L, 5L, 6L, 7L);
+    db.getDbClient().cveDao().insert(db.getSession(), cveDto2);
+    db.issues().insertIssuesDependency(new IssuesDependencyDto(ISSUE_KEY1, cveDto1.uuid()));
+    db.issues().insertIssuesDependency(new IssuesDependencyDto(ISSUE_KEY2, cveDto2.uuid()));
+
+    List<IssueDto> issues = underTest.selectByKeys(db.getSession(), asList("I1", "I2", "I3"));
+
+    assertThat(issues).extracting(IssueDto::getCveId).containsExactlyInAnyOrder(cveDto1.id(), cveDto2.id());
   }
 
   @Test

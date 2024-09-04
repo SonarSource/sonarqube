@@ -230,6 +230,8 @@ public class SearchResponseFormat {
 
     issueBuilder.setScope(UNIT_TEST_FILE.equals(component.qualifier()) ? IssueScope.TEST.name() : IssueScope.MAIN.name());
     issueBuilder.setPrioritizedRule(dto.isPrioritizedRule());
+
+    Optional.ofNullable(dto.getCveId()).ifPresent(issueBuilder::setCveId);
   }
 
   private static void addAdditionalFieldsToIssueBuilder(Collection<SearchAdditionalField> fields, SearchResponseData data, IssueDto dto, Issue.Builder issueBuilder) {
