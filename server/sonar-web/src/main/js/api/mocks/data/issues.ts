@@ -322,6 +322,7 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
         issueStatus: IssueStatus.Open,
         ruleDescriptionContextKey: 'spring',
         author: 'bob.marley@test.com',
+        cveId: 'CVE-2021-12345',
       }),
       snippets: keyBy(
         [

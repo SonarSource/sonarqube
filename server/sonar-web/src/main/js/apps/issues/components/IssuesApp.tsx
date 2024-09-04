@@ -41,6 +41,7 @@ import { getBranchLikeQuery, isPullRequest } from '~sonar-aligned/helpers/branch
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Location, RawQuery, Router } from '~sonar-aligned/types/router';
+import { getCve } from '../../../api/cves';
 import { listIssues, searchIssues } from '../../../api/issues';
 import { getRuleDetails } from '../../../api/rules';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
@@ -66,6 +67,7 @@ import { serializeDate } from '../../../helpers/query';
 import { withBranchLikes } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
 import { isProject } from '../../../types/component';
+import { Cve } from '../../../types/cves';
 import {
   ASSIGNEE_ME,
   Facet,
@@ -122,6 +124,7 @@ export interface State {
   bulkChangeModal: boolean;
   checkAll?: boolean;
   checked: string[];
+  cve?: Cve;
   effortTotal?: number;
   facets: Dict<Facet>;
   issues: Issue[];
@@ -383,8 +386,13 @@ export class App extends React.PureComponent<Props, State> {
       .then((response) => response.rule)
       .catch(() => undefined);
 
+    let cve: Cve | undefined;
+    if (typeof openIssue.cveId === 'string') {
+      cve = await getCve(openIssue.cveId);
+    }
+
     if (this.mounted) {
-      this.setState({ loadingRule: false, openRuleDetails });
+      this.setState({ loadingRule: false, openRuleDetails, cve });
     }
   }
 
@@ -1211,7 +1219,7 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   renderPage() {
-    const { openRuleDetails, checkAll, issues, loading, openIssue, paging, loadingRule } =
+    const { openRuleDetails, cve, checkAll, issues, loading, openIssue, paging, loadingRule } =
       this.state;
 
     return (
@@ -1259,6 +1267,7 @@ export class App extends React.PureComponent<Props, State> {
                   onIssueChange={this.handleIssueChange}
                   ruleDescriptionContextKey={openIssue.ruleDescriptionContextKey}
                   ruleDetails={openRuleDetails}
+                  cve={cve}
                   selectedFlowIndex={this.state.selectedFlowIndex}
                   selectedLocationIndex={this.state.selectedLocationIndex}
                 />

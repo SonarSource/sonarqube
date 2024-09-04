@@ -23,6 +23,7 @@ import { Outlet, Route } from 'react-router-dom';
 import { byPlaceholderText, byRole, byTestId, byText } from '~sonar-aligned/helpers/testSelector';
 import BranchesServiceMock from '../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../api/mocks/ComponentsServiceMock';
+import CveServiceMock from '../../api/mocks/CveServiceMock';
 import FixIssueServiceMock from '../../api/mocks/FixIssueServiceMock';
 import IssuesServiceMock from '../../api/mocks/IssuesServiceMock';
 import SourcesServiceMock from '../../api/mocks/SourcesServiceMock';
@@ -43,6 +44,7 @@ import { projectIssuesRoutes } from './routes';
 
 export const usersHandler = new UsersServiceMock();
 export const issuesHandler = new IssuesServiceMock(usersHandler);
+export const cveHandler = new CveServiceMock();
 export const componentsHandler = new ComponentsServiceMock();
 export const sourcesHandler = new SourcesServiceMock();
 export const branchHandler = new BranchesServiceMock();
@@ -141,6 +143,8 @@ export const ui = {
   openStatusFilter: byRole('checkbox', { name: 'issue.issue_status.OPEN' }),
   vulnerabilityIssueTypeFilter: byRole('checkbox', { name: 'issue.type.VULNERABILITY' }),
   prioritizedRuleFilter: byRole('checkbox', { name: 'issues.facet.prioritized_rule' }),
+
+  cveTable: byRole('table', { name: 'rule.cve_details' }),
 
   bulkChangeComment: byRole('textbox', { name: /issue_bulk_change.resolution_comment/ }),
 

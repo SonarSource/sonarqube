@@ -24,12 +24,13 @@ import React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ISSUE_101 } from '../../../api/mocks/data/ids';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
-import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
+import { mockCurrentUser, mockCve, mockLoggedInUser } from '../../../helpers/testMocks';
 import { Feature } from '../../../types/features';
 import { RestUserDetailed } from '../../../types/users';
 import {
   branchHandler,
   componentsHandler,
+  cveHandler,
   issuesHandler,
   renderIssueApp,
   renderProjectIssuesApp,
@@ -63,6 +64,7 @@ jest.mock('../../../components/common/ScreenPositionHelper', () => ({
 
 beforeEach(() => {
   issuesHandler.reset();
+  cveHandler.reset();
   componentsHandler.reset();
   branchHandler.reset();
   usersHandler.reset();
@@ -209,6 +211,52 @@ describe('issue app', () => {
       await screen.findByRole('tab', { name: `coding_rules.description_section.title.more_info` }),
     );
     expect(screen.getByRole('heading', { name: 'Defense-In-Depth', level: 3 })).toBeInTheDocument();
+  });
+
+  it('should render CVE details', async () => {
+    const user = userEvent.setup();
+    renderProjectIssuesApp('project/issues?issues=issue2&open=issue2&id=myproject');
+
+    await user.click(
+      await screen.findByRole('tab', { name: 'coding_rules.description_section.title.root_cause' }),
+    );
+
+    await user.click(screen.getByRole('radio', { name: 'coding_rules.description_context.other' }));
+
+    expect(await screen.findByRole('heading', { name: 'CVE-2021-12345' })).toBeInTheDocument();
+
+    const rows = byRole('row').getAll(ui.cveTable.get());
+    expect(rows).toHaveLength(4);
+    expect(byText('CWE-79, CWE-89').get(rows[0])).toBeInTheDocument();
+    expect(byText('rule.cve_details.epss_score.value.20.56').get(rows[1])).toBeInTheDocument();
+    expect(byText('0.3').get(rows[2])).toBeInTheDocument();
+    expect(byText('Oct 04, 2021').get(rows[3])).toBeInTheDocument();
+  });
+
+  it('should not render CVE CVSS and CWEs when not set', async () => {
+    const user = userEvent.setup();
+    cveHandler.setCveList([
+      mockCve({
+        cvssScore: undefined,
+        cwes: [],
+      }),
+    ]);
+    renderProjectIssuesApp('project/issues?issues=issue2&open=issue2&id=myproject');
+
+    await user.click(
+      await screen.findByRole('tab', { name: 'coding_rules.description_section.title.root_cause' }),
+    );
+
+    await user.click(
+      await screen.findByRole('radio', { name: 'coding_rules.description_context.other' }),
+    );
+
+    expect(await screen.findByRole('heading', { name: 'CVE-2021-12345' })).toBeInTheDocument();
+
+    const rows = byRole('row').getAll(ui.cveTable.get());
+    expect(rows).toHaveLength(2);
+    expect(byText('rule.cve_details.epss_score.value.20.56').get(rows[0])).toBeInTheDocument();
+    expect(byText('Oct 04, 2021').get(rows[1])).toBeInTheDocument();
   });
 
   it('should be able to change the issue status', async () => {

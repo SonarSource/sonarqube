@@ -35,6 +35,7 @@ import {
   SoftwareQuality,
 } from '../types/clean-code-taxonomy';
 import { RuleRepository } from '../types/coding-rules';
+import { Cve } from '../types/cves';
 import { EditionKey } from '../types/editions';
 import {
   IssueDeprecatedStatus,
@@ -405,6 +406,20 @@ export function mockIssue(withLocations = false, overrides: Partial<Issue> = {})
 
   return {
     ...issue,
+    ...overrides,
+  };
+}
+
+export function mockCve(overrides: Partial<Cve> = {}): Cve {
+  return {
+    id: 'CVE-2021-12345',
+    epssPercentile: 0.56051,
+    cvssScore: 0.31051,
+    description: 'description',
+    cwes: ['CWE-79', 'CWE-89'],
+    epssScore: 0.2,
+    lastModifiedAt: '2021-10-04T14:00:00Z',
+    publishedAt: '2021-10-04T14:00:00Z',
     ...overrides,
   };
 }

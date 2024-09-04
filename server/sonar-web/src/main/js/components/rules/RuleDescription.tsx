@@ -32,12 +32,15 @@ import applyCodeDifferences from '../../helpers/code-difference';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { sanitizeString } from '../../helpers/sanitize';
 import { isDefined } from '../../helpers/types';
+import { Cve as CveDetailsType } from '../../types/cves';
+import { CveDetails } from './CveDetails';
 import OtherContextOption from './OtherContextOption';
 
 const OTHERS_KEY = 'others';
 
 interface Props {
   className?: string;
+  cve?: CveDetailsType;
   defaultContextKey?: string;
   language?: string;
   sections: RuleDescriptionSection[];
@@ -118,7 +121,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { className, language, sections } = this.props;
+    const { className, language, sections, cve } = this.props;
     const { contexts, defaultContext, selectedContext } = this.state;
 
     const introductionSection = sections?.find(
@@ -148,7 +151,6 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
               language={language}
             />
           )}
-
           {defaultContext && (
             <FlagMessage variant="info" className="sw-mb-4">
               {translateWithParameters(
@@ -157,7 +159,6 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
               )}
             </FlagMessage>
           )}
-
           <div className="sw-mb-4">
             <ToggleButton
               label={translate('coding_rules.description_context.title')}
@@ -175,7 +176,6 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
               </h2>
             )}
           </div>
-
           {selectedContext.key === OTHERS_KEY ? (
             <OtherContextOption />
           ) : (
@@ -184,6 +184,8 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
               language={language}
             />
           )}
+
+          {cve && <CveDetails cve={cve} />}
         </StyledHtmlFormatter>
       );
     }
@@ -207,6 +209,8 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
           htmlAsString={sanitizeString(sections[0].content)}
           language={language}
         />
+
+        {cve && <CveDetails cve={cve} />}
       </StyledHtmlFormatter>
     );
   }

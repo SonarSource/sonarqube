@@ -19,11 +19,14 @@
  */
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { Spinner, themeColor } from 'design-system';
+import { Spinner } from '@sonarsource/echoes-react';
+import { FlagMessage, themeColor } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import {
+  Component,
   ExpandDirection,
   FlowLocation,
   LinearIssueLocation,
@@ -32,8 +35,11 @@ import {
 } from '../../../types/types';
 import SnippetViewer from '../../issues/crossComponentSourceViewer/SnippetViewer';
 import HotspotPrimaryLocationBox from './HotspotPrimaryLocationBox';
+import HotspotSnippetHeader from './HotspotSnippetHeader';
 
 export interface HotspotSnippetContainerRendererProps {
+  branchLike?: BranchLike;
+  component: Component;
   highlightedSymbols: string[];
   hotspot: Hotspot;
   loading: boolean;
@@ -113,6 +119,8 @@ export default function HotspotSnippetContainerRenderer(
     selectedHotspotLocation,
     sourceLines,
     sourceViewerFile,
+    component,
+    branchLike,
   } = props;
 
   const scrollableRef = React.useRef<HTMLDivElement>(null);
@@ -139,37 +147,38 @@ export default function HotspotSnippetContainerRenderer(
       : undefined;
 
   return (
-    <>
-      {!loading && sourceLines.length === 0 && (
-        <p className="sw-my-4">{translate('hotspots.no_associated_lines')}</p>
+    <Spinner isLoading={loading}>
+      {sourceLines.length === 0 && (
+        <FlagMessage variant="info">{translate('hotspots.no_associated_lines')}</FlagMessage>
       )}
 
-      <SourceFileWrapper className="sw-box-border sw-w-full sw-rounded-1" ref={scrollableRef}>
-        <Spinner className="sw-m-4" loading={loading} />
-
-        {!loading && sourceLines.length > 0 && (
-          <SnippetViewer
-            component={sourceViewerFile}
-            displayLineNumberOptions={false}
-            displaySCM={false}
-            expandBlock={(_i, direction) =>
-              animateExpansion(scrollableRef, props.onExpandBlock, direction)
-            }
-            handleSymbolClick={props.onSymbolClick}
-            highlightedLocationMessage={highlightedLocation}
-            highlightedSymbols={highlightedSymbols}
-            index={0}
-            locations={secondaryLocations}
-            locationsByLine={primaryLocations}
-            onLocationSelect={props.onLocationSelect}
-            renderAdditionalChildInLine={renderHotspotBoxInLine}
-            renderDuplicationPopup={noop}
-            snippet={sourceLines}
-            hideLocationIndex={secondaryLocations.length !== 0}
-          />
-        )}
-      </SourceFileWrapper>
-    </>
+      {sourceLines.length > 0 && (
+        <>
+          <HotspotSnippetHeader hotspot={hotspot} component={component} branchLike={branchLike} />
+          <SourceFileWrapper className="sw-box-border sw-w-full sw-rounded-1" ref={scrollableRef}>
+            <SnippetViewer
+              component={sourceViewerFile}
+              displayLineNumberOptions={false}
+              displaySCM={false}
+              expandBlock={(_i, direction) =>
+                animateExpansion(scrollableRef, props.onExpandBlock, direction)
+              }
+              handleSymbolClick={props.onSymbolClick}
+              highlightedLocationMessage={highlightedLocation}
+              highlightedSymbols={highlightedSymbols}
+              index={0}
+              locations={secondaryLocations}
+              locationsByLine={primaryLocations}
+              onLocationSelect={props.onLocationSelect}
+              renderAdditionalChildInLine={renderHotspotBoxInLine}
+              renderDuplicationPopup={noop}
+              snippet={sourceLines}
+              hideLocationIndex={secondaryLocations.length !== 0}
+            />
+          </SourceFileWrapper>
+        </>
+      )}
+    </Spinner>
   );
 }
 

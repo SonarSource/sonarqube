@@ -34,19 +34,16 @@ import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { useRefreshBranchStatus } from '../../../queries/branch';
-import { BranchLike } from '../../../types/branch-like';
+import { Cve } from '../../../types/cves';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
-import { Component } from '../../../types/types';
 import { RuleDescriptionSection, RuleDescriptionSections } from '../../coding-rules/rule';
 import useStickyDetection from '../hooks/useStickyDetection';
-import HotspotSnippetHeader from './HotspotSnippetHeader';
 import StatusReviewButton from './status/StatusReviewButton';
 
 interface Props {
   activityTabContent: React.ReactNode;
-  branchLike?: BranchLike;
   codeTabContent: React.ReactNode;
-  component: Component;
+  cve: Cve | undefined;
   hotspot: Hotspot;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
   ruleDescriptionSections?: RuleDescriptionSection[];
@@ -76,8 +73,7 @@ export default function HotspotViewerTabs(props: Props) {
     hotspot,
     ruleDescriptionSections,
     ruleLanguage,
-    component,
-    branchLike,
+    cve,
   } = props;
 
   const refreshBranchStatus = useRefreshBranchStatus(component.key);
@@ -206,9 +202,6 @@ export default function HotspotViewerTabs(props: Props) {
           />
           {isSticky && <StatusReviewButton hotspot={hotspot} onStatusChange={handleStatusChange} />}
         </div>
-        {currentTab.value === TabKeys.Code && codeTabContent && (
-          <HotspotSnippetHeader hotspot={hotspot} component={component} branchLike={branchLike} />
-        )}
       </StickyTabs>
       <div
         aria-labelledby={getTabId(currentTab.value)}
@@ -219,7 +212,11 @@ export default function HotspotViewerTabs(props: Props) {
         {currentTab.value === TabKeys.Code && codeTabContent}
 
         {currentTab.value === TabKeys.RiskDescription && rootCauseDescriptionSections && (
-          <RuleDescription language={ruleLanguage} sections={rootCauseDescriptionSections} />
+          <RuleDescription
+            language={ruleLanguage}
+            sections={rootCauseDescriptionSections}
+            cve={cve}
+          />
         )}
 
         {currentTab.value === TabKeys.VulnerabilityDescription &&

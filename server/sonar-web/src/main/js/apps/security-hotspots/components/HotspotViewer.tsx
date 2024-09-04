@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getCve } from '../../../api/cves';
 import { getRuleDetails } from '../../../api/rules';
 import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
 import { get } from '../../../helpers/storage';
+import { Cve } from '../../../types/cves';
 import { Standards } from '../../../types/security';
 import {
   Hotspot,
@@ -35,6 +37,7 @@ import HotspotViewerRenderer from './HotspotViewerRenderer';
 
 interface Props {
   component: Component;
+  cveId?: string;
   hotspotKey: string;
   hotspotsReviewedMeasure?: string;
   onLocationClick: (index: number) => void;
@@ -45,6 +48,7 @@ interface Props {
 }
 
 interface State {
+  cve?: Cve;
   hotspot?: Hotspot;
   lastStatusChangedTo?: HotspotStatusOption;
   loading: boolean;
@@ -83,6 +87,10 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     try {
       const hotspot = await getSecurityHotspotDetails(this.props.hotspotKey);
       const ruleDetails = await getRuleDetails({ key: hotspot.rule.key }).then((r) => r.rule);
+      let cve;
+      if (typeof this.props.cveId === 'string') {
+        cve = await getCve(this.props.cveId);
+      }
 
       if (this.mounted) {
         this.setState({
@@ -90,6 +98,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
           loading: false,
           ruleLanguage: ruleDetails.lang,
           ruleDescriptionSections: ruleDetails.descriptionSections,
+          cve,
         });
       }
     } catch (error) {
@@ -132,6 +141,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
       hotspot,
       ruleDescriptionSections,
       ruleLanguage,
+      cve,
       loading,
       showStatusUpdateSuccessModal,
       lastStatusChangedTo,
@@ -150,6 +160,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
         onUpdateHotspot={this.handleHotspotUpdate}
         ruleDescriptionSections={ruleDescriptionSections}
         ruleLanguage={ruleLanguage}
+        cve={cve}
         selectedHotspotLocation={selectedHotspotLocation}
         showStatusUpdateSuccessModal={showStatusUpdateSuccessModal}
         standards={standards}

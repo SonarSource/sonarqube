@@ -32,6 +32,7 @@ import IssueHeader from '../../apps/issues/components/IssueHeader';
 import StyledHeader from '../../apps/issues/components/StyledHeader';
 import { fillBranchLike } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
+import { Cve } from '../../types/cves';
 import { Feature } from '../../types/features';
 import { Issue, RuleDetails } from '../../types/types';
 import { CurrentUser, NoticeType } from '../../types/users';
@@ -45,6 +46,7 @@ interface IssueTabViewerProps extends CurrentUserContextInterface {
   activityTabContent?: React.ReactNode;
   codeTabContent?: React.ReactNode;
   currentUser: CurrentUser;
+  cve?: Cve;
   extendedDescription?: string;
   hasFeature: (feature: string) => boolean;
   issue: Issue;
@@ -197,6 +199,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
       ruleDescriptionContextKey,
       extendedDescription,
       activityTabContent,
+      cve,
       issue,
       suggestionTabContent,
       hasFeature,
@@ -240,6 +243,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
               descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ??
               descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]
             ).concat(descriptionSectionsByKey[RuleDescriptionSections.INTRODUCTION] ?? [])}
+            cve={cve}
           />
         ),
       },
