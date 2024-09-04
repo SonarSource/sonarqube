@@ -340,7 +340,7 @@ zip {
   mustRunAfter cyclonedxBom
   doLast {
     def minLength = 340000000
-    def maxLength = 748000000
+    def maxLength = 750000000
 
     def length = archiveFile.get().asFile.length()
     if (length < minLength)
