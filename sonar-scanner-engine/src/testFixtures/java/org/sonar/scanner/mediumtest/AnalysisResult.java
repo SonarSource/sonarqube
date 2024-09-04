@@ -25,7 +25,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import javax.annotation.CheckForNull;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputComponent;
@@ -50,7 +53,7 @@ public class AnalysisResult implements AnalysisObserver {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisResult.class);
 
-  private Map<String, InputFile> inputFilesByKeys = new HashMap<>();
+  private final Map<String, InputFile> inputFilesByKeys = new HashMap<>();
   private InputProject project;
   private ScannerReportReader reader;
 
@@ -85,36 +88,15 @@ public class AnalysisResult implements AnalysisObserver {
   }
 
   public List<ScannerReport.Issue> issuesFor(InputComponent inputComponent) {
-    return issuesFor(((DefaultInputComponent) inputComponent).scannerId());
+    return readFromReport(inputComponent, ScannerReportReader::readComponentIssues);
   }
 
   public List<ScannerReport.ExternalIssue> externalIssuesFor(InputComponent inputComponent) {
-    return externalIssuesFor(((DefaultInputComponent) inputComponent).scannerId());
+    return readFromReport(inputComponent, ScannerReportReader::readComponentExternalIssues);
   }
 
   public List<ScannerReport.Issue> issuesFor(Component reportComponent) {
-    int ref = reportComponent.getRef();
-    return issuesFor(ref);
-  }
-
-  private List<ScannerReport.Issue> issuesFor(int ref) {
-    List<ScannerReport.Issue> result = new ArrayList<>();
-    try (CloseableIterator<ScannerReport.Issue> it = reader.readComponentIssues(ref)) {
-      while (it.hasNext()) {
-        result.add(it.next());
-      }
-    }
-    return result;
-  }
-
-  private List<ScannerReport.ExternalIssue> externalIssuesFor(int ref) {
-    List<ScannerReport.ExternalIssue> result = new ArrayList<>();
-    try (CloseableIterator<ScannerReport.ExternalIssue> it = reader.readComponentExternalIssues(ref)) {
-      while (it.hasNext()) {
-        result.add(it.next());
-      }
-    }
-    return result;
+    return readFromReport(reportComponent, ScannerReportReader::readComponentIssues);
   }
 
   public InputProject project() {
@@ -132,21 +114,9 @@ public class AnalysisResult implements AnalysisObserver {
 
   public Map<String, List<ScannerReport.Measure>> allMeasures() {
     Map<String, List<ScannerReport.Measure>> result = new HashMap<>();
-    List<ScannerReport.Measure> projectMeasures = new ArrayList<>();
-    try (CloseableIterator<ScannerReport.Measure> it = reader.readComponentMeasures(((DefaultInputComponent) project).scannerId())) {
-      while (it.hasNext()) {
-        projectMeasures.add(it.next());
-      }
-    }
-    result.put(project.key(), projectMeasures);
+    result.put(project.key(), readFromReport(project, ScannerReportReader::readComponentMeasures));
     for (InputFile inputFile : inputFilesByKeys.values()) {
-      List<ScannerReport.Measure> measures = new ArrayList<>();
-      try (CloseableIterator<ScannerReport.Measure> it = reader.readComponentMeasures(((DefaultInputComponent) inputFile).scannerId())) {
-        while (it.hasNext()) {
-          measures.add(it.next());
-        }
-      }
-      result.put(inputFile.key(), measures);
+      result.put(inputFile.key(), readFromReport(inputFile, ScannerReportReader::readComponentMeasures));
     }
     return result;
   }
@@ -202,29 +172,11 @@ public class AnalysisResult implements AnalysisObserver {
   }
 
   public List<ScannerReport.Duplication> duplicationsFor(InputFile file) {
-    List<ScannerReport.Duplication> result = new ArrayList<>();
-    int ref = ((DefaultInputComponent) file).scannerId();
-    try (CloseableIterator<ScannerReport.Duplication> it = getReportReader().readComponentDuplications(ref)) {
-      while (it.hasNext()) {
-        result.add(it.next());
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
-    return result;
+    return readFromReport(file, ScannerReportReader::readComponentDuplications);
   }
 
   public List<ScannerReport.CpdTextBlock> duplicationBlocksFor(InputFile file) {
-    List<ScannerReport.CpdTextBlock> result = new ArrayList<>();
-    int ref = ((DefaultInputComponent) file).scannerId();
-    try (CloseableIterator<ScannerReport.CpdTextBlock> it = getReportReader().readCpdTextBlocks(ref)) {
-      while (it.hasNext()) {
-        result.add(it.next());
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
-    return result;
+    return readFromReport(file, ScannerReportReader::readCpdTextBlocks);
   }
 
   @CheckForNull
@@ -244,8 +196,25 @@ public class AnalysisResult implements AnalysisObserver {
   }
 
   public List<ScannerReport.AdHocRule> adHocRules() {
-    List<ScannerReport.AdHocRule> result = new ArrayList<>();
-    try (CloseableIterator<ScannerReport.AdHocRule> it = getReportReader().readAdHocRules()) {
+    return readFromReport(ScannerReportReader::readAdHocRules);
+  }
+
+  @NotNull
+  private <G> List<G> readFromReport(InputComponent component, BiFunction<ScannerReportReader, Integer, CloseableIterator<G>> readerMethod) {
+    int ref = ((DefaultInputComponent) component).scannerId();
+    return readFromReport(r -> readerMethod.apply(r, ref));
+  }
+
+  @NotNull
+  private <G> List<G> readFromReport(Component component, BiFunction<ScannerReportReader, Integer, CloseableIterator<G>> readerMethod) {
+    int ref = component.getRef();
+    return readFromReport(r -> readerMethod.apply(r, ref));
+  }
+
+  @NotNull
+  private <G> List<G> readFromReport(Function<ScannerReportReader, CloseableIterator<G>> readerMethod) {
+    List<G> result = new ArrayList<>();
+    try (CloseableIterator<G> it = readerMethod.apply(getReportReader())) {
       while (it.hasNext()) {
         result.add(it.next());
       }
