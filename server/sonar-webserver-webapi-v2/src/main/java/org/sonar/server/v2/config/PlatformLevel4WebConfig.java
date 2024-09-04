@@ -89,6 +89,7 @@ import org.sonar.server.v2.common.DeprecatedHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 @Configuration
@@ -152,7 +153,8 @@ public class PlatformLevel4WebConfig {
     return new DefaultRuleController(userSession, ruleService, ruleRestResponseGenerator);
   }
 
-  @Bean
+  @Primary
+  @Bean("org.sonar.server.v2.config.PlatformLevel4WebConfig.requestMappingHandlerMapping")
   public RequestMappingHandlerMapping requestMappingHandlerMapping(UserSession userSession) {
     RequestMappingHandlerMapping handlerMapping = new RequestMappingHandlerMapping();
     handlerMapping.setInterceptors(new DeprecatedHandler(userSession));

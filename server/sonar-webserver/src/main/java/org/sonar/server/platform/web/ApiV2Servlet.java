@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.sonar.server.platform.platformlevel.PlatformLevel;
 import org.sonar.server.v2.config.PlatformLevel4WebConfig;
 import org.sonar.server.v2.config.SafeModeWebConfig;
+import org.springframework.context.annotation.FullyQualifiedAnnotationBeanNameGenerator;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -88,6 +89,8 @@ public class ApiV2Servlet implements Servlet {
 
   private DispatcherServlet initDispatcherServlet(PlatformLevel platformLevel, Class<?> configClass) {
     AnnotationConfigWebApplicationContext springMvcContext = new AnnotationConfigWebApplicationContext();
+    springMvcContext.setBeanNameGenerator(FullyQualifiedAnnotationBeanNameGenerator.INSTANCE);
+    springMvcContext.setAllowBeanDefinitionOverriding(false);
     springMvcContext.setParent(platformLevel.getContainer().context());
     springMvcContext.register(configClass);
     if (PlatformLevel4WebConfig.class.equals(configClass)) {
