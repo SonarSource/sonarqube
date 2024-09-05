@@ -67,16 +67,9 @@ class EmbedDocsPopup extends React.PureComponent<Props & CurrentUserContextInter
 
   getZohoDeskUrl() {
     const { currentUser } = this.props;
-    const payLoad = {
-      "operation": "signup",
-      "email": currentUser.email,
-      "loginName": "support.autorabit",
-      "fullName": currentUser.name,
-      "utype": "portal",
-    }
 
   // get zoho re-direct url
-  return getRedirectUrlForZoho(payLoad).then((response: any) => {
+  return getRedirectUrlForZoho().then(response => {
      const zohoUrl = response.redirectUrl;
      this.setState({ zohoUrl });
     })
