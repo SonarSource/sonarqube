@@ -44,6 +44,7 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   private RuleType type;
   private String engineId;
   private String ruleId;
+  private String cveId;
   private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = new EnumMap<>(SoftwareQuality.class);
   private CleanCodeAttribute cleanCodeAttribute;
 
@@ -82,6 +83,10 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   @Override
   public String ruleId() {
     return ruleId;
+  }
+
+  public String cveId() {
+    return cveId;
   }
 
   @Override
@@ -128,6 +133,11 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   @Override
   public NewExternalIssue ruleId(String ruleId) {
     this.ruleId = ruleId;
+    return this;
+  }
+
+  public NewExternalIssue cveId(String cveId) {
+    this.cveId = cveId;
     return this;
   }
 

@@ -37,6 +37,7 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.batch.sensor.issue.MessageFormatting;
 import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
+import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueFlow;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
@@ -88,9 +89,9 @@ public class IssuePublisher {
   private static boolean noSonar(DefaultInputComponent inputComponent, Issue issue) {
     TextRange textRange = issue.primaryLocation().textRange();
     return inputComponent.isFile()
-           && textRange != null
-           && ((DefaultInputFile) inputComponent).hasNoSonarAt(textRange.start().line())
-           && !StringUtils.containsIgnoreCase(issue.ruleKey().rule(), "nosonar");
+      && textRange != null
+      && ((DefaultInputFile) inputComponent).hasNoSonarAt(textRange.start().line())
+      && !StringUtils.containsIgnoreCase(issue.ruleKey().rule(), "nosonar");
   }
 
   public void initAndAddExternalIssue(ExternalIssue issue) {
@@ -176,7 +177,11 @@ public class IssuePublisher {
     locationBuilder.setComponentRef(componentRef);
     TextRange primaryTextRange = issue.primaryLocation().textRange();
 
-    //nullable fields
+    // nullable fields
+    var cveId = ((DefaultExternalIssue) issue).cveId();
+    if (cveId != null) {
+      builder.setCveId(cveId);
+    }
     CleanCodeAttribute cleanCodeAttribute = issue.cleanCodeAttribute();
     if (cleanCodeAttribute != null) {
       builder.setCleanCodeAttribute(cleanCodeAttribute.name());

@@ -216,7 +216,7 @@ message ExternalIssue {
   repeated MessageFormatting msgFormatting = 9;
   repeated Impact impacts = 10;
   optional string cleanCodeAttribute = 11;
-
+  optional string cve_id = 12;
 }
 
 message AdHocRule {
@@ -234,8 +234,8 @@ message Cve {
   string cve_id = 1;
   string description = 2;
   float cvss_score = 3;
-  float epss_score = 4;
-  float epss_percentile = 5;
+  optional float epss_score = 4;
+  optional float epss_percentile = 5;
   int64 published_date = 6;
   int64 last_modified_date = 7;
   repeated string cwe = 8;

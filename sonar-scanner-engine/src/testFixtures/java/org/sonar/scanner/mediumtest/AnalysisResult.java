@@ -199,6 +199,10 @@ public class AnalysisResult implements AnalysisObserver {
     return readFromReport(ScannerReportReader::readAdHocRules);
   }
 
+  public List<ScannerReport.Cve> cves() {
+    return readFromReport(ScannerReportReader::readCves);
+  }
+
   @NotNull
   private <G> List<G> readFromReport(InputComponent component, BiFunction<ScannerReportReader, Integer, CloseableIterator<G>> readerMethod) {
     int ref = ((DefaultInputComponent) component).scannerId();
