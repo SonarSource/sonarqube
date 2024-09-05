@@ -33,7 +33,7 @@ public class RuleDescriptionSectionsGeneratorResolver {
     this.ruleDescriptionSectionsGenerators = ruleDescriptionSectionsGenerators;
   }
 
-  public RuleDescriptionSectionsGenerator getRuleDescriptionSectionsGenerator(RulesDefinition.Rule ruleDef) {
+  RuleDescriptionSectionsGenerator getRuleDescriptionSectionsGenerator(RulesDefinition.Rule ruleDef) {
     Set<RuleDescriptionSectionsGenerator> generatorsFound = ruleDescriptionSectionsGenerators.stream()
       .filter(generator -> generator.isGeneratorForRule(ruleDef))
       .collect(toSet());

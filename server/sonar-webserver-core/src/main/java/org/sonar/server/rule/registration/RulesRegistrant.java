@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.Startable;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -49,6 +48,7 @@ import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.es.metadata.MetadataIndex;
+import org.sonar.server.plugins.DetectPluginChange;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -74,7 +74,6 @@ public class RulesRegistrant implements Startable {
   private final DbClient dbClient;
   private final RuleIndexer ruleIndexer;
   private final ActiveRuleIndexer activeRuleIndexer;
-  private final Languages languages;
   private final System2 system2;
   private final WebServerRuleFinder webServerRuleFinder;
   private final MetadataIndex metadataIndex;
@@ -83,17 +82,17 @@ public class RulesRegistrant implements Startable {
   private final NewRuleCreator newRuleCreator;
   private final QualityProfileChangesUpdater qualityProfileChangesUpdater;
   private final SonarQubeVersion sonarQubeVersion;
+  private final DetectPluginChange detectPluginChange;
 
   public RulesRegistrant(RuleDefinitionsLoader defLoader, QProfileRules qProfileRules, DbClient dbClient, RuleIndexer ruleIndexer,
-    ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2, WebServerRuleFinder webServerRuleFinder,
+    ActiveRuleIndexer activeRuleIndexer, System2 system2, WebServerRuleFinder webServerRuleFinder,
     MetadataIndex metadataIndex, RulesKeyVerifier rulesKeyVerifier, StartupRuleUpdater startupRuleUpdater,
-    NewRuleCreator newRuleCreator, QualityProfileChangesUpdater qualityProfileChangesUpdater, SonarQubeVersion sonarQubeVersion) {
+    NewRuleCreator newRuleCreator, QualityProfileChangesUpdater qualityProfileChangesUpdater, SonarQubeVersion sonarQubeVersion, DetectPluginChange detectPluginChange) {
     this.defLoader = defLoader;
     this.qProfileRules = qProfileRules;
     this.dbClient = dbClient;
     this.ruleIndexer = ruleIndexer;
     this.activeRuleIndexer = activeRuleIndexer;
-    this.languages = languages;
     this.system2 = system2;
     this.webServerRuleFinder = webServerRuleFinder;
     this.metadataIndex = metadataIndex;
@@ -102,28 +101,40 @@ public class RulesRegistrant implements Startable {
     this.newRuleCreator = newRuleCreator;
     this.qualityProfileChangesUpdater = qualityProfileChangesUpdater;
     this.sonarQubeVersion = sonarQubeVersion;
+    this.detectPluginChange = detectPluginChange;
   }
 
   @Override
   public void start() {
     Profiler profiler = Profiler.create(LOG).startInfo("Register rules");
     try (DbSession dbSession = dbClient.openSession(true)) {
-      List<RulesDefinition.Repository> repositories = defLoader.load().repositories();
-      RulesRegistrationContext rulesRegistrationContext = RulesRegistrationContext.create(dbClient, dbSession);
-      rulesKeyVerifier.verifyRuleKeyConsistency(repositories, rulesRegistrationContext);
+      var anyPluginChanged = detectPluginChange.anyPluginChanged();
+      RulesRegistrationContext rulesRegistrationContext = RulesRegistrationContext.create(dbClient, dbSession, !anyPluginChanged);
 
-      for (RulesDefinition.ExtendedRepository repoDef : repositories) {
-        if (languages.get(repoDef.language()) != null) {
-          Set<PluginRuleUpdate> pluginRuleUpdates = registerRules(rulesRegistrationContext, repoDef.rules(), dbSession);
-          qualityProfileChangesUpdater.createQprofileChangesForRuleUpdates(dbSession, pluginRuleUpdates);
-          dbSession.commit();
+      List<RulesDefinition.Repository> rulesRepositories = new ArrayList<>(defLoader.loadBuiltIn().repositories());
+      if (anyPluginChanged) {
+        LOG.info("Some plugins have changed, triggering loading of rules from plugins");
+        rulesRepositories.addAll(defLoader.loadFromPlugins().repositories());
+      }
+      rulesKeyVerifier.verifyRuleKeyConsistency(rulesRepositories, rulesRegistrationContext);
+
+      persistRepositories(dbSession, rulesRepositories, anyPluginChanged);
+
+      for (RulesDefinition.Repository repoDef : rulesRepositories) {
+        if (repoDef.language() == null) {
+          throw new IllegalStateException("Language is mandatory for repository " + repoDef.key());
         }
+        Set<PluginRuleUpdate> pluginRuleUpdates = registerRules(rulesRegistrationContext, repoDef.rules(), dbSession);
+        if (!repoDef.isExternal()) {
+          // External rules are not part of quality profiles
+          qualityProfileChangesUpdater.createQprofileChangesForRuleUpdates(dbSession, pluginRuleUpdates);
+        }
+        dbSession.commit();
       }
       processRemainingDbRules(rulesRegistrationContext, dbSession);
-      List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(dbSession, rulesRegistrationContext, repositories);
+      List<ActiveRuleChange> changes = anyPluginChanged ? removeActiveRulesOnStillExistingRepositories(dbSession, rulesRegistrationContext, rulesRepositories) : List.of();
       dbSession.commit();
 
-      persistRepositories(dbSession, repositories);
       // FIXME lack of resiliency, active rules index is corrupted if rule index fails
       // to be updated. Only a single DB commit should be executed.
       ruleIndexer.commitAndIndex(dbSession, rulesRegistrationContext.getAllModified().map(RuleDto::getUuid).collect(Collectors.toSet()));
@@ -147,7 +158,7 @@ public class RulesRegistrant implements Startable {
     }
   }
 
-  private void persistRepositories(DbSession dbSession, List<RulesDefinition.Repository> repositories) {
+  private void persistRepositories(DbSession dbSession, List<RulesDefinition.Repository> repositories, boolean deleteMissing) {
     List<String> keys = repositories.stream().map(RulesDefinition.Repository::key).toList();
     Set<String> existingKeys = dbClient.ruleRepositoryDao().selectAllKeys(dbSession);
 
@@ -157,7 +168,9 @@ public class RulesRegistrant implements Startable {
 
     dbClient.ruleRepositoryDao().update(dbSession, dtos.getOrDefault(true, emptyList()));
     dbClient.ruleRepositoryDao().insert(dbSession, dtos.getOrDefault(false, emptyList()));
-    dbClient.ruleRepositoryDao().deleteIfKeyNotIn(dbSession, keys);
+    if (deleteMissing) {
+      dbClient.ruleRepositoryDao().deleteIfKeyNotIn(dbSession, keys);
+    }
     dbSession.commit();
   }
 
@@ -344,10 +357,10 @@ public class RulesRegistrant implements Startable {
    * Remove active rules on repositories that still exists.
    * <p/>
    * For instance, if the javascript repository do not provide anymore some rules, active rules related to this rules will be removed.
-   * But if the javascript repository do not exists anymore, then related active rules will not be removed.
+   * But if the javascript repository does not exist anymore, then related active rules will not be removed.
    * <p/>
    * The side effect of this approach is that extended repositories will not be managed the same way.
-   * If an extended repository do not exists anymore, then related active rules will be removed.
+   * If an extended repository does not exist anymore, then related active rules will be removed.
    */
   private List<ActiveRuleChange> removeActiveRulesOnStillExistingRepositories(DbSession dbSession, RulesRegistrationContext recorder, List<RulesDefinition.Repository> context) {
     Set<String> existingAndRenamedRepositories = getExistingAndRenamedRepositories(recorder, context);

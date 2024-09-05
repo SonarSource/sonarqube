@@ -22,7 +22,6 @@ package org.sonar.server.rule;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.elasticsearch.common.util.set.Sets;
 import org.jetbrains.annotations.Nullable;
 import org.sonar.api.server.rule.Context;
 import org.sonar.api.server.rule.RuleDescriptionSection;
@@ -31,42 +30,23 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 
-import static org.sonar.api.rules.RuleType.*;
-
 public class AdvancedRuleDescriptionSectionsGenerator implements RuleDescriptionSectionsGenerator {
   private final UuidFactory uuidFactory;
-  private final LegacyIssueRuleDescriptionSectionsGenerator legacyIssueRuleDescriptionSectionsGenerator;
 
-  public AdvancedRuleDescriptionSectionsGenerator(UuidFactory uuidFactory, LegacyIssueRuleDescriptionSectionsGenerator legacyIssueRuleDescriptionSectionsGenerator) {
+  public AdvancedRuleDescriptionSectionsGenerator(UuidFactory uuidFactory) {
     this.uuidFactory = uuidFactory;
-    this.legacyIssueRuleDescriptionSectionsGenerator = legacyIssueRuleDescriptionSectionsGenerator;
   }
 
   @Override
   public boolean isGeneratorForRule(RulesDefinition.Rule rule) {
-    return !rule.ruleDescriptionSections().isEmpty() && skipHotspotRulesForSonar16635(rule);
-  }
-
-  private static boolean skipHotspotRulesForSonar16635(RulesDefinition.Rule rule) {
-    return !SECURITY_HOTSPOT.equals(rule.type());
+    return !rule.ruleDescriptionSections().isEmpty();
   }
 
   @Override
   public Set<RuleDescriptionSectionDto> generateSections(RulesDefinition.Rule rule) {
-    Set<RuleDescriptionSectionDto> advancedSections = rule.ruleDescriptionSections().stream()
+    return rule.ruleDescriptionSections().stream()
       .map(this::toRuleDescriptionSectionDto)
       .collect(Collectors.toSet());
-    return addLegacySectionToAdvancedSections(advancedSections, rule);
-  }
-
-  /**
-   * This was done to preserve backward compatibility with SonarLint until they stop using htmlDesc field in api/rules/[show|search] endpoints, see SONAR-16635
-   * @deprecated the method should be removed once SonarLint supports rules.descriptionSections fields, I.E in 10.x
-   */
-  @Deprecated(since = "9.6", forRemoval = true)
-  private Set<RuleDescriptionSectionDto> addLegacySectionToAdvancedSections(Set<RuleDescriptionSectionDto> advancedSections, RulesDefinition.Rule rule) {
-    Set<RuleDescriptionSectionDto> legacySection = legacyIssueRuleDescriptionSectionsGenerator.generateSections(rule);
-    return Sets.union(advancedSections, legacySection);
   }
 
   private RuleDescriptionSectionDto toRuleDescriptionSectionDto(RuleDescriptionSection section) {

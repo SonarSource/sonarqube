@@ -46,9 +46,7 @@ public class LegacyHotspotRuleDescriptionSectionsGenerator implements RuleDescri
 
   @Override
   public boolean isGeneratorForRule(RulesDefinition.Rule rule) {
-    // To prevent compatibility issues with SonarLint, this Generator is used for all hotspots rules, regardless of if they expose advanced sections or not. See SONAR-16635.
-    // In the future, the generator should not be used for advanced rules (add condition && rule.ruleDescriptionSections().isEmpty())
-    return SECURITY_HOTSPOT.equals(rule.type());
+    return SECURITY_HOTSPOT.equals(rule.type()) && rule.ruleDescriptionSections().isEmpty();
   }
 
   @Override
@@ -114,7 +112,6 @@ public class LegacyHotspotRuleDescriptionSectionsGenerator implements RuleDescri
       .filter(Objects::nonNull)
       .collect(Collectors.toSet());
   }
-
 
   private static String[] extractSection(String beginning, String description) {
     String endSection = "<h2>";

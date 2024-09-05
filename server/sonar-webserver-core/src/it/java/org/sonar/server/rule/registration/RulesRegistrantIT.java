@@ -75,6 +75,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.metadata.MetadataIndex;
+import org.sonar.server.plugins.DetectPluginChange;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.QProfileRules;
@@ -95,6 +96,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -163,6 +165,7 @@ public class RulesRegistrantIT {
   private final StartupRuleUpdater startupRuleUpdater = new StartupRuleUpdater(dbClient, system, uuidFactory, resolver);
   private final NewRuleCreator newRuleCreator = new NewRuleCreator(resolver, uuidFactory, system);
   private final QualityProfileChangesUpdater qualityProfileChangesUpdater = mock();
+  private final DetectPluginChange detectPluginChange = mock();
 
   @Before
   public void before() {
@@ -190,7 +193,7 @@ public class RulesRegistrantIT {
 
   @Test
   public void insert_new_rules() {
-    execute(new FakeRepositoryV1());
+    executeWithPluginRules(new FakeRepositoryV1());
 
     // verify db
     assertThat(dbClient.ruleDao().selectAll(db.getSession())).hasSize(3);
@@ -236,7 +239,7 @@ public class RulesRegistrantIT {
 
   @Test
   public void insert_new_external_rule() {
-    execute(new ExternalRuleRepository());
+    executeWithPluginRules(new ExternalRuleRepository());
 
     // verify db
     assertThat(dbClient.ruleDao().selectAll(db.getSession())).hasSize(2);
@@ -273,7 +276,7 @@ public class RulesRegistrantIT {
     String ruleKey = randomAlphanumeric(5);
 
     // register one rule
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule(ruleKey)
         .setName(randomAlphanumeric(5))
@@ -295,7 +298,7 @@ public class RulesRegistrantIT {
     verifyIndicesMarkedAsInitialized();
 
     // register no rule
-    execute(context -> context.createRepository("fake", "java").done());
+    executeWithPluginRules(context -> context.createRepository("fake", "java").done());
 
     // verify db
     assertThat(dbClient.ruleDao().selectAll(db.getSession()))
@@ -317,7 +320,7 @@ public class RulesRegistrantIT {
     int numberOfRules = 5000;
 
     // register many rules
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       IntStream.range(0, numberOfRules)
         .mapToObj(i -> "rule-" + i)
@@ -339,7 +342,7 @@ public class RulesRegistrantIT {
       .isNotEmpty();
 
     // register no rule
-    execute(context -> context.createRepository("fake", "java").done());
+    executeWithPluginRules(context -> context.createRepository("fake", "java").done());
 
     // verify db
     assertThat(dbClient.ruleDao().selectAll(db.getSession()))
@@ -360,14 +363,14 @@ public class RulesRegistrantIT {
     db.getDbClient().ruleRepositoryDao().insert(dbSession, singletonList(repository));
     dbSession.commit();
 
-    execute(new FakeRepositoryV1());
+    executeWithPluginRules(new FakeRepositoryV1());
 
     assertThat(db.getDbClient().ruleRepositoryDao().selectAll(dbSession)).extracting(RuleRepositoryDto::getKey).containsOnly("fake");
   }
 
   @Test
   public void update_and_remove_rules_on_changes() {
-    execute(new FakeRepositoryV1());
+    executeWithPluginRules(new FakeRepositoryV1());
     assertThat(dbClient.ruleDao().selectAll(db.getSession())).hasSize(3);
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY2);
@@ -383,7 +386,7 @@ public class RulesRegistrantIT {
     db.getSession().commit();
 
     system.setNow(DATE2.getTime());
-    execute(new FakeRepositoryV2());
+    executeWithPluginRules(new FakeRepositoryV2());
 
     verifyIndicesNotMarkedAsInitialized();
     // rule1 has been updated
@@ -413,7 +416,7 @@ public class RulesRegistrantIT {
     assertThat(dbClient.ruleRepositoryDao().selectAll(db.getSession())).extracting(RuleRepositoryDto::getKey).containsOnly("fake");
 
     system.setNow(DATE3.getTime());
-    execute(new FakeRepositoryV3());
+    executeWithPluginRules(new FakeRepositoryV3());
     rule3 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY3);
     assertThat(rule3.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Rule Three V2");
     assertThat(rule3.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
@@ -440,7 +443,7 @@ public class RulesRegistrantIT {
 
   @Test
   public void add_new_tag() {
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule1")
         .setName("Rule One")
@@ -452,7 +455,7 @@ public class RulesRegistrantIT {
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     assertThat(rule.getSystemTags()).containsOnly("tag1");
 
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule1")
         .setName("Rule One")
@@ -467,7 +470,7 @@ public class RulesRegistrantIT {
 
   @Test
   public void add_new_security_standards() {
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule1")
         .setName("Rule One")
@@ -480,7 +483,7 @@ public class RulesRegistrantIT {
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     assertThat(rule.getSecurityStandards()).containsOnly("cwe:123", "owaspTop10-2021:a1");
 
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule1")
         .setName("Rule One")
@@ -497,7 +500,7 @@ public class RulesRegistrantIT {
   @Test
   public void update_only_rule_name() {
     system.setNow(DATE1.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
         .setName("Name1")
@@ -506,7 +509,7 @@ public class RulesRegistrantIT {
     });
 
     system.setNow(DATE2.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
         .setName("Name2")
@@ -526,7 +529,7 @@ public class RulesRegistrantIT {
   @Test
   public void update_template_rule_key_should_also_update_custom_rules() {
     system.setNow(DATE1.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("squid", "java");
       repo.createRule("rule")
         .setName("Name1")
@@ -547,7 +550,7 @@ public class RulesRegistrantIT {
     db.commit();
 
     // re-key rule
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("java", "java");
       repo.createRule("rule")
         .setName("Name1")
@@ -569,7 +572,7 @@ public class RulesRegistrantIT {
     String repository = "fake";
 
     system.setNow(DATE1.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository(repository, "java");
       repo.createRule(ruleKey1)
         .setName("Name1")
@@ -583,7 +586,7 @@ public class RulesRegistrantIT {
     assertThat(searchRule1.getTotal()).isOne();
 
     system.setNow(DATE2.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository(repository, "java");
       repo.createRule(ruleKey2)
         .setName("Name2")
@@ -611,7 +614,7 @@ public class RulesRegistrantIT {
     String repository2 = "fake2";
 
     system.setNow(DATE1.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository(repository1, "java");
       repo.createRule(ruleKey)
         .setName("Name1")
@@ -625,7 +628,7 @@ public class RulesRegistrantIT {
     assertThat(searchRule1.getTotal()).isOne();
 
     system.setNow(DATE2.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository(repository2, "java");
       repo.createRule(ruleKey)
         .setName("Name2")
@@ -652,7 +655,7 @@ public class RulesRegistrantIT {
     String name = "Name1";
     String description = "Description";
     system.setNow(DATE1.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository(repo1, "java");
       repo.createRule(ruleKey1)
         .setName(name)
@@ -665,7 +668,7 @@ public class RulesRegistrantIT {
       .containsOnly(rule1.getUuid());
 
     system.setNow(DATE2.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository(repo2, "java");
       repo.createRule(ruleKey2)
         .setName(name)
@@ -701,7 +704,7 @@ public class RulesRegistrantIT {
     String repository2 = "fake2";
 
     system.setNow(DATE1.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository(repository1, "java");
       repo.createRule(ruleKey1)
         .setName("Name1")
@@ -714,7 +717,7 @@ public class RulesRegistrantIT {
       .containsOnly(rule1.getUuid());
 
     system.setNow(DATE2.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository(repository2, "java");
       repo.createRule(ruleKey2)
         .setName("Name2")
@@ -736,7 +739,7 @@ public class RulesRegistrantIT {
   @Test
   public void update_only_rule_description() {
     system.setNow(DATE1.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
         .setName("Name")
@@ -745,7 +748,7 @@ public class RulesRegistrantIT {
     });
 
     system.setNow(DATE2.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
         .setName("Name")
@@ -772,7 +775,7 @@ public class RulesRegistrantIT {
     RuleDescriptionSection section2context2 = createRuleDescriptionSection(RESOURCES_SECTION_KEY,"section2 ctx2 content", "ctx_2");
     RuleDescriptionSection section3noContext = createRuleDescriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY, "section3 content", null);
     RuleDescriptionSection section4noContext = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, "section4 content", null);
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
         .setName("Name")
@@ -791,7 +794,7 @@ public class RulesRegistrantIT {
     RuleDescriptionSection section4updatedWithContext1 = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, section4noContext.getHtmlContent(), "ctx_1");
     RuleDescriptionSection section4updatedWithContext2 = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, section4noContext.getHtmlContent(), "ctx_2");
     system.setNow(DATE2.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule")
         .setName("Name")
@@ -850,7 +853,7 @@ public class RulesRegistrantIT {
   public void rule_previously_created_as_adhoc_becomes_none_adhoc() {
     RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("external_fake").setIsExternal(true).setIsAdHoc(true));
     system.setNow(DATE2.getTime());
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createExternalRepository("fake", rule.getLanguage());
       repo.createRule(rule.getRuleKey())
         .setName(rule.getName())
@@ -869,7 +872,7 @@ public class RulesRegistrantIT {
       .setIsExternal(true)
       .setIsAdHoc(false));
 
-    execute();
+    executeWithPluginRules();
 
     RuleDto reloaded = dbClient.ruleDao().selectByKey(db.getSession(), rule.getKey()).get();
     assertThat(reloaded.getStatus()).isEqualTo(REMOVED);
@@ -882,7 +885,7 @@ public class RulesRegistrantIT {
       .setIsExternal(true)
       .setIsAdHoc(true));
 
-    execute();
+    executeWithPluginRules();
 
     RuleDto reloaded = dbClient.ruleDao().selectByKey(db.getSession(), rule.getKey()).get();
     assertThat(reloaded.getStatus()).isEqualTo(READY);
@@ -892,11 +895,11 @@ public class RulesRegistrantIT {
   public void disable_then_enable_rule() {
     // Install rule
     system.setNow(DATE1.getTime());
-    execute(new FakeRepositoryV1());
+    executeWithPluginRules(new FakeRepositoryV1());
 
     // Uninstall rule
     system.setNow(DATE2.getTime());
-    execute();
+    executeWithPluginRules();
 
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     assertThat(rule.getStatus()).isEqualTo(REMOVED);
@@ -904,7 +907,7 @@ public class RulesRegistrantIT {
 
     // Re-install rule
     system.setNow(DATE3.getTime());
-    execute(new FakeRepositoryV1());
+    executeWithPluginRules(new FakeRepositoryV1());
 
     rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.BETA);
@@ -913,11 +916,11 @@ public class RulesRegistrantIT {
 
   @Test
   public void do_not_update_rules_when_no_changes() {
-    execute(new FakeRepositoryV1());
+    executeWithPluginRules(new FakeRepositoryV1());
     assertThat(dbClient.ruleDao().selectAll(db.getSession())).hasSize(3);
 
     system.setNow(DATE2.getTime());
-    execute(new FakeRepositoryV1());
+    executeWithPluginRules(new FakeRepositoryV1());
 
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
@@ -926,7 +929,7 @@ public class RulesRegistrantIT {
 
   @Test
   public void do_not_update_already_removed_rules() {
-    execute(new FakeRepositoryV1());
+    executeWithPluginRules(new FakeRepositoryV1());
     assertThat(dbClient.ruleDao().selectAll(db.getSession())).hasSize(3);
 
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
@@ -937,7 +940,7 @@ public class RulesRegistrantIT {
     assertThat(rule2.getStatus()).isEqualTo(READY);
 
     system.setNow(DATE2.getTime());
-    execute(new FakeRepositoryV2());
+    executeWithPluginRules(new FakeRepositoryV2());
 
     // On MySQL, need to update a rule otherwise rule2 will be seen as READY, but why ???
     dbClient.ruleDao().update(db.getSession(), rule1);
@@ -951,7 +954,7 @@ public class RulesRegistrantIT {
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
 
     system.setNow(DATE3.getTime());
-    execute(new FakeRepositoryV2());
+    executeWithPluginRules(new FakeRepositoryV2());
     db.getSession().commit();
 
     // -> rule2 is still removed, but not update at DATE3
@@ -964,7 +967,7 @@ public class RulesRegistrantIT {
 
   @Test
   public void mass_insert() {
-    execute(new BigRepository());
+    executeWithPluginRules(new BigRepository());
     assertThat(db.countRowsOfTable("rules")).isEqualTo(BigRepository.SIZE);
     assertThat(db.countRowsOfTable("rules_parameters")).isEqualTo(BigRepository.SIZE * 20);
     assertThat(es.getIds(RuleIndexDefinition.TYPE_RULE)).hasSize(BigRepository.SIZE);
@@ -972,7 +975,7 @@ public class RulesRegistrantIT {
 
   @Test
   public void manage_repository_extensions() {
-    execute(new FindbugsRepository(), new FbContribRepository());
+    executeWithPluginRules(new FindbugsRepository(), new FbContribRepository());
     List<RuleDto> rules = dbClient.ruleDao().selectAll(db.getSession());
     assertThat(rules).hasSize(2);
     for (RuleDto rule : rules) {
@@ -995,7 +998,7 @@ public class RulesRegistrantIT {
     db.getSession().commit();
 
     // Synchronize rule without tag
-    execute(new FindbugsRepository());
+    executeWithPluginRules(new FindbugsRepository());
 
     List<RuleDto> rules = dbClient.ruleDao().selectAll(db.getSession());
     assertThat(rules).hasSize(1).extracting(RuleDto::getKey, RuleDto::getSystemTags)
@@ -1004,13 +1007,13 @@ public class RulesRegistrantIT {
 
   @Test
   public void rules_that_deprecate_previous_rule_must_be_recorded() {
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       createRule(repo, "rule1");
       repo.done();
     });
 
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       createRule(repo, "newKey")
         .addDeprecatedRuleKey("fake", "rule1")
@@ -1026,13 +1029,13 @@ public class RulesRegistrantIT {
 
   @Test
   public void rules_that_remove_deprecated_key_must_remove_records() {
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       createRule(repo, "rule1");
       repo.done();
     });
 
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       createRule(repo, "newKey")
         .addDeprecatedRuleKey("fake", "rule1")
@@ -1044,7 +1047,7 @@ public class RulesRegistrantIT {
     Set<DeprecatedRuleKeyDto> deprecatedRuleKeys = dbClient.ruleDao().selectAllDeprecatedRuleKeys(db.getSession());
     assertThat(deprecatedRuleKeys).hasSize(2);
 
-    execute(context -> {
+    executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       createRule(repo, "newKey");
       repo.done();
@@ -1058,7 +1061,7 @@ public class RulesRegistrantIT {
   @Test
   public void declaring_two_rules_with_same_deprecated_RuleKey_should_throw_ISE() {
     assertThatThrownBy(() -> {
-      execute(context -> {
+      executeWithPluginRules(context -> {
         NewRepository repo = context.createRepository("fake", "java");
         createRule(repo, "newKey1")
           .addDeprecatedRuleKey("fake", "old");
@@ -1074,7 +1077,7 @@ public class RulesRegistrantIT {
   @Test
   public void declaring_a_rule_with_a_deprecated_RuleKey_still_used_should_throw_ISE() {
     assertThatThrownBy(() -> {
-      execute(context -> {
+      executeWithPluginRules(context -> {
         NewRepository repo = context.createRepository("fake", "java");
         createRule(repo, "newKey1");
         createRule(repo, "newKey2")
@@ -1089,12 +1092,12 @@ public class RulesRegistrantIT {
   @Test
   public void updating_the_deprecated_to_a_new_ruleKey_should_throw_an_ISE() {
     // On this new rule add a deprecated key
-    execute(context -> createRule(context, "javascript", "javascript", "s103",
+    executeWithPluginRules(context -> createRule(context, "javascript", "javascript", "s103",
       r -> r.addDeprecatedRuleKey("javascript", "linelength")));
 
     assertThatThrownBy(() -> {
       // This rule should have been moved to another repository
-      execute(context -> createRule(context, "javascript", "sonarjs", "s103",
+      executeWithPluginRules(context -> createRule(context, "javascript", "sonarjs", "s103",
         r -> r.addDeprecatedRuleKey("javascript", "linelength")));
     })
       .isInstanceOf(IllegalStateException.class)
@@ -1104,12 +1107,12 @@ public class RulesRegistrantIT {
 
   @Test
   public void deprecate_rule_that_deprecated_another_rule() {
-    execute(context -> createRule(context, "javascript", "javascript", "s103"));
-    execute(context -> createRule(context, "javascript", "javascript", "s104",
+    executeWithPluginRules(context -> createRule(context, "javascript", "javascript", "s103"));
+    executeWithPluginRules(context -> createRule(context, "javascript", "javascript", "s104",
       r -> r.addDeprecatedRuleKey("javascript", "s103")));
 
     // This rule should have been moved to another repository
-    execute(context -> createRule(context, "javascript", "sonarjs", "s105",
+    executeWithPluginRules(context -> createRule(context, "javascript", "sonarjs", "s105",
       r -> r.addDeprecatedRuleKey("javascript", "s103")
         .addDeprecatedRuleKey("javascript", "s104")));
   }
@@ -1117,7 +1120,7 @@ public class RulesRegistrantIT {
   @Test
   public void declaring_a_rule_with_an_existing_RuleKey_still_used_should_throw_IAE() {
     assertThatThrownBy(() -> {
-      execute(context -> {
+      executeWithPluginRules(context -> {
         NewRepository repo = context.createRepository("fake", "java");
         createRule(repo, "newKey1");
         createRule(repo, "newKey1");
@@ -1137,7 +1140,7 @@ public class RulesRegistrantIT {
     ActiveRuleChange arChange = new ActiveRuleChange(DEACTIVATED, ActiveRuleDto.createFor(qProfileDto, ruleDto), ruleDto);
     when(qProfileRules.deleteRule(any(DbSession.class), eq(ruleDto))).thenReturn(List.of(arChange));
     //WHEN
-    execute(context -> context.createRepository("fake", "java").done());
+    executeWithPluginRules(context -> context.createRepository("fake", "java").done());
     //THEN
     List<QProfileChangeDto> qProfileChangeDtos = dbClient.qProfileChangeDao().selectByQuery(db.getSession(), new QProfileChangeQuery(qProfileDto.getKee()));
     assertThat(qProfileChangeDtos).extracting(QProfileChangeDto::getRulesProfileUuid, QProfileChangeDto::getChangeType, QProfileChangeDto::getSqVersion)
@@ -1150,22 +1153,53 @@ public class RulesRegistrantIT {
     RuleDto removedRuleDto = db.rules().insert(RuleKey.of("old_repo", "removed_rule"));
     RuleDto renamedRuleDto = db.rules().insert(RuleKey.of("old_repo", "renamed_rule"));
     //WHEN
-    execute(context -> createRule(context, "java", "new_repo", renamedRuleDto.getRuleKey(),
+    executeWithPluginRules(context -> createRule(context, "java", "new_repo", renamedRuleDto.getRuleKey(),
       rule -> rule.addDeprecatedRuleKey(renamedRuleDto.getRepositoryKey(), renamedRuleDto.getRuleKey())));
     //THEN
     verify(qProfileRules).deleteRule(any(DbSession.class), eq(removedRuleDto));
   }
 
-  private void execute(RulesDefinition... defs) {
+  @Test
+  public void builtin_rules_should_be_updated_even_if_no_plugin_updates() {
+    RulesDefinition builtInRepoV1 = context -> createRule(context, "builtin", "sca", "rule1", rule -> rule.setName("Name before"));
+    RulesDefinition pluginRepo = context -> createRule(context, "java", "java", "rule2");
+
+    ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
+    when(pluginRepository.getPluginKey(builtInRepoV1)).thenReturn(null);
+    when(pluginRepository.getPluginKey(pluginRepo)).thenReturn(FAKE_PLUGIN_KEY);
+    RuleDefinitionsLoader loader1 = new RuleDefinitionsLoader(pluginRepository, new RulesDefinition[] {builtInRepoV1, pluginRepo});
+    when(detectPluginChange.anyPluginChanged()).thenReturn(true);
+    execute(loader1);
+
+    RuleDto builtInRulev1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of("sca", "rule1"));
+    assertThat(builtInRulev1.getName()).isEqualTo("Name before");
+
+    RulesDefinition builtInRepoV2 = context -> createRule(context, "builtin", "sca", "rule1", rule -> rule.setName("Name after"));
+    when(pluginRepository.getPluginKey(builtInRepoV2)).thenReturn(null);
+    RuleDefinitionsLoader loader2 = new RuleDefinitionsLoader(pluginRepository, new RulesDefinition[] {builtInRepoV2, pluginRepo});
+    when(detectPluginChange.anyPluginChanged()).thenReturn(false);
+    execute(loader2);
+
+    RuleDto builtInRulev2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of("sca", "rule1"));
+    assertThat(builtInRulev2.getName()).isEqualTo("Name after");
+
+    assertThatCode(() -> dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of("java", "rule2"))).doesNotThrowAnyException();
+  }
+
+
+  private void executeWithPluginRules(RulesDefinition... defs) {
     ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
     when(pluginRepository.getPluginKey(any(RulesDefinition.class))).thenReturn(FAKE_PLUGIN_KEY);
     RuleDefinitionsLoader loader = new RuleDefinitionsLoader(pluginRepository, defs);
-    Languages languages = mock(Languages.class);
-    when(languages.get(any())).thenReturn(mock(Language.class));
+    when(detectPluginChange.anyPluginChanged()).thenReturn(true);
+    execute(loader);
+  }
+
+  private void execute(RuleDefinitionsLoader loader) {
     reset(webServerRuleFinder);
 
-    RulesRegistrant task = new RulesRegistrant(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer, languages, system, webServerRuleFinder, metadataIndex,
-      rulesKeyVerifier, startupRuleUpdater, newRuleCreator, qualityProfileChangesUpdater, sonarQubeVersion);
+    RulesRegistrant task = new RulesRegistrant(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer, system, webServerRuleFinder, metadataIndex,
+      rulesKeyVerifier, startupRuleUpdater, newRuleCreator, qualityProfileChangesUpdater, sonarQubeVersion, detectPluginChange);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     db.getSession().commit();

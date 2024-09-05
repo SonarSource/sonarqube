@@ -67,18 +67,19 @@ public class PlatformLevelStartup extends PlatformLevel {
 
     addIfStartupLeader(
       IndexerStartupTask.class);
-    addIfStartupLeaderAndPluginsChanged(
-      RegisterMetrics.class,
-      RegisterQualityGates.class,
+    addIfStartupLeader(
       RuleDescriptionSectionsGeneratorResolver.class,
       AdvancedRuleDescriptionSectionsGenerator.class,
       LegacyHotspotRuleDescriptionSectionsGenerator.class,
       LegacyIssueRuleDescriptionSectionsGenerator.class,
       RulesRegistrant.class,
-      QualityProfileChangesUpdater.class,
       NewRuleCreator.class,
       RulesKeyVerifier.class,
       StartupRuleUpdater.class,
+      QualityProfileChangesUpdater.class);
+    addIfStartupLeaderAndPluginsChanged(
+      RegisterMetrics.class,
+      RegisterQualityGates.class,
       BuiltInQProfileLoader.class);
     addIfStartupLeader(
       BuiltInQualityProfilesUpdateListener.class,

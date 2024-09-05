@@ -191,8 +191,9 @@ class RulesRegistrationContext {
     checkState(known.contains(ruleDto), "unknown RuleDto");
   }
 
-  static RulesRegistrationContext create(DbClient dbClient, DbSession dbSession) {
+  static RulesRegistrationContext create(DbClient dbClient, DbSession dbSession, boolean onlyBuiltIn) {
     Map<RuleKey, RuleDto> allRules = dbClient.ruleDao().selectAll(dbSession).stream()
+      .filter(rule -> !onlyBuiltIn || rule.getPluginKey() == null)
       .collect(Collectors.toMap(RuleDto::getKey, Function.identity()));
     Map<String, Set<SingleDeprecatedRuleKey>> existingDeprecatedKeysById = loadDeprecatedRuleKeys(dbClient, dbSession);
     Map<String, List<RuleParamDto>> ruleParamsByRuleUuid = loadAllRuleParameters(dbClient, dbSession);

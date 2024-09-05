@@ -25,25 +25,46 @@ import org.sonar.server.plugins.ServerPluginRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class RuleDefinitionsLoaderTest {
 
   @Test
   public void no_definitions() {
-    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(ServerPluginRepository.class)).load();
+    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(ServerPluginRepository.class)).loadFromPlugins();
 
     assertThat(context.repositories()).isEmpty();
   }
 
   @Test
-  public void load_definitions() {
-    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(ServerPluginRepository.class),
+  public void load_FromPlugins_definitions_only_returns_from_plugins() {
+    var serverPluginRepository = mock(ServerPluginRepository.class);
+    var findbugsDefinitions = new FindbugsDefinitions();
+    var builtInJavaDefinitions = new JavaDefinitions();
+    when(serverPluginRepository.getPluginKey(findbugsDefinitions)).thenReturn("findbugs");
+    when(serverPluginRepository.getPluginKey(builtInJavaDefinitions)).thenReturn(null);
+    RulesDefinition.Context context = new RuleDefinitionsLoader(serverPluginRepository,
       new RulesDefinition[] {
-        new FindbugsDefinitions(), new JavaDefinitions()
-      }).load();
+        findbugsDefinitions, builtInJavaDefinitions
+      }).loadFromPlugins();
 
-    assertThat(context.repositories()).hasSize(2);
+    assertThat(context.repositories()).hasSize(1);
     assertThat(context.repository("findbugs")).isNotNull();
+  }
+
+  @Test
+  public void load_builtin_definitions_only_returns_builtin() {
+    var serverPluginRepository = mock(ServerPluginRepository.class);
+    var findbugsDefinitions = new FindbugsDefinitions();
+    var builtInJavaDefinitions = new JavaDefinitions();
+    when(serverPluginRepository.getPluginKey(findbugsDefinitions)).thenReturn("findbugs");
+    when(serverPluginRepository.getPluginKey(builtInJavaDefinitions)).thenReturn(null);
+    RulesDefinition.Context context = new RuleDefinitionsLoader(serverPluginRepository,
+      new RulesDefinition[] {
+        findbugsDefinitions, builtInJavaDefinitions
+      }).loadBuiltIn();
+
+    assertThat(context.repositories()).hasSize(1);
     assertThat(context.repository("java")).isNotNull();
   }
 

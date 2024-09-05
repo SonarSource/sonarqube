@@ -19,8 +19,10 @@
  */
 package org.sonar.server.rule;
 
-import org.sonar.api.server.rule.RulesDefinition;
+import java.util.Objects;
+import java.util.function.Predicate;
 import org.sonar.api.impl.server.RulesDefinitionContext;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -30,13 +32,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class RuleDefinitionsLoader {
 
-  private final RulesDefinition[] pluginDefs;
+  private final RulesDefinition[] rulesDefinitions;
   private final ServerPluginRepository serverPluginRepository;
 
   @Autowired(required = false)
-  public RuleDefinitionsLoader(ServerPluginRepository serverPluginRepository, RulesDefinition[] pluginDefs) {
+  public RuleDefinitionsLoader(ServerPluginRepository serverPluginRepository, RulesDefinition[] rulesDefinitions) {
     this.serverPluginRepository = serverPluginRepository;
-    this.pluginDefs = pluginDefs;
+    this.rulesDefinitions = rulesDefinitions;
   }
 
   /**
@@ -47,11 +49,22 @@ public class RuleDefinitionsLoader {
     this(serverPluginRepository, new RulesDefinition[0]);
   }
 
-  public RulesDefinition.Context load() {
+  public RulesDefinition.Context loadFromPlugins() {
+    return load(Predicate.not(Objects::isNull));
+  }
+
+  public RulesDefinition.Context loadBuiltIn() {
+    return load(Objects::isNull);
+  }
+
+  private RulesDefinition.Context load(Predicate<String> pluginKeyPredicate) {
     RulesDefinition.Context context = new RulesDefinitionContext();
-    for (RulesDefinition pluginDefinition : pluginDefs) {
-      context.setCurrentPluginKey(serverPluginRepository.getPluginKey(pluginDefinition));
-      pluginDefinition.define(context);
+    for (RulesDefinition rulesDefinition : rulesDefinitions) {
+      var pluginKey = serverPluginRepository.getPluginKey(rulesDefinition);
+      if (pluginKeyPredicate.test(pluginKey)) {
+        context.setCurrentPluginKey(pluginKey);
+        rulesDefinition.define(context);
+      }
     }
     context.setCurrentPluginKey(null);
     return context;
