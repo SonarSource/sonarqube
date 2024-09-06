@@ -23,6 +23,7 @@ import { FlagMessage, FormField, InputField, Modal, addGlobalSuccessMessage } fr
 import * as React from 'react';
 import { changePassword } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
+import UserPasswordInput from '../../../components/common/UserPasswordInput';
 import { translate } from '../../../helpers/l10n';
 import { ChangePasswordResults, RestUserDetailed, isLoggedIn } from '../../../types/users';
 
@@ -33,15 +34,17 @@ interface Props {
 
 const PASSWORD_FORM_ID = 'user-password-form';
 
-export default function PasswordForm(props: Props) {
+export default function PasswordForm(props: Readonly<Props>) {
   const { user } = props;
-  const [confirmPassword, setConfirmPassword] = React.useState('');
 
   const [errorTranslationKey, setErrorTranslationKey] = React.useState<string | undefined>(
     undefined,
   );
+  const [newPassword, setNewPassword] = React.useState<{ isValid: boolean; value: string }>({
+    value: '',
+    isValid: false,
+  });
 
-  const [newPassword, setNewPassword] = React.useState('');
   const [oldPassword, setOldPassword] = React.useState('');
   const [submitting, setSubmitting] = React.useState(false);
 
@@ -62,12 +65,12 @@ export default function PasswordForm(props: Props) {
   const handleChangePassword = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (newPassword.length > 0 && newPassword === confirmPassword) {
+    if (newPassword.isValid) {
       setSubmitting(true);
 
       changePassword({
         login: user.login,
-        password: newPassword,
+        password: newPassword.value,
         previousPassword: oldPassword,
       }).then(() => {
         addGlobalSuccessMessage(translate('my_profile.password.changed'));
@@ -114,37 +117,7 @@ export default function PasswordForm(props: Props) {
             </FormField>
           )}
 
-          <FormField htmlFor="user-password" label={translate('my_profile.password.new')} required>
-            <InputField
-              autoFocus
-              id="user-password"
-              name="password"
-              onChange={(event) => setNewPassword(event.currentTarget.value)}
-              required
-              type="password"
-              value={newPassword}
-              size="full"
-            />
-            <input className="sw-hidden" aria-hidden name="password-fake" type="password" />
-          </FormField>
-
-          <FormField
-            htmlFor="confirm-user-password"
-            label={translate('my_profile.password.confirm')}
-            required
-          >
-            <InputField
-              autoFocus
-              id="confirm-user-password"
-              name="confirm-password"
-              onChange={(event) => setConfirmPassword(event.currentTarget.value)}
-              required
-              type="password"
-              value={confirmPassword}
-              size="full"
-            />
-            <input className="sw-hidden" aria-hidden name="confirm-password-fake" type="password" />
-          </FormField>
+          <UserPasswordInput onChange={setNewPassword} value={newPassword.value} />
         </form>
       }
       onClose={props.onClose}
@@ -152,7 +125,7 @@ export default function PasswordForm(props: Props) {
       primaryButton={
         <Button
           form={PASSWORD_FORM_ID}
-          isDisabled={submitting || !newPassword || newPassword !== confirmPassword}
+          isDisabled={submitting || !newPassword.isValid}
           type="submit"
           variety={ButtonVariety.Primary}
         >

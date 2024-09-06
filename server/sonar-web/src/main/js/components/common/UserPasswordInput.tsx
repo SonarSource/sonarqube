@@ -34,8 +34,10 @@ import FocusOutHandler from '../controls/FocusOutHandler';
 
 const MIN_PASSWORD_LENGTH = 12;
 
+export type PasswordChangeHandler = (password: { isValid: boolean; value: string }) => void;
+
 export interface Props {
-  onChange: (password: { isValid: boolean; value: string }) => void;
+  onChange: PasswordChangeHandler;
   value: string;
 }
 

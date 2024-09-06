@@ -137,14 +137,12 @@ const ui = {
   loginInput: byRole('textbox', { name: /login/ }),
   userNameInput: byRole('textbox', { name: /name/ }),
   emailInput: byRole('textbox', { name: /email/ }),
-  passwordInput: byLabelText(/password/),
-  confirmPasswordInput: byLabelText(/confirm_password/),
+  passwordInput: byLabelText(/^password/),
   dialogSCMInputs: byRole('textbox', { name: /users.create_user.scm_account/ }),
   dialogSCMInput: (value?: string) =>
     byRole('textbox', { name: `users.create_user.scm_account_${value ? `x.${value}` : 'new'}` }),
   oldPassword: byLabelText('my_profile.password.old', { selector: 'input', exact: false }),
-  newPassword: byLabelText('my_profile.password.new', { selector: 'input', exact: false }),
-  confirmPassword: byLabelText('my_profile.password.confirm', { selector: 'input', exact: false }),
+  confirmPassword: byLabelText(/confirm_password\*/i),
   tokenNameInput: byRole('textbox', { name: 'users.tokens.name' }),
   deleteUserCheckbox: byRole('checkbox', { name: 'users.delete_user' }),
   githubProvisioningPending: byText(/synchronization_pending/),
@@ -265,8 +263,8 @@ describe('in non managed mode', () => {
 
     await user.type(ui.loginInput.get(), 'Login');
     await user.type(ui.userNameInput.get(), 'Jack');
-    await user.type(ui.passwordInput.getAll()[0], 'P@ssword12345');
-    await user.type(ui.passwordInput.getAll()[1], 'P@ssword12345');
+    await user.type(ui.passwordInput.get(), 'P@ssword12345');
+    await user.type(ui.confirmPassword.get(), 'P@ssword12345');
     // Add SCM account
     expect(ui.dialogSCMInputs.queryAll()).toHaveLength(0);
     await user.click(ui.scmAddButton.get());
@@ -421,10 +419,19 @@ describe('in non managed mode', () => {
 
     expect(ui.changeButton.get()).toBeDisabled();
 
-    await user.type(ui.oldPassword.get(), '123');
-    await user.type(ui.newPassword.get(), '1234');
-    await user.type(ui.confirmPassword.get(), '1234');
+    // changes password
+    await user.type(ui.oldPassword.get(), 'test');
+    await user.type(ui.passwordInput.get(), 'AveryStrongP@55');
+    await user.type(ui.confirmPassword.get(), 'AveryStrongP@55');
+    await user.click(ui.changeButton.get());
+    expect(ui.dialogPasswords.query()).not.toBeInTheDocument();
 
+    // cannot change password since old password is wrong
+    await user.click(await ui.aliceUpdateButton.find());
+    await user.click(await byText('my_profile.password.title').find());
+    await user.type(ui.oldPassword.get(), 'test');
+    await user.type(ui.passwordInput.get(), 'AveryStrongP@556');
+    await user.type(ui.confirmPassword.get(), 'AveryStrongP@556');
     expect(ui.changeButton.get()).toBeEnabled();
     expect(
       screen.queryByText(`user.${ChangePasswordResults.OldPasswordIncorrect}`),
@@ -434,12 +441,13 @@ describe('in non managed mode', () => {
       await ui.dialogPasswords.byText(`user.${ChangePasswordResults.OldPasswordIncorrect}`).find(),
     ).toBeInTheDocument();
 
+    // cannot change password since new and old password is same
     await user.clear(ui.oldPassword.get());
-    await user.clear(ui.newPassword.get());
+    await user.clear(ui.passwordInput.get());
     await user.clear(ui.confirmPassword.get());
-    await user.type(ui.oldPassword.get(), 'test');
-    await user.type(ui.newPassword.get(), 'test');
-    await user.type(ui.confirmPassword.get(), 'test');
+    await user.type(ui.oldPassword.get(), 'AveryStrongP@55');
+    await user.type(ui.passwordInput.get(), 'AveryStrongP@55');
+    await user.type(ui.confirmPassword.get(), 'AveryStrongP@55');
 
     expect(
       screen.queryByText(`user.${ChangePasswordResults.NewPasswordSameAsOld}`),
@@ -448,15 +456,6 @@ describe('in non managed mode', () => {
     expect(
       await screen.findByText(`user.${ChangePasswordResults.NewPasswordSameAsOld}`),
     ).toBeInTheDocument();
-
-    await user.clear(ui.newPassword.get());
-    await user.clear(ui.confirmPassword.get());
-    await user.type(ui.newPassword.get(), 'test2');
-    await user.type(ui.confirmPassword.get(), 'test2');
-
-    await user.click(ui.changeButton.get());
-
-    expect(ui.dialogPasswords.query()).not.toBeInTheDocument();
   });
 
   it('should not allow to update non-local user', async () => {
