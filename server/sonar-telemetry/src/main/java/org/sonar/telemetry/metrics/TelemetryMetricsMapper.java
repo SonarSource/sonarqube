@@ -52,7 +52,20 @@ public class TelemetryMetricsMapper {
 
   private static Set<Metric> mapInstallationMetric(TelemetryDataProvider<?> provider) {
     Optional<?> optionalValue = provider.getValue();
-    if (provider.getGranularity() == Granularity.ADHOC && optionalValue.isEmpty()) {
+
+    Granularity granularity = provider.getGranularity();
+
+    if (granularity == Granularity.ADHOC && !provider.getValues().isEmpty()) {
+      return provider.getValues().entrySet().stream()
+        .map(entry -> new InstallationMetric(
+          provider.getMetricKey() + "." + entry.getKey(),
+          entry.getValue(),
+          provider.getType(),
+          granularity
+        )).collect(Collectors.toSet());
+    }
+
+    if (granularity == Granularity.ADHOC && optionalValue.isEmpty()) {
       return Collections.emptySet();
     }
 
@@ -60,12 +73,12 @@ public class TelemetryMetricsMapper {
       provider.getMetricKey(),
       optionalValue.orElse(null),
       provider.getType(),
-      provider.getGranularity()
+      granularity
     ));
   }
 
   private static Set<Metric> mapUserMetric(TelemetryDataProvider<?> provider) {
-    return provider.getUuidValues().entrySet().stream()
+    return provider.getValues().entrySet().stream()
       .map(entry -> new UserMetric(
         provider.getMetricKey(),
         entry.getValue(),
@@ -76,7 +89,7 @@ public class TelemetryMetricsMapper {
   }
 
   private static Set<Metric> mapProjectMetric(TelemetryDataProvider<?> provider) {
-    return provider.getUuidValues().entrySet().stream()
+    return provider.getValues().entrySet().stream()
       .map(entry -> new ProjectMetric(
         provider.getMetricKey(),
         entry.getValue(),
@@ -87,7 +100,7 @@ public class TelemetryMetricsMapper {
   }
 
   private static Set<Metric> mapLanguageMetric(TelemetryDataProvider<?> provider) {
-    return provider.getUuidValues().entrySet().stream()
+    return provider.getValues().entrySet().stream()
       .map(entry -> new LanguageMetric(
         provider.getMetricKey(),
         entry.getValue(),

@@ -47,19 +47,19 @@ class TelemetryUserEnabledProviderIT {
   }
 
   @Test
-  void getUuidValues_whenNoUsersInDatabase_shouldReturnEmptyMap() {
-    Map<String, Boolean> uuidValues = underTest.getUuidValues();
+  void getValues_whenNoUsersInDatabase_shouldReturnEmptyMap() {
+    Map<String, Boolean> uuidValues = underTest.getValues();
 
     assertThat(uuidValues).isEmpty();
   }
 
   @Test
-  void getUuidValues_whenSomeUsersActive_shouldReturnBothBooleanValues() {
+  void getValues_whenSomeUsersActive_shouldReturnBothBooleanValues() {
     db.users().insertUser(user -> user.setUuid("uuid1").setActive(true));
     db.users().insertUser(user -> user.setUuid("uuid1").setActive(false));
     db.getSession().commit();
 
-    Map<String, Boolean> uuidValues = underTest.getUuidValues();
+    Map<String, Boolean> uuidValues = underTest.getValues();
 
     assertThat(uuidValues).hasSize(2);
     assertThat(uuidValues.values().stream().filter(Boolean::booleanValue)).hasSize(1);
@@ -67,25 +67,25 @@ class TelemetryUserEnabledProviderIT {
   }
 
   @Test
-  void getUuidValues_when10ActiveUsers_shouldReturn10BooleanValues() {
+  void getValues_when10ActiveUsers_shouldReturn10BooleanValues() {
     for (int i = 0; i < 10; i++) {
       db.users().insertUser(user -> user.setActive(true));
     }
     db.getSession().commit();
 
-    Map<String, Boolean> uuidValues = underTest.getUuidValues();
+    Map<String, Boolean> uuidValues = underTest.getValues();
 
     assertThat(uuidValues).hasSize(10);
     assertThat(uuidValues.values().stream().filter(Boolean::booleanValue)).hasSize(10);
   }
 
   @Test
-  void getUuidValues_shouldAnonymizeUserUuids() {
+  void getValues_shouldAnonymizeUserUuids() {
     UserDto userDto1 = db.users().insertUser();
     UserDto userDto2 = db.users().insertUser();
     db.getSession().commit();
 
-    Map<String, Boolean> uuidValues = underTest.getUuidValues();
+    Map<String, Boolean> uuidValues = underTest.getValues();
 
     String anonymizedUser1 = DigestUtil.sha3_224Hex(userDto1.getUuid());
     String anonymizedUser2 = DigestUtil.sha3_224Hex(userDto2.getUuid());

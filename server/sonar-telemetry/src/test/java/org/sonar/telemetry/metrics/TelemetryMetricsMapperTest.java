@@ -54,6 +54,26 @@ class TelemetryMetricsMapperTest {
   }
 
   @Test
+  void mapFromDataProvider_whenInstallationProviderWithMultiValue() {
+    TelemetryDataProvider<String> provider = new TestTelemetryBean(Dimension.INSTALLATION) {
+      @Override
+      public Granularity getGranularity() {
+        return Granularity.ADHOC;
+      }
+    };
+
+    Set<Metric> metrics = TelemetryMetricsMapper.mapFromDataProvider(provider);
+    List<InstallationMetric> userMetrics = retrieveList(metrics);
+
+    assertThat(userMetrics)
+      .extracting(InstallationMetric::getKey, InstallationMetric::getType, InstallationMetric::getValue, InstallationMetric::getGranularity)
+      .containsExactlyInAnyOrder(
+        tuple("telemetry-bean-a.key-1", TelemetryDataType.STRING, "value-1", Granularity.ADHOC),
+        tuple("telemetry-bean-a.key-2", TelemetryDataType.STRING, "value-2", Granularity.ADHOC)
+      );
+  }
+
+  @Test
   void mapFromDataProvider_whenUserProvider() {
     TelemetryDataProvider<String> provider = new TestTelemetryBean(Dimension.USER);
 

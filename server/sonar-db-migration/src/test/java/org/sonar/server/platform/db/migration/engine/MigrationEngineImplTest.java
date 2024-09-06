@@ -31,6 +31,7 @@ import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.NoOpMigrationStatusListener;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
+import org.sonar.server.telemetry.TelemetryDbMigrationStepDurationProvider;
 import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
 import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
 import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
@@ -51,6 +52,7 @@ class MigrationEngineImplTest {
   private final TelemetryDbMigrationTotalTimeProvider telemetryDbMigrationTotalTimeProvider = new TelemetryDbMigrationTotalTimeProvider();
   private final TelemetryDbMigrationStepsProvider telemetryUpgradeStepsProvider = new TelemetryDbMigrationStepsProvider();
   private final TelemetryDbMigrationSuccessProvider telemetryDbMigrationSuccessProvider = new TelemetryDbMigrationSuccessProvider();
+  private final TelemetryDbMigrationStepDurationProvider telemetryDbMigrationStepDurationProvider = new TelemetryDbMigrationStepDurationProvider();
   private final MigrationEngineImpl underTest = new MigrationEngineImpl(migrationHistory, serverContainer, migrationSteps);
 
   @BeforeEach
@@ -62,6 +64,7 @@ class MigrationEngineImplTest {
     serverContainer.add(migrationHistory);
     serverContainer.add(stepRegistry);
     serverContainer.add(databaseMigrationState);
+    serverContainer.add(telemetryDbMigrationStepDurationProvider);
     serverContainer.startComponents();
   }
 
@@ -97,7 +100,7 @@ class MigrationEngineImplTest {
   private record TestMigrationStep(StepRegistry registry) implements MigrationStep {
 
     @Override
-    public void execute() throws SQLException {
+    public void execute() {
       registry.stepRan = true;
     }
   }

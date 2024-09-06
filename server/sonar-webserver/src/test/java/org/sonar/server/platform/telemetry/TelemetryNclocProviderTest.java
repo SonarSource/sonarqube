@@ -44,7 +44,7 @@ class TelemetryNclocProviderTest {
   private final DbSession dbSession = mock(DbSession.class);
 
   @Test
-  void getUuidValues_returnsTheRightLanguageDistribution() {
+  void getValues_returnsTheRightLanguageDistribution() {
     TelemetryNclocProvider telemetryNclocProvider = new TelemetryNclocProvider(dbClient);
 
     when(dbClient.openSession(false)).thenReturn(dbSession);
@@ -64,10 +64,10 @@ class TelemetryNclocProviderTest {
     assertEquals(Granularity.DAILY, telemetryNclocProvider.getGranularity());
     assertEquals(Dimension.LANGUAGE, telemetryNclocProvider.getDimension());
 
-    assertThat(telemetryNclocProvider.getUuidValues()).containsOnlyKeys("java", "xml", "csharp", "js");
-    assertThat(telemetryNclocProvider.getUuidValues()).containsEntry("java", 22000L);
-    assertThat(telemetryNclocProvider.getUuidValues()).containsEntry("xml", 1000L);
-    assertThat(telemetryNclocProvider.getUuidValues()).containsEntry("csharp", 2000L);
-    assertThat(telemetryNclocProvider.getUuidValues()).containsEntry("js", 1500L);
+    assertThat(telemetryNclocProvider.getValues()).containsOnlyKeys("java", "xml", "csharp", "js");
+    assertThat(telemetryNclocProvider.getValues()).containsEntry("java", 22000L);
+    assertThat(telemetryNclocProvider.getValues()).containsEntry("xml", 1000L);
+    assertThat(telemetryNclocProvider.getValues()).containsEntry("csharp", 2000L);
+    assertThat(telemetryNclocProvider.getValues()).containsEntry("js", 1500L);
   }
 }

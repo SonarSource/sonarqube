@@ -68,7 +68,7 @@ public class TelemetryNclocProvider implements TelemetryDataProvider<Long> {
   }
 
   @Override
-  public Map<String, Long> getUuidValues() {
+  public Map<String, Long> getValues() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return getNclocDistribution(dbSession);
     }

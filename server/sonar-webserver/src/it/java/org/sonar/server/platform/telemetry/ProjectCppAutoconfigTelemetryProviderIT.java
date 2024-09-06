@@ -46,12 +46,12 @@ class ProjectCppAutoconfigTelemetryProviderIT {
   ProjectCppAutoconfigTelemetryProvider underTest = new ProjectCppAutoconfigTelemetryProvider(db.getDbClient());
 
   @Test
-  void getUuidValues_whenNoProjects_returnEmptyList() {
-    assertThat(underTest.getUuidValues()).isEmpty();
+  void getValues_whenNoProjects_returnEmptyList() {
+    assertThat(underTest.getValues()).isEmpty();
   }
 
   @Test
-  void getUuidValues_whenNoCppAndCProjects_returnEmptyMap() {
+  void getValues_whenNoCppAndCProjects_returnEmptyMap() {
     Consumer<MetricDto> configureMetric = metric -> metric
       .setValueType(STRING.name())
       .setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY);
@@ -65,11 +65,11 @@ class ProjectCppAutoconfigTelemetryProviderIT {
     insertLiveMeasure("cobol", metric).accept(project2);
 
 
-    assertThat(underTest.getUuidValues()).isEmpty();
+    assertThat(underTest.getValues()).isEmpty();
   }
 
   @Test
-  void getUuidValues_when1CppAnd1CProject_returnMapWithSize2AndAutoconfigByDefault() {
+  void getValues_when1CppAnd1CProject_returnMapWithSize2AndAutoconfigByDefault() {
     Consumer<MetricDto> configureMetric = metric -> metric
       .setValueType(STRING.name())
       .setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY);
@@ -86,7 +86,7 @@ class ProjectCppAutoconfigTelemetryProviderIT {
     insertLiveMeasure("java", metric).accept(project3);
     insertLiveMeasure("cobol", metric).accept(project4);
 
-    Map<String, String> actualResult = underTest.getUuidValues();
+    Map<String, String> actualResult = underTest.getValues();
 
     assertThat(actualResult).hasSize(2)
       .containsExactlyInAnyOrderEntriesOf(
@@ -95,7 +95,7 @@ class ProjectCppAutoconfigTelemetryProviderIT {
   }
 
   @Test
-  void getUuidValues_whenCAndCppProjectsWithDifferentConfig_returnMapWithSize2AndNotAutoconfig() {
+  void getValues_whenCAndCppProjectsWithDifferentConfig_returnMapWithSize2AndNotAutoconfig() {
     Consumer<MetricDto> configureMetric = metric -> metric
       .setValueType(STRING.name())
       .setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY);
@@ -115,7 +115,7 @@ class ProjectCppAutoconfigTelemetryProviderIT {
     db.properties().insertProperty("sonar.cfamily.build-wrapper-output", "anyvalue", project1.getProjectDto().getUuid());
     db.properties().insertProperty("sonar.cfamily.compile-commands", "anyvalue", project2.getProjectDto().getUuid());
 
-    Map<String, String> actualResult = underTest.getUuidValues();
+    Map<String, String> actualResult = underTest.getValues();
 
     assertThat(actualResult).hasSize(2)
       .containsExactlyInAnyOrderEntriesOf(

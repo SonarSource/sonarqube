@@ -62,7 +62,7 @@ public class ProjectCppAutoconfigTelemetryProvider implements TelemetryDataProvi
   }
 
   @Override
-  public Map<String, String> getUuidValues() {
+  public Map<String, String> getValues() {
     Map<String, String> cppConfigTypePerProjectUuid = new HashMap<>();
     try (DbSession dbSession = dbClient.openSession(true)) {
       // In the future ideally languages should be defined in the codebase as enums, using strings is error-prone

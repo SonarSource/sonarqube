@@ -26,6 +26,7 @@ import org.sonar.core.platform.Container;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
+import org.sonar.server.telemetry.TelemetryDbMigrationStepDurationProvider;
 import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
 import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
 import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
@@ -45,16 +46,18 @@ public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
   private final TelemetryDbMigrationTotalTimeProvider telemetryDbMigrationTotalTimeProvider;
   private final TelemetryDbMigrationStepsProvider telemetryDbMigrationStepsProvider;
   private final TelemetryDbMigrationSuccessProvider telemetryDbMigrationSuccessProvider;
+  private final TelemetryDbMigrationStepDurationProvider telemetryDbMigrationStepDurationProvider;
 
   public MigrationStepsExecutorImpl(Container migrationContainer, MigrationHistory migrationHistory, MutableDatabaseMigrationState databaseMigrationState,
     TelemetryDbMigrationTotalTimeProvider telemetryDbMigrationTotalTimeProvider, TelemetryDbMigrationStepsProvider telemetryDbMigrationStepsProvider,
-    TelemetryDbMigrationSuccessProvider telemetryDbMigrationSuccessProvider) {
+    TelemetryDbMigrationSuccessProvider telemetryDbMigrationSuccessProvider, TelemetryDbMigrationStepDurationProvider stepDurationProvider) {
     this.migrationContainer = migrationContainer;
     this.migrationHistory = migrationHistory;
     this.databaseMigrationState = databaseMigrationState;
     this.telemetryDbMigrationTotalTimeProvider = telemetryDbMigrationTotalTimeProvider;
     this.telemetryDbMigrationStepsProvider = telemetryDbMigrationStepsProvider;
     this.telemetryDbMigrationSuccessProvider = telemetryDbMigrationSuccessProvider;
+    this.telemetryDbMigrationStepDurationProvider = stepDurationProvider;
   }
 
   @Override
@@ -109,11 +112,12 @@ public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
       throw new MigrationStepExecutionException(step, e);
     } finally {
       if (done) {
-        stepProfiler.stopInfo(STEP_STOP_PATTERN,
+        long durationInMiliseconds = stepProfiler.stopInfo(STEP_STOP_PATTERN,
           databaseMigrationState.getCompletedMigrations() + 1,
           databaseMigrationState.getTotalMigrations(),
           step,
           "success");
+        telemetryDbMigrationStepDurationProvider.addCompletedStep(step.getMigrationNumber(), durationInMiliseconds);
       } else {
         stepProfiler.stopError(STEP_STOP_PATTERN,
           databaseMigrationState.getCompletedMigrations() + 1,

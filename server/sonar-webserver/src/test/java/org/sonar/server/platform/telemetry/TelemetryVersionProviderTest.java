@@ -27,7 +27,6 @@ import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,6 +47,5 @@ class TelemetryVersionProviderTest {
     assertEquals(Granularity.DAILY, telemetryVersionProvider.getGranularity());
     assertEquals(TelemetryDataType.STRING, telemetryVersionProvider.getType());
     assertEquals(Optional.of("10.6"), telemetryVersionProvider.getValue());
-    assertThrows(IllegalStateException.class, telemetryVersionProvider::getUuidValues);
   }
 }

@@ -66,7 +66,7 @@ public class TestTelemetryBean implements TelemetryDataProvider<String> {
   }
 
   @Override
-  public Map<String, String> getUuidValues() {
+  public Map<String, String> getValues() {
     return METRIC_UUID_VALUES;
   }
 

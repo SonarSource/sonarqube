@@ -36,6 +36,7 @@ import org.sonar.server.platform.db.migration.DatabaseMigrationStateImpl;
 import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
+import org.sonar.server.telemetry.TelemetryDbMigrationStepDurationProvider;
 import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
 import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
 import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
@@ -90,6 +91,7 @@ public class PlatformLevel2 extends PlatformLevel {
       TelemetryDbMigrationTotalTimeProvider.class,
       TelemetryDbMigrationStepsProvider.class,
       TelemetryDbMigrationSuccessProvider.class,
+      TelemetryDbMigrationStepDurationProvider.class,
       DatabaseMigrationStateImpl.class,
       DatabaseMigrationExecutorServiceImpl.class);
 

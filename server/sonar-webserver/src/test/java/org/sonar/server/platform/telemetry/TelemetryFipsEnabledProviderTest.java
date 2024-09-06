@@ -27,7 +27,6 @@ import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -60,7 +59,6 @@ class TelemetryFipsEnabledProviderTest {
     assertEquals(Granularity.DAILY, telemetryVersionProvider.getGranularity());
     assertEquals(TelemetryDataType.BOOLEAN, telemetryVersionProvider.getType());
     assertEquals(Optional.of(expectedFipsEnabled), telemetryVersionProvider.getValue());
-    assertThrows(IllegalStateException.class, telemetryVersionProvider::getUuidValues);
   }
 
 }

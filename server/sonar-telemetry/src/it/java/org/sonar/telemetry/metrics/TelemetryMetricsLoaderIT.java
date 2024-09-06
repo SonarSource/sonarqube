@@ -270,7 +270,7 @@ class TelemetryMetricsLoaderIT {
       }
 
       @Override
-      public Map<String, T> getUuidValues() {
+      public Map<String, T> getValues() {
         return Stream.of(keys)
           .collect(Collectors.toMap(
             key -> key,

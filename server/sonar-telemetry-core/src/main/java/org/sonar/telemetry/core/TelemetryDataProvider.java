@@ -58,23 +58,23 @@ public interface TelemetryDataProvider<T> {
 
   /**
    * The implementation of this method might often need to make a call to a database.
-   * For each metric either this method or {@link TelemetryDataProvider#getUuidValues()} should be implemented and used. Not both at once.
+   * For each metric either this method or {@link TelemetryDataProvider#getValues()} should be used. Not both at once.
    *
    * @return the value of the data provided by this instance.
    */
   default Optional<T> getValue() {
-    throw new IllegalStateException("Not implemented");
+    return Optional.empty();
   }
 
   /**
    * The implementation of this method might often need to make a call to a database.
-   * Similiar as {@link TelemetryDataProvider#getValue()} this method returns values of the metric. Some of the metrics
-   * associate a UUID with a value. This method is used to return all the values associated with the UUIDs.
+   * Similar as {@link TelemetryDataProvider#getValue()} this method returns values of the metric. Some of the metrics
+   * associate a key with a value. This method is used to return all the values associated with the keys.
    *
-   * @return map of UUIDs and their values.
+   * @return map of keys and their values.
    */
-  default Map<String, T> getUuidValues() {
-    throw new IllegalStateException("Not implemented");
+  default Map<String, T> getValues() {
+    return Map.of();
   }
 
   /**

@@ -35,6 +35,7 @@ import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.platform.db.migration.engine.MigrationContainer;
 import org.sonar.server.platform.db.migration.engine.SimpleMigrationContainer;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
+import org.sonar.server.telemetry.TelemetryDbMigrationStepDurationProvider;
 import org.sonar.server.telemetry.TelemetryDbMigrationSuccessProvider;
 import org.sonar.server.telemetry.TelemetryDbMigrationStepsProvider;
 import org.sonar.server.telemetry.TelemetryDbMigrationTotalTimeProvider;
@@ -60,8 +61,9 @@ class MigrationStepsExecutorImplTest {
   private final TelemetryDbMigrationTotalTimeProvider telemetryDbMigrationTotalTimeProvider = new TelemetryDbMigrationTotalTimeProvider();
   private final TelemetryDbMigrationStepsProvider telemetryDbMigrationStepsProvider = new TelemetryDbMigrationStepsProvider();
   private final TelemetryDbMigrationSuccessProvider telemetryDbMigrationSuccessProvider = new TelemetryDbMigrationSuccessProvider();
+  private final TelemetryDbMigrationStepDurationProvider telemetryDbMigrationStepDurationProvider = new TelemetryDbMigrationStepDurationProvider();
   private final MigrationStepsExecutorImpl underTest = new MigrationStepsExecutorImpl(migrationContainer, migrationHistory, databaseMigrationState,
-    telemetryDbMigrationTotalTimeProvider, telemetryDbMigrationStepsProvider, telemetryDbMigrationSuccessProvider);
+    telemetryDbMigrationTotalTimeProvider, telemetryDbMigrationStepsProvider, telemetryDbMigrationSuccessProvider, telemetryDbMigrationStepDurationProvider);
   private final NoOpMigrationStatusListener migrationStatusListener = mock();
 
   @BeforeEach
