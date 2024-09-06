@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -38,6 +39,8 @@ import org.jetbrains.annotations.NotNull;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -62,8 +65,30 @@ import static org.sonar.db.component.BranchType.BRANCH;
 
 public class PopulateDb {
 
+  private static final Logger LOG = Loggers.get(PopulateDb.class);
+
+  public static final int NB_PROJECT_WISHED = 4;
+  public static final int NB_WORKER = 2;
+  public static final int BRANCH_PER_PROJECT = 7;
+  public static final int FILE_PER_BRANCH = 377;
+  public static final int ISSUE_PER_FILE = 3;
+  public static final int SNAPSHOT_PER_BRANCH = 13;
+  public static final int WEBHOOK_DELIVERIES_PER_COMPONENT = 1;
+  public static final int NB_USER = 100;
+  public static final int NUMBER_OF_PORTOLIOS = 100;
+  public static final int MAX_PROJECT_PER_PORTFOLIO = 10;
+
   public static void main(String[] args) throws InterruptedException {
+    LOG.info("Population procedure starting");
+
+    System.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost:5432/sonarqube");
+    System.setProperty("sonar.jdbc.username", "sonarqube");
+    System.setProperty("sonar.jdbc.password", "sonarqube");
+    System.setProperty("sonar.jdbc.dialect", "postgresql");
+    System.setProperty("sonar.jdbc.maximumPoolSize", "" + (NB_WORKER + 1));
     final DbTester dbTester = createDbTester();
+
+    LOG.info("Database infrastructure is set up");
 
     // read base data
     final Map<String, MetricDto> metricDtosByKey;
@@ -81,28 +106,40 @@ public class PopulateDb {
     adminGroupDto = dbTester.getDbClient().groupDao().selectByName(dbTester.getSession(), "sonar-administrators")
       .orElseThrow(() -> new IllegalStateException("group with name \"sonar-administrators\" is expected to exist"));
     SqContext sqContext = new SqContext(allProjects, enabledRules, metricDtosByKey, adminGroupDto, dbTester);
+    LOG.info("Existing data has been collected");
 
-    ExecutorService executorService = Executors.newFixedThreadPool(1);
 
-    IntStream.rangeClosed(1, 1)
+    ExecutorService executorService = Executors.newFixedThreadPool(NB_WORKER);
+    final AtomicInteger nbProjectsGenerated = new AtomicInteger(0);
+    LOG.info("Starting generation of {} projects", NB_PROJECT_WISHED);
+    IntStream.rangeClosed(1, NB_PROJECT_WISHED)
       .map(i -> i + allProjects.size())
-      .mapToObj(i -> new ProjectStructure("project " + i, 10, 100, 10, 2, 5, 1))
+      .mapToObj(i -> new ProjectStructure("project " + i, BRANCH_PER_PROJECT, FILE_PER_BRANCH, ISSUE_PER_FILE, ISSUE_PER_FILE, SNAPSHOT_PER_BRANCH, WEBHOOK_DELIVERIES_PER_COMPONENT))
       .forEach(projectStructure -> {
         executorService.submit(() -> {
-          sqContext.dbTester.getSession(true);
-          allProjects.add(generateProject(
-            sqContext, projectStructure
-          ));
+          LOG.info("Worker-{}: Starting generation of project: {}", Thread.currentThread().getName(), projectStructure.toString());
+          try {
+            sqContext.dbTester.getSession(true);
+            allProjects.add(generateProject(
+              sqContext, projectStructure
+            ));
+          } catch (Exception e) {
+            LOG.error("Worker-" + Thread.currentThread().getName() + ": Error while generating project", e);
+            return;
+          }
+          nbProjectsGenerated.incrementAndGet();
+          LOG.info("Worker-{}: Project generation completed: {}", Thread.currentThread().getName(), projectStructure.projectName);
         });
       });
 
     executorService.shutdown();
     executorService.awaitTermination(100, TimeUnit.DAYS);
+    LOG.info("Ending generation of {}/{} projects", nbProjectsGenerated.get(), NB_PROJECT_WISHED);
 
-    createUsers(sqContext, 100);
+    createUsers(sqContext, NB_USER);
 
     allPortfolios = new ArrayList<>(dbTester.getDbClient().portfolioDao().selectAll(initSession));
-    allPortfolios.addAll(createPortfolios(sqContext, new PortfolioGenerationSettings(allPortfolios.size(), 100, 10)));
+    allPortfolios.addAll(createPortfolios(sqContext, new PortfolioGenerationSettings(allPortfolios.size(), NUMBER_OF_PORTOLIOS, MAX_PROJECT_PER_PORTFOLIO)));
 
     // close database connection
     dbTester.getDbClient().getDatabase().stop();
@@ -181,11 +218,6 @@ public class PopulateDb {
   }
 
   private static @NotNull DbTester createDbTester() {
-    System.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost:5432/sonarqube");
-    System.setProperty("sonar.jdbc.username", "sonarqube");
-    System.setProperty("sonar.jdbc.password", "sonarqube");
-    System.setProperty("sonar.jdbc.dialect", "postgresql");
-
     return DbTester.create(System2.INSTANCE);
   }
 
@@ -267,9 +299,9 @@ public class PopulateDb {
           for (SnapshotDto snapshotDto : snapshots) {
             for (int whdNum = 0; whdNum < pj.webhookDeliveriesPerComponent; whdNum++) {
               sqContext.dbTester.webhookDelivery().insert(whd -> whd
-                  .setAnalysisUuid(snapshotDto.getUuid())
-                  .setComponentUuid(fileComponentDto.uuid())
-                  .setWebhookUuid(projectWebHook.getUuid()));
+                .setAnalysisUuid(snapshotDto.getUuid())
+                .setComponentUuid(fileComponentDto.uuid())
+                .setWebhookUuid(projectWebHook.getUuid()));
             }
           }
         }

@@ -1,61 +1,61 @@
 sonar {
-  properties {
-    property 'sonar.projectName', "${projectTitle} :: DAO"
-  }
+    properties {
+        property 'sonar.projectName', "${projectTitle} :: DAO"
+    }
 }
 
 dependencies {
-  // please keep the list grouped by configuration and ordered by name
+    // please keep the list grouped by configuration and ordered by name
 
-  api 'com.google.guava:guava'
-  api 'com.google.protobuf:protobuf-java'
-  api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
-  api 'net.jpountz.lz4:lz4'
-  api 'org.mybatis:mybatis'
-  api 'org.sonarsource.api.plugin:sonar-plugin-api'
+    api 'com.google.guava:guava'
+    api 'com.google.protobuf:protobuf-java'
+    api 'commons-io:commons-io'
+    api 'commons-lang:commons-lang'
+    api 'net.jpountz.lz4:lz4'
+    api 'org.mybatis:mybatis'
+    api 'org.sonarsource.api.plugin:sonar-plugin-api'
 
-  api project(':server:sonar-db-core')
-  api project(':server:sonar-db-migration')
-  api project(':sonar-core')
+    api project(':server:sonar-db-core')
+    api project(':server:sonar-db-migration')
+    api project(':sonar-core')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+    compileOnlyApi 'com.google.code.findbugs:jsr305'
 
-  testImplementation 'com.tngtech.java:junit-dataprovider'
-  testImplementation 'commons-dbutils:commons-dbutils'
-  testImplementation 'junit:junit'
-  testImplementation 'org.assertj:assertj-core'
-  testImplementation 'org.assertj:assertj-guava'
-  testImplementation 'org.mockito:mockito-core'
-  testImplementation 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
-  testImplementation project(':sonar-testing-harness')
-  testImplementation project(':sonar-plugin-api-impl')
+    testImplementation 'com.tngtech.java:junit-dataprovider'
+    testImplementation 'commons-dbutils:commons-dbutils'
+    testImplementation 'junit:junit'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.assertj:assertj-guava'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
+    testImplementation project(':sonar-testing-harness')
+    testImplementation project(':sonar-plugin-api-impl')
 
-  testCompileOnly 'com.google.code.findbugs:jsr305'
+    testCompileOnly 'com.google.code.findbugs:jsr305'
 
-  testRuntimeOnly 'com.h2database:h2'
-  testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
-  testRuntimeOnly 'com.oracle.database.jdbc:ojdbc11'
-  testRuntimeOnly 'org.postgresql:postgresql'
+    testRuntimeOnly 'com.h2database:h2'
+    testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+    testRuntimeOnly 'com.oracle.database.jdbc:ojdbc11'
+    testRuntimeOnly 'org.postgresql:postgresql'
 
-  testFixturesApi testFixtures(project(':server:sonar-db-core'))
+    testFixturesApi testFixtures(project(':server:sonar-db-core'))
 
-  testFixturesImplementation 'com.h2database:h2'
+    testFixturesImplementation 'com.h2database:h2'
 
-  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
+    testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
 }
 
 test {
-  systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
+    systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
 }
 
-task dumpSchema(type:JavaExec) {
+task dumpSchema(type: JavaExec) {
     mainClass = 'org.sonar.db.dump.DumpSQSchema'
     classpath = sourceSets.test.runtimeClasspath
 }
 tasks.check.dependsOn dumpSchema
 
-task createDB(type:JavaExec) {
+task createDB(type: JavaExec) {
     mainClass = 'org.sonar.db.createdb.CreateDb'
     classpath = sourceSets.test.runtimeClasspath
     systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
@@ -64,17 +64,22 @@ task createDB(type:JavaExec) {
     }
 }
 
+task populateDB(type: JavaExec) {
+    mainClass = 'org.sonar.db.createdb.PopulateDb'
+    classpath = sourceSets.test.runtimeClasspath
+}
+
 task testJar(type: Jar) {
-  archiveClassifier = 'tests'
-  from sourceSets.test.output
+    archiveClassifier = 'tests'
+    from sourceSets.test.output
 }
 
 configurations {
-  tests
+    tests
 }
 
 artifacts {
-   tests testJar
+    tests testJar
 }
 
 jar {
