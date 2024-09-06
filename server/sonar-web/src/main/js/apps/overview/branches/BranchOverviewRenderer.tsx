@@ -43,12 +43,12 @@ import { Status } from '../utils';
 import ActivityPanel from './ActivityPanel';
 import BranchMetaTopBar from './BranchMetaTopBar';
 import CaycPromotionGuide from './CaycPromotionGuide';
+import DismissablePromotedSection from './DismissablePromotedSection';
 import FirstAnalysisNextStepsNotif from './FirstAnalysisNextStepsNotif';
 import MeasuresPanelNoNewCode from './MeasuresPanelNoNewCode';
 import NewCodeMeasuresPanel from './NewCodeMeasuresPanel';
 import NoCodeWarning from './NoCodeWarning';
 import OverallCodeMeasuresPanel from './OverallCodeMeasuresPanel';
-import PromotedSection from './PromotedSection';
 import QGStatus from './QualityGateStatus';
 import ReplayTourGuide from './ReplayTour';
 import TabsPanel from './TabsPanel';
@@ -209,7 +209,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                     <CardSeparator />
 
                     {currentUser.isLoggedIn && hasNewCodeMeasures && (
-                      <PromotedSection
+                      <DismissablePromotedSection
                         content={translate('overview.promoted_section.content')}
                         dismissed={dismissedTour ?? false}
                         onDismiss={dismissPromotedSection}

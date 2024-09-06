@@ -72,7 +72,8 @@ function CategoriesList(props: Readonly<CategoriesListProps>) {
         return (
           c.displayTab &&
           availableForCurrentMenu &&
-          (props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport)
+          (props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport) &&
+          (props.hasFeature(Feature.FixSuggestions) || c.key !== 'codefix')
         );
       }),
     );

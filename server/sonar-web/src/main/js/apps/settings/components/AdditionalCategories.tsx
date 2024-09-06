@@ -25,12 +25,14 @@ import {
   ALM_INTEGRATION_CATEGORY,
   ANALYSIS_SCOPE_CATEGORY,
   AUTHENTICATION_CATEGORY,
+  CODE_FIX_CATEGORY,
   EMAIL_NOTIFICATION_CATEGORY,
   LANGUAGES_CATEGORY,
   NEW_CODE_PERIOD_CATEGORY,
   PULL_REQUEST_DECORATION_BINDING_CATEGORY,
 } from '../constants';
 import { AnalysisScope } from './AnalysisScope';
+import CodeFixAdmin from './CodeFixAdmin';
 import Languages from './Languages';
 import NewCodeDefinition from './NewCodeDefinition';
 import AlmIntegration from './almIntegration/AlmIntegration';
@@ -89,6 +91,14 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     displayTab: true,
   },
   {
+    key: CODE_FIX_CATEGORY,
+    name: translate('property.category.codefix'),
+    renderComponent: getCodeFixComponent,
+    availableGlobally: true,
+    availableForProject: false,
+    displayTab: true,
+  },
+  {
     key: PULL_REQUEST_DECORATION_BINDING_CATEGORY,
     name: translate('settings.pr_decoration.binding.category'),
     renderComponent: getPullRequestDecorationBindingComponent,
@@ -129,6 +139,10 @@ function getAnalysisScopeComponent(props: AdditionalCategoryComponentProps) {
 
 function getAlmIntegrationComponent(props: AdditionalCategoryComponentProps) {
   return <AlmIntegration {...props} />;
+}
+
+function getCodeFixComponent(props: AdditionalCategoryComponentProps) {
+  return <CodeFixAdmin {...props} />;
 }
 
 function getAuthenticationComponent(props: AdditionalCategoryComponentProps) {

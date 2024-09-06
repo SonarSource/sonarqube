@@ -18,66 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { ButtonIcon, ButtonSize, ButtonVariety, IconX } from '@sonarsource/echoes-react';
-import { ButtonPrimary, ButtonSecondary, themeBorder, themeColor } from 'design-system';
-import React, { useState } from 'react';
-import { translate } from '../../../helpers/l10n';
+import { themeBorder, themeColor } from 'design-system';
+import React from 'react';
 
 interface Props {
-  content: string;
-  dismissed: boolean;
-  onDismiss: () => void;
-  onPrimaryButtonClick: () => void;
-  primaryButtonLabel: string;
-  secondaryButtonLabel: string;
+  content: React.ReactNode;
   title: string;
 }
 
-export default function PromotedSection({
-  content,
-  primaryButtonLabel,
-  secondaryButtonLabel,
-  title,
-  dismissed,
-  onDismiss,
-  onPrimaryButtonClick,
-}: Readonly<Props>) {
-  const [display, setDisplay] = useState(!dismissed);
-
-  const handlePrimaryButtonClick = () => {
-    setDisplay(false);
-    onPrimaryButtonClick();
-  };
-
-  const handleDismiss = () => {
-    setDisplay(false);
-    onDismiss();
-  };
-
-  if (!display) {
-    return null;
-  }
-
+export default function PromotedSection({ content, title }: Readonly<Props>) {
   return (
     <StyledWrapper className="sw-p-4 sw-pl-6 sw-my-6 sw-rounded-2">
       <div className="sw-flex sw-justify-between sw-mb-2">
         <StyledTitle className="sw-typo-lg-semibold">{title}</StyledTitle>
-
-        <ButtonIcon
-          Icon={IconX}
-          ariaLabel={translate('dismiss')}
-          onClick={handleDismiss}
-          size={ButtonSize.Medium}
-          variety={ButtonVariety.DefaultGhost}
-        />
       </div>
-      <p className="sw-typo-default sw-mb-4">{content}</p>
-      <div>
-        <ButtonPrimary className="sw-mr-2" onClick={handlePrimaryButtonClick}>
-          {primaryButtonLabel}
-        </ButtonPrimary>
-        <ButtonSecondary onClick={handleDismiss}>{secondaryButtonLabel}</ButtonSecondary>
-      </div>
+      <div className="sw-typo-default sw-mb-4">{content}</div>
     </StyledWrapper>
   );
 }

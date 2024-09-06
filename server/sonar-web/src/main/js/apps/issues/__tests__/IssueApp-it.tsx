@@ -34,6 +34,7 @@ import {
   issuesHandler,
   renderIssueApp,
   renderProjectIssuesApp,
+  settingsHandler,
   sourcesHandler,
   ui,
   usersHandler,
@@ -68,6 +69,7 @@ beforeEach(() => {
   componentsHandler.reset();
   branchHandler.reset();
   usersHandler.reset();
+  settingsHandler.reset();
   usersHandler.users = [mockLoggedInUser() as unknown as RestUserDetailed];
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollTo = jest.fn();
@@ -83,6 +85,7 @@ describe('issue app', () => {
   });
 
   it('should be able to trigger a fix when feature is available', async () => {
+    settingsHandler.set('sonar.ai.suggestions.enabled', 'true');
     sourcesHandler.setSource(
       range(0, 20)
         .map((n) => `line: ${n}`)
@@ -96,7 +99,7 @@ describe('issue app', () => {
       [Feature.BranchSupport, Feature.FixSuggestions],
     );
 
-    expect(await ui.getFixSuggestion.find(undefined, { timeout: 5000 })).toBeInTheDocument();
+    expect(await ui.getFixSuggestion.find(undefined, { timeout: 4000 })).toBeInTheDocument();
     await user.click(ui.getFixSuggestion.get());
 
     expect(await ui.suggestedExplanation.find()).toBeInTheDocument();
@@ -131,6 +134,7 @@ describe('issue app', () => {
   });
 
   it('should show error when no fix is available', async () => {
+    settingsHandler.set('sonar.ai.suggestions.enabled', 'true');
     const user = userEvent.setup();
     renderProjectIssuesApp(
       `project/issues?issueStatuses=CONFIRMED&open=${ISSUE_101}&id=myproject`,
@@ -233,8 +237,6 @@ describe('issue app', () => {
       await screen.findByRole('tab', { name: 'coding_rules.description_section.title.root_cause' }),
     );
 
-    await user.click(screen.getByRole('radio', { name: 'coding_rules.description_context.other' }));
-
     expect(await screen.findByRole('heading', { name: 'CVE-2021-12345' })).toBeInTheDocument();
 
     const rows = byRole('row').getAll(ui.cveTable.get());
@@ -257,10 +259,6 @@ describe('issue app', () => {
 
     await user.click(
       await screen.findByRole('tab', { name: 'coding_rules.description_section.title.root_cause' }),
-    );
-
-    await user.click(
-      await screen.findByRole('radio', { name: 'coding_rules.description_context.other' }),
     );
 
     expect(await screen.findByRole('heading', { name: 'CVE-2021-12345' })).toBeInTheDocument();

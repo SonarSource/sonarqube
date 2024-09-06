@@ -410,9 +410,9 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
               aria-labelledby={`tab-${selectedTab.key}`}
               id={`tabpanel-${selectedTab.key}`}
             >
-              {
-                // Preserve tabs state by always rendering all of them. Only hide them when not selected
-                tabs.map((tab) => (
+              {tabs
+                .filter((t) => t.key === selectedTab.key)
+                .map((tab) => (
                   <div
                     className={classNames({
                       'sw-hidden': tab.key !== selectedTab.key,
@@ -423,8 +423,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
                       {tab.content}
                     </TabSelectorContext.Provider>
                   </div>
-                ))
-              }
+                ))}
             </div>
           </div>
         )}

@@ -22,6 +22,7 @@ import { ExtendedSettingDefinition } from '../../types/settings';
 import { Dict } from '../../types/types';
 
 export const ALM_INTEGRATION_CATEGORY = 'almintegration';
+export const CODE_FIX_CATEGORY = 'codefix';
 export const AUTHENTICATION_CATEGORY = 'authentication';
 export const ANALYSIS_SCOPE_CATEGORY = 'exclusions';
 export const LANGUAGES_CATEGORY = 'languages';

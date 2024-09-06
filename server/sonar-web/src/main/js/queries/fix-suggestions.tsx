@@ -24,8 +24,10 @@ import { getFixSuggestionsIssues, getSuggestions } from '../api/fix-suggestions'
 import { useAvailableFeatures } from '../app/components/available-features/withAvailableFeatures';
 import { CurrentUserContext } from '../app/components/current-user/CurrentUserContext';
 import { Feature } from '../types/features';
+import { SettingsKey } from '../types/settings';
 import { Issue } from '../types/types';
 import { isLoggedIn } from '../types/users';
+import { useGetValueQuery } from './settings';
 import { useRawSourceQuery } from './sources';
 
 const UNKNOWN = -1;
@@ -142,14 +144,31 @@ export function useGetFixSuggestionsIssuesQuery(issue: Issue) {
   const { currentUser } = useContext(CurrentUserContext);
   const { hasFeature } = useAvailableFeatures();
 
+  const { data: codeFixSetting } = useGetValueQuery(
+    {
+      key: SettingsKey.CodeSuggestion,
+    },
+    { staleTime: Infinity },
+  );
+
+  const isCodeFixEnabled = codeFixSetting?.value === 'true';
+
   return useQuery({
     queryKey: ['code-suggestions', 'issues', 'details', issue.key],
     queryFn: () =>
       getFixSuggestionsIssues({
         issueId: issue.key,
       }),
-    enabled: hasFeature(Feature.FixSuggestions) && isLoggedIn(currentUser),
+    enabled: hasFeature(Feature.FixSuggestions) && isLoggedIn(currentUser) && isCodeFixEnabled,
+    staleTime: Infinity,
   });
+}
+
+export function useRemoveCodeSuggestionsCache() {
+  const queryClient = useQueryClient();
+  return () => {
+    queryClient.removeQueries({ queryKey: ['code-suggestions'] });
+  };
 }
 
 export function withUseGetFixSuggestionsIssues<P extends { issue: Issue }>(

@@ -26,6 +26,7 @@ import ComponentsServiceMock from '../../api/mocks/ComponentsServiceMock';
 import CveServiceMock from '../../api/mocks/CveServiceMock';
 import FixIssueServiceMock from '../../api/mocks/FixIssueServiceMock';
 import IssuesServiceMock from '../../api/mocks/IssuesServiceMock';
+import SettingsServiceMock from '../../api/mocks/SettingsServiceMock';
 import SourcesServiceMock from '../../api/mocks/SourcesServiceMock';
 import UsersServiceMock from '../../api/mocks/UsersServiceMock';
 import { mockComponent } from '../../helpers/mocks/component';
@@ -49,6 +50,7 @@ export const componentsHandler = new ComponentsServiceMock();
 export const sourcesHandler = new SourcesServiceMock();
 export const branchHandler = new BranchesServiceMock();
 export const fixIssueHanlder = new FixIssueServiceMock();
+export const settingsHandler = new SettingsServiceMock();
 
 export const ui = {
   loading: byText('issues.loading_issues'),

@@ -29,6 +29,7 @@ export const enum SettingsKey {
   TokenMaxAllowedLifetime = 'sonar.auth.token.max.allowed.lifetime',
   QPAdminCanDisableInheritedRules = 'sonar.qualityProfiles.allowDisableInheritedRules',
   LegacyMode = 'sonar.legacy.ratings.mode.enabled',
+  CodeSuggestion = 'sonar.ai.suggestions.enabled',
 }
 
 export enum GlobalSettingKeys {

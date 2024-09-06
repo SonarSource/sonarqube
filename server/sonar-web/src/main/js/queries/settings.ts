@@ -19,11 +19,21 @@
  */
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { addGlobalSuccessMessage } from 'design-system';
-import { getValue, getValues, resetSettingValue, setSettingValue } from '../api/settings';
+import {
+  getValue,
+  getValues,
+  resetSettingValue,
+  setSettingValue,
+  setSimpleSettingValue,
+} from '../api/settings';
 import { translate } from '../helpers/l10n';
 import { ExtendedSettingDefinition } from '../types/settings';
 import { createQueryHook } from './common';
 import { invalidateAllMeasures } from './measures';
+
+const SETTINGS_SAVE_SUCCESS_MESSAGE = translate(
+  'settings.authentication.form.settings.save_success',
+);
 
 type SettingValue = string | boolean | string[];
 
@@ -104,7 +114,7 @@ export function useSaveValuesMutation() {
           queryClient.invalidateQueries({ queryKey: ['settings', 'details', key] });
         });
         queryClient.invalidateQueries({ queryKey: ['settings', 'values'] });
-        addGlobalSuccessMessage(translate('settings.authentication.form.settings.save_success'));
+        addGlobalSuccessMessage(SETTINGS_SAVE_SUCCESS_MESSAGE);
       }
     },
   });
@@ -131,7 +141,21 @@ export function useSaveValueMutation() {
       queryClient.invalidateQueries({ queryKey: ['settings', 'details', definition.key] });
       queryClient.invalidateQueries({ queryKey: ['settings', 'values'] });
       invalidateAllMeasures(queryClient);
-      addGlobalSuccessMessage(translate('settings.authentication.form.settings.save_success'));
+      addGlobalSuccessMessage(SETTINGS_SAVE_SUCCESS_MESSAGE);
+    },
+  });
+}
+
+export function useSaveSimpleValueMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ key, value }: { key: string; value: string }) => {
+      return setSimpleSettingValue({ key, value });
+    },
+    onSuccess: (_, { key }) => {
+      queryClient.invalidateQueries({ queryKey: ['settings', 'details', key] });
+      queryClient.invalidateQueries({ queryKey: ['settings', 'values', [key]] });
+      addGlobalSuccessMessage(SETTINGS_SAVE_SUCCESS_MESSAGE);
     },
   });
 }
