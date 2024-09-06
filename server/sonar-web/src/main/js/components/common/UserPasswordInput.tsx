@@ -24,6 +24,7 @@ import {
   FlagSuccessIcon,
   FormField,
   InputField,
+  InputSizeKeys,
   LightLabel,
   TextError,
   themeColor,
@@ -38,11 +39,12 @@ export type PasswordChangeHandler = (password: { isValid: boolean; value: string
 
 export interface Props {
   onChange: PasswordChangeHandler;
+  size?: InputSizeKeys;
   value: string;
 }
 
 export default function UserPasswordInput(props: Readonly<Props>) {
-  const { value, onChange } = props;
+  const { onChange, size = 'full', value } = props;
 
   const [isFocused, setIsFocused] = React.useState(false);
   const [confirmValue, setConfirmValue] = React.useState('');
@@ -62,7 +64,7 @@ export default function UserPasswordInput(props: Readonly<Props>) {
               isValid={isValid}
               onFocus={() => setIsFocused(true)}
               id="create-password"
-              size="full"
+              size={size}
               onChange={({ currentTarget }) => {
                 onChange({
                   value: currentTarget.value,
@@ -94,7 +96,7 @@ export default function UserPasswordInput(props: Readonly<Props>) {
             isValid={passwordMatch}
             onFocus={() => setIsFocused(true)}
             id="confirm-password"
-            size="full"
+            size={size}
             onChange={({ currentTarget }) => {
               setConfirmValue(currentTarget.value);
               onChange({

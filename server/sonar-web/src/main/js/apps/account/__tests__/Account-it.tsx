@@ -451,26 +451,18 @@ describe('security page', () => {
       exact: false,
     });
 
-    const newPasswordField = screen.getByLabelText('my_profile.password.new', {
-      selector: 'input',
-      exact: false,
-    });
-    const confirmPasswordField = screen.getByLabelText('my_profile.password.confirm', {
-      selector: 'input',
-      exact: false,
-    });
+    const newPasswordField = screen.getByTestId('create-password');
+    const confirmPasswordField = screen.getByLabelText(/confirm_password*/i);
 
     await fillTextField(user, oldPasswordField, '123456old');
-    await fillTextField(user, newPasswordField, 'newPassword');
-    await fillTextField(user, confirmPasswordField, 'newtypo');
+    await fillTextField(user, newPasswordField, 'P@ssword12345');
+    await fillTextField(user, confirmPasswordField, 'P@ssword12345typo');
 
-    await user.click(screen.getByRole('button', { name: 'update_verb' }));
-
-    expect(screen.getByText('user.password_doesnt_match_confirmation')).toBeInTheDocument();
+    expect(screen.getByText('user.password.do_not_match')).toBeInTheDocument();
 
     // Backspace to erase the previous content
     // [Backspace>7/] == hold, trigger 7 times and release
-    await fillTextField(user, confirmPasswordField, '[Backspace>7/]newPassword');
+    await fillTextField(user, confirmPasswordField, '[Backspace>4/]');
 
     await user.click(screen.getByRole('button', { name: 'update_verb' }));
 

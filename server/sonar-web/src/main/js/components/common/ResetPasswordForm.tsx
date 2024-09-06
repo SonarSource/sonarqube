@@ -25,6 +25,7 @@ import { changePassword } from '../../api/users';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../helpers/l10n';
 import { ChangePasswordResults, LoggedInUser } from '../../types/users';
+import UserPasswordInput from './UserPasswordInput';
 
 interface Props {
   className?: string;
@@ -39,14 +40,18 @@ export default function ResetPasswordForm({
 }: Readonly<Props>) {
   const [error, setError] = React.useState<string | undefined>(undefined);
   const [oldPassword, setOldPassword] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [passwordConfirmation, setPasswordConfirmation] = React.useState('');
+  const [password, setPassword] = React.useState<{ isValid: boolean; value: string }>({
+    value: '',
+    isValid: false,
+  });
   const [success, setSuccess] = React.useState(false);
 
   const handleSuccessfulChange = () => {
     setOldPassword('');
-    setPassword('');
-    setPasswordConfirmation('');
+    setPassword({
+      value: '',
+      isValid: false,
+    });
     setSuccess(true);
 
     onPasswordChange?.();
@@ -58,19 +63,15 @@ export default function ResetPasswordForm({
     setError(undefined);
     setSuccess(false);
 
-    if (password !== passwordConfirmation) {
-      setError(translate('user.password_doesnt_match_confirmation'));
-    } else {
-      changePassword({ login, password, previousPassword: oldPassword })
-        .then(handleSuccessfulChange)
-        .catch((result: ChangePasswordResults) => {
-          if (result === ChangePasswordResults.OldPasswordIncorrect) {
-            setError(translate('user.old_password_incorrect'));
-          } else if (result === ChangePasswordResults.NewPasswordSameAsOld) {
-            setError(translate('user.new_password_same_as_old'));
-          }
-        });
-    }
+    changePassword({ login, password: password.value, previousPassword: oldPassword })
+      .then(handleSuccessfulChange)
+      .catch((result: ChangePasswordResults) => {
+        if (result === ChangePasswordResults.OldPasswordIncorrect) {
+          setError(translate('user.old_password_incorrect'));
+        } else if (result === ChangePasswordResults.NewPasswordSameAsOld) {
+          setError(translate('user.new_password_same_as_old'));
+        }
+      });
   };
 
   return (
@@ -105,43 +106,16 @@ export default function ResetPasswordForm({
       </div>
 
       <div className="sw-pb-4">
-        <FormField htmlFor="password" label={translate('my_profile.password.new')} required>
-          <InputField
-            size="large"
-            autoComplete="off"
-            id="password"
-            name="password"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-            required
-            type="password"
-            value={password}
-          />
-        </FormField>
-      </div>
-
-      <div className="sw-pb-4">
-        <FormField
-          htmlFor="password_confirmation"
-          label={translate('my_profile.password.confirm')}
-          required
-        >
-          <InputField
-            size="large"
-            autoComplete="off"
-            id="password_confirmation"
-            name="password_confirmation"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setPasswordConfirmation(e.target.value)
-            }
-            required
-            type="password"
-            value={passwordConfirmation}
-          />
-        </FormField>
+        <UserPasswordInput onChange={setPassword} size="large" value={password.value} />
       </div>
 
       <div className="sw-py-3">
-        <Button id="change-password" type="submit" variety={ButtonVariety.Primary}>
+        <Button
+          isDisabled={oldPassword === '' || password.value === '' || !password.isValid}
+          id="change-password"
+          type="submit"
+          variety={ButtonVariety.Primary}
+        >
           {translate('update_verb')}
         </Button>
       </div>
