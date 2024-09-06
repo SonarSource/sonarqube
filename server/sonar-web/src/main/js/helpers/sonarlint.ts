@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { omit } from 'lodash';
 import { generateToken, getTokens } from '../api/user-tokens';
 import { getHostUrl } from '../helpers/urls';
-import { Ide } from '../types/sonarlint';
+import { isBranch, isPullRequest } from '../sonar-aligned/helpers/branch-like';
+import { BranchLike } from '../types/branch-like';
+import { Fix, Ide } from '../types/sonarlint';
 import { NewUserToken, TokenExpiration } from '../types/token';
 import { UserBase } from '../types/users';
 import { checkStatus, isSuccessStatus } from './request';
@@ -39,9 +42,7 @@ export async function probeSonarLintServers(): Promise<Array<Ide>> {
     fetch(buildSonarLintEndpoint(p, '/status'))
       .then((r) => r.json())
       .then((json) => {
-        const { description, ideName, needsToken } = json;
-
-        return { description, ideName, needsToken, port: p } as Ide;
+        return { port: p, ...omit(json, 'p') };
       })
       .catch(() => undefined),
   );
@@ -93,42 +94,48 @@ export const generateSonarLintUserToken = async ({
   return generateToken({ expirationDate, login, name });
 };
 
-export function openIssue({
-  branchName,
+export function openFixOrIssueInSonarLint({
+  branchLike,
   calledPort,
+  fix,
   issueKey,
   projectKey,
-  pullRequestID,
-  tokenName,
-  tokenValue,
+  token,
 }: {
-  branchName?: string;
+  branchLike: BranchLike | undefined;
   calledPort: number;
+  fix?: Fix;
   issueKey: string;
   projectKey: string;
-  pullRequestID?: string;
-  tokenName?: string;
-  tokenValue?: string;
+  token?: NewUserToken;
 }) {
-  const showUrl = new URL(buildSonarLintEndpoint(calledPort, '/issues/show'));
+  const showUrl = new URL(
+    buildSonarLintEndpoint(calledPort, fix === undefined ? '/issues/show' : '/fix/show'),
+  );
 
   showUrl.searchParams.set('server', getHostUrl());
   showUrl.searchParams.set('project', projectKey);
   showUrl.searchParams.set('issue', issueKey);
 
-  if (branchName !== undefined) {
-    showUrl.searchParams.set('branch', branchName);
+  if (isBranch(branchLike)) {
+    showUrl.searchParams.set('branch', branchLike.name);
   }
 
-  if (pullRequestID !== undefined) {
-    showUrl.searchParams.set('pullRequest', pullRequestID);
+  if (isPullRequest(branchLike)) {
+    showUrl.searchParams.set('branch', branchLike.branch);
+    showUrl.searchParams.set('pullRequest', branchLike.key);
   }
 
-  if (tokenName !== undefined && tokenValue !== undefined) {
-    showUrl.searchParams.set('tokenName', tokenName);
-    showUrl.searchParams.set('tokenValue', tokenValue);
+  if (token !== undefined) {
+    showUrl.searchParams.set('tokenName', token.name);
+    showUrl.searchParams.set('tokenValue', token.token);
   }
 
+  if (fix !== undefined) {
+    return fetch(showUrl.toString(), { method: 'POST', body: JSON.stringify(fix) }).then(
+      (response: Response) => checkStatus(response, true),
+    );
+  }
   return fetch(showUrl.toString()).then((response: Response) => checkStatus(response, true));
 }
 

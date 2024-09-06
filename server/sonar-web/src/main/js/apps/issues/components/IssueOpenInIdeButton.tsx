@@ -27,14 +27,16 @@ import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import {
   generateSonarLintUserToken,
-  openIssue as openSonarLintIssue,
+  openFixOrIssueInSonarLint,
   probeSonarLintServers,
 } from '../../../helpers/sonarlint';
+import { BranchLike } from '../../../types/branch-like';
 import { Ide } from '../../../types/sonarlint';
+import { NewUserToken } from '../../../types/token';
 import { UserBase } from '../../../types/users';
 
 export interface Props {
-  branchName?: string;
+  branchLike?: BranchLike;
   issueKey: string;
   login: UserBase['login'];
   projectKey: string;
@@ -59,13 +61,7 @@ const showSuccess = () => addGlobalSuccessMessage(translate('issues.open_in_ide.
 
 const DELAY_AFTER_TOKEN_CREATION = 3000;
 
-export function IssueOpenInIdeButton({
-  branchName,
-  issueKey,
-  login,
-  projectKey,
-  pullRequestID,
-}: Readonly<Props>) {
+export function IssueOpenInIdeButton({ branchLike, issueKey, login, projectKey }: Readonly<Props>) {
   const [isDisabled, setIsDisabled] = React.useState(false);
   const [ides, setIdes] = React.useState<Ide[] | undefined>(undefined);
   const ref = React.useRef<HTMLButtonElement>(null);
@@ -80,21 +76,19 @@ export function IssueOpenInIdeButton({
   const openIssue = async (ide: Ide) => {
     setIsDisabled(true);
 
-    let token: { name?: string; token?: string } = {};
+    let token: NewUserToken | undefined = undefined;
 
     try {
       if (ide.needsToken) {
         token = await generateSonarLintUserToken({ ideName: ide.ideName, login });
       }
 
-      await openSonarLintIssue({
-        branchName,
+      await openFixOrIssueInSonarLint({
+        branchLike,
         calledPort: ide.port,
         issueKey,
         projectKey,
-        pullRequestID,
-        tokenName: token.name,
-        tokenValue: token.token,
+        token,
       });
 
       showSuccess();

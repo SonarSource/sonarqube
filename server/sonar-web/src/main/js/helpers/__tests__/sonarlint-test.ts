@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TokenType } from '../../types/token';
+import { NewUserToken, TokenType } from '../../types/token';
 import { HttpStatus } from '../request';
 import {
   buildPortRange,
+  openFixOrIssueInSonarLint,
   openHotspot,
-  openIssue,
   portIsValid,
   probeSonarLintServers,
   sendUserToken,
@@ -92,7 +92,7 @@ describe('openHotspot', () => {
   });
 });
 
-describe('openIssue', () => {
+describe('open ide', () => {
   it('should send the correct request to the IDE to open an issue', async () => {
     let branchName: string | undefined = undefined;
     let pullRequestID: string | undefined = undefined;
@@ -123,13 +123,13 @@ describe('openIssue', () => {
       return Promise.resolve(resp);
     });
 
-    type OpenIssueParams = Parameters<typeof openIssue>[0];
+    type OpenIssueParams = Parameters<typeof openFixOrIssueInSonarLint>[0];
     type PartialOpenIssueParams = Partial<OpenIssueParams>;
     let params: PartialOpenIssueParams = {};
 
     const testWith = async (args: PartialOpenIssueParams) => {
       params = { ...params, ...args };
-      const result = await openIssue(params as OpenIssueParams);
+      const result = await openFixOrIssueInSonarLint(params as OpenIssueParams);
       expect(result).toBe(resp);
     };
 
@@ -140,14 +140,23 @@ describe('openIssue', () => {
     });
 
     branchName = 'branch-1';
-    await testWith({ branchName });
+    await testWith({ branchLike: { name: branchName, isMain: false, excludedFromPurge: false } });
 
     pullRequestID = 'pr-1';
-    await testWith({ pullRequestID });
+    await testWith({
+      branchLike: {
+        key: pullRequestID,
+        branch: branchName,
+        name: branchName,
+        base: 'foo',
+        target: 'bar',
+        title: 'test',
+      },
+    });
 
     tokenName = 'token-name';
     tokenValue = 'token-value';
-    await testWith({ tokenName, tokenValue });
+    await testWith({ token: { token: tokenValue, name: tokenName } as NewUserToken });
   });
 });
 

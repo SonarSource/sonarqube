@@ -31,7 +31,7 @@ import {
   themeColor,
 } from 'design-system';
 import * as React from 'react';
-import { getBranchLikeQuery, isBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
@@ -55,6 +55,7 @@ export interface Props {
   linkToProject?: boolean;
   loading?: boolean;
   onExpand?: () => void;
+  secondaryActions?: React.ReactNode;
   shouldShowOpenInIde?: boolean;
   shouldShowViewAllIssues?: boolean;
   sourceViewerFile: SourceViewerFile;
@@ -72,6 +73,7 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
     sourceViewerFile,
     shouldShowOpenInIde = true,
     shouldShowViewAllIssues = true,
+    secondaryActions,
   } = props;
 
   const { measures, path, project, projectName, q } = sourceViewerFile;
@@ -97,18 +99,6 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
     border: 1px solid ${borderColor};
     border-bottom: none;
   `;
-
-  const [branchName, pullRequestID] = React.useMemo(() => {
-    if (isBranch(branchLike)) {
-      return [branchLike.name, undefined];
-    }
-
-    if (isPullRequest(branchLike)) {
-      return [branchLike.branch, branchLike.key];
-    }
-
-    return [undefined, undefined]; // should never end up here, but needed for consistent returns
-  }, [branchLike]);
 
   return (
     <IssueSourceViewerStyle
@@ -152,13 +142,14 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
 
       {!isProjectRoot && shouldShowOpenInIde && isLoggedIn(currentUser) && !isLoadingBranches && (
         <IssueOpenInIdeButton
-          branchName={branchName}
+          branchLike={branchLike}
           issueKey={issueKey}
           login={currentUser.login}
           projectKey={project}
-          pullRequestID={pullRequestID}
         />
       )}
+
+      {secondaryActions && <div>{secondaryActions}</div>}
 
       {!isProjectRoot && shouldShowViewAllIssues && measures.issues !== undefined && (
         <div

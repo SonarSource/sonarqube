@@ -102,11 +102,16 @@ export const useComponentDataQuery = createQueryHook(
   },
 );
 
-export function useComponentForSourceViewer(fileKey: string, branchLike?: BranchLike) {
+export function useComponentForSourceViewer(
+  fileKey: string,
+  branchLike?: BranchLike,
+  enabled = true,
+) {
   return useQuery({
     queryKey: ['component', 'source-viewer', fileKey, branchLike] as const,
     queryFn: ({ queryKey: [_1, _2, fileKey, branchLike] }) =>
       getComponentForSourceViewer({ component: fileKey, ...getBranchLikeQuery(branchLike) }),
     staleTime: Infinity,
+    enabled,
   });
 }

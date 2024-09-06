@@ -29,6 +29,7 @@ import {
   SonarCodeColorizer,
   themeColor,
 } from 'design-system';
+import { OpenFixInIde } from '../../apps/issues/components/OpenFixInIde';
 import { IssueSourceViewerHeader } from '../../apps/issues/crossComponentSourceViewer/IssueSourceViewerHeader';
 import { translate } from '../../helpers/l10n';
 import { useComponentForSourceViewer } from '../../queries/component';
@@ -100,6 +101,7 @@ export function IssueSuggestionFileSnippet({ branchLike, issue, language }: Read
           sourceViewerFile={sourceViewerFile}
           shouldShowOpenInIde={false}
           shouldShowViewAllIssues={false}
+          secondaryActions={<OpenFixInIde aiSuggestion={suggestion} issue={issue} />}
         />
       )}
       <SourceFileWrapper className="js-source-file sw-mb-4">
