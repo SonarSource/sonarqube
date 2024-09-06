@@ -227,4 +227,10 @@ public class BatchReportReaderImpl implements BatchReportReader {
     ensureInitialized();
     return delegate.readAnalysisWarnings();
   }
+
+  @Override
+  public CloseableIterator<ScannerReport.Cve> readCves() {
+    ensureInitialized();
+    return delegate.readCves();
+  }
 }

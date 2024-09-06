@@ -53,12 +53,12 @@ message Branch {
 message Analysis {
   int64 component_ref = 2;
   int64 date = 3;
-  string projectVersion = 4;
+  string project_version = 4;
   string period1_mode = 5;
   string period1_param = 6;
   int64 period1_date = 7;
   string uuid = 8;
-  string buildString = 9;
+  string build_string = 9;
 }
 
 message Metric {
@@ -123,10 +123,10 @@ message Issue {
   string project_uuid = 22;
   string rule_ref = 23;
 
-  optional string ruleDescriptionContextKey = 24;
+  optional string rule_description_context_key = 24;
 
-  repeated MessageFormatting messageFormattings = 25;
-  string codeVariants = 26;
+  repeated MessageFormatting message_formattings = 25;
+  string code_variants = 26;
 
   repeated Impact impacts = 27;
 }
@@ -177,7 +177,7 @@ message AdHocRule {
   string scope = 8;
   RuleMetadata metadata = 9;
   repeated Impact impacts = 11;
-  optional string cleanCodeAttribute = 12;
+  optional string clean_code_attribute = 12;
 }
 
 // stream of messages in settings.pb

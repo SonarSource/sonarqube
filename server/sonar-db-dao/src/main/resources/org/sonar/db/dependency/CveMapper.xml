@@ -15,7 +15,7 @@
       c.updated_at as updatedAt
     </sql>
 
-   <insert id="insert" parameterType="org.sonar.db.dependency.CveDto" useGeneratedKeys="false">
+   <insert id="insert" parameterType="Cve" useGeneratedKeys="false">
     insert into cves (
       uuid,
       id,
@@ -41,12 +41,27 @@
     )
    </insert>
 
-  <select id="selectById" parameterType="string" resultType="org.sonar.db.dependency.CveDto">
+  <select id="selectById" parameterType="string" resultType="Cve">
     select <include refid="cveColumns"/>
     from
       cves c
     where
       c.id = #{id, jdbcType=VARCHAR}
   </select>
+
+  <update id="update" parameterType="Cve" useGeneratedKeys="false">
+    update cves
+    set
+      id = #{id, jdbcType=VARCHAR},
+      description = #{description, jdbcType=VARCHAR},
+      cvss_score = #{cvssScore, jdbcType=DOUBLE},
+      epss_score = #{epssScore, jdbcType=DOUBLE},
+      epss_percentile = #{epssPercentile, jdbcType=DOUBLE},
+      published_at = #{publishedAt, jdbcType=BIGINT},
+      last_modified_at = #{lastModifiedAt, jdbcType=BIGINT},
+      updated_at = #{updatedAt, jdbcType=BIGINT}
+    where
+      uuid = #{uuid, jdbcType=BIGINT}
+  </update>
 
 </mapper>

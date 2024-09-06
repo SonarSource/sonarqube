@@ -25,4 +25,6 @@ public interface CveCweMapper {
   void insert(CveCweDto cveCweDto);
 
   Set<String> selectByCveUuid(String cveUuid);
+
+  void deleteByCveUuid(String cveUuid);
 }

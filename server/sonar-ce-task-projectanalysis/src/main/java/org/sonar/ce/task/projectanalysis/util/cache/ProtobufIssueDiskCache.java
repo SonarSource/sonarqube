@@ -151,6 +151,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     for (IssueCache.FieldDiffs protoFieldDiffs : next.getChangesList()) {
       defaultIssue.addChange(toDefaultIssueChanges(protoFieldDiffs));
     }
+    defaultIssue.setCveId(next.hasCveId() ? next.getCveId() : null);
     return defaultIssue;
   }
 
@@ -213,7 +214,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     for (FieldDiffs fieldDiffs : defaultIssue.changes()) {
       builder.addChanges(toProtoIssueChanges(fieldDiffs));
     }
-
+    ofNullable(defaultIssue.getCveId()).ifPresent(builder::setCveId);
     return builder.build();
   }
 

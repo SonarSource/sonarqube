@@ -166,7 +166,8 @@ public final class IssueDto implements Serializable {
       .setCleanCodeAttribute(issue.getCleanCodeAttribute())
       // technical dates
       .setCreatedAt(now)
-      .setUpdatedAt(now);
+      .setUpdatedAt(now)
+      .setCveId(issue.getCveId());
   }
 
   @NotNull
@@ -880,8 +881,9 @@ public final class IssueDto implements Serializable {
     return cveId;
   }
 
-  public void setCveId(String cveId) {
+  public IssueDto setCveId(@Nullable String cveId) {
     this.cveId = cveId;
+    return this;
   }
 
   @Override

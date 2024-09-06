@@ -70,4 +70,23 @@ class CveCweDaoIT {
     assertThat(result).isEmpty();
   }
 
+  @Test
+  void deleteByCveUuid_shouldDeleteCwesAttachedToCve() {
+    String cveUuid = "CVE_UUID";
+    cveCweDao.insert(db.getSession(), new CveCweDto(cveUuid, "CWE-123"));
+    cveCweDao.insert(db.getSession(), new CveCweDto(cveUuid, "CWE-456"));
+    CveCweDto nonDeletedCwe = new CveCweDto("ANOTHER_CVE_UUID", "CWE-789");
+    cveCweDao.insert(db.getSession(), nonDeletedCwe);
+
+    cveCweDao.deleteByCveUuid(db.getSession(), cveUuid);
+
+    List<Map<String, Object>> result = db.select(db.getSession(), "select * from cve_cwe");
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0)).containsExactlyInAnyOrderEntriesOf(
+      Map.of(
+        "cve_uuid", nonDeletedCwe.cveUuid(),
+        "cwe", nonDeletedCwe.cwe())
+    );
+  }
+
 }

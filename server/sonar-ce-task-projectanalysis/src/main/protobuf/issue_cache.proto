@@ -30,85 +30,86 @@ option optimize_for = SPEED;
 
 message Issue {
   optional string key = 1;
-  optional int32 ruleType = 2;
-  optional string componentUuid = 3;
-  optional string componentKey = 4;
-  reserved 5; //moduleUuid
-  reserved 6; // moduleUuidPath
-  optional string projectUuid = 7;
-  optional string projectKey = 8;
-  optional string ruleKey = 9;
+  optional int32 rule_type = 2;
+  optional string component_uuid = 3;
+  optional string component_key = 4;
+  reserved 5; //module_uuid
+  reserved 6; // module_uuid_path
+  optional string project_uuid = 7;
+  optional string project_key = 8;
+  optional string rule_key = 9;
   optional string language = 10;
   optional string severity = 11;
-  optional bool manualSeverity = 12;
+  optional bool manual_severity = 12;
   optional string message = 13;
   optional int32 line = 14;
   optional double gap = 15;
   optional int64 effort = 16;
   optional string status = 17;
   optional string resolution = 18;
-  optional string assigneeUuid = 19;
+  optional string assignee_uuid = 19;
   optional string checksum = 20;
-  optional string authorLogin = 22;
+  optional string author_login = 22;
   optional string tags = 23;
   optional sonarqube.db.issues.Locations locations = 24;
 
-  optional bool isFromExternalRuleEngine = 25;
+  optional bool is_from_external_rule_engine = 25;
 
   // FUNCTIONAL DATES
-  optional int64 creationDate = 26;
-  optional int64 updateDate = 27;
-  optional int64 closeDate = 28;
+  optional int64 creation_date = 26;
+  optional int64 update_date = 27;
+  optional int64 close_date = 28;
 
   repeated FieldDiffs changes = 29;
-  optional FieldDiffs currentChanges = 30;
+  optional FieldDiffs current_changes = 30;
 
-  optional bool isNew = 31;
-  optional bool isCopied = 32;
-  optional bool beingClosed = 33;
-  optional bool onDisabledRule = 34;
-  optional bool isChanged = 35;
-  optional bool sendNotifications = 36;
-  optional int64 selectedAt = 37;
+  optional bool is_new = 31;
+  optional bool is_copied = 32;
+  optional bool being_closed = 33;
+  optional bool on_disabled_rule = 34;
+  optional bool is_changed = 35;
+  optional bool send_notifications = 36;
+  optional int64 selected_at = 37;
 
   repeated Comment comments = 38;
 
-  optional bool quickFixAvailable = 39;
+  optional bool quick_fix_available = 39;
 
-  optional bool isOnReferencedBranch = 40;
-  optional bool isOnChangedLine = 41;
-  optional bool isNewCodeReferenceIssue = 42;
-  optional bool isNoLongerNewCodeReferenceIssue = 43;
-  optional string ruleDescriptionContextKey = 44;
-  optional sonarqube.db.issues.MessageFormattings messageFormattings = 45;
-  optional string codeVariants = 46;
-  optional string assigneeLogin = 47;
-  optional string anticipatedTransitionUuid = 48;
+  optional bool is_on_referenced_branch = 40;
+  optional bool is_on_changed_line = 41;
+  optional bool is_new_code_reference_issue = 42;
+  optional bool is_no_longer_new_code_reference_issue = 43;
+  optional string rule_description_context_key = 44;
+  optional sonarqube.db.issues.MessageFormattings message_formattings = 45;
+  optional string code_variants = 46;
+  optional string assignee_login = 47;
+  optional string anticipated_transition_uuid = 48;
   repeated Impact impacts = 49;
-  optional string cleanCodeAttribute = 50;
-  optional bool isPrioritizedRule = 51;
+  optional string clean_code_attribute = 50;
+  optional bool is_prioritized_rule = 51;
+  optional string cve_id = 52;
 }
 
 message Comment {
-  optional string issueKey = 1;
-  optional string userUuid = 2;
-  optional int64 createdAt = 3;
-  optional int64 updatedAt = 4;
+  optional string issue_key = 1;
+  optional string user_uuid = 2;
+  optional int64 created_at = 3;
+  optional int64 updated_at = 4;
   optional string key = 5;
-  optional string markdownText = 6;
-  optional bool isNew = 7;
+  optional string markdown_text = 6;
+  optional bool is_new = 7;
 }
 
 message FieldDiffs {
-  optional string userUuid = 1;
-  optional int64 creationDate = 2;
-  optional string issueKey = 3;
+  optional string user_uuid = 1;
+  optional int64 creation_date = 2;
+  optional string issue_key = 3;
   map<string, Diff> diffs = 4;
 }
 
 message Diff {
-  optional string oldValue = 1;
-  optional string newValue = 2;
+  optional string old_value = 1;
+  optional string new_value = 2;
 }
 
 message Impact {

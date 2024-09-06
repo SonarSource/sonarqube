@@ -36,4 +36,9 @@ public class CveCweDao implements Dao {
   public Set<String> selectByCveUuid(DbSession dbSession, String cveUuid) {
     return mapper(dbSession).selectByCveUuid(cveUuid);
   }
+
+  public void deleteByCveUuid(DbSession dbSession, String cveUuid) {
+    mapper(dbSession).deleteByCveUuid(cveUuid);
+  }
+
 }

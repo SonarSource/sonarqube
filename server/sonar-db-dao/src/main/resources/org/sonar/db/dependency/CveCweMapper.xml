@@ -18,4 +18,9 @@
     where cve_uuid = #{cveUuid,jdbcType=VARCHAR}
   </select>
 
+  <delete id="deleteByCveUuid" parameterType="string">
+    delete from cve_cwe
+    where cve_uuid = #{cveUuid,jdbcType=VARCHAR}
+  </delete>
+
 </mapper>

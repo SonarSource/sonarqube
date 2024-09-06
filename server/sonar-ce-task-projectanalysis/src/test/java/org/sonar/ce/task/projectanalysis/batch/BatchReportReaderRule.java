@@ -62,6 +62,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
   private Map<Integer, ScannerReport.ChangedLines> changedLines = new HashMap<>();
   private List<ScannerReport.AnalysisWarning> analysisWarnings = Collections.emptyList();
   private byte[] analysisCache;
+  private List<ScannerReport.Cve> cves = new ArrayList<>();
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -325,5 +326,15 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
   @Override
   public void afterEach(ExtensionContext context) {
     clear();
+  }
+
+  @Override
+  public CloseableIterator<ScannerReport.Cve> readCves() {
+    return CloseableIterator.from(cves.iterator());
+  }
+
+  public BatchReportReaderRule putCves(List<ScannerReport.Cve> cves) {
+    this.cves = cves;
+    return this;
   }
 }

@@ -33,6 +33,10 @@ public class CveDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).selectById(id));
   }
 
+  public void update(DbSession dbSession, CveDto cveDto) {
+    mapper(dbSession).update(cveDto);
+  }
+
   private static CveMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(CveMapper.class);
   }

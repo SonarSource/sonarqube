@@ -23,4 +23,6 @@ public interface CveMapper {
   void insert(CveDto cveDto);
 
   CveDto selectById(String id);
+
+  void update(CveDto cveDto);
 }

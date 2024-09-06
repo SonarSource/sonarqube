@@ -89,4 +89,17 @@ class CveDaoIT {
     assertThat(result).usingRecursiveComparison().isEqualTo(cveDto);
   }
 
+  @Test
+  void update_shouldUpdateCveButCreationDate() {
+    CveDto insertedDto = new CveDto("uuid-1", "CVE-1", "Some CVE description 1", 1.0, 2.0, 3.0, 4L, 5L, 6L, 7L);
+    cveDao.insert(db.getSession(), insertedDto);
+    CveDto updatedDto = new CveDto("uuid-1", "CVE-2", "Some CVE description 2", 7.0, 1.0, 2.0, 3L, 4L, 5L, 6L);
+
+    cveDao.update(db.getSession(), updatedDto);
+
+    CveDto result = cveDao.selectById(db.getSession(), updatedDto.id()).orElseGet(() -> fail("CVE not found in database"));
+    assertThat(result).usingRecursiveComparison().ignoringFields("createdAt").isEqualTo(updatedDto);
+    assertThat(result.createdAt()).isEqualTo(insertedDto.createdAt());
+  }
+
 }
