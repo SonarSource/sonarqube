@@ -451,7 +451,7 @@ describe('security page', () => {
       exact: false,
     });
 
-    const newPasswordField = screen.getByTestId('create-password');
+    const newPasswordField = screen.getByLabelText(/^password/);
     const confirmPasswordField = screen.getByLabelText(/confirm_password*/i);
 
     await fillTextField(user, oldPasswordField, '123456old');

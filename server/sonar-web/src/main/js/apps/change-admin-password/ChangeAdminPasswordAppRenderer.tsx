@@ -24,8 +24,6 @@ import {
   CenteredLayout,
   DarkLabel,
   FlagMessage,
-  FormField,
-  InputField,
   PageContentFontWrapper,
   Spinner,
   SubTitle,
@@ -34,6 +32,9 @@ import {
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Location } from '~sonar-aligned/types/router';
+import UserPasswordInput, {
+  PasswordChangeHandlerParams,
+} from '../../components/common/UserPasswordInput';
 import { translate } from '../../helpers/l10n';
 import { getReturnUrl } from '../../helpers/urls';
 import Unauthorized from '../sessions/components/Unauthorized';
@@ -41,32 +42,21 @@ import { DEFAULT_ADMIN_PASSWORD } from './constants';
 
 export interface ChangeAdminPasswordAppRendererProps {
   canAdmin?: boolean;
-  canSubmit?: boolean;
-  confirmPasswordValue: string;
   location: Location;
-  onConfirmPasswordChange: (password: string) => void;
-  onPasswordChange: (password: string) => void;
-  onSubmit: () => void;
-  passwordValue: string;
+  onSubmit: (password: string) => void;
   submitting: boolean;
   success: boolean;
 }
 
-const PASSWORD_FIELD_ID = 'user-password';
-const CONFIRM_PASSWORD_FIELD_ID = 'confirm-user-password';
-
 export default function ChangeAdminPasswordAppRenderer(
   props: Readonly<ChangeAdminPasswordAppRendererProps>,
 ) {
-  const {
-    canAdmin,
-    canSubmit,
-    confirmPasswordValue,
-    location,
-    passwordValue,
-    submitting,
-    success,
-  } = props;
+  const { canAdmin, location, onSubmit, submitting, success } = props;
+  const [newPassword, setNewPassword] = React.useState<PasswordChangeHandlerParams>({
+    value: '',
+    isValid: false,
+  });
+  const canSubmit = newPassword.isValid && newPassword.value !== DEFAULT_ADMIN_PASSWORD;
 
   if (!canAdmin) {
     return <Unauthorized />;
@@ -103,54 +93,18 @@ export default function ChangeAdminPasswordAppRenderer(
                 className="sw-mt-8"
                 onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {
                   e.preventDefault();
-                  props.onSubmit();
+                  onSubmit(newPassword.value);
                 }}
               >
                 <SubTitle className="sw-mb-4">
                   {translate('users.change_admin_password.form.header')}
                 </SubTitle>
 
-                <FormField
-                  htmlFor={PASSWORD_FIELD_ID}
-                  label={translate('users.change_admin_password.form.password')}
-                  required
-                >
-                  <InputField
-                    id={PASSWORD_FIELD_ID}
-                    name="password"
-                    onChange={(e: React.SyntheticEvent<HTMLInputElement>) => {
-                      props.onPasswordChange(e.currentTarget.value);
-                    }}
-                    required
-                    type="password"
-                    value={passwordValue}
-                  />
-                </FormField>
-
-                <FormField
-                  description={
-                    confirmPasswordValue === passwordValue &&
-                    passwordValue === DEFAULT_ADMIN_PASSWORD && (
-                      <FlagMessage className="sw-mt-2" variant="warning">
-                        {translate('users.change_admin_password.form.cannot_use_default_password')}
-                      </FlagMessage>
-                    )
-                  }
-                  htmlFor={CONFIRM_PASSWORD_FIELD_ID}
-                  label={translate('users.change_admin_password.form.confirm')}
-                  required
-                >
-                  <InputField
-                    id={CONFIRM_PASSWORD_FIELD_ID}
-                    name="confirm-password"
-                    onChange={(e: React.SyntheticEvent<HTMLInputElement>) => {
-                      props.onConfirmPasswordChange(e.currentTarget.value);
-                    }}
-                    required
-                    type="password"
-                    value={confirmPasswordValue}
-                  />
-                </FormField>
+                <UserPasswordInput
+                  value={newPassword.value}
+                  onChange={setNewPassword}
+                  size="medium"
+                />
 
                 <ButtonPrimary
                   className="sw-mt-8"

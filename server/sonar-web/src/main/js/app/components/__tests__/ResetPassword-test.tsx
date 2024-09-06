@@ -19,7 +19,7 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { byLabelText, byRole, byTestId } from '~sonar-aligned/helpers/testSelector';
+import { byLabelText, byRole } from '~sonar-aligned/helpers/testSelector';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { ResetPassword, ResetPasswordProps } from '../ResetPassword';
@@ -76,7 +76,7 @@ function renderResetPassword(props: Partial<ResetPasswordProps> = {}) {
 
 const ui = {
   oldPasswordInput: byLabelText(/my_profile\.password\.old/),
-  passwordInput: byTestId('create-password'),
+  passwordInput: byLabelText(/^password/),
   passwordConfirmationInput: byLabelText(/confirm_password\*/i),
   submitButton: byRole('button', { name: 'update_verb' }),
 };

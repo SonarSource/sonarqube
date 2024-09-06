@@ -23,7 +23,9 @@ import { FlagMessage, FormField, InputField, Modal, addGlobalSuccessMessage } fr
 import * as React from 'react';
 import { changePassword } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
-import UserPasswordInput from '../../../components/common/UserPasswordInput';
+import UserPasswordInput, {
+  PasswordChangeHandlerParams,
+} from '../../../components/common/UserPasswordInput';
 import { translate } from '../../../helpers/l10n';
 import { ChangePasswordResults, RestUserDetailed, isLoggedIn } from '../../../types/users';
 
@@ -40,7 +42,7 @@ export default function PasswordForm(props: Readonly<Props>) {
   const [errorTranslationKey, setErrorTranslationKey] = React.useState<string | undefined>(
     undefined,
   );
-  const [newPassword, setNewPassword] = React.useState<{ isValid: boolean; value: string }>({
+  const [newPassword, setNewPassword] = React.useState<PasswordChangeHandlerParams>({
     value: '',
     isValid: false,
   });

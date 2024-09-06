@@ -25,7 +25,7 @@ import { changePassword } from '../../api/users';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../helpers/l10n';
 import { ChangePasswordResults, LoggedInUser } from '../../types/users';
-import UserPasswordInput from './UserPasswordInput';
+import UserPasswordInput, { PasswordChangeHandlerParams } from './UserPasswordInput';
 
 interface Props {
   className?: string;
@@ -40,7 +40,7 @@ export default function ResetPasswordForm({
 }: Readonly<Props>) {
   const [error, setError] = React.useState<string | undefined>(undefined);
   const [oldPassword, setOldPassword] = React.useState('');
-  const [password, setPassword] = React.useState<{ isValid: boolean; value: string }>({
+  const [password, setPassword] = React.useState<PasswordChangeHandlerParams>({
     value: '',
     isValid: false,
   });
@@ -111,7 +111,7 @@ export default function ResetPasswordForm({
 
       <div className="sw-py-3">
         <Button
-          isDisabled={oldPassword === '' || password.value === '' || !password.isValid}
+          isDisabled={oldPassword === '' || !password.isValid}
           id="change-password"
           type="submit"
           variety={ButtonVariety.Primary}

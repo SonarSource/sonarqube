@@ -30,7 +30,9 @@ import {
   addGlobalErrorMessage,
 } from 'design-system';
 import * as React from 'react';
-import UserPasswordInput from '../../../components/common/UserPasswordInput';
+import UserPasswordInput, {
+  PasswordChangeHandlerParams,
+} from '../../../components/common/UserPasswordInput';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseErrorResponse } from '../../../helpers/request';
@@ -56,7 +58,7 @@ export default function UserForm(props: Props) {
   const [email, setEmail] = React.useState<string>(user?.email ?? '');
   const [login, setLogin] = React.useState<string>(user?.login ?? '');
   const [name, setName] = React.useState<string>(user?.name ?? '');
-  const [password, setPassword] = React.useState<{ isValid: boolean; value: string }>({
+  const [password, setPassword] = React.useState<PasswordChangeHandlerParams>({
     value: '',
     isValid: false,
   });
