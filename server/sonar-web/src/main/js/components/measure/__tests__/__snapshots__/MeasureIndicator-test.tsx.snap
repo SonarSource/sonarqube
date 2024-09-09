@@ -1,29 +1,34 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders correctly for coverage 1`] = `
-<svg
-  class="donut-chart"
-  height="24"
-  role="img"
-  width="24"
->
-  <g
-    transform="translate(0, 0)"
-  >
-    <g
-      transform="translate(12, 12)"
-    >
-      <path
-        d="M0.75,-11.977A12,12,0,1,1,-11.672,2.785L-8.709,2.271A9,9,0,1,0,0.75,-8.969Z"
-        style="fill: rgb(18,183,106);"
-      />
-      <path
-        d="M-11.929,1.307A12,12,0,0,1,-0.75,-11.977L-0.75,-8.969A9,9,0,0,0,-8.965,0.793Z"
-        style="fill: rgb(180,35,24);"
-      />
-    </g>
-  </g>
-</svg>
+<body>
+  <div>
+    <div>
+      <svg
+        class="donut-chart"
+        height="24"
+        width="24"
+      >
+        <g
+          transform="translate(0, 0)"
+        >
+          <g
+            transform="translate(12, 12)"
+          >
+            <path
+              d="M0.75,-11.977A12,12,0,1,1,-11.672,2.785L-8.709,2.271A9,9,0,1,0,0.75,-8.969Z"
+              style="fill: rgb(18,183,106);"
+            />
+            <path
+              d="M-11.929,1.307A12,12,0,0,1,-0.75,-11.977L-0.75,-8.969A9,9,0,0,0,-8.965,0.793Z"
+              style="fill: rgb(180,35,24);"
+            />
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+</body>
 `;
 
 exports[`renders correctly for failed quality gate 1`] = `

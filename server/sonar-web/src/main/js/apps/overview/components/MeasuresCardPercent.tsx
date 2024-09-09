@@ -160,9 +160,9 @@ export default function MeasuresCardPercent(
 
 function renderIcon(type: MeasurementType, value?: string) {
   if (type === MeasurementType.Coverage) {
-    return <CoverageIndicator value={value} size="md" />;
+    return <CoverageIndicator aria-hidden="true" value={value} size="md" />;
   }
 
   const rating = duplicationRatingConverter(Number(value));
-  return <DuplicationsIndicator rating={rating} size="md" />;
+  return <DuplicationsIndicator aria-hidden="true" rating={rating} size="md" />;
 }

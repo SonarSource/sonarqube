@@ -73,6 +73,7 @@ export function AnalysisStatus(props: Readonly<HeaderMetaProps>) {
           {/* TODO: replace the Link below with a lighweight/discreet button component */}
           {/* when it is available in Echoes */}
           <Link
+            aria-label={translate('project_navigation.analysis_status.details_link.label')}
             className="sw-ml-1"
             onClick={openModal}
             shouldBlurAfterClick
@@ -103,6 +104,7 @@ export function AnalysisStatus(props: Readonly<HeaderMetaProps>) {
           {/* TODO: replace the Link below with a lighweight/discreet button component */}
           {/* when it is available in Echoes */}
           <Link
+            aria-label={translate('project_navigation.analysis_status.details_link.label')}
             className="sw-ml-1"
             onClick={openModal}
             shouldBlurAfterClick

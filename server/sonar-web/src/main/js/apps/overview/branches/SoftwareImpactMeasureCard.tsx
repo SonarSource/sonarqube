@@ -19,7 +19,7 @@
  */
 import styled from '@emotion/styled';
 import { LinkHighlight, LinkStandalone, Tooltip } from '@sonarsource/echoes-react';
-import { Badge, TextBold, TextSubdued } from 'design-system';
+import { Badge, TextBold, TextSubdued, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
@@ -98,7 +98,9 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
       className="sw-overflow-hidden sw-rounded-2 sw-flex-col"
     >
       <div className="sw-flex sw-items-center">
-        <TextBold name={intl.formatMessage({ id: `software_quality.${softwareQuality}` })} />
+        <ColorBold className="sw-body-sm-highlight">
+          {intl.formatMessage({ id: `software_quality.${softwareQuality}` })}
+        </ColorBold>
         {failed && (
           <Badge className="sw-h-fit sw-ml-2" variant="deleted">
             <FormattedMessage id="overview.measures.failed_badge" />
@@ -173,6 +175,9 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
 
 const StyledDash = styled(TextBold)`
   font-size: 36px;
+`;
+const ColorBold = styled.h2`
+  color: ${themeColor('pageTitle')};
 `;
 
 export default SoftwareImpactMeasureCard;

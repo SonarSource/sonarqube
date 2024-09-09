@@ -28,17 +28,23 @@ const FULL_PERCENT = 100;
 const PAD_ANGLE = 0.1;
 
 export interface CoverageIndicatorProps {
+  'aria-hidden'?: boolean | 'true' | 'false';
+  'aria-label'?: string;
   size?: 'xs' | 'sm' | 'md';
   value?: number | string;
 }
 
-export function CoverageIndicator({ size = 'sm', value }: CoverageIndicatorProps) {
+export function CoverageIndicator({
+  size = 'sm',
+  value,
+  ...rest
+}: Readonly<CoverageIndicatorProps>) {
   const theme = useTheme();
   const width = SIZE_TO_WIDTH_MAPPING[size];
   const thickness = SIZE_TO_THICKNESS_MAPPING[size];
 
   if (value === undefined) {
-    return <NoDataIcon size={size} />;
+    return <NoDataIcon size={size} {...rest} />;
   }
 
   const themeRed = themeColor('coverageRed')({ theme });
@@ -64,6 +70,7 @@ export function CoverageIndicator({ size = 'sm', value }: CoverageIndicatorProps
       padAngle={padAngle}
       thickness={thickness}
       width={width}
+      {...rest}
     />
   );
 }

@@ -73,6 +73,6 @@ export default function MeasuresCard(
   );
 }
 
-const ColorBold = styled.span`
+const ColorBold = styled.h2`
   color: ${themeColor('pageTitle')};
 `;

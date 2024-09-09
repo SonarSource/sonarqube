@@ -17,20 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
 import { render } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
 
 import { CoverageIndicator } from '../CoverageIndicator';
 
 it('should display CoverageIndicator', () => {
-  setupWithProps({ value: 10 });
-  expect(screen.getByRole('img', { hidden: true })).toMatchSnapshot();
+  const wrapper = setupWithProps({ value: 10 });
+  expect(wrapper.baseElement).toMatchSnapshot();
 });
 
 it('should display CoverageIndicator without value', () => {
-  setupWithProps();
-  expect(screen.getByRole('img', { hidden: true })).toMatchSnapshot();
+  const wrapper = setupWithProps();
+  expect(wrapper.baseElement).toMatchSnapshot();
+});
+
+it('should display CoverageIndicator with correct aria properties', () => {
+  const wrapper = setupWithProps({ 'aria-label': 'label', 'aria-hidden': true });
+  expect(wrapper.baseElement).toMatchSnapshot();
 });
 
 function setupWithProps(props: Partial<FCProps<typeof CoverageIndicator>> = {}) {

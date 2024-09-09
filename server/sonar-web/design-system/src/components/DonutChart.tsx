@@ -25,6 +25,8 @@ export interface DataPoint {
 }
 
 export interface DonutChartProps {
+  'aria-hidden'?: boolean | 'true' | 'false';
+  'aria-label'?: string;
   cornerRadius?: number;
   data: DataPoint[];
   height: number;
@@ -35,8 +37,18 @@ export interface DonutChartProps {
   width: number;
 }
 
-export function DonutChart(props: DonutChartProps) {
-  const { height, cornerRadius, minPercent = 0, padding = [0, 0, 0, 0], width } = props;
+export function DonutChart(props: Readonly<DonutChartProps>) {
+  const {
+    height,
+    cornerRadius,
+    minPercent = 0,
+    padding = [0, 0, 0, 0],
+    width,
+    padAngle,
+    data,
+    thickness,
+    ...rest
+  } = props;
 
   const availableWidth = width - padding[1] - padding[3];
   const availableHeight = height - padding[0] - padding[2];
@@ -44,31 +56,31 @@ export function DonutChart(props: DonutChartProps) {
   const size = Math.min(availableWidth, availableHeight);
   const radius = Math.floor(size / 2);
 
-  const total = props.data.reduce((acc, d) => acc + d.value, 0);
+  const total = data.reduce((acc, d) => acc + d.value, 0);
 
   const pie = d3Pie<any, DataPoint>()
     .sort(null)
     .value((d) => Math.max(d.value, (total / 100) * minPercent));
 
-  if (props.padAngle !== undefined) {
-    pie.padAngle(props.padAngle);
+  if (padAngle !== undefined) {
+    pie.padAngle(padAngle);
   }
 
-  const sectors = pie(props.data).map((d, i) => {
+  const sectors = pie(data).map((d, i) => {
     return (
       <Sector
         cornerRadius={cornerRadius}
         data={d}
-        fill={props.data[i].fill}
+        fill={data[i].fill}
         key={i}
         radius={radius}
-        thickness={props.thickness}
+        thickness={thickness}
       />
     );
   });
 
   return (
-    <svg className="donut-chart" height={height} role="img" width={width}>
+    <svg className="donut-chart" height={height} width={width} {...rest}>
       <g transform={`translate(${padding[3]}, ${padding[0]})`}>
         <g transform={`translate(${radius}, ${radius})`}>{sectors}</g>
       </g>
@@ -84,7 +96,7 @@ interface SectorProps {
   thickness: number;
 }
 
-function Sector(props: SectorProps) {
+function Sector(props: Readonly<SectorProps>) {
   const arc = d3Arc<any, PieArcDatum<DataPoint>>()
     .outerRadius(props.radius)
     .innerRadius(props.radius - props.thickness);

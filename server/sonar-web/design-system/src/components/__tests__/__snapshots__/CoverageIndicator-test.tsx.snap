@@ -1,49 +1,83 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display CoverageIndicator 1`] = `
-<svg
-  class="donut-chart"
-  height="24"
-  role="img"
-  width="24"
->
-  <g
-    transform="translate(0, 0)"
-  >
-    <g
-      transform="translate(12, 12)"
+<body>
+  <div>
+    <svg
+      class="donut-chart"
+      height="24"
+      width="24"
+    >
+      <g
+        transform="translate(0, 0)"
+      >
+        <g
+          transform="translate(12, 12)"
+        >
+          <path
+            d="M0.75,-11.977A12,12,0,0,1,7.222,-9.583L5.265,-7.299A9,9,0,0,0,0.75,-8.969Z"
+            style="fill: rgb(18,183,106);"
+          />
+          <path
+            d="M8.361,-8.608A12,12,0,1,1,-0.75,-11.977L-0.75,-8.969A9,9,0,1,0,6.404,-6.324Z"
+            style="fill: rgb(180,35,24);"
+          />
+        </g>
+      </g>
+    </svg>
+  </div>
+</body>
+`;
+
+exports[`should display CoverageIndicator with correct aria properties 1`] = `
+<body>
+  <div>
+    <svg
+      aria-hidden="true"
+      aria-label="label"
+      fill="none"
+      height="24"
+      role="img"
+      style="clip-rule: evenodd; display: inline-block; fill-rule: evenodd; user-select: none; vertical-align: middle; stroke-linejoin: round; stroke-miterlimit: 1.414;"
+      version="1.1"
+      viewBox="0 0 16 16"
+      width="24"
+      xml:space="preserve"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
     >
       <path
-        d="M0.75,-11.977A12,12,0,0,1,7.222,-9.583L5.265,-7.299A9,9,0,0,0,0.75,-8.969Z"
-        style="fill: rgb(18,183,106);"
+        clip-rule="evenodd"
+        d="M16 8C16 12.4183 12.4183 16 8 16C5.5106 16 3.28676 14.863 1.81951 13.0799L15.4913 5.1865C15.8201 6.06172 16 7.00986 16 8ZM14.5574 3.41624L0.750565 11.3876C0.269025 10.3589 0 9.21089 0 8C0 3.58172 3.58172 0 8 0C10.7132 0 13.1109 1.35064 14.5574 3.41624Z"
+        fill="#E1E6F3"
+        fill-rule="evenodd"
       />
-      <path
-        d="M8.361,-8.608A12,12,0,1,1,-0.75,-11.977L-0.75,-8.969A9,9,0,1,0,6.404,-6.324Z"
-        style="fill: rgb(180,35,24);"
-      />
-    </g>
-  </g>
-</svg>
+    </svg>
+  </div>
+</body>
 `;
 
 exports[`should display CoverageIndicator without value 1`] = `
-<svg
-  aria-hidden="true"
-  fill="none"
-  height="24"
-  role="img"
-  style="clip-rule: evenodd; display: inline-block; fill-rule: evenodd; user-select: none; vertical-align: middle; stroke-linejoin: round; stroke-miterlimit: 1.414;"
-  version="1.1"
-  viewBox="0 0 16 16"
-  width="24"
-  xml:space="preserve"
-  xmlns:xlink="http://www.w3.org/1999/xlink"
->
-  <path
-    clip-rule="evenodd"
-    d="M16 8C16 12.4183 12.4183 16 8 16C5.5106 16 3.28676 14.863 1.81951 13.0799L15.4913 5.1865C15.8201 6.06172 16 7.00986 16 8ZM14.5574 3.41624L0.750565 11.3876C0.269025 10.3589 0 9.21089 0 8C0 3.58172 3.58172 0 8 0C10.7132 0 13.1109 1.35064 14.5574 3.41624Z"
-    fill="#E1E6F3"
-    fill-rule="evenodd"
-  />
-</svg>
+<body>
+  <div>
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="24"
+      role="img"
+      style="clip-rule: evenodd; display: inline-block; fill-rule: evenodd; user-select: none; vertical-align: middle; stroke-linejoin: round; stroke-miterlimit: 1.414;"
+      version="1.1"
+      viewBox="0 0 16 16"
+      width="24"
+      xml:space="preserve"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+    >
+      <path
+        clip-rule="evenodd"
+        d="M16 8C16 12.4183 12.4183 16 8 16C5.5106 16 3.28676 14.863 1.81951 13.0799L15.4913 5.1865C15.8201 6.06172 16 7.00986 16 8ZM14.5574 3.41624L0.750565 11.3876C0.269025 10.3589 0 9.21089 0 8C0 3.58172 3.58172 0 8 0C10.7132 0 13.1109 1.35064 14.5574 3.41624Z"
+        fill="#E1E6F3"
+        fill-rule="evenodd"
+      />
+    </svg>
+  </div>
+</body>
 `;

@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
 import { render } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
 
@@ -25,15 +24,15 @@ import { DuplicationLabel } from '../../types/measures';
 import { DuplicationsIndicator } from '../DuplicationsIndicator';
 
 it('should display DuplicationsIndicator without rating', () => {
-  setupWithProps();
-  expect(screen.getByRole('img', { hidden: true })).toMatchSnapshot();
+  const wrapper = setupWithProps();
+  expect(wrapper.baseElement).toMatchSnapshot();
 });
 
 it.each(['A', 'B', 'C', 'D', 'E', 'F'])(
   'should display DuplicationsIndicator with rating',
   (variant: DuplicationLabel) => {
-    setupWithProps({ rating: variant });
-    expect(screen.getByRole('img', { hidden: true })).toMatchSnapshot();
+    const wrapper = setupWithProps({ rating: variant });
+    expect(wrapper.baseElement).toMatchSnapshot();
   },
 );
 

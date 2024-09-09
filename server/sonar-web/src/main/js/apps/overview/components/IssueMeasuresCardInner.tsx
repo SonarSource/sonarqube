@@ -84,6 +84,6 @@ export function IssueMeasuresCardInner(props: Readonly<IssueMeasuresCardInnerPro
   );
 }
 
-const ColorBold = styled.div`
+const ColorBold = styled.h2`
   color: ${themeColor('pageTitle')};
 `;

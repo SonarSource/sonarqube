@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import * as React from 'react';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { Status } from '../../../apps/overview/utils';
 import MeasureIndicator from '../MeasureIndicator';
 
 it('renders correctly for coverage', () => {
-  render(
+  const wrapper = render(
     <MeasureIndicator
       componentKey="test"
       metricKey={MetricKey.coverage}
@@ -32,7 +32,7 @@ it('renders correctly for coverage', () => {
       value="73.0"
     />,
   );
-  expect(screen.getByRole('img')).toMatchSnapshot();
+  expect(wrapper.baseElement).toMatchSnapshot();
 });
 
 it('renders correctly for failed quality gate', () => {

@@ -24,13 +24,15 @@ import { DuplicationEnum, DuplicationLabel } from '../types/measures';
 import { NoDataIcon } from './icons';
 
 interface Props {
+  'aria-hidden'?: boolean | 'true' | 'false';
+  'aria-label'?: string;
   rating?: DuplicationLabel;
   size?: 'xs' | 'sm' | 'md';
 }
 
 const SIZE_TO_PX_MAPPING = { xs: 16, sm: 24, md: 36 };
 
-export function DuplicationsIndicator({ size = 'sm', rating }: Props) {
+export function DuplicationsIndicator({ size = 'sm', rating, ...rest }: Readonly<Props>) {
   const theme = useTheme();
   const sizePX = SIZE_TO_PX_MAPPING[size];
 
@@ -47,20 +49,23 @@ export function DuplicationsIndicator({ size = 'sm', rating }: Props) {
       rating={rating}
       secondaryColor={secondaryColor}
       size={sizePX}
+      {...rest}
     />
   );
 }
 
 interface SVGProps {
+  'aria-hidden'?: boolean | 'true' | 'false';
+  'aria-label'?: string;
   primaryColor: string;
   rating: DuplicationLabel;
   secondaryColor: string;
   size: number;
 }
 
-function RatingSVG({ primaryColor, rating, secondaryColor, size }: SVGProps) {
+function RatingSVG({ primaryColor, rating, secondaryColor, size, ...rest }: Readonly<SVGProps>) {
   return (
-    <svg height={size} role="img" viewBox="0 0 16 16" width={size}>
+    <svg height={size} viewBox="0 0 16 16" width={size} {...rest}>
       <circle cx="8" cy="8" fill={primaryColor} r="2" />
       {isDefined(rating) &&
         {
