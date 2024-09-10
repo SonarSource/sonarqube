@@ -54,6 +54,12 @@ export default function UserPasswordInput(props: Readonly<Props>) {
   const passwordMatch = isPasswordConfirmed(value, confirmValue);
   const passwordDontMatch = value !== confirmValue && confirmValue !== '';
 
+  React.useEffect(() => {
+    if (value === '') {
+      setConfirmValue('');
+    }
+  }, [value]);
+
   return (
     <>
       <FocusOutHandler className="sw-flex sw-items-center" onFocusOut={() => setIsFocused(false)}>
