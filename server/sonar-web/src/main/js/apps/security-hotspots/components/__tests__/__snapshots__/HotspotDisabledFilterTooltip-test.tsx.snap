@@ -63,7 +63,7 @@ exports[`should render correctly and stop event propagation 1`] = `
     </span>
     <a
       class="sw-ml-1 emotion-0 emotion-1"
-      href="https://docs.sonarsource.com/sonarqube/latest/instance-administration/reindexing/"
+      href="https://docs.sonarsource.com/sonarqube/latest/server-upgrade-and-maintenance/maintenance/reindexing/"
       rel="noopener noreferrer"
       target="_blank"
     >
