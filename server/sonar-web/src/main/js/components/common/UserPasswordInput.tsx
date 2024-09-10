@@ -161,12 +161,12 @@ function Condition({ condition, label }: Readonly<{ condition: boolean; label: s
     <li className="sw-mb-1">
       {condition ? (
         <SuccessLabel>
-          <IconCheck />
+          <IconCheck className="sw-mr-1" />
           {label}
         </SuccessLabel>
       ) : (
         <LightLabel>
-          <IconX />
+          <IconX className="sw-mr-1" />
           {label}
         </LightLabel>
       )}
