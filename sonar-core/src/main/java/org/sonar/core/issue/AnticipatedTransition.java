@@ -52,6 +52,7 @@ public class AnticipatedTransition implements Trackable {
     @Nullable String lineHash,
     String transition,
     @Nullable String comment) {
+
     this.uuid = uuid;
     this.projectKey = projectKey;
     this.transition = transition;
@@ -116,6 +117,12 @@ public class AnticipatedTransition implements Trackable {
   @Override
   public Date getUpdateDate() {
     return Date.from(Instant.now());
+  }
+
+  @Nullable
+  @Override
+  public String getCveId() {
+    return null;
   }
 
   @Override

@@ -774,6 +774,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return updateDate;
   }
 
+  @Override
+  @CheckForNull
   public String getCveId() {
     return cveId;
   }

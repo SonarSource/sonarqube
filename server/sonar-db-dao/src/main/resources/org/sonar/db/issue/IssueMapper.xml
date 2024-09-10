@@ -45,6 +45,7 @@
     i.prioritized_rule as prioritizedRule,
     <include refid="issueImpactsColumns"/>
     <include refid="ruleDefaultImpactsColumns"/>
+    <include refid="issuesDependencyColumns"/>
     <include refid="isNewCodeReferenceIssue"/>
   </sql>
 
@@ -119,9 +120,14 @@
     ii.software_quality as "ii_softwareQuality",
     ii.severity as "ii_severity",
   </sql>
+
   <sql id="ruleDefaultImpactsColumns">
     rdi.software_quality as "rdi_softwareQuality",
     rdi.severity as "rdi_severity",
+  </sql>
+
+  <sql id="issuesDependencyColumns">
+    cve.id as cveId,
   </sql>
 
   <resultMap id="issueResultMap" type="Issue" autoMapping="true">
@@ -273,6 +279,8 @@
     left join new_code_reference_issues n on i.kee = n.issue_key
     left outer join issues_impacts ii on i.kee = ii.issue_key
     left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    left join issues_dependency dep on i.kee = dep.issue_uuid
+    left join cves cve on dep.cve_uuid = cve.uuid
     where i.kee=#{kee,jdbcType=VARCHAR}
   </select>
 
@@ -287,6 +295,8 @@
     left join new_code_reference_issues n on i.kee = n.issue_key
     left outer join issues_impacts ii on i.kee = ii.issue_key
     left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    left join issues_dependency dep on i.kee = dep.issue_uuid
+    left join cves cve on dep.cve_uuid = cve.uuid
     where
     i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
     i.status &lt;&gt; 'CLOSED'
@@ -315,6 +325,8 @@
       i.kee = ii.issue_key
     left outer join rules_default_impacts rdi on
       r.uuid = rdi.rule_uuid
+    left join issues_dependency dep on i.kee = dep.issue_uuid
+    left join cves cve on dep.cve_uuid = cve.uuid
     where
       i.component_uuid = #{componentUuid,jdbcType=VARCHAR}
       and i.status = 'CLOSED'
@@ -339,7 +351,7 @@
     </collection>
   </resultMap>
 
-   <select id="scrollIssuesForIndexation" parameterType="map" resultMap="indexedIssueResultMap" fetchSize="${_scrollFetchSize}"
+  <select id="scrollIssuesForIndexation" parameterType="map" resultMap="indexedIssueResultMap" fetchSize="${_scrollFetchSize}"
            resultSetType="FORWARD_ONLY" resultOrdered="true">
     select
       i.kee as issueKey,
@@ -371,6 +383,7 @@
       i.prioritized_rule as prioritizedRule,
       <include refid="issueImpactsColumns"/>
       <include refid="ruleDefaultImpactsColumns"/>
+      <include refid="issuesDependencyColumns"/>
       <include refid="isNewCodeReferenceIssue"/>
     from issues i
     inner join rules r on r.uuid = i.rule_uuid
@@ -379,6 +392,8 @@
     left join new_code_reference_issues n on n.issue_key = i.kee
     left outer join issues_impacts ii on i.kee = ii.issue_key
     left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    left join issues_dependency dep on i.kee = dep.issue_uuid
+    left join cves cve on dep.cve_uuid = cve.uuid
     <where>
       <if test="branchUuid != null">
             and c.branch_uuid = #{branchUuid,jdbcType=VARCHAR} and i.project_uuid = #{branchUuid,jdbcType=VARCHAR}
@@ -402,8 +417,7 @@
   <select id="selectByKeys" parameterType="map" resultMap="issueResultMap">
     select
     <include refid="issueColumns"/>,
-    u.login as assigneeLogin,
-    cve.id as cveId
+    u.login as assigneeLogin
     from issues i
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
@@ -430,6 +444,8 @@
     left join new_code_reference_issues n on i.kee = n.issue_key
     left outer join issues_impacts ii on i.kee = ii.issue_key
     left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    left join issues_dependency dep on i.kee = dep.issue_uuid
+    left join cves cve on dep.cve_uuid = cve.uuid
     where
       i.kee in
         <foreach collection="keys" open="(" close=")" item="key" separator=",">
@@ -652,6 +668,7 @@
     i.prioritized_rule as prioritizedRule,
     <include refid="issueImpactsColumns"/>
     <include refid="ruleDefaultImpactsColumns"/>
+    <include refid="issuesDependencyColumns"/>
     i.clean_code_attribute as cleanCodeAttribute,
     r.clean_code_attribute as ruleCleanCodeAttribute
   </sql>
@@ -666,6 +683,8 @@
         left join users u on i.assignee = u.uuid
         left outer join issues_impacts ii on i.kee = ii.issue_key
         left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+        left join issues_dependency dep on i.kee = dep.issue_uuid
+        left join cves cve on dep.cve_uuid = cve.uuid
     where
       <if test="keys.size() > 0">
         i.kee IN

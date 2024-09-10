@@ -929,6 +929,7 @@ public final class IssueDto implements Serializable {
     issue.setCodeVariants(getCodeVariants());
     issue.setCleanCodeAttribute(cleanCodeAttribute);
     impacts.forEach(i -> issue.addImpact(i.getSoftwareQuality(), i.getSeverity()));
+    issue.setCveId(cveId);
     return issue;
   }
 }
