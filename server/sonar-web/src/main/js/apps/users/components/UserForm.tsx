@@ -138,6 +138,7 @@ export default function UserForm(props: Props) {
   };
 
   const header = user ? translate('users.update_user') : translate('users.create_user');
+  const fieldsdMissing = user ? false : name === '' || login === '' || !password.isValid;
 
   return (
     <Modal
@@ -254,7 +255,7 @@ export default function UserForm(props: Props) {
           <Spinner loading={isLoadingCreate || isLoadingUserUpdate} />
 
           <ButtonPrimary
-            disabled={isLoadingCreate || isLoadingUserUpdate}
+            disabled={isLoadingCreate || isLoadingUserUpdate || fieldsdMissing}
             type="submit"
             form="user-form"
           >
