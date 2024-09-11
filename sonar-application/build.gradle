@@ -339,14 +339,20 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
 zip {
   mustRunAfter cyclonedxBom
   doLast {
-    def minLength = 342000000
-    def maxLength = 750000000
+    //When the archive size increases due to dependencies, the expected size should be updated as well.
+    //Bump the expected size by at least 10 more megabytes than what is strictly needed, this in conjunction with the
+    //tolerance will allow for some growth in the archive size.
+    def expectedSize = 760000000
+    //We set a tolerance of 15MB to avoid failing the build for small differences in the archive size.
+    def tolerance = 15000000
+    def minArchiveSize = expectedSize - tolerance
+    def maxArchiveSize = expectedSize + tolerance
 
-    def length = archiveFile.get().asFile.length()
-    if (length < minLength)
-      throw new GradleException("${archiveFileName.get()} size ($length) too small. Min is $minLength")
-    if (length > maxLength)
-      throw new GradleException("${destinationDirectory.get()}/${archiveFileName.get()} size ($length) too large. Max is $maxLength")
+    def archiveSize = archiveFile.get().asFile.length()
+    if (archiveSize < minArchiveSize)
+      throw new GradleException("${archiveFileName.get()} size ($archiveSize) too small. Min is $minArchiveSize")
+    if (archiveSize > maxArchiveSize)
+      throw new GradleException("${destinationDirectory.get()}/${archiveFileName.get()} size ($archiveSize) too large. Max is $maxArchiveSize")
   }
 }
 assemble.dependsOn zip
