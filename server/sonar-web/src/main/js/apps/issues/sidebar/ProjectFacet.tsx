@@ -166,7 +166,7 @@ function ProjectItem({
     select: (data) => data.components.find((el) => el.key === projectKey),
   });
 
-  const label = projectName ?? (isLoading ? '' : data?.name ?? projectKey);
+  const label = projectName ?? (isLoading ? '' : (data?.name ?? projectKey));
 
   return (
     <div className="sw-flex sw-items-center">

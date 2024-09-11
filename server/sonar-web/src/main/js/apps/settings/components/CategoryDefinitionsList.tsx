@@ -17,14 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { getValues } from '../../../api/settings';
-import {
-  ExtendedSettingDefinition,
-  SettingDefinitionAndValue,
-  SettingValue,
-} from '../../../types/settings';
+import { ExtendedSettingDefinition, SettingDefinitionAndValue } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import SubCategoryDefinitionsList from './SubCategoryDefinitionsList';
 
@@ -42,12 +39,9 @@ interface State {
 }
 
 export default class CategoryDefinitionsList extends React.PureComponent<Props, State> {
-  mounted = false;
   state: State = { settings: [] };
 
   componentDidMount() {
-    this.mounted = true;
-
     this.loadSettingValues();
   }
 
@@ -55,10 +49,6 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
     if (prevProps.category !== this.props.category) {
       this.loadSettingValues();
     }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
   }
 
   async loadSettingValues() {
@@ -70,14 +60,16 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
 
     const keys = categoryDefinitions.map((definition) => definition.key);
 
-    const values: SettingValue[] = await getValues({
+    const values = await getValues({
       keys,
       component: component?.key,
     }).catch(() => []);
+
     const valuesByDefinitionKey = keyBy(values, 'key');
 
     const settings: SettingDefinitionAndValue[] = categoryDefinitions.map((definition) => {
       const settingValue = valuesByDefinitionKey[definition.key];
+
       return {
         definition,
         settingValue,

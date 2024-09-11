@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ContentCell, Table, TableRow, TableSeparator } from 'design-system';
 import { partition } from 'lodash';
 import * as React from 'react';
@@ -60,7 +61,7 @@ export default class HoldersList extends React.PureComponent<
   }
 
   getKey = (item: PermissionGroup | PermissionUser) =>
-    this.isPermissionUser(item) ? item.login : item.id ?? item.name;
+    this.isPermissionUser(item) ? item.login : (item.id ?? item.name);
 
   isPermissionUser(item: PermissionGroup | PermissionUser): item is PermissionUser {
     return (item as PermissionUser).login !== undefined;

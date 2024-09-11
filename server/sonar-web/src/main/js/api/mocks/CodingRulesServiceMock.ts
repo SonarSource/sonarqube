@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { HttpStatusCode } from 'axios';
 import { cloneDeep, countBy, isEqual, pick, trim } from 'lodash';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
@@ -334,7 +335,7 @@ export default class CodingRulesServiceMock {
       });
     }
     return this.reply({
-      actives: parameters.actives ? this.rulesActivations[rule.key] ?? [] : undefined,
+      actives: parameters.actives ? (this.rulesActivations[rule.key] ?? []) : undefined,
       rule,
     });
   };

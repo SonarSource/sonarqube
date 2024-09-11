@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import { FormField, InputField, InputTextArea, Modal } from 'design-system';
 import * as React from 'react';
@@ -42,7 +43,7 @@ export default function GroupForm(props: Props) {
   const { group, create } = props;
 
   const [name, setName] = useState<string>(create ? '' : group.name);
-  const [description, setDescription] = useState<string>(create ? '' : group.description ?? '');
+  const [description, setDescription] = useState<string>(create ? '' : (group.description ?? ''));
 
   const { mutate: createGroup, isPending: isCreating } = useCreateGroupMutation();
   const { mutate: updateGroup, isPending: isUpdating } = useUpdateGroupMutation();

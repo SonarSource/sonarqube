@@ -101,7 +101,7 @@ export default function SourceViewerHeader(props: Readonly<Props>) {
               );
               const measureValue = areCCTMeasuresComputed
                 ? JSON.parse(measure?.value ?? 'null').total
-                : measure?.value ?? 0;
+                : (measure?.value ?? 0);
 
               const linkUrl = getComponentIssuesUrl(project, {
                 ...getBranchLikeQuery(branchLike),

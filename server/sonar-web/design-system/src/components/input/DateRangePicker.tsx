@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import { max, min } from 'date-fns';
 import * as React from 'react';
@@ -96,7 +97,7 @@ export class DateRangePicker extends React.PureComponent<Props> {
           data-test="from"
           highlightTo={this.to}
           id="date-from"
-          maxDate={maxDate && this.to ? min([maxDate, this.to]) : maxDate ?? this.to}
+          maxDate={maxDate && this.to ? min([maxDate, this.to]) : (maxDate ?? this.to)}
           minDate={minDate}
           onChange={this.handleFromChange}
           placeholder={fromLabel}
@@ -117,7 +118,7 @@ export class DateRangePicker extends React.PureComponent<Props> {
             this.toDateInput = element;
           }}
           maxDate={maxDate}
-          minDate={minDate && this.from ? max([minDate, this.from]) : minDate ?? this.from}
+          minDate={minDate && this.from ? max([minDate, this.from]) : (minDate ?? this.from)}
           onChange={this.handleToChange}
           placeholder={toLabel}
           size={inputSize}

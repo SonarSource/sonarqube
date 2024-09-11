@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import { QualityGateIndicator, RatingEnum } from 'design-system';
 import React, { useCallback } from 'react';
@@ -115,7 +116,7 @@ export default function Measure({
     <RatingComponent
       forceMetric={forceRatingMetric}
       branchLike={branchLike}
-      size={badgeSize ?? small ? 'sm' : 'md'}
+      size={badgeSize ?? (small ? 'sm' : 'md')}
       getLabel={getLabel}
       getTooltip={getTooltip}
       componentKey={componentKey}

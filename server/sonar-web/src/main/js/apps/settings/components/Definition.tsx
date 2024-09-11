@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, Note, Spinner, TextError } from 'design-system';
+
+import { Spinner } from '@sonarsource/echoes-react';
+import { FlagMessage, Note, TextError } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
@@ -57,11 +59,15 @@ export default function Definition(props: Readonly<Props>) {
   const [success, setSuccess] = React.useState(false);
   const [changedValue, setChangedValue] = React.useState<FieldValue>();
   const [validationMessage, setValidationMessage] = React.useState<string>();
+
   const { data: loadedSettingValue, isLoading } = useGetValueQuery({
     key: definition.key,
     component: component?.key,
   });
-  const settingValue = isLoading ? initialSettingValue : loadedSettingValue ?? undefined;
+
+  // WARNING: do *not* remove `?? undefined` below, it is required to change `null` to `undefined`!
+  // (Yes, it's ugly, we really shouldn't use `null` as the fallback value in useGetValueQuery)
+  const settingValue = isLoading ? initialSettingValue : (loadedSettingValue ?? undefined);
 
   const { mutateAsync: resetSettingValue } = useResetSettingsMutation();
   const { mutateAsync: saveSettingValue } = useSaveValueMutation();
@@ -111,6 +117,7 @@ export default function Definition(props: Readonly<Props>) {
       } else {
         setValidationMessage(translate('settings.state.value_cant_be_empty'));
       }
+
       return false;
     }
 
@@ -122,6 +129,7 @@ export default function Definition(props: Readonly<Props>) {
         setValidationMessage(
           translateWithParameters('settings.state.url_not_valid', value?.toString() ?? ''),
         );
+
         return false;
       }
     }
@@ -200,6 +208,7 @@ export default function Definition(props: Readonly<Props>) {
             {loading && (
               <div className="sw-flex">
                 <Spinner />
+
                 <Note className="sw-ml-2">{translate('settings.state.saving')}</Note>
               </div>
             )}

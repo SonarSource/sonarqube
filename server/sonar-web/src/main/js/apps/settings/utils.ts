@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { InputSizeKeys } from 'design-system';
 import { sortBy } from 'lodash';
 import { Path } from 'react-router-dom';
 import { hasMessage, translate } from '../../helpers/l10n';
+import { isDefined } from '../../helpers/types';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../helpers/urls';
 import { AlmKeys } from '../../types/alm-settings';
 import {
@@ -60,6 +62,7 @@ export interface DefaultInputProps {
 
 export function getPropertyName(definition: SettingDefinition | DefinitionV2) {
   const key = `property.${definition.key}.name`;
+
   if (hasMessage(key)) {
     return translate(key);
   }
@@ -101,14 +104,16 @@ export function getSettingValue(definition: SettingDefinition, settingValue?: Se
   } else if (definition.type === SettingType.FORMATTED_TEXT) {
     return values ? values[0] : undefined;
   }
+
   return value;
 }
 
 export function combineDefinitionAndSettingValue(
   definition: ExtendedSettingDefinition,
-  value?: SettingValue,
+  value?: SettingValue | null,
 ): SettingWithCategory {
-  const hasValue = value !== undefined && value.inherited !== true;
+  const hasValue = isDefined(value) && value.inherited !== true;
+
   return {
     key: definition.key,
     hasValue,
@@ -121,9 +126,11 @@ export function getDefaultCategory(categories: string[]) {
   if (categories.includes(DEFAULT_CATEGORY)) {
     return DEFAULT_CATEGORY;
   }
+
   const sortedCategories = sortBy(categories, (category) =>
     getCategoryName(category).toLowerCase(),
   );
+
   return sortedCategories[0];
 }
 
@@ -173,11 +180,12 @@ export function getEmptyValue(item: SettingDefinition | ExtendedSettingDefinitio
   if (item.type === 'BOOLEAN' || item.type === 'SINGLE_SELECT_LIST') {
     return null;
   }
+
   return '';
 }
 
 export function isDefaultOrInherited(setting?: Pick<SettingValue, 'inherited'>) {
-  return Boolean(setting && setting.inherited);
+  return Boolean(setting?.inherited);
 }
 
 export function getDefaultValue(setting: Setting) {
@@ -187,7 +195,7 @@ export function getDefaultValue(setting: Setting) {
     return translate('settings.default.password');
   }
 
-  if (definition.type === 'BOOLEAN' && parentValue) {
+  if (definition.type === 'BOOLEAN' && Boolean(parentValue)) {
     const isTrue = parentValue === 'true';
     return isTrue ? translate('settings.boolean.true') : translate('settings.boolean.false');
   }

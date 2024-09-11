@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { FlagWarningIcon, themeBorder, themeColor } from 'design-system';
 import { keyBy, throttle } from 'lodash';
 import * as React from 'react';
 import { getValues } from '../../api/settings';
 import { Feature } from '../../types/features';
-import { GlobalSettingKeys, SettingValue } from '../../types/settings';
+import { GlobalSettingKeys } from '../../types/settings';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from './available-features/withAvailableFeatures';
@@ -52,17 +53,15 @@ export class SystemAnnouncement extends React.PureComponent<WithAvailableFeature
   }
 
   getSettings = async () => {
-    const values: SettingValue[] = await getValues({
+    const values = await getValues({
       keys: [GlobalSettingKeys.DisplayAnnouncementMessage, GlobalSettingKeys.AnnouncementMessage],
     });
+
     const settings = keyBy(values, 'key');
 
     this.setState({
-      displayMessage: settings[GlobalSettingKeys.DisplayAnnouncementMessage].value === 'true',
-      message:
-        (settings[GlobalSettingKeys.AnnouncementMessage] &&
-          settings[GlobalSettingKeys.AnnouncementMessage].value) ||
-        '',
+      displayMessage: settings?.[GlobalSettingKeys.DisplayAnnouncementMessage]?.value === 'true',
+      message: settings?.[GlobalSettingKeys.AnnouncementMessage]?.value ?? '',
     });
   };
 

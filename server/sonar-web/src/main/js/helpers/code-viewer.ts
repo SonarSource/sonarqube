@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import type { LineMap, SourceLine } from '../types/types';
 
 export function decorateWithUnderlineFlags(line: SourceLine, sourcesMap: LineMap) {
@@ -27,13 +28,13 @@ export function decorateWithUnderlineFlags(line: SourceLine, sourcesMap: LineMap
   if (line.coverageStatus) {
     decoratedLine.coverageBlock =
       line.coverageStatus === previousLine?.coverageStatus
-        ? previousLine.coverageBlock ?? line.line
+        ? (previousLine.coverageBlock ?? line.line)
         : line.line;
   }
 
   if (line.isNew) {
     decoratedLine.newCodeBlock = previousLine?.isNew
-      ? previousLine.newCodeBlock ?? line.line
+      ? (previousLine.newCodeBlock ?? line.line)
       : line.line;
   }
 

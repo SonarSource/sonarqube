@@ -75,7 +75,8 @@ export default function ManualProjectCreate(props: Readonly<Props>) {
 
   React.useEffect(() => {
     async function fetchMainBranchName() {
-      const { value: mainBranchName } = await getValue({ key: GlobalSettingKeys.MainBranchName });
+      const { value: mainBranchName } =
+        (await getValue({ key: GlobalSettingKeys.MainBranchName })) ?? {};
 
       if (mainBranchName !== undefined) {
         setMainBranch((prevBranchName) => ({

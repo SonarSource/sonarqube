@@ -19,7 +19,6 @@
  */
 import { HelperHintIcon, Spinner, Switch } from 'design-system';
 import * as React from 'react';
-import { useEffect } from 'react';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { isMainBranch } from '~sonar-aligned/helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
@@ -35,10 +34,6 @@ interface Props {
 export default function BranchPurgeSetting(props: Props) {
   const { branch, component } = props;
   const { mutate: excludeFromPurge, isPending } = useExcludeFromPurgeMutation();
-
-  useEffect(() => {
-    excludeFromPurge({ component, key: branch.name, exclude: branch.excludedFromPurge });
-  }, [branch.excludedFromPurge]);
 
   const handleOnChange = (exclude: boolean) => {
     excludeFromPurge({ component, key: branch.name, exclude });

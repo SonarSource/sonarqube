@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonIcon,
   ButtonVariety,
@@ -208,7 +209,7 @@ function PasswordInput(
         value={
           hasValue && !isEditing && !requiresRevaluation
             ? translate('email_notification.form.private')
-            : value ?? ''
+            : (value ?? '')
         }
       />
       {!requiresRevaluation && (

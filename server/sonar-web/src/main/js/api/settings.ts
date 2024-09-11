@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { omitBy } from 'lodash';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
@@ -40,13 +41,13 @@ export function getDefinitions(component?: string): Promise<ExtendedSettingDefin
 
 export function getValue(
   data: { component?: string; key: string } & BranchParameters,
-): Promise<SettingValue> {
+): Promise<SettingValue | undefined> {
   return getValues({ keys: [data.key], component: data.component }).then(([result]) => result);
 }
 
 export function getValues(
   data: { component?: string; keys: string[] } & BranchParameters,
-): Promise<SettingValue[]> {
+): Promise<(SettingValue | undefined)[]> {
   return getJSON('/api/settings/values', {
     keys: data.keys.join(','),
     component: data.component,

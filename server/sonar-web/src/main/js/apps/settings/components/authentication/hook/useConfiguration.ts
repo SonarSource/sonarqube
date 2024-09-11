@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { UseMutationResult } from '@tanstack/react-query';
 import { every, isEmpty, keyBy, update } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
@@ -58,7 +59,7 @@ export default function useConfiguration(
       setValues(
         keyBy(
           definitions.map((definition) => {
-            const value = data.find((v) => v.key === definition.key);
+            const value = data.find((v) => v?.key === definition.key);
             const multiValues = definition.multiValues ?? false;
             if (multiValues) {
               return {

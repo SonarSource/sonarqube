@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { escape as lodashEscape } from 'lodash';
@@ -41,8 +42,8 @@ interface Props {
 // eslint-disable-next-line no-useless-concat
 const s = ' \\' + '\n  ';
 
-export function CodeSnippet(props: Props) {
-  const { className, isOneLine, join = s, language, noCopy, render, snippet, wrap } = props;
+export function CodeSnippet(props: Readonly<Props>) {
+  const { className, isOneLine, join = s, language, noCopy, render, snippet, wrap = false } = props;
   const snippetArray = Array.isArray(snippet) ? snippet.filter(isDefined) : [snippet];
   const finalSnippet = isOneLine ? snippetArray.join(' ') : snippetArray.join(join);
 
@@ -55,9 +56,10 @@ export function CodeSnippet(props: Props) {
   );
 
   const renderSnippet =
-    render ?? (wrap || isOneLine)
+    render ??
+    (wrap || isOneLine
       ? `<code>${lodashEscape(finalSnippet)}</code>`
-      : `<pre>${lodashEscape(finalSnippet)}</pre>`;
+      : `<pre>${lodashEscape(finalSnippet)}</pre>`);
 
   return (
     <Wrapper

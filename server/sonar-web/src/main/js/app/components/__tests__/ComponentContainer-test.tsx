@@ -201,6 +201,8 @@ describe('getTasksForComponent', () => {
     // getComponentNavigation is called imidiately after the component is mounted
     expect(getComponentNavigation).toHaveBeenCalledTimes(1);
 
+    jest.runOnlyPendingTimers();
+
     // we check that setTimeout is not yet set, because it requires getComponentNavigation to finish first (as a microtask)
     expect(jest.getTimerCount()).toBe(0);
 

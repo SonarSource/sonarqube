@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Spinner, Tooltip } from '@sonarsource/echoes-react';
 import { MetricsRatingBadge, RatingEnum } from 'design-system';
 import * as React from 'react';
@@ -99,14 +100,14 @@ export default function RatingComponent(props: Readonly<Props>) {
 
   const isLoading = isLoadingTargetMeasure || isLoadingOldMeasure;
 
-  const measure = forceMetric ? oldMeasure : targetMeasure ?? oldMeasure;
+  const measure = forceMetric ? oldMeasure : (targetMeasure ?? oldMeasure);
 
   const value = isDiffMetric(metricKey ?? '') ? getLeakValue(measure) : measure?.value;
   const rating = formatMeasure(value, MetricType.Rating) as RatingEnum;
 
   const badge = (
     <MetricsRatingBadge
-      label={getLabel ? getLabel(rating) : value ?? '—'}
+      label={getLabel ? getLabel(rating) : (value ?? '—')}
       isLegacy={measure?.metric ? !isNewRatingMetric(measure.metric as MetricKey) : false}
       rating={rating}
       size={size}

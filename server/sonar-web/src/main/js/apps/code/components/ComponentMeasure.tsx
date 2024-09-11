@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ContentCell, NumericalCell, QualityGateIndicator, RatingCell } from 'design-system';
 import * as React from 'react';
 import Measure from '~sonar-aligned/components/measure/Measure';
@@ -54,7 +55,7 @@ export default function ComponentMeasure(props: Props) {
 
   const areCCTMeasasuresComputed = areCCTMeasuresComputedFn(component.measures);
   finalMetricKey = areCCTMeasasuresComputed
-    ? OLD_TO_NEW_TAXONOMY_METRICS_MAP[finalMetricKey as MetricKey] ?? finalMetricKey
+    ? (OLD_TO_NEW_TAXONOMY_METRICS_MAP[finalMetricKey as MetricKey] ?? finalMetricKey)
     : finalMetricKey;
 
   const measure = Array.isArray(component.measures)

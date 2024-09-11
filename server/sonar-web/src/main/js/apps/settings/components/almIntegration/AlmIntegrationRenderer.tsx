@@ -94,7 +94,7 @@ const tabs = [
   },
 ];
 
-export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProps) {
+export default function AlmIntegrationRenderer(props: Readonly<AlmIntegrationRendererProps>) {
   const {
     definitionKeyForDeletion,
     definitions,
@@ -115,7 +115,7 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
   };
 
   const { data, isLoading } = useGetValuesQuery([SettingsKey.ServerBaseUrl]);
-  const hasServerBaseUrl = data?.length === 1 && data[0].value !== undefined;
+  const hasServerBaseUrl = data?.length === 1 && data[0]?.value !== undefined;
 
   return (
     <>

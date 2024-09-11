@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Spinner } from '@sonarsource/echoes-react';
@@ -79,7 +80,7 @@ export default function ComponentMeasuresApp() {
   const metrics = useMetrics();
   const filteredMetrics = getMeasuresPageMetricKeys(metrics, branchLike);
   const componentKey =
-    query.selected !== undefined && query.selected !== '' ? query.selected : component?.key ?? '';
+    query.selected !== undefined && query.selected !== '' ? query.selected : (component?.key ?? '');
 
   const { data: { component: componentWithMeasures, period } = {}, isLoading } =
     useMeasuresComponentQuery(

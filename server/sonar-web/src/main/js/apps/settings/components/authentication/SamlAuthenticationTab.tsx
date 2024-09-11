@@ -137,7 +137,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
             />
             <ProvisioningSection
               provisioningType={
-                newScimStatus ?? scimStatus ? ProvisioningType.auto : ProvisioningType.jit
+                (newScimStatus ?? scimStatus) ? ProvisioningType.auto : ProvisioningType.jit
               }
               onChangeProvisioningType={(val: ProvisioningType) =>
                 setNewScimStatus(val === ProvisioningType.auto)
