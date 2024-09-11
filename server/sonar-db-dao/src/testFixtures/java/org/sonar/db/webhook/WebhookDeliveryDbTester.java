@@ -36,7 +36,7 @@ public class WebhookDeliveryDbTester {
 
   public WebhookDeliveryLiteDto insert(WebhookDeliveryDto dto) {
     dbTester.getDbClient().webhookDeliveryDao().insert(dbTester.getSession(), dto);
-    dbTester.getSession().commit();
+    dbTester.commit();
     return dto;
   }
 
@@ -45,7 +45,7 @@ public class WebhookDeliveryDbTester {
     WebhookDeliveryDto dto = newDto();
     stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(dto));
     dbTester.getDbClient().webhookDeliveryDao().insert(dbTester.getSession(), dto);
-    dbTester.getSession().commit();
+    dbTester.commit();
     return dto;
   }
 
@@ -57,7 +57,7 @@ public class WebhookDeliveryDbTester {
     dto.setProjectUuid(Objects.requireNonNull(projectUuid, "Project uuid of webhook cannot be null"));
     dto.setWebhookUuid(webhook.getUuid());
     dbTester.getDbClient().webhookDeliveryDao().insert(dbTester.getSession(), dto);
-    dbTester.getSession().commit();
+    dbTester.commit();
     return dto;
   }
 

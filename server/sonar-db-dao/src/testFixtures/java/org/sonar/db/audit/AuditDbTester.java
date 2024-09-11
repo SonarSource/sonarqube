@@ -21,28 +21,25 @@ package org.sonar.db.audit;
 
 import java.util.List;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 public class AuditDbTester {
 
   private final DbTester db;
   private final DbClient dbClient;
-  private final DbSession dbSession;
 
   public AuditDbTester(DbTester db) {
     this.db = db;
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
   }
 
   public final void insertRandomAuditEntry(long createdAt) {
     AuditDto auditDto = AuditTesting.newAuditDto(createdAt);
-    dbClient.auditDao().insert(dbSession, auditDto);
+    dbClient.auditDao().insert(db.getSession(), auditDto);
     db.commit();
   }
 
   public final List<AuditDto> selectAll() {
-    return dbClient.auditDao().selectOlderThan(dbSession, Long.MAX_VALUE);
+    return dbClient.auditDao().selectOlderThan(db.getSession(), Long.MAX_VALUE);
   }
 }

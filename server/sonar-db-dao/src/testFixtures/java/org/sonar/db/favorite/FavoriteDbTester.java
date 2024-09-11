@@ -31,20 +31,20 @@ public class FavoriteDbTester {
   private static final String PROP_FAVORITE_KEY = "favourite";
 
   private final DbClient dbClient;
-  private final DbSession dbSession;
+  private final DbTester db;
 
   public FavoriteDbTester(DbTester db) {
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
+    this.db = db;
   }
 
   public void add(EntityDto entity, String userUuid, String userLogin) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
+    dbClient.propertiesDao().saveProperty(db.getSession(), new PropertyDto()
         .setKey(PROP_FAVORITE_KEY)
         .setUserUuid(userUuid)
         .setEntityUuid(entity.getUuid()),
       userLogin, entity.getKey(), entity.getName(), entity.getQualifier());
-    dbSession.commit();
+    db.commit();
   }
 
   public boolean hasFavorite(EntityDto entity, String userUuid) {
@@ -52,7 +52,7 @@ public class FavoriteDbTester {
       .setKey(PROP_FAVORITE_KEY)
       .setEntityUuid(entity.getUuid())
       .setUserUuid(userUuid)
-      .build(), dbSession);
+      .build(), db.getSession());
 
     return !result.isEmpty();
   }
@@ -61,7 +61,7 @@ public class FavoriteDbTester {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(PROP_FAVORITE_KEY)
       .setEntityUuid(entity.getUuid())
-      .build(), dbSession);
+      .build(), db.getSession());
     return result.isEmpty();
   }
 }

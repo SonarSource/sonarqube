@@ -38,17 +38,15 @@ import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 public class PropertyDbTester {
   private final DbTester db;
   private final DbClient dbClient;
-  private final DbSession dbSession;
 
   public PropertyDbTester(DbTester db) {
     this.db = db;
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
   }
 
   public PropertyDto insertProperty(PropertyDto property, @Nullable String componentKey,
     @Nullable String componentName, @Nullable String qualifier, @Nullable String userLogin) {
-    dbClient.propertiesDao().saveProperty(dbSession, property, userLogin, componentKey, componentName, qualifier);
+    dbClient.propertiesDao().saveProperty(db.getSession(), property, userLogin, componentKey, componentName, qualifier);
     db.commit();
 
     return property;
@@ -62,9 +60,9 @@ public class PropertyDbTester {
   public void insertProperties(List<PropertyDto> properties, @Nullable String userLogin, @Nullable String projectKey,
     @Nullable String projectName, @Nullable String qualifier) {
     for (PropertyDto propertyDto : properties) {
-      dbClient.propertiesDao().saveProperty(dbSession, propertyDto, userLogin, projectKey, projectName, qualifier);
+      dbClient.propertiesDao().saveProperty(db.getSession(), propertyDto, userLogin, projectKey, projectName, qualifier);
     }
-    dbSession.commit();
+    db.commit();
   }
 
   public void insertProperty(String propKey, String propValue, @Nullable String componentUuid) {
@@ -109,6 +107,6 @@ public class PropertyDbTester {
       .setKey(key)
       .build();
 
-    return dbClient.propertiesDao().selectByQuery(query, dbSession).stream().findFirst();
+    return dbClient.propertiesDao().selectByQuery(query, db.getSession()).stream().findFirst();
   }
 }

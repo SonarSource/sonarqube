@@ -69,6 +69,10 @@ public class UserDbTester {
 
   // USERS
 
+  public UserDto insertUserRealistic() {
+    return insertUser(UserTesting.newUserDtoRealistic());
+  }
+
   public UserDto insertUser() {
     return insertUser(UserTesting.newUserDto());
   }

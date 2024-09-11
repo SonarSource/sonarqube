@@ -39,7 +39,7 @@ class MyBatisConfBuilder {
   MyBatisConfBuilder(Database database) {
     this.conf = new Configuration();
     this.conf.setEnvironment(new Environment("production", createTransactionFactory(), database.getDataSource()));
-    this.conf.setUseGeneratedKeys(true);
+    this.conf.setUseGeneratedKeys(false);
     this.conf.setLazyLoadingEnabled(false);
     this.conf.setJdbcTypeForNull(JdbcType.NULL);
     Dialect dialect = database.getDialect();

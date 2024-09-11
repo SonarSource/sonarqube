@@ -33,16 +33,14 @@ import org.sonar.db.event.EventComponentChangeDto.ChangeCategory;
 public class EventDbTester {
   private final DbTester db;
   private final DbClient dbClient;
-  private final DbSession dbSession;
 
   public EventDbTester(DbTester db) {
     this.db = db;
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
   }
 
   public EventDto insertEvent(EventDto event) {
-    dbClient.eventDao().insert(dbSession, event);
+    dbClient.eventDao().insert(db.getSession(), event);
     db.commit();
 
     return event;
@@ -50,7 +48,7 @@ public class EventDbTester {
 
   public EventDto insertEvent(SnapshotDto analysis) {
     EventDto event = EventTesting.newEvent(analysis);
-    dbClient.eventDao().insert(dbSession, event);
+    dbClient.eventDao().insert(db.getSession(), event);
     db.commit();
 
     return event;
@@ -69,7 +67,7 @@ public class EventDbTester {
       .setComponentBranchKey(Optional.ofNullable(branch).map(BranchDto::getKey).orElse(null));
     EventPurgeData eventPurgeData = new EventPurgeData(analysis.getRootComponentUuid(), analysis.getUuid());
     
-    dbClient.eventComponentChangeDao().insert(dbSession, eventComponentChange, eventPurgeData);
+    dbClient.eventComponentChangeDao().insert(db.getSession(), eventComponentChange, eventPurgeData);
     db.commit();
 
     return eventComponentChange;

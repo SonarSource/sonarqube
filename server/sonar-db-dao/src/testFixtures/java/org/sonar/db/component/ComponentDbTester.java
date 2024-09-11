@@ -47,12 +47,10 @@ import static org.sonar.db.portfolio.PortfolioDto.SelectionMode.NONE;
 public class ComponentDbTester {
   private final DbTester db;
   private final DbClient dbClient;
-  private final DbSession dbSession;
 
   public ComponentDbTester(DbTester db) {
     this.db = db;
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
   }
 
   public SnapshotDto insertProjectAndSnapshot(ComponentDto component) {
@@ -67,7 +65,7 @@ public class ComponentDbTester {
   }
 
   public SnapshotDto insertPortfolioAndSnapshot(ComponentDto component) {
-    dbClient.componentDao().insert(dbSession, component, true);
+    dbClient.componentDao().insert(db.getSession(), component, true);
     return insertSnapshot(component);
   }
 
@@ -86,23 +84,23 @@ public class ComponentDbTester {
   }
 
   public BranchDto getBranchDto(ComponentDto branch) {
-    return db.getDbClient().branchDao().selectByUuid(dbSession, branch.uuid())
+    return db.getDbClient().branchDao().selectByUuid(db.getSession(), branch.uuid())
       .orElseThrow(() -> new IllegalStateException("Project has invalid configuration"));
   }
 
   public ProjectDto getProjectDtoByMainBranch(ComponentDto mainBranch) {
-    return db.getDbClient().projectDao().selectByBranchUuid(dbSession, mainBranch.uuid())
+    return db.getDbClient().projectDao().selectByBranchUuid(db.getSession(), mainBranch.uuid())
       .orElseThrow(() -> new IllegalStateException("Project has invalid configuration"));
   }
 
   public ComponentDto getComponentDto(ProjectDto project) {
-    BranchDto branchDto = db.getDbClient().branchDao().selectMainBranchByProjectUuid(dbSession, project.getUuid()).get();
-    return db.getDbClient().componentDao().selectByUuid(dbSession, branchDto.getUuid())
+    BranchDto branchDto = db.getDbClient().branchDao().selectMainBranchByProjectUuid(db.getSession(), project.getUuid()).get();
+    return db.getDbClient().componentDao().selectByUuid(db.getSession(), branchDto.getUuid())
       .orElseThrow(() -> new IllegalStateException("Can't find project"));
   }
 
   public ComponentDto getComponentDto(BranchDto branch) {
-    return db.getDbClient().componentDao().selectByUuid(dbSession, branch.getUuid())
+    return db.getDbClient().componentDao().selectByUuid(db.getSession(), branch.getUuid())
       .orElseThrow(() -> new IllegalStateException("Can't find branch"));
   }
 
@@ -157,6 +155,10 @@ public class ComponentDbTester {
 
   public final ComponentDto insertFile(BranchDto branch) {
     ComponentDto projectComponent = getComponentDto(branch);
+    return insertComponent(ComponentTesting.newFileDto(projectComponent));
+  }
+
+  public final ComponentDto insertFile(ComponentDto projectComponent) {
     return insertComponent(ComponentTesting.newFileDto(projectComponent));
   }
 
@@ -260,7 +262,12 @@ public class ComponentDbTester {
   }
 
   public PortfolioDto getPortfolioDto(ComponentDto portfolio) {
-    return db.getDbClient().portfolioDao().selectByUuid(dbSession, portfolio.uuid())
+    return db.getDbClient().portfolioDao().selectByUuid(db.getSession(), portfolio.uuid())
+      .orElseThrow(() -> new IllegalStateException("Portfolio has invalid configuration"));
+  }
+
+  public PortfolioDto getPortfolioDto(PortfolioDto portfolio) {
+    return db.getDbClient().portfolioDao().selectByUuid(db.getSession(), portfolio.getUuid())
       .orElseThrow(() -> new IllegalStateException("Portfolio has invalid configuration"));
   }
 
@@ -270,7 +277,7 @@ public class ComponentDbTester {
 
     PortfolioDto portfolioDto = toPortfolioDto(componentDto, System2.INSTANCE.now());
     portfolioPopulator.accept(portfolioDto);
-    dbClient.portfolioDao().insertWithAudit(dbSession, portfolioDto);
+    dbClient.portfolioDao().insertWithAudit(db.getSession(), portfolioDto);
     db.commit();
     return componentDto;
   }
@@ -302,15 +309,15 @@ public class ComponentDbTester {
 
   public void addPortfolioReference(String portfolioUuid, String... referencerUuids) {
     for (String uuid : referencerUuids) {
-      EntityDto entityDto = dbClient.entityDao().selectByUuid(dbSession, uuid)
+      EntityDto entityDto = dbClient.entityDao().selectByUuid(db.getSession(), uuid)
         .orElseThrow();
       switch (entityDto.getQualifier()) {
         case APP -> {
-          BranchDto appMainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, entityDto.getUuid())
+          BranchDto appMainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(db.getSession(), entityDto.getUuid())
             .orElseThrow();
-          dbClient.portfolioDao().addReferenceBranch(dbSession, portfolioUuid, uuid, appMainBranch.getUuid());
+          dbClient.portfolioDao().addReferenceBranch(db.getSession(), portfolioUuid, uuid, appMainBranch.getUuid());
         }
-        case VIEW, SUBVIEW -> dbClient.portfolioDao().addReference(dbSession, portfolioUuid, uuid);
+        case VIEW, SUBVIEW -> dbClient.portfolioDao().addReference(db.getSession(), portfolioUuid, uuid);
         default -> throw new IllegalStateException("Unexpected value: " + entityDto.getQualifier());
       }
     }
@@ -331,7 +338,7 @@ public class ComponentDbTester {
 
   public void addPortfolioProject(String portfolioUuid, String... projectUuids) {
     for (String uuid : projectUuids) {
-      dbClient.portfolioDao().addProject(dbSession, portfolioUuid, uuid);
+      dbClient.portfolioDao().addProject(db.getSession(), portfolioUuid, uuid);
     }
     db.commit();
   }
@@ -342,7 +349,7 @@ public class ComponentDbTester {
 
   public void addPortfolioProject(ComponentDto portfolio, ProjectDto... projects) {
     for (ProjectDto project : projects) {
-      dbClient.portfolioDao().addProject(dbSession, portfolio.uuid(), project.getUuid());
+      dbClient.portfolioDao().addProject(db.getSession(), portfolio.uuid(), project.getUuid());
     }
     db.commit();
   }
@@ -354,7 +361,7 @@ public class ComponentDbTester {
 
   public void addPortfolioProject(PortfolioDto portfolioDto, ProjectDto... projects) {
     for (ProjectDto project : projects) {
-      dbClient.portfolioDao().addProject(dbSession, portfolioDto.getUuid(), project.getUuid());
+      dbClient.portfolioDao().addProject(db.getSession(), portfolioDto.getUuid(), project.getUuid());
     }
     db.commit();
   }
@@ -368,7 +375,7 @@ public class ComponentDbTester {
   }
 
   public void addPortfolioProjectBranch(String portfolioUuid, String projectUuid, String branchUuid) {
-    PortfolioProjectDto portfolioProject = dbClient.portfolioDao().selectPortfolioProjectOrFail(dbSession, portfolioUuid, projectUuid);
+    PortfolioProjectDto portfolioProject = dbClient.portfolioDao().selectPortfolioProjectOrFail(db.getSession(), portfolioUuid, projectUuid);
     dbClient.portfolioDao().addBranch(db.getSession(), portfolioProject.getUuid(), branchUuid);
     db.commit();
   }
@@ -421,13 +428,13 @@ public class ComponentDbTester {
 
     ProjectDto projectDto = toProjectDto(component, System2.INSTANCE.now());
     projectDtoPopulator.accept(projectDto);
-    dbClient.projectDao().insert(dbSession, projectDto);
+    dbClient.projectDao().insert(db.getSession(), projectDto);
 
     BranchDto branchDto = ComponentTesting.newMainBranchDto(component, projectDto.getUuid());
     branchDto.setExcludeFromPurge(true);
     branchPopulator.accept(branchDto);
     branchDto.setIsMain(true);
-    dbClient.branchDao().insert(dbSession, branchDto);
+    dbClient.branchDao().insert(db.getSession(), branchDto);
 
     db.commit();
     return new ProjectData(getProjectDtoByMainBranch(component), branchDto, component);
@@ -435,14 +442,14 @@ public class ComponentDbTester {
 
   public void addApplicationProject(ProjectDto application, ProjectDto... projects) {
     for (ProjectDto project : projects) {
-      dbClient.applicationProjectsDao().addProject(dbSession, application.getUuid(), project.getUuid());
+      dbClient.applicationProjectsDao().addProject(db.getSession(), application.getUuid(), project.getUuid());
     }
     db.commit();
   }
 
   public void addApplicationProject(ProjectData application, ProjectData... projects) {
     for (ProjectData project : projects) {
-      dbClient.applicationProjectsDao().addProject(dbSession, application.getProjectDto().getUuid(), project.getProjectDto().getUuid());
+      dbClient.applicationProjectsDao().addProject(db.getSession(), application.getProjectDto().getUuid(), project.getProjectDto().getUuid());
     }
     db.commit();
   }
@@ -456,7 +463,7 @@ public class ComponentDbTester {
 
   public void addProjectBranchToApplicationBranch(BranchDto applicationBranch, BranchDto... projectBranches) {
     for (BranchDto projectBranch : projectBranches) {
-      dbClient.applicationProjectsDao().addProjectBranchToAppBranch(dbSession, applicationBranch, projectBranch);
+      dbClient.applicationProjectsDao().addProjectBranchToAppBranch(db.getSession(), applicationBranch, projectBranch);
     }
     db.commit();
   }
@@ -477,19 +484,19 @@ public class ComponentDbTester {
   private ComponentDto insertComponentImpl(ComponentDto component, @Nullable Boolean isPrivate, Consumer<ComponentDto> dtoPopulator) {
     dtoPopulator.accept(component);
     checkState(isPrivate == null || component.isPrivate() == isPrivate, "Illegal modification of private flag");
-    dbClient.componentDao().insert(dbSession, component, true);
+    dbClient.componentDao().insert(db.getSession(), component, true);
     db.commit();
 
     return component;
   }
 
   public void insertComponents(ComponentDto... components) {
-    dbClient.componentDao().insert(dbSession, asList(components), true);
+    dbClient.componentDao().insert(db.getSession(), asList(components), true);
     db.commit();
   }
 
   public SnapshotDto insertSnapshot(SnapshotDto snapshotDto) {
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, snapshotDto);
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(db.getSession(), snapshotDto);
     db.commit();
     return snapshot;
   }
@@ -522,7 +529,7 @@ public class ComponentDbTester {
    */
   @Deprecated
   public SnapshotDto insertSnapshot(ProjectDto project, Consumer<SnapshotDto> consumer) {
-    BranchDto mainBranchDto = db.getDbClient().branchDao().selectMainBranchByProjectUuid(dbSession, project.getUuid()).orElseThrow();
+    BranchDto mainBranchDto = db.getDbClient().branchDao().selectMainBranchByProjectUuid(db.getSession(), project.getUuid()).orElseThrow();
     SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(mainBranchDto.getUuid());
     consumer.accept(snapshotDto);
     return insertSnapshot(snapshotDto);
@@ -540,7 +547,7 @@ public class ComponentDbTester {
   }
 
   public void insertSnapshots(SnapshotDto... snapshotDtos) {
-    dbClient.snapshotDao().insert(dbSession, asList(snapshotDtos));
+    dbClient.snapshotDao().insert(db.getSession(), asList(snapshotDtos));
     db.commit();
   }
 
@@ -564,7 +571,7 @@ public class ComponentDbTester {
     checkArgument(branchDto.getProjectUuid().equals(project.getUuid()));
     ComponentDto branch = ComponentTesting.newBranchComponent(project, branchDto);
     insertComponent(branch);
-    dbClient.branchDao().insert(dbSession, branchDto);
+    dbClient.branchDao().insert(db.getSession(), branchDto);
     db.commit();
     return branch;
   }
@@ -572,7 +579,7 @@ public class ComponentDbTester {
   public final ComponentDto insertProjectBranch(ComponentDto project, BranchDto branchDto) {
     ComponentDto branch = ComponentTesting.newBranchComponent(project, branchDto);
     insertComponent(branch);
-    dbClient.branchDao().insert(dbSession, branchDto);
+    dbClient.branchDao().insert(db.getSession(), branchDto);
     db.commit();
     return branch;
   }

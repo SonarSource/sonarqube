@@ -73,6 +73,11 @@ task createDB(type:JavaExec) {
     }
 }
 
+task populateDB(type: JavaExec) {
+  mainClass = 'org.sonar.db.createdb.PopulateDb'
+  classpath = sourceSets.test.runtimeClasspath
+}
+
 task testJar(type: Jar) {
   archiveClassifier = 'tests'
   from sourceSets.test.output

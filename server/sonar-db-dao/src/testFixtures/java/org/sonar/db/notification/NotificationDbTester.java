@@ -34,11 +34,11 @@ public class NotificationDbTester {
   private static final String PROP_NOTIFICATION_PREFIX = "notification";
 
   private final DbClient dbClient;
-  private final DbSession dbSession;
+  private final DbTester db;
 
   public NotificationDbTester(DbTester db) {
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
+    this.db = db;
   }
 
   public void assertExists(String channel, String dispatcher, String userUuid, @Nullable ProjectDto project) {
@@ -46,7 +46,7 @@ public class NotificationDbTester {
         .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
         .setEntityUuid(project == null ? null : project.getUuid())
         .setUserUuid(userUuid)
-        .build(), dbSession).stream()
+        .build(), db.getSession()).stream()
       .filter(prop -> project == null ? prop.getEntityUuid() == null : prop.getEntityUuid() != null)
       .toList();
     assertThat(result).hasSize(1);
@@ -58,7 +58,7 @@ public class NotificationDbTester {
       .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
       .setEntityUuid(project == null ? null : project.getUuid())
       .setUserUuid(userUuid)
-      .build(), dbSession);
+      .build(), db.getSession());
     assertThat(result).isEmpty();
   }
 }

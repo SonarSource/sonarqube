@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -61,15 +62,15 @@ import org.sonar.db.webhook.WebhookDeliveryDbTester;
 
 /**
  * This class should be called using @Rule.
- * Data is truncated between each tests. The schema is created between each test.
+ * Data is truncated between each test. The schema is created between each test.
  */
 public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEachCallback, AfterEachCallback {
 
-  private final UuidFactory uuidFactory = new SequenceUuidFactory();
+  private final UuidFactory uuidFactory;
   private final System2 system2;
   private final AuditPersister auditPersister;
   private DbClient client;
-  private DbSession session = null;
+  ThreadLocal<DbSessionContext> session = new ThreadLocal<>();
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
   private final ProjectLinkDbTester projectLinkTester;
@@ -94,8 +95,9 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
   private final AuditDbTester auditDbTester;
   private final AnticipatedTransitionDbTester anticipatedTransitionDbTester;
 
-  private DbTester(System2 system2, @Nullable String schemaPath, AuditPersister auditPersister, MyBatisConfExtension... confExtensions) {
+  private DbTester(UuidFactory uuidFactory, System2 system2, @Nullable String schemaPath, AuditPersister auditPersister, MyBatisConfExtension... confExtensions) {
     super(TestDbImpl.create(schemaPath, confExtensions));
+    this.uuidFactory = uuidFactory;
     this.system2 = system2;
     this.auditPersister = auditPersister;
 
@@ -138,11 +140,15 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
   }
 
   public static DbTester create(System2 system2, AuditPersister auditPersister) {
-    return new DbTester(system2, null, auditPersister);
+    return new DbTester(new SequenceUuidFactory(), system2, null, auditPersister);
   }
 
   public static DbTester createWithExtensionMappers(System2 system2, Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
-    return new DbTester(system2, null, new NoOpAuditPersister(), new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
+    return new DbTester(new SequenceUuidFactory(), system2, null, new NoOpAuditPersister(), new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
+  }
+
+  public static DbTester createWithDifferentUuidFactory(UuidFactory uuidFactory) {
+    return new DbTester(uuidFactory, System2.INSTANCE, null, new NoOpAuditPersister());
   }
 
   private void initDbClient() {
@@ -269,22 +275,33 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
 
   @Override
   protected void after() {
-    if (session != null) {
-      session.rollback();
-      session.close();
+    if (session.get() != null) {
+      session.get().dbSession().rollback();
+      session.get().dbSession().close();
+      session.remove();
     }
     db.stop();
   }
 
   public DbSession getSession() {
-    if (session == null) {
-      session = db.getMyBatis().openSession(false);
+    return getSession(false);
+  }
+
+  public DbSession getSession(boolean batched) {
+    if (session.get() == null) {
+      session.set(new DbSessionContext(db.getMyBatis().openSession(batched), batched));
     }
-    return session;
+    return session.get().dbSession;
+  }
+
+  public void forceCommit() {
+    getSession().commit(true);
   }
 
   public void commit() {
-    getSession().commit();
+    if(session.get() != null && !session.get().isBatched()) {
+      getSession().commit();
+    }
   }
 
   public DbClient getDbClient() {
@@ -310,6 +327,8 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
   public String getUrl() {
     return ((HikariDataSource) db.getDatabase().getDataSource()).getJdbcUrl();
   }
+
+  private record DbSessionContext(@NotNull DbSession dbSession, boolean isBatched){}
 
   private static class DbSessionConnectionSupplier implements ConnectionSupplier {
     private final DbSession dbSession;

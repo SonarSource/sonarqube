@@ -27,20 +27,18 @@ import org.sonar.db.DbTester;
 public class InternalComponentPropertyDbTester {
   private final DbTester db;
   private final DbClient dbClient;
-  private final DbSession dbSession;
 
   public InternalComponentPropertyDbTester(DbTester db) {
     this.db = db;
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
   }
 
   public void insertProperty(String componentUuid, String key, String value) {
-    dbClient.internalComponentPropertiesDao().insertOrUpdate(dbSession, componentUuid, key, value);
+    dbClient.internalComponentPropertiesDao().insertOrUpdate(db.getSession(), componentUuid, key, value);
     db.commit();
   }
 
   public Optional<InternalComponentPropertyDto> getProperty(String componentUuid, String key) {
-    return dbClient.internalComponentPropertiesDao().selectByComponentUuidAndKey(dbSession, componentUuid, key);
+    return dbClient.internalComponentPropertiesDao().selectByComponentUuidAndKey(db.getSession(), componentUuid, key);
   }
 }

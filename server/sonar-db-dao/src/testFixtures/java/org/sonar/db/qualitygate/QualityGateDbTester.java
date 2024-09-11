@@ -41,21 +41,19 @@ public class QualityGateDbTester {
 
   private final DbTester db;
   private final DbClient dbClient;
-  private final DbSession dbSession;
 
   public QualityGateDbTester(DbTester db) {
     this.db = db;
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
   }
 
   public QualityGateDto insertBuiltInQualityGate() {
-    QualityGateDto builtin = dbClient.qualityGateDao().insert(dbSession, new QualityGateDto()
+    QualityGateDto builtin = dbClient.qualityGateDao().insert(db.getSession(), new QualityGateDto()
       .setName("Sonar way")
       .setUuid(Uuids.createFast())
       .setBuiltIn(true)
       .setCreatedAt(new Date()));
-    dbSession.commit();
+    db.commit();
     return builtin;
   }
 
@@ -66,13 +64,13 @@ public class QualityGateDbTester {
       .setUuid(Uuids.createFast())
       .setBuiltIn(false);
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(qualityGate));
-    dbClient.qualityGateDao().insert(dbSession, qualityGate);
+    dbClient.qualityGateDao().insert(db.getSession(), qualityGate);
     db.commit();
-    return dbClient.qualityGateDao().selectByUuid(dbSession, qualityGate.getUuid());
+    return dbClient.qualityGateDao().selectByUuid(db.getSession(), qualityGate.getUuid());
   }
 
   public void associateProjectToQualityGate(ProjectDto project, QualityGateDto qualityGate) {
-    dbClient.projectQgateAssociationDao().insertProjectQGateAssociation(dbSession, project.getUuid(), qualityGate.getUuid());
+    dbClient.projectQgateAssociationDao().insertProjectQGateAssociation(db.getSession(), project.getUuid(), qualityGate.getUuid());
     db.commit();
   }
 
@@ -85,7 +83,7 @@ public class QualityGateDbTester {
 
   public void setDefaultQualityGate(QualityGateDto qualityGate) {
     dbClient.propertiesDao().saveProperty(new PropertyDto().setKey(DEFAULT_QUALITY_GATE_PROPERTY_NAME).setValue(qualityGate.getUuid()));
-    dbSession.commit();
+    db.commit();
   }
 
   @SafeVarargs
@@ -96,33 +94,33 @@ public class QualityGateDbTester {
       .setOperator("GT")
       .setErrorThreshold(randomNumeric(10));
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(condition));
-    dbClient.gateConditionDao().insert(condition, dbSession);
+    dbClient.gateConditionDao().insert(condition, db.getSession());
     db.commit();
     return condition;
   }
 
   public Optional<String> selectQGateUuidByProjectUuid(String projectUuid) {
-    return dbClient.projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, projectUuid);
+    return dbClient.projectQgateAssociationDao().selectQGateUuidByProjectUuid(db.getSession(), projectUuid);
   }
 
   public void addGroupPermission(QualityGateDto qualityGateDto, GroupDto group) {
-    dbClient.qualityGateGroupPermissionsDao().insert(dbSession, new QualityGateGroupPermissionsDto()
+    dbClient.qualityGateGroupPermissionsDao().insert(db.getSession(), new QualityGateGroupPermissionsDto()
         .setUuid(Uuids.createFast())
         .setGroupUuid(group.getUuid())
         .setQualityGateUuid(qualityGateDto.getUuid()),
       qualityGateDto.getName(),
       group.getName()
     );
-    dbSession.commit();
+    db.commit();
   }
 
   public void addUserPermission(QualityGateDto qualityGateDto, UserDto user) {
-    dbClient.qualityGateUserPermissionDao().insert(dbSession, new QualityGateUserPermissionsDto()
+    dbClient.qualityGateUserPermissionDao().insert(db.getSession(), new QualityGateUserPermissionsDto()
         .setUuid(Uuids.createFast())
         .setUserUuid(user.getUuid())
         .setQualityGateUuid(qualityGateDto.getUuid()),
       qualityGateDto.getName(),
       user.getLogin());
-    dbSession.commit();
+    db.commit();
   }
 }

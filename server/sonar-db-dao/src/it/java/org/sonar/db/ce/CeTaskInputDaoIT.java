@@ -76,7 +76,6 @@ class CeTaskInputDaoIT {
   @Test
   void selectData_returns_absent_if_uuid_exists_but_data_is_null() {
     insertData(A_UUID);
-    dbTester.commit();
 
     Optional<DbInputStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
     assertThat(result).isNotPresent();
@@ -105,6 +104,5 @@ class CeTaskInputDaoIT {
 
   private void insertData(String uuid) {
     dbTester.executeInsert(TABLE_NAME, "task_uuid", uuid, "created_at", NOW, "updated_at", NOW);
-    dbTester.commit();
   }
 }

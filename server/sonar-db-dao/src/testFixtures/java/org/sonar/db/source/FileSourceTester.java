@@ -93,8 +93,6 @@ public class FileSourceTester {
         .setLineHits(RANDOM.nextInt(4))
         .setConditions(RANDOM.nextInt(4))
         .setCoveredConditions(RANDOM.nextInt(4))
-        .setHighlighting(randomAlphanumeric(40))
-        .setSymbols(randomAlphanumeric(30))
         .addAllDuplication(Arrays.asList(RANDOM.nextInt(200), RANDOM.nextInt(200)))
         .build();
     }

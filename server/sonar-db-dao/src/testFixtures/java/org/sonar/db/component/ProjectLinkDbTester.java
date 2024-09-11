@@ -32,12 +32,10 @@ import static org.sonar.db.component.ProjectLinkTesting.newProvidedLinkDto;
 public class ProjectLinkDbTester {
   private final DbTester db;
   private final DbClient dbClient;
-  private final DbSession dbSession;
 
   public ProjectLinkDbTester(DbTester db) {
     this.db = db;
     this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
   }
   
   @SafeVarargs
@@ -53,7 +51,7 @@ public class ProjectLinkDbTester {
   @SafeVarargs
   private final ProjectLinkDto insertLink(ProjectDto project, ProjectLinkDto componentLink, Consumer<ProjectLinkDto>... dtoPopulators) {
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(componentLink));
-    dbClient.projectLinkDao().insert(dbSession, componentLink.setProjectUuid(project.getUuid()));
+    dbClient.projectLinkDao().insert(db.getSession(), componentLink.setProjectUuid(project.getUuid()));
     db.commit();
     return componentLink;
   }
