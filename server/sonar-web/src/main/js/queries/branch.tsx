@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { debounce, flatten } from 'lodash';
 import * as React from 'react';
 import { useCallback, useContext } from 'react';
@@ -39,14 +39,14 @@ import {
 import { dismissAnalysisWarning, getAnalysisStatus } from '../api/ce';
 import { getQualityGateProjectStatus } from '../api/quality-gates';
 import { AvailableFeaturesContext } from '../app/components/available-features/AvailableFeaturesContext';
+import { useComponent } from '../app/components/componentContext/withComponentContext';
 import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
+import { isDefined } from '../helpers/types';
 import { Branch, BranchLike } from '../types/branch-like';
 import { isApplication, isProject } from '../types/component';
 import { Feature } from '../types/features';
 import { Component } from '../types/types';
-
-// This will prevent refresh when navigating from page to page.
-const BRANCHES_STALE_TIME = 30_000;
+import { StaleTime } from './common';
 
 enum InnerState {
   Details = 'details',
@@ -54,7 +54,11 @@ enum InnerState {
   Status = 'status',
 }
 
-function useBranchesQueryKey(innerState: InnerState, defaultId?: string) {
+/**
+ * @deprecated This is a legacy way of organizing branch keys
+ * It was introduced as a step to remove branch fetching from ComponentContainer.
+ */
+function useBranchesQueryKey(innerState: InnerState, componentKey?: string) {
   // Currently, we do not have the component in a react-state ready
   // Once we refactor we will be able to fetch it from query state.
   // We will be able to make sure that the component is not a portfolio.
@@ -63,38 +67,72 @@ function useBranchesQueryKey(innerState: InnerState, defaultId?: string) {
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
 
-  if (searchParams.has('pullRequest') && searchParams.has('id')) {
+  if (!isDefined(componentKey)) {
+    return ['branches'];
+  }
+
+  if (searchParams.has('pullRequest')) {
     return [
       'branches',
-      searchParams.get('id') as string,
+      componentKey,
       'pull-request',
       searchParams.get('pullRequest') as string,
       innerState,
     ] as const;
-  } else if (searchParams.has('branch') && searchParams.has('id')) {
+  }
+
+  if (searchParams.has('branch')) {
     return [
       'branches',
-      searchParams.get('id') as string,
+      componentKey,
       'branch',
       searchParams.get('branch') as string,
       innerState,
     ] as const;
-  } else if (searchParams.has('fixedInPullRequest') && searchParams.has('id')) {
+  }
+
+  if (searchParams.has('fixedInPullRequest')) {
     return [
       'branches',
-      searchParams.get('id') as string,
+      componentKey,
       'fixedInPullRequest',
       searchParams.get('fixedInPullRequest') as string,
       innerState,
     ] as const;
-  } else if (searchParams.has('id')) {
-    return ['branches', searchParams.get('id') as string, innerState] as const;
-  } else if (defaultId !== undefined) {
-    return ['branches', defaultId, innerState];
   }
-  return ['branches'];
+
+  return ['branches', componentKey, innerState] as const;
 }
 
+function branchesQuery(
+  component: LightComponent | undefined,
+  branchSupportFeatureEnabled: boolean,
+) {
+  return queryOptions({
+    // we don't care about branchSupportFeatureEnabled in the key, as it never changes during a user session
+    queryKey: ['branches', 'list', component?.key],
+    queryFn: async ({ queryKey: [, , key] }) => {
+      if (component === undefined || key === undefined || isPortfolioLike(component.qualifier)) {
+        return [] as BranchLike[];
+      }
+
+      // Pull Requests exist only for projects and if [branch-support] is enabled
+      const branchLikesPromise =
+        isProject(component.qualifier) && branchSupportFeatureEnabled
+          ? [getBranches(key), getPullRequests(key)]
+          : [getBranches(key)];
+      const branchLikes = await Promise.all(branchLikesPromise).then(flatten<BranchLike>);
+
+      return branchLikes;
+    },
+    enabled: isDefined(component),
+  });
+}
+
+/**
+ * @deprecated This is a legacy way of organizing branch keys
+ * It was introduce as a step to remove branch fetching from ComponentContainer.
+ */
 function useMutateBranchQueryKey() {
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
@@ -119,53 +157,55 @@ function getContext(key: ReturnType<typeof useBranchesQueryKey>, branchLike?: Br
   return { componentKey, query: {} };
 }
 
-export function useBranchesQuery(component?: LightComponent, refetchInterval?: number) {
+export function useBranchesQuery(component: LightComponent | undefined) {
   const features = useContext(AvailableFeaturesContext);
-  const key = useBranchesQueryKey(InnerState.Details, component?.key);
 
   return useQuery({
-    queryKey: key,
-    queryFn: async ({ queryKey: [, key, prOrBranch, name] }) => {
-      if (component === undefined || key === undefined) {
-        return { branchLikes: [] };
+    ...branchesQuery(component, features.includes(Feature.BranchSupport)),
+    initialData: [],
+    staleTime: StaleTime.SHORT,
+  });
+}
+
+export function useCurrentBranchQuery(component: LightComponent | undefined) {
+  const features = useContext(AvailableFeaturesContext);
+  const { search } = useLocation();
+
+  const select = useCallback(
+    (branchLikes: BranchLike[]) => {
+      const searchParams = new URLSearchParams(search);
+      if (searchParams.has('branch')) {
+        return branchLikes.find((b) => isBranch(b) && b.name === searchParams.get('branch'));
+      } else if (searchParams.has('pullRequest')) {
+        return branchLikes.find(
+          (b) => isPullRequest(b) && b.key === searchParams.get('pullRequest'),
+        );
+      } else if (searchParams.has('fixedInPullRequest')) {
+        const targetBranch = branchLikes
+          .filter(isPullRequest)
+          .find((b) => b.key === searchParams.get('fixedInPullRequest'))?.target;
+        return branchLikes.find((b) => isBranch(b) && b.name === targetBranch);
       }
-      if (isPortfolioLike(component.qualifier)) {
-        return { branchLikes: [] };
-      }
 
-      const branchLikesPromise =
-        isProject(component.qualifier) && features.includes(Feature.BranchSupport)
-          ? [getBranches(key), getPullRequests(key)]
-          : [getBranches(key)];
-      const branchLikes = await Promise.all(branchLikesPromise).then(flatten<BranchLike>);
-
-      let branchLike = branchLikes.find((b) => isBranch(b) && b.isMain);
-
-      if (prOrBranch === 'pull-request') {
-        branchLike = branchLikes.find((b) => isPullRequest(b) && b.key === name);
-      } else if (prOrBranch === 'branch') {
-        branchLike = branchLikes.find((b) => isBranch(b) && b.name === name);
-      } else if (prOrBranch === 'fixedInPullRequest') {
-        const targetBranch = branchLikes.filter(isPullRequest).find((b) => b.key === name)?.target;
-        branchLike = branchLikes.find((b) => isBranch(b) && b.name === targetBranch);
-      }
-
-      return { branchLikes, branchLike };
+      return branchLikes.find((b) => isBranch(b) && b.isMain);
     },
-    // The check of the key must disappear once component state is in react-query
-    enabled: !!component && component.key === key[1],
-    staleTime: refetchInterval ?? BRANCHES_STALE_TIME,
-    refetchInterval,
+    [search],
+  );
+
+  return useQuery({
+    ...branchesQuery(component, features.includes(Feature.BranchSupport)),
+    select,
+    staleTime: StaleTime.LIVE,
   });
 }
 
 export function useBranchStatusQuery(component: Component) {
-  const branchQuery = useBranchesQuery(component);
-  const key = useBranchesQueryKey(InnerState.Status);
+  const { data: branchLike } = useCurrentBranchQuery(component);
+  const key = useBranchesQueryKey(InnerState.Status, component.key);
   return useQuery({
     queryKey: key,
     queryFn: async ({ queryKey }) => {
-      const { query } = getContext(queryKey, branchQuery.data?.branchLike);
+      const { query } = getContext(queryKey, branchLike);
       if (!isProject(component.qualifier)) {
         return {};
       }
@@ -186,14 +226,13 @@ export function useBranchStatusQuery(component: Component) {
       };
     },
     enabled: isProject(component.qualifier) || isApplication(component.qualifier),
-    staleTime: BRANCHES_STALE_TIME,
+    staleTime: StaleTime.SHORT,
   });
 }
 
 export function useBranchWarningQuery(component: Component) {
-  const branchQuery = useBranchesQuery(component);
-  const branchLike = branchQuery.data?.branchLike;
-  const key = useBranchesQueryKey(InnerState.Warning);
+  const { data: branchLike } = useCurrentBranchQuery(component);
+  const key = useBranchesQueryKey(InnerState.Warning, component.key);
   return useQuery({
     queryKey: key,
     queryFn: async ({ queryKey }) => {
@@ -205,20 +244,21 @@ export function useBranchWarningQuery(component: Component) {
       return branchStatus.warnings;
     },
     enabled: !!branchLike && isProject(component.qualifier) && component.key === key[1],
-    staleTime: BRANCHES_STALE_TIME,
+    staleTime: StaleTime.SHORT,
   });
 }
 
-export function useDismissBranchWarningMutation() {
+export function useDismissBranchWarningMutation(componentKey: string | undefined) {
   type DismissArg = { component: Component; key: string };
   const queryClient = useQueryClient();
-  const invalidateKey = useBranchesQueryKey(InnerState.Warning);
+  const invalidateKey = useBranchesQueryKey(InnerState.Warning, componentKey);
 
   return useMutation({
     mutationFn: async ({ component, key }: DismissArg) => {
       await dismissAnalysisWarning(component.key, key);
     },
-    onSuccess() {
+    onSuccess(_1, { component }) {
+      queryClient.invalidateQueries({ queryKey: ['branches', 'list', component.key] });
       queryClient.invalidateQueries({ queryKey: invalidateKey });
     },
   });
@@ -234,7 +274,8 @@ export function useExcludeFromPurgeMutation() {
     mutationFn: async ({ component, key, exclude }: ExcludeFromPurgeArg) => {
       await excludeBranchFromPurge(component.key, key, exclude);
     },
-    onSuccess() {
+    onSuccess(_1, { component }) {
+      queryClient.invalidateQueries({ queryKey: ['branches', 'list', component.key] });
       queryClient.invalidateQueries({ queryKey: invalidateKey });
     },
   });
@@ -277,8 +318,9 @@ export function useDeletBranchMutation() {
       }
       return { navigate: false };
     },
-    onSuccess({ navigate }) {
+    onSuccess({ navigate }, { component }) {
       if (!navigate) {
+        queryClient.invalidateQueries({ queryKey: ['branches', 'list', component.key] });
         queryClient.invalidateQueries({ queryKey: invalidateKey });
       }
     },
@@ -294,7 +336,8 @@ export function useRenameMainBranchMutation() {
     mutationFn: async ({ component, name }: RenameMainBranchArg) => {
       await renameBranch(component.key, name);
     },
-    onSuccess() {
+    onSuccess(_1, { component }) {
+      queryClient.invalidateQueries({ queryKey: ['branches', 'list', component.key] });
       queryClient.invalidateQueries({ queryKey: invalidateKey });
     },
   });
@@ -309,7 +352,8 @@ export function useSetMainBranchMutation() {
     mutationFn: async ({ component, branchName }: SetAsMainBranchArg) => {
       await setMainBranch(component.key, branchName);
     },
-    onSuccess() {
+    onSuccess(_1, { component }) {
+      queryClient.invalidateQueries({ queryKey: ['branches', 'list', component.key] });
       queryClient.invalidateQueries({ queryKey: invalidateKey });
     },
   });
@@ -321,13 +365,14 @@ export function useSetMainBranchMutation() {
  */
 const REFRESH_INTERVAL = 1_000;
 
-export function useRefreshBranchStatus(): () => void {
+export function useRefreshBranchStatus(componentKey: string | undefined): () => void {
   const queryClient = useQueryClient();
-  const invalidateStatusKey = useBranchesQueryKey(InnerState.Status);
-  const invalidateDetailsKey = useBranchesQueryKey(InnerState.Details);
+  const invalidateStatusKey = useBranchesQueryKey(InnerState.Status, componentKey);
+  const invalidateDetailsKey = useBranchesQueryKey(InnerState.Details, componentKey);
 
   return useCallback(
     debounce(() => {
+      queryClient.invalidateQueries({ queryKey: ['branches', 'list', componentKey] });
       queryClient.invalidateQueries({
         queryKey: invalidateStatusKey,
       });
@@ -339,11 +384,12 @@ export function useRefreshBranchStatus(): () => void {
   );
 }
 
-export function useRefreshBranches() {
+export function useRefreshBranches(componentKey: string | undefined) {
   const queryClient = useQueryClient();
   const invalidateKey = useMutateBranchQueryKey();
 
   return () => {
+    queryClient.invalidateQueries({ queryKey: ['branches', 'list', componentKey] });
     queryClient.invalidateQueries({ queryKey: invalidateKey });
   };
 }
@@ -358,12 +404,13 @@ export function withBranchLikes<P extends { component?: Component }>(
   WrappedComponent: React.ComponentType<React.PropsWithChildren<P & WithBranchLikesProps>>,
 ): React.ComponentType<React.PropsWithChildren<Omit<P, 'branchLike' | 'branchLikes'>>> {
   return function WithBranchLike(p: P) {
-    const { data, isFetching } = useBranchesQuery(p.component);
+    const { data: branchLikes, isLoading } = useBranchesQuery(p.component);
+    const { data: branchLike, isFetching } = useCurrentBranchQuery(p.component);
     return (
       <WrappedComponent
-        branchLikes={data?.branchLikes ?? []}
-        branchLike={data?.branchLike}
-        isFetchingBranch={!isPortfolioLike(p.component?.qualifier) && isFetching}
+        branchLikes={branchLikes ?? []}
+        branchLike={branchLike}
+        isFetchingBranch={!isPortfolioLike(p.component?.qualifier) && (isFetching || isLoading)}
         {...p}
       />
     );
@@ -376,7 +423,8 @@ export function withBranchStatusRefresh<
   WrappedComponent: React.ComponentType<React.PropsWithChildren<P>>,
 ): React.ComponentType<React.PropsWithChildren<Omit<P, 'refreshBranchStatus'>>> {
   return function WithBranchStatusRefresh(props: P) {
-    const refresh = useRefreshBranchStatus();
+    const { component } = useComponent();
+    const refresh = useRefreshBranchStatus(component?.key);
 
     return <WrappedComponent {...props} refreshBranchStatus={refresh} />;
   };

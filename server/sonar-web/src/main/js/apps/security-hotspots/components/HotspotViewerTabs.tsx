@@ -80,7 +80,7 @@ export default function HotspotViewerTabs(props: Props) {
     branchLike,
   } = props;
 
-  const refreshBranchStatus = useRefreshBranchStatus();
+  const refreshBranchStatus = useRefreshBranchStatus(component.key);
   const isSticky = useStickyDetection('.hotspot-tabs', {
     offset: TABS_OFFSET,
   });

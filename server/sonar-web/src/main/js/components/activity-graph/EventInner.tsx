@@ -21,7 +21,7 @@ import { Note } from 'design-system';
 import * as React from 'react';
 import { ComponentContext } from '../../app/components/componentContext/ComponentContext';
 import { translate } from '../../helpers/l10n';
-import { useBranchesQuery } from '../../queries/branch';
+import { useCurrentBranchQuery } from '../../queries/branch';
 import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../types/project-activity';
 import Tooltip from '../controls/Tooltip';
 import { DefinitionChangeEventInner, isDefinitionChangeEvent } from './DefinitionChangeEventInner';
@@ -39,7 +39,7 @@ export interface EventInnerProps {
 
 export default function EventInner({ event, readonly }: EventInnerProps) {
   const { component } = React.useContext(ComponentContext);
-  const { data: { branchLike } = {} } = useBranchesQuery(component);
+  const { data: branchLike } = useCurrentBranchQuery(component);
   if (isRichQualityGateEvent(event)) {
     return <RichQualityGateEventInner event={event} readonly={readonly} />;
   } else if (isDefinitionChangeEvent(event)) {

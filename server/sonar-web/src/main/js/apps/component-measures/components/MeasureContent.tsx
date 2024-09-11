@@ -34,7 +34,7 @@ import { getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
 import { RequestData } from '../../../helpers/request';
 import { isDefined } from '../../../helpers/types';
 import { getProjectUrl } from '../../../helpers/urls';
-import { useBranchesQuery } from '../../../queries/branch';
+import { useCurrentBranchQuery } from '../../../queries/branch';
 import { useComponentTreeQuery, useMeasuresComponentQuery } from '../../../queries/measures';
 import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { useLocation, useRouter } from '../../../sonar-aligned/components/hoc/withRouter';
@@ -68,7 +68,7 @@ export default function MeasureContent(props: Readonly<Props>) {
   const { leakPeriod, requestedMetric, rootComponent, updateQuery } = props;
   const metrics = useMetrics();
   const { query: rawQuery } = useLocation();
-  const { data: { branchLike } = {} } = useBranchesQuery();
+  const { data: branchLike } = useCurrentBranchQuery(rootComponent);
   const router = useRouter();
   const query = parseQuery(rawQuery);
   const { data: isLegacy } = useIsLegacyCCTMode();

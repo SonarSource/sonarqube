@@ -21,6 +21,7 @@ import { flow } from 'lodash';
 import * as React from 'react';
 import { useCallback } from 'react';
 import { setIssueAssignee } from '../../api/issues';
+import { useComponent } from '../../app/components/componentContext/withComponentContext';
 import { isInput, isShortcut } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { getKeyboardShortcutEnabled } from '../../helpers/preferences';
@@ -55,7 +56,9 @@ export default function Issue(props: Props) {
     onPopupToggle,
   } = props;
 
-  const refreshStatus = useRefreshBranchStatus();
+  const { component } = useComponent();
+
+  const refreshStatus = useRefreshBranchStatus(component?.key);
 
   const onChange = flow([props.onChange, refreshStatus]);
 

@@ -40,7 +40,7 @@ import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getBranchLikeUrl } from '../../../helpers/urls';
-import { useBranchesQuery } from '../../../queries/branch';
+import { useCurrentBranchQuery } from '../../../queries/branch';
 import { SourceViewerFile } from '../../../types/types';
 import { isLoggedIn } from '../../../types/users';
 import { IssueOpenInIdeButton } from '../components/IssueOpenInIdeButton';
@@ -79,7 +79,7 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
   const { measures, path, project, projectName, q } = sourceViewerFile;
 
   const { component } = React.useContext(ComponentContext);
-  const { data: branchData, isLoading: isLoadingBranches } = useBranchesQuery(
+  const { data: branchLike, isLoading: isLoadingBranches } = useCurrentBranchQuery(
     component ?? {
       key: project,
       name: projectName,
@@ -88,8 +88,6 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
   );
   const { currentUser } = useCurrentUser();
   const theme = useTheme();
-
-  const branchLike = branchData?.branchLike;
 
   const isProjectRoot = q === ComponentQualifier.Project;
 

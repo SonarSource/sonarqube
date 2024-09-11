@@ -29,7 +29,7 @@ export default function ProjectAdminPageExtension() {
   const { component, onComponentChange } = React.useContext(ComponentContext);
 
   // We keep that for compatibility but ideally should advocate to use tanstack query
-  const onBranchesChange = useRefreshBranches();
+  const onBranchesChange = useRefreshBranches(component?.key);
 
   const extension = component?.configuration?.extensions?.find(
     (p) => p.key === `${pluginKey}/${extensionKey}`,

@@ -48,8 +48,9 @@ import {
   areCCTMeasuresComputed,
   areSoftwareQualityRatingsComputed,
 } from '../../../helpers/measures';
-import { useBranchesQuery } from '../../../queries/branch';
+import { useCurrentBranchQuery } from '../../../queries/branch';
 import { useMeasuresComponentQuery } from '../../../queries/measures';
+
 import { MeasurePageView } from '../../../types/measures';
 import { useBubbleChartMetrics } from '../hooks';
 import Sidebar from '../sidebar/Sidebar';
@@ -73,7 +74,7 @@ import MeasuresEmpty from './MeasuresEmpty';
 
 export default function ComponentMeasuresApp() {
   const { component } = React.useContext(ComponentContext);
-  const { data: { branchLike } = {} } = useBranchesQuery(component);
+  const { data: branchLike } = useCurrentBranchQuery(component);
   const { query: rawQuery, pathname } = useLocation();
   const query = parseQuery(rawQuery);
   const router = useRouter();

@@ -92,7 +92,7 @@ export default function BranchLikeTabs(props: Props) {
     }
   };
 
-  const { data: { branchLikes } = { branchLikes: [] } } = useBranchesQuery(component);
+  const { data: branchLikes = [] } = useBranchesQuery(component);
 
   const isBranchMode = currentTab === Tabs.Branch;
   const branchLikesToDisplay: BranchLike[] = isBranchMode

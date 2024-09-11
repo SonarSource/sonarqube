@@ -20,8 +20,9 @@
 import { Note } from 'design-system';
 import React from 'react';
 import Measure from '~sonar-aligned/components/measure/Measure';
+import { useComponent } from '../../../app/components/componentContext/withComponentContext';
 import { isDiffMetric } from '../../../helpers/measures';
-import { useBranchesQuery } from '../../../queries/branch';
+import { useCurrentBranchQuery } from '../../../queries/branch';
 import { MeasureEnhanced } from '../../../types/types';
 
 interface Props {
@@ -30,8 +31,10 @@ interface Props {
 }
 
 export default function SubnavigationMeasureValue({ measure, componentKey }: Readonly<Props>) {
+  const { component } = useComponent();
+
   const isDiff = isDiffMetric(measure.metric.key);
-  const { data: { branchLike } = {} } = useBranchesQuery();
+  const { data: branchLike } = useCurrentBranchQuery(component);
   const value = isDiff ? measure.leak : measure.value;
 
   return (

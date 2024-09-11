@@ -25,7 +25,7 @@ import { ComponentQualifier } from '~sonar-aligned/types/component';
 import EscKeydownHandler from '../../../../../components/controls/EscKeydownHandler';
 import FocusOutHandler from '../../../../../components/controls/FocusOutHandler';
 import OutsideClickHandler from '../../../../../components/controls/OutsideClickHandler';
-import { useBranchesQuery } from '../../../../../queries/branch';
+import { useBranchesQuery, useCurrentBranchQuery } from '../../../../../queries/branch';
 import { Feature } from '../../../../../types/features';
 import { Component } from '../../../../../types/types';
 import withAvailableFeatures, {
@@ -46,8 +46,9 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
     component: { configuration },
   } = props;
 
-  const { data: { branchLikes, branchLike: currentBranchLike } = { branchLikes: [] } } =
-    useBranchesQuery(component);
+  const { data: branchLikes } = useBranchesQuery(component);
+  const { data: currentBranchLike } = useCurrentBranchQuery(component);
+
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   if (currentBranchLike === undefined) {

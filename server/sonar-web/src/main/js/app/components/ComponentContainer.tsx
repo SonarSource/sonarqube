@@ -33,7 +33,7 @@ import { getComponentNavigation } from '../../api/navigation';
 import { translateWithParameters } from '../../helpers/l10n';
 import { HttpStatus } from '../../helpers/request';
 import { getPortfolioUrl, getProjectUrl, getPullRequestUrl } from '../../helpers/urls';
-import { useBranchesQuery } from '../../queries/branch';
+import { useCurrentBranchQuery } from '../../queries/branch';
 import { useIsLegacyCCTMode } from '../../queries/settings';
 import { ProjectAlmBindingConfigurationErrors } from '../../types/alm-settings';
 import { Branch } from '../../types/branch-like';
@@ -69,7 +69,7 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
     React.useState<ProjectAlmBindingConfigurationErrors>();
   const [loading, setLoading] = React.useState(true);
   const [isPending, setIsPending] = React.useState(false);
-  const { data: { branchLike } = {}, isFetching } = useBranchesQuery(
+  const { data: branchLike, isFetching } = useCurrentBranchQuery(
     fixedInPullRequest ? component : undefined,
   );
 

@@ -37,14 +37,14 @@ import {
 import { parseDate } from '../helpers/dates';
 import { serializeStringArray } from '../helpers/query';
 import { ParsedAnalysis } from '../types/project-activity';
-import { useBranchesQuery } from './branch';
+import { useCurrentBranchQuery } from './branch';
 
 const ACTIVITY_PAGE_SIZE = 500;
 
 function useProjectActivityQueryKey() {
   const { component } = useComponent();
   const componentKey = useTopLevelComponentKey();
-  const { data: { branchLike } = {} } = useBranchesQuery(component);
+  const { data: branchLike } = useCurrentBranchQuery(component);
   const branchParams = getBranchLikeQuery(branchLike);
 
   return ['activity', 'list', componentKey, branchParams] as [

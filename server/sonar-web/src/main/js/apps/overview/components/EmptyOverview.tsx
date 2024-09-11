@@ -31,6 +31,7 @@ import { getBranchLikeDisplayName } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectTutorialLocation } from '../../../helpers/urls';
 import { hasGlobalPermission } from '../../../helpers/users';
+import { useBranchesQuery } from '../../../queries/branch';
 import { useTaskForComponentQuery } from '../../../queries/component';
 import { AlmKeys } from '../../../types/alm-settings';
 import { BranchLike } from '../../../types/branch-like';
@@ -41,13 +42,14 @@ import { CurrentUser, isLoggedIn } from '../../../types/users';
 
 export interface EmptyOverviewProps {
   branchLike?: BranchLike;
-  branchLikes: BranchLike[];
   component: Component;
   currentUser: CurrentUser;
 }
 
 export function EmptyOverview(props: Readonly<EmptyOverviewProps>) {
-  const { branchLike, branchLikes, component, currentUser } = props;
+  const { branchLike, component, currentUser } = props;
+
+  const { data: branchLikes } = useBranchesQuery(component);
 
   const [currentUserCanScanProject, setCurrentUserCanScanProject] = React.useState(
     hasGlobalPermission(currentUser, Permissions.Scan),

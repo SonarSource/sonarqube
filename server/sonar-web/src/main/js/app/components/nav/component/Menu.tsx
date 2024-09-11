@@ -29,7 +29,7 @@ import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { DEFAULT_ISSUES_QUERY } from '../../../../components/shared/utils';
 import { hasMessage, translate, translateWithParameters } from '../../../../helpers/l10n';
 import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
-import { useBranchesQuery } from '../../../../queries/branch';
+import { useBranchesQuery, useCurrentBranchQuery } from '../../../../queries/branch';
 import { isApplication, isProject } from '../../../../types/component';
 import { Feature } from '../../../../types/features';
 import { Component, Dict, Extension } from '../../../../types/types';
@@ -64,7 +64,10 @@ type Query = BranchParameters & { id: string };
 export function Menu(props: Readonly<Props>) {
   const { component, isInProgress, isPending } = props;
   const { extensions = [], canBrowseAllChildProjects, qualifier, configuration = {} } = component;
-  const { data: { branchLikes, branchLike } = { branchLikes: [] } } = useBranchesQuery(component);
+
+  const { data: branchLikes = [] } = useBranchesQuery(component);
+  const { data: branchLike } = useCurrentBranchQuery(component);
+
   const isApplicationChildInaccessble = isApplication(qualifier) && !canBrowseAllChildProjects;
 
   const location = useLocation();

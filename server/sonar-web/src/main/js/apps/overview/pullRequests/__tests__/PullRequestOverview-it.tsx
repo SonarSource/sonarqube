@@ -39,6 +39,10 @@ import { CaycStatus } from '../../../../types/types';
 import { NoticeType } from '../../../../types/users';
 import PullRequestOverview from '../PullRequestOverview';
 
+jest.mock('../../../../api/ce', () => ({
+  getAnalysisStatus: jest.fn().mockResolvedValue({ component: { warnings: [] } }),
+}));
+
 jest.mock('../../../../api/measures', () => {
   return {
     ...jest.requireActual('../../../../sonar-aligned/types/metrics'),

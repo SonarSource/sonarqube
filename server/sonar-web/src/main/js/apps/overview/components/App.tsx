@@ -28,7 +28,7 @@ import withAvailableFeatures, {
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
-import { useBranchesQuery } from '../../../queries/branch';
+import { useCurrentBranchQuery } from '../../../queries/branch';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import BranchOverview from '../branches/BranchOverview';
@@ -42,13 +42,11 @@ interface AppProps extends WithAvailableFeaturesProps {
 export function App(props: AppProps) {
   const { component } = props;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
-  const { data } = useBranchesQuery(component);
+  const { data: branchLike } = useCurrentBranchQuery(component);
 
-  if (isPortfolioLike(component.qualifier) || !data) {
+  if (isPortfolioLike(component.qualifier) || !branchLike) {
     return null;
   }
-
-  const { branchLike, branchLikes } = data;
 
   return (
     <>
@@ -63,11 +61,7 @@ export function App(props: AppProps) {
           <Suggestions suggestionGroup="overview" />
 
           {!component.analysisDate && (
-            <EmptyOverview
-              branchLike={branchLike}
-              branchLikes={branchLikes}
-              component={component}
-            />
+            <EmptyOverview branchLike={branchLike} component={component} />
           )}
 
           {component.analysisDate && (

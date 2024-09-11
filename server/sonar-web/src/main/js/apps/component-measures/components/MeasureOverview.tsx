@@ -22,7 +22,7 @@ import * as React from 'react';
 import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { getProjectUrl } from '../../../helpers/urls';
-import { useBranchesQuery } from '../../../queries/branch';
+import { useCurrentBranchQuery } from '../../../queries/branch';
 import { useComponentDataQuery } from '../../../queries/component';
 import { useComponentTreeQuery } from '../../../queries/measures';
 import A11ySkipTarget from '../../../sonar-aligned/components/a11y/A11ySkipTarget';
@@ -54,7 +54,7 @@ interface Props {
 export default function MeasureOverview(props: Readonly<Props>) {
   const { leakPeriod, updateQuery, rootComponent, bubblesByDomain } = props;
   const metrics = useMetrics();
-  const { data: { branchLike } = {} } = useBranchesQuery();
+  const { data: branchLike } = useCurrentBranchQuery(rootComponent);
   const router = useRouter();
   const { query } = useLocation();
   const { selected, metric: domain } = parseQuery(query);

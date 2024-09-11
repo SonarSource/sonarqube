@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
-import { useBranchesQuery } from '../../../queries/branch';
+import { useCurrentBranchQuery } from '../../../queries/branch';
 import NotFound from '../NotFound';
 import { ComponentContext } from '../componentContext/ComponentContext';
 import Extension from './Extension';
@@ -34,13 +34,12 @@ export interface ProjectPageExtensionProps {
 export default function ProjectPageExtension({ params }: ProjectPageExtensionProps) {
   const { extensionKey, pluginKey } = useParams();
   const { component } = React.useContext(ComponentContext);
-  const { data } = useBranchesQuery(component);
+  const { data: branchLike, isLoading } = useCurrentBranchQuery(component);
 
-  if (component === undefined || data === undefined) {
+  if (component === undefined || isLoading) {
     return null;
   }
 
-  const { branchLike } = data;
   const fullKey =
     params !== undefined
       ? `${params.pluginKey}/${params.extensionKey}`

@@ -24,7 +24,7 @@ import { useLocation } from 'react-router-dom';
 import { isBranch, isMainBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import { hasMessage, translate } from '../../../helpers/l10n';
 import { getComponentBackgroundTaskUrl } from '../../../helpers/urls';
-import { useBranchesQuery } from '../../../queries/branch';
+import { useCurrentBranchQuery } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
 import { Task } from '../../../types/tasks';
 import { Component } from '../../../types/types';
@@ -52,7 +52,7 @@ function isSameBranch(task: Task, branchLike?: BranchLike) {
 
 export function AnalysisErrorMessage(props: Props) {
   const { component, currentTask } = props;
-  const { data: { branchLike } = {} } = useBranchesQuery(component);
+  const { data: branchLike } = useCurrentBranchQuery(component);
   const currentTaskOnSameBranch = isSameBranch(currentTask, branchLike);
 
   const location = useLocation();

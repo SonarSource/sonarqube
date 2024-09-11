@@ -35,7 +35,7 @@ import { mergeRatingMeasureHistory } from '../../../helpers/activity-graph';
 import { SOFTWARE_QUALITY_RATING_METRICS } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import useApplicationLeakQuery from '../../../queries/applications';
-import { useBranchesQuery } from '../../../queries/branch';
+import { useCurrentBranchQuery } from '../../../queries/branch';
 import { useAllMeasuresHistoryQuery } from '../../../queries/measures';
 import { useAllProjectAnalysesQuery } from '../../../queries/project-analyses';
 import { useIsLegacyCCTMode } from '../../../queries/settings';
@@ -62,7 +62,7 @@ export function ProjectActivityApp() {
   const router = useRouter();
   const { component } = useComponent();
   const metrics = useMetrics();
-  const { data: { branchLike } = {}, isFetching: isFetchingBranch } = useBranchesQuery(component);
+  const { data: branchLike, isFetching: isFetchingBranch } = useCurrentBranchQuery(component);
   const enabled =
     component?.key !== undefined &&
     (isPortfolioLike(component?.qualifier) || (Boolean(branchLike) && !isFetchingBranch));

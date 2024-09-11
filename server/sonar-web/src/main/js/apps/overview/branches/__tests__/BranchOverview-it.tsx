@@ -61,6 +61,10 @@ let usersHandler: UsersServiceMock;
 let timeMarchineHandler: TimeMachineServiceMock;
 let qualityGatesHandler: QualityGatesServiceMock;
 
+jest.mock('../../../../api/ce', () => ({
+  getAnalysisStatus: jest.fn().mockResolvedValue({ component: { warnings: [] } }),
+}));
+
 beforeAll(() => {
   branchesHandler = new BranchesServiceMock();
   measuresHandler = new MeasuresServiceMock();

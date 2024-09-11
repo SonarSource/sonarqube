@@ -98,7 +98,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     willRefreshAutomatically,
   } = props;
 
-  const { data: { branchLikes } = { branchLikes: [] } } = useBranchesQuery(component);
+  const { data: branchLikes = [] } = useBranchesQuery(component);
 
   const mainBranchName =
     (branchLikes.find((b) => isMainBranch(b)) as MainBranch | undefined)?.name ||
