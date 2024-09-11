@@ -65,12 +65,8 @@ import {
   setupGitlabProjectCreation,
 } from '../alm-integrations';
 
-let uniqueNumber = 0;
-
 function createUniqueNumber() {
-  uniqueNumber += 1;
-
-  return uniqueNumber;
+  return Math.floor(Date.now() * Math.random());
 }
 
 export default class AlmIntegrationsServiceMock {
