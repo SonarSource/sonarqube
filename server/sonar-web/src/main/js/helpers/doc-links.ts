@@ -23,7 +23,7 @@ import { AlmKeys } from '../types/alm-settings';
 export const DOC_URL = 'https://docs.sonarsource.com/sonarqube/latest';
 
 export enum DocLink {
-  AccountTokens = '/user-guide/user-account/generating-and-using-tokens/',
+  AccountTokens = '/user-guide/managing-tokens/',
   ActiveVersions = '/server-upgrade-and-maintenance/upgrade/upgrade-the-server/active-versions/',
   AlmAzureIntegration = '/devops-platform-integration/azure-devops-integration/',
   AlmBitBucketCloudAuth = '/instance-administration/authentication/bitbucket-cloud/',
@@ -68,13 +68,13 @@ export enum DocLink {
   Monorepos = '/project-administration/monorepos/',
   NewCodeDefinition = '/project-administration/clean-as-you-code-settings/defining-new-code/',
   NewCodeDefinitionOptions = '/project-administration/clean-as-you-code-settings/defining-new-code/#new-code-definition-options',
-  Portfolios = '/user-guide/portfolios/',
+  Portfolios = '/user-guide/viewing-reports/portfolios/',
   PullRequestAnalysis = '/analyzing-source-code/pull-request-analysis/introduction/',
   QualityGates = '/instance-administration/analysis-functions/quality-gates/',
   Root = '/',
   RulesOverview = '/user-guide/rules/overview',
   SecurityHotspots = '/user-guide/security-hotspots/',
-  SecurityReports = '/user-guide/security-reports/',
+  SecurityReports = '/user-guide/viewing-reports/security-reports/',
   ServerUpgradeRoadmap = '/server-upgrade-and-maintenance/upgrade/upgrade-the-server/roadmap/',
   SonarLintConnectedMode = '/user-guide/sonarlint-connected-mode/',
   SonarScanner = '/analyzing-source-code/scanners/sonarscanner/',
