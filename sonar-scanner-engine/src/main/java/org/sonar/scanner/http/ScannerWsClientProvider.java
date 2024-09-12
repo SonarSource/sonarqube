@@ -23,9 +23,13 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.KeyStore;
+import java.security.Security;
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
 import nl.altindag.ssl.SSLFactory;
+import nl.altindag.ssl.util.KeyStoreUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.System2;
@@ -138,13 +142,19 @@ public class ScannerWsClientProvider {
     if (system2.properties().containsKey("javax.net.ssl.keyStore")) {
       sslFactoryBuilder.withSystemPropertyDerivedIdentityMaterial();
     }
-    var keyStore = sslConfig.getKeyStore();
-    if (keyStore != null && Files.exists(keyStore.getPath())) {
-      sslFactoryBuilder.withIdentityMaterial(keyStore.getPath(), keyStore.getKeyStorePassword().toCharArray(), keyStore.getKeyStoreType());
+    var keyStoreConfig = sslConfig.getKeyStore();
+    if (keyStoreConfig != null && Files.exists(keyStoreConfig.getPath())) {
+      sslFactoryBuilder.withIdentityMaterial(keyStoreConfig.getPath(), keyStoreConfig.getKeyStorePassword().toCharArray(), keyStoreConfig.getKeyStoreType());
     }
-    var trustStore = sslConfig.getTrustStore();
-    if (trustStore != null && Files.exists(trustStore.getPath())) {
-      sslFactoryBuilder.withTrustMaterial(trustStore.getPath(), trustStore.getKeyStorePassword().toCharArray(), trustStore.getKeyStoreType());
+    var trustStoreConfig = sslConfig.getTrustStore();
+    if (trustStoreConfig != null && Files.exists(trustStoreConfig.getPath())) {
+      Security.addProvider(new BouncyCastleProvider());
+      KeyStore trustStore = KeyStoreUtils.loadKeyStore(
+        trustStoreConfig.getPath(),
+        trustStoreConfig.getKeyStorePassword().toCharArray(),
+        trustStoreConfig.getKeyStoreType(),
+        BouncyCastleProvider.PROVIDER_NAME);
+      sslFactoryBuilder.withTrustMaterial(trustStore);
     }
     return sslFactoryBuilder.build();
   }
