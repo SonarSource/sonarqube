@@ -34,7 +34,7 @@ export interface OthersProps {
 
 function otherYamlSteps(branchesEnabled: boolean) {
   let output = `
-      - uses: sonarsource/sonarqube-scan-action@master
+      - uses: sonarsource/sonarqube-scan-action@v2
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
