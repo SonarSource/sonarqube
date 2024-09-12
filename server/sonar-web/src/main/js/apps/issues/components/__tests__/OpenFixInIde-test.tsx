@@ -23,10 +23,13 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React, { ComponentProps } from 'react';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
+import { ComponentContext } from '../../../../app/components/componentContext/ComponentContext';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { openFixOrIssueInSonarLint, probeSonarLintServers } from '../../../../helpers/sonarlint';
 import { mockIssue, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { CodeSuggestion, LineTypeEnum } from '../../../../queries/fix-suggestions';
+import { ComponentContextShape } from '../../../../types/component';
 import { Fix, Ide } from '../../../../types/sonarlint';
 import { OpenFixInIde } from '../OpenFixInIde';
 
@@ -136,7 +139,7 @@ it('handles open in ide button click with several ides found when there is fix s
   await user.click(secondIde);
 
   expect(openFixOrIssueInSonarLint).toHaveBeenCalledWith({
-    branchLike: {},
+    branchLike: expect.objectContaining({ isMain: true, name: 'main' }),
     calledPort: MOCK_IDES_OPEN_FIX[1].port,
     fix: FIX_DATA,
     issueKey: MOCK_ISSUE_KEY,
@@ -153,10 +156,21 @@ function renderComponentOpenIssueInIdeButton(
     projectKey: MOCK_PROJECT_KEY,
   });
 
+  const componentContext: ComponentContextShape = {
+    fetchComponent: jest.fn(),
+    onComponentChange: jest.fn(),
+    component: mockComponent(),
+  };
+
   function Wrapper() {
     const queryClient = useQueryClient();
     queryClient.setQueryData(['branches', 'mycomponent', 'details'], { branchLike: {} });
-    return <OpenFixInIde aiSuggestion={AI_SUGGESTION} issue={mockedIssue} {...props} />;
+
+    return (
+      <ComponentContext.Provider value={componentContext}>
+        <OpenFixInIde aiSuggestion={AI_SUGGESTION} issue={mockedIssue} {...props} />
+      </ComponentContext.Provider>
+    );
   }
 
   return renderComponent(<Wrapper />, '/?id=mycomponent', { currentUser: mockLoggedInUser() });

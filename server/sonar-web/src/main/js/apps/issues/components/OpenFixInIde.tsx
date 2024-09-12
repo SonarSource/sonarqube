@@ -20,10 +20,11 @@
 import { Button, ButtonVariety, DropdownMenu } from '@sonarsource/echoes-react';
 import { addGlobalErrorMessage } from 'design-system/lib';
 import React, { useCallback, useState } from 'react';
+import { useComponent } from '../../../app/components/componentContext/withComponentContext';
 import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
 import { translate } from '../../../helpers/l10n';
 import { probeSonarLintServers } from '../../../helpers/sonarlint';
-import { useBranchesQuery } from '../../../queries/branch';
+import { useCurrentBranchQuery } from '../../../queries/branch';
 import { useComponentForSourceViewer } from '../../../queries/component';
 import { CodeSuggestion } from '../../../queries/fix-suggestions';
 import { useOpenFixOrIssueInIdeMutation } from '../../../queries/sonarlint';
@@ -39,7 +40,8 @@ const DELAY_AFTER_TOKEN_CREATION = 3000;
 
 export function OpenFixInIde({ aiSuggestion, issue }: Readonly<Props>) {
   const [ides, setIdes] = useState<Ide[]>([]);
-  const { data, isLoading: isBranchLoading } = useBranchesQuery();
+  const { component } = useComponent();
+  const { data: branchLike, isLoading: isBranchLoading } = useCurrentBranchQuery(component);
 
   const {
     currentUser: { isLoggedIn },
@@ -47,7 +49,7 @@ export function OpenFixInIde({ aiSuggestion, issue }: Readonly<Props>) {
 
   const { data: sourceViewerFile } = useComponentForSourceViewer(
     issue.component,
-    data?.branchLike,
+    branchLike,
     !isBranchLoading,
   );
   const { mutateAsync: openFixInIde, isPending } = useOpenFixOrIssueInIdeMutation();
@@ -82,7 +84,7 @@ export function OpenFixInIde({ aiSuggestion, issue }: Readonly<Props>) {
       };
 
       await openFixInIde({
-        branchLike: data?.branchLike,
+        branchLike,
         ide,
         fix,
         issue,
@@ -95,7 +97,7 @@ export function OpenFixInIde({ aiSuggestion, issue }: Readonly<Props>) {
         ide.needsToken ? DELAY_AFTER_TOKEN_CREATION : 0,
       );
     },
-    [aiSuggestion, issue, sourceViewerFile, data, openFixInIde],
+    [aiSuggestion, issue, sourceViewerFile, branchLike, openFixInIde],
   );
 
   const onClick = async () => {
@@ -112,7 +114,7 @@ export function OpenFixInIde({ aiSuggestion, issue }: Readonly<Props>) {
     }
   };
 
-  if (!isLoggedIn || data?.branchLike === undefined || sourceViewerFile === undefined) {
+  if (!isLoggedIn || branchLike === undefined || sourceViewerFile === undefined) {
     return null;
   }
 
