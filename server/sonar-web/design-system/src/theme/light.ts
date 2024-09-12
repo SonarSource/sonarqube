@@ -420,7 +420,7 @@ export const lightTheme = {
     iconNegativeUpdate: COLORS.red[300],
     iconTrendPositive: COLORS.green[400],
     iconTrendNegative: COLORS.red[400],
-    iconTrendNeutral: COLORS.blue[400],
+    iconTrendNeutral: COLORS.blue[600],
     iconTrendDisabled: COLORS.blueGrey[400],
     iconError: danger.default,
     iconWarning: COLORS.yellow[600],

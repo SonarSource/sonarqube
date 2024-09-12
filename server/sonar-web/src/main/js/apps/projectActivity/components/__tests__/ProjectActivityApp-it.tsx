@@ -111,7 +111,7 @@ describe('rendering', () => {
     renderProjectActivityAppContainer();
 
     await ui.appLoaded();
-    expect(ui.graphTypeIssues.get()).toBeInTheDocument();
+    expect(ui.graphTypeSelect.get()).toHaveValue('project_activity.graphs.issues');
   });
 
   it('should render new code legend for applications', async () => {
@@ -402,7 +402,7 @@ describe('data loading', () => {
     renderProjectActivityAppContainer();
     await ui.appLoaded();
 
-    expect(ui.graphTypeCustom.get()).toBeInTheDocument();
+    expect(ui.graphTypeSelect.get()).toHaveValue('project_activity.graphs.custom');
   });
 
   it('should correctly fetch the top level component when dealing with sub portfolios', async () => {
@@ -756,8 +756,6 @@ function getPageObject() {
   const ui = {
     // Graph types.
     graphTypeSelect: byLabelText('project_activity.graphs.choose_type'),
-    graphTypeIssues: byText('project_activity.graphs.issues'),
-    graphTypeCustom: byText('project_activity.graphs.custom'),
 
     // Graphs.
     graphs: byLabelText('project_activity.graphs.explanation_x', { exact: false }),

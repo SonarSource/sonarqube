@@ -18,14 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import {
-  Button,
-  ButtonGroup,
-  DropdownMenu,
-  DropdownMenuAlign,
-  IconChevronDown,
-} from '@sonarsource/echoes-react';
-import { TextMuted } from 'design-system';
+import { ButtonGroup, InputSize, Select } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { GraphType } from '../../types/project-activity';
@@ -66,34 +59,24 @@ export default function GraphsHeader(props: Props) {
   const noCustomGraph =
     props.onAddCustomMetric === undefined || props.onRemoveCustomMetric === undefined;
 
-  const options = React.useMemo(() => {
-    const types = getGraphTypes(noCustomGraph);
-
-    return types.map((type) => {
-      const label = translate('project_activity.graphs', type);
-
-      return (
-        <DropdownMenu.ItemButton key={label} onClick={() => handleGraphChange(type)}>
-          {label}
-        </DropdownMenu.ItemButton>
-      );
-    });
-  }, [noCustomGraph, handleGraphChange]);
-
   return (
     <div className={className}>
       <ButtonGroup>
-        <DropdownMenu.Root align={DropdownMenuAlign.Start} id="activity-graph-type" items={options}>
-          <Button
-            aria-label={translate('project_activity.graphs.choose_type')}
-            suffix={<IconChevronDown />}
-          >
-            <TextMuted
-              className="sw-body-sm sw-flex"
-              text={translate('project_activity.graphs', graph)}
-            />
-          </Button>
-        </DropdownMenu.Root>
+        <label htmlFor="graph-type" className="sw-body-sm-highlight">
+          {translate('project_activity.graphs.choose_type')}
+        </label>
+        <Select
+          id="graph-type"
+          hasDropdownAutoWidth
+          onChange={handleGraphChange}
+          isNotClearable
+          value={graph}
+          size={InputSize.Small}
+          data={getGraphTypes(noCustomGraph).map((type) => ({
+            value: type,
+            label: translate('project_activity.graphs', type),
+          }))}
+        />
 
         {isCustomGraph(graph) &&
           props.onAddCustomMetric !== undefined &&

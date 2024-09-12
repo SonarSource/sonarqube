@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import { LinkBox, TextMuted } from 'design-system';
 import * as React from 'react';
 import { Path } from 'react-router-dom';
@@ -107,7 +108,11 @@ export class QualityGateCondition extends React.PureComponent<Props> {
     };
 
     if (METRICS_TO_URL_MAPPING[metricKey]) {
-      return <LinkBox to={METRICS_TO_URL_MAPPING[metricKey]()}>{children}</LinkBox>;
+      return (
+        <LinkBox className="link-box-wrapper" to={METRICS_TO_URL_MAPPING[metricKey]()}>
+          {children}
+        </LinkBox>
+      );
     }
 
     const url = isIssueMeasure(condition.measure.metric.key)
@@ -122,7 +127,11 @@ export class QualityGateCondition extends React.PureComponent<Props> {
           listView: true,
         });
 
-    return <LinkBox to={url}>{children}</LinkBox>;
+    return (
+      <LinkBox className="link-box-wrapper" to={url}>
+        {children}
+      </LinkBox>
+    );
   }
 
   getPrimaryText = () => {
@@ -173,7 +182,7 @@ export class QualityGateCondition extends React.PureComponent<Props> {
               {this.getPrimaryText()}
             </span>
           </div>
-          <TextMuted text={`${operator} ${formatMeasure(threshold, metric.type)}`} />
+          <StyledMutedText text={`${operator} ${formatMeasure(threshold, metric.type)}`} />
         </div>
       </div>,
     );
@@ -181,3 +190,9 @@ export class QualityGateCondition extends React.PureComponent<Props> {
 }
 
 export default withMetricsContext(QualityGateCondition);
+
+const StyledMutedText = styled(TextMuted)`
+  .link-box-wrapper:hover & {
+    color: unset;
+  }
+`;

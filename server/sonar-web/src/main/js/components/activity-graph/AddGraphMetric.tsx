@@ -19,7 +19,7 @@
  */
 
 import { Button, IconChevronDown } from '@sonarsource/echoes-react';
-import { Dropdown, TextMuted } from 'design-system';
+import { Dropdown } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
@@ -165,10 +165,9 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
         }
       >
         <Button suffix={<IconChevronDown />}>
-          <TextMuted
-            className="sw-body-sm sw-flex"
-            text={translate('project_activity.graphs.custom.add')}
-          />
+          <span className="sw-body-sm sw-flex">
+            {translate('project_activity.graphs.custom.add')}
+          </span>
         </Button>
       </Dropdown>
     );

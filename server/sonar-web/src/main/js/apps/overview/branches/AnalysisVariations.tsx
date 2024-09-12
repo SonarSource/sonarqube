@@ -67,15 +67,7 @@ function Variation(props: Readonly<VariationProps>) {
     trendIconDirection = variation > 0 ? TrendDirection.Up : TrendDirection.Down;
     trendIconType = variation > 0 === isGoodIfGrowing ? TrendType.Positive : TrendType.Negative;
   }
-  const variationIcon = (
-    <TrendIcon
-      className="sw-text-lg"
-      direction={trendIconDirection}
-      height={20}
-      type={trendIconType}
-      width={20}
-    />
-  );
+  const variationIcon = <TrendIcon direction={trendIconDirection} type={trendIconType} />;
 
   const variationToDisplay = formattedValue.startsWith('-') ? formattedValue : `+${formattedValue}`;
 
