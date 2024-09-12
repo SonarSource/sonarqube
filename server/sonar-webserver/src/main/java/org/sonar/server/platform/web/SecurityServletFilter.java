@@ -83,11 +83,11 @@ public class SecurityServletFilter implements Filter {
     }
 
     // Cross-site scripting
-    // See https://www.owasp.org/index.php/List_of_useful_HTTP_headers
-    httpResponse.setHeader("X-XSS-Protection", "1; mode=block");
+    // See https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html#x-xss-protection
+    httpResponse.setHeader("X-XSS-Protection", "0");
 
     // MIME-sniffing
-    // See https://www.owasp.org/index.php/List_of_useful_HTTP_headers
+    // See https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html#x-content-type-options
     httpResponse.setHeader("X-Content-Type-Options", "nosniff");
   }
 
