@@ -88,7 +88,7 @@ export function getProjectUrl(
     search: queryToSearchString({
       id: project,
       branch,
-      ...(codeScope && { code_scope: codeScope }),
+      ...(codeScope && { codeScope }),
     }),
   };
 }
@@ -110,7 +110,7 @@ export function getProjectQueryUrl(
     search: queryToSearchString({
       id: project,
       ...branchParameters,
-      ...(codeScope && { code_scope: codeScope }),
+      ...(codeScope && { codeScope }),
     }),
   };
 }

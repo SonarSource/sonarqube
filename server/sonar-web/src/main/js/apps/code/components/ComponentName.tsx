@@ -68,9 +68,11 @@ export default function ComponentName({
   const ariaLabel = unclickable ? translate('code.parent_folder') : undefined;
 
   if (
-    [ComponentQualifier.Application, ComponentQualifier.Portfolio].includes(
-      rootComponent.qualifier as ComponentQualifier,
-    ) &&
+    [
+      ComponentQualifier.Application,
+      ComponentQualifier.Portfolio,
+      ComponentQualifier.SubPortfolio,
+    ].includes(rootComponent.qualifier as ComponentQualifier) &&
     [ComponentQualifier.Application, ComponentQualifier.Project].includes(
       component.qualifier as ComponentQualifier,
     )

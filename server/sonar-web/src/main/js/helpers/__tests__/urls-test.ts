@@ -124,7 +124,7 @@ describe('#getComponentOverviewUrl', () => {
     ).toEqual(
       expect.objectContaining({
         pathname: '/dashboard',
-        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY, code_scope: 'new' }),
+        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY, codeScope: 'new' }),
       }),
     );
   });
@@ -139,7 +139,7 @@ describe('#getComponentOverviewUrl', () => {
     ).toEqual(
       expect.objectContaining({
         pathname: '/dashboard',
-        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY, code_scope: 'overall' }),
+        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY, codeScope: 'overall' }),
       }),
     );
   });
