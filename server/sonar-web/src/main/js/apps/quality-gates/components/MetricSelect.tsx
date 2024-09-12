@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Select, SelectOption } from '@sonarsource/echoes-react';
+import { Select } from '@sonarsource/echoes-react';
+import { groupBy, sortBy } from 'lodash';
 import * as React from 'react';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import { translate } from '../../../helpers/l10n';
@@ -47,11 +48,10 @@ export function MetricSelect({
     }
   };
 
-  const options: SelectOption[] = metricsArray.map((m) => ({
-    value: m.key,
-    label: getLocalizedMetricNameNoDiffMetric(m, metrics),
-    group: m.domain,
-  }));
+  const options = React.useMemo(
+    () => groupByDomain(metricsArray, metrics),
+    [metricsArray, metrics],
+  );
 
   return (
     <Select
@@ -66,3 +66,22 @@ export function MetricSelect({
 }
 
 export default withMetricsContext(MetricSelect);
+
+function groupByDomain(metricsArray: Metric[], metrics: Dict<Metric>) {
+  const groups = groupBy(metricsArray, (m) => m.domain);
+
+  return sortBy(
+    Object.keys(groups).map((group) => {
+      const items = sortBy(
+        groups[group].map((m) => ({
+          value: m.key,
+          label: getLocalizedMetricNameNoDiffMetric(m, metrics),
+        })),
+        (m) => m.label,
+      );
+
+      return { group: translate('metric_domain', group), items };
+    }),
+    (g) => g.group,
+  );
+}

@@ -20,7 +20,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { byLabelText } from '~sonar-aligned/helpers/testSelector';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { mockUserBase } from '../../../../helpers/mocks/users';
 import { mockCurrentUser, mockIssue, mockLoggedInUser } from '../../../../helpers/testMocks';
@@ -53,7 +53,7 @@ jest.mock('../../utils', () => ({
 }));
 
 const ui = {
-  combobox: byLabelText('issue_bulk_change.assignee.change'),
+  combobox: byRole('combobox', { name: 'issue_bulk_change.assignee.change' }),
 };
 
 it('should show correct suggestions when there is assignable issue for the current user', async () => {

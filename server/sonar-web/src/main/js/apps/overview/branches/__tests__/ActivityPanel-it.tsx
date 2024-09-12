@@ -52,8 +52,8 @@ it('should render correctly', async () => {
   expect(screen.getByText('event.sqUpgrade10.2')).toBeInTheDocument();
 
   // Checking measures variations
-  expect(screen.getAllByText(/project_activity\.graphs\.coverage$/)).toHaveLength(3);
-  expect(screen.getAllByText(/project_activity\.graphs\.duplications$/)).toHaveLength(3);
+  expect(screen.getAllByText(/% project_activity\.graphs\.coverage$/)).toHaveLength(3);
+  expect(screen.getAllByText(/% project_activity\.graphs\.duplications$/)).toHaveLength(3);
   // Analysis 1 (latest)
   expect(screen.getByText(/^-5 project_activity\.graphs\.issues$/)).toBeInTheDocument();
   expect(screen.getByText(/^\+6\.5% project_activity\.graphs\.duplications$/)).toBeInTheDocument();

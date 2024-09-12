@@ -57,7 +57,7 @@ const ui = {
   jsonFormatButton: byRole('button', { name: 'settings.json.format' }),
   toggleButton: byRole('switch'),
   selectOption: (name: string) => byRole('option', { name }),
-  selectInput: byRole('searchbox', { name: 'property.test.single.select.list.name' }),
+  selectInput: byRole('combobox', { name: 'property.test.single.select.list.name' }),
   saveButton: byRole('button', { name: 'save' }),
   cancelButton: byRole('button', { name: 'cancel' }),
   changeButton: byRole('button', { name: 'change_verb' }),

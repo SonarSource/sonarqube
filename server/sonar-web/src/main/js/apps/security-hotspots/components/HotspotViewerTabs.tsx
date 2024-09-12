@@ -29,6 +29,7 @@ import {
 } from 'design-system';
 import { groupBy, omit } from 'lodash';
 import * as React from 'react';
+import { useComponent } from '../../../app/components/componentContext/withComponentContext';
 import RuleDescription from '../../../components/rules/RuleDescription';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
@@ -76,7 +77,8 @@ export default function HotspotViewerTabs(props: Props) {
     cve,
   } = props;
 
-  const refreshBranchStatus = useRefreshBranchStatus(component.key);
+  const { component } = useComponent();
+  const refreshBranchStatus = useRefreshBranchStatus(component?.key);
   const isSticky = useStickyDetection('.hotspot-tabs', {
     offset: TABS_OFFSET,
   });

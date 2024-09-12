@@ -212,7 +212,9 @@ it('should be able to add a condition on new code', async () => {
 
   await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.new_code' }).get());
 
-  await user.click(dialog.byLabelText('quality_gates.conditions.fails_when').get());
+  await user.click(
+    dialog.byRole('combobox', { name: 'quality_gates.conditions.fails_when' }).get(),
+  );
   await user.click(dialog.byRole('option', { name: 'Issues' }).get());
 
   await user.click(
@@ -239,13 +241,15 @@ it('should be able to add a condition on overall code', async () => {
 
   await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
 
-  await user.click(dialog.byLabelText('quality_gates.conditions.fails_when').get());
+  await user.click(
+    dialog.byRole('combobox', { name: 'quality_gates.conditions.fails_when' }).get(),
+  );
 
   // In real app there are no metrics with selectable condition operator
   // so we manually changed direction for Info Issues to 0 to test this behavior
   await user.click(await dialog.byRole('option', { name: 'Info Issues' }).find());
 
-  await user.click(dialog.byLabelText('quality_gates.conditions.operator').get());
+  await user.click(await dialog.byLabelText('quality_gates.conditions.operator').find());
 
   await user.click(dialog.byText('quality_gates.operator.LT').get());
   await user.click(dialog.byRole('textbox', { name: 'quality_gates.conditions.value' }).get());
@@ -273,7 +277,9 @@ it('should be able to select a rating', async () => {
   const dialog = byRole('dialog');
 
   await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
-  await user.click(dialog.byLabelText('quality_gates.conditions.fails_when').get());
+  await user.click(
+    dialog.byRole('combobox', { name: 'quality_gates.conditions.fails_when' }).get(),
+  );
   await user.click(dialog.byRole('option', { name: 'Maintainability Rating' }).get());
 
   await user.click(dialog.byLabelText('quality_gates.conditions.value').get());
@@ -577,7 +583,9 @@ it('should not allow to change value of prioritized_rule_issues', async () => {
   const dialog = byRole('dialog');
 
   await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
-  await user.click(dialog.byLabelText('quality_gates.conditions.fails_when').get());
+  await user.click(
+    dialog.byRole('combobox', { name: 'quality_gates.conditions.fails_when' }).get(),
+  );
   await user.click(dialog.byRole('option', { name: 'Issues from prioritized rules' }).get());
 
   expect(dialog.byRole('textbox', { name: 'quality_gates.conditions.value' }).get()).toBeDisabled();
@@ -745,7 +753,7 @@ describe('The Permissions section', () => {
     });
     await user.click(grantPermissionButton);
     const popup = screen.getByRole('dialog');
-    const searchUserInput = within(popup).getByRole('searchbox', {
+    const searchUserInput = within(popup).getByRole('combobox', {
       name: 'quality_gates.permissions.search',
     });
     expect(searchUserInput).toBeInTheDocument();
@@ -794,7 +802,7 @@ describe('The Permissions section', () => {
     });
     await user.click(grantPermissionButton);
     const popup = screen.getByRole('dialog');
-    const searchUserInput = within(popup).getByRole('searchbox', {
+    const searchUserInput = within(popup).getByRole('combobox', {
       name: 'quality_gates.permissions.search',
     });
     const addUserButton = screen.getByRole('button', {
@@ -827,7 +835,7 @@ describe('The Permissions section', () => {
     });
     await user.click(grantPermissionButton);
     const popup = screen.getByRole('dialog');
-    const searchUserInput = within(popup).getByRole('searchbox', {
+    const searchUserInput = within(popup).getByRole('combobox', {
       name: 'quality_gates.permissions.search',
     });
     await user.click(searchUserInput);

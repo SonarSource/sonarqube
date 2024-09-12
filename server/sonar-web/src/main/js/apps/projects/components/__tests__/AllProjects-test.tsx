@@ -74,6 +74,8 @@ beforeEach(() => {
 it('renders correctly', async () => {
   renderProjects(`${BASE_PATH}?gate=OK`);
 
+  expect(await ui.sortSelect.find()).toBeInTheDocument();
+  expect(await ui.perspectiveSelect.find()).toBeInTheDocument();
   expect(await ui.projects.findAll()).toHaveLength(20);
 });
 

@@ -19,7 +19,7 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { mockPaging, mockRule } from '../../../helpers/testMocks';
@@ -101,13 +101,9 @@ const ui = {
   }),
   listLinkJavaQualityProfile: byRole('link', { name: 'java quality profile' }),
   returnToList: byRole('link', { name: 'quality_profiles.page' }),
-  languageSelect: byRole('searchbox', { name: 'language' }),
-  profileExtendSelect: byRole('searchbox', {
-    name: 'quality_profiles.creation.choose_parent_quality_profile',
-  }),
-  profileCopySelect: byRole('searchbox', {
-    name: 'quality_profiles.creation.choose_copy_quality_profile',
-  }),
+  languageSelect: byRole('combobox', { name: 'language' }),
+  profileExtendSelect: byLabelText('quality_profiles.creation.choose_parent_quality_profile'),
+  profileCopySelect: byLabelText('quality_profiles.creation.choose_copy_quality_profile'),
   nameCreatePopupInput: byRole('textbox', { name: 'name required' }),
   importerA: byText('Importer A'),
   importerB: byText('Importer B'),

@@ -64,7 +64,7 @@ const ui = {
   port: byRole('spinbutton', {
     name: 'email_notification.form.port field_required',
   }),
-  securityProtocol: byRole('searchbox', {
+  securityProtocol: byRole('combobox', {
     name: 'email_notification.form.security_protocol field_required',
   }),
   fromAddress: byRole('textbox', {
