@@ -18,15 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Button, ButtonVariety, Modal } from '@sonarsource/echoes-react';
 import {
-  ButtonPrimary,
   FlagMessage,
   FormField,
   InputField,
   InputSelect,
   InputTextArea,
   LabelValueSelectOption,
-  Modal,
   Note,
   Switch,
 } from 'design-system';
@@ -46,9 +45,11 @@ import { SeveritySelect } from './SeveritySelect';
 
 interface Props {
   activation?: RuleActivation;
+  isOpen: boolean;
   modalHeader: string;
   onClose: () => void;
   onDone?: (severity: string, prioritizedRule: boolean) => Promise<void> | void;
+  onOpenChange: (isOpen: boolean) => void;
   profiles: Profile[];
   rule: Rule | RuleDetails;
 }
@@ -61,28 +62,49 @@ const MIN_PROFILES_TO_ENABLE_SELECT = 2;
 const FORM_ID = 'rule-activation-modal-form';
 
 export default function ActivationFormModal(props: Readonly<Props>) {
-  const { activation, rule, profiles, modalHeader } = props;
+  const { activation, rule, profiles, modalHeader, isOpen, onOpenChange } = props;
   const { mutate: activateRule, isPending: submitting } = useActivateRuleMutation((data) => {
     props.onDone?.(data.severity as string, data.prioritizedRule as boolean);
     props.onClose();
   });
   const { hasFeature } = useAvailableFeatures();
   const intl = useIntl();
-  const [prioritizedRule, setPrioritizedRule] = React.useState(
-    activation ? activation.prioritizedRule : false,
+  const [changedPrioritizedRule, setChangedPrioritizedRule] = React.useState<boolean | undefined>(
+    undefined,
+  );
+  const [changedProfile, setChangedProfile] = React.useState<ProfileWithDepth | undefined>(
+    undefined,
+  );
+  const [changedParams, setChangedParams] = React.useState<Record<string, string> | undefined>(
+    undefined,
+  );
+  const [changedSeverity, setChangedSeverity] = React.useState<IssueSeverity | undefined>(
+    undefined,
   );
 
-  const profilesWithDepth = getQualityProfilesWithDepth(profiles, rule.lang);
-  const [profile, setProfile] = React.useState(profilesWithDepth[0]);
-  const [params, setParams] = React.useState(getRuleParams({ activation, rule }));
-  const [severity, setSeverity] = React.useState(
-    (activation ? activation.severity : rule.severity) as IssueSeverity,
-  );
+  const profilesWithDepth = React.useMemo(() => {
+    return getQualityProfilesWithDepth(profiles, rule.lang);
+  }, [profiles, rule.lang]);
 
+  const prioritizedRule =
+    changedPrioritizedRule ?? (activation ? activation.prioritizedRule : false);
+  const profile = changedProfile ?? profilesWithDepth[0];
+  const params = changedParams ?? getRuleParams({ activation, rule });
+  const severity =
+    changedSeverity ?? ((activation ? activation.severity : rule.severity) as IssueSeverity);
   const profileOptions = profilesWithDepth.map((p) => ({ label: p.name, value: p }));
   const isCustomRule = !!(rule as RuleDetails).templateKey;
   const activeInAllProfiles = profilesWithDepth.length <= 0;
   const isUpdateMode = !!activation;
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      setChangedPrioritizedRule(undefined);
+      setChangedProfile(undefined);
+      setChangedParams(undefined);
+      setChangedSeverity(undefined);
+    }
+  }, [isOpen]);
 
   const handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -100,27 +122,33 @@ export default function ActivationFormModal(props: Readonly<Props>) {
     event: React.SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = event.currentTarget;
-    setParams({ ...params, [name]: value });
+    setChangedParams({ ...params, [name]: value });
   };
-
-  const makeScrollable = (rule.params?.length ?? 0) > 1;
 
   return (
     <Modal
-      headerTitle={modalHeader}
-      onClose={props.onClose}
-      loading={submitting}
-      isOverflowVisible={!makeScrollable}
-      isScrollable={makeScrollable}
+      title={modalHeader}
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
       primaryButton={
-        <ButtonPrimary disabled={submitting || activeInAllProfiles} form={FORM_ID} type="submit">
+        <Button
+          variety={ButtonVariety.Primary}
+          isDisabled={submitting || activeInAllProfiles}
+          isLoading={submitting}
+          form={FORM_ID}
+          type="submit"
+        >
           {isUpdateMode
             ? intl.formatMessage({ id: 'save' })
             : intl.formatMessage({ id: 'coding_rules.activate' })}
-        </ButtonPrimary>
+        </Button>
       }
-      secondaryButtonLabel={intl.formatMessage({ id: 'cancel' })}
-      body={
+      secondaryButton={
+        <Button variety={ButtonVariety.Default} isDisabled={submitting} onClick={props.onClose}>
+          {intl.formatMessage({ id: 'cancel' })}
+        </Button>
+      }
+      content={
         <form className="sw-pb-10" id={FORM_ID} onSubmit={handleFormSubmit}>
           {!isUpdateMode && activeInAllProfiles && (
             <FlagMessage className="sw-mb-2" variant="info">
@@ -139,7 +167,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
               isClearable={false}
               isDisabled={submitting || profilesWithDepth.length < MIN_PROFILES_TO_ENABLE_SELECT}
               onChange={({ value }: LabelValueSelectOption<ProfileWithDepth>) => {
-                setProfile(value);
+                setChangedProfile(value);
               }}
               getOptionLabel={({ value }: LabelValueSelectOption<ProfileWithDepth>) =>
                 '   '.repeat(value.depth) + value.name
@@ -184,7 +212,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
                       { state: 'off' },
                     ),
                   }}
-                  onChange={setPrioritizedRule}
+                  onChange={setChangedPrioritizedRule}
                   value={prioritizedRule}
                 />
                 <span className="sw-text-xs">
@@ -202,7 +230,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
             <SeveritySelect
               isDisabled={submitting}
               onChange={({ value }: LabelValueSelectOption<IssueSeverity>) => {
-                setSeverity(value);
+                setChangedSeverity(value);
               }}
               severity={severity}
             />

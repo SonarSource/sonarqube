@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonSecondary } from 'design-system';
+import { Button, ButtonVariety } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { Profile as BaseProfile } from '../../../api/quality-profiles';
 import { Rule, RuleActivation, RuleDetails } from '../../../types/types';
@@ -40,25 +40,26 @@ export default function ActivationButton(props: Props) {
 
   return (
     <>
-      <ButtonSecondary
+      <Button
+        variety={ButtonVariety.Default}
         aria-label={ariaLabel}
         className={className}
         id="coding-rules-quality-profile-activate"
         onClick={() => setModalOpen(true)}
       >
         {buttonText}
-      </ButtonSecondary>
+      </Button>
 
-      {modalOpen && (
-        <ActivationFormModal
-          activation={activation}
-          modalHeader={modalHeader}
-          onClose={() => setModalOpen(false)}
-          onDone={props.onDone}
-          profiles={profiles}
-          rule={rule}
-        />
-      )}
+      <ActivationFormModal
+        activation={activation}
+        modalHeader={modalHeader}
+        isOpen={modalOpen}
+        onOpenChange={setModalOpen}
+        onClose={() => setModalOpen(false)}
+        onDone={props.onDone}
+        profiles={profiles}
+        rule={rule}
+      />
     </>
   );
 }

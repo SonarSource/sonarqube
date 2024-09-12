@@ -39,7 +39,7 @@ export default function ComparisonResultActivation(props: React.PropsWithChildre
   const [rule, setRule] = React.useState<RuleDetails>();
   const intl = useIntl();
 
-  const isOpen = state === 'open' && rule;
+  const isOpen = state === 'open' && !!rule;
 
   const activateRuleMsg = intl.formatMessage(
     { id: 'quality_profiles.comparison.activate_rule' },
@@ -71,8 +71,10 @@ export default function ComparisonResultActivation(props: React.PropsWithChildre
         </Button>
       </Tooltip>
 
-      {isOpen && (
+      {rule && (
         <ActivationFormModal
+          isOpen={isOpen}
+          onOpenChange={(open) => setState(open ? 'open' : 'closed')}
           modalHeader={intl.formatMessage({ id: 'coding_rules.activate_in_quality_profile' })}
           onClose={() => {
             setState('closed');

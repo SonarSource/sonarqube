@@ -669,9 +669,10 @@ describe('Rule app details', () => {
 
     // Change rule details in quality profile
     await user.click(ui.changeButton('QP FooBaz').get());
+    await user.clear(ui.paramInput('1').get());
     await user.type(ui.paramInput('1').get(), 'New');
     await user.click(ui.saveButton.get(ui.changeQPDialog.get()));
-    expect(screen.getByText('New')).toBeInTheDocument();
+    expect(await screen.findByText('New')).toBeInTheDocument();
 
     // Revert rule details in quality profile
     await user.click(ui.revertToParentDefinitionButton.get());
@@ -687,7 +688,7 @@ describe('Rule app details', () => {
   it('can deactivate an inherrited rule', async () => {
     const { ui, user } = getPageObjects();
     rulesHandler.setIsAdmin();
-    renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule1');
+    renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule11');
     await ui.detailsloaded();
 
     // Should show 2 deactivate buttons: one for the parent, one for the child profile.
@@ -704,7 +705,7 @@ describe('Rule app details', () => {
     const { ui } = getPageObjects();
     rulesHandler.setIsAdmin();
     settingsHandler.set(SettingsKey.QPAdminCanDisableInheritedRules, 'false');
-    renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule1');
+    renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule11');
     await ui.detailsloaded();
 
     // Should show 1 deactivate button: one for the parent, none for the child profile.

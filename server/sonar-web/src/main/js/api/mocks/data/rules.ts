@@ -265,12 +265,7 @@ export function mockRuleDetailsList() {
 
 export function mockRulesActivationsInQP() {
   return {
-    [RULE_1]: [
-      mockRuleActivation({ qProfile: QP_1 }),
-      mockRuleActivation({ qProfile: QP_4 }),
-      mockRuleActivation({ qProfile: QP_5, inherit: 'INHERITED' }),
-      mockRuleActivation({ qProfile: QP_6 }),
-    ],
+    [RULE_1]: [mockRuleActivation({ qProfile: QP_1 }), mockRuleActivation({ qProfile: QP_6 })],
     [RULE_7]: [mockRuleActivation({ qProfile: QP_2 })],
     [RULE_8]: [mockRuleActivation({ qProfile: QP_2 })],
     [RULE_9]: [
@@ -286,6 +281,10 @@ export function mockRulesActivationsInQP() {
     [RULE_10]: [
       mockRuleActivation({ qProfile: QP_2, inherit: 'OVERRIDES', prioritizedRule: true }),
       mockRuleActivation({ qProfile: QP_2_Parent, severity: 'MINOR' }),
+    ],
+    [RULE_11]: [
+      mockRuleActivation({ qProfile: QP_4 }),
+      mockRuleActivation({ qProfile: QP_5, inherit: 'INHERITED' }),
     ],
   };
 }
