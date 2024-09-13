@@ -15,6 +15,12 @@ SonarQube provides the capability to not only show the health of an application 
 - [Responsible Disclosure](https://community.sonarsource.com/t/responsible-vulnerability-disclosure/9317)
 - [Next](https://next.sonarqube.com/sonarqube) instance of the next SonarQube version
 
+## Self-Hosting SonarQube
+
+### Elestio
+
+[![Deploy on Elestio](https://elest.io/images/logos/deploy-to-elestio-btn.png)](https://elest.io/open-source/sonarqube)
+
 ## Have Questions or Feedback?
 
 For support questions ("How do I?", "I got this error, why?", ...), please first read the [documentation](https://docs.sonarsource.com/sonarqube) and then head to the [SonarSource Community](https://community.sonarsource.com/c/help/sq/10). The answer to your question has likely already been answered! 🤓
