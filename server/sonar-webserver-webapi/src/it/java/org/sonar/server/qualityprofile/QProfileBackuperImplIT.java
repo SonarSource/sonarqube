@@ -27,9 +27,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -59,7 +64,7 @@ import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescr
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.newRuleWithoutDescriptionSection;
 
-public class QProfileBackuperImplIT {
+class QProfileBackuperImplIT {
 
   private static final String EMPTY_BACKUP = "<?xml version='1.0' encoding='UTF-8'?>" +
     "<profile><name>foo</name>" +
@@ -69,8 +74,8 @@ public class QProfileBackuperImplIT {
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
   private final DummyReset reset = new DummyReset();
   private final QProfileFactory profileFactory = new DummyProfileFactory();
@@ -79,10 +84,10 @@ public class QProfileBackuperImplIT {
   private final QProfileBackuper underTest = new QProfileBackuperImpl(db.getDbClient(), reset, profileFactory, ruleCreator, new QProfileParser());
 
   @Test
-  public void backup_generates_xml_file() {
+  void backup_generates_xml_file() {
     RuleDto rule = createRule();
     QProfileDto profile = createProfile(rule.getLanguage());
-    ActiveRuleDto activeRule = activate(profile, rule);
+    ActiveRuleDto activeRule = activate(profile, rule, ar -> ar.setPrioritizedRule(false));
 
     StringWriter writer = new StringWriter();
     underTest.backup(db.getSession(), profile, writer);
@@ -103,7 +108,32 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void backup_rules_having_parameters() {
+  void backup_prioritized_rule() {
+    RuleDto rule = createRule();
+    QProfileDto profile = createProfile(rule.getLanguage());
+    ActiveRuleDto activeRule = activate(profile, rule, ar -> ar.setPrioritizedRule(true));
+
+    StringWriter writer = new StringWriter();
+    underTest.backup(db.getSession(), profile, writer);
+
+    assertThat(writer).hasToString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+      "<profile><name>" + profile.getName() + "</name>" +
+      "<language>" + profile.getLanguage() + "</language>" +
+      "<rules>" +
+      "<rule>" +
+      "<repositoryKey>" + rule.getRepositoryKey() + "</repositoryKey>" +
+      "<key>" + rule.getRuleKey() + "</key>" +
+      "<type>" + RuleType.valueOf(rule.getType()).name() + "</type>" +
+      "<priority>" + activeRule.getSeverityString() + "</priority>" +
+      "<prioritizedRule>true</prioritizedRule>" +
+      "<parameters></parameters>" +
+      "</rule>" +
+      "</rules>" +
+      "</profile>");
+  }
+
+  @Test
+  void backup_rules_having_parameters() {
     RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule);
     QProfileDto profile = createProfile(rule.getLanguage());
@@ -126,7 +156,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void backup_empty_profile() {
+  void backup_empty_profile() {
     RuleDto rule = createRule();
     QProfileDto profile = createProfile(rule.getLanguage());
 
@@ -141,7 +171,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void backup_custom_rules_with_params() {
+  void backup_custom_rules_with_params() {
     RuleDto templateRule = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto
       .setIsTemplate(true));
     RuleDto rule = db.rules().insert(
@@ -176,7 +206,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void backup_custom_rules_without_description_section() {
+  void backup_custom_rules_without_description_section() {
     var rule = newRuleWithoutDescriptionSection();
     db.rules().insert(rule);
     RuleParamDto param = db.rules().insertRuleParam(rule);
@@ -203,7 +233,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void restore_backup_on_the_profile_specified_in_backup() {
+  void restore_backup_on_the_profile_specified_in_backup() {
     Reader backup = new StringReader(EMPTY_BACKUP);
 
     QProfileRestoreSummary summary = underTest.restore(db.getSession(), backup, (String) null);
@@ -216,7 +246,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void restore_detects_deprecated_rule_keys() {
+  void restore_detects_deprecated_rule_keys() {
     String ruleUuid = db.rules().insert(RuleKey.of("sonarjs", "s001")).getUuid();
     db.rules().insertDeprecatedKey(c -> c.setRuleUuid(ruleUuid).setOldRuleKey("oldkey").setOldRepositoryKey("oldrepo"));
 
@@ -245,7 +275,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void restore_ignores_deprecated_rule_keys_if_new_key_is_already_present() {
+  void restore_ignores_deprecated_rule_keys_if_new_key_is_already_present() {
     String ruleUuid = db.rules().insert(RuleKey.of("sonarjs", "s001")).getUuid();
     db.rules().insertDeprecatedKey(c -> c.setRuleUuid(ruleUuid).setOldRuleKey("oldkey").setOldRepositoryKey("oldrepo"));
 
@@ -282,7 +312,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void restore_backup_on_profile_having_different_name() {
+  void restore_backup_on_profile_having_different_name() {
     Reader backup = new StringReader(EMPTY_BACKUP);
 
     QProfileRestoreSummary summary = underTest.restore(db.getSession(), backup, "bar");
@@ -295,7 +325,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void restore_resets_the_activated_rules() {
+  void restore_resets_the_activated_rules() {
     String ruleUuid = db.rules().insert(RuleKey.of("sonarjs", "s001")).getUuid();
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile><name>foo</name>" +
@@ -305,6 +335,7 @@ public class QProfileBackuperImplIT {
       "<repositoryKey>sonarjs</repositoryKey>" +
       "<key>s001</key>" +
       "<priority>BLOCKER</priority>" +
+      "<prioritizedRule>true</prioritizedRule>" +
       "<parameters>" +
       "<parameter><key>bar</key><value>baz</value></parameter>" +
       "</parameters>" +
@@ -317,12 +348,55 @@ public class QProfileBackuperImplIT {
     assertThat(reset.calledActivations).hasSize(1);
     RuleActivation activation = reset.calledActivations.get(0);
     assertThat(activation.getSeverity()).isEqualTo("BLOCKER");
+    assertThat(activation.isPrioritizedRule()).isTrue();
     assertThat(activation.getRuleUuid()).isEqualTo(ruleUuid);
     assertThat(activation.getParameter("bar")).isEqualTo("baz");
   }
 
+  @ParameterizedTest
+  @MethodSource("prioritizedRules")
+  void restore_sets_correctly_the_prioritizedRule_flag(boolean prioritizedInProfile, Boolean prioritizedInBackup, boolean expected) {
+    RuleDto rule = createRule();
+    QProfileDto profile = createProfile(rule.getLanguage());
+    ActiveRuleDto activeRule = activate(profile, rule, ar -> ar.setPrioritizedRule(prioritizedInProfile));
+
+    Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
+      "<profile><name>" + profile.getName() + "</name>" +
+      "<language>" + profile.getLanguage() + "</language>" +
+      "<rules>" +
+      "<rule>" +
+      "<repositoryKey>" + rule.getRepositoryKey() + "</repositoryKey>" +
+      "<key>" + rule.getRuleKey() + "</key>" +
+      "<type>" + RuleType.valueOf(rule.getType()).name() + "</type>" +
+      "<priority>" + activeRule.getSeverityString() + "</priority>" +
+      (prioritizedInBackup == null ? "" : "<prioritizedRule>" + prioritizedInBackup + "</prioritizedRule>") +
+      "</rule>" +
+      "</rules>" +
+      "</profile>");
+
+    underTest.restore(db.getSession(), backup, (String) null);
+
+    assertThat(reset.calledActivations).hasSize(1);
+    RuleActivation activation = reset.calledActivations.get(0);
+    assertThat(activation.getSeverity()).isEqualTo(activeRule.getSeverityString());
+    assertThat(activation.isPrioritizedRule()).isEqualTo(expected);
+    assertThat(activation.getRuleUuid()).isEqualTo(rule.getUuid());
+  }
+
+  private static Stream<Arguments> prioritizedRules() {
+    return Stream.of(
+      Arguments.of(true, false, false),
+      Arguments.of(true, null, false),
+      Arguments.of(true, true, true),
+      Arguments.of(false, false, false),
+      Arguments.of(false, null, false),
+      Arguments.of(false, true, true)
+    );
+  }
+
+
   @Test
-  public void restore_custom_rule() {
+  void restore_custom_rule() {
     when(ruleCreator.create(any(), anyList())).then(invocation -> Collections.singletonList(db.rules().insert(RuleKey.of("sonarjs", "s001"))));
 
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
@@ -353,7 +427,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void restore_skips_rule_without_template_key_and_db_definition() {
+  void restore_skips_rule_without_template_key_and_db_definition() {
     String ruleUuid = db.rules().insert(RuleKey.of("sonarjs", "s001")).getUuid();
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile><name>foo</name>" +
@@ -385,7 +459,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void copy_profile() {
+  void copy_profile() {
     RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule);
     QProfileDto from = createProfile(rule.getLanguage());
@@ -400,7 +474,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void copy_profile_with_custom_rule() {
+  void copy_profile_with_custom_rule() {
     RuleDto templateRule = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto
       .setIsTemplate(true));
     RuleDto rule = db.rules().insert(
@@ -422,7 +496,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void fail_to_restore_if_bad_xml_format() {
+  void fail_to_restore_if_bad_xml_format() {
     DbSession session = db.getSession();
     StringReader backup = new StringReader("<rules><rule></rules>");
     IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> underTest.restore(session, backup, (String) null));
@@ -431,7 +505,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void fail_to_restore_if_not_xml_backup() {
+  void fail_to_restore_if_not_xml_backup() {
     DbSession session = db.getSession();
     StringReader backup = new StringReader("foo");
     assertThrows(IllegalArgumentException.class, () -> underTest.restore(session, backup, (String) null));
@@ -439,7 +513,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void fail_to_restore_if_xml_is_not_well_formed() {
+  void fail_to_restore_if_xml_is_not_well_formed() {
     assertThatThrownBy(() -> {
       String notWellFormedXml = "<?xml version='1.0' encoding='UTF-8'?><profile><name>\"profil\"</name><language>\"language\"</language><rules/></profile";
 
@@ -450,7 +524,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void fail_to_restore_if_duplicate_rule() throws Exception {
+  void fail_to_restore_if_duplicate_rule() throws Exception {
     DbSession session = db.getSession();
     String xml = Resources.toString(getClass().getResource("QProfileBackuperIT/duplicates-xml-backup.xml"), UTF_8);
     StringReader backup = new StringReader(xml);
@@ -460,7 +534,7 @@ public class QProfileBackuperImplIT {
   }
 
   @Test
-  public void fail_to_restore_external_rule() {
+  void fail_to_restore_external_rule() {
     db.rules().insert(RuleKey.of("sonarjs", "s001"), r -> r.setIsExternal(true));
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile><name>foo</name>" +
@@ -496,8 +570,12 @@ public class QProfileBackuperImplIT {
     return db.qualityProfiles().activateRule(profile, rule);
   }
 
+  private ActiveRuleDto activate(QProfileDto profile, RuleDto rule, Consumer<ActiveRuleDto> consumer) {
+    return db.qualityProfiles().activateRule(profile, rule, consumer);
+  }
+
   private ActiveRuleDto activate(QProfileDto profile, RuleDto rule, RuleParamDto param) {
-    ActiveRuleDto activeRule = db.qualityProfiles().activateRule(profile, rule);
+    ActiveRuleDto activeRule = db.qualityProfiles().activateRule(profile, rule, ar -> ar.setPrioritizedRule(false));
     ActiveRuleParamDto dto = ActiveRuleParamDto.createFor(param)
       .setValue("20")
       .setActiveRuleUuid(activeRule.getUuid());

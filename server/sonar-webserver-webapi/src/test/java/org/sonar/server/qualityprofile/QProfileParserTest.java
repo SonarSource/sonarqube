@@ -21,36 +21,78 @@ package org.sonar.server.qualityprofile;
 
 import java.io.Reader;
 import java.io.StringReader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class QProfileParserTest {
+class QProfileParserTest {
 
   @Test
-  public void readXml() {
-    Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
-      "<profile>" +
-      "<name>custom rule</name>" +
-      "<language>js</language>" +
-      "<rules><rule>" +
-      "<repositoryKey>sonarjs</repositoryKey>" +
-      "<key>s001</key>" +
-      "<type>CODE_SMELL</type>" +
-      "<priority>CRITICAL</priority>" +
-      "<name>custom rule name</name>" +
-      "<templateKey>rule_mc8</templateKey>" +
-      "<description>custom rule description</description>" +
-      "<parameters><parameter>" +
-      "<key>bar</key>" +
-      "<value>baz</value>" +
-      "</parameter>" +
-      "</parameters>" +
-      "</rule></rules></profile>");
+  void readXml() {
+    Reader backup = new StringReader("""
+      <?xml version='1.0' encoding='UTF-8'?>
+      <profile>
+        <name>custom rule</name>
+        <language>js</language>
+        <rules>
+          <rule>
+            <repositoryKey>sonarjs</repositoryKey>
+            <key>s001</key>
+            <type>CODE_SMELL</type>
+            <priority>CRITICAL</priority>
+            <name>custom rule name</name>
+            <templateKey>rule_mc8</templateKey>
+            <description>custom rule description</description>
+            <parameters>
+              <parameter>
+                <key>bar</key>
+                <value>baz</value>
+              </parameter>
+            </parameters>
+          </rule>
+          <rule>
+            <repositoryKey>sonarjs</repositoryKey>
+            <key>s002</key>
+            <type>CODE_SMELL</type>
+            <priority>CRITICAL</priority>
+            <prioritizedRule>true</prioritizedRule>
+            <name>custom rule name</name>
+            <templateKey>rule_mc8</templateKey>
+            <description>custom rule description</description>
+            <parameters>
+              <parameter>
+                <key>bar</key>
+                <value>baz</value>
+              </parameter>
+            </parameters>
+          </rule>
+          <rule>
+            <repositoryKey>sonarjs</repositoryKey>
+            <key>s003</key>
+            <type>CODE_SMELL</type>
+            <priority>CRITICAL</priority>
+            <prioritizedRule>false</prioritizedRule>
+            <name>custom rule name</name>
+            <templateKey>rule_mc8</templateKey>
+            <description>custom rule description</description>
+            <parameters>
+              <parameter>
+                <key>bar</key>
+                <value>baz</value>
+              </parameter>
+            </parameters>
+          </rule>
+        </rules>
+      </profile>""");
     var parser = new QProfileParser();
     var importedQProfile = parser.readXml(backup);
-    assertThat(importedQProfile.getRules()).hasSize(1);
+    assertThat(importedQProfile.getRules()).hasSize(3);
     var importedRule = importedQProfile.getRules().get(0);
     assertThat(importedRule.getDescription()).isEqualTo("custom rule description");
+    assertThat(importedRule.getPrioritizedRule()).isFalse();
+    importedRule = importedQProfile.getRules().get(1);
+    assertThat(importedRule.getPrioritizedRule()).isTrue();
+    importedRule = importedQProfile.getRules().get(2);
+    assertThat(importedRule.getPrioritizedRule()).isFalse();
   }
 }

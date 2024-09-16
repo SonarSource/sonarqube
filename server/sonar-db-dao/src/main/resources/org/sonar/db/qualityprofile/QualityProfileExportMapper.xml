@@ -19,6 +19,7 @@
     <include refid="selectRuleDescriptionSectionColumns"/>
     a.uuid as "activeRuleUuid",
     a.failure_level as "severity",
+    a.prioritized_rule as "prioritizedRule",
     r.plugin_rule_key as "rule",
     r.plugin_name as "repository",
     r.priority as "defaultSeverity",
@@ -41,6 +42,7 @@
     <id property="activeRuleUuid" column="activeRuleUuid"/>
     <result property="ruleKey" column="ruleKey"/>
     <result property="severity" column="severity"/>
+    <result property="prioritizedRule" column="prioritizedRule"/>
     <result property="rule" column="rule"/>
     <result property="repository" column="repository"/>
     <result property="name" column="name"/>

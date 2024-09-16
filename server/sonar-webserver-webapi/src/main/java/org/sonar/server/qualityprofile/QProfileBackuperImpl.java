@@ -228,7 +228,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       if (ruleDto == null) {
         continue;
       }
-      activatedRule.add(RuleActivation.create(ruleDto.getUuid(), r.getSeverity(), r.getParameters()));
+      activatedRule.add(RuleActivation.create(ruleDto.getUuid(), r.getSeverity(), r.getPrioritizedRule(), r.getParameters()));
     }
     return activatedRule;
   }

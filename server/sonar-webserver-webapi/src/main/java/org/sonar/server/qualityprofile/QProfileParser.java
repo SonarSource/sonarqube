@@ -53,6 +53,7 @@ public class QProfileParser {
   private static final String ATTRIBUTE_REPOSITORY_KEY = "repositoryKey";
   private static final String ATTRIBUTE_KEY = "key";
   private static final String ATTRIBUTE_PRIORITY = "priority";
+  private static final String ATTRIBUTE_PRIORITIZED_RULE = "prioritizedRule";
   private static final String ATTRIBUTE_TEMPLATE_KEY = "templateKey";
   private static final String ATTRIBUTE_TYPE = "type";
   private static final String ATTRIBUTE_DESCRIPTION = "description";
@@ -75,6 +76,9 @@ public class QProfileParser {
       xml.prop(ATTRIBUTE_KEY, ruleToExport.getRuleKey().rule());
       xml.prop(ATTRIBUTE_TYPE, ruleToExport.getRuleType().name());
       xml.prop(ATTRIBUTE_PRIORITY, ruleToExport.getSeverityString());
+      if (Boolean.TRUE.equals(ruleToExport.getPrioritizedRule())) {
+        xml.prop(ATTRIBUTE_PRIORITIZED_RULE, ruleToExport.getPrioritizedRule());
+      }
 
       if (ruleToExport.isCustomRule()) {
         xml.prop(ATTRIBUTE_NAME, ruleToExport.getName());
@@ -177,6 +181,8 @@ public class QProfileParser {
         rule.setDescription(StringUtils.trim(ruleCursor.collectDescendantText(false)));
       } else if (StringUtils.equals(ATTRIBUTE_PRIORITY, nodeName)) {
         rule.setSeverity(StringUtils.trim(ruleCursor.collectDescendantText(false)));
+      } else if (StringUtils.equals(ATTRIBUTE_PRIORITIZED_RULE, nodeName)) {
+        rule.setPrioritizedRule(Boolean.valueOf(StringUtils.trim(ruleCursor.collectDescendantText(false))));
       } else if (StringUtils.equals(ATTRIBUTE_PARAMETERS, nodeName)) {
         SMInputCursor propsCursor = ruleCursor.childElementCursor(ATTRIBUTE_PARAMETER);
         readParameters(propsCursor, parameters);
