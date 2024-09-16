@@ -566,10 +566,6 @@ class QProfileBackuperImplIT {
     return db.qualityProfiles().insert(p -> p.setLanguage(language));
   }
 
-  private ActiveRuleDto activate(QProfileDto profile, RuleDto rule) {
-    return db.qualityProfiles().activateRule(profile, rule);
-  }
-
   private ActiveRuleDto activate(QProfileDto profile, RuleDto rule, Consumer<ActiveRuleDto> consumer) {
     return db.qualityProfiles().activateRule(profile, rule, consumer);
   }
