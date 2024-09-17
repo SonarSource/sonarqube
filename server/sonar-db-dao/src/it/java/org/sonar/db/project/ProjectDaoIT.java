@@ -145,6 +145,23 @@ class ProjectDaoIT {
   }
 
   @Test
+  void selectProjects_returnsAiCodeAssurance() {
+    ProjectDto dto1 = createProject("o1", "p1").setAiCodeAssurance(true);
+    ProjectDto dto2 = createProject("o1", "p2");
+
+    projectDao.insert(db.getSession(), dto1);
+    projectDao.insert(db.getSession(), dto2);
+
+    List<ProjectDto> projects = projectDao.selectProjects(db.getSession());
+    Map<String, Boolean> projectToAiCodeAssurance = projects.stream().collect(Collectors.toMap(EntityDto::getName,
+      ProjectDto::getAiCodeAssurance));
+    assertThat(projectToAiCodeAssurance)
+      .hasSize(2)
+      .containsEntry("projectName_p1", true)
+      .containsEntry("projectName_p2", false);
+  }
+
+  @Test
   void select_all() {
     ProjectDto dto1 = createProject("o1", "p1");
     ProjectDto dto2 = createProject("o1", "p2");

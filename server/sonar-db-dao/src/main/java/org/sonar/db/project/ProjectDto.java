@@ -32,6 +32,7 @@ public class ProjectDto extends EntityDto {
   private static final String TAGS_SEPARATOR = ",";
   private String tags;
   private CreationMethod creationMethod;
+  private boolean aiCodeAssurance;
   private long createdAt;
   private long updatedAt;
 
@@ -121,6 +122,15 @@ public class ProjectDto extends EntityDto {
 
   public ProjectDto setCreationMethod(CreationMethod creationMethod) {
     this.creationMethod = creationMethod;
+    return this;
+  }
+
+  public boolean getAiCodeAssurance() {
+    return aiCodeAssurance;
+  }
+
+  public ProjectDto setAiCodeAssurance(boolean aiCodeAssurance) {
+    this.aiCodeAssurance = aiCodeAssurance;
     return this;
   }
 }
