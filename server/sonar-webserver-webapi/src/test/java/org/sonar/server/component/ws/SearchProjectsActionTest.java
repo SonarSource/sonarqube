@@ -42,6 +42,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
@@ -126,27 +127,27 @@ public class SearchProjectsActionTest {
 
   @DataProvider
   public static Object[][] rating_metric_keys() {
-    return new Object[][]{{SQALE_RATING_KEY}, {RELIABILITY_RATING_KEY}, {SECURITY_RATING_KEY}};
+    return new Object[][] {{SQALE_RATING_KEY}, {RELIABILITY_RATING_KEY}, {SECURITY_RATING_KEY}};
   }
 
   @DataProvider
   public static Object[][] new_rating_metric_keys() {
-    return new Object[][]{{NEW_MAINTAINABILITY_RATING_KEY}, {NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
+    return new Object[][] {{NEW_MAINTAINABILITY_RATING_KEY}, {NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
   }
 
   @DataProvider
   public static Object[][] component_qualifiers_for_valid_editions() {
-    return new Object[][]{
-      {new String[]{Qualifiers.PROJECT}, Edition.COMMUNITY},
-      {new String[]{Qualifiers.APP, Qualifiers.PROJECT}, Edition.DEVELOPER},
-      {new String[]{Qualifiers.APP, Qualifiers.PROJECT}, Edition.ENTERPRISE},
-      {new String[]{Qualifiers.APP, Qualifiers.PROJECT}, Edition.DATACENTER},
+    return new Object[][] {
+      {new String[] {Qualifiers.PROJECT}, Edition.COMMUNITY},
+      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.DEVELOPER},
+      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.ENTERPRISE},
+      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.DATACENTER},
     };
   }
 
   @DataProvider
   public static Object[][] community_or_developer_edition() {
-    return new Object[][]{
+    return new Object[][] {
       {Edition.COMMUNITY},
       {Edition.DEVELOPER},
     };
@@ -154,25 +155,25 @@ public class SearchProjectsActionTest {
 
   @DataProvider
   public static Object[][] enterprise_or_datacenter_edition() {
-    return new Object[][]{
+    return new Object[][] {
       {Edition.ENTERPRISE},
       {Edition.DATACENTER},
     };
   }
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
 
-  private PlatformEditionProvider editionProviderMock = mock(PlatformEditionProvider.class);
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, new ProjectMeasuresIndexer(dbClient, es.client()));
-  private ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
-  private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
-  private ProjectsInWarning projectsInWarning = new ProjectsInWarning();
+  private final PlatformEditionProvider editionProviderMock = mock(PlatformEditionProvider.class);
+  private final PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, new ProjectMeasuresIndexer(dbClient, es.client()));
+  private final ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
+  private final ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
+  private final ProjectsInWarning projectsInWarning = new ProjectsInWarning();
 
-  private WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, projectsInWarning, editionProviderMock,
+  private final WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, projectsInWarning, editionProviderMock,
     new IssueIndexSyncProgressChecker(db.getDbClient())));
 
-  private RequestBuilder request = SearchProjectsRequest.builder();
+  private final RequestBuilder request = SearchProjectsRequest.builder();
 
   @Before
   public void setUp() {
@@ -1265,11 +1266,13 @@ public class SearchProjectsActionTest {
   @Test
   public void return_visibility_flag() {
     userSession.logIn();
-    ComponentDto privateProject = db.components().insertPublicProject();
+    ComponentDto privateProject = db.components().insertPrivateProject();
     authorizationIndexerTester.allowOnlyAnyone(privateProject);
-    ComponentDto publicProject = db.components().insertPrivateProject();
+    ComponentDto publicProject = db.components().insertPublicProject();
     authorizationIndexerTester.allowOnlyAnyone(publicProject);
     index();
+
+    userSession.addProjectPermission(UserRole.USER, privateProject);
 
     SearchProjectsWsResponse result = call(request);
 
