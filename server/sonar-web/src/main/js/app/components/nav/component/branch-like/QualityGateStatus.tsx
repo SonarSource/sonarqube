@@ -22,7 +22,6 @@ import { QualityGateIndicator } from 'design-system';
 import React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
-import { translateWithParameters } from '../../../../../helpers/l10n';
 import { BranchLike } from '../../../../../types/branch-like';
 
 interface Props {
@@ -31,20 +30,20 @@ interface Props {
   showStatusText?: boolean;
 }
 
-export default function QualityGateStatus({ className, showStatusText, branchLike }: Props) {
+export default function QualityGateStatus(props: Readonly<Props>) {
+  const { className, showStatusText, branchLike } = props;
+
   // eslint-disable-next-line @typescript-eslint/prefer-optional-chain, @typescript-eslint/no-unnecessary-condition
   if (!branchLike.status?.qualityGateStatus) {
     return null;
   }
 
   const formatted = formatMeasure(branchLike.status?.qualityGateStatus, MetricType.Level);
-  const ariaLabel = translateWithParameters('overview.quality_gate_x', formatted);
   return (
     <div className={classNames(`it__level-${branchLike.status.qualityGateStatus}`, className)}>
       <QualityGateIndicator
         status={branchLike.status?.qualityGateStatus}
         className="sw-mr-2"
-        ariaLabel={ariaLabel}
         size="sm"
       />
       {showStatusText && <span>{formatted}</span>}

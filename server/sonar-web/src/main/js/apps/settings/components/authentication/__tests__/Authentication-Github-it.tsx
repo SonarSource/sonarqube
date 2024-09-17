@@ -94,10 +94,10 @@ const ui = {
   githubApiUrl: byRole('textbox', { name: 'property.apiUrl.name' }),
   githubWebUrl: byRole('textbox', { name: 'property.webUrl.name' }),
   allowUsersToSignUp: byRole('switch', {
-    name: 'property.allowUsersToSignUp.name',
+    description: 'property.allowUsersToSignUp.description',
   }),
   projectVisibility: byRole('switch', {
-    name: 'property.projectVisibility.name',
+    description: 'property.projectVisibility.description',
   }),
   organizations: byRole('textbox', {
     name: 'property.allowedOrganizations.name',

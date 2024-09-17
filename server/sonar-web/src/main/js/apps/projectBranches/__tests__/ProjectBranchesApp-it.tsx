@@ -101,13 +101,17 @@ it('should show all branches', async () => {
   expect(ui.pullRequestTabContent.query()).not.toBeInTheDocument();
   expect(ui.linkForAdmin.query()).not.toBeInTheDocument();
   expect(await ui.branchRow.findAll()).toHaveLength(4);
-  expect(ui.branchRow.getAt(1)).toHaveTextContent('mainbranches.main_branchOK1 month ago');
+  expect(ui.branchRow.getAt(1)).toHaveTextContent(
+    'mainbranches.main_branchoverview.quality_gate_x.metric.level.OKOK1 month ago',
+  );
   await expect(byLabelText('help').get()).toHaveATooltipWithContent(
     'project_branch_pull_request.branch.auto_deletion.main_branch_tooltip',
   );
   expect(within(ui.branchRow.getAt(1)).getByRole('switch')).toBeDisabled();
   expect(within(ui.branchRow.getAt(1)).getByRole('switch')).toBeChecked();
-  expect(ui.branchRow.getAt(2)).toHaveTextContent('delete-branchERROR2 days ago');
+  expect(ui.branchRow.getAt(2)).toHaveTextContent(
+    'delete-branchoverview.quality_gate_x.metric.level.ERRORERROR2 days ago',
+  );
   expect(within(ui.branchRow.getAt(2)).getByRole('switch')).toBeEnabled();
   expect(within(ui.branchRow.getAt(2)).getByRole('switch')).not.toBeChecked();
 });
@@ -136,7 +140,9 @@ it('should be able to rename main branch, but not others', async () => {
   await user.type(within(ui.renameBranchDialog.get()).getByRole('textbox'), 'develop');
   expect(within(ui.renameBranchDialog.get()).getByRole('button', { name: 'rename' })).toBeEnabled();
   await user.click(ui.renameBranchDialog.byRole('button', { name: 'rename' }).get());
-  expect(ui.branchRow.getAt(1)).toHaveTextContent('developbranches.main_branchOK1 month ago');
+  expect(ui.branchRow.getAt(1)).toHaveTextContent(
+    'developbranches.main_branchoverview.quality_gate_x.metric.level.OKOK1 month ago',
+  );
   await expect(byLabelText('help').get()).toHaveATooltipWithContent(
     'project_branch_pull_request.branch.auto_deletion.main_branch_tooltip',
   );
@@ -221,9 +227,11 @@ it('should show all pull requests', async () => {
   expect(await ui.pullRequestTabContent.find()).toBeInTheDocument();
   expect(ui.branchTabContent.query()).not.toBeInTheDocument();
   expect(await ui.pullRequestRow.findAll()).toHaveLength(4);
-  expect(ui.pullRequestRow.getAt(1)).toHaveTextContent('01 – TEST-191 update masterOK1 month ago');
+  expect(ui.pullRequestRow.getAt(1)).toHaveTextContent(
+    '01 – TEST-191 update masteroverview.quality_gate_x.metric.level.OKOK1 month ago',
+  );
   expect(ui.pullRequestRow.getAt(2)).toHaveTextContent(
-    '02 – TEST-192 update normal-branchERROR2 days ago',
+    '02 – TEST-192 update normal-branchoverview.quality_gate_x.metric.level.ERRORERROR2 days ago',
   );
 });
 

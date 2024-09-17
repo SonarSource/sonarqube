@@ -19,6 +19,7 @@
  */
 import { useTheme } from '@emotion/react';
 import React from 'react';
+import { useIntl } from 'react-intl';
 import { theme as twTheme } from 'twin.macro';
 import { BasePlacement, PopupPlacement } from '../helpers/positioning';
 import { themeColor, themeContrast } from '../helpers/theme';
@@ -31,7 +32,6 @@ const SIZE = {
 };
 
 interface Props {
-  ariaLabel?: string;
   className?: string;
   size?: keyof typeof SIZE;
   status: QGStatus;
@@ -42,13 +42,7 @@ const RX_4 = 4;
 const RX_2 = 2;
 
 export function QualityGateIndicator(props: Props) {
-  const {
-    className,
-    size = 'md',
-    status,
-    tooltipPlacement = PopupPlacement.Right,
-    ariaLabel,
-  } = props;
+  const { className, size = 'md', status, tooltipPlacement = PopupPlacement.Right } = props;
   const iconProps = {
     className,
     height: SIZE[size],
@@ -70,16 +64,12 @@ export function QualityGateIndicator(props: Props) {
       StatusComponent = <QGFailed {...iconProps} />;
       break;
   }
-  return (
-    <div aria-label={ariaLabel} className="sw-flex sw-justify-center sw-items-center">
-      {StatusComponent}
-    </div>
-  );
+  return <div className="sw-flex sw-justify-center sw-items-center">{StatusComponent}</div>;
 }
 
 const COMMON_PROPS = {
   fill: 'none',
-  role: 'status',
+  role: 'img',
   xmlns: 'http://www.w3.org/2000/svg',
 };
 
@@ -95,8 +85,13 @@ interface IconProps {
 function QGNotComputed({ className, rx, size, tooltipPlacement, ...sizeProps }: IconProps) {
   const theme = useTheme();
   const contrastColor = themeContrast('qgIndicatorNotComputed')({ theme });
+  const intl = useIntl();
+  const formatted = intl.formatMessage({ id: 'metric.level.NONE' });
+  const title = intl.formatMessage({ id: 'overview.quality_gate_x' }, { '0': formatted });
+
   return (
     <svg className={className} {...COMMON_PROPS} {...sizeProps}>
+      <title>{title}</title>
       <rect fill={themeColor('qgIndicatorNotComputed')({ theme })} rx={rx} {...sizeProps} />
       {
         {
@@ -112,8 +107,13 @@ function QGNotComputed({ className, rx, size, tooltipPlacement, ...sizeProps }: 
 function QGPassed({ className, rx, size, tooltipPlacement, ...sizeProps }: IconProps) {
   const theme = useTheme();
   const contrastColor = themeContrast('qgIndicatorPassed')({ theme });
+  const intl = useIntl();
+  const formatted = intl.formatMessage({ id: 'metric.level.OK' });
+  const title = intl.formatMessage({ id: 'overview.quality_gate_x' }, { '0': formatted });
+
   return (
     <svg className={className} {...COMMON_PROPS} {...sizeProps}>
+      <title>{title}</title>
       <rect fill={themeColor('qgIndicatorPassed')({ theme })} rx={rx} {...sizeProps} />
       {
         {
@@ -144,8 +144,13 @@ function QGPassed({ className, rx, size, tooltipPlacement, ...sizeProps }: IconP
 function QGFailed({ className, rx, size, tooltipPlacement, ...sizeProps }: IconProps) {
   const theme = useTheme();
   const contrastColor = themeContrast('qgIndicatorFailed')({ theme });
+  const intl = useIntl();
+  const formatted = intl.formatMessage({ id: 'metric.level.ERROR' });
+  const title = intl.formatMessage({ id: 'overview.quality_gate_x' }, { '0': formatted });
+
   return (
     <svg className={className} {...COMMON_PROPS} {...sizeProps}>
+      <title>{title}</title>
       <rect fill={themeColor('qgIndicatorFailed')({ theme })} rx={rx} {...sizeProps} />
       {
         {

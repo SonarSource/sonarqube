@@ -79,10 +79,7 @@ export default function ProjectCard({ project }: Readonly<Props>) {
           <div>
             <Tooltip content={qualityGateLabel}>
               <span className="sw-flex sw-items-center">
-                <QualityGateIndicator
-                  status={(project.qualityGate as Status) ?? 'NONE'}
-                  ariaLabel={qualityGateLabel}
-                />
+                <QualityGateIndicator status={(project.qualityGate as Status) ?? 'NONE'} />
                 <LightPrimary className="sw-ml-2 sw-body-sm-highlight">{formatted}</LightPrimary>
               </span>
             </Tooltip>

@@ -35,17 +35,19 @@ exports[`renders correctly for failed quality gate 1`] = `
 <body>
   <div>
     <div
-      aria-label="overview.quality_gate_x.ERROR"
       class="sw-flex sw-justify-center sw-items-center"
     >
       <svg
         class="sw-mr-2"
         fill="none"
         height="1rem"
-        role="status"
+        role="img"
         width="1rem"
         xmlns="http://www.w3.org/2000/svg"
       >
+        <title>
+          overview.quality_gate_x.metric.level.ERROR
+        </title>
         <rect
           fill="rgb(254,205,202)"
           height="1rem"
@@ -75,17 +77,19 @@ exports[`renders correctly for passed quality gate 1`] = `
 <body>
   <div>
     <div
-      aria-label="overview.quality_gate_x.OK"
       class="sw-flex sw-justify-center sw-items-center"
     >
       <svg
         class="sw-mr-2"
         fill="none"
         height="1.5rem"
-        role="status"
+        role="img"
         width="1.5rem"
         xmlns="http://www.w3.org/2000/svg"
       >
+        <title>
+          overview.quality_gate_x.metric.level.OK
+        </title>
         <rect
           fill="rgb(209,250,223)"
           height="1.5rem"

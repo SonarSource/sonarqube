@@ -90,7 +90,7 @@ const ui = {
     name: 'property.secret.name',
   }),
   synchronizeGroups: byRole('switch', {
-    name: 'property.synchronizeGroups.name',
+    description: 'property.synchronizeGroups.description',
   }),
   saveConfigButton: byRole('button', { name: 'settings.almintegration.form.save' }),
   jitProvisioningRadioButton: glContainer.byRole('radio', {
@@ -99,7 +99,9 @@ const ui = {
   autoProvisioningRadioButton: glContainer.byRole('radio', {
     name: /settings.authentication.gitlab.form.provisioning_with_gitlab/,
   }),
-  jitAllowUsersToSignUpToggle: byRole('switch', { name: 'property.allowUsersToSignUp.name' }),
+  jitAllowUsersToSignUpToggle: byRole('switch', {
+    description: 'property.allowUsersToSignUp.description',
+  }),
   autoProvisioningToken: byRole('textbox', {
     name: 'property.provisioningToken.name',
   }),

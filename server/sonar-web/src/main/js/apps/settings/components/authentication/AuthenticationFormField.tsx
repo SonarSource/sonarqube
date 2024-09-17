@@ -63,12 +63,17 @@ export default function AuthenticationFormField(props: Readonly<Props>) {
             </StyledLabel>
           </Highlight>
           <AuthenticationToggleFormField
-            definition={definition}
+            ariaDescribedby={`switch-${definition.key}`}
+            name={name}
             settingValue={settingValue as string | boolean}
             onChange={(value) => props.onFieldChange(definition.key, value)}
           />
         </div>
-        {description !== undefined && <Note className="sw-mt-2">{description}</Note>}
+        {description !== undefined && (
+          <Note className="sw-mt-2" id={`switch-${definition.key}`}>
+            {description}
+          </Note>
+        )}
       </>
     );
   }

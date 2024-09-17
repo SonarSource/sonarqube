@@ -19,23 +19,21 @@
  */
 import { Switch } from 'design-system';
 import React from 'react';
-import { DefinitionV2, ExtendedSettingDefinition } from '../../../../types/settings';
-import { getPropertyName } from '../../utils';
 
 interface SamlToggleFieldProps {
-  definition: ExtendedSettingDefinition | DefinitionV2;
+  ariaDescribedby: string;
+  name: string;
   onChange: (value: boolean) => void;
   settingValue?: string | boolean;
 }
 
 export default function AuthenticationToggleField(props: SamlToggleFieldProps) {
-  const { settingValue, definition } = props;
-
-  const label = getPropertyName(definition);
+  const { ariaDescribedby, settingValue, name } = props;
 
   return (
     <Switch
-      labels={{ on: label, off: label }}
+      ariaDescribedby={ariaDescribedby}
+      name={name}
       onChange={props.onChange}
       value={settingValue ?? ''}
     />

@@ -24,11 +24,8 @@ import { themeBorder, themeColor, themeContrast, themeShadow } from '../helpers'
 import { CheckIcon } from './icons';
 
 interface Props {
+  ariaDescribedby?: string;
   disabled?: boolean;
-  labels: {
-    off: string;
-    on: string;
-  };
   name?: string;
   onChange?: (value: boolean) => void;
   value: boolean | string;
@@ -39,7 +36,7 @@ const getValue = (value: boolean | string) => {
 };
 
 function SwitchWithRef(props: Readonly<Props>, ref: ForwardedRef<HTMLButtonElement>) {
-  const { disabled, onChange, name, labels } = props;
+  const { ariaDescribedby, disabled, name, onChange } = props;
   const value = getValue(props.value);
 
   const handleClick = () => {
@@ -53,7 +50,7 @@ function SwitchWithRef(props: Readonly<Props>, ref: ForwardedRef<HTMLButtonEleme
     <StyledSwitch
       active={value}
       aria-checked={value}
-      aria-label={value ? labels.on : labels.off}
+      aria-describedby={ariaDescribedby}
       disabled={disabled}
       name={name}
       onClick={handleClick}

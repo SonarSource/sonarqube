@@ -46,12 +46,9 @@ export default function BranchPurgeSetting(props: Props) {
     <>
       <Switch
         disabled={disabled}
+        name={branch.name}
         onChange={handleOnChange}
         value={branch.excludedFromPurge}
-        labels={{
-          on: translate('on'),
-          off: translate('off'),
-        }}
       />
       <Spinner loading={isPending} className="sw-ml-1" />
       {isTheMainBranch && (

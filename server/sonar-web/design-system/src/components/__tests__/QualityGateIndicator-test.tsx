@@ -18,49 +18,37 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
-import { render } from '../../helpers/testUtils';
+import { IntlShape } from 'react-intl';
+import { renderWithContext } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
 import { QualityGateIndicator } from '../QualityGateIndicator';
 
-const SIZE_VS_WIDTH = {
-  sm: '1rem',
-  md: '1.5rem',
-  xl: '4rem',
-};
-
-it.each([
-  ['OK', 'sm'],
-  ['OK', 'md'],
-  ['OK', 'xl'],
-  ['ERROR', 'sm'],
-  ['ERROR', 'md'],
-  ['ERROR', 'xl'],
-  ['NONE', 'sm'],
-  ['NONE', 'md'],
-  ['NONE', 'xl'],
-])(
-  'render the %s status and %s size correctly',
-  (status: 'ERROR' | 'OK' | 'NONE' | 'NOT_COMPUTED', size: 'sm' | 'md' | 'xl') => {
-    setupWithProps({ status, size });
-
-    expect(screen.getByRole('status')).toHaveAttribute('width', SIZE_VS_WIDTH[size]);
-  },
+jest.mock(
+  'react-intl',
+  () =>
+    ({
+      ...jest.requireActual('react-intl'),
+      useIntl: () => ({
+        formatMessage: ({ id }: { id: string }, values = {}) =>
+          [id, ...Object.values(values)].join('.'),
+      }),
+    }) as IntlShape,
 );
 
 it('should display tooltip', () => {
   const { rerender } = setupWithProps({
+    size: 'sm',
     status: 'NONE',
-    ariaLabel: 'label-none',
   });
-  expect(screen.getByLabelText('label-none')).toBeInTheDocument();
+  expect(screen.getByTitle('overview.quality_gate_x.metric.level.NONE')).toBeInTheDocument();
 
-  rerender(<QualityGateIndicator ariaLabel="label-ok" status="OK" />);
-  expect(screen.getByLabelText('label-ok')).toBeInTheDocument();
+  rerender(<QualityGateIndicator size="md" status="OK" />);
+  expect(screen.getByTitle('overview.quality_gate_x.metric.level.OK')).toBeInTheDocument();
 
-  rerender(<QualityGateIndicator ariaLabel="label-error" status="ERROR" />);
-  expect(screen.getByLabelText('label-error')).toBeInTheDocument();
+  rerender(<QualityGateIndicator size="xl" status="ERROR" />);
+  expect(screen.getByTitle('overview.quality_gate_x.metric.level.ERROR')).toBeInTheDocument();
 });
 
 function setupWithProps(props: Partial<FCProps<typeof QualityGateIndicator>> = {}) {
-  return render(<QualityGateIndicator status="OK" {...props} />);
+  return renderWithContext(<QualityGateIndicator status="OK" {...props} />);
 }

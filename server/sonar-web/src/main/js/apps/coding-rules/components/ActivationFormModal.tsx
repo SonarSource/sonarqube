@@ -198,21 +198,8 @@ export default function ActivationFormModal(props: Readonly<Props>) {
                 className="sw-flex sw-items-center sw-gap-2"
               >
                 <Switch
-                  labels={{
-                    on: intl.formatMessage(
-                      {
-                        id: 'coding_rules.prioritized_rule.label',
-                      },
-                      { state: 'on' },
-                    ),
-                    off: intl.formatMessage(
-                      {
-                        id: 'coding_rules.prioritized_rule.label',
-                      },
-                      { state: 'off' },
-                    ),
-                  }}
                   onChange={setChangedPrioritizedRule}
+                  name={intl.formatMessage({ id: 'coding_rules.prioritized_rule.title' })}
                   value={prioritizedRule}
                 />
                 <span className="sw-text-xs">

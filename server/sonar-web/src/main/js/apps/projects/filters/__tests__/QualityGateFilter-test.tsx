@@ -17,18 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentPropsType } from '../../../../helpers/testUtils';
+import { byRole } from '../../../../sonar-aligned/helpers/testSelector';
 import QualityGateFacet from '../QualityGateFilter';
+
+const ui = {
+  okQGCheckbox: byRole('checkbox', {
+    name: 'overview.quality_gate_x.metric.level.OK metric.level.OK 6',
+  }),
+  errorQGCheckbox: byRole('checkbox', {
+    name: 'overview.quality_gate_x.metric.level.ERROR metric.level.ERROR 3',
+  }),
+};
 
 it('renders options', () => {
   renderQualityGateFilter();
 
-  expect(screen.getByRole('checkbox', { name: 'metric.level.OK 6' })).toBeInTheDocument();
-  expect(screen.getByRole('checkbox', { name: 'metric.level.ERROR 3' })).toBeInTheDocument();
+  expect(ui.okQGCheckbox.get()).toBeInTheDocument();
+  expect(ui.errorQGCheckbox.get()).toBeInTheDocument();
 });
 
 it('updates the filter query', async () => {
@@ -38,7 +47,7 @@ it('updates the filter query', async () => {
 
   renderQualityGateFilter({ onQueryChange });
 
-  await user.click(screen.getByRole('checkbox', { name: 'metric.level.OK 6' }));
+  await user.click(ui.okQGCheckbox.get());
 
   expect(onQueryChange).toHaveBeenCalledWith({ gate: 'OK' });
 });
@@ -51,7 +60,7 @@ it('handles multiselection', async () => {
   renderQualityGateFilter({ onQueryChange, value: ['OK'] });
 
   await user.keyboard('{Control>}');
-  await user.click(screen.getByRole('checkbox', { name: 'metric.level.ERROR 3' }));
+  await user.click(ui.errorQGCheckbox.get());
   await user.keyboard('{/Control}');
 
   expect(onQueryChange).toHaveBeenCalledWith({ gate: 'OK,ERROR' });

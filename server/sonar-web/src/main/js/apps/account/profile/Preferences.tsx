@@ -60,10 +60,7 @@ export function Preferences() {
               />
             </div>
             <Switch
-              labels={{
-                on: translate('my_account.preferences.keyboard_shortcuts.enabled'),
-                off: translate('my_account.preferences.keyboard_shortcuts.disabled'),
-              }}
+              name={translate('my_account.preferences.keyboard_shortcuts')}
               onChange={handleToggleKeyboardShortcut}
               value={shortcutsPreferenceValue}
             />

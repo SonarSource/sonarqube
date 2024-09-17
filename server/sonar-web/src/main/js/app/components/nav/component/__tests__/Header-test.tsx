@@ -51,7 +51,7 @@ it('should render correctly when there is only 1 branch', async () => {
   expect(await screen.findByLabelText('help-tooltip')).toBeInTheDocument();
   expect(screen.getByText('project')).toBeInTheDocument();
   expect(
-    await screen.findByRole('button', { name: 'master overview.quality_gate_x.OK' }),
+    await screen.findByRole('button', { name: 'master overview.quality_gate_x.metric.level.OK' }),
   ).toBeDisabled();
 });
 
@@ -60,29 +60,35 @@ it('should render correctly when there are multiple branch', async () => {
   renderHeader();
 
   expect(
-    await screen.findByRole('button', { name: 'main overview.quality_gate_x.OK' }),
+    await screen.findByRole('button', { name: 'main overview.quality_gate_x.metric.level.OK' }),
   ).toBeEnabled();
 
   expect(screen.queryByLabelText('help-tooltip')).not.toBeInTheDocument();
 
-  await user.click(screen.getByRole('button', { name: 'main overview.quality_gate_x.OK' }));
+  await user.click(
+    screen.getByRole('button', { name: 'main overview.quality_gate_x.metric.level.OK' }),
+  );
   expect(screen.getByText('branches.main_branch')).toBeInTheDocument();
   expect(
     screen.getByRole('menuitem', {
-      name: '03 – TEST-193 dumb commit overview.quality_gate_x.ERROR ERROR',
+      name: '03 – TEST-193 dumb commit overview.quality_gate_x.metric.level.ERROR ERROR',
     }),
   ).toBeInTheDocument();
   expect(
     screen.getByRole('menuitem', {
-      name: '01 – TEST-191 update master overview.quality_gate_x.OK OK',
+      name: '01 – TEST-191 update master overview.quality_gate_x.metric.level.OK OK',
     }),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('menuitem', { name: 'normal-branch overview.quality_gate_x.ERROR ERROR' }),
+    screen.getByRole('menuitem', {
+      name: 'normal-branch overview.quality_gate_x.metric.level.ERROR ERROR',
+    }),
   ).toBeInTheDocument();
 
   await user.click(
-    screen.getByRole('menuitem', { name: 'normal-branch overview.quality_gate_x.ERROR ERROR' }),
+    screen.getByRole('menuitem', {
+      name: 'normal-branch overview.quality_gate_x.metric.level.ERROR ERROR',
+    }),
   );
   expect(screen.getByText('/dashboard?branch=normal-branch&id=header-project')).toBeInTheDocument();
 });
@@ -97,7 +103,9 @@ it('should show manage branch and pull request button for admin', async () => {
       breadcrumbs: [{ name: 'project', key: 'project', qualifier: ComponentQualifier.Project }],
     }),
   });
-  await user.click(await screen.findByRole('button', { name: 'main overview.quality_gate_x.OK' }));
+  await user.click(
+    await screen.findByRole('button', { name: 'main overview.quality_gate_x.metric.level.OK' }),
+  );
 
   expect(screen.getByRole('link', { name: 'branch_like_navigation.manage' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'branch_like_navigation.manage' })).toHaveAttribute(

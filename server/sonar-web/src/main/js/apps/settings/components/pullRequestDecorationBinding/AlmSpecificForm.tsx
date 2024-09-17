@@ -109,17 +109,10 @@ function renderBooleanField(
 ) {
   const { id, value, onFieldChange, propKey, inputExtra } = props;
 
-  const label = translate('settings.pr_decoration.binding.form', id);
-
   return renderFieldWrapper(
     renderLabel({ ...props, optional: true }),
     <div className="sw-flex sw-items-start">
-      <Switch
-        name={id}
-        labels={{ on: label, off: label }}
-        onChange={(v) => onFieldChange(propKey, v)}
-        value={value}
-      />
+      <Switch name={id} onChange={(v) => onFieldChange(propKey, v)} value={value} />
       {value == null && <Note className="sw-ml-2">{translate('settings.not_set')}</Note>}
       {inputExtra}
     </div>,

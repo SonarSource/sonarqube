@@ -23,10 +23,6 @@ import { render } from '../../helpers/testUtils';
 import { Switch } from '../Switch';
 
 const defaultProps = {
-  labels: {
-    off: 'Off',
-    on: 'On',
-  },
   value: false,
 };
 

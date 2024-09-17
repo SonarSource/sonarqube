@@ -322,9 +322,7 @@ function getPageObject() {
   const selectors = {
     pageHeading: byRole('heading', { name: 'background_tasks.page' }),
     numberOfWorkers: () => byLabelText(`background_tasks.number_of_workers`),
-    onlyLatestAnalysis: byRole('switch', {
-      name: 'background_tasks.currents_filter.ALL',
-    }),
+    onlyLatestAnalysis: byRole('switch'),
     search: byPlaceholderText('background_tasks.search_by_task_or_component'),
     fromDateInput: byLabelText('start_date'),
     toDateInput: byLabelText('end_date'),

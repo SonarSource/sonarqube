@@ -30,7 +30,6 @@ import {
   CCT_SOFTWARE_QUALITY_METRICS,
   OLD_TO_NEW_TAXONOMY_METRICS_MAP,
 } from '../../../helpers/constants';
-import { translateWithParameters } from '../../../helpers/l10n';
 import {
   areCCTMeasuresComputed as areCCTMeasuresComputedFn,
   isDiffMetric,
@@ -75,14 +74,12 @@ export default function ComponentMeasure(props: Props) {
   switch (finalMetricType) {
     case MetricType.Level: {
       const formatted = formatMeasure(value, MetricType.Level);
-      const ariaLabel = translateWithParameters('overview.quality_gate_x', formatted);
 
       return (
         <ContentCell className="sw-whitespace-nowrap">
           <QualityGateIndicator
             status={(value as Status) ?? 'NONE'}
             className="sw-mr-2"
-            ariaLabel={ariaLabel}
             size="sm"
           />
           <span>{formatted}</span>

@@ -65,7 +65,11 @@ export default function RenameBranchModal(props: Props) {
       headerTitle={header}
       body={
         <form id={FORM_ID} onSubmit={handleSubmit}>
-          <FormField className="sw-mb-1" label={<FormattedMessage id="new_name" />}>
+          <FormField
+            className="sw-mb-1"
+            htmlFor="rename-branch-name"
+            label={<FormattedMessage id="new_name" />}
+          >
             <InputField
               autoFocus
               id="rename-branch-name"

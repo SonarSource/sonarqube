@@ -140,7 +140,6 @@ function renderFirstLine(
             <span className="sw-flex sw-items-center">
               <QualityGateIndicator
                 status={(measures[MetricKey.alert_status] as Status) ?? 'NONE'}
-                ariaLabel={qualityGateLabel}
               />
               <LightPrimary className="sw-ml-2 sw-body-sm-highlight">{formatted}</LightPrimary>
             </span>

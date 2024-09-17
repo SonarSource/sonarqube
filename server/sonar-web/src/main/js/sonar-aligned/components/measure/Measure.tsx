@@ -89,14 +89,12 @@ export default function Measure({
 
   if (metricType === MetricType.Level) {
     const formatted = formatMeasure(value, MetricType.Level);
-    const ariaLabel = intl.formatMessage({ id: 'overview.quality_gate_x' }, { '0': formatted });
 
     return (
       <>
         <QualityGateIndicator
           status={(value as Status) ?? 'NONE'}
           className="sw-mr-2"
-          ariaLabel={ariaLabel}
           size={small ? 'sm' : 'md'}
         />
         <span className={small ? '' : 'sw-body-md'}>{formatted}</span>
