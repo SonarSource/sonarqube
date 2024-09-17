@@ -46,6 +46,7 @@ import { Feature } from '../../../types/features';
 import { CaycStatus, Condition as ConditionType, QualityGate } from '../../../types/types';
 import { groupAndSortByPriorityConditions, isQualityGateOptimized } from '../utils';
 import AddConditionModal from './AddConditionModal';
+import AIGeneratedIcon from './AIGeneratedIcon';
 import CaycCompliantBanner from './CaycCompliantBanner';
 import CaycCondition from './CaycCondition';
 import CaYCConditionsSimplificationGuide from './CaYCConditionsSimplificationGuide';
@@ -60,16 +61,18 @@ interface Props {
 }
 
 export default function Conditions({ qualityGate, isFetching }: Readonly<Props>) {
-  const [editing, setEditing] = React.useState<boolean>(
-    qualityGate.caycStatus === CaycStatus.NonCompliant,
-  );
-  const { name } = qualityGate;
+  const { name, isBuiltIn, actions, conditions = [], caycStatus } = qualityGate;
+
+  const [editing, setEditing] = React.useState<boolean>(caycStatus === CaycStatus.NonCompliant);
   const metrics = useMetrics();
-  const canEdit = Boolean(qualityGate.actions?.manageConditions);
-  const { conditions = [] } = qualityGate;
+  const { hasFeature } = useAvailableFeatures();
+
+  const canEdit = Boolean(actions?.manageConditions);
   const existingConditions = conditions.filter((condition) => metrics[condition.metric]);
   const { overallCodeConditions, newCodeConditions, caycConditions } =
-    groupAndSortByPriorityConditions(existingConditions, metrics, qualityGate.isBuiltIn);
+    groupAndSortByPriorityConditions(existingConditions, metrics, isBuiltIn);
+  const isAICodeAssuranceQualityGate =
+    hasFeature(Feature.AiCodeAssurance) && isBuiltIn && name === 'Sonar way';
 
   const duplicates: ConditionType[] = [];
   const savedConditions = existingConditions.filter((condition) => condition.id != null);
@@ -79,7 +82,6 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
       duplicates.push(condition);
     }
   });
-  const { hasFeature } = useAvailableFeatures();
 
   const uniqDuplicates = uniqBy(duplicates, (d) => d.metric).map((condition) => ({
     ...condition,
@@ -89,18 +91,15 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
   // set edit only when the name is change
   // i.e when user changes the quality gate
   React.useEffect(() => {
-    setEditing(qualityGate.caycStatus === CaycStatus.NonCompliant);
+    setEditing(caycStatus === CaycStatus.NonCompliant);
   }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const docUrl = useDocUrl(DocLink.CaYC);
-  const isCompliantCustomQualityGate =
-    qualityGate.caycStatus !== CaycStatus.NonCompliant && !qualityGate.isBuiltIn;
+  const isCompliantCustomQualityGate = caycStatus !== CaycStatus.NonCompliant && !isBuiltIn;
   const isOptimizing = isCompliantCustomQualityGate && !isQualityGateOptimized(qualityGate);
 
   const renderCaycModal = React.useCallback(
     ({ onClose }: ModalProps) => {
-      const { conditions = [] } = qualityGate;
-      const canEdit = Boolean(qualityGate.actions?.manageConditions);
       return (
         <CaycReviewUpdateConditionsModal
           qualityGate={qualityGate}
@@ -114,15 +113,15 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
         />
       );
     },
-    [qualityGate, metrics, isOptimizing],
+    [qualityGate, conditions, metrics, isOptimizing, canEdit],
   );
 
   return (
     <div>
       <CaYCConditionsSimplificationGuide qualityGate={qualityGate} />
 
-      {qualityGate.isBuiltIn && (
-        <div className="sw-flex sw-items-center sw-mt-2 sw-mb-9">
+      {isBuiltIn && (
+        <div className="sw-flex sw-items-center">
           <QGRecommendedIcon className="sw-mr-1" />
           <LightLabel>
             <FormattedMessage
@@ -140,20 +139,39 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
         </div>
       )}
 
+      {isAICodeAssuranceQualityGate && (
+        <div className="sw-flex sw-items-center sw-mt-2">
+          <AIGeneratedIcon className="sw-mr-1" />
+          <LightLabel>
+            <FormattedMessage
+              defaultMessage="quality_gates.ai_generated.description"
+              id="quality_gates.ai_generated.description"
+              values={{
+                link: (
+                  <DocumentationLink to={DocLink.AiCodeAssurance}>
+                    {translate('quality_gates.ai_generated.description.clean_ai_generated_code')}
+                  </DocumentationLink>
+                ),
+              }}
+            />
+          </LightLabel>
+        </div>
+      )}
+
       {isCompliantCustomQualityGate && !isOptimizing && <CaycCompliantBanner />}
       {isCompliantCustomQualityGate && isOptimizing && canEdit && (
         <CaycFixOptimizeBanner renderCaycModal={renderCaycModal} isOptimizing />
       )}
-      {qualityGate.caycStatus === CaycStatus.NonCompliant && canEdit && (
+      {caycStatus === CaycStatus.NonCompliant && canEdit && (
         <CaycFixOptimizeBanner renderCaycModal={renderCaycModal} />
       )}
 
-      <header className="sw-flex sw-items-center sw-mb-4 sw-justify-between">
+      <header className="sw-flex sw-items-center sw-mt-9 sw-mb-4 sw-justify-between">
         <div className="sw-flex">
           <HeadingDark className="sw-typo-lg-semibold sw-m-0">
             {translate('quality_gates.conditions')}
           </HeadingDark>
-          {!qualityGate.isBuiltIn && (
+          {!isBuiltIn && (
             <DocHelpTooltip
               className="sw-ml-2"
               content={translate('quality_gates.conditions.help')}
@@ -170,7 +188,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
           <Spinner loading={isFetching} className="sw-ml-4 sw-mt-1" />
         </div>
         <div>
-          {(qualityGate.caycStatus === CaycStatus.NonCompliant || editing) && canEdit && (
+          {(caycStatus === CaycStatus.NonCompliant || editing) && canEdit && (
             <AddConditionModal qualityGate={qualityGate} />
           )}
         </div>
@@ -271,7 +289,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
         )}
       </div>
 
-      {qualityGate.caycStatus !== CaycStatus.NonCompliant && !editing && canEdit && (
+      {caycStatus !== CaycStatus.NonCompliant && !editing && canEdit && (
         <div className="sw-mt-4 it__qg-unfollow-cayc">
           <SubHeading as="p" className="sw-mb-2 sw-typo-default">
             <FormattedMessage

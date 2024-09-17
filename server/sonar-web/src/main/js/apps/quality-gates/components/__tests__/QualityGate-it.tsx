@@ -485,7 +485,6 @@ it('should warn user when quality gate is not CaYC compliant and user has permis
   await user.click(nonCompliantQualityGate);
 
   expect(await screen.findByText(/quality_gates.cayc_missing.banner.title/)).toBeInTheDocument();
-  expect(screen.getAllByText('quality_gates.cayc.tooltip.message').length).toBeGreaterThan(0);
 });
 
 it('should show optimize banner when quality gate is compliant but non-CaYC and user has permission to edit it', async () => {
@@ -498,10 +497,8 @@ it('should show optimize banner when quality gate is compliant but non-CaYC and 
   });
 
   await user.click(nonCompliantQualityGate);
-  // expect(screen.getByTestId('conditions')).toMatchSnapshot();
 
   expect(await screen.findByText(/quality_gates.cayc_optimize.banner.title/)).toBeInTheDocument();
-  expect(screen.getAllByText('quality_gates.cayc.tooltip.message').length).toBeGreaterThan(0);
 });
 
 it('should render CaYC conditions on a separate table if Sonar way', async () => {
@@ -569,6 +566,24 @@ it('should not display CaYC condition simplification tour for users who dismisse
   await user.click(qualityGate);
 
   expect(byRole('alertdialog').query()).not.toBeInTheDocument();
+});
+
+it('should advertise the Sonar way Quality Gate as AI-ready', async () => {
+  const user = userEvent.setup();
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp({
+    currentUser: mockLoggedInUser({
+      dismissedNotices: { [NoticeType.QG_CAYC_CONDITIONS_SIMPLIFICATION]: true },
+    }),
+    featureList: [Feature.AiCodeAssurance],
+  });
+
+  await user.click(await screen.findByRole('link', { name: /Sonar way/ }));
+  expect(
+    await screen.findByRole('link', {
+      name: 'quality_gates.ai_generated.description.clean_ai_generated_code open_in_new_tab',
+    }),
+  ).toBeInTheDocument();
 });
 
 it('should not allow to change value of prioritized_rule_issues', async () => {

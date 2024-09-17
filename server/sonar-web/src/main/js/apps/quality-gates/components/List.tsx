@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Tooltip } from '@sonarsource/echoes-react';
 import { Badge, BareButton, SubnavigationGroup, SubnavigationItem } from 'design-system';
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Tooltip from '../../../components/controls/Tooltip';
-
+import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
+import { Feature } from '../../../types/features';
 import { CaycStatus, QualityGate } from '../../../types/types';
+import AIGeneratedIcon from './AIGeneratedIcon';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import QGRecommendedIcon from './QGRecommendedIcon';
 
@@ -35,53 +37,57 @@ interface Props {
 
 export default function List({ qualityGates, currentQualityGate }: Props) {
   const navigateTo = useNavigate();
-
-  function redirectQualityGate(qualityGateName: string) {
-    navigateTo(getQualityGateUrl(qualityGateName));
-  }
+  const { hasFeature } = useAvailableFeatures();
 
   return (
     <SubnavigationGroup>
-      {qualityGates.map((qualityGate) => {
-        const isDefaultTitle = qualityGate.isDefault ? ` ${translate('default')}` : '';
-        const isBuiltInTitle = qualityGate.isBuiltIn
-          ? ` ${translate('quality_gates.built_in')}`
-          : '';
+      {qualityGates.map(({ isDefault, isBuiltIn, name, caycStatus }) => {
+        const isDefaultTitle = isDefault ? ` ${translate('default')}` : '';
+        const isBuiltInTitle = isBuiltIn ? ` ${translate('quality_gates.built_in')}` : '';
+        const isAICodeAssuranceQualityGate =
+          hasFeature(Feature.AiCodeAssurance) && isBuiltIn && name === 'Sonar way';
 
         return (
           <SubnavigationItem
             className="it__list-group-item"
-            active={currentQualityGate === qualityGate.name}
-            key={qualityGate.name}
+            active={currentQualityGate === name}
+            key={name}
             onClick={() => {
-              redirectQualityGate(qualityGate.name);
+              navigateTo(getQualityGateUrl(name));
             }}
           >
             <div className="sw-flex sw-flex-col sw-min-w-0">
               <BareButton
-                aria-current={currentQualityGate === qualityGate.name && 'page'}
-                title={`${qualityGate.name}${isDefaultTitle}${isBuiltInTitle}`}
+                aria-current={currentQualityGate === name && 'page'}
+                title={`${name}${isDefaultTitle}${isBuiltInTitle}`}
                 className="sw-flex-1 sw-text-ellipsis sw-overflow-hidden sw-max-w-abs-250 sw-whitespace-nowrap"
               >
-                {qualityGate.name}
+                {name}
               </BareButton>
 
-              {(qualityGate.isDefault || qualityGate.isBuiltIn) && (
+              {(isDefault || isBuiltIn) && (
                 <div className="sw-mt-2">
-                  {qualityGate.isDefault && (
-                    <Badge className="sw-mr-2">{translate('default')}</Badge>
-                  )}
-                  {qualityGate.isBuiltIn && <BuiltInQualityGateBadge />}
+                  {isDefault && <Badge className="sw-mr-2">{translate('default')}</Badge>}
+                  {isBuiltIn && <BuiltInQualityGateBadge />}
                 </div>
               )}
             </div>
-            {qualityGate.caycStatus !== CaycStatus.NonCompliant && (
-              <Tooltip content={translate('quality_gates.cayc.tooltip.message')}>
-                <span>
-                  <QGRecommendedIcon />
-                </span>
-              </Tooltip>
-            )}
+            <div>
+              {isAICodeAssuranceQualityGate && (
+                <Tooltip content={translate('quality_gates.ai_generated.tootltip.message')}>
+                  <span className="sw-mr-1">
+                    <AIGeneratedIcon />
+                  </span>
+                </Tooltip>
+              )}
+              {caycStatus !== CaycStatus.NonCompliant && (
+                <Tooltip content={translate('quality_gates.cayc.tooltip.message')}>
+                  <span>
+                    <QGRecommendedIcon />
+                  </span>
+                </Tooltip>
+              )}
+            </div>
           </SubnavigationItem>
         );
       })}

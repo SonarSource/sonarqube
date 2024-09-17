@@ -25,6 +25,7 @@ export const DOC_URL = 'https://docs.sonarsource.com/sonarqube/latest';
 export enum DocLink {
   AccountTokens = '/user-guide/managing-tokens/',
   ActiveVersions = '/server-upgrade-and-maintenance/upgrade/upgrade-the-server/active-versions/',
+  AiCodeAssurance = '/ai-features/ai-code-assurance/',
   AlmAzureIntegration = '/devops-platform-integration/azure-devops-integration/',
   AlmBitBucketCloudAuth = '/instance-administration/authentication/bitbucket-cloud/',
   AlmBitBucketCloudIntegration = '/devops-platform-integration/bitbucket-integration/bitbucket-cloud-integration/',

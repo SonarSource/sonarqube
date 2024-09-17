@@ -34,7 +34,7 @@ interface Props {
 
 export default function CaycNonCompliantBanner({ renderCaycModal, isOptimizing }: Readonly<Props>) {
   return (
-    <CardWithPrimaryBackground className="sw-mb-9 sw-p-8">
+    <CardWithPrimaryBackground className="sw-mt-9 sw-p-8">
       <SubHeadingHighlight className="sw-mb-2">
         {translate(
           isOptimizing

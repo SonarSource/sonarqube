@@ -34,7 +34,7 @@ import QGRecommendedIcon from './QGRecommendedIcon';
 
 export default function CaycCompliantBanner() {
   return (
-    <CardWithPrimaryBackground className="sw-mb-9 sw-p-8">
+    <CardWithPrimaryBackground className="sw-mt-9 sw-p-8">
       <div className="sw-flex sw-items-center sw-mb-2">
         <QGRecommendedIcon className="sw-mr-2" />
         <SubHeadingHighlight className="sw-m-0">
