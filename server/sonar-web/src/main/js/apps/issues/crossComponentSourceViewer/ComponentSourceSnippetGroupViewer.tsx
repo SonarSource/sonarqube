@@ -25,20 +25,18 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { getSources } from '../../../api/components';
-import { AvailableFeaturesContext } from '../../../app/components/available-features/AvailableFeaturesContext';
-import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { TabKeys } from '../../../components/rules/IssueTabViewer';
 import { TabSelectorContext } from '../../../components/rules/TabSelectorContext';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import { translate } from '../../../helpers/l10n';
 import {
+  useGetFixSuggestionsIssuesQuery,
   usePrefetchSuggestion,
   useUnifiedSuggestionsQuery,
 } from '../../../queries/fix-suggestions';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile } from '../../../types/component';
-import { Feature } from '../../../types/features';
 import { IssueDeprecatedStatus } from '../../../types/issues';
 import {
   Dict,
@@ -53,7 +51,6 @@ import {
   SourceViewerFile,
   Issue as TypeIssue,
 } from '../../../types/types';
-import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { IssueSourceViewerScrollContext } from '../components/IssueSourceViewerScrollContext';
 import { IssueSourceViewerHeader } from './IssueSourceViewerHeader';
 import SnippetViewer from './SnippetViewer';
@@ -68,7 +65,6 @@ import {
 
 interface Props {
   branchLike: BranchLike | undefined;
-  currentUser: CurrentUser;
   duplications?: Duplication[];
   duplicationsByLine?: { [line: number]: number[] };
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
@@ -94,7 +90,10 @@ interface State {
   snippets: Snippet[];
 }
 
-class ComponentSourceSnippetGroupViewer extends React.PureComponent<Readonly<Props>, State> {
+export default class ComponentSourceSnippetGroupViewer extends React.PureComponent<
+  Readonly<Props>,
+  State
+> {
   mounted = false;
 
   constructor(props: Readonly<Props>) {
@@ -229,8 +228,7 @@ class ComponentSourceSnippetGroupViewer extends React.PureComponent<Readonly<Pro
   };
 
   renderIssuesList = (line: SourceLine) => {
-    const { isLastOccurenceOfPrimaryComponent, issue, issuesByLine, snippetGroup, currentUser } =
-      this.props;
+    const { isLastOccurenceOfPrimaryComponent, issue, issuesByLine, snippetGroup } = this.props;
     const locations =
       issue.component === snippetGroup.component.key && issue.textRange !== undefined
         ? locationsByLine([issue])
@@ -267,9 +265,7 @@ class ComponentSourceSnippetGroupViewer extends React.PureComponent<Readonly<Pro
                     ref={isSelectedIssue ? ctx?.registerPrimaryLocationRef : undefined}
                     onIssueSelect={this.props.onIssueSelect}
                     getFixButton={
-                      isSelectedIssue ? (
-                        <GetFixButton issue={issueToDisplay} currentUser={currentUser} />
-                      ) : undefined
+                      isSelectedIssue ? <GetFixButton issue={issueToDisplay} /> : undefined
                     }
                   />
                 )}
@@ -345,7 +341,8 @@ class ComponentSourceSnippetGroupViewer extends React.PureComponent<Readonly<Pro
                     selected
                     ref={ctx?.registerPrimaryLocationRef}
                     onIssueSelect={this.props.onIssueSelect}
-                    className="sw-m-0 sw-cursor-default"
+                    className="sw-m-0 sw-cursor-default sw-justify-between"
+                    getFixButton={<GetFixButton issue={issue} />}
                   />
                 )}
               </IssueSourceViewerScrollContext.Consumer>
@@ -413,21 +410,17 @@ const FileLevelIssueStyle = styled.div`
   border: 1px solid ${themeColor('codeLineBorder')};
 `;
 
-function GetFixButton({
-  currentUser,
-  issue,
-}: Readonly<{ currentUser: CurrentUser; issue: Issue }>) {
+function GetFixButton({ issue }: Readonly<{ issue: Issue }>) {
   const handler = React.useContext(TabSelectorContext);
   const { data: suggestion, isLoading } = useUnifiedSuggestionsQuery(issue, false);
   const prefetchSuggestion = usePrefetchSuggestion(issue.key);
 
-  const isSuggestionFeatureEnabled = React.useContext(AvailableFeaturesContext).includes(
-    Feature.FixSuggestions,
-  );
+  const { data } = useGetFixSuggestionsIssuesQuery(issue);
 
-  if (!isLoggedIn(currentUser) || !isSuggestionFeatureEnabled) {
+  if (data?.aiSuggestion !== 'AVAILABLE') {
     return null;
   }
+
   return (
     <Spinner ariaLabel={translate('issues.code_fix.fix_is_being_generated')} isLoading={isLoading}>
       {suggestion !== undefined && (
@@ -455,5 +448,3 @@ function GetFixButton({
     </Spinner>
   );
 }
-
-export default withCurrentUserContext(ComponentSourceSnippetGroupViewer);

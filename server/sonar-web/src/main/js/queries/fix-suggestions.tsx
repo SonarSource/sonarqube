@@ -19,8 +19,13 @@
  */
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { some } from 'lodash';
-import { getSuggestions } from '../api/fix-suggestions';
+import React, { useContext } from 'react';
+import { getFixSuggestionsIssues, getSuggestions } from '../api/fix-suggestions';
+import { useAvailableFeatures } from '../app/components/available-features/withAvailableFeatures';
+import { CurrentUserContext } from '../app/components/current-user/CurrentUserContext';
+import { Feature } from '../types/features';
 import { Issue } from '../types/types';
+import { isLoggedIn } from '../types/users';
 import { useRawSourceQuery } from './sources';
 
 const UNKNOWN = -1;
@@ -131,4 +136,29 @@ export function useUnifiedSuggestionsQuery(issue: Issue, enabled = true) {
       };
     },
   });
+}
+
+export function useGetFixSuggestionsIssuesQuery(issue: Issue) {
+  const { currentUser } = useContext(CurrentUserContext);
+  const { hasFeature } = useAvailableFeatures();
+
+  return useQuery({
+    queryKey: ['code-suggestions', 'issues', 'details', issue.key],
+    queryFn: () =>
+      getFixSuggestionsIssues({
+        issueId: issue.key,
+      }),
+    enabled: hasFeature(Feature.FixSuggestions) && isLoggedIn(currentUser),
+  });
+}
+
+export function withUseGetFixSuggestionsIssues<P extends { issue: Issue }>(
+  Component: React.ComponentType<
+    Omit<P, 'aiSuggestionAvailable'> & { aiSuggestionAvailable: boolean }
+  >,
+) {
+  return function WithGetFixSuggestion(props: Omit<P, 'aiSuggestionAvailable'>) {
+    const { data } = useGetFixSuggestionsIssuesQuery(props.issue);
+    return <Component aiSuggestionAvailable={data?.aiSuggestion === 'AVAILABLE'} {...props} />;
+  };
 }

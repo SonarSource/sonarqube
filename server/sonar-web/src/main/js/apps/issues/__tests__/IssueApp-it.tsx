@@ -22,7 +22,7 @@ import userEvent from '@testing-library/user-event';
 import { range } from 'lodash';
 import React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
-import { ISSUE_101 } from '../../../api/mocks/data/ids';
+import { ISSUE_101, ISSUE_1101 } from '../../../api/mocks/data/ids';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
 import { mockCurrentUser, mockCve, mockLoggedInUser } from '../../../helpers/testMocks';
 import { Feature } from '../../../types/features';
@@ -96,7 +96,7 @@ describe('issue app', () => {
       [Feature.BranchSupport, Feature.FixSuggestions],
     );
 
-    expect(await ui.getFixSuggestion.find()).toBeInTheDocument();
+    expect(await ui.getFixSuggestion.find(undefined, { timeout: 5000 })).toBeInTheDocument();
     await user.click(ui.getFixSuggestion.get());
 
     expect(await ui.suggestedExplanation.find()).toBeInTheDocument();
@@ -109,6 +109,18 @@ describe('issue app', () => {
   it('should not be able to trigger a fix when user is not logged in', async () => {
     renderProjectIssuesApp(
       'project/issues?issueStatuses=CONFIRMED&open=issue2&id=myproject',
+      {},
+      mockCurrentUser(),
+      [Feature.BranchSupport, Feature.FixSuggestions],
+    );
+    expect(await ui.issueCodeTab.find()).toBeInTheDocument();
+    expect(ui.getFixSuggestion.query()).not.toBeInTheDocument();
+    expect(ui.issueCodeFixTab.query()).not.toBeInTheDocument();
+  });
+
+  it('should not be able to trigger a fix when issue is not eligible', async () => {
+    renderProjectIssuesApp(
+      `project/issues?issueStatuses=CONFIRMED&open=${ISSUE_1101}&id=myproject`,
       {},
       mockCurrentUser(),
       [Feature.BranchSupport, Feature.FixSuggestions],

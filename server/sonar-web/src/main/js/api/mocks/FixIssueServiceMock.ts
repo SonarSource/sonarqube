@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
-import { FixParam, getSuggestions } from '../fix-suggestions';
-import { ISSUE_101 } from './data/ids';
+import { FixParam, getFixSuggestionsIssues, getSuggestions } from '../fix-suggestions';
+import { ISSUE_101, ISSUE_1101 } from './data/ids';
 
 jest.mock('../fix-suggestions');
 
@@ -40,7 +40,15 @@ export default class FixIssueServiceMock {
 
   constructor() {
     jest.mocked(getSuggestions).mockImplementation(this.handleGetFixSuggestion);
+    jest.mocked(getFixSuggestionsIssues).mockImplementation(this.handleGetFixSuggestionsIssues);
   }
+
+  handleGetFixSuggestionsIssues = (data: FixParam) => {
+    if (data.issueId === ISSUE_1101) {
+      return this.reply({ aiSuggestion: 'NOT_AVAILABLE_FILE_LEVEL_ISSUE', id: 'id1' } as const);
+    }
+    return this.reply({ aiSuggestion: 'AVAILABLE', id: 'id1' } as const);
+  };
 
   handleGetFixSuggestion = (data: FixParam) => {
     if (data.issueId === ISSUE_101) {

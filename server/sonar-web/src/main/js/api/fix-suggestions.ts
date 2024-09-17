@@ -24,6 +24,15 @@ export interface FixParam {
   issueId: string;
 }
 
+export interface AiIssue {
+  aiSuggestion: 'AVAILABLE' | 'NOT_AVAILABLE_FILE_LEVEL_ISSUE' | 'NOT_AVAILABLE_UNSUPPORTED_RULE';
+  id: string;
+}
+
 export function getSuggestions(data: FixParam): Promise<SuggestedFix> {
   return axiosToCatch.post<SuggestedFix>('/api/v2/fix-suggestions/ai-suggestions', data);
+}
+
+export function getFixSuggestionsIssues(data: FixParam): Promise<AiIssue> {
+  return axiosToCatch.get(`/api/v2/fix-suggestions/issues/${data.issueId}`);
 }

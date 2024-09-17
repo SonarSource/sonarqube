@@ -23,7 +23,6 @@ import { cloneDeep, debounce, groupBy } from 'lodash';
 import * as React from 'react';
 import { Location } from 'react-router-dom';
 import { dismissNotice } from '../../api/users';
-import withAvailableFeatures from '../../app/components/available-features/withAvailableFeatures';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
@@ -32,8 +31,8 @@ import IssueHeader from '../../apps/issues/components/IssueHeader';
 import StyledHeader from '../../apps/issues/components/StyledHeader';
 import { fillBranchLike } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
+import { withUseGetFixSuggestionsIssues } from '../../queries/fix-suggestions';
 import { Cve } from '../../types/cves';
-import { Feature } from '../../types/features';
 import { Issue, RuleDetails } from '../../types/types';
 import { CurrentUser, NoticeType } from '../../types/users';
 import ScreenPositionHelper from '../common/ScreenPositionHelper';
@@ -44,11 +43,11 @@ import { TabSelectorContext } from './TabSelectorContext';
 
 interface IssueTabViewerProps extends CurrentUserContextInterface {
   activityTabContent?: React.ReactNode;
+  aiSuggestionAvailable: boolean;
   codeTabContent?: React.ReactNode;
   currentUser: CurrentUser;
   cve?: Cve;
   extendedDescription?: string;
-  hasFeature: (feature: string) => boolean;
   issue: Issue;
   location: Location;
   onIssueChange: (issue: Issue) => void;
@@ -127,6 +126,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
       issue,
       selectedFlowIndex,
       selectedLocationIndex,
+      aiSuggestionAvailable,
     } = this.props;
 
     const { selectedTab } = this.state;
@@ -137,7 +137,8 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
       prevProps.issue !== issue ||
       prevProps.selectedFlowIndex !== selectedFlowIndex ||
       (prevProps.selectedLocationIndex ?? -1) !== (selectedLocationIndex ?? -1) ||
-      prevProps.currentUser !== currentUser
+      prevProps.currentUser !== currentUser ||
+      prevProps.aiSuggestionAvailable !== aiSuggestionAvailable
     ) {
       this.setState((pState) =>
         this.computeState(
@@ -194,7 +195,6 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
   computeTabs = (displayEducationalPrinciplesNotification: boolean) => {
     const {
       codeTabContent,
-      currentUser: { isLoggedIn },
       ruleDetails: { descriptionSections, educationPrinciples, lang: ruleLanguage, type: ruleType },
       ruleDescriptionContextKey,
       extendedDescription,
@@ -202,7 +202,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
       cve,
       issue,
       suggestionTabContent,
-      hasFeature,
+      aiSuggestionAvailable,
     } = this.props;
 
     // As we might tamper with the description later on, we clone to avoid any side effect
@@ -270,7 +270,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
           />
         ),
       },
-      ...(hasFeature(Feature.FixSuggestions) && isLoggedIn
+      ...(aiSuggestionAvailable
         ? [
             {
               value: TabKeys.CodeFix,
@@ -433,4 +433,6 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
   }
 }
 
-export default withCurrentUserContext(withLocation(withAvailableFeatures(IssueTabViewer)));
+export default withCurrentUserContext(
+  withLocation(withUseGetFixSuggestionsIssues<IssueTabViewerProps>(IssueTabViewer)),
+);
