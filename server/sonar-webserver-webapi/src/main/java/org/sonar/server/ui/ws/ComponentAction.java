@@ -47,7 +47,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -248,8 +247,8 @@ public class ComponentAction implements NavigationWsAction {
   }
 
   private void writeProfiles(JsonWriter json, DbSession dbSession, ComponentDto component) {
-    Set<QualityProfile> qualityProfiles = dbClient.liveMeasureDao().selectMeasure(dbSession, component.branchUuid(), QUALITY_PROFILES_KEY)
-      .map(LiveMeasureDto::getDataAsString)
+    Set<QualityProfile> qualityProfiles = dbClient.measureDao().selectByComponentUuid(dbSession, component.branchUuid())
+      .map(m -> m.getString(QUALITY_PROFILES_KEY))
       .map(data -> QPMeasureData.fromJson(data).getProfiles())
       .orElse(emptySortedSet());
     Map<String, QProfileDto> dtoByQPKey = dbClient.qualityProfileDao().selectByUuids(dbSession, qualityProfiles.stream().map(QualityProfile::getQpKey).toList())

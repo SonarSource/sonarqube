@@ -108,7 +108,7 @@ public class LiveMeasureComputerImplIT {
     assertThat(treeUpdater.getMeasureMatrix().getMeasure(project, metric2.getKey()).get().getValue()).isEqualTo(1d);
 
     // new measures were persisted
-    assertThat(db.getDbClient().measureDao().selectMeasure(db.getSession(), project.uuid()))
+    assertThat(db.getDbClient().measureDao().selectByComponentUuid(db.getSession(), project.uuid()))
       .isPresent()
       .get()
       .satisfies(measure -> assertThat(measure.getMetricValues()).containsEntry(metric1.getKey(),2D));

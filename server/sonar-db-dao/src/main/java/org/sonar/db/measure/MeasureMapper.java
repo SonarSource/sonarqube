@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 
 public interface MeasureMapper {
 
@@ -36,5 +37,19 @@ public interface MeasureMapper {
 
   List<MeasureDto> selectByComponentUuids(@Param("componentUuids") Collection<String> componentUuids);
 
-  Set<MeasureHash> selectBranchMeasureHashes(@Param("branchUuid") String branchUuid);
+  void scrollSelectByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<MeasureDto> handler);
+
+  Set<MeasureHash> selectMeasureHashesForBranch(@Param("branchUuid") String branchUuid);
+
+  List<MeasureDto> selectBranchMeasuresForProject(@Param("projectUuid") String projectUuid);
+
+  void selectTreeByQuery(
+    @Param("query") MeasureTreeQuery measureQuery,
+    @Param("baseUuid") String baseUuid,
+    @Param("baseUuidPath") String baseUuidPath,
+    ResultHandler<MeasureDto> resultHandler);
+
+  List<ProjectMainBranchMeasureDto> selectAllForProjectMainBranches();
+
+  List<MeasureDto> selectAllForMainBranches();
 }

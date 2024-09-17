@@ -24,15 +24,17 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.measures.Metric;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.Measures;
 
 import static java.lang.Double.NaN;
 import static java.lang.Double.isNaN;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.server.measure.ws.ComponentTreeSort.NUMERIC_VALUE_TYPES;
+import static org.sonar.server.measure.ws.ComponentTreeSort.TEXTUAL_VALUE_TYPES;
 
 class ComponentTreeData {
   private final ComponentDto baseComponent;
@@ -177,10 +179,6 @@ class ComponentTreeData {
       this.value = toPrimitive(value);
     }
 
-    private Measure(LiveMeasureDto measureDto) {
-      this(measureDto.getDataAsString(), measureDto.getValue());
-    }
-
     public double getValue() {
       return value;
     }
@@ -194,8 +192,20 @@ class ComponentTreeData {
       return data;
     }
 
-    static Measure createFromMeasureDto(LiveMeasureDto measureDto) {
-      return new Measure(measureDto);
+    static Measure createFromMetricValue(MetricDto metric, @Nullable Object value) {
+      if (value == null) {
+        return null;
+      }
+
+      Metric.ValueType metricValueType = Metric.ValueType.valueOf(metric.getValueType());
+      if (NUMERIC_VALUE_TYPES.contains(metricValueType)) {
+        return new Measure(null, (double) value);
+      } else if (TEXTUAL_VALUE_TYPES.contains(metricValueType)
+        || List.of(Metric.ValueType.DATA, Metric.ValueType.LEVEL).contains(metricValueType)) {
+        return new Measure(value.toString(), null);
+      } else {
+        return null;
+      }
     }
 
     private static double toPrimitive(@Nullable Double value) {

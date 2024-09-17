@@ -23,15 +23,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.dialect.Dialect;
 
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class LiveMeasureDao implements Dao {
@@ -52,63 +49,9 @@ public class LiveMeasureDao implements Dao {
       componentUuids -> mapper(dbSession).selectByComponentUuidsAndMetricUuids(componentUuids, metricUuids));
   }
 
-  public List<ProjectMainBranchLiveMeasureDto> selectForProjectMainBranchesByMetricUuids(DbSession dbSession, Collection<String> metricUuids) {
-    return mapper(dbSession).selectForProjectMainBranchesByMetricUuids(metricUuids);
-  }
-
-  public void scrollSelectByComponentUuidAndMetricKeys(DbSession dbSession, String componentUuid, Collection<String> metricKeys, ResultHandler<LiveMeasureDto> handler) {
-    if (metricKeys.isEmpty()) {
-      return;
-    }
-
-    mapper(dbSession).scrollSelectByComponentUuidAndMetricKeys(componentUuid, metricKeys, handler);
-  }
-
-  public List<LiveMeasureDto> selectByComponentUuidsAndMetricKeys(DbSession dbSession, Collection<String> largeComponentUuids, Collection<String> metricKeys) {
-    if (largeComponentUuids.isEmpty() || metricKeys.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    return executeLargeInputs(
-      largeComponentUuids,
-      componentUuids -> mapper(dbSession).selectByComponentUuidsAndMetricKeys(componentUuids, metricKeys));
-  }
-
-  public List<LiveMeasureDto> selectByComponentUuidAndMetricKeys(DbSession dbSession, String componentUuid, Collection<String> metricKeys) {
-    if (metricKeys.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    return mapper(dbSession).selectByComponentUuidAndMetricKeys(componentUuid, metricKeys);
-  }
-
   public Optional<LiveMeasureDto> selectMeasure(DbSession dbSession, String componentUuid, String metricKey) {
     LiveMeasureDto liveMeasureDto = mapper(dbSession).selectByComponentUuidAndMetricKey(componentUuid, metricKey);
     return Optional.ofNullable(liveMeasureDto);
-  }
-
-  public void selectTreeByQuery(DbSession dbSession, ComponentDto baseComponent, MeasureTreeQuery query, ResultHandler<LiveMeasureDto> resultHandler) {
-    if (query.returnsEmpty()) {
-      return;
-    }
-    mapper(dbSession).selectTreeByQuery(query, baseComponent.uuid(), query.getUuidPath(baseComponent), resultHandler);
-  }
-
-  public long findNclocOfBiggestBranchForProject(DbSession dbSession, String projectUuid){
-    Long ncloc = mapper(dbSession).findNclocOfBiggestBranchForProject(projectUuid, NCLOC_KEY);
-    return ncloc == null ? 0L : ncloc;
-  }
-
-  public List<LargestBranchNclocDto> getLargestBranchNclocPerProject(DbSession dbSession, String nclocMetricUuid) {
-    return mapper(dbSession).getLargestBranchNclocPerProject(nclocMetricUuid);
-  }
-
-  public List<ProjectLocDistributionDto> selectLargestBranchesLocDistribution(DbSession session, String nclocUuid, String nclocDistributionUuid) {
-    return mapper(session).selectLargestBranchesLocDistribution(nclocUuid, nclocDistributionUuid);
-  }
-
-  public long countProjectsHavingMeasure(DbSession dbSession, String metric) {
-    return mapper(dbSession).countProjectsHavingMeasure(metric);
   }
 
   public void insert(DbSession dbSession, LiveMeasureDto dto) {
@@ -121,10 +64,6 @@ public class LiveMeasureDao implements Dao {
     if (mapper.update(dto, now) == 0) {
       mapper.insert(dto, Uuids.create(), now);
     }
-  }
-
-  public void deleteByComponent(DbSession dbSession, String componentUuid) {
-    mapper(dbSession).deleteByComponent(componentUuid);
   }
 
   /**

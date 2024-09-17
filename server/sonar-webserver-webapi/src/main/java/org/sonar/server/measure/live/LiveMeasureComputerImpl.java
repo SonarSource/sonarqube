@@ -142,7 +142,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
 
   @CheckForNull
   private Metric.Level loadPreviousStatus(DbSession dbSession, ComponentDto branchComponent) {
-    return dbClient.measureDao().selectMeasure(dbSession, branchComponent.uuid())
+    return dbClient.measureDao().selectByComponentUuid(dbSession, branchComponent.uuid())
       .map(m -> m.getString(ALERT_STATUS_KEY))
       .map(m -> {
         try {

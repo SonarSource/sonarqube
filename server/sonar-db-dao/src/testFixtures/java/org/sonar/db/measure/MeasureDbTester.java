@@ -109,9 +109,24 @@ public class MeasureDbTester {
 
   @SafeVarargs
   public final MeasureDto insertMeasure(ComponentDto component, Consumer<MeasureDto>... consumers) {
+    return insertMeasure(component.uuid(), component.branchUuid(), consumers);
+  }
+
+  @SafeVarargs
+  public final MeasureDto insertMeasure(BranchDto branch, Consumer<MeasureDto>... consumers) {
+    return insertMeasure(branch.getUuid(), branch.getUuid(), consumers);
+  }
+
+  @SafeVarargs
+  public final MeasureDto insertMeasure(ProjectData projectData, Consumer<MeasureDto>... consumers) {
+    ComponentDto component = projectData.getMainBranchComponent();
+    return insertMeasure(component.uuid(), component.branchUuid(), consumers);
+  }
+
+  private MeasureDto insertMeasure(String componentUuid, String branchUuid, Consumer<MeasureDto>... consumers) {
     MeasureDto dto = new MeasureDto()
-      .setComponentUuid(component.uuid())
-      .setBranchUuid(component.branchUuid());
+      .setComponentUuid(componentUuid)
+      .setBranchUuid(branchUuid);
     Arrays.stream(consumers).forEach(c -> c.accept(dto));
     dbClient.measureDao().insertOrUpdate(db.getSession(), dto);
     db.getSession().commit();

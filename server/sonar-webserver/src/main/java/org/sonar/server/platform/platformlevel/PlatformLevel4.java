@@ -294,6 +294,7 @@ import org.sonar.server.ws.ws.WebServicesWsModule;
 import org.sonar.telemetry.TelemetryClient;
 import org.sonar.telemetry.TelemetryDaemon;
 import org.sonar.telemetry.legacy.CloudUsageDataProvider;
+import org.sonar.telemetry.legacy.ProjectLocDistributionDataProvider;
 import org.sonar.telemetry.legacy.QualityProfileDataProvider;
 import org.sonar.telemetry.legacy.TelemetryDataJsonWriter;
 import org.sonar.telemetry.legacy.TelemetryDataLoaderImpl;
@@ -687,6 +688,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TelemetryClient.class,
       CloudUsageDataProvider.class,
       QualityProfileDataProvider.class,
+      ProjectLocDistributionDataProvider.class,
 
       // monitoring
       ServerMonitoringMetrics.class,

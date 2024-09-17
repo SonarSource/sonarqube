@@ -22,6 +22,8 @@ package org.sonar.db.measure;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.BiFunction;
+import org.apache.commons.lang.math.RandomUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -30,6 +32,30 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MeasureDtoTest {
+
+  @Test
+  void getDouble_returns_double_value() {
+    String metricKey = randomAlphabetic(7);
+    double value = RandomUtils.nextDouble();
+    MeasureDto measureDto = new MeasureDto().addValue(metricKey, value);
+    assertThat(measureDto.getDouble(metricKey)).isEqualTo(value);
+  }
+
+  @Test
+  void getInt_returns_int_value() {
+    String metricKey = randomAlphabetic(7);
+    int value = RandomUtils.nextInt();
+    MeasureDto measureDto = new MeasureDto().addValue(metricKey, value);
+    assertThat(measureDto.getInt(metricKey)).isEqualTo(value);
+  }
+
+  @Test
+  void getLong_returns_long_value() {
+    String metricKey = randomAlphabetic(7);
+    long value = RandomUtils.nextInt();
+    MeasureDto measureDto = new MeasureDto().addValue(metricKey, value);
+    assertThat(measureDto.getLong(metricKey)).isEqualTo(value);
+  }
 
   @ParameterizedTest
   @MethodSource("valuesOfDifferentTypes")
@@ -43,11 +69,21 @@ class MeasureDtoTest {
     return List.of(2, 3.14, "foo");
   }
 
-  @Test
-  void getString_returns_null_for_nonexistent_metric() {
+  @ParameterizedTest
+  @MethodSource("gettersOfDifferentTypes")
+  void getters_return_null_for_nonexistent_metric(BiFunction<MeasureDto, String, Object> getter) {
     String metricKey = randomAlphabetic(7);
     MeasureDto measureDto = new MeasureDto();
-    assertThat(measureDto.getString(metricKey)).isNull();
+    assertThat(getter.apply(measureDto, metricKey)).isNull();
+  }
+
+  public static List<BiFunction<MeasureDto, String, Object>> gettersOfDifferentTypes() {
+    return List.of(
+      MeasureDto::getInt,
+      MeasureDto::getLong,
+      MeasureDto::getDouble,
+      MeasureDto::getString
+    );
   }
 
   @Test

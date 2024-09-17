@@ -110,13 +110,13 @@ public class ListActionIT {
 
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(projectData.getMainBranchDto()).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
-    db.measures().insertLiveMeasure(projectData.getMainBranchComponent(), qualityGateStatus, m -> m.setData("ERROR"));
+    db.measures().insertMeasure(projectData.getMainBranchComponent(), m -> m.addValue(qualityGateStatus.getKey(), "ERROR"));
 
     BranchDto branch = db.components()
       .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BRANCH).setUuid("ac312cc6-26a2-4e2c-9eff-1072358f2017"));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(branch).setLast(true).setCreatedAt(parseDateTime("2017-04-03T13:37:00+0100").getTime()));
-    db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
+    db.measures().insertMeasure(branch, m -> m.addValue(qualityGateStatus.getKey(), "OK"));
 
     RuleDto rule = db.rules().insert();
     db.issues().insert(rule, branch, db.components().getComponentDto(branch), i -> i.setType(BUG).setResolution(null));
@@ -146,13 +146,13 @@ public class ListActionIT {
 
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(projectData.getMainBranchDto()).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
-    db.measures().insertLiveMeasure(projectData.getMainBranchDto(), qualityGateStatus, m -> m.setData("ERROR"));
+    db.measures().insertMeasure(projectData.getMainBranchDto(), m -> m.addValue(qualityGateStatus.getKey(), "ERROR"));
 
     BranchDto branch = db.components()
       .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BRANCH).setUuid("ac312cc6-26a2-4e2c-9eff-1072358f2017"));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(branch).setLast(true).setCreatedAt(parseDateTime("2017-04-03T13:37:00+0100").getTime()));
-    db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
+    db.measures().insertMeasure(branch, m -> m.addValue(qualityGateStatus.getKey(), "OK"));
 
     RuleDto rule = db.rules().insert();
     db.issues().insert(rule, branch, db.components().getComponentDto(branch), i -> i.setType(BUG).setResolution(null));
@@ -223,7 +223,7 @@ public class ListActionIT {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().addProjectPermission(USER, project);
     BranchDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(org.sonar.db.component.BranchType.BRANCH));
-    db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
+    db.measures().insertMeasure(branch, m -> m.addValue(qualityGateStatus.getKey(), "OK"));
 
     ListWsResponse response = ws.newRequest()
       .setParam("project", project.getKey())

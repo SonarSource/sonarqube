@@ -29,12 +29,13 @@ import java.util.stream.Collectors;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.collect.ImmutableList.copyOf;
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 
 class SearchMyProjectsData {
 
@@ -85,13 +86,14 @@ class SearchMyProjectsData {
     dtos.forEach(projectLink -> projectLinks.put(projectLink.getProjectUuid(), projectLink));
     return projectLinks.build();
   }
+
   private static Map<String, String> buildBranchUuidByProjectUuidMap(List<BranchDto> branches) {
     return branches.stream().collect(Collectors.toMap(BranchDto::getProjectUuid, BranchDto::getUuid));
   }
 
-  private static Map<String, String> buildQualityGateStatuses(List<LiveMeasureDto> measures) {
+  private static Map<String, String> buildQualityGateStatuses(List<MeasureDto> measures) {
     return ImmutableMap.copyOf(measures.stream()
-      .collect(Collectors.toMap(LiveMeasureDto::getComponentUuid, LiveMeasureDto::getDataAsString)));
+      .collect(Collectors.toMap(MeasureDto::getComponentUuid, m -> m.getString(ALERT_STATUS_KEY))));
   }
 
   public String mainBranchUuidForProjectUuid(String projectUuid) {
@@ -110,7 +112,7 @@ class SearchMyProjectsData {
     private List<BranchDto> branches;
     private List<ProjectLinkDto> projectLinks;
     private List<SnapshotDto> snapshots;
-    private List<LiveMeasureDto> qualityGates;
+    private List<MeasureDto> qualityGates;
     private Integer totalNbOfProjects;
 
     private Builder() {
@@ -137,7 +139,7 @@ class SearchMyProjectsData {
       return this;
     }
 
-    public Builder setQualityGates(List<LiveMeasureDto> qGateStatuses) {
+    public Builder setQualityGates(List<MeasureDto> qGateStatuses) {
       this.qualityGates = qGateStatuses;
       return this;
     }

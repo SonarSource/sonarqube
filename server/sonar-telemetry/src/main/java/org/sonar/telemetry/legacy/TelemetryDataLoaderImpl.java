@@ -49,8 +49,9 @@ import org.sonar.db.component.AnalysisPropertyValuePerProject;
 import org.sonar.db.component.BranchMeasuresDto;
 import org.sonar.db.component.PrBranchAnalyzedLanguageCountByProjectDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.ProjectLocDistributionDto;
-import org.sonar.db.measure.ProjectMainBranchLiveMeasureDto;
+import org.sonar.db.measure.ProjectMainBranchMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.project.ProjectDto;
@@ -71,7 +72,6 @@ import org.sonar.telemetry.legacy.TelemetryData.NewCodeDefinition;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
@@ -116,6 +116,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final CloudUsageDataProvider cloudUsageDataProvider;
   private final QualityProfileDataProvider qualityProfileDataProvider;
   private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier;
+  private final ProjectLocDistributionDataProvider projectLocDistributionDataProvider;
   private final Set<NewCodeDefinition> newCodeDefinitions = new HashSet<>();
   private final Map<String, NewCodeDefinition> ncdByProject = new HashMap<>();
   private final Map<String, NewCodeDefinition> ncdByBranch = new HashMap<>();
@@ -128,7 +129,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
     ContainerSupport containerSupport, QualityGateCaycChecker qualityGateCaycChecker, QualityGateFinder qualityGateFinder,
     ManagedInstanceService managedInstanceService, CloudUsageDataProvider cloudUsageDataProvider, QualityProfileDataProvider qualityProfileDataProvider,
-    AiCodeAssuranceVerifier aiCodeAssuranceVerifier) {
+    AiCodeAssuranceVerifier aiCodeAssuranceVerifier, ProjectLocDistributionDataProvider projectLocDistributionDataProvider) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;
@@ -142,6 +143,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.cloudUsageDataProvider = cloudUsageDataProvider;
     this.qualityProfileDataProvider = qualityProfileDataProvider;
     this.aiCodeAssuranceVerifier = aiCodeAssuranceVerifier;
+    this.projectLocDistributionDataProvider = projectLocDistributionDataProvider;
   }
 
   private static Database loadDatabaseMetadata(DbSession dbSession) {
@@ -278,14 +280,22 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   }
 
   private void resolveUnanalyzedLanguageCode(TelemetryData.Builder data, DbSession dbSession) {
-    long numberOfUnanalyzedCMeasures = dbClient.liveMeasureDao().countProjectsHavingMeasure(dbSession, UNANALYZED_C_KEY);
-    long numberOfUnanalyzedCppMeasures = dbClient.liveMeasureDao().countProjectsHavingMeasure(dbSession, UNANALYZED_CPP_KEY);
     editionProvider.get()
       .filter(edition -> edition.equals(COMMUNITY))
       .ifPresent(edition -> {
+        List<MeasureDto> measureDtos = dbClient.measureDao().selectAllForMainBranches(dbSession);
+        long numberOfUnanalyzedCMeasures = countProjectsHavingMeasure(measureDtos, UNANALYZED_C_KEY);
+        long numberOfUnanalyzedCppMeasures = countProjectsHavingMeasure(measureDtos, UNANALYZED_CPP_KEY);
+
         data.setHasUnanalyzedC(numberOfUnanalyzedCMeasures > 0);
         data.setHasUnanalyzedCpp(numberOfUnanalyzedCppMeasures > 0);
       });
+  }
+
+  private static long countProjectsHavingMeasure(List<MeasureDto> measureDtos, String metricKey) {
+    return measureDtos.stream()
+      .filter(m -> m.getMetricValues().containsKey(metricKey))
+      .count();
   }
 
   private Long retrieveCurrentMessageSequenceNumber() {
@@ -299,9 +309,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     Map<String, PrBranchAnalyzedLanguageCountByProjectDto> prAndBranchCountByProject = dbClient.branchDao().countPrBranchAnalyzedLanguageByProjectUuid(dbSession)
       .stream().collect(toMap(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, Function.identity()));
     Map<String, String> qgatesByProject = getProjectQgatesMap(dbSession);
-    Map<String, Map<String, Number>> metricsByProject = getProjectMetricsByMetricKeys(dbSession, TECHNICAL_DEBT_KEY, DEVELOPMENT_COST_KEY, SECURITY_HOTSPOTS_KEY,
-      VULNERABILITIES_KEY,
-      BUGS_KEY);
+    Map<String, Map<String, Number>> metricsByProject = getProjectMetricsByMetricKeys(dbSession, List.of(TECHNICAL_DEBT_KEY,
+      DEVELOPMENT_COST_KEY, SECURITY_HOTSPOTS_KEY, VULNERABILITIES_KEY, BUGS_KEY));
     Map<String, Long> securityReportExportedAtByProjectUuid = getSecurityReportExportedAtDateByProjectUuid(dbSession);
 
     List<TelemetryData.ProjectStatistics> projectStatistics = new ArrayList<>();
@@ -356,10 +365,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   }
 
   private void resolveProjects(TelemetryData.Builder data, DbSession dbSession) {
-    Map<String, String> metricUuidMap = getNclocMetricUuidMap(dbSession);
-    String nclocUuid = metricUuidMap.get(NCLOC_KEY);
-    String nclocDistributionUuid = metricUuidMap.get(NCLOC_LANGUAGE_DISTRIBUTION_KEY);
-    List<ProjectLocDistributionDto> branchesWithLargestNcloc = dbClient.liveMeasureDao().selectLargestBranchesLocDistribution(dbSession, nclocUuid, nclocDistributionUuid);
+    List<ProjectLocDistributionDto> branchesWithLargestNcloc = projectLocDistributionDataProvider.getProjectLocDistribution(dbSession);
     List<String> branchUuids = branchesWithLargestNcloc.stream().map(ProjectLocDistributionDto::branchUuid).toList();
     Map<String, Long> latestSnapshotMap = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, branchUuids)
       .stream()
@@ -488,22 +494,18 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       .collect(toMap(ProjectQgateAssociationDto::getUuid, p -> Optional.ofNullable(p.getGateUuid()).orElse("")));
   }
 
-  private Map<String, Map<String, Number>> getProjectMetricsByMetricKeys(DbSession dbSession, String... metricKeys) {
-    Map<String, String> metricNamesByUuid = dbClient.metricDao().selectByKeys(dbSession, asList(metricKeys))
-      .stream()
-      .collect(toMap(MetricDto::getUuid, MetricDto::getKey));
+  private Map<String, Map<String, Number>> getProjectMetricsByMetricKeys(DbSession dbSession, List<String> metricKeys) {
+    Map<String, Map<String, Number>> measuresByProject = new HashMap<>();
+    List<ProjectMainBranchMeasureDto> projectMainBranchMeasureDtos = dbClient.measureDao().selectAllForProjectMainBranches(dbSession);
 
-    // metrics can be empty for un-analyzed projects
-    if (metricNamesByUuid.isEmpty()) {
-      return Collections.emptyMap();
+    for (ProjectMainBranchMeasureDto projectMainBranchMeasureDto : projectMainBranchMeasureDtos) {
+      Map<String, Number> measures = projectMainBranchMeasureDto.getMetricValues().entrySet().stream()
+        .filter(e -> metricKeys.contains(e.getKey()))
+        .collect(toMap(Map.Entry::getKey, e -> Double.parseDouble(e.getValue().toString())));
+      measuresByProject.put(projectMainBranchMeasureDto.getProjectUuid(), measures);
     }
 
-    return dbClient.liveMeasureDao().selectForProjectMainBranchesByMetricUuids(dbSession, metricNamesByUuid.keySet())
-      .stream()
-      .collect(groupingBy(ProjectMainBranchLiveMeasureDto::getProjectUuid,
-        toMap(lmDto -> metricNamesByUuid.get(lmDto.getMetricUuid()),
-          lmDto -> Optional.ofNullable(lmDto.getValue()).orElseGet(() -> Double.valueOf(lmDto.getTextValue())),
-          (oldValue, newValue) -> newValue, HashMap::new)));
+    return measuresByProject;
   }
 
   private static boolean checkIfCloudAlm(String almRaw, String alm, String url, String cloudUrl) {

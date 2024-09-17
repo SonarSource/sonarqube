@@ -243,7 +243,7 @@ public class IssueQueryFactoryTest {
       .setPeriodParam("master"));
 
     MetricDto analysisMetric = db.measures().insertMetric(m -> m.setKey(ANALYSIS_FROM_SONARQUBE_9_4_KEY));
-    db.measures().insertLiveMeasure(project, analysisMetric, measure -> measure.setData("true"));
+    db.measures().insertMeasure(project, measure -> measure.addValue(analysisMetric.getKey(), "true"));
 
     SearchRequest request = new SearchRequest()
       .setComponentUuids(Collections.singletonList(file.uuid()))
@@ -423,7 +423,7 @@ public class IssueQueryFactoryTest {
     ProjectData applicationData = db.components().insertPublicApplication();
     ComponentDto application = applicationData.getMainBranchComponent();
     MetricDto analysisMetric = db.measures().insertMetric(m -> m.setKey(ANALYSIS_FROM_SONARQUBE_9_4_KEY));
-    db.measures().insertLiveMeasure(project4, analysisMetric, measure -> measure.setData("true"));
+    db.measures().insertMeasure(project4, measure -> measure.addValue(analysisMetric.getKey(), "true"));
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
     db.components().insertComponents(newProjectCopy("PC3", project3, application));

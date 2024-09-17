@@ -24,27 +24,24 @@ import java.util.Set;
 import java.util.function.Predicate;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 
 public class MetricDtoWithBestValue {
   private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = ImmutableSortedSet.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
 
   private final MetricDto metric;
-  private final LiveMeasureDto bestValue;
+  private final Double bestValue;
 
   MetricDtoWithBestValue(MetricDto metric) {
     this.metric = metric;
-    LiveMeasureDto measure = new LiveMeasureDto().setMetricUuid(metric.getUuid());
-    measure.setValue(metric.getBestValue());
-    this.bestValue = measure;
+    this.bestValue = metric.getBestValue();
   }
 
   MetricDto getMetric() {
     return metric;
   }
 
-  LiveMeasureDto getBestValue() {
+  Double getBestValue() {
     return bestValue;
   }
 

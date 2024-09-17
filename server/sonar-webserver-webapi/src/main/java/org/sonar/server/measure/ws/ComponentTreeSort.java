@@ -58,8 +58,8 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.QUALIFIER_SORT;
 
 public class ComponentTreeSort {
 
-  private static final Set<ValueType> NUMERIC_VALUE_TYPES = EnumSet.of(BOOL, FLOAT, INT, MILLISEC, WORK_DUR, PERCENT, RATING);
-  private static final Set<ValueType> TEXTUAL_VALUE_TYPES = EnumSet.of(STRING);
+  static final Set<ValueType> NUMERIC_VALUE_TYPES = EnumSet.of(BOOL, FLOAT, INT, MILLISEC, WORK_DUR, PERCENT, RATING);
+  static final Set<ValueType> TEXTUAL_VALUE_TYPES = EnumSet.of(STRING);
 
   private ComponentTreeSort() {
     // static method only

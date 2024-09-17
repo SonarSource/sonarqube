@@ -61,7 +61,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.ComponentTreeQuery.Strategy;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureTreeQuery;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricDtoFunctions;
@@ -74,8 +74,8 @@ import org.sonarqube.ws.client.component.ComponentsWsParameters;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static java.lang.String.*;
 import static java.lang.String.format;
+import static java.lang.String.join;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
@@ -559,22 +559,26 @@ public class ComponentTreeAction implements MeasuresWsAction {
     ComponentDto baseComponent,
     ComponentTreeQuery componentTreeQuery, List<ComponentDto> components, List<MetricDto> metrics) {
 
-    Map<String, MetricDto> metricsByUuid = Maps.uniqueIndex(metrics, MetricDto::getUuid);
+    Map<String, MetricDto> metricsByKeys = Maps.uniqueIndex(metrics, MetricDto::getKey);
     MeasureTreeQuery measureQuery = MeasureTreeQuery.builder()
       .setStrategy(MeasureTreeQuery.Strategy.valueOf(componentTreeQuery.getStrategy().name()))
       .setNameOrKeyQuery(componentTreeQuery.getNameOrKeyQuery())
       .setQualifiers(componentTreeQuery.getQualifiers())
-      .setMetricUuids(new ArrayList<>(metricsByUuid.keySet()))
       .build();
 
     Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric = HashBasedTable.create(components.size(),
       metrics.size());
-    dbClient.liveMeasureDao().selectTreeByQuery(dbSession, baseComponent, measureQuery, result -> {
-      LiveMeasureDto measureDto = result.getResultObject();
-      measuresByComponentUuidAndMetric.put(
-        measureDto.getComponentUuid(),
-        metricsByUuid.get(measureDto.getMetricUuid()),
-        ComponentTreeData.Measure.createFromMeasureDto(measureDto));
+    dbClient.measureDao().selectTreeByQuery(dbSession, baseComponent, measureQuery, result -> {
+      MeasureDto measureDto = result.getResultObject();
+      measureDto.getMetricValues().forEach((metricKey, value) -> {
+        MetricDto metric = metricsByKeys.get(metricKey);
+        if (metric != null) {
+          measuresByComponentUuidAndMetric.put(
+            measureDto.getComponentUuid(),
+            metric,
+            ComponentTreeData.Measure.createFromMetricValue(metric, value));
+        }
+      });
     });
 
     addBestValuesToMeasures(measuresByComponentUuidAndMetric, components, metrics);
@@ -605,7 +609,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       for (MetricDtoWithBestValue metricWithBestValue : metricDtosWithBestValueMeasure) {
         if (measuresByComponentUuidAndMetric.get(component.uuid(), metricWithBestValue.getMetric()) == null) {
           measuresByComponentUuidAndMetric.put(component.uuid(), metricWithBestValue.getMetric(),
-            ComponentTreeData.Measure.createFromMeasureDto(metricWithBestValue.getBestValue()));
+            ComponentTreeData.Measure.createFromMetricValue(metricWithBestValue.getMetric(), metricWithBestValue.getBestValue()));
         }
       }
     });

@@ -26,25 +26,22 @@ import java.util.Map;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.ProjectLocDistributionDto;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.core.TelemetryDataType;
-
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toMap;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
+import org.sonar.telemetry.legacy.ProjectLocDistributionDataProvider;
 
 public class TelemetryNclocProvider implements TelemetryDataProvider<Long> {
 
   public static final String METRIC_KEY = "ncloc_per_language";
 
   private final DbClient dbClient;
+  private final ProjectLocDistributionDataProvider projectLocDistributionDataProvider;
 
-  public TelemetryNclocProvider(DbClient dbClient) {
+  public TelemetryNclocProvider(DbClient dbClient, ProjectLocDistributionDataProvider projectLocDistributionDataProvider) {
     this.dbClient = dbClient;
+    this.projectLocDistributionDataProvider = projectLocDistributionDataProvider;
   }
 
   @Override
@@ -75,18 +72,9 @@ public class TelemetryNclocProvider implements TelemetryDataProvider<Long> {
   }
 
   private Map<String, Long> getNclocDistribution(DbSession dbSession) {
-    Map<String, String> metricUuidMap = getNclocMetricUuidMap(dbSession);
-    String nclocUuid = metricUuidMap.get(NCLOC_KEY);
-    String nclocDistributionUuid = metricUuidMap.get(NCLOC_LANGUAGE_DISTRIBUTION_KEY);
-    List<ProjectLocDistributionDto> branchesWithLargestNcloc = dbClient.liveMeasureDao().selectLargestBranchesLocDistribution(dbSession, nclocUuid, nclocDistributionUuid);
+    List<ProjectLocDistributionDto> branchesWithLargestNcloc = projectLocDistributionDataProvider.getProjectLocDistribution(dbSession);
     List<LanguageDistribution> languageDistributions = getLanguageDistributionList(branchesWithLargestNcloc);
     return getNclocDistributionPerLanguage(languageDistributions);
-  }
-
-  private Map<String, String> getNclocMetricUuidMap(DbSession dbSession) {
-    return dbClient.metricDao().selectByKeys(dbSession, asList(NCLOC_KEY, NCLOC_LANGUAGE_DISTRIBUTION_KEY))
-      .stream()
-      .collect(toMap(MetricDto::getKey, MetricDto::getUuid));
   }
 
   private static List<LanguageDistribution> getLanguageDistributionList(List<ProjectLocDistributionDto> branchesWithLargestNcloc) {

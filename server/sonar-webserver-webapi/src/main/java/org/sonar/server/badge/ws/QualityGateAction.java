@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.measure.LiveMeasureDto;
 
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 
@@ -61,8 +60,8 @@ public class QualityGateAction extends AbstractProjectBadgesWsAction {
   }
 
   private Level getQualityGate(DbSession dbSession, BranchDto branch) {
-    return Level.valueOf(dbClient.liveMeasureDao().selectMeasure(dbSession, branch.getUuid(), ALERT_STATUS_KEY)
-      .map(LiveMeasureDto::getTextValue)
+    return Level.valueOf(dbClient.measureDao().selectByComponentUuid(dbSession, branch.getUuid())
+      .map(m -> m.getString(ALERT_STATUS_KEY))
       .orElseThrow(() -> new ProjectBadgesException("Quality gate has not been found")));
   }
 

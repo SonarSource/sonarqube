@@ -40,7 +40,7 @@ import org.sonar.db.Pagination;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse;
@@ -185,7 +185,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
     Set<String> mainBranchUuids = branches.stream().map(BranchDto::getUuid).collect(Collectors.toSet());
     List<SnapshotDto> snapshots = dbClient.snapshotDao()
       .selectLastAnalysesByRootComponentUuids(dbSession, mainBranchUuids);
-    List<LiveMeasureDto> qualityGates = dbClient.liveMeasureDao()
+    List<MeasureDto> qualityGates = dbClient.measureDao()
       .selectByComponentUuidsAndMetricKeys(dbSession, mainBranchUuids, singletonList(CoreMetrics.ALERT_STATUS_KEY));
 
     data

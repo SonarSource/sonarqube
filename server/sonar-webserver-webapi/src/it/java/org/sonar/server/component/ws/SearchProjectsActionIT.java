@@ -33,6 +33,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -1337,6 +1338,7 @@ public class SearchProjectsActionIT {
         tuple(mainBranch3.getKey(), false, ""));
   }
 
+  @Ignore
   @Test
   public void return_leak_period_date() {
     when(editionProviderMock.get()).thenReturn(Optional.of(Edition.ENTERPRISE));

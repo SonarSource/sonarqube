@@ -99,6 +99,33 @@ public class MeasureDto {
     return String.valueOf(value);
   }
 
+  @CheckForNull
+  public Double getDouble(String metricKey) {
+    Object value = metricValues.get(metricKey);
+    if (value == null) {
+      return null;
+    }
+    return Double.parseDouble(value.toString());
+  }
+
+  @CheckForNull
+  public Integer getInt(String metricKey) {
+    Object value = metricValues.get(metricKey);
+    if (value == null) {
+      return null;
+    }
+    return (int) Double.parseDouble(value.toString());
+  }
+
+  @CheckForNull
+  public Long getLong(String metricKey) {
+    Object value = metricValues.get(metricKey);
+    if (value == null) {
+      return null;
+    }
+    return (long) Double.parseDouble(value.toString());
+  }
+
   @Override
   public String toString() {
     return "MeasureDto{" +

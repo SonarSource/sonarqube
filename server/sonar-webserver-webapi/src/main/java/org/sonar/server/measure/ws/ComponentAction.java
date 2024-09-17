@@ -20,12 +20,9 @@
 package org.sonar.server.measure.ws;
 
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Maps;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,7 +39,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricDtoFunctions;
 import org.sonar.server.component.ComponentFinder;
@@ -53,7 +50,6 @@ import org.sonarqube.ws.Measures.ComponentWsResponse;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.sonar.db.metric.RemovedMetricConverter.withRemovedMetricAlias;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ACTION_COMPONENT;
@@ -161,11 +157,10 @@ public class ComponentAction implements MeasuresWsAction {
       SnapshotDto analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, component.branchUuid()).orElse(null);
 
       List<MetricDto> metrics = searchMetrics(dbSession, new HashSet<>(withRemovedMetricAlias(request.getMetricKeys())));
-      List<LiveMeasureDto> measures = searchMeasures(dbSession, component, metrics);
-      Map<MetricDto, LiveMeasureDto> measuresByMetric = getMeasuresByMetric(measures, metrics);
+      MeasureDto measureDto = searchMeasures(dbSession, component, metrics);
 
       Measures.Period period = snapshotToWsPeriods(analysis).orElse(null);
-      return buildResponse(dbSession, request, component, measuresByMetric, metrics, period, request.getMetricKeys());
+      return buildResponse(dbSession, request, component, measureDto, metrics, period, request.getMetricKeys());
     }
   }
 
@@ -180,21 +175,11 @@ public class ComponentAction implements MeasuresWsAction {
     return metrics;
   }
 
-  private List<LiveMeasureDto> searchMeasures(DbSession dbSession, ComponentDto component, Collection<MetricDto> metrics) {
-    Set<String> metricUuids = metrics.stream().map(MetricDto::getUuid).collect(Collectors.toSet());
-    List<LiveMeasureDto> measures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, singletonList(component.uuid()), metricUuids);
-    addBestValuesToMeasures(measures, component, metrics);
-    return measures;
-  }
-
-  private static Map<MetricDto, LiveMeasureDto> getMeasuresByMetric(List<LiveMeasureDto> measures, Collection<MetricDto> metrics) {
-    Map<String, MetricDto> metricsByUuid = Maps.uniqueIndex(metrics, MetricDto::getUuid);
-    Map<MetricDto, LiveMeasureDto> measuresByMetric = new HashMap<>();
-    for (LiveMeasureDto measure : measures) {
-      MetricDto metric = metricsByUuid.get(measure.getMetricUuid());
-      measuresByMetric.put(metric, measure);
-    }
-    return measuresByMetric;
+  @CheckForNull
+  private MeasureDto searchMeasures(DbSession dbSession, ComponentDto component, Collection<MetricDto> metrics) {
+    MeasureDto measureDto = dbClient.measureDao().selectByComponentUuid(dbSession, component.uuid()).orElse(null);
+    addBestValuesToMeasures(measureDto, component, metrics);
+    return measureDto;
   }
 
   /**
@@ -204,22 +189,19 @@ public class ComponentAction implements MeasuresWsAction {
    * <li>metric is optimized for best value</li>
    * </ul>
    */
-  private static void addBestValuesToMeasures(List<LiveMeasureDto> measures, ComponentDto component, Collection<MetricDto> metrics) {
-    if (!QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE.contains(component.qualifier())) {
+  private static void addBestValuesToMeasures(@Nullable MeasureDto measureDto, ComponentDto component, Collection<MetricDto> metrics) {
+    if (measureDto == null || !QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE.contains(component.qualifier())) {
       return;
     }
 
-    List<MetricDtoWithBestValue> metricWithBestValueList = metrics.stream()
+    metrics.stream()
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
-      .map(MetricDtoWithBestValue::new)
-      .toList();
-    Map<String, LiveMeasureDto> measuresByMetricUuid = Maps.uniqueIndex(measures, LiveMeasureDto::getMetricUuid);
-
-    for (MetricDtoWithBestValue metricWithBestValue : metricWithBestValueList) {
-      if (measuresByMetricUuid.get(metricWithBestValue.getMetric().getUuid()) == null) {
-        measures.add(metricWithBestValue.getBestValue());
-      }
-    }
+      .forEach(metricWithBestValue -> {
+        String metricKey = metricWithBestValue.getKey();
+        if (!measureDto.getMetricValues().containsKey(metricKey)) {
+          measureDto.addValue(metricKey, metricWithBestValue.getBestValue());
+        }
+      });
   }
 
   private ComponentDto loadComponent(DbSession dbSession, ComponentRequest request, @Nullable String branch, @Nullable String pullRequest) {
@@ -243,8 +225,7 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private ComponentWsResponse buildResponse(DbSession dbSession, ComponentRequest request, ComponentDto component,
-    Map<MetricDto, LiveMeasureDto> measuresByMetric, Collection<MetricDto> metrics, @Nullable Measures.Period period,
-    Collection<String> requestedMetrics) {
+    @Nullable MeasureDto measureDto, Collection<MetricDto> metrics, @Nullable Measures.Period period, Collection<String> requestedMetrics) {
 
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
 
@@ -252,12 +233,12 @@ public class ComponentAction implements MeasuresWsAction {
     if (reference != null) {
       BranchDto refBranch = reference.getRefBranch();
       ComponentDto refComponent = reference.getComponent();
-      response.setComponent(componentDtoToWsComponent(component, measuresByMetric, singletonMap(refComponent.uuid(), refComponent),
-        refBranch.isMain() ? null : refBranch.getBranchKey(), null, requestedMetrics));
+      response.setComponent(componentDtoToWsComponent(component, measureDto, singletonMap(refComponent.uuid(), refComponent),
+        refBranch.isMain() ? null : refBranch.getBranchKey(), null, metrics, requestedMetrics));
     } else {
       boolean isMainBranch = dbClient.branchDao().selectByUuid(dbSession, component.branchUuid()).map(BranchDto::isMain).orElse(true);
-      response.setComponent(componentDtoToWsComponent(component, measuresByMetric, emptyMap(), isMainBranch ? null : request.getBranch(),
-        request.getPullRequest(), requestedMetrics));
+      response.setComponent(componentDtoToWsComponent(component, measureDto, emptyMap(), isMainBranch ? null : request.getBranch(),
+        request.getPullRequest(), metrics, requestedMetrics));
     }
 
     setAdditionalFields(request, metrics, period, response, requestedMetrics);

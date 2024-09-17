@@ -385,7 +385,7 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     // delete measures of selected
     assertThat(db.countRowsOfTable("measures")).isEqualTo(2);
     List<MeasureDto> measureDtos = Set.of(srcFile.uuid(), dir.uuid(), mainBranch.uuid(), enabledFile.uuid()).stream()
-      .map(component -> db.getDbClient().measureDao().selectMeasure(dbSession, component))
+      .map(component -> db.getDbClient().measureDao().selectByComponentUuid(dbSession, component))
       .filter(Optional::isPresent).map(Optional::get).toList();
     assertThat(measureDtos)
       .extracting(MeasureDto::getComponentUuid)
@@ -1737,10 +1737,10 @@ project.getProjectDto().getKey());
       List.of(metric.getUuid()))).isEmpty();
     assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, List.of(project2.uuid(), dir2.uuid()),
       List.of(metric.getUuid()))).hasSize(2);
-    assertThat(dbClient.measureDao().selectMeasure(dbSession, project1.uuid())).isEmpty();
-    assertThat(dbClient.measureDao().selectMeasure(dbSession, dir1.uuid())).isEmpty();
-    assertThat(dbClient.measureDao().selectMeasure(dbSession, project2.uuid())).isNotEmpty();
-    assertThat(dbClient.measureDao().selectMeasure(dbSession, dir2.uuid())).isNotEmpty();
+    assertThat(dbClient.measureDao().selectByComponentUuid(dbSession, project1.uuid())).isEmpty();
+    assertThat(dbClient.measureDao().selectByComponentUuid(dbSession, dir1.uuid())).isEmpty();
+    assertThat(dbClient.measureDao().selectByComponentUuid(dbSession, project2.uuid())).isNotEmpty();
+    assertThat(dbClient.measureDao().selectByComponentUuid(dbSession, dir2.uuid())).isNotEmpty();
   }
 
   private void verifyNoEffect(ComponentDto firstRoot, ComponentDto... otherRoots) {

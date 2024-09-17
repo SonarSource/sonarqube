@@ -127,8 +127,8 @@ public class ComponentCleanerServiceIT {
     underTest.deleteEntity(dbSession, app1.getProjectDto());
     dbSession.commit();
 
-    assertProjectOrAppExists(app1.getProjectDto(), app1.getMainBranchDto(), false);
-    assertProjectOrAppExists(app2.getProjectDto(), app2.getMainBranchDto(), true);
+    assertProjectOrAppExists(app1.getProjectDto(), false);
+    assertProjectOrAppExists(app2.getProjectDto(), true);
     assertExists(data1);
     assertExists(data2);
     assertExists(data3);
@@ -191,7 +191,7 @@ public class ComponentCleanerServiceIT {
 
   private BranchDto insertBranchWithNcloc(ProjectDto project, MetricDto metricNcloc, double value) {
     BranchDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
-    db.measures().insertLiveMeasure(branch, metricNcloc, m -> m.setValue(value));
+    db.measures().insertMeasure(branch, m -> m.addValue(metricNcloc.getKey(), value));
     return branch;
   }
 
@@ -250,12 +250,12 @@ public class ComponentCleanerServiceIT {
   }
 
   private void assertDataInDb(DbData data, boolean exists) {
-    assertProjectOrAppExists(data.project, data.mainBranch, exists);
+    assertProjectOrAppExists(data.project, exists);
     assertThat(dbClient.snapshotDao().selectByUuid(dbSession, data.snapshot.getUuid()).isPresent()).isEqualTo(exists);
     assertThat(dbClient.issueDao().selectByKey(dbSession, data.issue.getKey()).isPresent()).isEqualTo(exists);
   }
 
-  private void assertProjectOrAppExists(ProjectDto appOrProject, BranchDto branch, boolean exists) {
+  private void assertProjectOrAppExists(ProjectDto appOrProject, boolean exists) {
     assertThat(dbClient.projectDao().selectByUuid(dbSession, appOrProject.getUuid()).isPresent()).isEqualTo(exists);
     assertThat(dbClient.branchDao().selectByProject(dbSession, appOrProject).isEmpty()).isEqualTo(!exists);
   }

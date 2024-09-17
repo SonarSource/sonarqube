@@ -266,7 +266,7 @@ class PersistMeasuresStepTest {
 
     assertThatMeasureDoesNotExist("file-uuid", METRIC_WITH_BEST_VALUE.getKey());
 
-    Optional<MeasureDto> persisted = dbClient.measureDao().selectMeasure(db.getSession(), "project-uuid");
+    Optional<MeasureDto> persisted = dbClient.measureDao().selectByComponentUuid(db.getSession(), "project-uuid");
     assertThat(persisted).isPresent();
     assertThat(persisted.get().getMetricValues()).containsEntry(METRIC_WITH_BEST_VALUE.getKey(), (double) 0);
 
@@ -311,7 +311,7 @@ class PersistMeasuresStepTest {
   }
 
   private void assertThatMeasureDoesNotExist(String componentUuid, String metricKey) {
-    assertThat(dbClient.measureDao().selectMeasure(db.getSession(), componentUuid))
+    assertThat(dbClient.measureDao().selectByComponentUuid(db.getSession(), componentUuid))
       .hasValueSatisfying(measureDto -> assertThat(measureDto.getMetricValues()).doesNotContainKey(metricKey));
   }
 
@@ -355,7 +355,7 @@ class PersistMeasuresStepTest {
   }
 
   private Optional<MeasureDto> selectMeasure(String componentUuid) {
-    return dbClient.measureDao().selectMeasure(db.getSession(), componentUuid);
+    return dbClient.measureDao().selectByComponentUuid(db.getSession(), componentUuid);
   }
 
   private ComponentDto insertComponent(String key, String uuid) {

@@ -31,41 +31,9 @@ public interface LiveMeasureMapper {
     @Param("componentUuids") Collection<String> componentUuids,
     @Param("metricUuids") Collection<String> metricUuids);
 
-  List<ProjectMainBranchLiveMeasureDto> selectForProjectMainBranchesByMetricUuids(
-    @Param("metricUuids") Collection<String> metricUuids);
-
-  List<LiveMeasureDto> selectByComponentUuidsAndMetricKeys(
-    @Param("componentUuids") Collection<String> componentUuids,
-    @Param("metricKeys") Collection<String> metricKeys);
-
-  List<LiveMeasureDto> selectByComponentUuidAndMetricKeys(
-    @Param("componentUuid") String componentUuid,
-    @Param("metricKeys") Collection<String> metricKeys);
-
-  void scrollSelectByComponentUuidAndMetricKeys(
-    @Param("componentUuid") String componentUuid,
-    @Param("metricKeys") Collection<String> metricKeys,
-    ResultHandler<LiveMeasureDto> handler);
-
   LiveMeasureDto selectByComponentUuidAndMetricKey(
     @Param("componentUuid") String componentUuid,
     @Param("metricKey") String metricKey);
-
-  void selectTreeByQuery(
-    @Param("query") MeasureTreeQuery measureQuery,
-    @Param("baseUuid") String baseUuid,
-    @Param("baseUuidPath") String baseUuidPath,
-    ResultHandler<LiveMeasureDto> resultHandler);
-
-  @CheckForNull
-  Long findNclocOfBiggestBranchForProject(@Param("projectUuid") String projectUuid, @Param("ncloc") String nclocKey);
-
-  List<LargestBranchNclocDto> getLargestBranchNclocPerProject(@Param("nclocUuid") String nclocUuid);
-
-  List<ProjectLocDistributionDto> selectLargestBranchesLocDistribution(@Param("nclocUuid") String nclocUuid, @Param("nclocDistributionUuid") String nclocDistributionUuid);
-
-  Long countProjectsHavingMeasure(
-    @Param("metric") String metric);
 
   void insert(
     @Param("dto") LiveMeasureDto dto,
@@ -83,7 +51,5 @@ public interface LiveMeasureMapper {
   void deleteByComponentUuidExcludingMetricUuids(
     @Param("componentUuid") String componentUuid,
     @Param("excludedMetricUuids") List<String> excludedMetricUuids);
-
-  void deleteByComponent(@Param("componentUuid") String componentUuid);
 
 }

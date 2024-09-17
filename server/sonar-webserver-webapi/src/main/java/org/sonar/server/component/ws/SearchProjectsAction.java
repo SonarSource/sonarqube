@@ -338,10 +338,10 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private Map<String, Long> getApplicationsLeakPeriod(DbSession dbSession, SearchProjectsRequest request, Set<String> qualifiers, Collection<String> mainBranchUuids) {
     if (qualifiers.contains(Qualifiers.APP) && request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
-      return dbClient.liveMeasureDao().selectByComponentUuidsAndMetricKeys(dbSession, mainBranchUuids, Collections.singleton(METRIC_LEAK_PROJECTS_KEY))
+      return dbClient.measureDao().selectByComponentUuidsAndMetricKeys(dbSession, mainBranchUuids, Collections.singleton(METRIC_LEAK_PROJECTS_KEY))
         .stream()
-        .filter(lm -> !Objects.isNull(lm.getDataAsString()))
-        .map(lm -> Maps.immutableEntry(lm.getComponentUuid(), ApplicationLeakProjects.parse(lm.getDataAsString()).getOldestLeak()))
+        .filter(m -> !Objects.isNull(m.getString(METRIC_LEAK_PROJECTS_KEY)))
+        .map(m -> Maps.immutableEntry(m.getComponentUuid(), ApplicationLeakProjects.parse(m.getString(METRIC_LEAK_PROJECTS_KEY)).getOldestLeak()))
         .filter(entry -> entry.getValue().isPresent())
         .collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue().get().getLeak()));
     }

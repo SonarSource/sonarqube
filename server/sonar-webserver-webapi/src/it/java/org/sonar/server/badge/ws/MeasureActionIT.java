@@ -123,7 +123,7 @@ public class MeasureActionIT {
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY).setValueType(PERCENT.name()));
-    db.measures().insertLiveMeasure(project, metric, m -> m.setValue(12.345d));
+    db.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), 12.345d));
 
     TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -143,7 +143,7 @@ public class MeasureActionIT {
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(TECHNICAL_DEBT_KEY).setValueType(WORK_DUR.name()));
-    db.measures().insertLiveMeasure(project, metric, m -> m.setValue(10_000d));
+    db.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), 10_000d));
 
     TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -175,7 +175,7 @@ public class MeasureActionIT {
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(SQALE_RATING_KEY).setValueType(RATING.name()));
-    db.measures().insertLiveMeasure(project, metric, m -> m.setValue((double) rating.getIndex()).setData(rating.name()));
+    db.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), (double) rating.getIndex()));
 
     TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -204,7 +204,7 @@ public class MeasureActionIT {
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
-    db.measures().insertLiveMeasure(project, metric, m -> m.setData(status.name()));
+    db.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), status.name()));
 
     TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -246,7 +246,7 @@ public class MeasureActionIT {
     MetricDto metric = createIntMetricAndMeasure(project, BUGS_KEY, 5_000);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
-    db.measures().insertLiveMeasure(branch, metric, m -> m.setValue(10_000d));
+    db.measures().insertMeasure(branch, m -> m.addValue(metric.getKey(), 10_000d));
 
     TestResponse response = ws.newRequest()
       .setParam("project", branch.getKey())
@@ -432,36 +432,30 @@ public class MeasureActionIT {
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
-    db.measures().insertLiveMeasure(project, metric, m -> m.setData("UNKNOWN"));
+    db.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), "UNKNOWN"));
 
     TestRequest request = ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("metric", metric.getKey());
-    assertThatThrownBy(() -> {
-      request
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("No enum constant org.sonar.api.measures.Metric.Level.UNKNOWN");
   }
 
   @Test
-  public void fail_when_measure_value_is_null() {
+  public void error_when_measure_not_found() throws ParseException {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
-    db.measures().insertLiveMeasure(project, metric, m -> m.setValue(null));
+    db.measures().insertMeasure(project);
 
     TestRequest request = ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("metric", metric.getKey());
 
-    assertThatThrownBy(() -> {
-      request
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Measure has not been found");
   }
@@ -477,10 +471,7 @@ public class MeasureActionIT {
       .setParam("project", project.getKey())
       .setParam("metric", BUGS_KEY);
 
-    assertThatThrownBy(() -> {
-      request
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Metric 'bugs' hasn't been found");
   }
@@ -540,7 +531,7 @@ public class MeasureActionIT {
 
   private MetricDto createIntMetricAndMeasure(ComponentDto project, String key, Integer value) {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(key).setValueType(INT.name()));
-    db.measures().insertLiveMeasure(project, metric, m -> m.setValue(value.doubleValue()));
+    db.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), value.doubleValue()));
     return metric;
   }
 }

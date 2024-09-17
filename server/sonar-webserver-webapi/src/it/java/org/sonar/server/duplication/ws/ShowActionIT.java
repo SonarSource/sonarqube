@@ -97,10 +97,12 @@ public class ShowActionIT {
 
     TestResponse result = newBaseRequest().setParam("key", file.getKey()).execute();
 
-    assertJson(result.getInput()).isSimilarTo("{\n" +
-      "  \"duplications\": [],\n" +
-      "  \"files\": {}\n" +
-      "}");
+    assertJson(result.getInput()).isSimilarTo("""
+      {
+        "duplications": [],
+        "files": {}
+      }
+      """);
   }
 
   @Test
@@ -111,12 +113,14 @@ public class ShowActionIT {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     userSessionRule.addProjectBranchMapping(project.uuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
-    db.measures().insertLiveMeasure(file, dataMetric, m -> m.setData(format("<duplications>\n" +
-      "  <g>\n" +
-      "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
-      "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
-      "  </g>\n" +
-      "</duplications>\n", file.getKey(), file.getKey())));
+    db.measures().insertMeasure(file, m -> m.addValue(dataMetric.getKey(), format("""
+      <duplications>
+        <g>
+          <b s="31" l="5" r="%s"/>
+          <b s="20" l="5" r="%s"/>
+        </g>
+      </duplications>
+      """, file.getKey(), file.getKey())));
 
     String result = ws.newRequest()
       .setParam("key", file.getKey())
@@ -124,37 +128,37 @@ public class ShowActionIT {
       .execute()
       .getInput();
 
-    assertJson(result).isSimilarTo(
-      format("{\n" +
-        "  \"duplications\": [\n" +
-        "    {\n" +
-        "      \"blocks\": [\n" +
-        "        {\n" +
-        "          \"from\": 20,\n" +
-        "          \"size\": 5,\n" +
-        "          \"_ref\": \"1\"\n" +
-        "        },\n" +
-        "        {\n" +
-        "          \"from\": 31,\n" +
-        "          \"size\": 5,\n" +
-        "          \"_ref\": \"1\"\n" +
-        "        }\n" +
-        "      ]\n" +
-        "    }\n" +
-        "  ],\n" +
-        "  \"files\": {\n" +
-        "    \"1\": {\n" +
-        "      \"key\": \"%s\",\n" +
-        "      \"name\": \"%s\",\n" +
-        "      \"uuid\": \"%s\",\n" +
-        "      \"project\": \"%s\",\n" +
-        "      \"projectUuid\": \"%s\",\n" +
-        "      \"projectName\": \"%s\"\n" +
-        "      \"branch\": \"%s\"\n" +
-        "    }\n" +
-        "  }\n" +
-        "}",
-        file.getKey(), file.longName(), file.uuid(), branch.getKey(), branch.uuid(), project.longName(), branchName));
+    assertJson(result).isSimilarTo(format("""
+      {
+        "duplications": [
+          {
+            "blocks": [
+              {
+                "from": 20,
+                "size": 5,
+                "_ref": "1"
+              },
+              {
+                "from": 31,
+                "size": 5,
+                "_ref": "1"
+              }
+            ]
+          }
+        ],
+        "files": {
+          "1": {
+            "key": "%s",
+            "name": "%s",
+            "uuid": "%s",
+            "project": "%s",
+            "projectUuid": "%s",
+            "projectName": "%s"
+            "branch": "%s"
+          }
+        }
+      }
+      """, file.getKey(), file.longName(), file.uuid(), branch.getKey(), branch.uuid(), project.longName(), branchName));
   }
 
   @Test
@@ -165,12 +169,14 @@ public class ShowActionIT {
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     userSessionRule.addProjectBranchMapping(project.uuid(), pullRequest);
     ComponentDto file = db.components().insertComponent(newFileDto(pullRequest, project.uuid()));
-    db.measures().insertLiveMeasure(file, dataMetric, m -> m.setData(format("<duplications>\n" +
-      "  <g>\n" +
-      "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
-      "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
-      "  </g>\n" +
-      "</duplications>\n", file.getKey(), file.getKey())));
+    db.measures().insertMeasure(file, m -> m.addValue(dataMetric.getKey(), format("""
+      <duplications>
+        <g>
+          <b s="31" l="5" r="%s"/>
+          <b s="20" l="5" r="%s"/>
+        </g>
+      </duplications>
+      """, file.getKey(), file.getKey())));
 
     String result = ws.newRequest()
       .setParam("key", file.getKey())
@@ -178,37 +184,37 @@ public class ShowActionIT {
       .execute()
       .getInput();
 
-    assertJson(result).isSimilarTo(
-      format("{\n" +
-        "  \"duplications\": [\n" +
-        "    {\n" +
-        "      \"blocks\": [\n" +
-        "        {\n" +
-        "          \"from\": 20,\n" +
-        "          \"size\": 5,\n" +
-        "          \"_ref\": \"1\"\n" +
-        "        },\n" +
-        "        {\n" +
-        "          \"from\": 31,\n" +
-        "          \"size\": 5,\n" +
-        "          \"_ref\": \"1\"\n" +
-        "        }\n" +
-        "      ]\n" +
-        "    }\n" +
-        "  ],\n" +
-        "  \"files\": {\n" +
-        "    \"1\": {\n" +
-        "      \"key\": \"%s\",\n" +
-        "      \"name\": \"%s\",\n" +
-        "      \"uuid\": \"%s\",\n" +
-        "      \"project\": \"%s\",\n" +
-        "      \"projectUuid\": \"%s\",\n" +
-        "      \"projectName\": \"%s\"\n" +
-        "      \"pullRequest\": \"%s\"\n" +
-        "    }\n" +
-        "  }\n" +
-        "}",
-        file.getKey(), file.longName(), file.uuid(), pullRequest.getKey(), pullRequest.uuid(), project.longName(), pullRequestKey));
+    assertJson(result).isSimilarTo(format("""
+      {
+        "duplications": [
+          {
+            "blocks": [
+              {
+                "from": 20,
+                "size": 5,
+                "_ref": "1"
+              },
+              {
+                "from": 31,
+                "size": 5,
+                "_ref": "1"
+              }
+            ]
+          }
+        ],
+        "files": {
+          "1": {
+            "key": "%s",
+            "name": "%s",
+            "uuid": "%s",
+            "project": "%s",
+            "projectUuid": "%s",
+            "projectName": "%s"
+            "pullRequest": "%s"
+          }
+        }
+      }
+      """, file.getKey(), file.longName(), file.uuid(), pullRequest.getKey(), pullRequest.uuid(), project.longName(), pullRequestKey));
   }
 
   @Test
@@ -246,19 +252,44 @@ public class ShowActionIT {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("foo.js"));
-    String xml = "<duplications>\n" +
-      "  <g>\n" +
-      "    <b s=\"31\" l=\"5\" r=\"foo.js\"/>\n" +
-      "    <b s=\"20\" l=\"5\" r=\"foo.js\"/>\n" +
-      "  </g>\n" +
-      "</duplications>\n";
-    db.measures().insertLiveMeasure(file, dataMetric, m -> m.setData(xml));
+    String xml = """
+      <duplications>
+        <g>
+          <b s="31" l="5" r="foo.js"/>
+          <b s="20" l="5" r="foo.js"/>
+        </g>
+      </duplications>
+      """;
+    db.measures().insertMeasure(file, m -> m.addValue(dataMetric.getKey(), xml));
 
     TestRequest request = requestFactory.apply(file);
     TestResponse result = request.execute();
 
-    assertJson(result.getInput()).isSimilarTo("{\"duplications\":[" +
-      "{\"blocks\":[{\"from\":20,\"size\":5,\"_ref\":\"1\"},{\"from\":31,\"size\":5,\"_ref\":\"1\"}]}]," +
-      "\"files\":{\"1\":{\"key\":\"foo.js\",\"uuid\":\"" + file.uuid() + "\"}}}");
+    assertJson(result.getInput()).isSimilarTo(format("""
+      {
+        "duplications": [
+          {
+            "blocks": [
+              {
+                "from": 20,
+                "size": 5,
+                "_ref": "1"
+              },
+              {
+                "from": 31,
+                "size": 5,
+                "_ref": "1"
+              }
+            ]
+          }
+        ],
+        "files": {
+          "1": {
+            "key": "foo.js",
+            "uuid": "%s"
+          }
+        }
+      }
+      """, file.uuid()));
   }
 }

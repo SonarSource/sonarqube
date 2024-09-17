@@ -35,7 +35,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.RemovedMetricConverter;
 import org.sonar.server.user.UserSession;
@@ -128,7 +128,7 @@ public class SearchAction implements MeasuresWsAction {
     private SearchRequest request;
     private List<ComponentDto> projects;
     private List<MetricDto> metrics;
-    private List<LiveMeasureDto> measures;
+    private List<MeasureDto> measures;
 
     ResponseBuilder(Request httpRequest, DbSession dbSession) {
       this.dbSession = dbSession;
@@ -185,10 +185,10 @@ public class SearchAction implements MeasuresWsAction {
         .toList();
     }
 
-    private List<LiveMeasureDto> searchMeasures() {
-      return dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession,
+    private List<MeasureDto> searchMeasures() {
+      return dbClient.measureDao().selectByComponentUuidsAndMetricKeys(dbSession,
         projects.stream().map(ComponentDto::uuid).toList(),
-        metrics.stream().map(MetricDto::getUuid).toList());
+        metrics.stream().map(MetricDto::getKey).toList());
     }
 
     private SearchWsResponse buildResponse() {
@@ -201,21 +201,22 @@ public class SearchAction implements MeasuresWsAction {
     private List<Measure> buildWsMeasures() {
       Map<String, ComponentDto> componentsByUuid = projects.stream().collect(toMap(ComponentDto::uuid, Function.identity()));
       Map<String, String> componentNamesByKey = projects.stream().collect(toMap(ComponentDto::getKey, ComponentDto::name));
-      Map<String, MetricDto> metricsByUuid = metrics.stream().collect(toMap(MetricDto::getUuid, identity()));
+      Map<String, MetricDto> metricsByKey = metrics.stream().collect(toMap(MetricDto::getKey, identity()));
 
-      Function<LiveMeasureDto, MetricDto> dbMeasureToDbMetric = dbMeasure -> metricsByUuid.get(dbMeasure.getMetricUuid());
       Function<Measure, String> byMetricKey = Measure::getMetric;
       Function<Measure, String> byComponentName = wsMeasure -> componentNamesByKey.get(wsMeasure.getComponent());
 
       Measure.Builder measureBuilder = Measure.newBuilder();
       List<Measure> allMeasures = new ArrayList<>();
-      for (LiveMeasureDto measure : measures) {
-        updateMeasureBuilder(measureBuilder, dbMeasureToDbMetric.apply(measure), measure);
-        measureBuilder.setComponent(componentsByUuid.get(measure.getComponentUuid()).getKey());
-        Measure measureMsg = measureBuilder.build();
-        addMeasureIncludingRenamedMetric(measureMsg, allMeasures, measureBuilder);
+      for (MeasureDto measure : measures) {
+        for (String metricKey : measure.getMetricValues().keySet()) {
+          updateMeasureBuilder(measureBuilder, metricsByKey.get(metricKey), measure);
+          measureBuilder.setComponent(componentsByUuid.get(measure.getComponentUuid()).getKey());
+          Measure measureMsg = measureBuilder.build();
+          addMeasureIncludingRenamedMetric(measureMsg, allMeasures, measureBuilder);
 
-        measureBuilder.clear();
+          measureBuilder.clear();
+        }
       }
       return allMeasures.stream()
         .sorted(comparing(byMetricKey).thenComparing(byComponentName))

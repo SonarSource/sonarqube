@@ -92,19 +92,22 @@ public class MeasureTesting {
   }
 
   public static MeasureDto newMeasure() {
-    MeasureDto measureDto = new MeasureDto()
-      .setComponentUuid(String.valueOf(cursor++))
-      .setBranchUuid(String.valueOf(cursor++))
-      .addValue("metric" + cursor++, (double) cursor++);
-    measureDto.computeJsonValueHash();
-    return measureDto;
+    return newMeasure(String.valueOf(cursor++), String.valueOf(cursor++), "metric" + cursor++, (double) cursor++);
   }
 
   public static MeasureDto newMeasure(ComponentDto component, MetricDto metric, Object value) {
+    return newMeasure(component.uuid(), component.branchUuid(), metric.getKey(), value);
+  }
+
+  public static MeasureDto newMeasure(BranchDto branch, MetricDto metric, Object value) {
+    return newMeasure(branch.getUuid(), branch.getUuid(), metric.getKey(), value);
+  }
+
+  private static MeasureDto newMeasure(String componentUuid, String branchUuid, String metricKey, Object value) {
     MeasureDto measureDto = new MeasureDto()
-      .setComponentUuid(component.uuid())
-      .setBranchUuid(component.branchUuid())
-      .addValue(metric.getKey(), value);
+      .setComponentUuid(componentUuid)
+      .setBranchUuid(branchUuid)
+      .addValue(metricKey, value);
     measureDto.computeJsonValueHash();
     return measureDto;
   }

@@ -23,108 +23,12 @@
     </foreach>
   </select>
 
-  <select id="selectForProjectMainBranchesByMetricUuids" parameterType="map" resultType="org.sonar.db.measure.ProjectMainBranchLiveMeasureDto">
-    select p.uuid as projectUuid, lm.metric_uuid as metricUuid, lm.value as value, lm.text_value as textValue
-    from live_measures lm
-    inner join project_branches pb on pb.uuid = lm.component_uuid
-    inner join projects p on p.uuid = pb.project_uuid
-    where
-    lm.metric_uuid in <foreach item="metricUuid" collection="metricUuids" open="(" separator=","
-                               close=")">#{metricUuid, jdbcType=VARCHAR}</foreach>
-    and p.qualifier = 'TRK'
-    and pb.is_main = ${_true}
-  </select>
-
-  <select id="selectByComponentUuidsAndMetricKeys" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">
-    select <include refid="columns"/> from live_measures lm
-    inner join metrics m on m.uuid = lm.metric_uuid
-    where
-    m.name in <foreach item="metricKey" collection="metricKeys" open="(" separator="," close=")">#{metricKey, jdbcType=VARCHAR}</foreach>
-    and lm.component_uuid in
-    <foreach item="componentUuid" collection="componentUuids" open="(" separator="," close=")">
-      #{componentUuid, jdbcType=VARCHAR}
-    </foreach>
-  </select>
-
-    <select id="selectByComponentUuidAndMetricKeys" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">
-    select <include refid="columns"/> from live_measures lm
-    inner join metrics m on m.uuid = lm.metric_uuid
-    where
-    m.name in <foreach item="metricKey" collection="metricKeys" open="(" separator="," close=")">#{metricKey, jdbcType=VARCHAR}</foreach>
-    and lm.component_uuid = #{componentUuid, jdbcType=VARCHAR}
-  </select>
-
   <select id="selectByComponentUuidAndMetricKey" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">
     select <include refid="columns"/> from live_measures lm
     inner join metrics m on m.uuid = lm.metric_uuid
     where
     m.name = #{metricKey, jdbcType=VARCHAR}
     and lm.component_uuid = #{componentUuid, jdbcType=VARCHAR}
-  </select>
-
-  <select id="findNclocOfBiggestBranchForProject" parameterType="map" resultType="long">
-    select max(lm.value)
-    from live_measures lm
-    inner join metrics m on m.uuid = lm.metric_uuid
-    inner join project_branches b on b.uuid = lm.component_uuid
-    inner join projects p on p.uuid = b.project_uuid and p.qualifier = 'TRK'
-    <where>
-      m.name = #{ncloc, jdbcType=VARCHAR}
-      and b.project_uuid = #{projectUuid,jdbcType=VARCHAR}
-    </where>
-  </select>
-
-  <select id="getLargestBranchNclocPerProject" parameterType="map" resultType="LargestBranchNclocDto">
-    select loc_grouped_branches.projectUuid,
-        loc_grouped_branches.projectName,
-        loc_grouped_branches.projectKey,
-        loc_grouped_branches.ncloc as loc,
-        loc_grouped_branches.branchName,
-        loc_grouped_branches.branchType
-    from (
-       select pb.project_uuid as projectUuid,
-       p.name as projectName,
-       p.kee as projectKey,
-       pb.kee as branchName,
-       pb.branch_type as branchType,
-       lm.value as ncloc,
-       row_number() over (partition by pb.project_uuid order by lm.value desc, pb.is_main desc, pb.uuid asc) row_number
-       from live_measures lm
-          inner join project_branches pb on pb.uuid = lm.component_uuid
-          inner join projects p on p.uuid = pb.project_uuid
-          where lm.metric_uuid = #{nclocUuid, jdbcType=VARCHAR}
-          and p.qualifier ='TRK'
-      ) loc_grouped_branches
-    where loc_grouped_branches.row_number = 1
-    order by ncloc desc
-  </select>
-
-  <select id="selectLargestBranchesLocDistribution" parameterType="map" resultType="ProjectLocDistribution">
-    select top_branches.project_uuid as projectUuid,
-    top_branches.uuid as branchUuid,
-    lm2.text_value as locDistribution from (
-    SELECT loc_grouped_branches.uuid, loc_grouped_branches.project_uuid
-      FROM (
-       SELECT b.uuid, b.project_uuid, ROW_NUMBER() OVER (PARTITION BY
-       b.project_uuid ORDER BY lm.value desc, b.is_main desc, b.uuid asc) row_number
-       from live_measures lm
-          inner join project_branches b on b.uuid = lm.component_uuid
-          inner join projects p on p.uuid = b.project_uuid
-          where lm.metric_uuid = #{nclocUuid, jdbcType=VARCHAR}
-          and p.qualifier ='TRK'
-      ) loc_grouped_branches
-    WHERE loc_grouped_branches.row_number = 1) top_branches
-    inner join live_measures lm2 on lm2.component_uuid = top_branches.uuid
-    where lm2.metric_uuid = #{nclocDistributionUuid, jdbcType=VARCHAR}
-  </select>
-
-  <select id="countProjectsHavingMeasure" parameterType="map" resultType="long">
-    select count(1)
-      from live_measures lm
-      inner join metrics m on m.uuid = lm.metric_uuid AND m.name = #{metric, jdbcType=VARCHAR}
-      inner join project_branches pb on pb.uuid = lm.project_uuid
-      inner join projects p on p.uuid = pb.project_uuid and p.qualifier = 'TRK'
-
   </select>
 
   <insert id="insert" parameterType="map" useGeneratedKeys="false">
@@ -161,12 +65,6 @@
     component_uuid = #{dto.componentUuid, jdbcType=VARCHAR}
     and metric_uuid = #{dto.metricUuid, jdbcType=VARCHAR}
   </update>
-
-  <delete id="deleteByComponent" parameterType="map">
-    delete from live_measures
-    where
-      component_uuid = #{componentUuid, jdbcType=VARCHAR}
-  </delete>
 
   <update id="upsert" parameterType="map" useGeneratedKeys="false" databaseId="postgresql">
     insert into live_measures (
@@ -214,67 +112,4 @@
       </if>
   </sql>
 
-  <select id="scrollSelectByComponentUuidAndMetricKeys" resultType="org.sonar.db.measure.LiveMeasureDto" fetchSize="${_scrollFetchSize}"
-          resultSetType="FORWARD_ONLY">
-     select <include refid="columns"/> from live_measures lm
-     inner join metrics m on m.uuid = lm.metric_uuid
-     where
-     m.name in <foreach item="metricKey" collection="metricKeys" open="(" separator="," close=")">#{metricKey, jdbcType=VARCHAR}</foreach>
-     and lm.component_uuid = #{componentUuid, jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectTreeByQuery" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto" fetchSize="${_scrollFetchSize}"
-          resultSetType="FORWARD_ONLY">
-    select <include refid="columns"/> from live_measures lm
-    inner join components p on p.uuid = lm.component_uuid
-    <!-- TODO do we really need another join on components ? Using lm.project_uuid should be enough -->
-    <include refid="org.sonar.db.component.ComponentMapper.selectDescendantsJoins"/>
-    <where>
-      <if test="query.getMetricUuids() != null">
-        lm.metric_uuid in
-        <foreach item="metricUuid" collection="query.getMetricUuids()" open="(" separator=","
-                 close=")">#{metricUuid,jdbcType=VARCHAR}</foreach>
-      </if>
-      and p.enabled = ${_true}
-      <if test="query.qualifiers != null">
-        and p.qualifier in
-        <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
-          #{qualifier,jdbcType=VARCHAR}
-        </foreach>
-      </if>
-      <if test="query.nameOrKeyQuery != null">
-        and (
-        p.kee = #{query.nameOrKeyQuery,jdbcType=VARCHAR}
-        or
-        upper(p.name) like #{query.nameOrKeyUpperLikeQuery,jdbcType=VARCHAR} escape '/'
-        )
-      </if>
-    </where>
-
-    -- Add measures of base component
-    union all
-    select <include refid="columns"/> from live_measures lm
-    inner join components p on p.uuid = lm.component_uuid and lm.component_uuid = #{baseUuid, jdbcType=VARCHAR}
-    <where>
-      <if test="query.getMetricUuids() != null">
-        lm.metric_uuid in
-        <foreach item="metricUuid" collection="query.getMetricUuids()" open="(" separator=","
-                 close=")">#{metricUuid,jdbcType=VARCHAR}</foreach>
-      </if>
-      and p.enabled = ${_true}
-      <if test="query.qualifiers != null">
-        and p.qualifier in
-        <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
-          #{qualifier,jdbcType=VARCHAR}
-        </foreach>
-      </if>
-      <if test="query.nameOrKeyQuery != null">
-        and (
-        p.kee = #{query.nameOrKeyQuery,jdbcType=VARCHAR}
-        or
-        upper(p.name) like #{query.nameOrKeyUpperLikeQuery,jdbcType=VARCHAR} escape '/'
-        )
-      </if>
-    </where>
-  </select>
 </mapper>

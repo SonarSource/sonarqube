@@ -31,7 +31,7 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.measure.LiveMeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.badge.ws.SvgGenerator.Color;
 import org.sonar.server.measure.Rating;
@@ -62,7 +62,6 @@ import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
 import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
-import static org.sonar.server.measure.Rating.valueOf;
 
 public class MeasureAction extends AbstractProjectBadgesWsAction {
 
@@ -114,7 +113,7 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
       .setDescription("Generate badge for project's measure as an SVG.<br/>" +
         "Requires 'Browse' permission on the specified project.")
       .setSince("7.1")
-      .setChangelog(new Change("10.4", String.format("The following metric keys are now deprecated: %s", String.join(", ",
+      .setChangelog(new Change("10.4", format("The following metric keys are now deprecated: %s", String.join(", ",
         DEPRECATED_METRIC_KEYS))))
       .setResponseExample(Resources.getResource(getClass(), "measure-example.svg"));
     support.addProjectAndBranchParams(action);
@@ -131,27 +130,27 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
       BranchDto branch = support.getBranch(dbSession, request);
       MetricDto metric = dbClient.metricDao().selectByKey(dbSession, metricKey);
       checkState(metric != null && metric.isEnabled(), "Metric '%s' hasn't been found", metricKey);
-      LiveMeasureDto measure = getMeasure(dbSession, branch, metricKey);
+      MeasureDto measure = getMeasure(dbSession, branch);
       return generateSvg(metric, measure);
     }
   }
 
-  private LiveMeasureDto getMeasure(DbSession dbSession, BranchDto branch, String metricKey) {
-    return dbClient.liveMeasureDao().selectMeasure(dbSession, branch.getUuid(), metricKey)
+  private MeasureDto getMeasure(DbSession dbSession, BranchDto branch) {
+    return dbClient.measureDao().selectByComponentUuid(dbSession, branch.getUuid())
       .orElseThrow(() -> new ProjectBadgesException("Measure has not been found"));
   }
 
-  private String generateSvg(MetricDto metric, LiveMeasureDto measure) {
+  private String generateSvg(MetricDto metric, MeasureDto measure) {
     String metricType = metric.getValueType();
     switch (ValueType.valueOf(metricType)) {
       case INT:
-        return generateBadge(metric, formatNumeric(getNonNullValue(measure, LiveMeasureDto::getValue).longValue()), Color.DEFAULT);
+        return generateBadge(metric, formatNumeric(getNonNullValue(measure, m -> m.getLong(metric.getKey()))), Color.DEFAULT);
       case PERCENT:
-        return generateBadge(metric, formatPercent(getNonNullValue(measure, LiveMeasureDto::getValue)), Color.DEFAULT);
+        return generateBadge(metric, formatPercent(getNonNullValue(measure, m -> m.getDouble(metric.getKey()))), Color.DEFAULT);
       case LEVEL:
         return generateQualityGate(metric, measure);
       case WORK_DUR:
-        return generateBadge(metric, formatDuration(getNonNullValue(measure, LiveMeasureDto::getValue).longValue()), Color.DEFAULT);
+        return generateBadge(metric, formatDuration(getNonNullValue(measure, m -> m.getLong(metric.getKey()))), Color.DEFAULT);
       case RATING:
         return generateRating(metric, measure);
       default:
@@ -159,13 +158,13 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
     }
   }
 
-  private String generateQualityGate(MetricDto metric, LiveMeasureDto measure) {
-    Level qualityGate = Level.valueOf(getNonNullValue(measure, LiveMeasureDto::getTextValue));
+  private String generateQualityGate(MetricDto metric, MeasureDto measure) {
+    Level qualityGate = Level.valueOf(getNonNullValue(measure, m -> m.getString(metric.getKey())));
     return generateBadge(metric, QUALITY_GATE_MESSAGE_BY_STATUS.get(qualityGate), COLOR_BY_QUALITY_GATE_STATUS.get(qualityGate));
   }
 
-  private String generateRating(MetricDto metric, LiveMeasureDto measure) {
-    Rating rating = valueOf(getNonNullValue(measure, LiveMeasureDto::getValue).intValue());
+  private String generateRating(MetricDto metric, MeasureDto measure) {
+    Rating rating = Rating.valueOf(getNonNullValue(measure, m -> m.getInt(metric.getKey())).intValue());
     return generateBadge(metric, rating.name(), COLOR_BY_RATING.get(rating));
   }
 
@@ -173,7 +172,7 @@ public class MeasureAction extends AbstractProjectBadgesWsAction {
     return svgGenerator.generateBadge(METRIC_NAME_BY_KEY.get(metric.getKey()), value, color);
   }
 
-  private static <P> P getNonNullValue(LiveMeasureDto measure, Function<LiveMeasureDto, P> function) {
+  private static <P> P getNonNullValue(MeasureDto measure, Function<MeasureDto, P> function) {
     P value = function.apply(measure);
     checkState(value != null, "Measure has not been found");
     return value;

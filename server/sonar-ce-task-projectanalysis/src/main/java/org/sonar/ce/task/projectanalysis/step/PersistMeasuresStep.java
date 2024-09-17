@@ -141,7 +141,7 @@ public class PersistMeasuresStep implements ComputationStep {
 
   private Set<MeasureHash> getDBMeasureHashes() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.measureDao().selectBranchMeasureHashes(dbSession, treeRootHolder.getRoot().getUuid());
+      return dbClient.measureDao().selectMeasureHashesForBranch(dbSession, treeRootHolder.getRoot().getUuid());
     }
   }
 

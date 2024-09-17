@@ -24,10 +24,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 
+import static java.util.Collections.singletonList;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class MeasureDao implements Dao {
@@ -55,7 +59,7 @@ public class MeasureDao implements Dao {
    */
   public int insertOrUpdate(DbSession dbSession, MeasureDto dto) {
     long now = system2.now();
-    Optional<MeasureDto> existingMeasureOpt = selectMeasure(dbSession, dto.getComponentUuid());
+    Optional<MeasureDto> existingMeasureOpt = selectByComponentUuid(dbSession, dto.getComponentUuid());
     if (existingMeasureOpt.isPresent()) {
       MeasureDto existingDto = existingMeasureOpt.get();
       existingDto.getMetricValues().putAll(dto.getMetricValues());
@@ -68,8 +72,8 @@ public class MeasureDao implements Dao {
     }
   }
 
-  public Optional<MeasureDto> selectMeasure(DbSession dbSession, String componentUuid) {
-    List<MeasureDto> measures = mapper(dbSession).selectByComponentUuids(List.of(componentUuid));
+  public Optional<MeasureDto> selectByComponentUuid(DbSession dbSession, String componentUuid) {
+    List<MeasureDto> measures = mapper(dbSession).selectByComponentUuids(singletonList(componentUuid));
     if (!measures.isEmpty()) {
       // component_uuid column is unique. List can't have more than 1 item.
       return Optional.of(measures.get(0));
@@ -77,8 +81,8 @@ public class MeasureDao implements Dao {
     return Optional.empty();
   }
 
-  public Optional<MeasureDto> selectMeasure(DbSession dbSession, String componentUuid, String metricKey) {
-    List<MeasureDto> measures = selectByComponentUuidsAndMetricKeys(dbSession, List.of(componentUuid), List.of(metricKey));
+  public Optional<MeasureDto> selectByComponentUuidAndMetricKeys(DbSession dbSession, String componentUuid, Collection<String> metricKeys) {
+    List<MeasureDto> measures = selectByComponentUuidsAndMetricKeys(dbSession, singletonList(componentUuid), metricKeys);
     // component_uuid column is unique. List can't have more than 1 item.
     if (measures.size() == 1) {
       return Optional.of(measures.get(0));
@@ -86,7 +90,8 @@ public class MeasureDao implements Dao {
     return Optional.empty();
   }
 
-  public List<MeasureDto> selectByComponentUuidsAndMetricKeys(DbSession dbSession, Collection<String> largeComponentUuids, Collection<String> metricKeys) {
+  public List<MeasureDto> selectByComponentUuidsAndMetricKeys(DbSession dbSession, Collection<String> largeComponentUuids,
+    Collection<String> metricKeys) {
     if (largeComponentUuids.isEmpty() || metricKeys.isEmpty()) {
       return Collections.emptyList();
     }
@@ -102,11 +107,50 @@ public class MeasureDao implements Dao {
       .toList();
   }
 
-  public Set<MeasureHash> selectBranchMeasureHashes(DbSession dbSession, String branchUuid) {
-    return mapper(dbSession).selectBranchMeasureHashes(branchUuid);
+  public void scrollSelectByComponentUuid(DbSession dbSession, String componentUuid, ResultHandler<MeasureDto> handler) {
+    mapper(dbSession).scrollSelectByComponentUuid(componentUuid, handler);
+  }
+
+  public Set<MeasureHash> selectMeasureHashesForBranch(DbSession dbSession, String branchUuid) {
+    return mapper(dbSession).selectMeasureHashesForBranch(branchUuid);
+  }
+
+  public List<MeasureDto> selectBranchMeasuresForProject(DbSession dbSession, String projectUuid) {
+    return mapper(dbSession).selectBranchMeasuresForProject(projectUuid);
+  }
+
+  public void selectTreeByQuery(DbSession dbSession, ComponentDto baseComponent, MeasureTreeQuery query,
+    ResultHandler<MeasureDto> resultHandler) {
+    if (query.returnsEmpty()) {
+      return;
+    }
+    mapper(dbSession).selectTreeByQuery(query, baseComponent.uuid(), query.getUuidPath(baseComponent), resultHandler);
+  }
+
+  public List<ProjectMainBranchMeasureDto> selectAllForProjectMainBranches(DbSession dbSession) {
+    return mapper(dbSession).selectAllForProjectMainBranches();
+  }
+
+  public List<MeasureDto> selectAllForMainBranches(DbSession dbSession) {
+    return mapper(dbSession).selectAllForMainBranches();
+  }
+
+  public long findNclocOfBiggestBranchForProject(DbSession dbSession, String projectUuid) {
+    List<MeasureDto> branchMeasures = mapper(dbSession).selectBranchMeasuresForProject(projectUuid);
+
+    long maxncloc = 0;
+    for (MeasureDto measure : branchMeasures) {
+      Long branchNcloc = measure.getLong(NCLOC_KEY);
+      if (branchNcloc != null && branchNcloc > maxncloc) {
+        maxncloc = branchNcloc;
+      }
+    }
+
+    return maxncloc;
   }
 
   private static MeasureMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(MeasureMapper.class);
   }
+
 }

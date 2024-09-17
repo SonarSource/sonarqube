@@ -19,10 +19,7 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.collect.Maps;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
@@ -32,30 +29,18 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
-import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.db.metric.MetricDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.measures.CoreMetrics.COVERAGE;
-import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY;
-import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES;
-import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.TESTS;
-import static org.sonar.api.measures.CoreMetrics.TESTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS;
-import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 
 public class ComponentViewerJsonWriter {
-  private static final List<String> METRIC_KEYS = List.of(
-    LINES_KEY,
-    VIOLATIONS_KEY,
-    COVERAGE_KEY,
-    DUPLICATED_LINES_DENSITY_KEY,
-    TESTS_KEY);
 
   private final DbClient dbClient;
 
@@ -96,36 +81,28 @@ public class ComponentViewerJsonWriter {
   }
 
   public void writeMeasures(JsonWriter json, ComponentDto component, DbSession session) {
-    Map<String, LiveMeasureDto> measuresByMetricKey = loadMeasuresGroupedByMetricKey(component, session);
+    MeasureDto measureDto = loadMeasures(component, session);
 
     json.name("measures").beginObject();
-    json.prop("lines", formatMeasure(measuresByMetricKey, LINES));
-    json.prop("coverage", formatMeasure(measuresByMetricKey, COVERAGE));
-    json.prop("duplicationDensity", formatMeasure(measuresByMetricKey, DUPLICATED_LINES_DENSITY));
-    json.prop("issues", formatMeasure(measuresByMetricKey, VIOLATIONS));
-    json.prop("tests", formatMeasure(measuresByMetricKey, TESTS));
+    json.prop("lines", formatMeasure(measureDto, LINES));
+    json.prop("coverage", formatMeasure(measureDto, COVERAGE));
+    json.prop("duplicationDensity", formatMeasure(measureDto, DUPLICATED_LINES_DENSITY));
+    json.prop("issues", formatMeasure(measureDto, VIOLATIONS));
+    json.prop("tests", formatMeasure(measureDto, TESTS));
     json.endObject();
   }
 
-  private Map<String, LiveMeasureDto> loadMeasuresGroupedByMetricKey(ComponentDto component, DbSession dbSession) {
-    List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, METRIC_KEYS);
-    Map<String, MetricDto> metricsByUuid = Maps.uniqueIndex(metrics, MetricDto::getUuid);
-    List<LiveMeasureDto> measures = dbClient.liveMeasureDao()
-      .selectByComponentUuidsAndMetricUuids(dbSession, Collections.singletonList(component.uuid()), metricsByUuid.keySet());
-    return Maps.uniqueIndex(measures, m -> metricsByUuid.get(m.getMetricUuid()).getKey());
+  @CheckForNull
+  private MeasureDto loadMeasures(ComponentDto component, DbSession dbSession) {
+    return dbClient.measureDao().selectByComponentUuid(dbSession, component.uuid()).orElse(null);
   }
 
   @CheckForNull
-  private static String formatMeasure(Map<String, LiveMeasureDto> measuresByMetricKey, Metric metric) {
-    LiveMeasureDto measure = measuresByMetricKey.get(metric.getKey());
-    return formatMeasure(measure, metric);
-  }
-
-  private static String formatMeasure(@Nullable LiveMeasureDto measure, Metric metric) {
-    if (measure == null) {
+  private static String formatMeasure(@Nullable MeasureDto measureDto, Metric<?> metric) {
+    if (measureDto == null) {
       return null;
     }
-    Double value = getDoubleValue(measure, metric);
+    Double value = getDoubleValue(measureDto, metric);
     if (value != null) {
       return Double.toString(value);
     }
@@ -133,12 +110,11 @@ public class ComponentViewerJsonWriter {
   }
 
   @CheckForNull
-  private static Double getDoubleValue(LiveMeasureDto measure, Metric metric) {
-    Double value = measure.getValue();
+  private static Double getDoubleValue(MeasureDto measureDto, Metric<?> metric) {
+    Double value = measureDto.getDouble(metric.getKey());
     if (BooleanUtils.isTrue(metric.isOptimizedBestValue()) && value == null) {
       value = metric.getBestValue();
     }
     return value;
   }
-
 }

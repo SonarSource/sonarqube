@@ -26,12 +26,14 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.util.cache.DoubleCache;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.toLevel;
 
 public interface Measure {
 
@@ -457,6 +459,22 @@ public interface Measure {
 
     public Measure create(Level level) {
       return new MeasureImpl(ValueType.LEVEL, null, null, requireNonNull(level), qualityGateStatus);
+    }
+
+    public Measure create(Metric metric, @Nullable Object value) {
+      if (value == null) {
+        return createNoValue();
+      }
+
+      return switch (metric.getType().getValueType()) {
+        case INT -> create(((Double) value).intValue());
+        case LONG -> create(((Double) value).longValue());
+        case DOUBLE -> create((Double) value);
+        case BOOLEAN -> create(Double.compare((Double) value, 1.0D) == 0);
+        case STRING -> create((String) value);
+        case LEVEL -> toLevel((String) value).map(this::create).orElse(createNoValue());
+        case NO_VALUE -> createNoValue();
+      };
     }
 
     public Measure createNoValue() {

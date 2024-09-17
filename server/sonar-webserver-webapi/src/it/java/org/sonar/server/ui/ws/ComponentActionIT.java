@@ -87,7 +87,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
-import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
+import static org.sonar.db.measure.MeasureTesting.newMeasure;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
@@ -844,9 +844,7 @@ public class ComponentActionIT {
   private void addQualityProfiles(ComponentDto project, QualityProfile... qps) {
     MetricDto metric = newMetricDto().setKey(QUALITY_PROFILES_KEY);
     dbClient.metricDao().insert(db.getSession(), metric);
-    dbClient.liveMeasureDao().insert(db.getSession(),
-      newLiveMeasure(project, metric)
-        .setData(qualityProfilesToJson(qps)));
+    dbClient.measureDao().insert(db.getSession(), newMeasure(project, metric, qualityProfilesToJson(qps)));
     db.commit();
   }
 
