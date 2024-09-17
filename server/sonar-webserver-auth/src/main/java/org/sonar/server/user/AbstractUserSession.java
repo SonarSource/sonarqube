@@ -142,7 +142,7 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public  <T extends EntityDto>  List<T> keepAuthorizedEntities(String permission, Collection<T> projects) {
+  public final <T extends EntityDto>  List<T> keepAuthorizedEntities(String permission, Collection<T> projects) {
     return doKeepAuthorizedEntities(permission, projects);
   }
 

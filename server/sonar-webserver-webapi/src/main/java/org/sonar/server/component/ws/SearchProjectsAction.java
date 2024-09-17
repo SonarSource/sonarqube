@@ -46,6 +46,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
@@ -55,6 +56,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.db.user.TokenType;
 import org.sonar.server.component.ws.FilterParser.Criterion;
 import org.sonar.server.component.ws.SearchProjectsAction.SearchResults.SearchResultsBuilder;
 import org.sonar.server.es.Facets;
@@ -63,6 +65,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.project.Visibility;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Components.Component;
@@ -236,12 +239,15 @@ public class SearchProjectsAction implements ComponentsWsAction {
     ProjectMeasuresQueryValidator.validate(query);
 
     SearchIdResult<String> esResults = index.search(query, new SearchOptions()
-      .addFacets(request.getFacets())
+      // skip facets for project token authorization, avoid exposing unauthorized projects count
+      .addFacets(isProjectAnalysisToken() ? emptyList() : request.getFacets())
       .setPage(request.getPage(), request.getPageSize()));
 
     List<String> projectUuids = esResults.getUuids();
     Ordering<ProjectDto> ordering = Ordering.explicit(projectUuids).onResultOf(ProjectDto::getUuid);
     List<ProjectDto> projects = ordering.immutableSortedCopy(dbClient.projectDao().selectByUuids(dbSession, new HashSet<>(projectUuids)));
+    projects = userSession.keepAuthorizedEntities(UserRole.USER, projects);
+
     Map<String, BranchDto> mainBranchByUuid = dbClient.branchDao().selectMainBranchesByProjectUuids(dbSession, projectUuids)
       .stream()
       .collect(Collectors.toMap(BranchDto::getUuid, b -> b));
@@ -281,7 +287,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private Set<String> getQualifiersFromEdition() {
     Optional<Edition> edition = editionProvider.get();
 
-    if (!edition.isPresent()) {
+    if (edition.isEmpty()) {
       return Sets.newHashSet(Qualifiers.PROJECT);
     }
 
@@ -367,7 +373,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .map(response -> response.setPaging(Common.Paging.newBuilder()
         .setPageIndex(request.getPage())
         .setPageSize(request.getPageSize())
-        .setTotal(searchResults.total)))
+        // skip total for project token authorization, avoid exposing unauthorized projects count
+        .setTotal(isProjectAnalysisToken() ? searchResults.projects.size() : searchResults.total)))
       .map(response -> {
         searchResults.projects.stream()
           .map(dbToWsComponent)
@@ -689,5 +696,12 @@ public class SearchProjectsAction implements ComponentsWsAction {
       checkArgument(pageSize <= MAX_PAGE_SIZE, "Page size must not be greater than %s", MAX_PAGE_SIZE);
       return new SearchProjectsRequest(this);
     }
+  }
+
+  private boolean isProjectAnalysisToken() {
+    if (userSession instanceof TokenUserSession tokenUserSession) {
+      return TokenType.PROJECT_ANALYSIS_TOKEN.equals(tokenUserSession.getTokenType());
+    }
+    return false;
   }
 }

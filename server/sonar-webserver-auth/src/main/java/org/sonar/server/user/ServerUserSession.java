@@ -187,7 +187,7 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  public <T extends EntityDto> List<T> keepAuthorizedEntities(String permission, Collection<T> entities) {
+  protected <T extends EntityDto> List<T> doKeepAuthorizedEntities(String permission, Collection<T> entities) {
     Set<String> projectsUuids = entities.stream().map(EntityDto::getUuid).collect(Collectors.toSet());
     // TODO in SONAR-19445
     Set<String> authorizedEntitiesUuids = keepEntitiesUuidsByPermission(permission, projectsUuids);
@@ -364,7 +364,7 @@ public class ServerUserSession extends AbstractUserSession {
       Set<String> allProjectUuids = new HashSet<>(projectUuids);
       allProjectUuids.addAll(originalComponentsProjectUuids);
 
-      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, allProjectUuids, getUuid(), permission);
+      Set<String> authorizedProjectUuids = keepAuthorizedProjectsUuids(dbSession, permission, allProjectUuids);
 
       return components.stream()
         .filter(c -> {
@@ -378,6 +378,10 @@ public class ServerUserSession extends AbstractUserSession {
         })
         .toList();
     }
+  }
+
+  protected Set<String> keepAuthorizedProjectsUuids(DbSession dbSession, String permission, Collection<String> entityUuids) {
+    return dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, entityUuids, getUuid(), permission);
   }
 
   private Map<String, ComponentDto> findComponentsByCopyComponentUuid(Collection<ComponentDto> components, DbSession dbSession) {
