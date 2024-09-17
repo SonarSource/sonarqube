@@ -33,6 +33,7 @@ import { Component } from '../../../types/types';
 import {
   combineDefinitionAndSettingValue,
   getSettingValue,
+  getUniqueName,
   isDefaultOrInherited,
   isEmptyValue,
   isURLKind,
@@ -59,6 +60,8 @@ export default function Definition(props: Readonly<Props>) {
   const [success, setSuccess] = React.useState(false);
   const [changedValue, setChangedValue] = React.useState<FieldValue>();
   const [validationMessage, setValidationMessage] = React.useState<string>();
+  const ref = React.useRef<HTMLElement>(null);
+  const name = getUniqueName(definition);
 
   const { data: loadedSettingValue, isLoading } = useGetValueQuery({
     key: definition.key,
@@ -67,6 +70,7 @@ export default function Definition(props: Readonly<Props>) {
 
   // WARNING: do *not* remove `?? undefined` below, it is required to change `null` to `undefined`!
   // (Yes, it's ugly, we really shouldn't use `null` as the fallback value in useGetValueQuery)
+  // prettier-ignore
   const settingValue = isLoading ? initialSettingValue : (loadedSettingValue ?? undefined);
 
   const { mutateAsync: resetSettingValue } = useResetSettingsMutation();
@@ -92,6 +96,7 @@ export default function Definition(props: Readonly<Props>) {
       setChangedValue(undefined);
       setLoading(false);
       setSuccess(true);
+      ref.current?.focus();
       setValidationMessage(undefined);
 
       timeout.current = window.setTimeout(() => {
@@ -101,6 +106,7 @@ export default function Definition(props: Readonly<Props>) {
       const validationMessage = await parseError(e as Response);
       setLoading(false);
       setValidationMessage(validationMessage);
+      ref.current?.focus();
     }
   };
 
@@ -117,6 +123,7 @@ export default function Definition(props: Readonly<Props>) {
       } else {
         setValidationMessage(translate('settings.state.value_cant_be_empty'));
       }
+      ref.current?.focus();
 
       return false;
     }
@@ -129,6 +136,7 @@ export default function Definition(props: Readonly<Props>) {
         setValidationMessage(
           translateWithParameters('settings.state.url_not_valid', value?.toString() ?? ''),
         );
+        ref.current?.focus();
 
         return false;
       }
@@ -139,6 +147,7 @@ export default function Definition(props: Readonly<Props>) {
         JSON.parse(value?.toString() ?? '');
       } catch (e) {
         setValidationMessage((e as Error).message);
+        ref.current?.focus();
 
         return false;
       }
@@ -154,6 +163,7 @@ export default function Definition(props: Readonly<Props>) {
 
       if (isEmptyValue(definition, changedValue)) {
         setValidationMessage(translate('settings.state.value_cant_be_empty'));
+        ref.current?.focus();
 
         return;
       }
@@ -167,6 +177,7 @@ export default function Definition(props: Readonly<Props>) {
         setIsEditing(false);
         setLoading(false);
         setSuccess(true);
+        ref.current?.focus();
 
         timeout.current = window.setTimeout(() => {
           setSuccess(false);
@@ -175,6 +186,7 @@ export default function Definition(props: Readonly<Props>) {
         const validationMessage = await parseError(e as Response);
         setLoading(false);
         setValidationMessage(validationMessage);
+        ref.current?.focus();
       }
     }
   };
@@ -189,15 +201,16 @@ export default function Definition(props: Readonly<Props>) {
   return (
     <div data-key={definition.key} data-testid={definition.key} className="sw-flex sw-gap-12">
       <DefinitionDescription definition={definition} />
-
       <div className="sw-flex-1">
         <form onSubmit={formNoop}>
           <Input
+            ariaDescribedBy={`definition-stats-${name}`}
             hasValueChanged={hasValueChanged}
             onCancel={handleCancel}
             onChange={handleChange}
             onSave={handleSave}
             onEditing={() => setIsEditing(true)}
+            ref={ref}
             isEditing={isEditing}
             isInvalid={hasError}
             setting={settingDefinitionAndValue}
@@ -206,16 +219,18 @@ export default function Definition(props: Readonly<Props>) {
 
           <div className="sw-mt-2">
             {loading && (
-              <div className="sw-flex">
-                <Spinner />
+              <div id={`definition-stats-${name}`} className="sw-flex">
+                <Spinner aria-busy />
 
                 <Note className="sw-ml-2">{translate('settings.state.saving')}</Note>
               </div>
             )}
 
             {!loading && validationMessage && (
-              <div>
+              <div id={`definition-stats-${name}`}>
                 <TextError
+                  as="output"
+                  className="sw-whitespace-break-spaces"
                   text={translateWithParameters(
                     'settings.state.validation_failed',
                     validationMessage,
@@ -225,12 +240,15 @@ export default function Definition(props: Readonly<Props>) {
             )}
 
             {!loading && !hasError && success && (
-              <FlagMessage variant="success">{translate('settings.state.saved')}</FlagMessage>
+              <FlagMessage id={`definition-stats-${name}`} variant="success">
+                {translate('settings.state.saved')}
+              </FlagMessage>
             )}
           </div>
 
           <DefinitionActions
             changedValue={changedValue}
+            definition={definition}
             hasError={hasError}
             hasValueChanged={hasValueChanged}
             isDefault={isDefault}

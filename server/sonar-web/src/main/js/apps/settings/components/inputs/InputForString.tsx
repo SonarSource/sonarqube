@@ -21,6 +21,11 @@ import * as React from 'react';
 import { DefaultSpecializedInputProps } from '../../utils';
 import SimpleInput from './SimpleInput';
 
-export default function InputForString(props: DefaultSpecializedInputProps) {
-  return <SimpleInput size="large" type="text" {...props} />;
+function InputForString(
+  props: DefaultSpecializedInputProps,
+  ref: React.ForwardedRef<HTMLInputElement>,
+) {
+  return <SimpleInput ref={ref} size="large" type="text" {...props} />;
 }
+
+export default React.forwardRef(InputForString);

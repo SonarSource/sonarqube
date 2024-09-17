@@ -21,6 +21,11 @@ import * as React from 'react';
 import { DefaultSpecializedInputProps } from '../../utils';
 import SimpleInput from './SimpleInput';
 
-export default function InputForNumber(props: DefaultSpecializedInputProps) {
-  return <SimpleInput size="small" type="text" {...props} />;
+function InputForNumber(
+  props: DefaultSpecializedInputProps,
+  ref: React.ForwardedRef<HTMLInputElement>,
+) {
+  return <SimpleInput ref={ref} size="small" type="text" {...props} />;
 }
+
+export default React.forwardRef(InputForNumber);

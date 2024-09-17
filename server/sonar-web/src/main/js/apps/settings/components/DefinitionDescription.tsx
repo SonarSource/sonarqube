@@ -35,7 +35,9 @@ export default function DefinitionDescription({ definition }: Readonly<Props>) {
 
   return (
     <div className="sw-w-abs-300">
-      <SubHeading title={propertyName}>{propertyName}</SubHeading>
+      <SubHeading className="sw-text-ellipsis sw-overflow-hidden" title={propertyName}>
+        {propertyName}
+      </SubHeading>
 
       {description && (
         <div

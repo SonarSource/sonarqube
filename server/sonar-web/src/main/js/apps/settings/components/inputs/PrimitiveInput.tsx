@@ -29,20 +29,15 @@ import InputForSingleSelectList from './InputForSingleSelectList';
 import InputForString from './InputForString';
 import InputForText from './InputForText';
 
-function withOptions(
-  options: string[],
-): React.ComponentType<React.PropsWithChildren<DefaultSpecializedInputProps>> {
-  return function Wrapped(props: DefaultSpecializedInputProps) {
-    return <InputForSingleSelectList options={options} {...props} />;
-  };
-}
-
-export default function PrimitiveInput(props: DefaultSpecializedInputProps) {
-  const { setting, name, isDefault, ...other } = props;
+function PrimitiveInput(
+  props: DefaultSpecializedInputProps,
+  ref: React.ForwardedRef<HTMLInputElement>,
+) {
+  const { ariaDescribedBy, setting, name, isDefault, ...other } = props;
   const { definition } = setting;
   const typeMapping: {
     [type in SettingType]?: React.ComponentType<
-      React.PropsWithChildren<DefaultSpecializedInputProps>
+      React.PropsWithChildren<DefaultSpecializedInputProps & { options?: string[] }>
     >;
   } = React.useMemo(
     () => ({
@@ -54,13 +49,30 @@ export default function PrimitiveInput(props: DefaultSpecializedInputProps) {
       INTEGER: InputForNumber,
       LONG: InputForNumber,
       FLOAT: InputForNumber,
-      SINGLE_SELECT_LIST: withOptions(definition.options),
+      SINGLE_SELECT_LIST: InputForSingleSelectList,
       FORMATTED_TEXT: InputForFormattedText,
     }),
     [definition.options],
   );
 
   const InputComponent = (definition.type && typeMapping[definition.type]) || InputForString;
+  let id = `input-${name}`;
+  if (typeof props.index === 'number') {
+    id = `${id}-${props.index}`;
+  }
 
-  return <InputComponent isDefault={isDefault} name={name} setting={setting} {...other} />;
+  return (
+    <InputComponent
+      ariaDescribedBy={ariaDescribedBy}
+      id={id}
+      isDefault={isDefault}
+      name={name}
+      options={definition.type === SettingType.SINGLE_SELECT_LIST ? definition.options : undefined}
+      setting={setting}
+      ref={ref}
+      {...other}
+    />
+  );
 }
+
+export default React.forwardRef(PrimitiveInput);

@@ -21,11 +21,12 @@ import { Button, ButtonGroup, ButtonVariety } from '@sonarsource/echoes-react';
 import { Modal, Note } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Setting } from '../../../types/settings';
+import { ExtendedSettingDefinition, Setting } from '../../../types/settings';
 import { getDefaultValue, getPropertyName, isEmptyValue } from '../utils';
 
 type Props = {
   changedValue?: string | string[] | boolean;
+  definition: ExtendedSettingDefinition;
   hasError: boolean;
   hasValueChanged: boolean;
   isDefault: boolean;
@@ -79,17 +80,22 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
   }
 
   render() {
-    const { setting, changedValue, isDefault, isEditing, hasValueChanged, hasError } = this.props;
+    const { definition, setting, changedValue, isDefault, isEditing, hasValueChanged, hasError } =
+      this.props;
     const hasBeenChangedToEmptyValue =
       changedValue !== undefined && isEmptyValue(setting.definition, changedValue);
     const showReset = hasBeenChangedToEmptyValue || (!isDefault && setting.hasValue);
     const showCancel = hasValueChanged || isEditing;
+    const propertyName = getPropertyName(definition);
+    const saveButtonLabel = `${translate('save')} ${propertyName}`;
+    const cancelButtonLabel = `${translate('cancel')} ${propertyName}`;
 
     return (
       <div className="sw-mt-8">
         <ButtonGroup className="sw-mr-3">
           {hasValueChanged && (
             <Button
+              aria-label={saveButtonLabel}
               isDisabled={hasError}
               onClick={this.props.onSave}
               variety={ButtonVariety.Primary}
@@ -110,7 +116,11 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
             </Button>
           )}
 
-          {showCancel && <Button onClick={this.props.onCancel}>{translate('cancel')}</Button>}
+          {showCancel && (
+            <Button aria-label={cancelButtonLabel} onClick={this.props.onCancel}>
+              {translate('cancel')}
+            </Button>
+          )}
         </ButtonGroup>
 
         {showReset && (

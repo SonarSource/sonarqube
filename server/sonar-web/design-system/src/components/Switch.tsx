@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import { ForwardedRef, forwardRef } from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast, themeShadow } from '../helpers';
 import { CheckIcon } from './icons';
@@ -37,7 +38,7 @@ const getValue = (value: boolean | string) => {
   return typeof value === 'string' ? value === 'true' : value;
 };
 
-export function Switch(props: Readonly<Props>) {
+function SwitchWithRef(props: Readonly<Props>, ref: ForwardedRef<HTMLButtonElement>) {
   const { disabled, onChange, name, labels } = props;
   const value = getValue(props.value);
 
@@ -56,6 +57,7 @@ export function Switch(props: Readonly<Props>) {
       disabled={disabled}
       name={name}
       onClick={handleClick}
+      ref={ref}
       role="switch"
       type="button"
     >
@@ -118,3 +120,5 @@ const StyledSwitch = styled.button<StyledProps>`
       active ? themeBorder('focus', 'switchActive') : themeBorder('focus', 'switch')};
   }
 `;
+
+export const Switch = forwardRef(SwitchWithRef);

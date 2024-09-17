@@ -46,8 +46,8 @@ const allowUsersToSignUpDefinition = byTestId('sonar.auth.bitbucket.allowUsersTo
 const workspacesDefinition = byTestId('sonar.auth.bitbucket.workspaces');
 
 const ui = {
-  save: byRole('button', { name: 'save' }),
-  cancel: byRole('button', { name: 'cancel' }),
+  save: byRole('button', { name: /save/ }),
+  cancel: byRole('button', { name: /cancel/ }),
   reset: byRole('button', { name: /settings.definition.reset/ }),
   confirmReset: byRole('dialog').byRole('button', { name: 'reset_verb' }),
   change: byRole('button', { name: 'change_verb' }),

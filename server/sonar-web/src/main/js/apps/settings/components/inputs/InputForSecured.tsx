@@ -34,10 +34,13 @@ interface State {
 }
 
 interface Props extends DefaultInputProps {
-  input: React.ComponentType<React.PropsWithChildren<DefaultSpecializedInputProps>>;
+  innerRef: React.ForwardedRef<HTMLElement>;
+  input: React.ComponentType<
+    React.PropsWithChildren<DefaultSpecializedInputProps> & React.RefAttributes<HTMLElement>
+  >;
 }
 
-export default class InputForSecured extends React.PureComponent<Props, State> {
+class InputForSecured extends React.PureComponent<Props, State> {
   state: State = {
     changing: !this.props.setting.hasValue,
   };
@@ -66,7 +69,7 @@ export default class InputForSecured extends React.PureComponent<Props, State> {
   };
 
   renderInput() {
-    const { input: Input, setting, value } = this.props;
+    const { input: Input, innerRef, setting, value } = this.props;
     const name = getUniqueName(setting.definition);
     return (
       // The input hidden will prevent browser asking for saving login information
@@ -76,9 +79,11 @@ export default class InputForSecured extends React.PureComponent<Props, State> {
           aria-label={getPropertyName(setting.definition)}
           autoComplete="off"
           className="js-setting-input"
+          id={`input-${name}`}
           isDefault={isDefaultOrInherited(setting)}
           name={name}
           onChange={this.handleInputChange}
+          ref={innerRef}
           setting={setting}
           size="large"
           type="password"
@@ -101,3 +106,9 @@ export default class InputForSecured extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default React.forwardRef(
+  (props: Omit<Props, 'innerRef'>, ref: React.ForwardedRef<HTMLElement>) => (
+    <InputForSecured innerRef={ref} {...props} />
+  ),
+);

@@ -41,14 +41,17 @@ export const DEFAULT_CATEGORY = 'general';
 export type DefaultSpecializedInputProps = DefaultInputProps & {
   autoComplete?: string;
   className?: string;
+  index?: number;
   isDefault: boolean;
   name: string;
   type?: string;
 };
 
 export interface DefaultInputProps {
+  ariaDescribedBy?: string;
   autoFocus?: boolean;
   hasValueChanged?: boolean;
+  id?: string;
   isEditing?: boolean;
   isInvalid?: boolean;
   onCancel?: () => void;

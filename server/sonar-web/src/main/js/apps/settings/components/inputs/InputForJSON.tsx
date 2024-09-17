@@ -26,11 +26,15 @@ import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
 const JSON_SPACE_SIZE = 4;
 
+interface Props extends DefaultSpecializedInputProps {
+  innerRef: React.ForwardedRef<HTMLTextAreaElement>;
+}
+
 interface State {
   formatError: boolean;
 }
 
-export default class InputForJSON extends React.PureComponent<DefaultSpecializedInputProps, State> {
+class InputForJSON extends React.PureComponent<Props, State> {
   state: State = { formatError: false };
 
   handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -50,7 +54,7 @@ export default class InputForJSON extends React.PureComponent<DefaultSpecialized
   };
 
   render() {
-    const { value, name, setting, isInvalid } = this.props;
+    const { value, name, innerRef, setting, isInvalid } = this.props;
     const { formatError } = this.state;
 
     return (
@@ -60,6 +64,7 @@ export default class InputForJSON extends React.PureComponent<DefaultSpecialized
             size="large"
             name={name}
             onChange={this.handleInputChange}
+            ref={innerRef}
             rows={5}
             value={value || ''}
             aria-label={getPropertyName(setting.definition)}
@@ -80,3 +85,9 @@ export default class InputForJSON extends React.PureComponent<DefaultSpecialized
     );
   }
 }
+
+export default React.forwardRef(
+  (props: DefaultSpecializedInputProps, ref: React.ForwardedRef<HTMLTextAreaElement>) => (
+    <InputForJSON innerRef={ref} {...props} />
+  ),
+);

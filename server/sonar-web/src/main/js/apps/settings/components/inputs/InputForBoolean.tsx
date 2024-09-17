@@ -26,7 +26,10 @@ interface Props extends DefaultSpecializedInputProps {
   value: string | boolean | undefined;
 }
 
-export default function InputForBoolean({ onChange, name, value, setting }: Props) {
+function InputForBoolean(
+  { onChange, name, value, setting, ...other }: Readonly<Props>,
+  ref: React.ForwardedRef<HTMLButtonElement>,
+) {
   const toggleValue = getToggleValue(value != null ? value : false);
 
   const propertyName = getPropertyName(setting.definition);
@@ -36,11 +39,13 @@ export default function InputForBoolean({ onChange, name, value, setting }: Prop
       <Switch
         name={name}
         onChange={onChange}
+        ref={ref}
         value={toggleValue}
         labels={{
           on: propertyName,
           off: propertyName,
         }}
+        {...other}
       />
       {value == null && <Note className="sw-ml-2">{translate('settings.not_set')}</Note>}
     </div>
@@ -50,3 +55,5 @@ export default function InputForBoolean({ onChange, name, value, setting }: Prop
 function getToggleValue(value: string | boolean) {
   return typeof value === 'string' ? value === 'true' : value;
 }
+
+export default React.forwardRef(InputForBoolean);

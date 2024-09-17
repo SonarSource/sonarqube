@@ -24,7 +24,10 @@ import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
 type Props = DefaultSpecializedInputProps & Pick<ExtendedSettingDefinition, 'options'>;
 
-export default function InputForSingleSelectList(props: Readonly<Props>) {
+function InputForSingleSelectList(
+  props: Readonly<Props>,
+  ref: React.ForwardedRef<HTMLInputElement>,
+) {
   const { name, options: opts, value, setting } = props;
 
   const options = React.useMemo(
@@ -39,8 +42,11 @@ export default function InputForSingleSelectList(props: Readonly<Props>) {
       isNotClearable
       name={name}
       onChange={props.onChange}
+      ref={ref}
       size={InputSize.Large}
       value={value}
     />
   );
 }
+
+export default React.forwardRef(InputForSingleSelectList);

@@ -33,7 +33,10 @@ import { translate } from '../../../../helpers/l10n';
 import { sanitizeUserInput } from '../../../../helpers/sanitize';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
-export default function InputForFormattedText(props: DefaultSpecializedInputProps) {
+function InputForFormattedText(
+  props: DefaultSpecializedInputProps,
+  ref: React.ForwardedRef<HTMLTextAreaElement>,
+) {
   const { isEditing, setting, name, value } = props;
   const { values, hasValue } = setting;
   const editMode = !hasValue || isEditing;
@@ -52,6 +55,7 @@ export default function InputForFormattedText(props: DefaultSpecializedInputProp
         className="settings-large-input sw-mr-2"
         name={name}
         onChange={handleInputChange}
+        ref={ref}
         rows={5}
         value={value || ''}
       />
@@ -82,3 +86,5 @@ const FormattedPreviewBox = styled.div`
   overflow-wrap: break-word;
   line-height: 1.5;
 `;
+
+export default React.forwardRef(InputForFormattedText);

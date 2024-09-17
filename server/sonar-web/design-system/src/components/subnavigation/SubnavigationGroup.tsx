@@ -18,20 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { Children, Fragment, HtmlHTMLAttributes, ReactNode } from 'react';
+import { Children, ElementType, Fragment, HtmlHTMLAttributes, ReactNode } from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor } from '../../helpers/theme';
 import { isDefined } from '../../helpers/types';
 
 interface Props extends HtmlHTMLAttributes<HTMLDivElement> {
+  as?: ElementType;
   children: ReactNode;
   className?: string;
 }
 
-export function SubnavigationGroup({ className, children, ...htmlProps }: Props) {
+export function SubnavigationGroup({ as, className, children, ...htmlProps }: Readonly<Props>) {
   const childrenArray = Children.toArray(children).filter(isDefined);
   return (
-    <Group className={className} {...htmlProps}>
+    <Group as={as} className={className} {...htmlProps}>
       {childrenArray.map((child, index) => (
         <Fragment key={index}>
           {child}

@@ -21,18 +21,23 @@ import { InputTextArea } from 'design-system';
 import * as React from 'react';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
-export default class InputForText extends React.PureComponent<DefaultSpecializedInputProps> {
+interface Props extends DefaultSpecializedInputProps {
+  innerRef: React.ForwardedRef<HTMLTextAreaElement>;
+}
+
+class InputForText extends React.PureComponent<Props> {
   handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     this.props.onChange(event.target.value);
   };
 
   render() {
-    const { setting, name, value } = this.props;
+    const { setting, name, innerRef, value } = this.props;
     return (
       <InputTextArea
         size="large"
         name={name}
         onChange={this.handleInputChange}
+        ref={innerRef}
         rows={5}
         value={value || ''}
         aria-label={getPropertyName(setting.definition)}
@@ -40,3 +45,9 @@ export default class InputForText extends React.PureComponent<DefaultSpecialized
     );
   }
 }
+
+export default React.forwardRef(
+  (props: DefaultSpecializedInputProps, ref: React.ForwardedRef<HTMLTextAreaElement>) => (
+    <InputForText innerRef={ref} {...props} />
+  ),
+);

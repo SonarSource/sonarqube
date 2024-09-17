@@ -86,7 +86,7 @@ class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefiniti
           <li className={noPadding ? '' : 'sw-p-6'} key={subCategory.key}>
             {displaySubCategoryTitle && (
               <SubTitle
-                as="h3"
+                as="h2"
                 data-key={subCategory.key}
                 ref={this.scrollToSubCategoryOrDefinition}
               >

@@ -37,7 +37,11 @@ import {
 } from '../../utils';
 import PrimitiveInput from './PrimitiveInput';
 
-export default class PropertySetInput extends React.PureComponent<DefaultSpecializedInputProps> {
+interface Props extends DefaultSpecializedInputProps {
+  innerRef: React.ForwardedRef<HTMLInputElement>;
+}
+
+class PropertySetInput extends React.PureComponent<Props> {
   ensureValue() {
     return this.props.value || [];
   }
@@ -57,13 +61,13 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
   };
 
   renderFields(fieldValues: any, index: number, isLast: boolean) {
-    const { setting, isDefault } = this.props;
+    const { ariaDescribedBy, setting, isDefault, innerRef } = this.props;
     const { definition } = setting;
 
     return (
       <TableRow key={index}>
         {isCategoryDefinition(definition) &&
-          definition.fields.map((field) => {
+          definition.fields.map((field, idx) => {
             const newSetting = {
               ...setting,
               definition: field,
@@ -72,10 +76,13 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
             return (
               <ContentCell className="sw-py-2 sw-border-0" key={field.key}>
                 <PrimitiveInput
+                  ariaDescribedBy={ariaDescribedBy}
+                  index={index}
                   isDefault={isDefault}
                   hasValueChanged={this.props.hasValueChanged}
                   name={getUniqueName(definition, field.key)}
                   onChange={(value) => this.handleInputChange(index, field.key, value)}
+                  ref={index === 0 && idx === 0 ? innerRef : null}
                   setting={newSetting}
                   size="full"
                   value={fieldValues[field.key]}
@@ -145,3 +152,9 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
     );
   }
 }
+
+export default React.forwardRef(
+  (props: DefaultSpecializedInputProps, ref: React.ForwardedRef<HTMLInputElement>) => (
+    <PropertySetInput innerRef={ref} {...props} />
+  ),
+);

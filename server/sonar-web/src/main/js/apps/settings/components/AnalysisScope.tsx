@@ -48,7 +48,7 @@ export function AnalysisScope(props: AdditionalCategoryComponentProps) {
 
         <div className="sw-col-span-2">
           <DocumentationLink to={DocLink.AnalysisScope}>
-            {translate('learn_more')}
+            {translate('settings.analysis_scope.learn_more')}
           </DocumentationLink>
         </div>
       </StyledGrid>

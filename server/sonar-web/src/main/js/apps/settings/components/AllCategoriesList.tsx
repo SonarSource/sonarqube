@@ -24,6 +24,7 @@ import { useNavigate } from 'react-router-dom';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
+import { translate } from '../../../helpers/l10n';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../../helpers/urls';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
@@ -78,12 +79,18 @@ function CategoriesList(props: Readonly<CategoriesListProps>) {
   const sortedCategories = sortBy(categoriesWithName, (category) => category.name.toLowerCase());
 
   return (
-    <SubnavigationGroup className="sw-box-border it__subnavigation_menu">
+    <SubnavigationGroup
+      as="nav"
+      aria-label={translate('settings.page')}
+      className="sw-box-border it__subnavigation_menu"
+    >
       {sortedCategories.map((c) => {
         const category = c.key !== defaultCategory ? c.key.toLowerCase() : undefined;
+        const isActive = c.key.toLowerCase() === selectedCategory.toLowerCase();
         return (
           <SubnavigationItem
-            active={c.key.toLowerCase() === selectedCategory.toLowerCase()}
+            active={isActive}
+            ariaCurrent={isActive}
             onClick={() => openCategory(category)}
             key={c.key}
           >
