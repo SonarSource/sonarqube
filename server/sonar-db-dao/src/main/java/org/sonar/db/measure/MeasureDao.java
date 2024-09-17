@@ -43,6 +43,7 @@ public class MeasureDao implements Dao {
   }
 
   public int insert(DbSession dbSession, MeasureDto dto) {
+    dto.computeJsonValueHash();
     return mapper(dbSession).insert(dto, system2.now());
   }
 

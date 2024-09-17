@@ -104,11 +104,9 @@ public class MeasureTesting {
   }
 
   private static MeasureDto newMeasure(String componentUuid, String branchUuid, String metricKey, Object value) {
-    MeasureDto measureDto = new MeasureDto()
+    return new MeasureDto()
       .setComponentUuid(componentUuid)
       .setBranchUuid(branchUuid)
       .addValue(metricKey, value);
-    measureDto.computeJsonValueHash();
-    return measureDto;
   }
 }

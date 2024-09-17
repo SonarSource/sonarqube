@@ -53,7 +53,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.measure.MeasureTesting.newMeasure;
 
-class MeasureDaoTest {
+class MeasureDaoIT {
 
   @RegisterExtension
   public final DbTester db = DbTester.create(System2.INSTANCE);
@@ -63,7 +63,11 @@ class MeasureDaoTest {
   @Test
   void insert_measure() {
     MeasureDto dto = newMeasure();
+    assertThat(dto.getJsonValueHash()).isNull();
+
     int count = underTest.insert(db.getSession(), dto);
+
+    assertThat(dto.getJsonValueHash()).isNotNull();
     assertThat(count).isEqualTo(1);
     verifyTableSize(1);
     verifyPersisted(dto);
