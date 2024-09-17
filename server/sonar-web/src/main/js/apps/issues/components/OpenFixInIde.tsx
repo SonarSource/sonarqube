@@ -39,7 +39,7 @@ export interface Props {
 const DELAY_AFTER_TOKEN_CREATION = 3000;
 
 export function OpenFixInIde({ aiSuggestion, issue }: Readonly<Props>) {
-  const [ides, setIdes] = useState<Ide[]>([]);
+  const [ides, setIdes] = useState<Ide[] | undefined>(undefined);
   const { component } = useComponent();
   const { data: branchLike, isLoading: isBranchLoading } = useCurrentBranchQuery(component);
 
@@ -55,7 +55,7 @@ export function OpenFixInIde({ aiSuggestion, issue }: Readonly<Props>) {
   const { mutateAsync: openFixInIde, isPending } = useOpenFixOrIssueInIdeMutation();
 
   const closeDropdown = () => {
-    setIdes([]);
+    setIdes(undefined);
   };
 
   const openFix = useCallback(
@@ -118,8 +118,22 @@ export function OpenFixInIde({ aiSuggestion, issue }: Readonly<Props>) {
     return null;
   }
 
-  return (
+  const triggerButton = (
+    <Button
+      className="sw-whitespace-nowrap"
+      isDisabled={isPending}
+      onClick={onClick}
+      variety={ButtonVariety.Default}
+    >
+      {translate('view_fix_in_ide')}
+    </Button>
+  );
+
+  return ides === undefined ? (
+    triggerButton
+  ) : (
     <DropdownMenu.Root
+      isOpenOnMount
       items={ides.map((ide) => {
         const { ideName, description } = ide;
 
@@ -137,18 +151,11 @@ export function OpenFixInIde({ aiSuggestion, issue }: Readonly<Props>) {
         );
       })}
       onClose={() => {
-        setIdes([]);
+        setIdes(undefined);
       }}
       onOpen={onClick}
     >
-      <Button
-        className="sw-whitespace-nowrap"
-        isDisabled={isPending}
-        onClick={onClick}
-        variety={ButtonVariety.Default}
-      >
-        {translate('view_fix_in_ide')}
-      </Button>
+      {triggerButton}
     </DropdownMenu.Root>
   );
 }
