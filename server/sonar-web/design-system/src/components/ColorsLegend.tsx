@@ -64,12 +64,12 @@ export function ColorsLegend(props: ColorLegendProps) {
                       ? {
                           backgroundColor:
                             color.backgroundColor ??
-                            themeColor(`bubble.legacy.${(idx + 1) as BubbleColorVal}`)({
+                            themeColor(`bubble.${(idx + 1) as BubbleColorVal}`)({
                               theme,
                             }),
                           borderColor:
                             color.borderColor ??
-                            themeContrast(`bubble.legacy.${(idx + 1) as BubbleColorVal}`)({
+                            themeContrast(`bubble.${(idx + 1) as BubbleColorVal}`)({
                               theme,
                             }),
                         }

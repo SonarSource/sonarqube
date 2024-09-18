@@ -19,6 +19,7 @@
  */
 declare namespace jest {
   interface Matchers<R> {
+    toHaveAPopoverWithContent(content: string): Promise<CustomMatcherResult>;
     toHaveATooltipWithContent(content: string): Promise<CustomMatcherResult>;
     toHaveNoA11yViolations(): Promise<CustomMatcherResult>;
   }

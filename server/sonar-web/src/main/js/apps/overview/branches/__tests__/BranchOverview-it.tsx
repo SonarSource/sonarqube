@@ -44,7 +44,7 @@ import { mockQualityGateProjectStatus } from '../../../../helpers/mocks/quality-
 import { mockLoggedInUser, mockMeasure, mockPaging } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentPropsType } from '../../../../helpers/testUtils';
-import { SoftwareImpactSeverity, SoftwareQuality } from '../../../../types/clean-code-taxonomy';
+import { SoftwareQuality } from '../../../../types/clean-code-taxonomy';
 import { ProjectAnalysisEventCategory } from '../../../../types/project-activity';
 import { SettingsKey } from '../../../../types/settings';
 import { CaycStatus } from '../../../../types/types';
@@ -299,53 +299,21 @@ describe('project overview', () => {
 
     await user.click(await ui.overallCodeButton.find());
 
-    ui.expectSoftwareImpactMeasureCard(
-      SoftwareQuality.Security,
-      'B',
-      {
-        total: 1,
-        [SoftwareImpactSeverity.High]: 0,
-        [SoftwareImpactSeverity.Medium]: 1,
-        [SoftwareImpactSeverity.Low]: 0,
-      },
-      [false, true, false],
-    );
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Security, 'B', 1);
     await ui.expectSoftwareImpactMeasureCardRatingTooltip(
       SoftwareQuality.Security,
       'B',
       'overview.measures.software_impact.improve_rating_tooltip.software_quality.SECURITY.software_quality.security.B.overview.measures.software_impact.severity.LOW.improve_tooltip',
     );
 
-    ui.expectSoftwareImpactMeasureCard(
-      SoftwareQuality.Reliability,
-      'A',
-      {
-        total: 3,
-        [SoftwareImpactSeverity.High]: 0,
-        [SoftwareImpactSeverity.Medium]: 2,
-        [SoftwareImpactSeverity.Low]: 1,
-      },
-      [false, true, false],
-      undefined,
-      true,
-    );
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Reliability, 'A', 3, undefined, true);
     await ui.expectSoftwareImpactMeasureCardRatingTooltip(
       SoftwareQuality.Reliability,
       'A',
       'overview.measures.software_impact.improve_rating_tooltip.A.software_quality.RELIABILITY.software_quality.reliability.A.overview.measures.software_impact.severity.LOW.improve_tooltip',
     );
 
-    ui.expectSoftwareImpactMeasureCard(
-      SoftwareQuality.Maintainability,
-      'D',
-      {
-        total: 2,
-        [SoftwareImpactSeverity.High]: 0,
-        [SoftwareImpactSeverity.Medium]: 0,
-        [SoftwareImpactSeverity.Low]: 1,
-      },
-      [false, false, true],
-    );
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, 'D', 2);
     await ui.expectSoftwareImpactMeasureCardRatingTooltip(
       SoftwareQuality.Maintainability,
       'D',
@@ -360,18 +328,7 @@ describe('project overview', () => {
 
     await user.click(await ui.overallCodeButton.find());
 
-    ui.expectSoftwareImpactMeasureCard(
-      SoftwareQuality.Maintainability,
-      'D',
-      {
-        total: 2,
-        [SoftwareImpactSeverity.High]: 0,
-        [SoftwareImpactSeverity.Medium]: 0,
-        [SoftwareImpactSeverity.Low]: 1,
-      },
-      [false, false, true],
-      '',
-    );
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, 'D', 2, '');
   });
 
   it('should render old measures if software impact are missing', async () => {

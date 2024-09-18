@@ -112,11 +112,9 @@ export const LEAK_OLD_TAXONOMY_METRICS = [
 ];
 
 export const OLD_TAXONOMY_RATINGS = [
-  MetricKey.releasability_rating,
   MetricKey.sqale_rating,
   MetricKey.security_rating,
   MetricKey.reliability_rating,
-  MetricKey.security_review_rating,
   MetricKey.sqale_index,
   MetricKey.reliability_remediation_effort,
   MetricKey.security_remediation_effort,
@@ -128,7 +126,6 @@ export const LEAK_OLD_TAXONOMY_RATINGS = [
   MetricKey.new_maintainability_rating,
   MetricKey.new_security_rating,
   MetricKey.new_reliability_rating,
-  MetricKey.new_security_review_rating,
   MetricKey.new_technical_debt,
   MetricKey.new_security_remediation_effort,
   MetricKey.new_reliability_remediation_effort,
@@ -191,9 +188,6 @@ export const DEPRECATED_ACTIVITY_METRICS = [
 ];
 
 export const SOFTWARE_QUALITY_RATING_METRICS_MAP: Record<string, MetricKey> = {
-  [MetricKey.releasability_rating]: MetricKey.software_quality_releasability_rating,
-  [MetricKey.releasability_rating_distribution]:
-    MetricKey.software_quality_releasability_rating_distribution,
   [MetricKey.sqale_rating]: MetricKey.software_quality_maintainability_rating,
   [MetricKey.maintainability_rating_distribution]:
     MetricKey.software_quality_maintainability_rating_distribution,
@@ -202,9 +196,6 @@ export const SOFTWARE_QUALITY_RATING_METRICS_MAP: Record<string, MetricKey> = {
   [MetricKey.reliability_rating]: MetricKey.software_quality_reliability_rating,
   [MetricKey.reliability_rating_distribution]:
     MetricKey.software_quality_reliability_rating_distribution,
-  [MetricKey.security_review_rating]: MetricKey.software_quality_security_review_rating,
-  [MetricKey.security_review_rating_distribution]:
-    MetricKey.software_quality_security_review_rating_distribution,
   [MetricKey.reliability_remediation_effort]:
     MetricKey.software_quality_reliability_remediation_effort,
   [MetricKey.security_remediation_effort]: MetricKey.software_quality_security_remediation_effort,
@@ -214,20 +205,14 @@ export const SOFTWARE_QUALITY_RATING_METRICS_MAP: Record<string, MetricKey> = {
     MetricKey.effort_to_reach_software_quality_maintainability_rating_a,
   [MetricKey.last_change_on_maintainability_rating]:
     MetricKey.last_change_on_software_quality_maintainability_rating,
-  [MetricKey.last_change_on_releasability_rating]:
-    MetricKey.last_change_on_software_quality_releasability_rating,
   [MetricKey.last_change_on_reliability_rating]:
     MetricKey.last_change_on_software_quality_reliability_rating,
   [MetricKey.last_change_on_security_rating]:
     MetricKey.last_change_on_software_quality_security_rating,
-  [MetricKey.last_change_on_security_review_rating]:
-    MetricKey.last_change_on_software_quality_security_review_rating,
   [MetricKey.maintainability_rating_effort]:
     MetricKey.software_quality_maintainability_rating_effort,
   [MetricKey.reliability_rating_effort]: MetricKey.software_quality_reliability_rating_effort,
   [MetricKey.security_rating_effort]: MetricKey.software_quality_security_rating_effort,
-  [MetricKey.security_review_rating_effort]:
-    MetricKey.software_quality_security_review_rating_effort,
   [MetricKey.new_maintainability_rating]: MetricKey.new_software_quality_maintainability_rating,
   [MetricKey.new_maintainability_rating_distribution]:
     MetricKey.new_software_quality_maintainability_rating_distribution,
@@ -237,9 +222,6 @@ export const SOFTWARE_QUALITY_RATING_METRICS_MAP: Record<string, MetricKey> = {
   [MetricKey.new_reliability_rating]: MetricKey.new_software_quality_reliability_rating,
   [MetricKey.new_reliability_rating_distribution]:
     MetricKey.new_software_quality_reliability_rating_distribution,
-  [MetricKey.new_security_review_rating]: MetricKey.new_software_quality_security_review_rating,
-  [MetricKey.new_security_review_rating_distribution]:
-    MetricKey.new_software_quality_security_review_rating_distribution,
   [MetricKey.new_technical_debt]: MetricKey.new_software_quality_maintainability_remediation_effort,
   [MetricKey.new_reliability_remediation_effort]:
     MetricKey.new_software_quality_reliability_remediation_effort,
@@ -249,11 +231,9 @@ export const SOFTWARE_QUALITY_RATING_METRICS_MAP: Record<string, MetricKey> = {
 };
 
 export const SOFTWARE_QUALITY_RATING_METRICS = [
-  MetricKey.software_quality_releasability_rating,
   MetricKey.software_quality_maintainability_rating,
   MetricKey.software_quality_security_rating,
   MetricKey.software_quality_reliability_rating,
-  MetricKey.software_quality_security_review_rating,
   MetricKey.software_quality_maintainability_remediation_effort,
   MetricKey.software_quality_reliability_remediation_effort,
   MetricKey.software_quality_security_remediation_effort,
@@ -262,7 +242,6 @@ export const SOFTWARE_QUALITY_RATING_METRICS = [
   MetricKey.new_software_quality_maintainability_rating,
   MetricKey.new_software_quality_security_rating,
   MetricKey.new_software_quality_reliability_rating,
-  MetricKey.new_software_quality_security_review_rating,
   MetricKey.new_software_quality_maintainability_remediation_effort,
   MetricKey.new_software_quality_reliability_remediation_effort,
   MetricKey.new_software_quality_security_remediation_effort,

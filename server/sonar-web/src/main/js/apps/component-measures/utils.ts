@@ -240,11 +240,7 @@ export function banQualityGateMeasure({ measures = [], qualifier }: ComponentMea
     bannedMetrics.push(MetricKey.alert_status);
   }
   if (qualifier === ComponentQualifier.Application) {
-    bannedMetrics.push(
-      MetricKey.releasability_rating,
-      MetricKey.releasability_effort,
-      MetricKey.software_quality_releasability_rating,
-    );
+    bannedMetrics.push(MetricKey.releasability_rating, MetricKey.releasability_effort);
   }
   return measures.filter((measure) => !bannedMetrics.includes(measure.metric));
 }

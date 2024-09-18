@@ -89,37 +89,38 @@ export function FacetBox(props: FacetBoxProps) {
       inner={inner}
     >
       <Header>
-        <ChevronAndTitle
-          aria-controls={`${id}-panel`}
-          aria-disabled={!expandable}
-          aria-expanded={open}
-          aria-label={ariaLabel ?? name}
-          expandable={expandable}
-          id={`${id}-header`}
-          onClick={() => {
-            if (!disabled) {
-              onClick?.(!open);
-            }
-          }}
-        >
-          {expandable && <OpenCloseIndicator aria-hidden open={open} />}
+        <TitleWithHelp>
+          <ChevronAndTitle
+            aria-controls={`${id}-panel`}
+            aria-disabled={!expandable}
+            aria-expanded={open}
+            aria-label={ariaLabel ?? name}
+            expandable={expandable}
+            id={`${id}-header`}
+            onClick={() => {
+              if (!disabled) {
+                onClick?.(!open);
+              }
+            }}
+          >
+            {expandable && <OpenCloseIndicator aria-hidden open={open} />}
 
-          {disabled ? (
-            <Tooltip content={disabledHelper}>
-              <HeaderTitle
-                aria-disabled
-                aria-label={`${name}, ${disabledHelper ?? ''}`}
-                disabled={disabled}
-              >
-                {name}
-              </HeaderTitle>
-            </Tooltip>
-          ) : (
-            <HeaderTitle>{name}</HeaderTitle>
-          )}
-
+            {disabled ? (
+              <Tooltip content={disabledHelper}>
+                <HeaderTitle
+                  aria-disabled
+                  aria-label={`${name}, ${disabledHelper ?? ''}`}
+                  disabled={disabled}
+                >
+                  {name}
+                </HeaderTitle>
+              </Tooltip>
+            ) : (
+              <HeaderTitle>{name}</HeaderTitle>
+            )}
+          </ChevronAndTitle>
           {help && <span className="sw-ml-1">{help}</span>}
-        </ChevronAndTitle>
+        </TitleWithHelp>
 
         {<Spinner loading={loading} />}
 
@@ -171,6 +172,11 @@ const Accordion = styled.div<{
 const BadgeAndIcons = styled.div`
   ${tw`sw-flex`};
   ${tw`sw-gap-2`};
+`;
+
+const TitleWithHelp = styled.div`
+  ${tw`sw-flex`};
+  ${tw`sw-items-center`};
 `;
 
 const ChevronAndTitle = styled(BareButton)<{

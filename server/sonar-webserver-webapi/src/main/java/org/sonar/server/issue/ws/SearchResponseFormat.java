@@ -49,6 +49,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.Facets;
+import org.sonar.server.issue.ImpactFormatter;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.index.IssueScope;
 import org.sonar.server.issue.workflow.Transition;
@@ -184,7 +185,7 @@ public class SearchResponseFormat {
       .stream()
       .map(entry -> Common.Impact.newBuilder()
         .setSoftwareQuality(Common.SoftwareQuality.valueOf(entry.getKey().name()))
-        .setSeverity(Common.ImpactSeverity.valueOf(entry.getValue().name()))
+        .setSeverity(ImpactFormatter.mapImpactSeverity(entry.getValue()))
         .build())
       .toList());
 

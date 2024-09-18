@@ -68,9 +68,7 @@ export const BRANCH_OVERVIEW_METRICS: string[] = [
   MetricKey.security_hotspots_reviewed,
   MetricKey.new_security_hotspots_reviewed,
   MetricKey.security_review_rating,
-  MetricKey.software_quality_security_review_rating,
   MetricKey.new_security_review_rating,
-  MetricKey.new_software_quality_security_review_rating,
 
   // code smells
   MetricKey.code_smells,

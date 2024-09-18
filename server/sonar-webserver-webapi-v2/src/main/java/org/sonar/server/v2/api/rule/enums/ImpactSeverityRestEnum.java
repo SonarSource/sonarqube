@@ -23,9 +23,11 @@ import java.util.Arrays;
 import org.sonar.api.issue.impact.Severity;
 
 public enum ImpactSeverityRestEnum {
+  INFO(Severity.INFO),
   LOW(Severity.LOW),
   MEDIUM(Severity.MEDIUM),
-  HIGH(Severity.HIGH);
+  HIGH(Severity.HIGH),
+  BLOCKER(Severity.BLOCKER);
 
   private final Severity severity;
 

@@ -36,7 +36,6 @@ import { isDefined } from '../../../helpers/types';
 import { getProjectUrl } from '../../../helpers/urls';
 import { useCurrentBranchQuery } from '../../../queries/branch';
 import { useComponentTreeQuery, useMeasuresComponentQuery } from '../../../queries/measures';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { useLocation, useRouter } from '../../../sonar-aligned/components/hoc/withRouter';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isFile, isView } from '../../../types/component';
@@ -71,7 +70,6 @@ export default function MeasureContent(props: Readonly<Props>) {
   const { data: branchLike } = useCurrentBranchQuery(rootComponent);
   const router = useRouter();
   const query = parseQuery(rawQuery);
-  const { data: isLegacy } = useIsLegacyCCTMode();
   const { selected, asc, view } = query;
 
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -209,14 +207,7 @@ export default function MeasureContent(props: Readonly<Props>) {
       );
     }
 
-    return (
-      <TreeMapView
-        isLegacyMode={Boolean(isLegacy)}
-        components={components}
-        handleSelect={onOpenComponent}
-        metric={metric}
-      />
-    );
+    return <TreeMapView components={components} handleSelect={onOpenComponent} metric={metric} />;
   };
 
   return (

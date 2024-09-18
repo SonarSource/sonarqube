@@ -61,18 +61,9 @@ it('should render correctly', () => {
   checkSnapShot({ zoomSpeed: 2 }, 'zoomSpeed');
   checkSnapShot({ leakPeriodDate: new Date('2019-10-02T00:00:00.000Z') }, 'leakPeriodDate');
   checkSnapShot({ basisCurve: true }, 'basisCurve');
-  checkSnapShot({ isLegacy: false }, 'not legacy');
   checkSnapShot(
-    { isLegacy: false, splitPointDate: new Date('2019-10-02T00:00:00.000Z') },
-    'not legacy + split point, but not Rating',
-  );
-  checkSnapShot(
-    {
-      isLegacy: false,
-      splitPointDate: new Date('2019-10-02T00:00:00.000Z'),
-      metricType: MetricType.Rating,
-    },
-    'not legacy + split point',
+    { splitPointDate: new Date('2019-10-02T00:00:00.000Z') },
+    'split point, but not Rating',
   );
 });
 
@@ -113,7 +104,6 @@ function renderComponent(props?: Partial<PropsWithoutTheme>) {
         ]}
         width={100}
         zoomSpeed={1}
-        isLegacy
         {...props}
       />
     </TooltipProvider>,

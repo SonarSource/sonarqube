@@ -33,7 +33,6 @@ interface Props {
   graphEndDate?: Date;
   graphStartDate?: Date;
   graphs: Serie[][];
-  isLegacy?: boolean;
   leakPeriodDate?: Date;
   loading: boolean;
   measuresHistory: MeasureHistory[];
@@ -67,8 +66,7 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { analyses, graph, loading, series, ariaLabel, canShowDataAsTable, isLegacy } =
-      this.props;
+    const { analyses, graph, loading, series, ariaLabel, canShowDataAsTable } = this.props;
     const isCustom = isCustomGraph(graph);
 
     if (loading) {
@@ -107,7 +105,6 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
               graphStartDate={this.props.graphStartDate}
               isCustom={isCustom}
               key={idx}
-              isLegacy={isLegacy}
               leakPeriodDate={this.props.leakPeriodDate}
               measuresHistory={this.props.measuresHistory}
               metricsType={getSeriesMetricType(graphSeries)}

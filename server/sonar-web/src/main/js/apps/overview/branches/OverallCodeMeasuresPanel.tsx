@@ -197,6 +197,12 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
               <RatingComponent
                 branchLike={branch}
                 componentKey={component.key}
+                getTooltip={(rating) =>
+                  intl.formatMessage({ id: `metric.security_review_rating.tooltip.${rating}` })
+                }
+                getLabel={(rating) =>
+                  intl.formatMessage({ id: 'metric.has_rating_X' }, { 0: rating })
+                }
                 ratingMetric={MetricKey.security_review_rating}
                 size="md"
               />

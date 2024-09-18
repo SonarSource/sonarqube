@@ -52,10 +52,10 @@ public class MeasuresWsModuleTest {
   public void getNewMetricsInSonarQube107_shouldReturnExactString() {
     String actual = MeasuresWsModule.getNewMetricsInSonarQube107();
     assertThat(actual).isEqualTo("'software_quality_maintainability_debt_ratio', 'software_quality_maintainability_rating', 'software_quality_reliability_rating', " +
-      "'software_quality_security_rating', 'software_quality_security_review_rating', 'software_quality_maintainability_remediation_effort', " +
+      "'software_quality_security_rating', 'software_quality_maintainability_remediation_effort', " +
       "'software_quality_reliability_remediation_effort', 'software_quality_security_remediation_effort', 'effort_to_reach_software_quality_maintainability_rating_a', " +
       "'new_software_quality_maintainability_debt_ratio', 'new_software_quality_maintainability_rating', 'new_software_quality_reliability_rating', " +
-      "'new_software_quality_security_rating', 'new_software_quality_security_review_rating', 'new_software_quality_maintainability_remediation_effort'," +
+      "'new_software_quality_security_rating', 'new_software_quality_maintainability_remediation_effort'," +
       " 'new_software_quality_reliability_remediation_effort', 'new_software_quality_security_remediation_effort'");
   }
 }

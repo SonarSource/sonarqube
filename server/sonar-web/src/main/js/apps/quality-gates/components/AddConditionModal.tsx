@@ -50,8 +50,6 @@ const FORBIDDEN_METRICS: string[] = [
   MetricKey.new_software_quality_reliability_rating,
   MetricKey.software_quality_security_rating,
   MetricKey.new_software_quality_security_rating,
-  MetricKey.software_quality_security_review_rating,
-  MetricKey.new_software_quality_security_review_rating,
   MetricKey.effort_to_reach_software_quality_maintainability_rating_a,
   MetricKey.software_quality_maintainability_remediation_effort,
   MetricKey.new_software_quality_maintainability_remediation_effort,

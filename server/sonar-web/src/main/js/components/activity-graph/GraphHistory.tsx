@@ -41,7 +41,6 @@ interface Props {
   graphEndDate?: Date;
   graphStartDate?: Date;
   isCustom?: boolean;
-  isLegacy?: boolean;
   leakPeriodDate?: Date;
   measuresHistory: MeasureHistory[];
   metricsType: string;
@@ -69,7 +68,6 @@ export default function GraphHistory(props: Readonly<Props>) {
     series,
     showAreas,
     graphDescription,
-    isLegacy,
   } = props;
   const [tooltipIdx, setTooltipIdx] = React.useState<number | undefined>(undefined);
   const [tooltipXPos, setTooltipXPos] = React.useState<number | undefined>(undefined);
@@ -124,7 +122,6 @@ export default function GraphHistory(props: Readonly<Props>) {
                 splitPointDate={measuresHistory.find((m) => m.splitPointDate)?.splitPointDate}
                 metricType={metricsType}
                 selectedDate={selectedDate}
-                isLegacy={isLegacy}
                 series={series}
                 showAreas={showAreas}
                 startDate={graphStartDate}

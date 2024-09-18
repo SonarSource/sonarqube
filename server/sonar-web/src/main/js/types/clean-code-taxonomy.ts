@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export enum SoftwareImpactSeverity {
+  Blocker = 'BLOCKER',
   High = 'HIGH',
   Medium = 'MEDIUM',
   Low = 'LOW',
+  Info = 'INFO',
 }
 
 export enum CleanCodeAttributeCategory {
@@ -60,7 +62,9 @@ export interface SoftwareImpact {
 
 export interface SoftwareImpactMeasureData {
   total: number;
+  [SoftwareImpactSeverity.Blocker]: number;
   [SoftwareImpactSeverity.High]: number;
   [SoftwareImpactSeverity.Medium]: number;
   [SoftwareImpactSeverity.Low]: number;
+  [SoftwareImpactSeverity.Info]: number;
 }

@@ -164,18 +164,22 @@ public class SearchActionIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession session = db.getSession();
-  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
+  private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession,
+    new WebAuthorizationTypeSupport(userSession));
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
   private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private final IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
-  private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient, new TransitionService(userSession, issueWorkflow));
+  private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, dbClient,
+    new TransitionService(userSession, issueWorkflow));
   private final Languages languages = new Languages();
   private final UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
-  private final SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
+  private final SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages,
+    new TextRangeResponseFormatter(), userFormatter);
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = new IssueIndexSyncProgressChecker(dbClient);
   private final WsActionTester ws = new WsActionTester(
-    new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, searchResponseLoader, searchResponseFormat, System2.INSTANCE, dbClient));
+    new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, searchResponseLoader,
+      searchResponseFormat, System2.INSTANCE, dbClient));
   private final PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
 
   @Before
@@ -218,13 +222,16 @@ public class SearchActionIT {
 
     assertThat(response.getIssuesList())
       .extracting(
-        Issue::getKey, Issue::getRule, Issue::getSeverity, Issue::getComponent, Issue::getResolution, Issue::getStatus, Issue::getMessage, Issue::getMessageFormattingsList,
-        Issue::getEffort, Issue::getAssignee, Issue::getAuthor, Issue::getLine, Issue::getHash, Issue::getTagsList, Issue::getCreationDate, Issue::getUpdateDate,
+        Issue::getKey, Issue::getRule, Issue::getSeverity, Issue::getComponent, Issue::getResolution, Issue::getStatus, Issue::getMessage
+        , Issue::getMessageFormattingsList,
+        Issue::getEffort, Issue::getAssignee, Issue::getAuthor, Issue::getLine, Issue::getHash, Issue::getTagsList,
+        Issue::getCreationDate, Issue::getUpdateDate,
         Issue::getQuickFixAvailable, Issue::getCodeVariantsList)
       .containsExactlyInAnyOrder(
         tuple(issue.getKey(), rule.getKey().toString(), Severity.MAJOR, file.getKey(), RESOLUTION_FIXED, STATUS_RESOLVED, "the message",
           MessageFormattingUtils.dbMessageFormattingListToWs(List.of(MESSAGE_FORMATTING)), "10min",
-          simon.getLogin(), "John", 42, "a227e508d6646b55a086ee11d63b21e9", asList("bug", "owasp"), formatDateTime(issue.getIssueCreationDate()),
+          simon.getLogin(), "John", 42, "a227e508d6646b55a086ee11d63b21e9", asList("bug", "owasp"),
+          formatDateTime(issue.getIssueCreationDate()),
           formatDateTime(issue.getIssueUpdateDate()), false, List.of("variant1", "variant2")));
   }
 
@@ -250,7 +257,7 @@ public class SearchActionIT {
         .get(0)
         .getActions()
         .getActionsList())
-          .isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY, ACTION_ASSIGN));
+      .isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY, ACTION_ASSIGN));
 
     response = ws.newRequest()
       .setParam(PARAM_ADDITIONAL_FIELDS, "actions")
@@ -263,7 +270,7 @@ public class SearchActionIT {
         .get(0)
         .getActions()
         .getActionsList())
-          .isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY));
+      .isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY));
   }
 
   @Test
@@ -380,7 +387,8 @@ public class SearchActionIT {
     SearchWsResponse result = ws.newRequest().executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesCount()).isOne();
-    assertThat(result.getIssues(0).getFlows(0).getLocationsList()).extracting(Common.Location::getComponent, Common.Location::getMsg, Common.Location::getMsgFormattingsList)
+    assertThat(result.getIssues(0).getFlows(0).getLocationsList()).extracting(Common.Location::getComponent, Common.Location::getMsg,
+        Common.Location::getMsgFormattingsList)
       .containsExactlyInAnyOrder(
         tuple(file.getKey(), "FLOW MESSAGE", List.of()),
         tuple(anotherFile.getKey(), "ANOTHER FLOW MESSAGE", List.of(Common.MessageFormatting.newBuilder()
@@ -503,7 +511,8 @@ public class SearchActionIT {
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java"));
     grantPermissionToAnyone(project.getProjectDto(), ISSUE_ADMIN);
     indexPermissions();
-    ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent(), null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
+    ComponentDto file =
+      db.components().insertComponent(newFileDto(project.getMainBranchComponent(), null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
 
     IssueDto issue = newIssue(newIssueRule(), project.getMainBranchComponent(), file)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
@@ -613,7 +622,8 @@ public class SearchActionIT {
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN));
-    IssueDto expectedIssue = db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX));
+    IssueDto expectedIssue = db.issues().insertIssue(rule, project, file,
+      i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX));
     db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FALSE_POSITIVE));
     db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FIXED));
     db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_CLOSED).setResolution(RESOLUTION_WONT_FIX));
@@ -728,14 +738,15 @@ public class SearchActionIT {
       .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH)));
     IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i
       .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM))
-      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.LOW)));
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.INFO)));
     indexPermissionsAndIssues();
-    Map<Common.SoftwareQuality, Common.ImpactSeverity> expectedImpacts = Map.of(Common.SoftwareQuality.SECURITY, Common.ImpactSeverity.MEDIUM,
-      Common.SoftwareQuality.RELIABILITY, Common.ImpactSeverity.LOW,
+    Map<Common.SoftwareQuality, Common.ImpactSeverity> expectedImpacts = Map.of(Common.SoftwareQuality.SECURITY,
+      Common.ImpactSeverity.MEDIUM,
+      Common.SoftwareQuality.RELIABILITY, Common.ImpactSeverity.ImpactSeverity_INFO,
       Common.SoftwareQuality.MAINTAINABILITY, Common.ImpactSeverity.HIGH);
 
     SearchWsResponse response = ws.newRequest()
-      .setParam(PARAM_IMPACT_SEVERITIES, org.sonar.api.issue.impact.Severity.LOW.name())
+      .setParam(PARAM_IMPACT_SEVERITIES, org.sonar.api.issue.impact.Severity.INFO.name())
       .setParam(FACETS, PARAM_IMPACT_SOFTWARE_QUALITIES)
       .executeProtobuf(SearchWsResponse.class);
 
@@ -777,6 +788,9 @@ public class SearchActionIT {
       new ImpactDto(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW),
       new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM),
       new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW))));
+    IssueDto issue4 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
+      new ImpactDto(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.INFO),
+      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
     indexPermissionsAndIssues();
 
     SearchWsResponse response = ws.newRequest()
@@ -785,7 +799,7 @@ public class SearchActionIT {
 
     assertThat(response.getIssuesList())
       .extracting(Issue::getKey)
-      .containsExactlyInAnyOrder(issue1.getKey(), issue2.getKey(), issue3.getKey());
+      .containsExactlyInAnyOrder(issue1.getKey(), issue2.getKey(), issue3.getKey(), issue4.getKey());
 
     Optional<Common.Facet> first = response.getFacets().getFacetsList()
       .stream().filter(facet -> facet.getProperty().equals(PARAM_IMPACT_SEVERITIES))
@@ -793,9 +807,11 @@ public class SearchActionIT {
     assertThat(first.get().getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .containsExactlyInAnyOrder(
+        tuple("BLOCKER", 1L),
         tuple("HIGH", 2L),
         tuple("MEDIUM", 1L),
-        tuple("LOW", 1L));
+        tuple("LOW", 1L),
+        tuple("INFO", 1L));
   }
 
   @Test
@@ -809,7 +825,13 @@ public class SearchActionIT {
       new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
     db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
       new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
+    IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
+      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
     IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
+      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
+    IssueDto issue4 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
+      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.INFO))));
+    IssueDto issue5 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
       new ImpactDto(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW),
       new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM),
       new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW))));
@@ -822,7 +844,7 @@ public class SearchActionIT {
 
     assertThat(response.getIssuesList())
       .extracting(Issue::getKey)
-      .containsExactlyInAnyOrder(issue1.getKey(), issue3.getKey());
+      .containsExactlyInAnyOrder(issue1.getKey(), issue2.getKey(), issue3.getKey(), issue4.getKey(), issue5.getKey());
 
     Optional<Common.Facet> first = response.getFacets().getFacetsList()
       .stream().filter(facet -> facet.getProperty().equals(PARAM_IMPACT_SEVERITIES))
@@ -832,7 +854,9 @@ public class SearchActionIT {
       .containsExactlyInAnyOrder(
         tuple("HIGH", 1L),
         tuple("MEDIUM", 1L),
-        tuple("LOW", 0L));
+        tuple("LOW", 0L),
+        tuple("INFO", 1L),
+        tuple("BLOCKER", 2L));
   }
 
   @Test
@@ -878,7 +902,8 @@ public class SearchActionIT {
   @Test
   public void issue_on_removed_file() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY")).getMainBranchComponent();
+    ComponentDto project =
+      db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY")).getMainBranchComponent();
     indexPermissions();
     ComponentDto removedFile = db.components().insertComponent(newFileDto(project).setUuid("REMOVED_FILE_ID")
       .setKey("REMOVED_FILE_KEY")
@@ -903,7 +928,8 @@ public class SearchActionIT {
   @Test
   public void apply_paging_with_one_component() {
     RuleDto rule = newIssueRule();
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY")).getMainBranchComponent();
+    ComponentDto project =
+      db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("PROJECT_KEY")).getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     for (int i = 0; i < SearchOptions.MAX_PAGE_SIZE + 1; i++) {
@@ -921,7 +947,8 @@ public class SearchActionIT {
   public void filter_by_assigned_to_me() {
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
-    ComponentDto project = db.components().insertPublicProject(c -> c.setUuid("PROJECT_ID").setKey("PROJECT_KEY").setBranchUuid("PROJECT_ID")).getMainBranchComponent();
+    ComponentDto project = db.components().insertPublicProject(c -> c.setUuid("PROJECT_ID").setKey("PROJECT_KEY").setBranchUuid(
+      "PROJECT_ID")).getMainBranchComponent();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
@@ -969,7 +996,7 @@ public class SearchActionIT {
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID")).getMainBranchComponent();
-    SnapshotDto snapshotDto = db.components().insertSnapshot(project, s -> s.setLast(true).setPeriodDate(parseDateTime("2014-09-05T00:00:00+0100").getTime()));
+    db.components().insertSnapshot(project, s -> s.setLast(true).setPeriodDate(parseDateTime("2014-09-05T00:00:00+0100").getTime()));
     indexPermissions();
 
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
@@ -1213,7 +1240,7 @@ public class SearchActionIT {
     assertThat(ws.newRequest()
       .setMultiParam("author", singletonList("unknown"))
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-        .isEmpty();
+      .isEmpty();
   }
 
   @Test
@@ -1362,7 +1389,8 @@ public class SearchActionIT {
 
     assertThat(parse.getAsJsonObject().get("issues").getAsJsonArray())
       .extracting(o -> o.getAsJsonObject().get("key").getAsString())
-      .containsExactly("82fd47d4-b650-4037-80bc-7b112bd4eac3", "82fd47d4-b650-4037-80bc-7b112bd4eac1", "82fd47d4-b650-4037-80bc-7b112bd4eac2");
+      .containsExactly("82fd47d4-b650-4037-80bc-7b112bd4eac3", "82fd47d4-b650-4037-80bc-7b112bd4eac1", "82fd47d4-b650-4037-80bc" +
+        "-7b112bd4eac2");
   }
 
   @Test
@@ -1372,12 +1400,15 @@ public class SearchActionIT {
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "owaspTop10:a1", "pciDss-3.2:6.5.3", "owaspAsvs-4.0:12.3.1"))
       .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
-    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25" +
+      "-insecure", "sql"));
     RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1402,13 +1433,15 @@ public class SearchActionIT {
   public void only_vulnerabilities_are_returned_by_owaspAsvs40_with_level() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25" +
+      "-insecure", "sql"));
     RuleDto issueRule1 = db.rules().insertIssueRule(r -> r.setSecurityStandards(Set.of("owaspAsvs-4.0:1.7.2", "owaspAsvs-4.0:12.3.1")));
     RuleDto issueRule2 = db.rules().insertIssueRule(r -> r.setSecurityStandards(Set.of("owaspAsvs-4.0:2.2.5")));
     RuleDto issueRule3 = db.rules().insertIssueRule(r -> r.setSecurityStandards(Set.of("owaspAsvs-4.0:2.2.5", "owaspAsvs-4.0:12.1.3")));
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule1, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule2, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto3 = db.issues().insertIssue(issueRule3, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule1, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto3 = db.issues().insertIssue(issueRule3, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
     indexPermissionsAndIssues();
 
     SearchWsResponse result = ws.newRequest()
@@ -1453,12 +1486,15 @@ public class SearchActionIT {
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "owaspTop10:a1", "pciDss-3.2:6.5.3", "pciDss-3.2:10.1"))
       .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
-    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25" +
+      "-insecure", "sql"));
     RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1488,12 +1524,15 @@ public class SearchActionIT {
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "owaspTop10:a1", "pciDss-3.2:6.5.3", "pciDss-3.2:10.1"))
       .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
-    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25" +
+      "-insecure", "sql"));
     RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
 
     // Rule 2
     ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1503,8 +1542,10 @@ public class SearchActionIT {
     hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto4 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto4 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
 
     // Rule 3
     ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1514,8 +1555,10 @@ public class SearchActionIT {
     hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto5 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto6 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto5 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto6 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
 
     indexPermissionsAndIssues();
 
@@ -1525,7 +1568,8 @@ public class SearchActionIT {
 
     assertThat(result.getIssuesList())
       .extracting(Issue::getKey)
-      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey(), issueDto3.getKey(), issueDto4.getKey(), issueDto5.getKey(), issueDto6.getKey());
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey(), issueDto3.getKey(), issueDto4.getKey(), issueDto5.getKey(),
+        issueDto6.getKey());
 
     result = ws.newRequest()
       .setParam("pciDss-3.2", "1")
@@ -1541,7 +1585,8 @@ public class SearchActionIT {
 
     assertThat(result.getIssuesList())
       .extracting(Issue::getKey)
-      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey(), issueDto3.getKey(), issueDto4.getKey(), issueDto5.getKey(), issueDto6.getKey());
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey(), issueDto3.getKey(), issueDto4.getKey(), issueDto5.getKey(),
+        issueDto6.getKey());
 
     result = ws.newRequest()
       .setParam("pciDss-3.2", "4")
@@ -1571,12 +1616,15 @@ public class SearchActionIT {
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "owaspTop10:a1", "pciDss-4.0:6.5.3", "pciDss-4.0:10.1"))
       .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
-    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25" +
+      "-insecure", "sql"));
     RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1606,12 +1654,15 @@ public class SearchActionIT {
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "owaspTop10:a1", "pciDss-4.0:6.5.3", "pciDss-4.0:10.1"))
       .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
-    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25" +
+      "-insecure", "sql"));
     RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
 
     // Rule 2
     ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1621,8 +1672,10 @@ public class SearchActionIT {
     hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto4 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto4 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
 
     // Rule 3
     ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
@@ -1632,8 +1685,8 @@ public class SearchActionIT {
     hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto5 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto6 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
 
     indexPermissionsAndIssues();
 
@@ -1681,12 +1734,15 @@ public class SearchActionIT {
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "cwe:89", "cwe:943", "owaspTop10:a1"))
       .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
-    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25" +
+      "-insecure", "sql"));
     RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1706,12 +1762,15 @@ public class SearchActionIT {
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "cwe:89", "cwe:943", "owaspTop10:a1", "owaspTop10-2021:a2"))
       .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
-    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25" +
+      "-insecure", "sql"));
     RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1731,12 +1790,15 @@ public class SearchActionIT {
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "cwe:89", "cwe:943", "owaspTop10:a1", "owaspTop10-2021:a2"))
       .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
-    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25" +
+      "-insecure", "sql"));
     RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1754,14 +1816,18 @@ public class SearchActionIT {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
-      .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "stig-ASD_V5R3:V-222402", "stig-ASD_V5R3:V-222403", "stig-ASD_V5R3:V-222404", "ostig-ASD_V5R3:V-222405"))
+      .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "stig-ASD_V5R3:V-222402", "stig-ASD_V5R3:V-222403", "stig-ASD_V5R3:V" +
+        "-222404", "ostig-ASD_V5R3:V-222405"))
       .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "stig", "sans-top25-insecure", "sql"));
-    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "stig", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "stig", "sans-top25-insecure",
+      "sql"));
     RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
     db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1790,8 +1856,10 @@ public class SearchActionIT {
     RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
     db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1830,8 +1898,10 @@ public class SearchActionIT {
     RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1855,8 +1925,10 @@ public class SearchActionIT {
     RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
     IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
     indexPermissionsAndIssues();
 
@@ -1900,7 +1972,8 @@ public class SearchActionIT {
     indexPermissionsAndIssues();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam("issues", Stream.of(bugIssue, vulnerabilityIssue, codeSmellIssue, hotspot).map(IssueDto::getKey).collect(Collectors.joining(",")))
+      .setParam("issues",
+        Stream.of(bugIssue, vulnerabilityIssue, codeSmellIssue, hotspot).map(IssueDto::getKey).collect(Collectors.joining(",")))
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList())
@@ -1915,12 +1988,15 @@ public class SearchActionIT {
     Consumer<RuleDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
       .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "cwe:89", "cwe:943", "owaspTop10:a1"))
       .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
-    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25" +
+      "-insecure", "sql"));
     RuleDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDto issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer,
+      issueDto -> issueDto.setType(RuleType.VULNERABILITY));
     indexPermissions();
     indexIssues();
 
@@ -2014,8 +2090,10 @@ public class SearchActionIT {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto issueRule = db.rules().insertIssueRule();
     IssueDto bugIssue = db.issues().insertIssue(issueRule, project, file, i -> i.setType(RuleType.BUG).setSeverity(Severity.MAJOR.name()));
-    IssueDto vulnerabilityIssue = db.issues().insertIssue(issueRule, project, file, i -> i.setType(RuleType.VULNERABILITY).setSeverity(Severity.MAJOR.name()));
-    IssueDto codeSmellIssue = db.issues().insertIssue(issueRule, project, file, i -> i.setType(CODE_SMELL).setSeverity(Severity.MAJOR.name()));
+    IssueDto vulnerabilityIssue = db.issues().insertIssue(issueRule, project, file,
+      i -> i.setType(RuleType.VULNERABILITY).setSeverity(Severity.MAJOR.name()));
+    IssueDto codeSmellIssue = db.issues().insertIssue(issueRule, project, file,
+      i -> i.setType(CODE_SMELL).setSeverity(Severity.MAJOR.name()));
     RuleDto hotspotRule = db.rules().insertHotspotRule();
     db.issues().insertHotspot(hotspotRule, project, file, i -> i.setSeverity(Severity.MAJOR.name()));
     indexPermissions();
@@ -2152,8 +2230,10 @@ public class SearchActionIT {
     assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
       "additionalFields", "asc", "assigned", "assignees", "author", "components", "branch", "pullRequest", "createdAfter", "createdAt",
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
-      "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspAsvs-4.0",
-      "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "stig-ASD_V5R3", "casa", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod", "codeVariants",
+      "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4" +
+        ".0", "owaspAsvs-4.0",
+      "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "stig-ASD_V5R3", "casa", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone",
+      "inNewCodePeriod", "codeVariants",
       "cleanCodeAttributeCategories", "impactSeverities", "impactSoftwareQualities", "issueStatuses", "fixedInPullRequest",
       "prioritizedRule");
 
@@ -2163,8 +2243,10 @@ public class SearchActionIT {
     assertThat(branch.since()).isEqualTo("6.6");
 
     WebService.Param projectUuids = def.param("projects");
-    assertThat(projectUuids.description()).isEqualTo("To retrieve issues associated to a specific list of projects (comma-separated list of project keys). " +
-      "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. If this parameter is set, projectUuids must not be set.");
+    assertThat(projectUuids.description()).isEqualTo("To retrieve issues associated to a specific list of projects (comma-separated list " +
+      "of project keys). " +
+      "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. If this parameter is set, " +
+      "projectUuids must not be set.");
   }
 
   @Test
@@ -2391,9 +2473,9 @@ public class SearchActionIT {
   private RuleDto newIssueRule(String ruleKey, Consumer<RuleDto> consumer) {
     RuleDto rule = newRule(RuleKey.of("xoo", ruleKey),
       createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
-        .setLanguage("xoo")
-        .setName("Rule name")
-        .setStatus(RuleStatus.READY);
+      .setLanguage("xoo")
+      .setName("Rule name")
+      .setStatus(RuleStatus.READY);
     consumer.accept(rule);
     db.rules().insert(rule);
     return rule;

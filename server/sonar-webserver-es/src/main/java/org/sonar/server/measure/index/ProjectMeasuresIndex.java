@@ -21,7 +21,6 @@ package org.sonar.server.measure.index;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -107,11 +106,9 @@ import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY;
-import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY;
-import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.EsUtils.termsToMap;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
@@ -175,14 +172,12 @@ public class ProjectMeasuresIndex {
     NEW_SECURITY_REVIEW_RATING(new RatingMeasureFacet(NEW_SECURITY_REVIEW_RATING_KEY)),
 
     //Software quality ratings
-    SOFTWARE_QUALITY_MAINTAINABILITY_RATING(new RatingMeasureFacet(SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY, 4)),
-    NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING(new RatingMeasureFacet(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY, 4)),
-    SOFTWARE_QUALITY_RELIABILITY_RATING(new RatingMeasureFacet(SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, 4)),
-    NEW_SOFTWARE_QUALITY_RELIABILITY_RATING(new RatingMeasureFacet(NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, 4)),
-    SOFTWARE_QUALITY_SECURITY_RATING(new RatingMeasureFacet(SOFTWARE_QUALITY_SECURITY_RATING_KEY, 4)),
-    NEW_SOFTWARE_QUALITY_SECURITY_RATING(new RatingMeasureFacet(NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY, 4)),
-    SOFTWARE_QUALITY_SECURITY_REVIEW_RATING(new RatingMeasureFacet(SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY, 4)),
-    NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING(new RatingMeasureFacet(NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY, 4)),
+    SOFTWARE_QUALITY_MAINTAINABILITY_RATING(new RatingMeasureFacet(SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY)),
+    NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING(new RatingMeasureFacet(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY)),
+    SOFTWARE_QUALITY_RELIABILITY_RATING(new RatingMeasureFacet(SOFTWARE_QUALITY_RELIABILITY_RATING_KEY)),
+    NEW_SOFTWARE_QUALITY_RELIABILITY_RATING(new RatingMeasureFacet(NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY)),
+    SOFTWARE_QUALITY_SECURITY_RATING(new RatingMeasureFacet(SOFTWARE_QUALITY_SECURITY_RATING_KEY)),
+    NEW_SOFTWARE_QUALITY_SECURITY_RATING(new RatingMeasureFacet(NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY)),
 
     SECURITY_HOTSPOTS_REVIEWED(new RangeMeasureFacet(SECURITY_HOTSPOTS_REVIEWED_KEY, SECURITY_REVIEW_RATING_THRESHOLDS)),
     NEW_SECURITY_HOTSPOTS_REVIEWED(new RangeMeasureFacet(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, SECURITY_REVIEW_RATING_THRESHOLDS)),
@@ -588,20 +583,14 @@ public class ProjectMeasuresIndex {
   private static class RatingMeasureFacet extends MeasureFacet {
 
     private RatingMeasureFacet(String metricKey) {
-      super(metricKey, new MetricRatingFacetBuilder(metricKey, 5));
-    }
-
-    private RatingMeasureFacet(String metricKey, int maxRating) {
-      super(metricKey, new MetricRatingFacetBuilder(metricKey, maxRating));
+      super(metricKey, new MetricRatingFacetBuilder(metricKey));
     }
 
     private static class MetricRatingFacetBuilder implements FacetBuilder {
       private final String metricKey;
-      private final int maxRating;
 
-      private MetricRatingFacetBuilder(String metricKey, int maxRating) {
+      private MetricRatingFacetBuilder(String metricKey) {
         this.metricKey = metricKey;
-        this.maxRating = maxRating;
       }
 
       @Override
@@ -609,20 +598,19 @@ public class ProjectMeasuresIndex {
         return topAggregationHelper.buildTopAggregation(
           facet.getName(), facet.getTopAggregationDef(),
           NO_EXTRA_FILTER,
-          t -> t.subAggregation(createMeasureRatingFacet(metricKey, maxRating)));
+          t -> t.subAggregation(createMeasureRatingFacet(metricKey)));
       }
 
-      private static AbstractAggregationBuilder<?> createMeasureRatingFacet(String metricKey, int maxRating) {
-        List<KeyedFilter> filter = new ArrayList<>();
-        for (int i = 1; i <= maxRating; i++) {
-          filter.add(new KeyedFilter(String.valueOf(i), termQuery(FIELD_MEASURES_MEASURE_VALUE, Double.valueOf(i))));
-        }
-
+      private static AbstractAggregationBuilder<?> createMeasureRatingFacet(String metricKey) {
         return AggregationBuilders.nested("nested_" + metricKey, FIELD_MEASURES)
           .subAggregation(
             AggregationBuilders.filter("filter_" + metricKey, termsQuery(FIELD_MEASURES_MEASURE_KEY, metricKey))
-              .subAggregation(filters(metricKey, filter.toArray(new KeyedFilter[0])
-              )));
+              .subAggregation(filters(metricKey,
+                new KeyedFilter("1", termQuery(FIELD_MEASURES_MEASURE_VALUE, 1D)),
+                new KeyedFilter("2", termQuery(FIELD_MEASURES_MEASURE_VALUE, 2D)),
+                new KeyedFilter("3", termQuery(FIELD_MEASURES_MEASURE_VALUE, 3D)),
+                new KeyedFilter("4", termQuery(FIELD_MEASURES_MEASURE_VALUE, 4D)),
+                new KeyedFilter("5", termQuery(FIELD_MEASURES_MEASURE_VALUE, 5D)))));
       }
     }
   }

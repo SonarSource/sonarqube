@@ -32,7 +32,6 @@ import * as React from 'react';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricKey } from '~sonar-aligned/types/metrics';
-import { SOFTWARE_QUALITY_RATING_METRICS } from '../../../helpers/constants';
 import {
   getLocalizedMetricDomain,
   getLocalizedMetricName,
@@ -42,7 +41,6 @@ import {
 import { getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { BranchLike } from '../../../types/branch-like';
 import { isProject, isView } from '../../../types/component';
 import {
@@ -88,7 +86,6 @@ export default function BubbleChartView(props: Readonly<Props>) {
     bubblesByDomain,
   } = props;
   const theme = useTheme();
-  const { data: isLegacy } = useIsLegacyCCTMode();
   const bubbleMetrics = getBubbleMetrics(bubblesByDomain, domain, metrics);
   const [ratingFilters, setRatingFilters] = React.useState<{ [rating: number]: boolean }>({});
 
@@ -116,8 +113,7 @@ export default function BubbleChartView(props: Readonly<Props>) {
           return undefined;
         }
 
-        const bubbleColor =
-          `bubble.${isLegacy ? 'legacy.' : ''}${(colorRating ?? 1) as BubbleColorVal}` as const;
+        const bubbleColor = `bubble.${(colorRating ?? 1) as BubbleColorVal}` as const;
 
         return {
           x,
@@ -220,12 +216,6 @@ export default function BubbleChartView(props: Readonly<Props>) {
           </div>
           {bubbleMetrics.colors && (
             <ColorRatingsLegend
-              isLegacy={
-                isLegacy ||
-                bubbleMetrics.colors.every(
-                  (m) => !SOFTWARE_QUALITY_RATING_METRICS.includes(m.key as MetricKey),
-                )
-              }
               className="sw-mt-2"
               filters={ratingFilters}
               onRatingClick={handleRatingFilterClick}

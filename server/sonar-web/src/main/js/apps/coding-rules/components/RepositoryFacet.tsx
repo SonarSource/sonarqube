@@ -21,12 +21,12 @@ import { Note } from 'design-system';
 import * as React from 'react';
 import { getRuleRepositories } from '../../../api/rules';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
+import { BasicProps } from '../../../components/facets/Facet';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { Languages } from '../../../types/languages';
 import { Dict } from '../../../types/types';
 import { ListStyleFacet } from '../../issues/sidebar/ListStyleFacet';
-import { BasicProps } from './Facet';
 
 interface StateProps {
   languages: Languages;

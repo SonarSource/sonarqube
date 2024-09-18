@@ -133,7 +133,7 @@ export function SoftwareQualitiesFields(
     () =>
       IMPACT_SEVERITIES.map((severity) => ({
         value: severity,
-        label: intl.formatMessage({ id: `severity.${severity}` }),
+        label: intl.formatMessage({ id: `severity_impact.${severity}` }),
         Icon: <SoftwareImpactSeverityIcon severity={severity} />,
       })),
     [intl],

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Facet, { BasicProps } from '../../../components/facets/Facet';
 import { translate } from '../../../helpers/l10n';
-import Facet, { BasicProps } from './Facet';
 
 interface Props extends Omit<BasicProps, 'onChange' | 'values'> {
   disabled: boolean;

@@ -499,7 +499,8 @@ public class SearchActionIT {
     db.rules().insert(
       r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH))));
     db.rules().insert(
-      r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.MEDIUM))));
+      r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.MEDIUM),
+        new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.INFO))));
     indexRules();
 
     SearchResponse result = ws.newRequest()
@@ -507,7 +508,7 @@ public class SearchActionIT {
       .setParam("impactSoftwareQualities", SoftwareQuality.MAINTAINABILITY.name())
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount()))
-      .contains(entry(Severity.HIGH.name(), 1L), entry(Severity.MEDIUM.name(), 0L), entry(Severity.LOW.name(), 0L));
+      .contains(entry(Severity.HIGH.name(), 1L), entry(Severity.MEDIUM.name(), 0L), entry(Severity.LOW.name(), 0L), entry(Severity.INFO.name(), 1L));
   }
 
   @Test

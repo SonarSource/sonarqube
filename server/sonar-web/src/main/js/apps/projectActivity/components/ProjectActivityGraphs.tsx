@@ -253,8 +253,7 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
   };
 
   render() {
-    const { analyses, leakPeriodDate, loading, measuresHistory, metrics, query, isLegacy } =
-      this.props;
+    const { analyses, leakPeriodDate, loading, measuresHistory, metrics, query } = this.props;
     const { graphEndDate, graphStartDate, series } = this.state;
 
     return (
@@ -278,7 +277,6 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
           graphs={this.state.graphs}
           leakPeriodDate={leakPeriodDate}
           loading={loading}
-          isLegacy={isLegacy}
           measuresHistory={measuresHistory}
           removeCustomMetric={this.handleRemoveCustomMetric}
           selectedDate={query.selectedDate}

@@ -17,11 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
-import { render } from '../../helpers/testUtils';
-import { Pill, PillVariant } from '../Pill';
+package org.sonar.server.issue;
 
-it('should render correctly', () => {
-  render(<Pill variant={PillVariant.Accent}>23</Pill>);
-  expect(screen.getByText('23')).toBeInTheDocument();
-});
+import org.sonar.api.issue.impact.Severity;
+import org.sonarqube.ws.Common;
+
+public class ImpactFormatter {
+  private ImpactFormatter() {
+  }
+
+  public static Common.ImpactSeverity mapImpactSeverity(Severity severity) {
+    return switch (severity) {
+      case BLOCKER -> Common.ImpactSeverity.ImpactSeverity_BLOCKER;
+      case HIGH -> Common.ImpactSeverity.HIGH;
+      case MEDIUM -> Common.ImpactSeverity.MEDIUM;
+      case LOW -> Common.ImpactSeverity.LOW;
+      case INFO -> Common.ImpactSeverity.ImpactSeverity_INFO;
+    };
+  }
+}

@@ -23,14 +23,15 @@ import { orderBy, sortBy, without } from 'lodash';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
-import Tooltip from '../../../components/controls/Tooltip';
-import { translate } from '../../../helpers/l10n';
-import { Dict } from '../../../types/types';
-import { FacetItemsList } from '../../issues/sidebar/FacetItemsList';
-import { MultipleSelectionHint } from '../../issues/sidebar/MultipleSelectionHint';
-import { FacetKey } from '../query';
+import { FacetKey } from '../../apps/coding-rules/query';
+import { FacetItemsList } from '../../apps/issues/sidebar/FacetItemsList';
+import { MultipleSelectionHint } from '../../apps/issues/sidebar/MultipleSelectionHint';
+import { translate } from '../../helpers/l10n';
+import { Dict } from '../../types/types';
+import Tooltip from '../controls/Tooltip';
 
 export interface BasicProps {
+  fetching?: boolean;
   help?: React.ReactNode;
   onChange: (changes: Dict<string | string[] | undefined>) => void;
   onToggle: (facet: FacetKey) => void;
@@ -103,6 +104,7 @@ export default class Facet extends React.PureComponent<Props> {
       stats,
       help,
       values,
+      fetching,
     } = this.props;
     const items =
       this.props.options ||
@@ -119,10 +121,11 @@ export default class Facet extends React.PureComponent<Props> {
 
     return (
       <FacetBox
-        className={classNames('it__search-navigator-facet-box', {
+        className={classNames('it__search-navigator-facet-box it__search-navigator-facet-header', {
           'it__search-navigator-facet-box-forbidden': disabled,
         })}
         data-property={property}
+        loading={fetching}
         clearIconLabel={translate('clear')}
         count={values.length}
         id={headerId}

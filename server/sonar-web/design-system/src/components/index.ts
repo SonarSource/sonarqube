@@ -76,7 +76,7 @@ export * from './MultiSelector';
 export * from './NavBarTabs';
 export * from './NewCodeLegend';
 export * from './OutsideClickHandler';
-export { Pill } from './Pill';
+export * from './Pill';
 export * from './popups';
 export { QualityGateIndicator } from './QualityGateIndicator';
 export * from './SearchHighlighter';

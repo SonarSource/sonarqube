@@ -88,20 +88,20 @@ it('should show legacy filters', async () => {
   settingsHandler.set(SettingsKey.LegacyMode, 'true');
   renderPageSidebar();
 
-  expect(await screen.findAllByText('E')).toHaveLength(4);
-  expect(screen.queryByText(/projects.facets.rating_option/)).not.toBeInTheDocument();
-  expect(screen.queryByText('projects.facets.maintainability.description')).not.toBeInTheDocument();
-  expect(screen.queryByText('projects.facets.security_review.description')).not.toBeInTheDocument();
+  expect(await screen.findAllByText(/projects.facets.rating_option/)).toHaveLength(20);
+  expect(screen.getByText('projects.facets.rating_option.security.legacy.1')).toBeInTheDocument();
+  expect(
+    screen.getByText('projects.facets.rating_option.reliability.legacy.1'),
+  ).toBeInTheDocument();
 });
 
 it('should show non legacy filters', async () => {
   settingsHandler.set(SettingsKey.LegacyMode, 'false');
   renderPageSidebar();
 
-  expect(await screen.findAllByText(/projects.facets.rating_option/)).toHaveLength(16);
-  expect(screen.queryAllByText('E')).toHaveLength(0);
-  expect(screen.getByText('projects.facets.maintainability.description')).toBeInTheDocument();
-  expect(screen.getByText('projects.facets.security_review.description')).toBeInTheDocument();
+  expect(await screen.findAllByText(/projects.facets.rating_option/)).toHaveLength(20);
+  expect(screen.getByText('projects.facets.rating_option.security.1')).toBeInTheDocument();
+  expect(screen.getByText('projects.facets.rating_option.reliability.1')).toBeInTheDocument();
 });
 
 function renderPageSidebar(overrides: Partial<PageSidebarProps> = {}, currentUser?: CurrentUser) {

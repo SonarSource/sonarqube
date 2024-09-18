@@ -61,6 +61,8 @@ function isNewRatingMetric(metricKey: MetricKey) {
 const useGetMetricKeyForRating = (ratingMetric: RatingMetricKeys): MetricKey | null => {
   const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
 
+  const hasSoftwareQualityRating = !!SOFTWARE_QUALITY_RATING_METRICS_MAP[ratingMetric];
+
   if (isNewRatingMetric(ratingMetric)) {
     return ratingMetric;
   }
@@ -68,7 +70,9 @@ const useGetMetricKeyForRating = (ratingMetric: RatingMetricKeys): MetricKey | n
   if (isLoading) {
     return null;
   }
-  return isLegacy ? ratingMetric : SOFTWARE_QUALITY_RATING_METRICS_MAP[ratingMetric];
+  return isLegacy || !hasSoftwareQualityRating
+    ? ratingMetric
+    : SOFTWARE_QUALITY_RATING_METRICS_MAP[ratingMetric];
 };
 
 export default function RatingComponent(props: Readonly<Props>) {
@@ -108,7 +112,6 @@ export default function RatingComponent(props: Readonly<Props>) {
   const badge = (
     <MetricsRatingBadge
       label={getLabel ? getLabel(rating) : (value ?? '—')}
-      isLegacy={measure?.metric ? !isNewRatingMetric(measure.metric as MetricKey) : false}
       rating={rating}
       size={size}
       className={className}

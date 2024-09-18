@@ -32,6 +32,7 @@ enum FakeEnum {
   BLUE = 0;
   RED = 1;
   GREEN = 2;
+  FakeEnum_YELLOW = 3;
 }
 
 message PrimitiveTypeMsg {

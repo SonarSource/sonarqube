@@ -68,10 +68,7 @@ export const mergeRatingMeasureHistory = (
 
   const historyMapper = (historyItem: { date: string; value?: string }) => ({
     date: parseDateFn(historyItem.date),
-    value:
-      softwareQualityMeasuresMap.size > 0 && historyItem.value === '5.0'
-        ? '4.0'
-        : historyItem.value,
+    value: historyItem.value,
   });
 
   return historyDataFiltered.map((measure) => {

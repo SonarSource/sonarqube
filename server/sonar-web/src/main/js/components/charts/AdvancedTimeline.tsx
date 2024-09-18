@@ -51,7 +51,6 @@ export interface PropsWithoutTheme {
   height: number;
   hideGrid?: boolean;
   hideXAxis?: boolean;
-  isLegacy?: boolean;
   leakPeriodDate?: Date;
   // used to avoid same y ticks labels
   maxYTicksCount?: number;
@@ -145,10 +144,7 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
   }
 
   getRatingScale = (availableHeight: number) => {
-    const { isLegacy } = this.props;
-    return scalePoint<number>()
-      .domain(isLegacy ? [5, 4, 3, 2, 1] : [4, 3, 2, 1])
-      .range([availableHeight, 0]);
+    return scalePoint<number>().domain([5, 4, 3, 2, 1]).range([availableHeight, 0]);
   };
 
   getLevelScale = (availableHeight: number) => {

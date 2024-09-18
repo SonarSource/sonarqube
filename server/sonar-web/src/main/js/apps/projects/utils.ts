@@ -102,7 +102,6 @@ export const METRICS = [
   MetricKey.software_quality_maintainability_rating,
   MetricKey.security_hotspots_reviewed,
   MetricKey.security_review_rating,
-  MetricKey.software_quality_security_review_rating,
   MetricKey.duplicated_lines_density,
   MetricKey.coverage,
   MetricKey.ncloc,
@@ -138,8 +137,8 @@ export const LEGACY_FACETS = [
 export const FACETS = [
   MetricKey.software_quality_reliability_rating,
   MetricKey.software_quality_security_rating,
-  MetricKey.software_quality_security_review_rating,
   MetricKey.software_quality_maintainability_rating,
+  MetricKey.security_review_rating,
   MetricKey.coverage,
   MetricKey.duplicated_lines_density,
   MetricKey.ncloc,
@@ -166,8 +165,8 @@ export const LEGACY_LEAK_FACETS = [
 export const LEAK_FACETS = [
   MetricKey.new_software_quality_reliability_rating,
   MetricKey.new_software_quality_security_rating,
-  MetricKey.new_software_quality_security_review_rating,
   MetricKey.new_software_quality_maintainability_rating,
+  MetricKey.new_security_review_rating,
   MetricKey.new_coverage,
   MetricKey.new_duplicated_lines_density,
   MetricKey.new_lines,
@@ -318,8 +317,6 @@ export const propertyToMetricMap: Dict<string | undefined> = {
   new_reliability: 'new_software_quality_reliability_rating',
   security: 'software_quality_security_rating',
   new_security: 'new_software_quality_security_rating',
-  security_review: 'software_quality_security_review_rating',
-  new_security_review: 'new_software_quality_security_review_rating',
   maintainability: 'software_quality_maintainability_rating',
   new_maintainability: 'new_software_quality_maintainability_rating',
 };

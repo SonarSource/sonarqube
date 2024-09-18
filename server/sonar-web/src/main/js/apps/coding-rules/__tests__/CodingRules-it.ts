@@ -188,7 +188,7 @@ describe('Rules app list', () => {
 
       // Filter by severity
       await user.click(ui.severetiesFacet.get());
-      await user.click(ui.facetItem(/severity.HIGH/).get());
+      await user.click(ui.facetItem(/severity_impact.HIGH/).get());
       expect(ui.getAllRuleListItems()).toHaveLength(8);
     });
 

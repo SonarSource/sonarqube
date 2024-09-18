@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Facet, { BasicProps } from '../../../components/facets/Facet';
 import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
 import { RULE_TYPES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
-import Facet, { BasicProps } from './Facet';
 
 export default class TypeFacet extends React.PureComponent<BasicProps> {
   renderName = (type: string) => (

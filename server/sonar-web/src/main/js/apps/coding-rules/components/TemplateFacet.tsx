@@ -20,8 +20,8 @@
 import { HelperHintIcon } from 'design-system';
 import * as React from 'react';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import Facet, { BasicProps } from '../../../components/facets/Facet';
 import { translate } from '../../../helpers/l10n';
-import Facet, { BasicProps } from './Facet';
 
 interface Props extends Omit<BasicProps, 'onChange' | 'values'> {
   onChange: (changes: { template: boolean | undefined }) => void;

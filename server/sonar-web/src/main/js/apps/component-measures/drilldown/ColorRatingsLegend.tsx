@@ -33,14 +33,13 @@ import { translateWithParameters } from '../../../helpers/l10n';
 export interface ColorRatingsLegendProps {
   className?: string;
   filters: { [rating: number]: boolean };
-  isLegacy?: boolean;
   onRatingClick: (selection: number) => void;
 }
 
 export default function ColorRatingsLegend(props: ColorRatingsLegendProps) {
-  const { className, filters, isLegacy } = props;
+  const { className, filters } = props;
   const theme = useTheme();
-  const RATINGS = isLegacy ? [1, 2, 3, 4, 5] : [1, 2, 3, 4];
+  const RATINGS = [1, 2, 3, 4, 5];
 
   const ratingsColors = RATINGS.map((rating: BubbleColorVal) => {
     const formattedMeasure = formatMeasure(rating, MetricType.Rating);
@@ -50,10 +49,10 @@ export default function ColorRatingsLegend(props: ColorRatingsLegendProps) {
       label: formattedMeasure,
       value: rating,
       selected: !filters[rating],
-      backgroundColor: themeColor(isLegacy ? `bubble.legacy.${rating}` : `bubble.${rating}`)({
+      backgroundColor: themeColor(`bubble.${rating}`)({
         theme,
       }),
-      borderColor: themeContrast(isLegacy ? `bubble.legacy.${rating}` : `bubble.${rating}`)({
+      borderColor: themeContrast(`bubble.${rating}`)({
         theme,
       }),
     };

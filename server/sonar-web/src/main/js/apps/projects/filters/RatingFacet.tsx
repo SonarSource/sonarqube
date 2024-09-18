@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from '@sonarsource/echoes-react';
 import { MetricsRatingBadge, RatingEnum } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
@@ -37,9 +38,8 @@ interface Props {
   value?: any;
 }
 
-export default function RatingFacet(props: Props) {
+export default function RatingFacet(props: Readonly<Props>) {
   const { facet, maxFacetValue, name, property, value } = props;
-  const { data: isLegacy } = useIsLegacyCCTMode();
 
   const renderAccessibleLabel = React.useCallback(
     (option: number) => {
@@ -65,14 +65,14 @@ export default function RatingFacet(props: Props) {
       facet={facet}
       header={translate('metric_domain', name)}
       description={
-        !isLegacy && hasDescription(property)
+        hasDescription(property)
           ? translate(`projects.facets.${property.replace('new_', '')}.description`)
           : undefined
       }
       highlightUnder={1}
       maxFacetValue={maxFacetValue}
       onQueryChange={props.onQueryChange}
-      options={isLegacy ? [1, 2, 3, 4, 5] : [1, 2, 3, 4]}
+      options={[1, 2, 3, 4, 5]}
       property={property}
       renderAccessibleLabel={renderAccessibleLabel}
       renderOption={(option) => renderOption(option, property)}
@@ -93,25 +93,24 @@ function RatingOption({
   option,
   property,
 }: Readonly<{ option: string | number; property: string }>) {
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
   const intl = useIntl();
 
   const ratingFormatted = formatMeasure(option, MetricType.Rating);
+  const propertyWithoutPrefix = property.replace('new_', '');
+  const isSecurityOrReliability = ['security', 'reliability'].includes(propertyWithoutPrefix);
   return (
-    <>
+    <Spinner isLoading={isLoading}>
       <MetricsRatingBadge
         label={ratingFormatted}
         rating={ratingFormatted as RatingEnum}
-        isLegacy={isLegacy}
         size="xs"
       />
-      {!isLegacy && (
-        <span className="sw-ml-2">
-          {intl.formatMessage({
-            id: `projects.facets.rating_option.${property.replace('new_', '')}.${option}`,
-          })}
-        </span>
-      )}
-    </>
+      <span className="sw-ml-2">
+        {intl.formatMessage({
+          id: `projects.facets.rating_option.${propertyWithoutPrefix}${isLegacy && isSecurityOrReliability ? '.legacy' : ''}.${option}`,
+        })}
+      </span>
+    </Spinner>
   );
 }

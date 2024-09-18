@@ -609,7 +609,6 @@ describe('ratings', () => {
     expect(await ui.graphs.findAll()).toHaveLength(1);
     expect(ui.metricChangedInfoBtn.get()).toBeInTheDocument();
     expect(ui.gapInfoMessage.get()).toBeInTheDocument();
-    expect(byText('E').query()).not.toBeInTheDocument();
   });
 
   it('should not show old rating if new one was always there', async () => {
@@ -652,10 +651,9 @@ describe('ratings', () => {
     expect(await ui.graphs.findAll()).toHaveLength(1);
     expect(ui.metricChangedInfoBtn.query()).not.toBeInTheDocument();
     expect(ui.gapInfoMessage.query()).not.toBeInTheDocument();
-    expect(byText('E').query()).not.toBeInTheDocument();
   });
 
-  it('should show E if no new metrics', async () => {
+  it('should not show change info button if no new metrics', async () => {
     timeMachineHandler.setMeasureHistory([
       mockMeasureHistory({
         metric: MetricKey.reliability_rating,
@@ -686,10 +684,9 @@ describe('ratings', () => {
     expect(await ui.graphs.findAll()).toHaveLength(1);
     expect(ui.metricChangedInfoBtn.query()).not.toBeInTheDocument();
     expect(ui.gapInfoMessage.query()).not.toBeInTheDocument();
-    expect(byText('E').get()).toBeInTheDocument();
   });
 
-  it('should not show gaps message and metric change button, but should show E in legacy mode', async () => {
+  it('should not show gaps message and metric change button in legacy mode', async () => {
     settingsHandler.set(SettingsKey.LegacyMode, 'true');
     timeMachineHandler.setMeasureHistory([
       mockMeasureHistory({
@@ -746,7 +743,6 @@ describe('ratings', () => {
     expect(await ui.graphs.findAll()).toHaveLength(1);
     expect(ui.metricChangedInfoBtn.query()).not.toBeInTheDocument();
     expect(ui.gapInfoMessage.query()).not.toBeInTheDocument();
-    expect(byText('E').get()).toBeInTheDocument();
   });
 });
 

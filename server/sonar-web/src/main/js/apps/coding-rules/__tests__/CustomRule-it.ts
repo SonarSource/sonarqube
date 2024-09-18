@@ -86,9 +86,11 @@ describe('custom rule', () => {
     await user.click(ui.cleanCodeQualityCheckbox(SoftwareQuality.Reliability).get());
 
     await user.click(ui.cleanCodeSeveritySelect(SoftwareQuality.Reliability).get());
-    await user.click(byRole('option', { name: 'severity.MEDIUM severity.MEDIUM' }).get());
+    await user.click(
+      byRole('option', { name: 'severity_impact.MEDIUM severity_impact.MEDIUM' }).get(),
+    );
 
-    expect(ui.createCustomRuleDialog.byText('severity.MEDIUM').get()).toBeInTheDocument();
+    expect(ui.createCustomRuleDialog.byText('severity_impact.MEDIUM').get()).toBeInTheDocument();
 
     await user.click(ui.statusSelect.get());
     await user.click(byRole('option', { name: 'rules.status.BETA' }).get());

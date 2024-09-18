@@ -20,10 +20,10 @@
 import { uniq } from 'lodash';
 import * as React from 'react';
 import { getRuleTags } from '../../../api/rules';
+import { BasicProps } from '../../../components/facets/Facet';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { ListStyleFacet } from '../../issues/sidebar/ListStyleFacet';
-import { BasicProps } from './Facet';
 
 export default class TagFacet extends React.PureComponent<BasicProps> {
   handleSearch = (query: string) => {

@@ -85,8 +85,6 @@ class ProjectMeasuresIndexTest {
   private static final String NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY = "new_software_quality_reliability_rating";
   private static final String SOFTWARE_QUALITY_SECURITY_RATING_KEY = "software_quality_security_rating";
   private static final String NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY = "new_software_quality_security_rating";
-  private static final String SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY = "software_quality_security_review_rating";
-  private static final String NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY = "new_software_quality_security_review_rating";
 
   private static final String SECURITY_HOTSPOTS_REVIEWED = "security_hotspots_reviewed";
   private static final String NEW_SECURITY_HOTSPOTS_REVIEWED = "new_security_hotspots_reviewed";
@@ -127,8 +125,7 @@ class ProjectMeasuresIndexTest {
     return new String[]{
       SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY, NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY,
       SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY,
-      SOFTWARE_QUALITY_SECURITY_RATING_KEY, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY,
-      SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY, NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY
+      SOFTWARE_QUALITY_SECURITY_RATING_KEY, NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY
     };
   }
 
@@ -1088,7 +1085,10 @@ class ProjectMeasuresIndexTest {
       newDoc(metricKey, 3d),
       // 2 docs with rating D
       newDoc(metricKey, 4d),
-      newDoc(metricKey, 4d));
+      newDoc(metricKey, 4d),
+      // 1 doc with rating E
+      newDoc(metricKey, 5d));
+
 
     Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(metricKey)).getFacets();
 
@@ -1096,7 +1096,8 @@ class ProjectMeasuresIndexTest {
       entry("1", 3L),
       entry("2", 2L),
       entry("3", 4L),
-      entry("4", 2L));
+      entry("4", 2L),
+      entry("5", 1L));
   }
 
   @ParameterizedTest
@@ -1160,7 +1161,9 @@ class ProjectMeasuresIndexTest {
       newDoc(metricKey, 3d, NCLOC, 40000d, COVERAGE, 0d),
       newDoc(metricKey, 3d, NCLOC, 50000d, COVERAGE, 0d),
       // docs with rating D
-      newDoc(metricKey, 4d, NCLOC, 120000d, COVERAGE, 0d));
+      newDoc(metricKey, 4d, NCLOC, 120000d, COVERAGE, 0d),
+      // docs with rating E
+      newDoc(metricKey, 5d, NCLOC, 120000d, COVERAGE, 0d));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
         .addMetricCriterion(MetricCriterion.create(metricKey, Operator.LT, 3d))
@@ -1172,7 +1175,8 @@ class ProjectMeasuresIndexTest {
       entry("1", 3L),
       entry("2", 2L),
       entry("3", 4L),
-      entry("4", 1L));
+      entry("4", 1L),
+      entry("5", 1L));
     // But facet on ncloc does well take into into filters
     assertThat(facets.get(NCLOC)).containsExactly(
       entry("*-1000.0", 3L),
@@ -1233,7 +1237,9 @@ class ProjectMeasuresIndexTest {
       // docs with rating C
       newDoc(metricKey, 3d),
       // docs with rating D
-      newDoc(metricKey, 4d));
+      newDoc(metricKey, 4d),
+      // docs with rating E
+      newDoc(metricKey, 5d));
 
     userSession.logIn(USER1);
     Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(metricKey)).getFacets();
@@ -1242,7 +1248,8 @@ class ProjectMeasuresIndexTest {
       entry("1", 3L),
       entry("2", 2L),
       entry("3", 0L),
-      entry("4", 0L));
+      entry("4", 0L),
+      entry("5", 0L));
   }
 
   @Test

@@ -26,7 +26,6 @@ import { RatingLabel } from '../types/measures';
 type sizeType = keyof typeof SIZE_MAPPING;
 interface Props extends React.AriaAttributes {
   className?: string;
-  isLegacy?: boolean;
   label?: string;
   rating?: RatingLabel;
   size?: sizeType;
@@ -41,10 +40,7 @@ const SIZE_MAPPING = {
 };
 
 export const MetricsRatingBadge = forwardRef<HTMLDivElement, Props>(
-  (
-    { className, size = 'sm', isLegacy = true, label, rating, ...ariaAttrs }: Readonly<Props>,
-    ref,
-  ) => {
+  ({ className, size = 'sm', label, rating, ...ariaAttrs }: Readonly<Props>, ref) => {
     if (!rating) {
       return (
         <StyledNoRatingBadge
@@ -62,7 +58,6 @@ export const MetricsRatingBadge = forwardRef<HTMLDivElement, Props>(
       <MetricsRatingBadgeStyled
         aria-label={label}
         className={className}
-        isLegacy={isLegacy}
         rating={rating}
         ref={ref}
         size={SIZE_MAPPING[size]}
@@ -97,7 +92,6 @@ const getFontSize = (size: string) => {
 };
 
 const MetricsRatingBadgeStyled = styled.div<{
-  isLegacy: boolean;
   rating: RatingLabel;
   size: string;
 }>`
@@ -105,8 +99,7 @@ const MetricsRatingBadgeStyled = styled.div<{
   height: ${getProp('size')};
   color: ${({ rating }) => themeContrast(`rating.${rating}`)};
   font-size: ${({ size }) => getFontSize(size)};
-  background-color: ${({ rating, isLegacy }) =>
-    themeColor(`rating.${isLegacy ? 'legacy.' : ''}${rating}`)};
+  background-color: ${({ rating }) => themeColor(`rating.${rating}`)};
   user-select: none;
 
   display: inline-flex;

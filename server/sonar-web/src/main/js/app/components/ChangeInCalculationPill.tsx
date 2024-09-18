@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Popover } from '@sonarsource/echoes-react';
-import { Pill } from 'design-system';
+import { Pill, PillVariant } from 'design-system';
 import * as React from 'react';
 import DocumentationLink from '../../components/common/DocumentationLink';
 import { DocLink } from '../../helpers/doc-links';
@@ -49,7 +49,11 @@ export default function ChangeInCalculation({ qualifier }: Readonly<Props>) {
         </DocumentationLink>
       }
     >
-      <Pill variant="info" className="sw-ml-2" onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
+      <Pill
+        variant={PillVariant.Accent}
+        className="sw-ml-2"
+        onClick={() => setIsPopoverOpen(!isPopoverOpen)}
+      >
         {translate('projects.awaiting_scan')}
       </Pill>
     </Popover>

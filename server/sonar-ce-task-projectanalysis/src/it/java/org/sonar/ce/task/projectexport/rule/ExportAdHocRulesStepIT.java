@@ -207,7 +207,7 @@ public class ExportAdHocRulesStepIT {
       .setIsAdHoc(true)
       .setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL)
       .addDefaultImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM))
-      .addDefaultImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
+      .addDefaultImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.BLOCKER))
       .setRuleKey(ruleKey)
       .setScope(RuleDto.Scope.ALL)
       .setStatus(RuleStatus.READY);

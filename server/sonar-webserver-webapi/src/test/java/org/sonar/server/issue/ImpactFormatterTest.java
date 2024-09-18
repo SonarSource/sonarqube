@@ -17,11 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
-import { render } from '../../helpers/testUtils';
-import { Pill, PillVariant } from '../Pill';
+package org.sonar.server.issue;
 
-it('should render correctly', () => {
-  render(<Pill variant={PillVariant.Accent}>23</Pill>);
-  expect(screen.getByText('23')).toBeInTheDocument();
-});
+import org.junit.jupiter.api.Test;
+import org.sonar.api.issue.impact.Severity;
+import org.sonarqube.ws.Common;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class ImpactFormatterTest {
+
+  @Test
+  void mapImpactSeverity_shouldReturnExpectedValue() {
+    assertEquals(Common.ImpactSeverity.ImpactSeverity_BLOCKER, ImpactFormatter.mapImpactSeverity(Severity.BLOCKER));
+    assertEquals(Common.ImpactSeverity.HIGH, ImpactFormatter.mapImpactSeverity(Severity.HIGH));
+    assertEquals(Common.ImpactSeverity.MEDIUM, ImpactFormatter.mapImpactSeverity(Severity.MEDIUM));
+    assertEquals(Common.ImpactSeverity.LOW, ImpactFormatter.mapImpactSeverity(Severity.LOW));
+    assertEquals(Common.ImpactSeverity.ImpactSeverity_INFO, ImpactFormatter.mapImpactSeverity(Severity.INFO));
+  }
+}

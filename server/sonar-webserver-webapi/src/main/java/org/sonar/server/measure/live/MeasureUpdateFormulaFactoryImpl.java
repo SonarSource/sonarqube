@@ -50,7 +50,6 @@ import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALIT
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT;
-import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_DEBT_RATIO;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT;
@@ -58,11 +57,9 @@ import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RE
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT;
-import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REVIEW_RATING;
 import static org.sonar.server.measure.Rating.RATING_BY_SEVERITY;
 import static org.sonar.server.measure.Rating.RATING_BY_SOFTWARE_QUALITY_SEVERITY;
 import static org.sonar.server.metric.IssueCountMetrics.PRIORITIZED_RULE_ISSUES;
-import static org.sonar.server.security.SecurityReviewRating.computeAToDRating;
 import static org.sonar.server.security.SecurityReviewRating.computePercent;
 import static org.sonar.server.security.SecurityReviewRating.computeRating;
 
@@ -311,13 +308,13 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
       asList(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, CoreMetrics.NEW_DEVELOPMENT_COST)),
 
     new MeasureUpdateFormula(SOFTWARE_QUALITY_MAINTAINABILITY_RATING, false, true,
-      (context, issues) -> context.setValue(context.getDebtRatingGrid().getAToDRatingForDensity(debtDensity(SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, context))),
-      (context, issues) -> context.setValue(context.getDebtRatingGrid().getAToDRatingForDensity(debtDensity(SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, context))),
+      (context, issues) -> context.setValue(context.getDebtRatingGrid().getRatingForDensity(debtDensity(SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, context))),
+      (context, issues) -> context.setValue(context.getDebtRatingGrid().getRatingForDensity(debtDensity(SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, context))),
       asList(SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, CoreMetrics.DEVELOPMENT_COST)),
 
     new MeasureUpdateFormula(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING, true, true,
-      (context, formula) -> context.setValue(context.getDebtRatingGrid().getAToDRatingForDensity(newDebtDensity(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, context))),
-      (context, issues) -> context.setValue(context.getDebtRatingGrid().getAToDRatingForDensity(newDebtDensity(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, context))),
+      (context, formula) -> context.setValue(context.getDebtRatingGrid().getRatingForDensity(newDebtDensity(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, context))),
+      (context, issues) -> context.setValue(context.getDebtRatingGrid().getRatingForDensity(newDebtDensity(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, context))),
       asList(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, CoreMetrics.NEW_DEVELOPMENT_COST)),
 
     new MeasureUpdateFormula(EFFORT_TO_REACH_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_A, false, true,
@@ -355,20 +352,6 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
           .map(RATING_BY_SOFTWARE_QUALITY_SEVERITY::get)
           .orElse(Rating.A);
         context.setValue(rating);
-      }),
-
-    new MeasureUpdateFormula(SOFTWARE_QUALITY_SECURITY_REVIEW_RATING, false, true,
-      (context, formula) -> context.setValue(computeAToDRating(context.getValue(SECURITY_HOTSPOTS_REVIEWED).orElse(null))),
-      (context, issues) -> {
-        Optional<Double> percent = computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false));
-        context.setValue(computeAToDRating(percent.orElse(null)));
-      }),
-
-    new MeasureUpdateFormula(NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING, true, true,
-      (context, formula) -> context.setValue(computeAToDRating(context.getValue(NEW_SECURITY_HOTSPOTS_REVIEWED).orElse(null))),
-      (context, issues) -> {
-        Optional<Double> percent = computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true));
-        context.setValue(computeAToDRating(percent.orElse(null)));
       }));
 
   private static final Set<Metric> FORMULA_METRICS = MeasureUpdateFormulaFactory.extractMetrics(FORMULAS);

@@ -24,20 +24,31 @@ import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers/theme';
 import { ThemeColors } from '../types/theme';
 
-type PillVariant = 'danger' | 'warning' | 'info' | 'accent';
+export enum PillVariant {
+  Critical = 'critical',
+  Danger = 'danger',
+  Warning = 'warning',
+  Caution = 'caution',
+  Info = 'info',
+  Accent = 'accent',
+}
 
 const variantThemeColors: Record<PillVariant, ThemeColors> = {
-  danger: 'pillDanger',
-  warning: 'pillWarning',
-  info: 'pillInfo',
-  accent: 'pillAccent',
+  [PillVariant.Critical]: 'pillCritical',
+  [PillVariant.Danger]: 'pillDanger',
+  [PillVariant.Warning]: 'pillWarning',
+  [PillVariant.Caution]: 'pillCaution',
+  [PillVariant.Info]: 'pillInfo',
+  [PillVariant.Accent]: 'pillAccent',
 };
 
 const variantThemeBorderColors: Record<PillVariant, ThemeColors> = {
-  danger: 'pillDangerBorder',
-  warning: 'pillWarningBorder',
-  info: 'pillInfoBorder',
-  accent: 'pillAccentBorder',
+  [PillVariant.Critical]: 'pillCriticalBorder',
+  [PillVariant.Danger]: 'pillDangerBorder',
+  [PillVariant.Warning]: 'pillWarningBorder',
+  [PillVariant.Caution]: 'pillCautionBorder',
+  [PillVariant.Info]: 'pillInfoBorder',
+  [PillVariant.Accent]: 'pillAccentBorder',
 };
 
 interface PillProps {
@@ -84,7 +95,7 @@ const StyledPill = styled.span<{
 
   background-color: ${({ variant }) => themeColor(variantThemeColors[variant])};
   color: ${({ variant }) => themeContrast(variantThemeColors[variant])};
-  border-style: ${({ variant }) => (variant === 'accent' ? 'hidden' : 'solid')};
+  border-style: ${({ variant }) => (variant === PillVariant.Accent ? 'hidden' : 'solid')};
   border-color: ${({ variant }) => themeColor(variantThemeBorderColors[variant])};
 `;
 
@@ -95,7 +106,7 @@ const StyledPillButton = styled.button<{
 
   background-color: ${({ variant }) => themeColor(variantThemeColors[variant])};
   color: ${({ variant }) => themeContrast(variantThemeColors[variant])};
-  border-style: ${({ variant }) => (variant === 'accent' ? 'hidden' : 'solid')};
+  border-style: ${({ variant }) => (variant === PillVariant.Accent ? 'hidden' : 'solid')};
   border-color: ${({ variant }) => themeColor(variantThemeBorderColors[variant])};
 
   cursor: pointer;

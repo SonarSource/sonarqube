@@ -59,6 +59,21 @@ public class ProtobufJsonFormatTest {
   }
 
   @Test
+  public void toJson_whenPrefixedEnum_shouldConvertToExpectedEnumValue() {
+    PrimitiveTypeMsg protobuf = PrimitiveTypeMsg.newBuilder()
+      .setStringField("foo")
+      .setIntField(10)
+      .setLongField(100L)
+      .setDoubleField(3.14)
+      .setBooleanField(true)
+      .setEnumField(org.sonar.core.test.Test.FakeEnum.FakeEnum_YELLOW)
+      .build();
+
+    assertThat(toJson(protobuf)).isEqualTo(
+      "{\"stringField\":\"foo\",\"intField\":10,\"longField\":100,\"doubleField\":3.14,\"booleanField\":true,\"enumField\":\"YELLOW\"}");
+  }
+
+  @Test
   public void bytes_field_can_not_be_converted() {
     assertThatThrownBy(() -> {
       PrimitiveTypeMsg protobuf = PrimitiveTypeMsg.newBuilder()

@@ -233,6 +233,7 @@ public class ExportIssuesStepIT {
       .setIssueCreationTime(963L)
       .setIssueUpdateTime(852L)
       .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH))
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.BLOCKER))
       .setIssueCloseTime(741L)
       .setCodeVariants(List.of("v1", "v2"));
 
@@ -270,7 +271,7 @@ public class ExportIssuesStepIT {
     assertThat(issue.getIssueClosedAt()).isEqualTo(issueDto.getIssueCloseTime());
     assertThat(issue.getLocations()).isNotEmpty();
     assertThat(issue.getImpactsList()).extracting(ProjectDump.Impact::getSoftwareQuality, ProjectDump.Impact::getSeverity)
-      .containsOnly(tuple(ProjectDump.SoftwareQuality.MAINTAINABILITY, ProjectDump.Severity.HIGH));
+      .containsOnly(tuple(ProjectDump.SoftwareQuality.MAINTAINABILITY, ProjectDump.Severity.HIGH), tuple(ProjectDump.SoftwareQuality.SECURITY, ProjectDump.Severity.BLOCKER));
     assertThat(issue.getMessageFormattingsList())
       .isEqualTo(ExportIssuesStep.dbToDumpMessageFormatting(messageFormattings.getMessageFormattingList()));
     assertThat(issue.getCodeVariants()).isEqualTo(issueDto.getCodeVariantsString());

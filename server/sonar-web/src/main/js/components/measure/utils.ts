@@ -28,7 +28,6 @@ export const KNOWN_RATINGS = [
   MetricKey.software_quality_maintainability_rating,
   MetricKey.software_quality_reliability_rating,
   MetricKey.software_quality_security_rating,
-  MetricKey.software_quality_security_review_rating,
   'maintainability_rating', // Needed to provide the label for "new_maintainability_rating"
 ];
 

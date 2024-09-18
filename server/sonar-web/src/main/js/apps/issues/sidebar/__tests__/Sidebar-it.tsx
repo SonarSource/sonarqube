@@ -48,7 +48,9 @@ it('should render correct facets for Projects with PrioritizedRules feature', ()
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
     'issues.facet.cleanCodeAttributeCategories',
     'issues.facet.impactSoftwareQualities',
-    'issues.facet.impactSeverities',
+    'coding_rules.facet.impactSeverities',
+    // help icon
+    '',
     'issues.facet.types',
     'issues.facet.scopes',
     'issues.facet.issueStatuses',
@@ -72,7 +74,9 @@ it('should render correct facets for Application', () => {
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
     'issues.facet.cleanCodeAttributeCategories',
     'issues.facet.impactSoftwareQualities',
-    'issues.facet.impactSeverities',
+    'coding_rules.facet.impactSeverities',
+    // help icon
+    '',
     'issues.facet.types',
     'issues.facet.scopes',
     'issues.facet.issueStatuses',
@@ -94,7 +98,9 @@ it('should render correct facets for Portfolio', () => {
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
     'issues.facet.cleanCodeAttributeCategories',
     'issues.facet.impactSoftwareQualities',
-    'issues.facet.impactSeverities',
+    'coding_rules.facet.impactSeverities',
+    // help icon
+    '',
     'issues.facet.types',
     'issues.facet.scopes',
     'issues.facet.issueStatuses',
@@ -116,7 +122,9 @@ it('should render correct facets for SubPortfolio', () => {
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
     'issues.facet.cleanCodeAttributeCategories',
     'issues.facet.impactSoftwareQualities',
-    'issues.facet.impactSeverities',
+    'coding_rules.facet.impactSeverities',
+    // help icon
+    '',
     'issues.facet.types',
     'issues.facet.scopes',
     'issues.facet.issueStatuses',

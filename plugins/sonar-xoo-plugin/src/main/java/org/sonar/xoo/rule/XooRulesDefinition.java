@@ -127,7 +127,7 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule oneIssuePerLine = repo.createRule(OneIssuePerLineSensor.RULE_KEY).setName("One Issue Per Line")
       .setCleanCodeAttribute(CleanCodeAttribute.COMPLETE)
-      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.INFO)
       .setTags("line");
     addDescriptionSectionsWithoutContexts(oneIssuePerLine, "Generate an issue on each line of a file. It requires the metric \"lines\".");
     addHowToFixSectionsWithContexts(oneIssuePerLine);
@@ -138,7 +138,7 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule oneQuickFixPerLine = repo.createRule(OneQuickFixPerLineSensor.RULE_KEY).setName("One Quick Fix Per Line")
       .setCleanCodeAttribute(CleanCodeAttribute.DISTINCT)
-      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER)
       .setTags("line");
     addAllDescriptionSections(oneQuickFixPerLine,
       "Generate an issue with quick fix available on each line of a file. It requires the metric \"lines\".");

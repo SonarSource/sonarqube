@@ -59,4 +59,37 @@ expect.extend({
 
     return result;
   },
+  async toHaveAPopoverWithContent(received: any, content: string) {
+    const user = userEvent.setup({ pointerEventsCheck: PointerEventsCheckLevel.Never });
+
+    if (!(received instanceof Element)) {
+      return {
+        pass: false,
+        message: () => `Received object is not an HTMLElement, and cannot have a tooltip`,
+      };
+    }
+
+    await user.click(received);
+
+    const popover = await screen.findByRole('dialog');
+
+    const result = popover.textContent?.includes(content)
+      ? {
+          pass: true,
+          message: () => `Tooltip content "${popover.textContent}" contains expected "${content}"`,
+        }
+      : {
+          pass: false,
+          message: () =>
+            `Tooltip content "${popover.textContent}" does not contain expected "${content}"`,
+        };
+
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    return result;
+  },
 });

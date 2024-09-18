@@ -28,12 +28,15 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
@@ -45,6 +48,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.ImpactFormatter;
 import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.ws.pull.PullTaintActionProtobufObjectGenerator;
 import org.sonar.server.tester.UserSessionRule;
@@ -233,6 +237,8 @@ public class PullTaintActionIT {
       .setManualSeverity(true)
       .setMessage("message")
       .setMessageFormattings(DbIssues.MessageFormattings.newBuilder().addMessageFormatting(MESSAGE_FORMATTING).build())
+      .replaceAllImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.BLOCKER),
+        new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.HIGH)))
       .setIssueCreationTime(NOW)
       .setStatus(Issue.STATUS_OPEN)
       .setLocations(mainLocation.build())
@@ -265,7 +271,7 @@ public class PullTaintActionIT {
       .containsExactlyInAnyOrderElementsOf(issueDto.getEffectiveImpacts()
         .entrySet()
         .stream()
-        .map(entry -> tuple(Common.SoftwareQuality.valueOf(entry.getKey().name()), Common.ImpactSeverity.valueOf(entry.getValue().name())))
+        .map(entry -> tuple(Common.SoftwareQuality.valueOf(entry.getKey().name()), ImpactFormatter.mapImpactSeverity(entry.getValue())))
         .collect(toList()));
 
     Issues.Location location = taintLite.getMainLocation();

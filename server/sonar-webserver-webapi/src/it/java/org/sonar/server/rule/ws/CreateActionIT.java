@@ -31,12 +31,12 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.common.rule.RuleCreator;
 import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.common.rule.RuleCreator;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -166,7 +166,7 @@ public class CreateActionIT {
       .setParam("markdownDescription", "Description")
       .setParam("status", "BETA")
       .setParam("cleanCodeAttribute", "MODULAR")
-      .setParam("impacts", "RELIABILITY=HIGH;SECURITY=LOW")
+      .setParam("impacts", "RELIABILITY=BLOCKER;SECURITY=INFO")
       .execute().getInput();
 
     String expectedResult = """
@@ -176,7 +176,7 @@ public class CreateActionIT {
           "repo": "java",
           "name": "My custom rule",
           "htmlDesc": "Description",
-          "severity": "MINOR",
+          "severity": "INFO",
           "status": "BETA",
           "type": "VULNERABILITY",
           "internalKey": "configKey_S001",
@@ -188,11 +188,11 @@ public class CreateActionIT {
           "impacts": [
             {
               "softwareQuality": "RELIABILITY",
-              "severity": "HIGH"
+              "severity": "BLOCKER"
             },
             {
               "softwareQuality": "SECURITY",
-              "severity": "LOW"
+              "severity": "INFO"
             }
           ]
         }

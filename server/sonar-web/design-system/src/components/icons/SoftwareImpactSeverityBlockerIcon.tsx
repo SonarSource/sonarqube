@@ -21,20 +21,20 @@ import { useTheme } from '@emotion/react';
 import { themeColor } from '../../helpers';
 import { CustomIcon, IconProps } from './Icon';
 
-export function SoftwareImpactSeverityMediumIcon({
+export function SoftwareImpactSeverityBlockerIcon({
   disabled,
   ...iconProps
 }: IconProps & { disabled?: boolean }) {
   const theme = useTheme();
   const color = disabled
     ? 'iconSoftwareImpactSeverityDisabled'
-    : 'iconSoftwareImpactSeverityMedium';
+    : 'iconSoftwareImpactSeverityBlocker';
 
   return (
     <CustomIcon viewBox="0 0 14 14" {...iconProps}>
       <path
         clipRule="evenodd"
-        d="M7 13.375C10.5208 13.375 13.375 10.5208 13.375 7C13.375 3.47918 10.5208 0.625 7 0.625C3.47918 0.625 0.625 3.47918 0.625 7C0.625 10.5208 3.47918 13.375 7 13.375ZM10.051 7.83547L7.53033 5.31482C7.23744 5.02193 6.76256 5.02193 6.46967 5.31482L3.94903 7.83547C3.65613 8.12836 3.65613 8.60324 3.94903 8.89613C4.24192 9.18902 4.71679 9.18902 5.00969 8.89613L7 6.90581L8.99031 8.89613C9.28321 9.18902 9.75808 9.18902 10.051 8.89613C10.3439 8.60324 10.3439 8.12836 10.051 7.83547Z"
+        d="M7 13.375C10.5208 13.375 13.375 10.5208 13.375 7C13.375 3.47918 10.5208 0.625 7 0.625C3.47918 0.625 0.625 3.47918 0.625 7C0.625 10.5208 3.47918 13.375 7 13.375ZM4 6C3.44772 6 3 6.44772 3 7C3 7.55228 3.44772 8 4 8H10C10.5523 8 11 7.55228 11 7C11 6.44772 10.5523 6 10 6H4Z"
         fill={themeColor(color)({ theme })}
         fillRule="evenodd"
       />

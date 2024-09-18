@@ -18,14 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Popover } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { Pill } from 'design-system';
+import { Pill, PillVariant } from 'design-system';
+import { noop } from 'lodash';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
 import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
+import DocumentationLink from '../common/DocumentationLink';
 import SoftwareImpactSeverityIcon from '../icon-mappers/SoftwareImpactSeverityIcon';
 
 export interface Props {
@@ -39,34 +41,50 @@ export default function SoftwareImpactPill(props: Props) {
   const { className, severity, quality, type = 'issue' } = props;
 
   const variant = {
-    [SoftwareImpactSeverity.High]: 'danger',
-    [SoftwareImpactSeverity.Medium]: 'warning',
-    [SoftwareImpactSeverity.Low]: 'info',
-  }[severity] as 'danger' | 'warning' | 'info';
+    [SoftwareImpactSeverity.Blocker]: PillVariant.Critical,
+    [SoftwareImpactSeverity.High]: PillVariant.Danger,
+    [SoftwareImpactSeverity.Medium]: PillVariant.Warning,
+    [SoftwareImpactSeverity.Low]: PillVariant.Caution,
+    [SoftwareImpactSeverity.Info]: PillVariant.Info,
+  }[severity];
 
   return (
-    <DocHelpTooltip
-      content={
-        <FormattedMessage
-          id={`${type}.impact.severity.tooltip`}
-          defaultMessage={translate(`${type}.impact.severity.tooltip`)}
-          values={{
-            severity: translate('severity', severity).toLowerCase(),
-            quality: quality.toLowerCase(),
-          }}
-        />
+    <Popover
+      title={translate('severity_impact.title')}
+      description={
+        <>
+          <FormattedMessage
+            id={`${type}.impact.severity.tooltip`}
+            values={{
+              severity: translate('severity_impact', severity).toLowerCase(),
+              quality: quality.toLowerCase(),
+            }}
+          />
+          <p className="sw-mt-2">
+            <span className="sw-mr-1">{translate('severity_impact.help.line1')}</span>
+            {translate('severity_impact.help.line2')}
+          </p>
+        </>
       }
-      links={[
-        {
-          href: DocLink.CleanCodeIntroduction,
-          label: translate('learn_more'),
-        },
-      ]}
+      footer={
+        <DocumentationLink to={DocLink.CleanCodeIntroduction}>
+          {translate('learn_more')}
+        </DocumentationLink>
+      }
     >
-      <Pill className={classNames('sw-flex sw-gap-1 sw-items-center', className)} variant={variant}>
+      <Pill
+        className={classNames('sw-flex sw-gap-1 sw-items-center', className)}
+        onClick={noop}
+        variant={variant}
+      >
         {quality}
-        <SoftwareImpactSeverityIcon severity={severity} data-guiding-id="issue-3" />
+        <SoftwareImpactSeverityIcon
+          width={14}
+          height={14}
+          severity={severity}
+          data-guiding-id="issue-3"
+        />
       </Pill>
-    </DocHelpTooltip>
+    </Popover>
   );
 }

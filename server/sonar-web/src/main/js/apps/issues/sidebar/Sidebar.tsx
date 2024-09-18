@@ -25,6 +25,7 @@ import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { useAppState } from '../../../app/components/app-state/withAppStateContext';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
+import SeverityFacet from '../../../components/facets/SeverityFacet';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isProject, isView } from '../../../types/component';
@@ -52,7 +53,6 @@ import { PrioritizedRuleFacet } from './PrioritizedRuleFacet';
 import { ProjectFacet } from './ProjectFacet';
 import { RuleFacet } from './RuleFacet';
 import { ScopeFacet } from './ScopeFacet';
-import { SeverityFacet } from './SeverityFacet';
 import { SoftwareQualityFacet } from './SoftwareQualityFacet';
 import { StandardFacet } from './StandardFacet';
 import { TagFacet } from './TagFacet';
@@ -204,8 +204,8 @@ export function Sidebar(props: Readonly<Props>) {
             onChange={props.onFilterChange}
             onToggle={props.onFacetToggle}
             open={!!openFacets.impactSeverities}
-            severities={query.impactSeverities}
             stats={facets.impactSeverities}
+            values={query.impactSeverities}
           />
 
           <BasicSeparator className="sw-my-4" />

@@ -121,6 +121,9 @@ enum ImpactSeverity {
   LOW = 1;
   MEDIUM = 2;
   HIGH = 3;
+  // INFO and BLOCKER conflicts with Severity enum, so we use different values prefixed with enum name
+  ImpactSeverity_INFO = 4;
+  ImpactSeverity_BLOCKER = 5;
 }
 
 // Lines start at 1 and line offsets start at 0

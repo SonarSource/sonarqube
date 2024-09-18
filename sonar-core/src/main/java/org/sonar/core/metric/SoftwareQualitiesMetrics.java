@@ -26,7 +26,6 @@ import org.sonar.api.measures.Metrics;
 import static org.sonar.api.measures.CoreMetrics.DOMAIN_MAINTAINABILITY;
 import static org.sonar.api.measures.CoreMetrics.DOMAIN_RELIABILITY;
 import static org.sonar.api.measures.CoreMetrics.DOMAIN_SECURITY;
-import static org.sonar.api.measures.CoreMetrics.DOMAIN_SECURITY_REVIEW;
 
 public class SoftwareQualitiesMetrics implements Metrics {
 
@@ -39,7 +38,7 @@ public class SoftwareQualitiesMetrics implements Metrics {
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
       .setBestValue(1.0)
-      .setWorstValue(4.0)
+      .setWorstValue(5.0)
       .create();
 
   public static final String NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY = "new_software_quality_maintainability_rating";
@@ -54,7 +53,7 @@ public class SoftwareQualitiesMetrics implements Metrics {
       .setOptimizedBestValue(true)
       .setQualitative(true)
       .setBestValue(1.0)
-      .setWorstValue(4.0)
+      .setWorstValue(5.0)
       .create();
 
   public static final String SOFTWARE_QUALITY_RELIABILITY_RATING_KEY = "software_quality_reliability_rating";
@@ -66,7 +65,7 @@ public class SoftwareQualitiesMetrics implements Metrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
     .setBestValue(1.0)
-    .setWorstValue(4.0)
+    .setWorstValue(5.0)
     .create();
 
   public static final String NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY = "new_software_quality_reliability_rating";
@@ -81,7 +80,7 @@ public class SoftwareQualitiesMetrics implements Metrics {
     .setOptimizedBestValue(true)
     .setQualitative(true)
     .setBestValue(1.0)
-    .setWorstValue(4.0)
+    .setWorstValue(5.0)
     .create();
 
   public static final String SOFTWARE_QUALITY_SECURITY_RATING_KEY = "software_quality_security_rating";
@@ -93,7 +92,7 @@ public class SoftwareQualitiesMetrics implements Metrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
     .setBestValue(1.0)
-    .setWorstValue(4.0)
+    .setWorstValue(5.0)
     .create();
 
   public static final String NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY = "new_software_quality_security_rating";
@@ -107,35 +106,8 @@ public class SoftwareQualitiesMetrics implements Metrics {
     .setOptimizedBestValue(true)
     .setQualitative(true)
     .setBestValue(1.0)
-    .setWorstValue(4.0)
+    .setWorstValue(5.0)
     .create();
-
-  public static final String SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY = "software_quality_security_review_rating";
-
-  public static final Metric<Integer> SOFTWARE_QUALITY_SECURITY_REVIEW_RATING =
-    new Metric.Builder(SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY, "Software Quality Security Review Rating", Metric.ValueType.RATING)
-      .setDescription("Software quality security review rating")
-      .setDomain(DOMAIN_SECURITY_REVIEW)
-      .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true)
-      .setBestValue(1.0)
-      .setWorstValue(4.0)
-      .create();
-
-  public static final String NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY = "new_software_quality_security_review_rating";
-
-  public static final Metric<Integer> NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING =
-    new Metric.Builder(NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY, "Software Quality Security Review Rating on New Code",
-      Metric.ValueType.RATING)
-      .setDescription("Software quality security review rating on new code")
-      .setDomain(DOMAIN_SECURITY_REVIEW)
-      .setDirection(Metric.DIRECTION_WORST)
-      .setDeleteHistoricalData(true)
-      .setOptimizedBestValue(true)
-      .setQualitative(true)
-      .setBestValue(1.0)
-      .setWorstValue(4.0)
-      .create();
 
   public static final String EFFORT_TO_REACH_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_A_KEY =
     "effort_to_reach_software_quality_maintainability_rating_a";
@@ -271,8 +243,6 @@ public class SoftwareQualitiesMetrics implements Metrics {
       NEW_SOFTWARE_QUALITY_RELIABILITY_RATING,
       SOFTWARE_QUALITY_SECURITY_RATING,
       NEW_SOFTWARE_QUALITY_SECURITY_RATING,
-      SOFTWARE_QUALITY_SECURITY_REVIEW_RATING,
-      NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING,
       EFFORT_TO_REACH_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_A,
       SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT,
       NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT,

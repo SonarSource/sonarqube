@@ -157,7 +157,7 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
   }
 
   private void addSoftwareQualityMaintainabilityRatingMeasure(Component component, double density) {
-    Rating rating = ratingSettings.getDebtRatingGrid().getAToDRatingForDensity(density);
+    Rating rating = ratingSettings.getDebtRatingGrid().getRatingForDensity(density);
     measureRepository.add(component, softwareQualityMaintainabilityRatingMetric, RatingMeasures.get(rating));
   }
 

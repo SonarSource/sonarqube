@@ -45,6 +45,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.common.text.MacroInterpreter;
+import org.sonar.server.issue.ImpactFormatter;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.ws.RulesResponseFormatter.SearchResult;
 import org.sonarqube.ws.Common;
@@ -164,7 +165,7 @@ public class RuleMapper {
   }
 
   private static Common.Impact toImpact(ImpactDto impactDto) {
-    Common.ImpactSeverity severity = Common.ImpactSeverity.valueOf(impactDto.getSeverity().name());
+    Common.ImpactSeverity severity = ImpactFormatter.mapImpactSeverity(impactDto.getSeverity());
     Common.SoftwareQuality softwareQuality = Common.SoftwareQuality.valueOf(impactDto.getSoftwareQuality().name());
     return Common.Impact.newBuilder().setSeverity(severity).setSoftwareQuality(softwareQuality).build();
   }

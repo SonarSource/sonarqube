@@ -96,14 +96,16 @@ public class OneIssuePerLineSensor implements Sensor {
       return null;
     }
     switch (severity) {
-      case CRITICAL:
       case BLOCKER:
+        return org.sonar.api.issue.impact.Severity.BLOCKER;
+      case CRITICAL:
         return org.sonar.api.issue.impact.Severity.HIGH;
       case MAJOR:
         return org.sonar.api.issue.impact.Severity.MEDIUM;
       case MINOR:
-      case INFO:
         return org.sonar.api.issue.impact.Severity.LOW;
+      case INFO:
+        return org.sonar.api.issue.impact.Severity.INFO;
       default:
         return null;
     }

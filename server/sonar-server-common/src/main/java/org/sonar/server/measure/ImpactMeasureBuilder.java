@@ -23,7 +23,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -32,7 +31,8 @@ import org.sonar.api.issue.impact.Severity;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
 /**
- * Builder class to help build measures based on impacts with payload such as @{link {@link org.sonar.api.measures.CoreMetrics#RELIABILITY_ISSUES}}.
+ * Builder class to help build measures based on impacts with payload such as @{link
+ * {@link org.sonar.api.measures.CoreMetrics#RELIABILITY_ISSUES}}.
  */
 public class ImpactMeasureBuilder {
 
@@ -65,9 +65,16 @@ public class ImpactMeasureBuilder {
     return new ImpactMeasureBuilder(map);
   }
 
-  private static void checkImpactMap(Map<String, Long> map) {
-    checkArgument(map.containsKey(TOTAL_KEY), "Map must contain a total key");
-    Arrays.stream(Severity.values()).forEach(severity -> checkArgument(map.containsKey(severity.name()), "Map must contain a key for severity " + severity.name()));
+  /**
+   * As we moved from 3 to 5 severities, we need to be able to handle measures saved with missing severities.
+   */
+  private static void checkImpactMap(Map<String, Long> impactMap) {
+    checkArgument(impactMap.containsKey(TOTAL_KEY), "Map must contain a total key");
+    for (Severity severity : Severity.values()) {
+      if (!impactMap.containsKey(severity.name())) {
+        impactMap.put(severity.name(), 0L);
+      }
+    }
   }
 
   public static ImpactMeasureBuilder fromString(String value) {

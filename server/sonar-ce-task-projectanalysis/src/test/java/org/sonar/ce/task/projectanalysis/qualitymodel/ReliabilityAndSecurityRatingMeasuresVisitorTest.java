@@ -163,7 +163,7 @@ class ReliabilityAndSecurityRatingMeasuresVisitorTest {
       // Should not be taken into account
       newImpactIssue(SoftwareQuality.SECURITY, Severity.HIGH));
 
-    fillComponentIssuesVisitorRule.setIssues(PROJECT_REF, newImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH));
+    fillComponentIssuesVisitorRule.setIssues(PROJECT_REF, newImpactIssue(SoftwareQuality.RELIABILITY, Severity.BLOCKER));
 
     underTest.visit(ROOT_PROJECT);
 
@@ -171,7 +171,7 @@ class ReliabilityAndSecurityRatingMeasuresVisitorTest {
     verifyAddedRawMeasure(FILE_2_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, C);
     verifyAddedRawMeasure(FILE_3_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasure(DIRECTORY_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, C);
-    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, D);
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, E);
   }
 
   @Test
@@ -197,13 +197,13 @@ class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   void compute_software_quality_security_rating() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newImpactIssue(SoftwareQuality.SECURITY, Severity.LOW),
+      newImpactIssue(SoftwareQuality.SECURITY, Severity.INFO),
       // Should not be taken into account
       newImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH));
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
       newImpactIssue(SoftwareQuality.SECURITY, Severity.MEDIUM),
       // Should not be taken into account
-      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH));
+      newImpactIssue(SoftwareQuality.RELIABILITY, Severity.BLOCKER));
     fillComponentIssuesVisitorRule.setIssues(FILE_3_REF,
       // Should not be taken into account
       newImpactIssue(SoftwareQuality.RELIABILITY, Severity.HIGH));
@@ -212,7 +212,7 @@ class ReliabilityAndSecurityRatingMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyAddedRawMeasure(FILE_1_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, B);
+    verifyAddedRawMeasure(FILE_1_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
     verifyAddedRawMeasure(FILE_2_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, C);
     verifyAddedRawMeasure(FILE_3_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
     verifyAddedRawMeasure(DIRECTORY_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, C);
@@ -230,6 +230,19 @@ class ReliabilityAndSecurityRatingMeasuresVisitorTest {
 
     verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, E);
     verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, E);
+  }
+
+  @Test
+  void compute_E_software_quality_reliability_and_security_rating_on_blocker_issue() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newImpactIssue(SoftwareQuality.RELIABILITY, Severity.BLOCKER), newImpactIssue(SoftwareQuality.SECURITY, Severity.BLOCKER),
+      // Should not be taken into account
+      newImpactIssue(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, E);
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, E);
   }
 
   @Test
@@ -321,6 +334,19 @@ class ReliabilityAndSecurityRatingMeasuresVisitorTest {
 
     verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, A);
+  }
+
+  @Test
+  void compute_A_software_quality_reliability_and_security_rating_on_info_issue() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newImpactIssue(SoftwareQuality.RELIABILITY, Severity.INFO), newImpactIssue(SoftwareQuality.SECURITY, Severity.INFO),
+      // Should not be taken into account
+      newImpactIssue(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
   }
 
   @Test

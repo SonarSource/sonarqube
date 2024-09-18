@@ -34,6 +34,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.issue.ImpactFormatter;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonarqube.ws.Common;
@@ -108,7 +109,7 @@ public class PullTaintActionProtobufObjectGenerator implements ProtobufObjectGen
     taintBuilder.addAllImpacts(issueDto.getEffectiveImpacts().entrySet()
       .stream().map(entry -> Common.Impact.newBuilder()
         .setSoftwareQuality(Common.SoftwareQuality.valueOf(entry.getKey().name()))
-        .setSeverity(Common.ImpactSeverity.valueOf(entry.getValue().name()))
+        .setSeverity(ImpactFormatter.mapImpactSeverity(entry.getValue()))
         .build())
       .toList());
 

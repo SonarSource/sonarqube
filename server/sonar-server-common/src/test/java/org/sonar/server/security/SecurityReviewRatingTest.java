@@ -33,7 +33,6 @@ import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
 import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
-import static org.sonar.server.security.SecurityReviewRating.computeAToDRating;
 import static org.sonar.server.security.SecurityReviewRating.computePercent;
 import static org.sonar.server.security.SecurityReviewRating.computeRating;
 
@@ -56,34 +55,10 @@ class SecurityReviewRatingTest {
     return res.toArray(new Object[res.size()][2]);
   }
 
-  private static Object[][] valuesForSoftwareQualityRatings() {
-    List<Object[]> res = new ArrayList<>();
-    res.add(new Object[] {100.0, A});
-    res.add(new Object[] {99.999999, A});
-    res.add(new Object[] {99.99999, B});
-    res.add(new Object[] {99.9, B});
-    res.add(new Object[] {90.0, B});
-    res.add(new Object[] {80.0, B});
-    res.add(new Object[] {75.0, B});
-    res.add(new Object[] {70.0, B});
-    res.add(new Object[] {60, C});
-    res.add(new Object[] {50.0, C});
-    res.add(new Object[] {40.0, D});
-    res.add(new Object[] {30.0, D});
-    res.add(new Object[] {29.9, D});
-    return res.toArray(new Object[res.size()][2]);
-  }
-
   @ParameterizedTest
   @MethodSource("values")
   void compute_rating(double percent, Rating expectedRating) {
     assertThat(computeRating(percent)).isEqualTo(expectedRating);
-  }
-
-  @ParameterizedTest
-  @MethodSource("valuesForSoftwareQualityRatings")
-  void compute_ratingForSoftwareQuality(double percent, Rating expectedRating) {
-    assertThat(computeAToDRating(percent)).isEqualTo(expectedRating);
   }
 
   @Test

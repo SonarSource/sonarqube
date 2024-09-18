@@ -45,9 +45,11 @@ public enum Rating {
     INFO, A);
 
   public static final Map<Severity, Rating> RATING_BY_SOFTWARE_QUALITY_SEVERITY = Map.of(
+    Severity.BLOCKER, Rating.E,
     Severity.HIGH, Rating.D,
     Severity.MEDIUM, Rating.C,
-    Severity.LOW, Rating.B);
+    Severity.LOW, Rating.B,
+    Severity.INFO, Rating.A);
 
   private final int index;
 

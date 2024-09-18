@@ -107,7 +107,7 @@ export const ui = {
   softwareQualityFacet: byRole('button', {
     name: 'issues.facet.impactSoftwareQualities',
   }),
-  severityFacet: byRole('button', { name: 'issues.facet.impactSeverities' }),
+  severityFacet: byRole('button', { name: 'coding_rules.facet.impactSeverities' }),
   prioritizedRuleFacet: byRole('button', { name: 'issues.facet.prioritized_rule.category' }),
 
   clearCodeCategoryFacet: byTestId('clear-issues.facet.cleanCodeAttributeCategories'),
@@ -121,7 +121,7 @@ export const ui = {
   clearResolutionFacet: byTestId('clear-issues.facet.resolutions'),
   clearRuleFacet: byTestId('clear-issues.facet.rules'),
   clearScopeFacet: byTestId('clear-issues.facet.scopes'),
-  clearSeverityFacet: byTestId('clear-issues.facet.impactSeverities'),
+  clearSeverityFacet: byTestId('clear-coding_rules.facet.impactSeverities'),
   clearIssueStatusFacet: byTestId('clear-issues.facet.issueStatuses'),
   clearTagFacet: byTestId('clear-issues.facet.tags'),
   clearPrioritizedRuleFacet: byTestId('clear-issues.facet.prioritized_rule.category'),
@@ -139,7 +139,9 @@ export const ui = {
   confirmedStatusFilter: byRole('checkbox', { name: 'issue.issue_status.CONFIRMED' }),
   fixedResolutionFilter: byRole('checkbox', { name: 'issue.resolution.FIXED' }),
   mainScopeFilter: byRole('checkbox', { name: 'issue.scope.MAIN' }),
-  mediumSeverityFilter: byRole('checkbox', { name: `severity.${SoftwareImpactSeverity.Medium}` }),
+  mediumSeverityFilter: byRole('checkbox', {
+    name: `severity_impact.${SoftwareImpactSeverity.Medium}`,
+  }),
   openStatusFilter: byRole('checkbox', { name: 'issue.issue_status.OPEN' }),
   vulnerabilityIssueTypeFilter: byRole('checkbox', { name: 'issue.type.VULNERABILITY' }),
   prioritizedRuleFilter: byRole('checkbox', { name: 'issues.facet.prioritized_rule' }),

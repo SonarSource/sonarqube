@@ -37,8 +37,6 @@ import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit.FILE;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
-import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY;
-import static org.sonar.server.security.SecurityReviewRating.computeAToDRating;
 import static org.sonar.server.security.SecurityReviewRating.computePercent;
 import static org.sonar.server.security.SecurityReviewRating.computeRating;
 
@@ -47,7 +45,6 @@ public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Secur
   private final ComponentIssuesRepository componentIssuesRepository;
   private final MeasureRepository measureRepository;
   private final Metric securityReviewRatingMetric;
-  private final Metric softwareQualitySecurityReviewRatingMetric;
   private final Metric securityHotspotsReviewedMetric;
   private final Metric securityHotspotsReviewedStatusMetric;
   private final Metric securityHotspotsToReviewStatusMetric;
@@ -57,7 +54,6 @@ public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Secur
     this.componentIssuesRepository = componentIssuesRepository;
     this.measureRepository = measureRepository;
     this.securityReviewRatingMetric = metricRepository.getByKey(SECURITY_REVIEW_RATING_KEY);
-    this.softwareQualitySecurityReviewRatingMetric = metricRepository.getByKey(SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY);
     this.securityHotspotsReviewedMetric = metricRepository.getByKey(SECURITY_HOTSPOTS_REVIEWED_KEY);
     this.securityHotspotsReviewedStatusMetric = metricRepository.getByKey(SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY);
     this.securityHotspotsToReviewStatusMetric = metricRepository.getByKey(SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY);
@@ -88,8 +84,6 @@ public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Secur
     measureRepository.add(component, securityHotspotsToReviewStatusMetric, newMeasureBuilder().create(path.current().getHotspotsToReview()));
     Optional<Double> percent = computePercent(path.current().getHotspotsToReview(), path.current().getHotspotsReviewed());
     measureRepository.add(component, securityReviewRatingMetric, RatingMeasures.get(computeRating(percent.orElse(null))));
-    measureRepository.add(component, softwareQualitySecurityReviewRatingMetric,
-      RatingMeasures.get(computeAToDRating(percent.orElse(null))));
     percent.ifPresent(p -> measureRepository.add(component, securityHotspotsReviewedMetric, newMeasureBuilder().create(p, securityHotspotsReviewedMetric.getDecimalScale())));
 
     if (!path.isRoot()) {

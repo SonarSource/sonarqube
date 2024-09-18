@@ -19,7 +19,9 @@
  */
 import {
   IconProps,
+  SoftwareImpactSeverityBlockerIcon,
   SoftwareImpactSeverityHighIcon,
+  SoftwareImpactSeverityInfoIcon,
   SoftwareImpactSeverityLowIcon,
   SoftwareImpactSeverityMediumIcon,
 } from 'design-system';
@@ -33,10 +35,14 @@ interface Props extends IconProps {
   severity: string | null | undefined;
 }
 
+const defaultIconSize = 14;
+
 const severityIcons: Dict<(props: IconProps) => React.ReactElement> = {
+  [SoftwareImpactSeverity.Blocker]: SoftwareImpactSeverityBlockerIcon,
   [SoftwareImpactSeverity.High]: SoftwareImpactSeverityHighIcon,
   [SoftwareImpactSeverity.Medium]: SoftwareImpactSeverityMediumIcon,
   [SoftwareImpactSeverity.Low]: SoftwareImpactSeverityLowIcon,
+  [SoftwareImpactSeverity.Info]: SoftwareImpactSeverityInfoIcon,
 };
 
 export default function SoftwareImpactSeverityIcon({ severity, ...iconProps }: Readonly<Props>) {
@@ -45,5 +51,12 @@ export default function SoftwareImpactSeverityIcon({ severity, ...iconProps }: R
   }
 
   const DesiredIcon = severityIcons[severity];
-  return <DesiredIcon {...iconProps} aria-label={translate('severity', severity)} />;
+  return (
+    <DesiredIcon
+      {...iconProps}
+      width={iconProps?.width ?? defaultIconSize}
+      height={iconProps?.height ?? defaultIconSize}
+      aria-label={translate('severity_impact', severity)}
+    />
+  );
 }

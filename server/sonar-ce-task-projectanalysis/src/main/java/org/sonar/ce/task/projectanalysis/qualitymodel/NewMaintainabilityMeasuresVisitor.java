@@ -131,7 +131,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
 
     double densityBasedOnSoftwareQuality = computeDensity(path.current().getNewSoftwareQualityDebt(), path.current().getDevCost());
     double newSoftwareQualityDebtRatio = 100.0 * densityBasedOnSoftwareQuality;
-    int newSoftwareQualityMaintainabilityRating = ratingSettings.getDebtRatingGrid().getAToDRatingForDensity(densityBasedOnSoftwareQuality).getIndex();
+    int newSoftwareQualityMaintainabilityRating = ratingSettings.getDebtRatingGrid().getRatingForDensity(densityBasedOnSoftwareQuality).getIndex();
     measureRepository.add(component, this.newSoftwareQualityMaintainabilityDebtRatioMetric, newMeasureBuilder().create(newSoftwareQualityDebtRatio));
     measureRepository.add(component, this.newSoftwareQualityMaintainabilityRatingMetric, newMeasureBuilder().create(newSoftwareQualityMaintainabilityRating));
   }

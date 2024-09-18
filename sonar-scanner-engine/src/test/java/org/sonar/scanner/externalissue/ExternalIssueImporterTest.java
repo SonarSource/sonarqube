@@ -46,6 +46,7 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
 import static org.sonar.api.issue.impact.Severity.HIGH;
 import static org.sonar.api.issue.impact.Severity.LOW;
 import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
@@ -109,7 +110,7 @@ public class ExternalIssueImporterTest {
     ExternalIssue output = context.allExternalIssues().iterator().next();
     assertThat(output.engineId()).isEqualTo(RULE_ENGINE_ID);
     assertThat(output.ruleId()).isEqualTo(RULE_ID);
-    assertThat(output.severity()).isEqualTo(Severity.CRITICAL); //backmapped
+    assertThat(output.severity()).isEqualTo(Severity.BLOCKER); // backmapped
     assertThat(output.type()).isEqualTo(RuleType.VULNERABILITY); //backmapped
     assertThat(output.remediationEffort()).isNull();
     assertThat(logs.logs(Level.INFO)).contains("Imported 1 issue in 1 file");
@@ -119,10 +120,10 @@ public class ExternalIssueImporterTest {
     assertThat(output1.ruleId()).isEqualTo(RULE_ID);
     assertThat(output1.name()).isEqualTo(RULE_NAME);
     assertThat(output1.engineId()).isEqualTo(RULE_ENGINE_ID);
-    assertThat(output1.severity()).isEqualTo(Severity.CRITICAL); //backmapped
+    assertThat(output1.severity()).isEqualTo(Severity.BLOCKER); // backmapped
     assertThat(output1.type()).isEqualTo(RuleType.VULNERABILITY); //backmapped
     assertThat(output1.cleanCodeAttribute()).isEqualTo(RULE_ATTRIBUTE);
-    assertThat(output1.defaultImpacts()).containsExactlyInAnyOrderEntriesOf(Map.of(SECURITY, HIGH, MAINTAINABILITY, LOW));
+    assertThat(output1.defaultImpacts()).containsExactlyInAnyOrderEntriesOf(Map.of(SECURITY, BLOCKER, MAINTAINABILITY, LOW));
   }
 
   @Test
@@ -333,7 +334,7 @@ public class ExternalIssueImporterTest {
 
 
   private static ExternalIssueReport.Rule createRule() {
-    return createRule(RULE_ATTRIBUTE.name(), SECURITY.name(), HIGH.name());
+    return createRule(RULE_ATTRIBUTE.name(), SECURITY.name(), BLOCKER.name());
   }
 
   private static ExternalIssueReport.Rule createRule(String cleanCodeAttribute, String softwareQuality, String impactSeverity) {

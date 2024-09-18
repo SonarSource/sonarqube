@@ -99,11 +99,9 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY;
-import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY;
-import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_003;
@@ -138,7 +136,7 @@ public class SearchProjectsActionIT {
   @DataProvider
   public static Object[][] software_quality_rating_metric_keys() {
     return new Object[][]{{SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY}, {SOFTWARE_QUALITY_RELIABILITY_RATING_KEY},
-      {SOFTWARE_QUALITY_SECURITY_RATING_KEY}, {SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY}};
+      {SOFTWARE_QUALITY_SECURITY_RATING_KEY}};
   }
 
   @DataProvider
@@ -157,7 +155,7 @@ public class SearchProjectsActionIT {
   @DataProvider
   public static Object[][] new_software_quality_rating_metric_keys() {
     return new Object[][]{{NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY}, {NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY},
-      {NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY}, {NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY}};
+      {NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY}};
   }
 
   @DataProvider
@@ -248,11 +246,9 @@ public class SearchProjectsActionIT {
       "new_software_quality_maintainability_rating",
       "new_software_quality_reliability_rating",
       "new_software_quality_security_rating",
-      "new_software_quality_security_review_rating",
       "software_quality_maintainability_rating",
       "software_quality_reliability_rating",
-      "software_quality_security_rating",
-      "software_quality_security_review_rating");
+      "software_quality_security_rating");
 
     Param asc = def.param("asc");
     assertThat(asc.defaultValue()).isEqualTo("true");
@@ -272,11 +268,9 @@ public class SearchProjectsActionIT {
       "new_software_quality_maintainability_rating",
       "new_software_quality_reliability_rating",
       "new_software_quality_security_rating",
-      "new_software_quality_security_review_rating",
       "software_quality_maintainability_rating",
       "software_quality_reliability_rating",
-      "software_quality_security_rating",
-      "software_quality_security_review_rating");
+      "software_quality_security_rating");
   }
 
   @Test
@@ -1005,6 +999,8 @@ public class SearchProjectsActionIT {
     insertProject(new Measure(ratingMetric, c -> c.setValue(1d)));
     insertProject(new Measure(ratingMetric, c -> c.setValue(1d)));
     insertProject(new Measure(ratingMetric, c -> c.setValue(3d)));
+    insertProject(new Measure(ratingMetric, c -> c.setValue(5d)));
+    insertProject(new Measure(ratingMetric, c -> c.setValue(5d)));
     index();
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(ratingMetricKey)));
@@ -1018,7 +1014,8 @@ public class SearchProjectsActionIT {
         tuple("1", 2L),
         tuple("2", 0L),
         tuple("3", 1L),
-        tuple("4", 0L));
+        tuple("4", 0L),
+        tuple("5", 2L));
   }
 
   @Test
@@ -1068,7 +1065,8 @@ public class SearchProjectsActionIT {
         tuple("1", 2L),
         tuple("2", 0L),
         tuple("3", 1L),
-        tuple("4", 0L));
+        tuple("4", 0L),
+        tuple("5", 0L));
   }
 
   @Test

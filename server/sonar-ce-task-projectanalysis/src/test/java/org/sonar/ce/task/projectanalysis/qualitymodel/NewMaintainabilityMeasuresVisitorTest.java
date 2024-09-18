@@ -358,7 +358,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
 
   @ParameterizedTest
   @MethodSource("metrics")
-  void compute_new_maintainability_rating_map_to_D(String remediationEffortKey, String debtRatioKey, String ratingKey) {
+  void compute_new_maintainability_rating_map_to_E(String remediationEffortKey, String debtRatioKey, String ratingKey) {
     ReportComponent file = builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build();
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
@@ -375,12 +375,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
     setNewLines(file, 3, 4);
 
     underTest.visit(treeRootHolder.getRoot());
-
-    if (ratingKey.equals(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY)) {
-      assertNewRating(ratingKey, LANGUAGE_1_FILE_REF, D);
-    } else if (ratingKey.equals(NEW_MAINTAINABILITY_RATING_KEY)) {
-      assertNewRating(ratingKey, LANGUAGE_1_FILE_REF, E);
-    }
+    assertNewRating(ratingKey, LANGUAGE_1_FILE_REF, E);
   }
 
   @Test

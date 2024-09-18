@@ -126,6 +126,7 @@ import static org.sonar.ce.task.projectanalysis.issue.IssueCounter.IMPACT_TO_MET
 import static org.sonar.ce.task.projectanalysis.issue.IssueCounter.IMPACT_TO_NEW_METRIC_KEY;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
+import static org.sonar.test.JsonAssert.assertJson;
 
 class IssueCounterTest {
 
@@ -316,9 +317,11 @@ class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertIntValue(FILE1, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertIntValue(FILE1, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0),
+      entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_CODE_SMELLS_KEY, 1), entry(NEW_BUGS_KEY, 1), entry(NEW_VULNERABILITIES_KEY, 0), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
-    assertIntValue(PROJECT, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertIntValue(PROJECT, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0),
+      entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_CODE_SMELLS_KEY, 1), entry(NEW_BUGS_KEY, 1), entry(NEW_VULNERABILITIES_KEY, 0), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
   }
 
@@ -350,14 +353,14 @@ class IssueCounterTest {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
 
     underTest.beforeComponent(FILE1);
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY,  HIGH));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, HIGH));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, MEDIUM));
 
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, HIGH));
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, SoftwareQuality.MAINTAINABILITY, HIGH));
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, MEDIUM));
 
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY,  HIGH));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, HIGH));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, MEDIUM));
 
     underTest.onIssue(FILE1, createNewSecurityHotspot());
@@ -368,9 +371,9 @@ class IssueCounterTest {
 
     Set<Map.Entry<String, Measure>> entries = measureRepository.getRawMeasures(FILE1).entrySet();
 
-    assertOverallSoftwareQualityMeasures(SoftwareQuality.MAINTAINABILITY, getImpactMeasure(4, 2, 2, 0), entries);
-    assertOverallSoftwareQualityMeasures(SoftwareQuality.SECURITY, getImpactMeasure(2, 1, 1, 0), entries);
-    assertOverallSoftwareQualityMeasures(SoftwareQuality.RELIABILITY, getImpactMeasure(0, 0, 0, 0), entries);
+    assertOverallSoftwareQualityMeasures(SoftwareQuality.MAINTAINABILITY, getImpactMeasure(4, 2, 2, 0, 0, 0), entries);
+    assertOverallSoftwareQualityMeasures(SoftwareQuality.SECURITY, getImpactMeasure(2, 1, 1, 0, 0, 0), entries);
+    assertOverallSoftwareQualityMeasures(SoftwareQuality.RELIABILITY, getImpactMeasure(0, 0, 0, 0, 0, 0), entries);
   }
 
   @Test
@@ -378,17 +381,17 @@ class IssueCounterTest {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
 
     underTest.beforeComponent(FILE1);
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY,  HIGH));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, HIGH));
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, HIGH));
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, SoftwareQuality.MAINTAINABILITY, HIGH));
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, MEDIUM));
 
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.RELIABILITY,  HIGH));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.RELIABILITY, HIGH));
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.RELIABILITY, LOW));
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, SoftwareQuality.RELIABILITY, HIGH));
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.RELIABILITY, MEDIUM));
 
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY,  MEDIUM));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, MEDIUM));
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, LOW));
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, HIGH));
     underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, HIGH));
@@ -402,9 +405,9 @@ class IssueCounterTest {
 
     Set<Map.Entry<String, Measure>> entries = measureRepository.getRawMeasures(FILE1).entrySet();
 
-    assertNewSoftwareQualityMeasures(SoftwareQuality.MAINTAINABILITY, getImpactMeasure(2, 1, 1, 0), entries);
-    assertNewSoftwareQualityMeasures(SoftwareQuality.RELIABILITY, getImpactMeasure(2, 0, 1, 1), entries);
-    assertNewSoftwareQualityMeasures(SoftwareQuality.SECURITY, getImpactMeasure(4, 2, 1, 1), entries);
+    assertNewSoftwareQualityMeasures(SoftwareQuality.MAINTAINABILITY, getImpactMeasure(2, 1, 1, 0, 0, 0), entries);
+    assertNewSoftwareQualityMeasures(SoftwareQuality.RELIABILITY, getImpactMeasure(2, 0, 1, 1, 0, 0), entries);
+    assertNewSoftwareQualityMeasures(SoftwareQuality.SECURITY, getImpactMeasure(4, 2, 1, 1, 0, 0), entries);
   }
 
   private static Map<String, Long> getImpactMeasure(long total, long high, long medium, long low) {
@@ -413,6 +416,13 @@ class IssueCounterTest {
     map.put(MEDIUM.name(), medium);
     map.put(HIGH.name(), high);
     map.put(ImpactMeasureBuilder.TOTAL_KEY, total);
+    return map;
+  }
+
+  private static Map<String, Long> getImpactMeasure(long total, long high, long medium, long low, long info, long blocker) {
+    Map<String, Long> map = getImpactMeasure(total, high, medium, low);
+    map.put(Severity.INFO.name(), info);
+    map.put(Severity.BLOCKER.name(), blocker);
     return map;
   }
 
@@ -434,7 +444,7 @@ class IssueCounterTest {
       .findFirst()
       .get();
 
-    assertThat(softwareQualityMap.getValue().getData()).isEqualTo(new Gson().toJson(expectedMap));
+    assertJson(softwareQualityMap.getValue().getData()).isSimilarTo(new Gson().toJson(expectedMap));
   }
 
   @Test
@@ -513,9 +523,11 @@ class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertIntValue(FILE1, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertIntValue(FILE1, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0),
+      entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_VULNERABILITIES_KEY, 0));
-    assertIntValue(PROJECT, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertIntValue(PROJECT, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0),
+      entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_VULNERABILITIES_KEY, 0));
   }
 
@@ -546,7 +558,8 @@ class IssueCounterTest {
     return createNewIssue(resolution, status, SoftwareQuality.MAINTAINABILITY, impactSeverity);
   }
 
-  private DefaultIssue createNewIssue(@Nullable String resolution, String status, SoftwareQuality softwareQuality, Severity impactSeverity) {
+  private DefaultIssue createNewIssue(@Nullable String resolution, String status, SoftwareQuality softwareQuality,
+    Severity impactSeverity) {
     DefaultIssue issue = createNewIssue(resolution, status, MAJOR, CODE_SMELL);
     issue.addImpact(softwareQuality, impactSeverity);
     return issue;
@@ -566,7 +579,8 @@ class IssueCounterTest {
     return createIssue(resolution, status, SoftwareQuality.MAINTAINABILITY, impactSeverity);
   }
 
-  private static DefaultIssue createIssue(@Nullable String resolution, String status, SoftwareQuality softwareQuality, Severity impactSeverity) {
+  private static DefaultIssue createIssue(@Nullable String resolution, String status, SoftwareQuality softwareQuality,
+    Severity impactSeverity) {
     DefaultIssue issue = createIssue(resolution, status, MAJOR, CODE_SMELL);
     issue.addImpact(softwareQuality, impactSeverity);
     return issue;

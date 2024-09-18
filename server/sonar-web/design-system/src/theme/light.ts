@@ -341,10 +341,14 @@ export const lightTheme = {
     badgeCounterFailedBorder: COLORS.red[200],
 
     // pills
+    pillCritical: COLORS.red[100],
+    pillCriticalBorder: COLORS.red[800],
     pillDanger: COLORS.red[50],
-    pillDangerBorder: COLORS.red[300],
-    pillWarning: COLORS.yellow[50],
-    pillWarningBorder: COLORS.yellow[300],
+    pillDangerBorder: COLORS.red[600],
+    pillWarning: COLORS.orange[50],
+    pillWarningBorder: COLORS.orange[300],
+    pillCaution: COLORS.yellow[50],
+    pillCautionBorder: COLORS.yellow[300],
     pillInfo: COLORS.blue[50],
     pillInfoBorder: COLORS.blue[300],
     pillAccent: COLORS.indigo[50],
@@ -401,9 +405,11 @@ export const lightTheme = {
     destructiveIconFocus: danger.default,
 
     // icons
-    iconSoftwareImpactSeverityHigh: COLORS.red[500],
-    iconSoftwareImpactSeverityMedium: COLORS.yellow[700],
-    iconSoftwareImpactSeverityLow: COLORS.blue[700],
+    iconSoftwareImpactSeverityBlocker: COLORS.red[800],
+    iconSoftwareImpactSeverityHigh: COLORS.red[600],
+    iconSoftwareImpactSeverityMedium: COLORS.orange[400],
+    iconSoftwareImpactSeverityLow: COLORS.yellow[500],
+    iconSoftwareImpactSeverityInfo: COLORS.blue[600],
     iconSoftwareImpactSeverityDisabled: COLORS.blueGrey[300],
     iconSeverityMajor: danger.light,
     iconSeverityMinor: COLORS.yellowGreen[400],
@@ -467,17 +473,10 @@ export const lightTheme = {
     sizeIndicator: COLORS.blue[500],
 
     // rating colors
-    'rating.legacy.A': COLORS.green[200],
-    'rating.legacy.B': COLORS.yellowGreen[200],
-    'rating.legacy.C': COLORS.yellow[200],
-    'rating.legacy.D': COLORS.orange[200],
-    'rating.legacy.E': COLORS.red[200],
-
-    // rating colors
     'rating.A': COLORS.green[200],
     'rating.B': COLORS.yellowGreen[200],
     'rating.C': COLORS.yellow[200],
-    'rating.D': COLORS.red[200],
+    'rating.D': COLORS.orange[200],
     'rating.E': COLORS.red[200],
 
     'portfolio.rating.A.text': COLORS.green[900],
@@ -489,34 +488,15 @@ export const lightTheme = {
     'portfolio.rating.C.text': COLORS.yellow[900],
     'portfolio.rating.C.background': COLORS.yellow[100],
     'portfolio.rating.C.border': COLORS.yellow[500],
-    'portfolio.rating.D.text': COLORS.red[900],
-    'portfolio.rating.D.background': COLORS.red[100],
-    'portfolio.rating.D.border': COLORS.red[400],
+    'portfolio.rating.D.text': COLORS.orange[900],
+    'portfolio.rating.D.background': COLORS.orange[100],
+    'portfolio.rating.D.border': COLORS.orange[300],
     'portfolio.rating.E.text': COLORS.red[900],
     'portfolio.rating.E.background': COLORS.red[100],
     'portfolio.rating.E.border': COLORS.red[400],
     'portfolio.rating.NONE.text': COLORS.blueGrey[300],
     'portfolio.rating.NONE.background': COLORS.blueGrey[50],
     'portfolio.rating.NONE.border': COLORS.blueGrey[200],
-
-    'portfolio.rating.legacy.A.text': COLORS.green[900],
-    'portfolio.rating.legacy.A.background': COLORS.green[100],
-    'portfolio.rating.legacy.A.border': COLORS.green[400],
-    'portfolio.rating.legacy.B.text': COLORS.yellowGreen[900],
-    'portfolio.rating.legacy.B.background': COLORS.yellowGreen[100],
-    'portfolio.rating.legacy.B.border': COLORS.yellowGreen[400],
-    'portfolio.rating.legacy.C.text': COLORS.yellow[900],
-    'portfolio.rating.legacy.C.background': COLORS.yellow[100],
-    'portfolio.rating.legacy.C.border': COLORS.yellow[500],
-    'portfolio.rating.legacy.D.text': COLORS.orange[900],
-    'portfolio.rating.legacy.D.background': COLORS.orange[100],
-    'portfolio.rating.legacy.D.border': COLORS.orange[300],
-    'portfolio.rating.legacy.E.text': COLORS.red[900],
-    'portfolio.rating.legacy.E.background': COLORS.red[100],
-    'portfolio.rating.legacy.E.border': COLORS.red[400],
-    'portfolio.rating.legacy.NONE.text': COLORS.blueGrey[300],
-    'portfolio.rating.legacy.NONE.background': COLORS.blueGrey[50],
-    'portfolio.rating.legacy.NONE.border': COLORS.blueGrey[200],
 
     // rating donut outside circle indicators
     'ratingDonut.A': COLORS.green[400],
@@ -676,29 +656,18 @@ export const lightTheme = {
     // bubble charts
     bubbleChartLine: COLORS.grey[50],
     bubbleDefault: [...COLORS.blue[500], 0.3],
-    'bubble.legacy.1': [...COLORS.green[500], 0.3],
-    'bubble.legacy.2': [...COLORS.yellowGreen[500], 0.3],
-    'bubble.legacy.3': [...COLORS.yellow[500], 0.3],
-    'bubble.legacy.4': [...COLORS.orange[500], 0.3],
-    'bubble.legacy.5': [...COLORS.red[500], 0.3],
 
     'bubble.1': [...COLORS.green[500], 0.3],
     'bubble.2': [...COLORS.yellowGreen[500], 0.3],
     'bubble.3': [...COLORS.yellow[500], 0.3],
-    'bubble.4': [...COLORS.red[500], 0.3],
+    'bubble.4': [...COLORS.orange[500], 0.3],
     'bubble.5': [...COLORS.red[500], 0.3],
 
     // TreeMap Colors
-    'treeMap.legacy.A': COLORS.green[500],
-    'treeMap.legacy.B': COLORS.yellowGreen[500],
-    'treeMap.legacy.C': COLORS.yellow[500],
-    'treeMap.legacy.D': COLORS.orange[500],
-    'treeMap.legacy.E': COLORS.red[500],
-
     'treeMap.A': COLORS.green[500],
     'treeMap.B': COLORS.yellowGreen[500],
     'treeMap.C': COLORS.yellow[500],
-    'treeMap.D': COLORS.red[500],
+    'treeMap.D': COLORS.orange[500],
     'treeMap.E': COLORS.red[500],
 
     'treeMap.NA1': COLORS.blueGrey[300],
@@ -843,12 +812,11 @@ export const lightTheme = {
     badgeCounterFailed: danger.dark,
 
     // pills
-    pillDanger: COLORS.red[800],
-    pillDangerIcon: COLORS.red[700],
-    pillWarning: COLORS.yellow[800],
-    pillWarningIcon: COLORS.yellow[700],
+    pillCritical: COLORS.red[800],
+    pillDanger: COLORS.red[700],
+    pillWarning: COLORS.orange[800],
+    pillCaution: COLORS.yellow[800],
     pillInfo: COLORS.blue[800],
-    pillInfoIcon: COLORS.blue[700],
     pillAccent: COLORS.indigo[500],
 
     // project cards
@@ -945,12 +913,6 @@ export const lightTheme = {
     // page
     pageBlock: secondary.darker,
 
-    // overview software impact breakdown
-    overviewSoftwareImpactSeverityNeutral: COLORS.blueGrey[500],
-    overviewSoftwareImpactSeverityHigh: COLORS.red[700],
-    overviewSoftwareImpactSeverityMedium: COLORS.yellow[800],
-    overviewSoftwareImpactSeverityLow: COLORS.blue[800],
-
     // graph - chart
     graphZoomHandleColor: COLORS.white,
 
@@ -967,16 +929,11 @@ export const lightTheme = {
 
     // bubble charts
     bubbleDefault: COLORS.blue[500],
-    'bubble.legacy.1': COLORS.green[500],
-    'bubble.legacy.2': COLORS.yellowGreen[500],
-    'bubble.legacy.3': COLORS.yellow[500],
-    'bubble.legacy.4': COLORS.orange[500],
-    'bubble.legacy.5': COLORS.red[500],
 
     'bubble.1': COLORS.green[500],
     'bubble.2': COLORS.yellowGreen[500],
     'bubble.3': COLORS.yellow[500],
-    'bubble.4': COLORS.red[500],
+    'bubble.4': COLORS.orange[500],
     'bubble.5': COLORS.red[500],
 
     // news bar

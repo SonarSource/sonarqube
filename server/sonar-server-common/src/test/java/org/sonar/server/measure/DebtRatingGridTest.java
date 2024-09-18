@@ -55,21 +55,6 @@ public class DebtRatingGridTest {
   }
 
   @Test
-  public void getAToDRatingForDensity_returnsValueBetweenAAndD() {
-    assertThat(ratingGrid.getAToDRatingForDensity(0)).isEqualTo(A);
-    assertThat(ratingGrid.getAToDRatingForDensity(0.05)).isEqualTo(A);
-    assertThat(ratingGrid.getAToDRatingForDensity(0.09999999)).isEqualTo(A);
-    assertThat(ratingGrid.getAToDRatingForDensity(0.1)).isEqualTo(A);
-    assertThat(ratingGrid.getAToDRatingForDensity(0.15)).isEqualTo(B);
-    assertThat(ratingGrid.getAToDRatingForDensity(0.2)).isEqualTo(B);
-    assertThat(ratingGrid.getAToDRatingForDensity(0.25)).isEqualTo(C);
-    assertThat(ratingGrid.getAToDRatingForDensity(0.5)).isEqualTo(C);
-    assertThat(ratingGrid.getAToDRatingForDensity(0.65)).isEqualTo(D);
-    assertThat(ratingGrid.getAToDRatingForDensity(1)).isEqualTo(D);
-    assertThat(ratingGrid.getAToDRatingForDensity(1.01)).isEqualTo(D);
-  }
-
-  @Test
   public void density_matching_exact_grid_values() {
     assertThat(ratingGrid.getRatingForDensity(0.1)).isEqualTo(A);
     assertThat(ratingGrid.getRatingForDensity(0.2)).isEqualTo(B);

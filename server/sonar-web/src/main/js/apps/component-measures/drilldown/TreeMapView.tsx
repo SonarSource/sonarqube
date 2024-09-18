@@ -46,7 +46,6 @@ import EmptyResult from './EmptyResult';
 interface TreeMapViewProps {
   components: ComponentMeasureEnhanced[];
   handleSelect: (component: ComponentMeasureIntern) => void;
-  isLegacyMode: boolean;
   metric: Metric;
 }
 
@@ -57,8 +56,7 @@ interface State {
 }
 
 const PERCENT_SCALE_DOMAIN = [0, 25, 50, 75, 100];
-const RATING_SCALE_DOMAIN = [1, 2, 3, 4];
-const LEGACY_RATING_SCALE_DOMAIN = [1, 2, 3, 4, 5];
+const RATING_SCALE_DOMAIN = [1, 2, 3, 4, 5];
 
 const HEIGHT = 500;
 const NA_COLORS: [ThemeColors, ThemeColors] = ['treeMap.NA1', 'treeMap.NA2'];
@@ -68,13 +66,6 @@ const TREEMAP_COLORS: ThemeColors[] = [
   'treeMap.C',
   'treeMap.D',
   'treeMap.E',
-];
-const TREEMAP_LEGACY_COLORS: ThemeColors[] = [
-  'treeMap.legacy.A',
-  'treeMap.legacy.B',
-  'treeMap.legacy.C',
-  'treeMap.legacy.D',
-  'treeMap.legacy.E',
 ];
 
 export class TreeMapView extends React.PureComponent<Props, State> {
@@ -149,10 +140,8 @@ export class TreeMapView extends React.PureComponent<Props, State> {
   };
 
   getMappedThemeColors = (): string[] => {
-    const { theme, isLegacyMode } = this.props;
-    return (isLegacyMode ? TREEMAP_LEGACY_COLORS : TREEMAP_COLORS).map((c) =>
-      themeColor(c)({ theme }),
-    );
+    const { theme } = this.props;
+    return TREEMAP_COLORS.map((c) => themeColor(c)({ theme }));
   };
 
   getLevelColorScale = () =>
@@ -171,9 +160,8 @@ export class TreeMapView extends React.PureComponent<Props, State> {
   };
 
   getRatingColorScale = () => {
-    const { isLegacyMode } = this.props;
     return scaleLinear<string, string>()
-      .domain(isLegacyMode ? LEGACY_RATING_SCALE_DOMAIN : RATING_SCALE_DOMAIN)
+      .domain(RATING_SCALE_DOMAIN)
       .range(this.getMappedThemeColors());
   };
 

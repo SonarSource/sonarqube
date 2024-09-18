@@ -59,8 +59,6 @@ import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
 import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
-import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REVIEW_RATING;
-import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY;
 
 class SecurityReviewMeasuresVisitorTest {
 
@@ -87,7 +85,6 @@ class SecurityReviewMeasuresVisitorTest {
   @RegisterExtension
   private final MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(SECURITY_REVIEW_RATING)
-    .add(SOFTWARE_QUALITY_SECURITY_REVIEW_RATING)
     .add(SECURITY_HOTSPOTS_REVIEWED)
     .add(SECURITY_HOTSPOTS_REVIEWED_STATUS)
     .add(SECURITY_HOTSPOTS_TO_REVIEW_STATUS);
@@ -115,11 +112,11 @@ class SecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, A, A, 100.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, A, A, 100.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, A, 100.0);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, A, 100.0);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, A, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, 100.0);
   }
 
   @Test
@@ -141,11 +138,11 @@ class SecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, A, A, 100.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, A, B, 80.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, B, 87.5);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, B, 87.5);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, A, B, 87.5);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, A, 80.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, 87.5);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, 87.5);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, 87.5);
   }
 
   @Test
@@ -167,11 +164,11 @@ class SecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, A, A, 100.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, B, B, 71.4);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, B, B, 75.0);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, B, B, 75.0);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, B, B, 75.0);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, B, 71.4);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, B, 75.0);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, B, 75.0);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, B, 75.0);
   }
 
   @Test
@@ -192,11 +189,11 @@ class SecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, C, C,50.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, C, C,60.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, C,C, 57.1);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, C, C,57.1);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, C, C,57.1);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, C, 50.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, C, 60.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, C, 57.1);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, C, 57.1);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, C, 57.1);
   }
 
   @Test
@@ -218,11 +215,11 @@ class SecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, D, D,33.3);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, D, D,40.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, D,D, 37.5);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, D, D,37.5);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, D, D,37.5);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, D, 33.3);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, D, 40.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, D, 37.5);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, D, 37.5);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, D, 37.5);
   }
 
   @Test
@@ -242,11 +239,11 @@ class SecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, D, D,33.3);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, E, D,0.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, E,D, 16.7);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, E, D,16.7);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, E, D,16.7);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, D, 33.3);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, E, 0.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, E, 16.7);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, E, 16.7);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, E, 16.7);
   }
 
   @Test
@@ -255,7 +252,7 @@ class SecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(PROJECT_REF, A, A,null);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, null);
   }
 
   @Test
@@ -292,9 +289,8 @@ class SecurityReviewMeasuresVisitorTest {
     verifyHotspotStatusMeasures(PROJECT_REF, 0, 0);
   }
 
-  private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating, Rating expectedSoftwareQualityReviewRating,
-    @Nullable Double expectedHotspotsReviewed) {
-    verifySecurityReviewRating(componentRef, expectedReviewRating, expectedSoftwareQualityReviewRating);
+  private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating, @Nullable Double expectedHotspotsReviewed) {
+    verifySecurityReviewRating(componentRef, expectedReviewRating);
     if (expectedHotspotsReviewed != null) {
       verifySecurityHotspotsReviewed(componentRef, expectedHotspotsReviewed);
     } else {
@@ -302,13 +298,10 @@ class SecurityReviewMeasuresVisitorTest {
     }
   }
 
-  private void verifySecurityReviewRating(int componentRef, Rating rating, Rating softwareQualityRating) {
+  private void verifySecurityReviewRating(int componentRef, Rating rating) {
     Measure measure = measureRepository.getAddedRawMeasure(componentRef, SECURITY_REVIEW_RATING_KEY).get();
-    Measure softwareQualityMeasure = measureRepository.getAddedRawMeasure(componentRef, SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY).get();
     assertThat(measure.getIntValue()).isEqualTo(rating.getIndex());
     assertThat(measure.getData()).isEqualTo(rating.name());
-    assertThat(softwareQualityMeasure.getIntValue()).isEqualTo(softwareQualityRating.getIndex());
-    assertThat(softwareQualityMeasure.getData()).isEqualTo(softwareQualityRating.name());
   }
 
   private void verifySecurityHotspotsReviewed(int componentRef, double percent) {

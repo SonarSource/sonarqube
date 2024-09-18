@@ -26,7 +26,7 @@ import org.sonar.server.measure.Rating;
 
 /**
  * This class defines "default" measures values for the "Software Quality Rating Metrics" when they do not exist.
- * The "default" value is the same as the equivalent "Rule Type Rating Metric", except for E Rating that is converted to D Rating
+ * The "default" value is the same as the equivalent "Rule Type Rating Metric"
   * If the "Software Quality Rating Metrics" exists, then no changes are made
  */
 public class ProjectMeasuresSoftwareQualityRatingsInitializer {
@@ -35,9 +35,7 @@ public class ProjectMeasuresSoftwareQualityRatingsInitializer {
     CoreMetrics.SQALE_RATING_KEY, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY,
     CoreMetrics.RELIABILITY_RATING_KEY, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY,
     CoreMetrics.SECURITY_RATING_KEY, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY,
-    CoreMetrics.SECURITY_REVIEW_RATING_KEY, SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY,
     CoreMetrics.NEW_SECURITY_RATING_KEY, SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY,
-    CoreMetrics.NEW_SECURITY_REVIEW_RATING_KEY, SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY,
     CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY, SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY,
     CoreMetrics.NEW_RELIABILITY_RATING_KEY, SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY
   );
@@ -59,7 +57,7 @@ public class ProjectMeasuresSoftwareQualityRatingsInitializer {
 
     Double value = measures.get(ruleTypeMetric);
     if (value != null) {
-      measures.put(softwareQualityMetric, value > Rating.D.getIndex() ? Double.valueOf(Rating.D.getIndex()) : value);
+      measures.put(softwareQualityMetric, value);
     }
   }
 }

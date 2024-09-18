@@ -34,9 +34,11 @@ interface SoftwareImpactPillListProps extends React.HTMLAttributes<HTMLUListElem
 }
 
 const severityMap = {
-  [SoftwareImpactSeverity.High]: 2,
-  [SoftwareImpactSeverity.Medium]: 1,
-  [SoftwareImpactSeverity.Low]: 0,
+  [SoftwareImpactSeverity.Blocker]: 4,
+  [SoftwareImpactSeverity.High]: 3,
+  [SoftwareImpactSeverity.Medium]: 2,
+  [SoftwareImpactSeverity.Low]: 1,
+  [SoftwareImpactSeverity.Info]: 0,
 };
 
 export default function SoftwareImpactPillList({

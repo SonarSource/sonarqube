@@ -52,14 +52,14 @@ it('renders correctly', async () => {
     `issue.clean_code_attribute_category.${issue.cleanCodeAttributeCategory}`,
   ).get();
   expect(cctBadge).toBeInTheDocument();
-  await expect(cctBadge).toHaveATooltipWithContent(
+  await expect(cctBadge).toHaveAPopoverWithContent(
     `issue.clean_code_attribute.${issue.cleanCodeAttribute}`,
   );
 
   // Software Qualities
   const qualityBadge = byText(`software_quality.${issue.impacts[0].softwareQuality}`).get();
   expect(qualityBadge).toBeInTheDocument();
-  await expect(qualityBadge).toHaveATooltipWithContent('software_quality');
+  await expect(qualityBadge).toHaveAPopoverWithContent('software_quality');
 
   // Deprecated type
   const type = byText(`issue.type.${issue.type}`).get();

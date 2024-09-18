@@ -68,8 +68,6 @@ import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
 import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
-import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING;
-import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY;
 
 class NewSecurityReviewMeasuresVisitorTest {
   private static final Offset<Double> VALUE_COMPARISON_OFFSET = Offset.offset(0.01);
@@ -98,7 +96,6 @@ class NewSecurityReviewMeasuresVisitorTest {
   @RegisterExtension
   private final MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(NEW_SECURITY_REVIEW_RATING)
-    .add(NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING)
     .add(NEW_SECURITY_HOTSPOTS_REVIEWED)
     .add(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS)
     .add(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS);
@@ -134,11 +131,11 @@ class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, A, A, 100.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, A, A, 100.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, A, 100.0);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, A, 100.0);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, A, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, 100.0);
   }
 
   @Test
@@ -163,11 +160,11 @@ class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, A, A, 100.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, A, B, 80.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, B, 87.5);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, B, 87.5);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, A, B, 87.5);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, A, 80.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, 87.5);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, 87.5);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, 87.5);
   }
 
   @Test
@@ -192,11 +189,11 @@ class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, A, A, 100.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, B, B, 71.42);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, B, B, 75.0);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, B, B, 75.0);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, B, B, 75.0);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, B, 71.42);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, B, 75.0);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, B, 75.0);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, B, 75.0);
   }
 
   @Test
@@ -220,11 +217,11 @@ class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, C, C, 50.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, C, C, 60.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, C, C, 57.14);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, C, C, 57.14);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, C, C, 57.14);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, C, 50.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, C, 60.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, C, 57.14);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, C, 57.14);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, C, 57.14);
   }
 
   @Test
@@ -249,11 +246,11 @@ class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, D, D, 33.33);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, D, D, 40.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, D, D, 37.5);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, D, D, 37.5);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, D, D, 37.5);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, D, 33.33);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, D, 40.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, D, 37.5);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, D, 37.5);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, D, 37.5);
   }
 
   @Test
@@ -276,11 +273,11 @@ class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(FILE_1_REF, D, D, 33.33);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, E, D, 0.0);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, E, D, 16.66);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, E, D, 16.66);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, E, D, 16.66);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, D, 33.33);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, E, 0.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, E, 16.66);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, E, 16.66);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, E, 16.66);
   }
 
   @Test
@@ -293,7 +290,7 @@ class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(PROJECT_REF, A, A, null);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, null);
   }
 
   @Test
@@ -343,10 +340,8 @@ class NewSecurityReviewMeasuresVisitorTest {
     assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF).values()).isEmpty();
   }
 
-  private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating,
-    Rating expectedSoftwareQualitySecurityReviewRating, @Nullable Double expectedHotspotsReviewed) {
+  private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating, @Nullable Double expectedHotspotsReviewed) {
     assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_REVIEW_RATING_KEY)).hasValue(expectedReviewRating.getIndex());
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SOFTWARE_QUALITY_SECURITY_REVIEW_RATING_KEY)).hasValue(expectedSoftwareQualitySecurityReviewRating.getIndex());
     if (expectedHotspotsReviewed != null) {
       assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY)).hasValue(expectedHotspotsReviewed,
         VALUE_COMPARISON_OFFSET);
