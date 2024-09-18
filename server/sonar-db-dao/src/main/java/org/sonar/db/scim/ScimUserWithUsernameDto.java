@@ -19,30 +19,16 @@
  */
 package org.sonar.db.scim;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
-import org.sonar.db.Pagineable;
+public final class ScimUserWithUsernameDto extends ScimUserDto {
 
-public interface ScimUserMapper {
+  private String userName;
 
-  List<ScimUserDto> findAll();
+  public ScimUserWithUsernameDto(String scimUserUuid, String userUuid, String userName) {
+    super(scimUserUuid, userUuid);
+    this.userName = userName;
+  }
 
-  @CheckForNull
-  ScimUserDto findByScimUuid(@Param("scimUserUuid") String scimUserUuid);
-
-  @CheckForNull
-  ScimUserDto findByUserUuid(@Param("userUuid") String userUuid);
-
-  void insert(@Param("scimUserDto") ScimUserDto scimUserDto);
-
-  List<ScimUserWithUsernameDto> findScimUsers(@Param("query") ScimUserQuery scimUserQuery, @Param("pagination") Pagineable pagination);
-
-  int countScimUsers(@Param("query") ScimUserQuery scimUserQuery);
-
-  void deleteByUserUuid(@Param("userUuid") String userUuid);
-
-  void deleteByScimUuid(@Param("scimUuid") String scimUuid);
-
-  void deleteAll();
+  public String getUserName() {
+    return userName;
+  }
 }

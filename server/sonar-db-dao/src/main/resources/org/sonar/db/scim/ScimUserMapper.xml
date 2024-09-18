@@ -8,6 +8,11 @@
       s.user_uuid as userUuid
   </sql>
 
+  <sql id="scimUsersWithUsernameColumns">
+      <include refid="scimUsersColumns"/>,
+      u.external_id as userName
+  </sql>
+
   <select id="findAll" resultType="org.sonar.db.scim.ScimUserDto">
     select
     <include refid="scimUsersColumns"/>
@@ -51,9 +56,9 @@
     )
   </insert>
 
-  <select id="findScimUsers" resultType="org.sonar.db.scim.ScimUserDto">
+  <select id="findScimUsers" resultType="org.sonar.db.scim.ScimUserWithUsernameDto">
     select
-    <include refid="scimUsersColumns"/>
+    <include refid="scimUsersWithUsernameColumns"/>
     <include refid="sqlSelectByQuery"/>
     order by s.scim_uuid asc
     <include refid="org.sonar.db.common.Common.pagination"/>

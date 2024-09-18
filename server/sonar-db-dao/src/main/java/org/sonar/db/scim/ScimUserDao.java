@@ -56,7 +56,7 @@ public class ScimUserDao implements Dao {
     return scimUserDto;
   }
 
-  public List<ScimUserDto> findScimUsers(DbSession dbSession, ScimUserQuery scimUserQuery, Pagineable pagination) {
+  public List<ScimUserWithUsernameDto> findScimUsers(DbSession dbSession, ScimUserQuery scimUserQuery, Pagineable pagination) {
     checkState(scimUserQuery.getUserUuids() == null || scimUserQuery.getScimUserUuids() == null,
       "Only one of userUuids & scimUserUuids request parameter is supported.");
     if (scimUserQuery.getScimUserUuids() != null) {
@@ -79,7 +79,7 @@ public class ScimUserDao implements Dao {
     return mapper(dbSession).findScimUsers(scimUserQuery, pagination);
   }
 
-  private static List<ScimUserDto> createPartialQuery(ScimUserQuery completeQuery, List<String> strings,
+  private static List<ScimUserWithUsernameDto> createPartialQuery(ScimUserQuery completeQuery, List<String> strings,
     BiFunction<ScimUserQuery.ScimUserQueryBuilder, List<String>, ScimUserQuery.ScimUserQueryBuilder> queryModifier,
     DbSession dbSession, Pagineable pagination) {
 
