@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Heading } from '@sonarsource/echoes-react';
 import {
   ButtonPrimary,
   ContentCell,
@@ -25,7 +26,6 @@ import {
   InputField,
   InputSelect,
   Spinner,
-  SubHeading,
   Table,
   TableRow,
 } from 'design-system';
@@ -197,7 +197,9 @@ export function TokensForm(props: Readonly<Props>) {
     <>
       <GreySeparator className="sw-mb-4 sw-mt-6" />
 
-      <SubHeading as="h2">{translate('users.tokens.generate')}</SubHeading>
+      <Heading as="h2" hasMarginBottom>
+        {translate('users.tokens.generate')}
+      </Heading>
 
       <form autoComplete="off" className="sw-flex sw-items-center" onSubmit={handleGenerateToken}>
         <div className="sw-flex sw-flex-col sw-mr-2">

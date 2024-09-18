@@ -17,10 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Heading } from '@sonarsource/echoes-react';
 import { DiscreetLink, FlagMessage, Note } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import DateFormatter from '../../../components/intl/DateFormatter';
+import { isDefined } from '../../../helpers/types';
 import { Profile } from '../types';
 import { getProfilePath, isStagnant } from '../utils';
 
@@ -28,7 +31,7 @@ interface Props {
   profiles: Profile[];
 }
 
-export default function EvolutionStagnant(props: Props) {
+export default function EvolutionStagnant(props: Readonly<Props>) {
   const intl = useIntl();
   const outdated = props.profiles.filter((profile) => !profile.isBuiltIn && isStagnant(profile));
 
@@ -38,13 +41,14 @@ export default function EvolutionStagnant(props: Props) {
 
   return (
     <section aria-label={intl.formatMessage({ id: 'quality_profiles.stagnant_profiles' })}>
-      <h2 className="sw-heading-md sw-mb-6">
+      <Heading as="h2" hasMarginBottom>
         {intl.formatMessage({ id: 'quality_profiles.stagnant_profiles' })}
-      </h2>
+      </Heading>
 
       <FlagMessage variant="warning" className="sw-mb-3">
         {intl.formatMessage({ id: 'quality_profiles.not_updated_more_than_year' })}
       </FlagMessage>
+
       <ul className="sw-flex sw-flex-col sw-gap-4 sw-body-sm">
         {outdated.map((profile) => (
           <li className="sw-flex sw-flex-col sw-gap-1" key={profile.key}>
@@ -53,7 +57,8 @@ export default function EvolutionStagnant(props: Props) {
                 {profile.name}
               </DiscreetLink>
             </div>
-            {profile.rulesUpdatedAt && (
+
+            {isDefined(profile.rulesUpdatedAt) && profile.rulesUpdatedAt !== '' && (
               <Note>
                 <DateFormatter date={profile.rulesUpdatedAt} long>
                   {(formattedDate) =>

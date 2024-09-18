@@ -17,10 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Heading } from '@sonarsource/echoes-react';
 import { DiscreetLink, FlagMessage, Note } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { isDefined } from '../../../helpers/types';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
 import { Profile } from '../types';
 import { getProfilePath } from '../utils';
@@ -49,9 +52,10 @@ export default function EvolutionDeprecated({ profiles }: Readonly<Props>) {
 
   return (
     <section aria-label={intl.formatMessage({ id: 'quality_profiles.deprecated_rules' })}>
-      <h2 className="sw-heading-md sw-mb-6">
+      <Heading as="h2" hasMarginBottom>
         {intl.formatMessage({ id: 'quality_profiles.deprecated_rules' })}
-      </h2>
+      </Heading>
+
       <FlagMessage variant="error" className="sw-mb-3">
         {intl.formatMessage(
           { id: 'quality_profiles.deprecated_rules_are_still_activated' },
@@ -70,7 +74,9 @@ export default function EvolutionDeprecated({ profiles }: Readonly<Props>) {
 
             <Note>
               {profile.languageName}
+
               {', '}
+
               <DiscreetLink
                 className="link-no-underline"
                 to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })}
@@ -85,6 +91,7 @@ export default function EvolutionDeprecated({ profiles }: Readonly<Props>) {
                 )}
               </DiscreetLink>
             </Note>
+
             <EvolutionDeprecatedInherited
               profile={profile}
               profilesWithDeprecations={profilesWithDeprecations}
@@ -104,31 +111,34 @@ function EvolutionDeprecatedInherited(
 ) {
   const { profile, profilesWithDeprecations } = props;
   const intl = useIntl();
+
   const rules = React.useMemo(
     () => getDeprecatedRulesInheritanceChain(profile, profilesWithDeprecations),
     [profile, profilesWithDeprecations],
   );
-  if (rules.length) {
-    return (
-      <>
-        {rules.map((rule) => {
-          if (rule.from.key === profile.key) {
-            return null;
-          }
 
-          return (
-            <Note key={rule.from.key}>
-              {intl.formatMessage(
-                { id: 'coding_rules.filters.inheritance.x_inherited_from_y' },
-                { count: rule.count, name: rule.from.name },
-              )}
-            </Note>
-          );
-        })}
-      </>
-    );
+  if (rules.length === 0) {
+    return null;
   }
-  return null;
+
+  return (
+    <>
+      {rules.map((rule) => {
+        if (rule.from.key === profile.key) {
+          return null;
+        }
+
+        return (
+          <Note key={rule.from.key}>
+            {intl.formatMessage(
+              { id: 'coding_rules.filters.inheritance.x_inherited_from_y' },
+              { count: rule.count, name: rule.from.name },
+            )}
+          </Note>
+        );
+      })}
+    </>
+  );
 }
 
 function getDeprecatedRulesInheritanceChain(profile: Profile, profilesWithDeprecations: Profile[]) {
@@ -139,14 +149,16 @@ function getDeprecatedRulesInheritanceChain(profile: Profile, profilesWithDeprec
     return rules;
   }
 
-  if (profile.parentKey) {
+  if (isDefined(profile.parentKey) && profile.parentKey !== '') {
     const parentProfile = profilesWithDeprecations.find((p) => p.key === profile.parentKey);
+
     if (parentProfile) {
       const parentRules = getDeprecatedRulesInheritanceChain(
         parentProfile,
         profilesWithDeprecations,
       );
-      if (parentRules.length) {
+
+      if (parentRules.length !== 0) {
         count -= parentRules.reduce((n, rule) => n + rule.count, 0);
         rules = rules.concat(parentRules);
       }

@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { PageTitle, Table } from 'design-system';
+import { Heading } from '@sonarsource/echoes-react';
+import { Table } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Notification, NotificationGlobalType } from '../../../types/notifications';
@@ -36,7 +37,9 @@ interface Props {
 export default function GlobalNotifications(props: Readonly<Props>) {
   return (
     <>
-      <PageTitle className="sw-mb-4" text={translate('my_profile.overall_notifications.title')} />
+      <Heading as="h2" hasMarginBottom>
+        {translate('my_profile.overall_notifications.title')}
+      </Heading>
 
       {!props.header && (
         <div className="sw-body-sm-highlight sw-mb-2">{translate('notifications.send_email')}</div>

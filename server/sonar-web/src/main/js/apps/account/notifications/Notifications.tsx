@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { FlagMessage, GreySeparator, Spinner, Title } from 'design-system';
-import { partition } from 'lodash';
+import { Heading, Spinner } from '@sonarsource/echoes-react';
+import { FlagMessage, GreySeparator } from 'design-system';
+import { isEmpty, partition } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
@@ -39,7 +40,9 @@ export function Notifications({
   perProjectTypes,
   removeNotification,
 }: WithNotificationsProps) {
-  const [globalNotifications, projectNotifications] = partition(notifications, (n) => !n.project);
+  const [globalNotifications, projectNotifications] = partition(notifications, (n) =>
+    isEmpty(n.project),
+  );
 
   const emailOnly = channels.length === 1 && channels[0] === 'EmailNotificationChannel';
 
@@ -59,13 +62,15 @@ export function Notifications({
     <div className="it__account-body">
       <Helmet defer={false} title={translate('my_account.notifications')} />
 
-      <Title>{translate('my_account.notifications')}</Title>
+      <Heading as="h1" hasMarginBottom>
+        {translate('my_account.notifications')}
+      </Heading>
 
       <FlagMessage className="sw-my-2" variant="info">
         {translate('notification.dispatcher.information')}
       </FlagMessage>
 
-      <Spinner loading={loading}>
+      <Spinner isLoading={loading}>
         {notifications && (
           <>
             <GreySeparator className="sw-mb-4 sw-mt-6" />

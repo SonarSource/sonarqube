@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Heading } from '@sonarsource/echoes-react';
 import { DiscreetLink, Link, Note } from 'design-system';
 import { noop, sortBy } from 'lodash';
 import * as React from 'react';
@@ -26,6 +28,7 @@ import { MetricType } from '~sonar-aligned/types/metrics';
 import { listRules } from '../../../api/rules';
 import { toShortISO8601String } from '../../../helpers/dates';
 import { translateWithParameters } from '../../../helpers/l10n';
+import { isDefined } from '../../../helpers/types';
 import { getRulesUrl } from '../../../helpers/urls';
 import { Rule, RuleActivation } from '../../../types/types';
 
@@ -39,6 +42,7 @@ export default function EvolutionRules() {
   const intl = useIntl();
   const [latestRules, setLatestRules] = React.useState<ExtendedRule[]>();
   const [latestRulesTotal, setLatestRulesTotal] = React.useState<number>();
+
   const periodStartDate = React.useMemo(() => {
     const startDate = new Date();
     startDate.setFullYear(startDate.getFullYear() - 1);
@@ -60,21 +64,23 @@ export default function EvolutionRules() {
     }, noop);
   }, [periodStartDate]);
 
-  if (!latestRulesTotal || !latestRules) {
+  if (!(isDefined(latestRulesTotal) && latestRulesTotal !== 0) || !latestRules) {
     return null;
   }
 
   return (
     <section aria-label={intl.formatMessage({ id: 'quality_profiles.latest_new_rules' })}>
-      <h2 className="sw-heading-md sw-mb-6">
+      <Heading as="h2" hasMarginBottom>
         {intl.formatMessage({ id: 'quality_profiles.latest_new_rules' })}
-      </h2>
+      </Heading>
+
       <ul className="sw-flex sw-flex-col sw-gap-4 sw-body-sm">
         {latestRules.map((rule) => (
           <li className="sw-flex sw-flex-col sw-gap-1" key={rule.key}>
             <div className="sw-truncate">
               <DiscreetLink to={getRulesUrl({ rule_key: rule.key })}>{rule.name}</DiscreetLink>
             </div>
+
             <Note className="sw-truncate">
               {rule.activations
                 ? translateWithParameters(
@@ -90,6 +96,7 @@ export default function EvolutionRules() {
           </li>
         ))}
       </ul>
+
       {latestRulesTotal > RULES_LIMIT && (
         <div className="sw-mt-6 sw-body-sm-highlight">
           <Link to={getRulesUrl({ available_since: periodStartDate })}>
@@ -107,6 +114,7 @@ export default function EvolutionRules() {
 function parseRules(rules: Rule[], actives?: Record<string, RuleActivation[]>): ExtendedRule[] {
   return rules.map((rule) => {
     const activations = actives?.[rule.key]?.length ?? 0;
+
     return { ...rule, activations };
   });
 }

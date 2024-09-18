@@ -19,7 +19,7 @@
  */
 
 import styled from '@emotion/styled';
-import { Spinner } from '@sonarsource/echoes-react';
+import { Heading, Spinner } from '@sonarsource/echoes-react';
 import {
   LAYOUT_FOOTER_HEIGHT,
   LargeCenteredLayout,
@@ -109,7 +109,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
     const { isFavorite, isLegacy } = this.props;
     const { pageIndex, projects, query } = this.state;
 
-    if (pageIndex && projects && Object.keys(query).length !== 0) {
+    if (isDefined(pageIndex) && pageIndex !== 0 && projects && Object.keys(query).length !== 0) {
       this.setState({ loading: true });
 
       fetchProjects({ isFavorite, query, pageIndex: pageIndex + 1, isLegacy }).then((response) => {
@@ -309,22 +309,25 @@ export class AllProjects extends React.PureComponent<Props, State> {
       <StyledWrapper id="projects-page">
         <Helmet defer={false} title={translate('projects.page')} />
 
-        <h1 className="sw-sr-only">{translate('projects.page')}</h1>
+        <Heading as="h1" className="sw-sr-only">
+          {translate('projects.page')}
+        </Heading>
 
         <LargeCenteredLayout>
           <PageContentFontWrapper className="sw-flex sw-w-full sw-body-md">
             {this.renderSide()}
 
-            <div
-              role="main"
-              className="sw-flex sw-flex-col sw-box-border sw-min-w-0 sw-pl-12 sw-pt-6 sw-flex-1"
-            >
+            <main className="sw-flex sw-flex-col sw-box-border sw-min-w-0 sw-pl-12 sw-pt-6 sw-flex-1">
               <A11ySkipTarget anchor="projects_main" />
 
-              <h2 className="sw-sr-only">{translate('list_of_projects')}</h2>
+              <Heading as="h2" className="sw-sr-only">
+                {translate('list_of_projects')}
+              </Heading>
+
               {this.renderHeader()}
+
               {this.renderMain()}
-            </div>
+            </main>
           </PageContentFontWrapper>
         </LargeCenteredLayout>
       </StyledWrapper>

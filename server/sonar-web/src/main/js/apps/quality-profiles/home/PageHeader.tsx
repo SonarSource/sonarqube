@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Button, ButtonGroup, ButtonVariety } from '@sonarsource/echoes-react';
-import { FlagMessage, Link } from 'design-system';
+
+import { Button, ButtonGroup, ButtonVariety, Heading, Link } from '@sonarsource/echoes-react';
+import { FlagMessage } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
@@ -61,7 +62,10 @@ export default function PageHeader(props: Readonly<Props>) {
   return (
     <header className="sw-grid sw-grid-cols-3 sw-gap-12">
       <div className="sw-col-span-2">
-        <h1 className="sw-heading-lg sw-mb-4">{translate('quality_profiles.page')}</h1>
+        <Heading as="h1" hasMarginBottom>
+          {translate('quality_profiles.page')}
+        </Heading>
+
         <div className="sw-body-sm">
           {intl.formatMessage({ id: 'quality_profiles.intro' })}
 
@@ -70,6 +74,7 @@ export default function PageHeader(props: Readonly<Props>) {
           </Link>
         </div>
       </div>
+
       {actions.create && (
         <div className="sw-flex sw-flex-col sw-items-end">
           <ButtonGroup>
@@ -81,10 +86,12 @@ export default function PageHeader(props: Readonly<Props>) {
             >
               {intl.formatMessage({ id: 'create' })}
             </Button>
+
             <Button id="quality-profiles-restore" onClick={() => setModal('restoreProfile')}>
               {intl.formatMessage({ id: 'restore' })}
             </Button>
           </ButtonGroup>
+
           {languages.length === 0 && (
             <FlagMessage className="sw-mt-2" variant="warning">
               {intl.formatMessage({ id: 'quality_profiles.no_languages_available' })}

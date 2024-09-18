@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Button, ButtonVariety } from '@sonarsource/echoes-react';
+import { Button, ButtonVariety, Heading } from '@sonarsource/echoes-react';
 import { InputSearch, Note } from 'design-system';
 import { groupBy, sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
@@ -120,9 +120,9 @@ export default class Projects extends React.PureComponent<Props, State> {
     return (
       <section data-test="account__project-notifications">
         <div className="sw-flex sw-justify-between">
-          <h2 className="sw-body-md-highlight sw-mb-4">
+          <Heading as="h2" hasMarginBottom>
             {translate('my_profile.per_project_notifications.title')}
-          </h2>
+          </Heading>
 
           <Button onClick={this.openModal} variety={ButtonVariety.Primary}>
             <span data-test="account__add-project-notification">

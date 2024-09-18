@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Title } from 'design-system';
+import { Heading } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import { translate } from '../../../helpers/l10n';
@@ -31,15 +31,15 @@ interface Props {
 export default function Tokens({ login }: Readonly<Props>) {
   return (
     <>
-      <Title>{translate('my_account.security')}</Title>
+      <Heading as="h1" hasMarginBottom>
+        {translate('my_account.security')}
+      </Heading>
 
-      <div>
-        <div className="sw-body-md sw-mb-4 sw-mr-4">
-          <InstanceMessage message={translate('my_account.tokens_description')} />
-        </div>
-
-        <TokensForm deleteConfirmation="modal" login={login} displayTokenTypeInput />
+      <div className="sw-body-md sw-mb-4 sw-mr-4">
+        <InstanceMessage message={translate('my_account.tokens_description')} />
       </div>
+
+      <TokensForm deleteConfirmation="modal" login={login} displayTokenTypeInput />
     </>
   );
 }
