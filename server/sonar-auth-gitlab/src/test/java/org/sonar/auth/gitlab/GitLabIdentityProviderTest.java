@@ -174,14 +174,16 @@ public class GitLabIdentityProviderTest {
   public static Object[][] allowedGroups() {
     return new Object[][]{
       {Set.of()},
-      {Set.of("path")}
+      {Set.of("path")},
+      {Set.of("path/to/group")},
     };
   }
 
   @Test
-  public void onCallback_withGroupSyncAndAllowedGroupsNotMatching_shouldThrow() {
+  @UseDataProvider("notAllowedGroups")
+  public void onCallback_withGroupSyncAndAllowedGroupsNotMatching_shouldThrow(Set<String> notAllowedGroups) {
     when(gitLabSettings.syncUserGroups()).thenReturn(true);
-    when(gitLabSettings.allowedGroups()).thenReturn(Set.of("path2"));
+    when(gitLabSettings.allowedGroups()).thenReturn(notAllowedGroups);
 
     mockGsonUser();
     mockGitlabGroups();
@@ -189,6 +191,14 @@ public class GitLabIdentityProviderTest {
     assertThatExceptionOfType(UnauthorizedException.class)
       .isThrownBy(() -> gitLabIdentityProvider.callback(callbackContext))
       .withMessage("You are not allowed to authenticate");
+  }
+
+  @DataProvider
+  public static Object[][] notAllowedGroups() {
+    return new Object[][]{
+      {Set.of("pat")},
+      {Set.of("path2")},
+    };
   }
 
   @Test
