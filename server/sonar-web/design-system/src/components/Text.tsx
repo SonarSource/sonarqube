@@ -28,6 +28,8 @@ interface TextBoldProps {
   name: string;
 }
 
+/** @deprecated Use Text (with `isHighlighted` prop) from Echoes instead.
+ */
 export function TextBold({ match, name, className }: TextBoldProps) {
   return match ? (
     <StyledText
@@ -43,6 +45,8 @@ export function TextBold({ match, name, className }: TextBoldProps) {
   );
 }
 
+/** @deprecated Use Text (with `isSubdued` prop) from Echoes instead.
+ */
 export function TextMuted({ text, className }: { className?: string; text: string }) {
   return (
     <StyledMutedText className={className} title={text}>
@@ -51,6 +55,8 @@ export function TextMuted({ text, className }: { className?: string; text: strin
   );
 }
 
+/** @deprecated Use Heading from Echoes instead.
+ */
 export function PageTitle({
   text,
   className,
@@ -67,6 +73,8 @@ export function PageTitle({
   );
 }
 
+/** @deprecated Use Text (with `colorOverride='echoes-color-text-danger'` prop) from Echoes instead.
+ */
 export function TextError({
   as,
   text,
@@ -90,6 +98,8 @@ export function TextError({
   );
 }
 
+/** @deprecated Use Text (with `colorOverride='echoes-color-text-success'` prop) from Echoes instead.
+ */
 export function TextSuccess({ text, className }: Readonly<{ className?: string; text: string }>) {
   return (
     <StyledTextSuccess className={className} title={text}>
@@ -98,7 +108,7 @@ export function TextSuccess({ text, className }: Readonly<{ className?: string; 
   );
 }
 
-export const StyledText = styled.span`
+const StyledText = styled.span`
   ${tw`sw-inline-block`};
   ${tw`sw-truncate`};
   ${tw`sw-font-semibold`};
@@ -112,11 +122,15 @@ export const StyledText = styled.span`
   }
 `;
 
+/** @deprecated Use Text (with `isSubdued` prop) from Echoes instead.
+ */
 export const StyledMutedText = styled(StyledText)`
   ${tw`sw-font-regular`};
   color: ${themeColor('dropdownMenuSubTitle')};
 `;
 
+/** @deprecated Use Heading from Echoes instead.
+ */
 export const StyledPageTitle = styled(StyledText)`
   ${tw`sw-block`};
   ${tw`sw-text-base`}
@@ -131,30 +145,35 @@ const StyledTextSuccess = styled(StyledText)`
   color: ${themeColor('textSuccess')};
 `;
 
-export const TextDisabled = styled.span`
-  ${tw`sw-font-regular`};
-  color: ${themeColor('textDisabled')};
-`;
-
+/** @deprecated Use Text (with `isSubdued` prop) from Echoes instead.
+ */
 export const TextSubdued = styled.span`
   ${tw`sw-font-regular`};
   color: ${themeColor('textSubdued')};
 `;
 
+/** @deprecated Use Text (with `isSubdued` prop) from Echoes instead.
+ */
 export const LightLabel = styled.span`
   color: ${themeColor('pageContentLight')};
 `;
 
+/** @deprecated Use Label or Text (with `isHighlighted` prop) from Echoes instead.
+ */
 export const DarkLabel = styled.label`
   color: ${themeColor('pageContentDark')};
 
   ${tw`sw-body-sm-highlight`}
 `;
 
+/** @deprecated Use Text from Echoes instead.
+ */
 export const LightPrimary = styled.span`
   color: ${themeContrast('primaryLight')};
 `;
 
+/** @deprecated Use Text (with `isHighlighted` prop) from Echoes instead.
+ */
 export const Highlight = styled.strong`
   color: ${themeColor('pageContentDark')};
 
