@@ -219,6 +219,13 @@
     uuid = #{uuid,jdbcType=VARCHAR}
   </update>
 
+  <update id="updateAiCodeAssurance">
+    update projects set
+    ai_code_assurance = #{aiCodeAssurance,jdbcType=BOOLEAN},
+    updated_at = #{updatedAt,jdbcType=BIGINT}
+    where
+    uuid = #{uuid,jdbcType=VARCHAR}
+  </update>
 
   <update id="updateNcloc">
     update projects set
