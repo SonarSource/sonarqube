@@ -100,7 +100,7 @@ export function searchProjects(data: {
   selected?: string;
 }): Promise<{
   paging: Paging;
-  results: Array<{ key: string; name: string; selected: boolean }>;
+  results: Array<{ isAiCodeAssured: boolean; key: string; name: string; selected: boolean }>;
 }> {
   return getJSON('/api/qualitygates/search', data).catch(throwGlobalError);
 }

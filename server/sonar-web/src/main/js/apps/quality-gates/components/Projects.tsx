@@ -47,6 +47,7 @@ interface State {
 
 // exported for testing
 export interface Project {
+  isAiCodeAssured: boolean;
   key: string;
   name: string;
   selected: boolean;
@@ -140,6 +141,11 @@ export default class Projects extends React.PureComponent<Props, State> {
             {project.name}
             <br />
             <Note>{project.key}</Note>
+            {project.isAiCodeAssured && (
+              <p>
+                <Note>{translate('quality_gates.projects.ai_assured_message')}</Note>
+              </p>
+            )}
           </>
         )}
       </div>
@@ -158,6 +164,9 @@ export default class Projects extends React.PureComponent<Props, State> {
     return (
       <SelectList
         elements={this.state.projects.map((project) => project.key)}
+        disabledElements={this.state.projects
+          .filter((project) => project.isAiCodeAssured)
+          .map((project) => project.key)}
         elementsTotalCount={this.state.projectsTotalCount}
         labelAll={translate('quality_gates.projects.all')}
         labelSelected={translate('quality_gates.projects.with')}

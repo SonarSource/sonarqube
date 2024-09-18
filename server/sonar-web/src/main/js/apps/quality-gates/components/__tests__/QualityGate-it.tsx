@@ -653,15 +653,15 @@ describe('The Project section', () => {
     await user.click(notDefaultQualityGate);
 
     // by default it shows "selected" values
-    expect(await screen.findAllByRole('checkbox')).toHaveLength(2);
+    expect(await screen.findAllByRole('checkbox')).toHaveLength(3);
 
     // change tabs to show deselected projects
     await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.without' }));
-    expect(screen.getAllByRole('checkbox')).toHaveLength(2);
+    expect(screen.getAllByRole('checkbox')).toHaveLength(3);
 
     // change tabs to show all projects
     await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.all' }));
-    expect(screen.getAllByRole('checkbox')).toHaveLength(4);
+    expect(screen.getAllByRole('checkbox')).toHaveLength(6);
   });
 
   it('should handle select and deselect correctly', async () => {
@@ -673,7 +673,7 @@ describe('The Project section', () => {
 
     await user.click(notDefaultQualityGate);
 
-    expect(await screen.findAllByRole('checkbox')).toHaveLength(2);
+    expect(await screen.findAllByRole('checkbox')).toHaveLength(3);
     const checkedProjects = screen.getAllByRole('checkbox')[0];
     await user.click(checkedProjects);
     const reloadButton = screen.getByRole('button', { name: 'reload' });
@@ -682,17 +682,45 @@ describe('The Project section', () => {
 
     // FP
     // eslint-disable-next-line jest-dom/prefer-in-document
-    expect(screen.getAllByRole('checkbox')).toHaveLength(1);
+    expect(screen.getAllByRole('checkbox')).toHaveLength(2);
+
+    // projects with disabled as true are not selectable
+    // last checked project in mock service is disabled
+    const disabledCheckedProjects = screen.getByRole('checkbox', {
+      name: 'test5 test5 quality_gates.projects.ai_assured_message',
+    });
+    expect(disabledCheckedProjects).toBeDisabled();
 
     // change tabs to show deselected projects
     await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.without' }));
 
     const uncheckedProjects = screen.getAllByRole('checkbox')[0];
-    expect(screen.getAllByRole('checkbox')).toHaveLength(3);
+    expect(screen.getAllByRole('checkbox')).toHaveLength(4);
     await user.click(uncheckedProjects);
     expect(reloadButton).toBeInTheDocument();
     await user.click(reloadButton);
-    expect(screen.getAllByRole('checkbox')).toHaveLength(2);
+    expect(screen.getAllByRole('checkbox')).toHaveLength(3);
+
+    // projects with disabled as true are not selectable
+    // last unchecked project in mock service is disabled
+    const disabledUncheckedProjects = screen.getByRole('checkbox', {
+      name: 'test6 test6 quality_gates.projects.ai_assured_message',
+    });
+    expect(disabledUncheckedProjects).toBeDisabled();
+
+    // change tabs to show all projects
+    await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.all' }));
+    expect(screen.getAllByRole('checkbox')).toHaveLength(6);
+
+    const disabledCheckedProjectsAll = screen.getByRole('checkbox', {
+      name: 'test5 test5 quality_gates.projects.ai_assured_message',
+    });
+    expect(disabledCheckedProjectsAll).toBeDisabled();
+
+    const disabledUncheckedProjectsAll = screen.getByRole('checkbox', {
+      name: 'test6 test6 quality_gates.projects.ai_assured_message',
+    });
+    expect(disabledUncheckedProjectsAll).toBeDisabled();
   });
 
   it('should handle the search of projects', async () => {

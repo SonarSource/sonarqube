@@ -257,10 +257,12 @@ export class QualityGatesServiceMock {
     this.list = cloneDeep(this.readOnlyList);
 
     this.projects = [
-      { key: 'test1', name: 'test1', selected: false },
-      { key: 'test2', name: 'test2', selected: false },
-      { key: 'test3', name: 'test3', selected: true },
-      { key: 'test4', name: 'test4', selected: true },
+      { key: 'test1', name: 'test1', selected: false, isAiCodeAssured: false },
+      { key: 'test2', name: 'test2', selected: false, isAiCodeAssured: false },
+      { key: 'test3', name: 'test3', selected: true, isAiCodeAssured: false },
+      { key: 'test4', name: 'test4', selected: true, isAiCodeAssured: false },
+      { key: 'test5', name: 'test5', selected: true, isAiCodeAssured: true },
+      { key: 'test6', name: 'test6', selected: false, isAiCodeAssured: true },
     ];
 
     this.getGateForProjectGateName = 'SonarSource way';
