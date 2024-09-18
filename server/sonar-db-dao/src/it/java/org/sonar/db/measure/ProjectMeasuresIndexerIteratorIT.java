@@ -64,8 +64,8 @@ class ProjectMeasuresIndexerIteratorIT {
     SnapshotDto analysis = dbTester.components().insertSnapshot(project);
     MetricDto metric1 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
     MetricDto metric2 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("coverage"));
-    dbTester.measures().insertLiveMeasure(project, metric1, m -> m.setValue(10d));
-    dbTester.measures().insertLiveMeasure(project, metric2, m -> m.setValue(20d));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(metric1.getKey(), 10d));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(metric2.getKey(), 20d));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -89,8 +89,8 @@ class ProjectMeasuresIndexerIteratorIT {
     SnapshotDto analysis = dbTester.components().insertSnapshot(project);
     MetricDto metric1 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
     MetricDto metric2 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("coverage"));
-    dbTester.measures().insertLiveMeasure(project, metric1, m -> m.setValue(10d));
-    dbTester.measures().insertLiveMeasure(project, metric2, m -> m.setValue(20d));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(metric1.getKey(), 10d));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(metric2.getKey(), 20d));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -111,7 +111,7 @@ class ProjectMeasuresIndexerIteratorIT {
       p -> p.setTagsString("platform,java"));
     ComponentDto project = projectData.getMainBranchComponent();
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("new_lines"));
-    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(10d));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), 10d));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -120,14 +120,13 @@ class ProjectMeasuresIndexerIteratorIT {
 
   @Test
   void return_quality_gate_status_measure() {
-    ComponentDto project1 = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ProjectData projectData2 = dbTester.components().insertPrivateProject();
     ComponentDto project2 = projectData2.getMainBranchComponent();
     ProjectData projectData3 = dbTester.components().insertPrivateProject();
     ComponentDto project3 = projectData3.getMainBranchComponent();
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(LEVEL.name()).setKey("alert_status"));
-    dbTester.measures().insertLiveMeasure(project2, metric, m -> m.setValue(null).setData(OK.name()));
-    dbTester.measures().insertLiveMeasure(project3, metric, m -> m.setValue(null).setData(ERROR.name()));
+    dbTester.measures().insertMeasure(project2, m -> m.addValue(metric.getKey(), OK.name()));
+    dbTester.measures().insertMeasure(project3, m -> m.addValue(metric.getKey(), ERROR.name()));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -140,7 +139,7 @@ class ProjectMeasuresIndexerIteratorIT {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(LEVEL.name()).setKey("alert_status"));
-    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(null).setData((String) null));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), null));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -150,17 +149,18 @@ class ProjectMeasuresIndexerIteratorIT {
   @Test
   void return_language_distribution_measure_from_biggest_branch() {
     ProjectData projectData = dbTester.components().insertPrivateProject();
+    dbClient.projectDao().updateNcloc(dbSession, projectData.projectUuid(), 52L);
     ComponentDto project = projectData.getMainBranchComponent();
     MetricDto languagesDistributionMetric = dbTester.measures().insertMetric(m -> m.setValueType(DATA.name()).setKey(
       "ncloc_language_distribution"));
     MetricDto nclocMetric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
 
-    dbTester.measures().insertLiveMeasure(project, languagesDistributionMetric, m -> m.setValue(null).setData("<null>=2;java=6;xoo=18"));
-    dbTester.measures().insertLiveMeasure(project, nclocMetric, m -> m.setValue(26d));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(languagesDistributionMetric.getKey(), "<null>=2;java=6;xoo=18"));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(nclocMetric.getKey(), 26d));
 
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
-    dbTester.measures().insertLiveMeasure(branch, languagesDistributionMetric, m -> m.setValue(null).setData("<null>=4;java=12;xoo=36"));
-    dbTester.measures().insertLiveMeasure(branch, nclocMetric, m -> m.setValue(52d));
+    dbTester.measures().insertMeasure(branch, m -> m.addValue(languagesDistributionMetric.getKey(), "<null>=4;java=12;xoo=36"));
+    dbTester.measures().insertMeasure(branch, m -> m.addValue(nclocMetric.getKey(), 52d));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -175,9 +175,9 @@ class ProjectMeasuresIndexerIteratorIT {
     MetricDto dataMetric = dbTester.measures().insertMetric(m -> m.setValueType(DATA.name()).setKey("data"));
     MetricDto distribMetric = dbTester.measures().insertMetric(m -> m.setValueType(DISTRIB.name()).setKey("distrib"));
     MetricDto stringMetric = dbTester.measures().insertMetric(m -> m.setValueType(STRING.name()).setKey("string"));
-    dbTester.measures().insertLiveMeasure(project, dataMetric, m -> m.setData("dat"));
-    dbTester.measures().insertLiveMeasure(project, distribMetric, m -> m.setData("dis"));
-    dbTester.measures().insertLiveMeasure(project, stringMetric, m -> m.setData("str"));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(dataMetric.getKey(), "dat"));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(distribMetric.getKey(), "dis"));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(stringMetric.getKey(), "str"));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -190,7 +190,7 @@ class ProjectMeasuresIndexerIteratorIT {
     ComponentDto project = projectData.getMainBranchComponent();
     MetricDto disabledMetric =
       dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setEnabled(false).setHidden(false).setKey("disabled"));
-    dbTester.measures().insertLiveMeasure(project, disabledMetric, m -> m.setValue(10d));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(disabledMetric.getKey(), 10d));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -205,9 +205,9 @@ class ProjectMeasuresIndexerIteratorIT {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
 
-    dbTester.measures().insertLiveMeasure(project, metric1, m -> m.setValue(10d));
-    dbTester.measures().insertLiveMeasure(project, leakMetric, m -> m.setValue(20d));
-    dbTester.measures().insertLiveMeasure(project, metric2, m -> m.setValue(null));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(metric1.getKey(), 10d));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(leakMetric.getKey(), 20d));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(metric2.getKey(), null));
 
     Map<String, Double> numericMeasures =
       createResultSetAndReturnDocsById().get(projectData.projectUuid()).getMeasures().getNumericMeasures();
@@ -220,8 +220,8 @@ class ProjectMeasuresIndexerIteratorIT {
     MetricDto metric2 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
-    dbTester.measures().insertLiveMeasure(project, metric1, m -> m.setValue(10d).setData((String) null));
-    dbTester.measures().insertLiveMeasure(project, metric2, m -> m.setValue(null).setData("foo"));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(metric1.getKey(), 10d));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(metric2.getKey(), "foo"));
 
     Map<String, Double> numericMeasures =
       createResultSetAndReturnDocsById().get(projectData.projectUuid()).getMeasures().getNumericMeasures();
@@ -262,8 +262,9 @@ class ProjectMeasuresIndexerIteratorIT {
     ComponentDto project2 = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project3 = dbTester.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysis1 = dbTester.components().insertSnapshot(project1);
-    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project2);
-    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project3);
+    // analyses on projects 2 and 3
+    dbTester.components().insertSnapshot(project2);
+    dbTester.components().insertSnapshot(project3);
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById(projectData1.projectUuid());
 
@@ -291,10 +292,10 @@ class ProjectMeasuresIndexerIteratorIT {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
-    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(10d));
+    dbTester.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), 10d));
 
     ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
-    dbTester.measures().insertLiveMeasure(branch, metric, m -> m.setValue(20d));
+    dbTester.measures().insertMeasure(branch, m -> m.addValue(metric.getKey(), 20d));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 

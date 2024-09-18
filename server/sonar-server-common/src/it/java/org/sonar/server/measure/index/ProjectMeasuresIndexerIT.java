@@ -209,7 +209,7 @@ public class ProjectMeasuresIndexerIT {
     BranchDto branchDto = db.components().insertProjectBranch(project1.getProjectDto());
     underTest.indexOnAnalysis(branchDto.getUuid());
 
-    assertThatIndexContainsOnly(new ProjectDto[] {});
+    assertThatIndexContainsOnly(new ProjectDto[]{});
   }
 
   @Test
@@ -266,8 +266,8 @@ public class ProjectMeasuresIndexerIT {
     BranchDto oldMainBranchDto = projectData.getMainBranchDto();
     BranchDto newMainBranchDto = db.components().insertProjectBranch(project);
     MetricDto nloc = db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
-    db.measures().insertLiveMeasure(oldMainBranchDto, nloc, e -> e.setValue(1d));
-    db.measures().insertLiveMeasure(newMainBranchDto, nloc, e -> e.setValue(2d));
+    db.measures().insertMeasure(oldMainBranchDto, e -> e.addValue(nloc.getKey(), 1d));
+    db.measures().insertMeasure(newMainBranchDto, e -> e.addValue(nloc.getKey(), 2d));
     indexProject(project, CREATION);
     assertThatProjectHasMeasure(project, CoreMetrics.NCLOC_KEY, 1d);
 
@@ -394,9 +394,9 @@ public class ProjectMeasuresIndexerIT {
     List<Map<String, Object>> documents = es.getDocuments(TYPE_PROJECT_MEASURES).stream().map(SearchHit::getSourceAsMap).toList();
 
     List<Tuple> expected = Arrays.stream(projectDatas).map(
-      projectData -> tuple(
-        projectData.getProjectDto().getKey(),
-        projectData.getProjectDto().getCreatedAt()))
+        projectData -> tuple(
+          projectData.getProjectDto().getKey(),
+          projectData.getProjectDto().getCreatedAt()))
       .toList();
     assertThat(documents)
       .extracting(hit -> hit.get("key"), hit -> stringDateToMilliseconds((String) hit.get("createdAt")))

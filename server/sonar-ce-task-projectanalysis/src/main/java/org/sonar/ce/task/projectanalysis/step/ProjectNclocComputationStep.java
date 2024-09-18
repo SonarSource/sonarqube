@@ -19,14 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import java.util.List;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.measure.MeasureDto;
-
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 
 public class ProjectNclocComputationStep implements ComputationStep {
 
