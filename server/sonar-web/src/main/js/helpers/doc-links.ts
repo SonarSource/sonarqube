@@ -84,6 +84,7 @@ export enum DocLink {
   SonarScannerDotNet = '/analyzing-source-code/scanners/dotnet/introduction/',
   SonarScannerGradle = '/analyzing-source-code/scanners/sonarscanner-for-gradle/',
   SonarScannerMaven = '/analyzing-source-code/scanners/sonarscanner-for-maven/',
+  SonarWayQualityGate = '/user-guide/quality-gates/#using-sonar-way-the-recommended-quality-gate', // to be confirmed
   Webhooks = '/project-administration/webhooks/',
 }
 
