@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Display } from '@sonarsource/echoes-react';
 import { Note, QualityGateIndicator } from 'design-system';
 import React from 'react';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
@@ -26,11 +27,10 @@ import { Status } from '../../../sonar-aligned/types/common';
 
 interface Props {
   status?: Status;
-  titleSize?: 'large' | 'extra-large';
 }
 
 export default function QualityGateStatus(props: Readonly<Props>) {
-  const { status = 'NONE', titleSize = 'large' } = props;
+  const { status = 'NONE' } = props;
 
   return (
     <div className="sw-flex sw-gap-3" data-spotlight-id="cayc-promotion-3">
@@ -43,9 +43,7 @@ export default function QualityGateStatus(props: Readonly<Props>) {
             overlay={<div>{translate('overview.quality_gate.help')}</div>}
           />
         </div>
-        <span className={titleSize === 'large' ? 'sw-heading-lg' : 'sw-heading-xl'}>
-          {translate('metric.level', status === 'NONE' ? 'NOT_COMPUTED' : status)}
-        </span>
+        <Display>{translate('metric.level', status === 'NONE' ? 'NOT_COMPUTED' : status)}</Display>
       </div>
     </div>
   );

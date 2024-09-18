@@ -227,7 +227,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                   data-testid="overview__quality-gate-panel"
                   className="sw-flex sw-justify-between sw-items-start sw-my-6"
                 >
-                  <QGStatus status={qgStatus} titleSize="extra-large" />
+                  <QGStatus status={qgStatus} />
                   <LastAnalysisLabel analysisDate={branch?.analysisDate} />
                 </div>
                 <AnalysisStatus component={component} />

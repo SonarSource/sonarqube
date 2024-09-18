@@ -100,7 +100,7 @@ export default function PullRequestOverview(props: Readonly<Readonly<Props>>) {
           {ignoredConditions && <IgnoredConditionWarning />}
 
           <div className="sw-flex sw-justify-between sw-items-start sw-my-6">
-            <QGStatus status={status} titleSize="extra-large" />
+            <QGStatus status={status} />
             <LastAnalysisLabel analysisDate={pullRequest.analysisDate} />
           </div>
 
