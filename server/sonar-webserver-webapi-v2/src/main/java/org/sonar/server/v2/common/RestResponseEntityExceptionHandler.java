@@ -19,9 +19,10 @@
  */
 package org.sonar.server.v2.common;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -33,12 +34,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 @RestControllerAdvice
 public class RestResponseEntityExceptionHandler {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(RestResponseEntityExceptionHandler.class);
 
   @ExceptionHandler({IllegalStateException.class})
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -80,18 +87,24 @@ public class RestResponseEntityExceptionHandler {
     return new ResponseEntity<>(new RestError(notFoundException.getMessage()), HttpStatus.NOT_FOUND);
   }
 
-  @ExceptionHandler({HttpMessageNotReadableException.class})
+  @ExceptionHandler({
+    HttpMessageNotReadableException.class,
+    MethodArgumentTypeMismatchException.class,
+    HttpRequestMethodNotSupportedException.class,
+    ServletRequestBindingException.class,
+    NoHandlerFoundException.class
+  })
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  protected ResponseEntity<RestError> handleHttpMessageNotReadableException(HttpMessageNotReadableException httpMessageNotReadableException) {
-    String exceptionMessage = getExceptionMessage(httpMessageNotReadableException);
-    return new ResponseEntity<>(new RestError(exceptionMessage), HttpStatus.BAD_REQUEST);
+  protected ResponseEntity<RestError> handleClientSideException(Exception exception) {
+    LOGGER.error("Error processing request", exception);
+    return new ResponseEntity<>(new RestError("An error occurred while processing the request."), HttpStatus.BAD_REQUEST);
   }
 
-  private static String getExceptionMessage(HttpMessageNotReadableException httpMessageNotReadableException) {
-    if (httpMessageNotReadableException.getRootCause() instanceof InvalidFormatException invalidFormatException) {
-      return invalidFormatException.getOriginalMessage();
-    }
-    return Optional.ofNullable(httpMessageNotReadableException.getMessage()).orElse("");
+  @ExceptionHandler({Exception.class})
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  protected ResponseEntity<RestError> handleUnhandledException(Exception exception) {
+    LOGGER.error("Unhandled exception", exception);
+    return new ResponseEntity<>(new RestError("An unexpected error occurred. Please contact support if the problem persists."), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
 }

@@ -19,54 +19,55 @@
  */
 package org.sonar.server.v2.common;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import org.junit.Test;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.server.v2.api.model.RestError;
+import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.ServletRequestBindingException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-public class RestResponseEntityExceptionHandlerTest {
+class RestResponseEntityExceptionHandlerTest {
 
-  private RestResponseEntityExceptionHandler underTest = new RestResponseEntityExceptionHandler();
+  private final RestResponseEntityExceptionHandler underTest = new RestResponseEntityExceptionHandler();
 
-  @Test
-  public void handleHttpMessageNotReadableException_whenCauseIsNotInvalidFormatException_shouldUseMessage() {
+  @ParameterizedTest
+  @MethodSource("clientSideExceptionsProvider")
+  void handleClientSideException_shouldUseGenericMessage(Exception exception) {
 
-    HttpMessageNotReadableException exception = new HttpMessageNotReadableException("Message not readable", new Exception());
-
-    ResponseEntity<RestError> responseEntity = underTest.handleHttpMessageNotReadableException(exception);
+    ResponseEntity<RestError> responseEntity = underTest.handleClientSideException(exception);
 
     assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    assertThat(responseEntity.getBody().message()).isEqualTo("Message not readable; nested exception is java.lang.Exception");
+    assertThat(responseEntity.getBody().message()).isEqualTo("An error occurred while processing the request.");
+  }
+
+  private static Stream<Arguments> clientSideExceptionsProvider() {
+    return Stream.of(
+      Arguments.of(new HttpMessageNotReadableException("", (HttpInputMessage) null)),
+      Arguments.of(new MethodArgumentTypeMismatchException(null, null, null, null, null)),
+      Arguments.of(new HttpRequestMethodNotSupportedException("")),
+      Arguments.of(new ServletRequestBindingException("")),
+      Arguments.of(new NoHandlerFoundException("", null, null)));
   }
 
   @Test
-  public void handleHttpMessageNotReadableException_whenCauseIsNotInvalidFormatExceptionAndMessageIsNull_shouldUseEmptyStringAsMessage() {
+  void handleUnhandledException_shouldUseGenericMessage() {
 
-    HttpMessageNotReadableException exception = new HttpMessageNotReadableException(null, (Exception) null);
+    Exception exception = new Exception();
 
-    ResponseEntity<RestError> responseEntity = underTest.handleHttpMessageNotReadableException(exception);
+    ResponseEntity<RestError> responseEntity = underTest.handleUnhandledException(exception);
 
-    assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    assertThat(responseEntity.getBody().message()).isEmpty();
+    assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+    assertThat(responseEntity.getBody().message()).isEqualTo("An unexpected error occurred. Please contact support if the problem persists.");
   }
 
-  @Test
-  public void handleHttpMessageNotReadableException_whenCauseIsInvalidFormatException_shouldUseMessageFromCause() {
-
-    InvalidFormatException cause = mock(InvalidFormatException.class);
-    when(cause.getOriginalMessage()).thenReturn("Cause message");
-
-    HttpMessageNotReadableException exception = new HttpMessageNotReadableException("Message not readable", cause);
-
-    ResponseEntity<RestError> responseEntity = underTest.handleHttpMessageNotReadableException(exception);
-
-    assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    assertThat(responseEntity.getBody().message()).isEqualTo("Cause message");
-  }
 }
