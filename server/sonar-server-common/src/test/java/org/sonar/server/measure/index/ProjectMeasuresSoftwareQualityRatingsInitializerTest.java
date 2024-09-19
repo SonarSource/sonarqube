@@ -24,7 +24,6 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
-import org.sonar.server.measure.Rating;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

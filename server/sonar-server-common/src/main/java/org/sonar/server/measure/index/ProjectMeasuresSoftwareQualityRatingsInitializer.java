@@ -22,7 +22,6 @@ package org.sonar.server.measure.index;
 import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
-import org.sonar.server.measure.Rating;
 
 /**
  * This class defines "default" measures values for the "Software Quality Rating Metrics" when they do not exist.
