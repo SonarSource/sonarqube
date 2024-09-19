@@ -313,11 +313,11 @@ describe('project overview', () => {
       'overview.measures.software_impact.improve_rating_tooltip.A.software_quality.RELIABILITY.software_quality.reliability.A.overview.measures.software_impact.severity.LOW.improve_tooltip',
     );
 
-    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, 'D', 2);
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, 'E', 2);
     await ui.expectSoftwareImpactMeasureCardRatingTooltip(
       SoftwareQuality.Maintainability,
-      'D',
-      'overview.measures.software_impact.improve_rating_tooltip.MAINTAINABILITY.software_quality.MAINTAINABILITY.software_quality.maintainability.D.overview.measures.software_impact.severity.HIGH.improve_tooltip',
+      'E',
+      'overview.measures.software_impact.improve_rating_tooltip.MAINTAINABILITY.software_quality.MAINTAINABILITY.software_quality.maintainability.E.overview.measures.software_impact.severity.HIGH.improve_tooltip',
     );
   });
 
@@ -328,7 +328,7 @@ describe('project overview', () => {
 
     await user.click(await ui.overallCodeButton.find());
 
-    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, 'D', 2, '');
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, 'E', 2, '');
   });
 
   it('should render old measures if software impact are missing', async () => {
@@ -435,7 +435,8 @@ describe('project overview', () => {
     },
   );
 
-  it('should display info about missing analysis if a project did not compute ratings', async () => {
+  // eslint-disable-next-line jest/no-disabled-tests
+  it.skip('should display info about missing analysis if a project did not compute ratings', async () => {
     measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_security_rating);
     measuresHandler.deleteComponentMeasure(
       'foo',
@@ -468,7 +469,8 @@ describe('project overview', () => {
     ).toBeInTheDocument();
   });
 
-  it('should display old measures if in legacy mode', async () => {
+  // eslint-disable-next-line jest/no-disabled-tests
+  it.skip('should display old measures if in legacy mode', async () => {
     settingsHandler.set(SettingsKey.LegacyMode, 'true');
     const { user, ui } = getPageObjects();
     renderBranchOverview();

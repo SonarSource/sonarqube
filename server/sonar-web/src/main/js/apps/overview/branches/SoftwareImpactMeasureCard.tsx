@@ -31,7 +31,6 @@ import {
   getIssueTypeBySoftwareQuality,
 } from '../../../helpers/issues';
 import { isDefined } from '../../../helpers/types';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { Branch } from '../../../types/branch-like';
 import { SoftwareImpactMeasureData, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
@@ -52,14 +51,12 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   const { component, conditions, softwareQuality, ratingMetricKey, measures, branch } = props;
 
   const intl = useIntl();
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  // const { data: isLegacy } = useIsLegacyCCTMode();
 
   // Find measure for this software quality
   const metricKey = softwareQualityToMeasure(softwareQuality);
   const measureRaw = measures.find((m) => m.metric.key === metricKey);
-  const measure = isLegacy
-    ? undefined
-    : (JSON.parse(measureRaw?.value ?? 'null') as SoftwareImpactMeasureData);
+  const measure = JSON.parse(measureRaw?.value ?? 'null') as SoftwareImpactMeasureData;
   const alternativeMeasure = measures.find(
     (m) => m.metric.key === SOFTWARE_QUALITIES_METRIC_KEYS_MAP[softwareQuality].deprecatedMetric,
   );

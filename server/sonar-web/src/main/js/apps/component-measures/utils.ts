@@ -118,7 +118,7 @@ export const populateDomainsFromMeasures = memoize(
         };
       });
 
-    if (!isLegacy && areLeakCCTMeasuresComputed(measures)) {
+    if (areLeakCCTMeasuresComputed(measures)) {
       populatedMeasures = populatedMeasures.filter(
         (measure) => !LEAK_OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
       );
@@ -141,7 +141,7 @@ export const populateDomainsFromMeasures = memoize(
       );
     }
 
-    if (!isLegacy && areCCTMeasuresComputed(measures)) {
+    if (areCCTMeasuresComputed(measures)) {
       populatedMeasures = populatedMeasures.filter(
         (measure) => !OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
       );

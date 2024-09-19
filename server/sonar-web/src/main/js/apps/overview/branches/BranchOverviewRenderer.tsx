@@ -28,11 +28,7 @@ import { CurrentUserContext } from '../../../app/components/current-user/Current
 import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
 import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
-import {
-  areCCTMeasuresComputed,
-  areSoftwareQualityRatingsComputed,
-  isDiffMetric,
-} from '../../../helpers/measures';
+import { areCCTMeasuresComputed, isDiffMetric } from '../../../helpers/measures';
 import { CodeScope } from '../../../helpers/urls';
 import { useDismissNoticeMutation } from '../../../queries/users';
 import { ApplicationPeriod } from '../../../types/application';
@@ -119,8 +115,9 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
   const hasNewCodeMeasures = measures.some((m) => isDiffMetric(m.metric.key));
 
   // Check if any potentially missing uncomputed measure is not present
-  const isMissingMeasures =
-    !areCCTMeasuresComputed(measures) || !areSoftwareQualityRatingsComputed(measures);
+  // const isMissingMeasures =
+  //   !areCCTMeasuresComputed(measures) || !areSoftwareQualityRatingsComputed(measures);
+  const isMissingMeasures = !areCCTMeasuresComputed(measures);
 
   const selectTab = (tab: CodeScope) => {
     router.replace({ query: { ...query, codeScope: tab } });

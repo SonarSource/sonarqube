@@ -44,10 +44,7 @@ import { enhanceMeasure } from '../../../components/measure/utils';
 import '../../../components/search-navigator.css';
 import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
 import { translate } from '../../../helpers/l10n';
-import {
-  areCCTMeasuresComputed,
-  areSoftwareQualityRatingsComputed,
-} from '../../../helpers/measures';
+import { areCCTMeasuresComputed } from '../../../helpers/measures';
 import { useCurrentBranchQuery } from '../../../queries/branch';
 import { useMeasuresComponentQuery } from '../../../queries/measures';
 
@@ -226,8 +223,7 @@ export default function ComponentMeasuresApp() {
                   />
                 </FlagMessage>
               )}
-              {(!areCCTMeasuresComputed(measures) ||
-                !areSoftwareQualityRatingsComputed(measures)) && (
+              {!areCCTMeasuresComputed(measures) && (
                 <AnalysisMissingInfoMessage
                   className="sw-mb-4"
                   qualifier={component?.qualifier as ComponentQualifier}

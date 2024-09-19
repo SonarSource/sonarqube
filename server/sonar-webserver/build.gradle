@@ -33,7 +33,6 @@ dependencies {
   testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
-  testImplementation 'org.junit.jupiter:junit-jupiter-params'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.eclipse.jetty:jetty-server'
   testImplementation 'org.eclipse.jetty:jetty-servlet'
