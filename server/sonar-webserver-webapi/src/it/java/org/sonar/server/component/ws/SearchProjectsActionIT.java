@@ -54,6 +54,7 @@ import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
 import org.sonar.server.component.ws.SearchProjectsAction.RequestBuilder;
 import org.sonar.server.component.ws.SearchProjectsAction.SearchProjectsRequest;
 import org.sonar.server.es.EsTester;
@@ -74,6 +75,7 @@ import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
@@ -193,11 +195,6 @@ public class SearchProjectsActionIT {
     };
   }
 
-  @DataProvider
-  public static List<Edition> editions_supporting_ai_code_assurance() {
-    return List.of(Edition.DEVELOPER, Edition.ENTERPRISE, Edition.DATACENTER);
-  }
-
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
 
@@ -208,7 +205,9 @@ public class SearchProjectsActionIT {
     System2.INSTANCE);
   private final ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
 
-  private final WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, editionProviderMock));
+  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier = mock(AiCodeAssuranceVerifier.class);
+
+  private final WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, editionProviderMock, aiCodeAssuranceVerifier));
 
   private final RequestBuilder request = SearchProjectsRequest.builder();
 
@@ -1392,44 +1391,20 @@ public class SearchProjectsActionIT {
   }
 
   @Test
-  public void ai_code_assured_is_always_false_for_community_edition() {
-    when(editionProviderMock.get()).thenReturn(Optional.of(Edition.COMMUNITY));
+  @DataProvider({"true", "false"})
+  public void return_ai_code_assured(Boolean aiCodeAssured) {
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(any())).thenReturn(aiCodeAssured);
     userSession.logIn();
-    ProjectDto aiAssuredProject = db.components().insertPublicProject(componentDto -> componentDto.setName("proj_A"),
+    ProjectDto project = db.components().insertPublicProject(componentDto -> componentDto.setName("proj_A"),
       projectDto -> projectDto.setAiCodeAssurance(true)).getProjectDto();
-    authorizationIndexerTester.allowOnlyAnyone(aiAssuredProject);
-    ProjectDto notAiAssuredProject = db.components().insertPrivateProject(componentDto -> componentDto.setName("proj_B"),
-      projectDto -> projectDto.setAiCodeAssurance(false)).getProjectDto();
-    authorizationIndexerTester.allowOnlyAnyone(notAiAssuredProject);
+    authorizationIndexerTester.allowOnlyAnyone(project);
     index();
 
     SearchProjectsWsResponse result = call(request);
 
     assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getIsAiCodeAssured)
       .containsExactly(
-        tuple(aiAssuredProject.getKey(), false),
-        tuple(notAiAssuredProject.getKey(), false));
-  }
-
-  @Test
-  @UseDataProvider("editions_supporting_ai_code_assurance")
-  public void return_ai_code_assured(Edition edition) {
-    when(editionProviderMock.get()).thenReturn(Optional.of(edition));
-    userSession.logIn();
-    ProjectDto aiAssuredProject = db.components().insertPublicProject(componentDto -> componentDto.setName("proj_A"),
-      projectDto -> projectDto.setAiCodeAssurance(true)).getProjectDto();
-    authorizationIndexerTester.allowOnlyAnyone(aiAssuredProject);
-    ProjectDto notAiAssuredProject = db.components().insertPrivateProject(componentDto -> componentDto.setName("proj_B"),
-      projectDto -> projectDto.setAiCodeAssurance(false)).getProjectDto();
-    authorizationIndexerTester.allowOnlyAnyone(notAiAssuredProject);
-    index();
-
-    SearchProjectsWsResponse result = call(request);
-
-    assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getIsAiCodeAssured)
-      .containsExactly(
-        tuple(aiAssuredProject.getKey(), true),
-        tuple(notAiAssuredProject.getKey(), false));
+        tuple(project.getKey(), aiCodeAssured));
   }
 
   @Test

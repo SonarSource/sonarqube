@@ -28,6 +28,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -39,6 +40,8 @@ import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.SELECTED;
@@ -58,8 +61,9 @@ public class SearchActionIT {
   public DbTester db = DbTester.create();
 
   private final DbClient dbClient = db.getDbClient();
+  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier = mock(AiCodeAssuranceVerifier.class);
   private final SearchAction underTest = new SearchAction(dbClient, userSession,
-    new QualityGatesWsSupport(dbClient, userSession, TestComponentFinder.from(db)));
+    new QualityGatesWsSupport(dbClient, userSession, TestComponentFinder.from(db)), aiCodeAssuranceVerifier);
   private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -281,6 +285,30 @@ public class SearchActionIT {
       .executeProtobuf(SearchResponse.class))
       .isInstanceOf(NotFoundException.class)
       .hasMessageContaining("No quality gate has been found for name unknown");
+  }
+
+
+  @Test
+  public void return_disabled_property_in_projects() {
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    ProjectDto project1 = db.components().insertPublicProject(componentDto -> componentDto.setName("proj1"),
+      projectDto -> projectDto.setAiCodeAssurance(true)).getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject(componentDto -> componentDto.setName("proj2"),
+      projectDto -> projectDto.setAiCodeAssurance(false)).getProjectDto();
+
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(project1.getAiCodeAssurance())).thenReturn(true);
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(project2.getAiCodeAssurance())).thenReturn(false);
+
+    SearchResponse response = ws.newRequest()
+      .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
+      .setParam(PARAM_SELECTED, ALL.value())
+      .executeProtobuf(SearchResponse.class);
+
+    assertThat(response.getResultsList())
+      .extracting(Result::getName, Result::getKey, Result::getIsAiCodeAssured)
+      .containsExactlyInAnyOrder(
+        tuple(project1.getName(), project1.getKey(), true),
+        tuple(project2.getName(), project2.getKey(), false));
   }
 
   @Test

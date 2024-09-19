@@ -33,6 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates;
 
@@ -51,11 +52,13 @@ public class SearchAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QualityGatesWsSupport wsSupport;
+  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier;
 
-  public SearchAction(DbClient dbClient, UserSession userSession, QualityGatesWsSupport wsSupport) {
+  public SearchAction(DbClient dbClient, UserSession userSession, QualityGatesWsSupport wsSupport, AiCodeAssuranceVerifier aiCodeAssuranceVerifier) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.wsSupport = wsSupport;
+    this.aiCodeAssuranceVerifier = aiCodeAssuranceVerifier;
   }
 
   @Override
@@ -134,7 +137,8 @@ public class SearchAction implements QualityGatesWsAction {
         createResponse.addResultsBuilder()
           .setName(project.getName())
           .setKey(project.getKey())
-          .setSelected(project.getGateUuid() != null);
+          .setSelected(project.getGateUuid() != null)
+          .setIsAiCodeAssured(aiCodeAssuranceVerifier.isAiCodeAssured(project.getAiCodeAssurance()));
       }
 
       writeProtobuf(createResponse.build(), request, response);

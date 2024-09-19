@@ -146,6 +146,7 @@ message SearchResponse {
     optional string name = 2;
     optional bool selected = 3;
     optional string key = 4;
+    optional bool isAiCodeAssured = 5;
   }
 }
 

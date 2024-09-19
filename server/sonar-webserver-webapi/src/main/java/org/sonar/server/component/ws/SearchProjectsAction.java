@@ -56,6 +56,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
 import org.sonar.db.user.TokenType;
 import org.sonar.server.component.ws.FilterParser.Criterion;
 import org.sonar.server.component.ws.SearchProjectsAction.SearchResults.SearchResultsBuilder;
@@ -111,13 +112,15 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private final ProjectMeasuresIndex index;
   private final UserSession userSession;
   private final PlatformEditionProvider editionProvider;
+  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier;
 
   public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, UserSession userSession,
-    PlatformEditionProvider editionProvider) {
+    PlatformEditionProvider editionProvider, AiCodeAssuranceVerifier aiCodeAssuranceVerifier) {
     this.dbClient = dbClient;
     this.index = index;
     this.userSession = userSession;
     this.editionProvider = editionProvider;
+    this.aiCodeAssuranceVerifier = aiCodeAssuranceVerifier;
   }
 
   @Override
@@ -368,8 +371,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults) {
-    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, searchResults, userSession.isLoggedIn(),
-      editionProvider.get().orElse(null));
+    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, searchResults, userSession.isLoggedIn());
 
     return Stream.of(SearchProjectsWsResponse.newBuilder())
       .map(response -> response.setPaging(Common.Paging.newBuilder()
@@ -462,23 +464,21 @@ public class SearchProjectsAction implements ComponentsWsAction {
     }
   }
 
-  private static class DbToWsComponent implements Function<ProjectDto, Component> {
+  private class DbToWsComponent implements Function<ProjectDto, Component> {
     private final SearchProjectsRequest request;
     private final Component.Builder wsComponent;
     private final Set<String> favoriteProjectUuids;
     private final boolean isUserLoggedIn;
     private final Map<String, SnapshotDto> analysisByProjectUuid;
     private final Map<String, Long> applicationsLeakPeriod;
-    private final Edition edition;
 
-    private DbToWsComponent(SearchProjectsRequest request, SearchResults searchResults, boolean isUserLoggedIn, @Nullable Edition edition) {
+    private DbToWsComponent(SearchProjectsRequest request, SearchResults searchResults, boolean isUserLoggedIn) {
       this.request = request;
       this.analysisByProjectUuid = searchResults.analysisByProjectUuid;
       this.applicationsLeakPeriod = searchResults.applicationsLeakPeriods;
       this.wsComponent = Component.newBuilder();
       this.favoriteProjectUuids = searchResults.favoriteProjectUuids;
       this.isUserLoggedIn = isUserLoggedIn;
-      this.edition = edition;
     }
 
     @Override
@@ -489,7 +489,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .setName(dbProject.getName())
         .setQualifier(dbProject.getQualifier())
         .setVisibility(Visibility.getLabel(dbProject.isPrivate()))
-        .setIsAiCodeAssured(isAiCodeAssured(dbProject));
+        .setIsAiCodeAssured(aiCodeAssuranceVerifier.isAiCodeAssured(dbProject));
       wsComponent.getTagsBuilder().addAllTags(dbProject.getTags());
 
       SnapshotDto snapshotDto = analysisByProjectUuid.get(dbProject.getUuid());
@@ -513,13 +513,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       return wsComponent.build();
     }
 
-    /**
-     * Make sure that for {@link Edition#COMMUNITY} we'll always get false, no matter of the value in database.
-     * This is to support correctly downgraded instances.
-     */
-    private boolean isAiCodeAssured(ProjectDto dbProject) {
-      return edition != null && !edition.equals(Edition.COMMUNITY) && dbProject.getAiCodeAssurance();
-    }
+
   }
 
   public static class SearchResults {
