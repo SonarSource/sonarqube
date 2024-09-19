@@ -230,9 +230,10 @@ export function DevopsRolesMappingModal(props: Readonly<Props>) {
           ))}
       </Table>
       <FlagMessage variant="info">
-        {translateWithParameters(
-          'settings.authentication.configuration.roles_mapping.dialog.custom_roles_description',
-          translate('alm', mappingFor),
+        {translate(
+          'settings.authentication',
+          mappingFor,
+          'configuration.roles_mapping.dialog.custom_roles_description',
         )}
       </FlagMessage>
 
