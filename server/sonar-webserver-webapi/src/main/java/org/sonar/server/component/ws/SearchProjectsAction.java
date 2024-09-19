@@ -128,6 +128,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
       .setInternal(true)
       .setChangelog(
+        new Change("10.7", "Add 'isAiCodeAssured' response field"),
         new Change("10.3", "Add 'creationDate' sort parameter."),
         new Change("10.2", "Field 'needIssueSync' removed from response"),
         new Change("8.3", "Add 'qualifier' filter and facet"),
@@ -367,7 +368,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults) {
-    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, searchResults, userSession.isLoggedIn());
+    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, searchResults, userSession.isLoggedIn(),
+      editionProvider.get().orElse(null));
 
     return Stream.of(SearchProjectsWsResponse.newBuilder())
       .map(response -> response.setPaging(Common.Paging.newBuilder()
@@ -467,14 +469,16 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private final boolean isUserLoggedIn;
     private final Map<String, SnapshotDto> analysisByProjectUuid;
     private final Map<String, Long> applicationsLeakPeriod;
+    private final Edition edition;
 
-    private DbToWsComponent(SearchProjectsRequest request, SearchResults searchResults, boolean isUserLoggedIn) {
+    private DbToWsComponent(SearchProjectsRequest request, SearchResults searchResults, boolean isUserLoggedIn, @Nullable Edition edition) {
       this.request = request;
       this.analysisByProjectUuid = searchResults.analysisByProjectUuid;
       this.applicationsLeakPeriod = searchResults.applicationsLeakPeriods;
       this.wsComponent = Component.newBuilder();
       this.favoriteProjectUuids = searchResults.favoriteProjectUuids;
       this.isUserLoggedIn = isUserLoggedIn;
+      this.edition = edition;
     }
 
     @Override
@@ -484,7 +488,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .setKey(dbProject.getKey())
         .setName(dbProject.getName())
         .setQualifier(dbProject.getQualifier())
-        .setVisibility(Visibility.getLabel(dbProject.isPrivate()));
+        .setVisibility(Visibility.getLabel(dbProject.isPrivate()))
+        .setIsAiCodeAssured(isAiCodeAssured(dbProject));
       wsComponent.getTagsBuilder().addAllTags(dbProject.getTags());
 
       SnapshotDto snapshotDto = analysisByProjectUuid.get(dbProject.getUuid());
@@ -507,6 +512,14 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
       return wsComponent.build();
     }
+
+    /**
+     * Make sure that for {@link Edition#COMMUNITY} we'll always get false, no matter of the value in database.
+     * This is to support correctly downgraded instances.
+     */
+    private boolean isAiCodeAssured(ProjectDto dbProject) {
+      return edition != null && !edition.equals(Edition.COMMUNITY) && dbProject.getAiCodeAssurance();
+    }
   }
 
   public static class SearchResults {
@@ -518,7 +531,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private final ProjectMeasuresQuery query;
     private final int total;
 
-    private SearchResults(List<ProjectDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String, SnapshotDto> analysisByProjectUuid,
+    private SearchResults(List<ProjectDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String,
+      SnapshotDto> analysisByProjectUuid,
       Map<String, Long> applicationsLeakPeriods, ProjectMeasuresQuery query) {
       this.projects = projects;
       this.favoriteProjectUuids = favoriteProjectUuids;

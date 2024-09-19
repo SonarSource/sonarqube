@@ -193,6 +193,11 @@ public class SearchProjectsActionIT {
     };
   }
 
+  @DataProvider
+  public static List<Edition> editions_supporting_ai_code_assurance() {
+    return List.of(Edition.DEVELOPER, Edition.ENTERPRISE, Edition.DATACENTER);
+  }
+
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
 
@@ -217,7 +222,7 @@ public class SearchProjectsActionIT {
     assertThat(def.isPost()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
     assertThat(def.params().stream().map(Param::key).toList()).containsOnly("filter", "facets", "s", "asc", "ps", "p", "f");
-    assertThat(def.changelog()).hasSize(4);
+    assertThat(def.changelog()).hasSize(5);
 
     Param sort = def.param("s");
     assertThat(sort.defaultValue()).isEqualTo("name");
@@ -1384,6 +1389,47 @@ public class SearchProjectsActionIT {
       .containsExactly(
         tuple(privateProject.getKey(), privateProject.isPrivate() ? "private" : "public"),
         tuple(publicProject.getKey(), publicProject.isPrivate() ? "private" : "public"));
+  }
+
+  @Test
+  public void ai_code_assured_is_always_false_for_community_edition() {
+    when(editionProviderMock.get()).thenReturn(Optional.of(Edition.COMMUNITY));
+    userSession.logIn();
+    ProjectDto aiAssuredProject = db.components().insertPublicProject(componentDto -> componentDto.setName("proj_A"),
+      projectDto -> projectDto.setAiCodeAssurance(true)).getProjectDto();
+    authorizationIndexerTester.allowOnlyAnyone(aiAssuredProject);
+    ProjectDto notAiAssuredProject = db.components().insertPrivateProject(componentDto -> componentDto.setName("proj_B"),
+      projectDto -> projectDto.setAiCodeAssurance(false)).getProjectDto();
+    authorizationIndexerTester.allowOnlyAnyone(notAiAssuredProject);
+    index();
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getIsAiCodeAssured)
+      .containsExactly(
+        tuple(aiAssuredProject.getKey(), false),
+        tuple(notAiAssuredProject.getKey(), false));
+  }
+
+  @Test
+  @UseDataProvider("editions_supporting_ai_code_assurance")
+  public void return_ai_code_assured(Edition edition) {
+    when(editionProviderMock.get()).thenReturn(Optional.of(edition));
+    userSession.logIn();
+    ProjectDto aiAssuredProject = db.components().insertPublicProject(componentDto -> componentDto.setName("proj_A"),
+      projectDto -> projectDto.setAiCodeAssurance(true)).getProjectDto();
+    authorizationIndexerTester.allowOnlyAnyone(aiAssuredProject);
+    ProjectDto notAiAssuredProject = db.components().insertPrivateProject(componentDto -> componentDto.setName("proj_B"),
+      projectDto -> projectDto.setAiCodeAssurance(false)).getProjectDto();
+    authorizationIndexerTester.allowOnlyAnyone(notAiAssuredProject);
+    index();
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getIsAiCodeAssured)
+      .containsExactly(
+        tuple(aiAssuredProject.getKey(), true),
+        tuple(notAiAssuredProject.getKey(), false));
   }
 
   @Test
