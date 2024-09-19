@@ -184,6 +184,11 @@ public class ComponentDbTester {
     return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true, branchPopulator, componentPopulator, projectPopulator);
   }
 
+  public ProjectData insertProjectWithAiCode() {
+    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true, defaults(), defaults(), p -> p.setAiCodeAssurance(true));
+  }
+
+
   public final ComponentDto insertPublicPortfolio() {
     return insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(false), false, defaults(), defaults());
   }
