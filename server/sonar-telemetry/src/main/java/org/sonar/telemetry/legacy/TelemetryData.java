@@ -406,6 +406,7 @@ public class TelemetryData {
     private final Long externalSecurityReportExportedAt;
     private final CreationMethod creationMethod;
     private final Boolean monorepo;
+    private final Boolean isAiCodeAssured;
 
     ProjectStatistics(Builder builder) {
       this.projectUuid = builder.projectUuid;
@@ -424,6 +425,7 @@ public class TelemetryData {
       this.externalSecurityReportExportedAt = builder.externalSecurityReportExportedAt;
       this.creationMethod = builder.creationMethod;
       this.monorepo = builder.monorepo;
+      this.isAiCodeAssured = builder.isAiCodeAssured;
     }
 
     public int getNcdId() {
@@ -490,6 +492,10 @@ public class TelemetryData {
       return monorepo;
     }
 
+    public Boolean isAiCodeAssured() {
+      return isAiCodeAssured;
+    }
+
     static class Builder {
       private String projectUuid;
       private Long branchCount;
@@ -507,6 +513,7 @@ public class TelemetryData {
       private Long externalSecurityReportExportedAt;
       private CreationMethod creationMethod;
       private Boolean monorepo;
+      private Boolean isAiCodeAssured;
 
       public Builder setProjectUuid(String projectUuid) {
         this.projectUuid = projectUuid;
@@ -585,6 +592,11 @@ public class TelemetryData {
 
       public Builder setMonorepo(Boolean monorepo) {
         this.monorepo = monorepo;
+        return this;
+      }
+
+      public Builder setIsAiCodeAssured(Boolean isAiCodeAssured) {
+        this.isAiCodeAssured = isAiCodeAssured;
         return this;
       }
 

@@ -204,6 +204,7 @@ public class TelemetryDataJsonWriter {
         json.prop(NCD_ID, project.getNcdId());
         json.prop("project_creation_method", project.getCreationMethod().name());
         json.prop("monorepo", project.isMonorepo());
+        json.prop("is_ai_code_assured", project.isAiCodeAssured());
         project.getBugs().ifPresent(bugs -> json.prop("bugs", bugs));
         project.getVulnerabilities().ifPresent(vulnerabilities -> json.prop("vulnerabilities", vulnerabilities));
         project.getSecurityHotspots().ifPresent(securityHotspots -> json.prop("securityHotspots", securityHotspots));

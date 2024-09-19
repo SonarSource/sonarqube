@@ -30,9 +30,11 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
@@ -462,7 +464,8 @@ class TelemetryDataJsonWriterTest {
             "ncdId": 12345,
             "externalSecurityReportExportedAt": 1500000,
             "project_creation_method": "LOCAL_API",
-            "monorepo": true
+            "monorepo": true,
+            "is_ai_code_assured": false
           },
           {
             "projectUuid": "uuid-1",
@@ -480,7 +483,8 @@ class TelemetryDataJsonWriterTest {
             "ncdId": 12345,
             "externalSecurityReportExportedAt": 1500001,
             "project_creation_method": "LOCAL_API",
-            "monorepo": false
+            "monorepo": false,
+            "is_ai_code_assured": true
           },
           {
             "projectUuid": "uuid-2",
@@ -498,7 +502,8 @@ class TelemetryDataJsonWriterTest {
             "ncdId": 12345,
             "externalSecurityReportExportedAt": 1500002,
             "project_creation_method": "LOCAL_API",
-            "monorepo": true
+            "monorepo": true,
+            "is_ai_code_assured": false
           }
         ]
       }
@@ -732,7 +737,8 @@ class TelemetryDataJsonWriterTest {
       .setDevops("devops-" + i)
       .setNcdId(NCD_ID)
       .setCreationMethod(CreationMethod.LOCAL_API)
-      .setMonorepo(false);
+      .setMonorepo(false)
+      .setIsAiCodeAssured(true);
   }
 
   private static TelemetryData.ProjectStatistics.Builder getProjectStatisticsWithMetricBuilder(int i) {
@@ -744,6 +750,7 @@ class TelemetryDataJsonWriterTest {
       .setTechnicalDebt((i + 1L) * 60d)
       .setExternalSecurityReportExportedAt(1_500_000L + i)
       .setCreationMethod(CreationMethod.LOCAL_API)
+      .setIsAiCodeAssured(i % 2 != 0)
       .setMonorepo(i % 2 == 0);
   }
 
@@ -768,11 +775,8 @@ class TelemetryDataJsonWriterTest {
     return List.of(NCD_INSTANCE, NCD_PROJECT);
   }
 
-  @DataProvider
-  public static Object[][] allEditions() {
-    return Arrays.stream(EditionProvider.Edition.values())
-      .map(t -> new Object[] {t})
-      .toArray(Object[][]::new);
+  private static Stream<Arguments> allEditions() {
+    return Arrays.stream(EditionProvider.Edition.values()).map(Arguments::of);
   }
 
   private String writeTelemetryData(TelemetryData data) {

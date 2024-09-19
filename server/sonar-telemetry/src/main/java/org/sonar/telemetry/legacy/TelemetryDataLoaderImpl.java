@@ -59,6 +59,7 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.platform.ContainerSupport;
 import org.sonar.server.property.InternalProperties;
@@ -114,6 +115,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final ManagedInstanceService managedInstanceService;
   private final CloudUsageDataProvider cloudUsageDataProvider;
   private final QualityProfileDataProvider qualityProfileDataProvider;
+  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier;
   private final Set<NewCodeDefinition> newCodeDefinitions = new HashSet<>();
   private final Map<String, NewCodeDefinition> ncdByProject = new HashMap<>();
   private final Map<String, NewCodeDefinition> ncdByBranch = new HashMap<>();
@@ -125,7 +127,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository,
     PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
     ContainerSupport containerSupport, QualityGateCaycChecker qualityGateCaycChecker, QualityGateFinder qualityGateFinder,
-    ManagedInstanceService managedInstanceService, CloudUsageDataProvider cloudUsageDataProvider, QualityProfileDataProvider qualityProfileDataProvider) {
+    ManagedInstanceService managedInstanceService, CloudUsageDataProvider cloudUsageDataProvider, QualityProfileDataProvider qualityProfileDataProvider,
+    AiCodeAssuranceVerifier aiCodeAssuranceVerifier) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;
@@ -138,6 +141,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.managedInstanceService = managedInstanceService;
     this.cloudUsageDataProvider = cloudUsageDataProvider;
     this.qualityProfileDataProvider = qualityProfileDataProvider;
+    this.aiCodeAssuranceVerifier = aiCodeAssuranceVerifier;
   }
 
   private static Database loadDatabaseMetadata(DbSession dbSession) {
@@ -323,6 +327,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         .setExternalSecurityReportExportedAt(securityReportExportedAtByProjectUuid.get(projectUuid))
         .setCreationMethod(project.getCreationMethod())
         .setMonorepo(resolveMonorepo(almAndUrlAndMonorepoByProject, projectUuid))
+        .setIsAiCodeAssured(aiCodeAssuranceVerifier.isAiCodeAssured(project.getAiCodeAssurance()))
         .build();
       projectStatistics.add(stats);
     }

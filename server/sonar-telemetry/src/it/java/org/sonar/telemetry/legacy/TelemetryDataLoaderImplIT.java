@@ -19,25 +19,23 @@
  */
 package org.sonar.telemetry.legacy;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -47,12 +45,14 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.AnalysisPropertyDto;
+import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.CreationMethod;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -60,6 +60,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTelemetryDto;
+import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.platform.ContainerSupport;
 import org.sonar.server.property.InternalProperties;
@@ -105,14 +106,13 @@ import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
 import static org.sonar.telemetry.legacy.TelemetryDataLoaderImpl.EXTERNAL_SECURITY_REPORT_EXPORTED_AT;
 
-@RunWith(DataProviderRunner.class)
-public class TelemetryDataLoaderImplIT {
-  private final static Long NOW = 100_000_000L;
+class TelemetryDataLoaderImplIT {
+  private static final Long NOW = 100_000_000L;
   public static final String SERVER_ID = "AU-TpxcB-iU5OvuD2FL7";
   private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
   private final FakeServer server = new FakeServer();
   private final PluginRepository pluginRepository = mock(PluginRepository.class);
@@ -126,11 +126,12 @@ public class TelemetryDataLoaderImplIT {
   private final InternalProperties internalProperties = spy(new MapInternalProperties());
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
   private final CloudUsageDataProvider cloudUsageDataProvider = mock(CloudUsageDataProvider.class);
+  private final AiCodeAssuranceVerifier aiCodeAssuranceVerifier = mock(AiCodeAssuranceVerifier.class);
 
   private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider, qualityProfileDataProvider);
+    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider, qualityProfileDataProvider, aiCodeAssuranceVerifier);
   private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider, qualityProfileDataProvider);
+    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider, qualityProfileDataProvider, aiCodeAssuranceVerifier);
 
   private QualityGateDto builtInDefaultQualityGate;
   private MetricDto bugsDto;
@@ -139,8 +140,8 @@ public class TelemetryDataLoaderImplIT {
   private MetricDto technicalDebtDto;
   private MetricDto developmentCostDto;
 
-  @Before
-  public void setUpBuiltInQualityGate() {
+  @BeforeEach
+  void setUpBuiltInQualityGate() {
     String builtInQgName = "Sonar way";
     builtInDefaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName(builtInQgName).setBuiltIn(true));
     when(qualityGateCaycChecker.checkCaycCompliant(any(), any())).thenReturn(NON_COMPLIANT);
@@ -154,7 +155,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void send_telemetry_data() {
+  void send_telemetry_data() {
     String version = "7.5.4";
     Long analysisDate = 1L;
     Long lastConnectionDate = 5L;
@@ -177,7 +178,9 @@ public class TelemetryDataLoaderImplIT {
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
-    ProjectData projectData1 = db.components().insertPrivateProject();
+    ProjectData projectData1 = db.components().insertPrivateProject(ComponentDbTester.defaults(), projectDto -> projectDto.setAiCodeAssurance(true));
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectData1.getProjectDto().getAiCodeAssurance())).thenReturn(true);
+
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
     var branch1 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("reference"));
     var branch2 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("custom"));
@@ -194,7 +197,9 @@ public class TelemetryDataLoaderImplIT {
     db.measures().insertLiveMeasure(branch1, technicalDebtDto, m -> m.setValue(6d).setData((String) null));
     db.measures().insertLiveMeasure(branch2, technicalDebtDto, m -> m.setValue(7d).setData((String) null));
 
-    ProjectData projectData2 = db.components().insertPrivateProject();
+    ProjectData projectData2 = db.components().insertPrivateProject(ComponentDbTester.defaults(), projectDto -> projectDto.setAiCodeAssurance(false));
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(projectData2.getProjectDto().getAiCodeAssurance())).thenReturn(false);
+
     ComponentDto mainBranch2 = projectData2.getMainBranchComponent();
     db.measures().insertLiveMeasure(mainBranch2, lines, m -> m.setValue(200d));
     db.measures().insertLiveMeasure(mainBranch2, ncloc, m -> m.setValue(200d));
@@ -289,12 +294,13 @@ public class TelemetryDataLoaderImplIT {
         ProjectStatistics::getDevelopmentCost,
         ProjectStatistics::getTechnicalDebt,
         ProjectStatistics::getNcdId,
-        ProjectStatistics::isMonorepo)
+        ProjectStatistics::isMonorepo,
+        ProjectStatistics::isAiCodeAssured)
       .containsExactlyInAnyOrder(
         tuple(3L, 0L, qualityGate1.getUuid(), "scm-1", "ci-1", "azure_devops_cloud", Optional.of(1L), Optional.of(1L), Optional.of(1L), Optional.of(50L), Optional.of(5L),
-          projectNcdId, false),
+          projectNcdId, false, true),
         tuple(1L, 0L, builtInDefaultQualityGate.getUuid(), "scm-2", "ci-2", "github_cloud", Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-          Optional.empty(), instanceNcdId, true));
+          Optional.empty(), instanceNcdId, true, false));
 
     assertThat(data.getBranches())
       .extracting(Branch::branchUuid, Branch::ncdId)
@@ -333,7 +339,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void send_branch_measures_data() {
+  void send_branch_measures_data() {
     Long analysisDate = ZonedDateTime.now(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
     MetricDto qg = db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
@@ -395,7 +401,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void take_largest_branch_snapshot_project_data() {
+  void take_largest_branch_snapshot_project_data() {
     server.setId(SERVER_ID).setVersion("7.5.4");
 
     MetricDto lines = db.measures().insertMetric(m -> m.setKey(LINES_KEY));
@@ -442,7 +448,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void load_shouldProvideQualityProfileInProjectSection() {
+  void load_shouldProvideQualityProfileInProjectSection() {
     server.setId(SERVER_ID).setVersion("7.5.4");
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
     MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
@@ -480,7 +486,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void load_shouldProvideCreationMethodInProjectStatisticsSection() {
+  void load_shouldProvideCreationMethodInProjectStatisticsSection() {
     server.setId(SERVER_ID).setVersion("7.5.4");
 
     ProjectData projectData1 = db.components().insertPrivateProjectWithCreationMethod(CreationMethod.LOCAL_API);
@@ -503,7 +509,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void test_ncd_on_community_edition() {
+  void test_ncd_on_community_edition() {
     server.setId(SERVER_ID).setVersion("7.5.4");
     when(editionProvider.get()).thenReturn(Optional.of(COMMUNITY));
 
@@ -526,8 +532,23 @@ public class TelemetryDataLoaderImplIT {
       .contains(tuple(branch.uuid(), projectNcdId));
   }
 
+  @ParameterizedTest
+  @MethodSource("values")
+  void load_shouldContainCorrectAiCodeAssuranceField(boolean expected) {
+    ProjectDto project1 = db.components().insertPublicProject(componentDto -> {},
+      projectDto -> projectDto.setAiCodeAssurance(expected)).getProjectDto();
+
+    when(aiCodeAssuranceVerifier.isAiCodeAssured(project1.getAiCodeAssurance())).thenReturn(expected);
+
+    TelemetryData data = communityUnderTest.load();
+
+    assertThat(data.getProjectStatistics())
+      .extracting(ProjectStatistics::isAiCodeAssured)
+      .containsExactly(expected);
+  }
+
   @Test
-  public void data_contains_weekly_count_sonarlint_users() {
+  void data_contains_weekly_count_sonarlint_users() {
     db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW - 100_000L));
     db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW));
     // these don't count
@@ -540,7 +561,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void send_server_id_and_version() {
+  void send_server_id_and_version() {
     String id = randomAlphanumeric(40);
     String version = randomAlphanumeric(10);
     server.setId(id);
@@ -556,7 +577,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void send_server_installation_date_and_installation_version() {
+  void send_server_installation_date_and_installation_version() {
     String installationVersion = "7.9.BEST.LTS.EVER";
     Long installationDate = 1546300800000L; // 2019/01/01
     internalProperties.write(InternalProperties.INSTALLATION_DATE, String.valueOf(installationDate));
@@ -569,14 +590,14 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void send_correct_sequence_number() {
+  void send_correct_sequence_number() {
     internalProperties.write(TelemetryDaemon.I_PROP_MESSAGE_SEQUENCE, "10");
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getMessageSequenceNumber()).isEqualTo(11L);
   }
 
   @Test
-  public void do_not_send_server_installation_details_if_missing_property() {
+  void do_not_send_server_installation_details_if_missing_property() {
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getInstallationDate()).isNull();
     assertThat(data.getInstallationVersion()).isNull();
@@ -587,7 +608,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void send_unanalyzed_languages_flags_when_edition_is_community() {
+  void send_unanalyzed_languages_flags_when_edition_is_community() {
     when(editionProvider.get()).thenReturn(Optional.of(COMMUNITY));
     MetricDto unanalyzedC = db.measures().insertMetric(m -> m.setKey(UNANALYZED_C_KEY));
     MetricDto unanalyzedCpp = db.measures().insertMetric(m -> m.setKey(UNANALYZED_CPP_KEY));
@@ -604,7 +625,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void do_not_send_unanalyzed_languages_flags_when_edition_is_not_community() {
+  void do_not_send_unanalyzed_languages_flags_when_edition_is_not_community() {
     when(editionProvider.get()).thenReturn(Optional.of(DEVELOPER));
     MetricDto unanalyzedC = db.measures().insertMetric(m -> m.setKey(UNANALYZED_C_KEY));
     MetricDto unanalyzedCpp = db.measures().insertMetric(m -> m.setKey(UNANALYZED_CPP_KEY));
@@ -620,7 +641,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void unanalyzed_languages_flags_are_set_to_false_when_no_unanalyzed_languages_and_edition_is_community() {
+  void unanalyzed_languages_flags_are_set_to_false_when_no_unanalyzed_languages_and_edition_is_community() {
     when(editionProvider.get()).thenReturn(Optional.of(COMMUNITY));
 
     TelemetryData data = communityUnderTest.load();
@@ -630,7 +651,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void populate_security_custom_config_for_languages_on_enterprise() {
+  void populate_security_custom_config_for_languages_on_enterprise() {
     when(editionProvider.get()).thenReturn(Optional.of(ENTERPRISE));
 
     when(configuration.get("sonar.security.config.javasecurity")).thenReturn(Optional.of("{}"));
@@ -645,7 +666,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void skip_security_custom_config_on_community() {
+  void skip_security_custom_config_on_community() {
     when(editionProvider.get()).thenReturn(Optional.of(COMMUNITY));
 
     TelemetryData data = communityUnderTest.load();
@@ -654,7 +675,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void undetected_alm_ci_slm_data() {
+  void undetected_alm_ci_slm_data() {
     server.setId(SERVER_ID).setVersion("7.5.4");
     db.components().insertPublicProject().getMainBranchComponent();
     TelemetryData data = communityUnderTest.load();
@@ -664,7 +685,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void givenExistingExternalSecurityReport_whenTelemetryIsGenerated_payloadShouldContainLastUsageDate() {
+  void givenExistingExternalSecurityReport_whenTelemetryIsGenerated_payloadShouldContainLastUsageDate() {
     server.setId(SERVER_ID).setVersion("7.5.4");
     ProjectData projectData = db.components().insertPublicProject();
     db.getDbClient().propertiesDao().saveProperty(new PropertyDto().setKey(EXTERNAL_SECURITY_REPORT_EXPORTED_AT).setEntityUuid(projectData.projectUuid()).setValue("1"));
@@ -676,9 +697,9 @@ public class TelemetryDataLoaderImplIT {
       .get().isEqualTo(1L);
   }
 
-  @Test
-  @UseDataProvider("getManagedInstanceData")
-  public void managedInstanceData_containsCorrectInformation(boolean isManaged, String provider) {
+  @ParameterizedTest
+  @MethodSource("managedInstanceData")
+  void managedInstanceData_containsCorrectInformation(boolean isManaged, String provider) {
     when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(isManaged);
     when(managedInstanceService.getProviderName()).thenReturn(provider);
 
@@ -690,7 +711,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void load_shouldContainCloudUsage() {
+  void load_shouldContainCloudUsage() {
     CloudUsage cloudUsage = new CloudUsage(true, "1.27", "linux/amd64", "5.4.181-99.354.amzn2.x86_64", "10.1.0", false, false, "docker", false);
     when(cloudUsageDataProvider.getCloudUsage()).thenReturn(cloudUsage);
 
@@ -699,7 +720,7 @@ public class TelemetryDataLoaderImplIT {
   }
 
   @Test
-  public void default_quality_gate_sent_with_project() {
+  void default_quality_gate_sent_with_project() {
     db.components().insertPublicProject();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("anything").setBuiltIn(true));
     db.qualityGates().setDefaultQualityGate(qualityGate);
@@ -723,22 +744,19 @@ public class TelemetryDataLoaderImplIT {
       .setCreatedAt(1L));
   }
 
-  @DataProvider
-  public static Set<String> getScimFeatureStatues() {
-    HashSet<String> result = new HashSet<>();
-    result.add("true");
-    result.add("false");
-    result.add(null);
-    return result;
+  private static Stream<Arguments> managedInstanceData() {
+    return Stream.of(
+      Arguments.of(true, "scim"),
+      Arguments.of(true, "github"),
+      Arguments.of(true, "gitlab"),
+      Arguments.of(false, null)
+    );
   }
 
-  @DataProvider
-  public static Object[][] getManagedInstanceData() {
-    return new Object[][] {
-      {true, "scim"},
-      {true, "github"},
-      {true, "gitlab"},
-      {false, null},
-    };
+  private static Stream<Arguments> values() {
+    return Stream.of(
+      Arguments.of(false),
+      Arguments.of(true)
+    );
   }
 }
