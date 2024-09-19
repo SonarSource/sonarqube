@@ -27,7 +27,8 @@ public enum MessageType {
   GLOBAL_NCD_PAGE_90(true, false),
   PROJECT_NCD_90(true, false),
   PROJECT_NCD_PAGE_90(true, false),
-  BRANCH_NCD_90(true, false);
+  BRANCH_NCD_90(true, false),
+  UNRESOLVED_FINDINGS_IN_AI_GENERATED_CODE(true, true);
 
   private final boolean dismissible;
   private final boolean isWarning;

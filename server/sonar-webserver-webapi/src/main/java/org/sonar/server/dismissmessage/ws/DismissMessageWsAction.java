@@ -42,7 +42,7 @@ public interface DismissMessageWsAction extends WsAction {
           throw new IllegalArgumentException("The 'projectKey' parameter is not expected for message type: " + type);
         }
       }
-      case PROJECT_NCD_90, PROJECT_NCD_PAGE_90, BRANCH_NCD_90 -> {
+      case PROJECT_NCD_90, PROJECT_NCD_PAGE_90, BRANCH_NCD_90, UNRESOLVED_FINDINGS_IN_AI_GENERATED_CODE -> {
         if(projectKey == null) {
           throw new IllegalArgumentException("The 'projectKey' parameter is missing for message type: " + type);
         }
