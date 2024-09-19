@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Link } from '@sonarsource/echoes-react';
+import { Link, Text } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { FlagMessage, SubTitle, ToggleButton, getTabId, getTabPanelId } from 'design-system';
 import * as React from 'react';
@@ -123,9 +123,9 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
         </FlagMessage>
       )}
 
-      <div className="sw-my-6">
-        <p>{translate('settings.authentication.description')}</p>
-      </div>
+      <Text as="p" className="sw-my-6">
+        {translate('settings.authentication.description')}
+      </Text>
 
       <ToggleButton
         role="tablist"

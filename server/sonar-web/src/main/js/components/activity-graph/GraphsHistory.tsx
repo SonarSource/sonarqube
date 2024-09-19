@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LightLabel, Spinner } from 'design-system';
+import { Spinner, Text } from '@sonarsource/echoes-react';
 import { isEqual, uniqBy } from 'lodash';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
@@ -73,7 +73,7 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
       return (
         <div className="sw-flex sw-justify-center sw-flex-col sw-items-stretch sw-grow">
           <div className="sw-text-center">
-            <Spinner loading={loading} />
+            <Spinner isLoading={loading} />
           </div>
         </div>
       );
@@ -82,13 +82,13 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
     if (!hasHistoryData(series)) {
       return (
         <div className="sw-flex sw-items-center sw-justify-center sw-h-full">
-          <LightLabel className="sw-body-sm">
+          <Text isSubdued>
             {translate(
               isCustom
                 ? 'project_activity.graphs.custom.no_history'
                 : 'component_measures.no_history',
             )}
-          </LightLabel>
+          </Text>
         </div>
       );
     }

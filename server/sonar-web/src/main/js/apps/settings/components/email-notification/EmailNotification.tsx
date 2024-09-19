@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Spinner } from '@sonarsource/echoes-react';
+import { Spinner, Text } from '@sonarsource/echoes-react';
 import { SubTitle } from 'design-system/lib';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -34,7 +34,9 @@ export default function EmailNotification() {
       <SubTitle as="h3">
         <FormattedMessage id="email_notification.header" />
       </SubTitle>
-      <FormattedMessage id="email_notification.description" />
+      <Text>
+        <FormattedMessage id="email_notification.description" />
+      </Text>
       <Spinner isLoading={isLoading}>
         {configuration == null || isEditing ? (
           <EmailNotificationConfiguration

@@ -18,19 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import { Text, TextSize } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import {
   LightLabel,
   NoDataIcon,
   SnoozeCircleIcon,
   TextError,
-  TextSubdued,
   TrendUpCircleIcon,
   getTabPanelId,
   themeColor,
 } from 'design-system';
+import { isEmpty } from 'lodash';
 import React from 'react';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import {
@@ -109,21 +110,19 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
   }
 
   let acceptedIssuesFooter = null;
-  if (!newAcceptedIssues) {
+  if (isEmpty(newAcceptedIssues)) {
     acceptedIssuesFooter = (
-      <StyledInfoMessage className="sw-rounded-2 sw-text-xs sw-p-4 sw-flex sw-gap-1 sw-flex-wrap">
-        <span>
-          {intl.formatMessage({
-            id: `overview.run_analysis_to_compute.${component.qualifier}`,
-          })}
-        </span>
+      <StyledInfoMessage className="sw-rounded-2 sw-p-4">
+        <Text size={TextSize.Small}>
+          <FormattedMessage id={`overview.run_analysis_to_compute.${component.qualifier}`} />
+        </Text>
       </StyledInfoMessage>
     );
   } else {
     acceptedIssuesFooter = (
-      <TextSubdued className="sw-body-xs">
+      <Text size={TextSize.Small} isSubdued>
         {intl.formatMessage({ id: 'overview.accepted_issues.help' })}
-      </TextSubdued>
+      </Text>
     );
   }
 
@@ -156,15 +155,14 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
   return (
     <div id={getTabPanelId(CodeScope.New)}>
       {leakPeriod && (
-        <span
-          className="sw-body-xs sw-flex sw-items-center sw-mr-6"
-          data-spotlight-id="cayc-promotion-2"
-        >
-          <LightLabel className="sw-mr-1">{translate('overview.new_code')}:</LightLabel>
-          <b className="sw-flex">
+        <div className="sw-flex sw-items-center sw-mr-6" data-spotlight-id="cayc-promotion-2">
+          <Text isSubdued size={TextSize.Small} className="sw-mr-1">
+            {translate('overview.new_code')}:
+          </Text>
+          <Text isHighlighted size={TextSize.Small} className="sw-flex">
             <LeakPeriodInfo leakPeriod={leakPeriod} />
-          </b>
-        </span>
+          </Text>
+        </div>
       )}
       <GridContainer className="sw-relative sw-overflow-hidden sw-mt-8 js-summary">
         {!noConditionsAndWarningForNewCode && (
@@ -213,7 +211,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
         >
           <IssueMeasuresCardInner
             data-testid="overview__measures-accepted_issues"
-            disabled={Boolean(component.needIssueSync) || !newAcceptedIssues}
+            disabled={Boolean(component.needIssueSync) || isEmpty(newAcceptedIssues)}
             metric={MetricKey.new_accepted_issues}
             value={formatMeasure(newAcceptedIssues, MetricType.ShortInteger)}
             header={intl.formatMessage({

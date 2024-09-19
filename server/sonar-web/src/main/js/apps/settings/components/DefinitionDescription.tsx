@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Note, SubHeading } from 'design-system';
+import { Text, Tooltip } from '@sonarsource/echoes-react';
+import { SubHeading } from 'design-system';
 import * as React from 'react';
-import Tooltip from '../../../components/controls/Tooltip';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeStringRestricted } from '../../../helpers/sanitize';
 import { ExtendedSettingDefinition } from '../../../types/settings';
@@ -48,9 +48,9 @@ export default function DefinitionDescription({ definition }: Readonly<Props>) {
       )}
 
       <Tooltip content={translateWithParameters('settings.key_x', definition.key)}>
-        <Note as="div" className="sw-mt-4">
+        <Text isSubdued as="div" className="sw-mt-4">
           {translateWithParameters('settings.key_x', definition.key)}
-        </Note>
+        </Text>
       </Tooltip>
     </div>
   );
