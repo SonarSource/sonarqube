@@ -51,6 +51,19 @@ const PROJECT: Project = {
   tags: [],
   visibility: Visibility.Public,
   isScannable: false,
+  isAiCodeAssured: true,
+};
+
+const PROJECT_WITH_AI_CODE_DISABLED: Project = {
+  analysisDate: '2017-01-01',
+  key: 'foo',
+  measures: MEASURES,
+  name: 'Foo',
+  qualifier: ComponentQualifier.Project,
+  tags: [],
+  visibility: Visibility.Public,
+  isScannable: false,
+  isAiCodeAssured: false,
 };
 
 const USER_LOGGED_OUT = mockCurrentUser();
@@ -80,6 +93,18 @@ it('should display private badge', () => {
   const project: Project = { ...PROJECT, visibility: Visibility.Private };
   renderProjectCard(project);
   expect(screen.getByText('visibility.private')).toBeInTheDocument();
+});
+
+it('should display ai code assurance badge when isAiCodeAssured is true', () => {
+  const project: Project = { ...PROJECT, visibility: Visibility.Private };
+  renderProjectCard(project);
+  expect(screen.getByText('ai_code')).toBeInTheDocument();
+});
+
+it('should display ai code assurance badge when isAiCodeAssured is false', () => {
+  const project: Project = { ...PROJECT_WITH_AI_CODE_DISABLED, visibility: Visibility.Private };
+  renderProjectCard(project);
+  expect(screen.queryByText('ai_code')).not.toBeInTheDocument();
 });
 
 it('should display configure analysis button for logged in user and scan rights', () => {

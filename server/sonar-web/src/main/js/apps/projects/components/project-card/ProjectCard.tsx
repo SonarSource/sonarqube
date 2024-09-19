@@ -85,6 +85,7 @@ function renderFirstLine(
     measures.ncloc !== undefined;
   const formatted = formatMeasure(measures[MetricKey.alert_status], MetricType.Level);
   const qualityGateLabel = translateWithParameters('overview.quality_gate_x', formatted);
+
   return (
     <>
       <div className="sw-flex sw-justify-between sw-items-center ">
@@ -129,6 +130,16 @@ function renderFirstLine(
               <Badge className="sw-ml-2">{translate('visibility', visibility)}</Badge>
             </span>
           </Tooltip>
+
+          {project.isAiCodeAssured && (
+            <Tooltip content={translate('projects.ai_code.content')}>
+              <span>
+                <Badge variant="new" className="sw-ml-2">
+                  {translate('ai_code')}
+                </Badge>
+              </span>
+            </Tooltip>
+          )}
 
           {awaitingScan && !isNewCode && !isEmpty(analysisDate) && measures.ncloc !== undefined && (
             <ChangeInCalculation qualifier={qualifier} />
