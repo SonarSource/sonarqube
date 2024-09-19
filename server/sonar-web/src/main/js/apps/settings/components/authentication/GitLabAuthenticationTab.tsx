@@ -295,7 +295,7 @@ export default function GitLabAuthenticationTab() {
                   id="settings.authentication.gitlab.provisioning_at_login.description"
                   values={{
                     documentation: (
-                      <DocumentationLink to={DocLink.AlmGitLabAuthProvisioningMethod}>
+                      <DocumentationLink to={DocLink.AlmGitLabAuthJITProvisioningMethod}>
                         {translate(`learn_more`)}
                       </DocumentationLink>
                     ),
@@ -353,7 +353,7 @@ export default function GitLabAuthenticationTab() {
                   id="settings.authentication.gitlab.form.provisioning_with_gitlab.description"
                   values={{
                     documentation: (
-                      <DocumentationLink to={DocLink.AlmGitLabAuthProvisioningMethod}>
+                      <DocumentationLink to={DocLink.AlmGitLabAuthAutoProvisioningMethod}>
                         {translate(`learn_more`)}
                       </DocumentationLink>
                     ),
