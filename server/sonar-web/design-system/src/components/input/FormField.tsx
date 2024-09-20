@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { Label } from '@sonarsource/echoes-react';
 import { ReactNode } from 'react';
 import tw from 'twin.macro';
 import { Note } from '../../sonar-aligned';
@@ -50,7 +52,7 @@ export function FormField({
   title,
   ariaLabel,
   requiredAriaLabel,
-}: Props) {
+}: Readonly<Props>) {
   return (
     <FieldWrapper className={className} id={id}>
       <Highlight className="sw-mb-2 sw-flex sw-items-center sw-gap-2">
@@ -72,7 +74,7 @@ export function FormField({
 
 // This is needed to prevent the target input/button from being focused
 // when clicking/hovering on the label. More info https://stackoverflow.com/questions/9098581/why-is-hover-for-input-triggered-on-corresponding-label-in-css
-const StyledLabel = styled.label`
+const StyledLabel = styled(Label)`
   pointer-events: none;
 `;
 

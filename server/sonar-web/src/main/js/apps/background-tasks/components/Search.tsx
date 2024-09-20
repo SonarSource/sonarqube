@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Button } from '@sonarsource/echoes-react';
+
+import { Button, Label } from '@sonarsource/echoes-react';
 import { InputSearch } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
@@ -88,24 +89,27 @@ export default class Search extends React.PureComponent<Props> {
       <section className="sw-my-4">
         <ul className="sw-flex sw-items-center sw-flex-wrap sw-gap-4">
           <li>
-            <label
+            <Label
               id="background-task-status-filter-label"
-              className="sw-body-sm-highlight sw-mr-2"
+              className="sw-mr-2"
               htmlFor="status-filter"
             >
               {translate('status')}
-            </label>
+            </Label>
+
             <StatusFilter id="status-filter" onChange={this.handleStatusChange} value={status} />
           </li>
+
           {types.length > 1 && (
             <li>
-              <label
+              <Label
                 id="background-task-type-filter-label"
-                className="sw-body-sm-highlight sw-mr-2"
+                className="sw-mr-2"
                 htmlFor="types-filter"
               >
                 {translate('type')}
-              </label>
+              </Label>
+
               <TypesFilter
                 id="types-filter"
                 onChange={this.handleTypeChange}
@@ -114,18 +118,20 @@ export default class Search extends React.PureComponent<Props> {
               />
             </li>
           )}
+
           {!component && (
             <li className="sw-flex sw-items-center">
-              <label className="sw-body-sm-highlight sw-mr-2">
+              <Label className="sw-mr-2">
                 {translate('background_tasks.currents_filter.ONLY_CURRENTS')}
-              </label>
+              </Label>
+
               <CurrentsFilter onChange={this.handleCurrentsChange} value={currents} />
             </li>
           )}
+
           <li className="sw-flex sw-items-center">
-            <label className="sw-body-sm-highlight sw-mr-2">
-              {translate('background_tasks.date_filter')}
-            </label>
+            <Label className="sw-mr-2">{translate('background_tasks.date_filter')}</Label>
+
             <DateFilter
               maxExecutedAt={maxExecutedAt}
               minSubmittedAt={minSubmittedAt}
@@ -147,6 +153,7 @@ export default class Search extends React.PureComponent<Props> {
             <Button className="js-reload sw-mr-2" isDisabled={loading} onClick={this.handleReload}>
               {translate('reload')}
             </Button>
+
             <Button isDisabled={loading} onClick={this.handleReset}>
               {translate('reset_verb')}
             </Button>
