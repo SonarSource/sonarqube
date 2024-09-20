@@ -116,7 +116,7 @@ export default function RestoreProfileForm({ onClose, onRestore }: Readonly<Prop
         </form>
       }
       primaryButton={
-        ruleSuccesses == null ? (
+        ruleSuccesses == null && (
           <Button
             isDisabled={loading}
             isLoading={loading}
@@ -125,10 +125,6 @@ export default function RestoreProfileForm({ onClose, onRestore }: Readonly<Prop
             variety={ButtonVariety.Primary}
           >
             {intl.formatMessage({ id: 'restore' })}
-          </Button>
-        ) : (
-          <Button id="restore-profile-cancel" onClick={onClose} variety={ButtonVariety.Primary}>
-            {intl.formatMessage({ id: 'close' })}
           </Button>
         )
       }
