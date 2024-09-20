@@ -163,7 +163,7 @@ export const LightLabel = styled.span`
 export const DarkLabel = styled.label`
   color: ${themeColor('pageContentDark')};
 
-  ${tw`sw-body-sm-highlight`}
+  ${tw`sw-typo-semibold`}
 `;
 
 /** @deprecated Use Text from Echoes instead.
@@ -177,5 +177,5 @@ export const LightPrimary = styled.span`
 export const Highlight = styled.strong`
   color: ${themeColor('pageContentDark')};
 
-  ${tw`sw-body-sm-highlight`}
+  ${tw`sw-typo-semibold`}
 `;

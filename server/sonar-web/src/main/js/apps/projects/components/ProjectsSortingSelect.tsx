@@ -73,16 +73,12 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
 
     return (
       <div className="sw-flex sw-items-center">
-        <StyledPageTitle
-          id="aria-projects-sort"
-          as="label"
-          className="sw-body-sm-highlight sw-mr-2"
-        >
+        <StyledPageTitle id="aria-projects-sort" as="label" className="sw-typo-semibold sw-mr-2">
           {translate('projects.sort_by')}
         </StyledPageTitle>
         <Select
           ariaLabelledBy="aria-projects-sort"
-          className="sw-body-sm"
+          className="sw-typo-default"
           onChange={this.handleSortChange}
           data={this.getOptions()}
           optionComponent={ProjectsSortingSelectItem}

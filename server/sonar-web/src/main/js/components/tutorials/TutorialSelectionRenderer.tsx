@@ -137,18 +137,18 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
   }
 
   return (
-    <div className="sw-body-sm">
+    <div className="sw-typo-default">
       <AnalysisStatus component={component} className="sw-mb-4 sw-w-max" />
 
       {selectedTutorial === undefined && (
         <div className="sw-flex sw-flex-col">
-          <Title className="sw-mb-6 sw-heading-lg">
+          <Title className="sw-mb-6 sw-heading-xl">
             {translate('onboarding.tutorial.page.title')}
           </Title>
 
           <LightPrimary>{translate('onboarding.tutorial.page.description')}</LightPrimary>
 
-          <SubTitle className="sw-mt-12 sw-mb-4 sw-heading-md">
+          <SubTitle className="sw-mt-12 sw-mb-4 sw-heading-lg">
             {translate('onboarding.tutorial.choose_method')}
           </SubTitle>
 

@@ -39,7 +39,7 @@ export interface ResetPasswordProps {
 export function ResetPassword({ currentUser }: Readonly<ResetPasswordProps>) {
   return (
     <LargeCenteredLayout className="sw-h-screen sw-pt-10">
-      <PageContentFontWrapper className="sw-body-sm">
+      <PageContentFontWrapper className="sw-typo-default">
         <Helmet defer={false} title={translate('my_account.reset_password.page')} />
         <div className="sw-flex sw-justify-center">
           <div>

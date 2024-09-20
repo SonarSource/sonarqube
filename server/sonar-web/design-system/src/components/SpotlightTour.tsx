@@ -140,7 +140,7 @@ function TooltipComponent({
 
   return (
     <StyledPopupWrapper
-      className="sw-p-3 sw-body-sm sw-relative sw-border-0"
+      className="sw-p-3 sw-typo-default sw-relative sw-border-0"
       onClick={handleClick}
       style={{ width }}
       zLevel={PopupZLevel.Absolute}
@@ -161,7 +161,7 @@ function TooltipComponent({
           }, 100);
         }}
       >
-        <strong className="sw-body-md-highlight sw-mb-2">{step.title}</strong>
+        <strong className="sw-typo-lg-semibold sw-mb-2">{step.title}</strong>
         <WrapperButton
           className="sw-w-[30px] sw-h-[30px] sw--mt-2 sw--mr-2 sw-flex sw-justify-center"
           {...skipProps}

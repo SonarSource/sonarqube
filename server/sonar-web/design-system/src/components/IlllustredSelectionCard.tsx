@@ -48,7 +48,7 @@ export function IllustratedSelectionCard(props: Props) {
 const Note = styled.span`
   color: ${themeColor('pageContentLight')};
 
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
 `;
 
 const ImageContainer = styled.div`

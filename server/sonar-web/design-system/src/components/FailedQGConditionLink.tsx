@@ -24,7 +24,7 @@ import { ButtonProps, DangerButtonSecondary } from '../sonar-aligned/components/
 import { ChevronRightIcon } from './icons/ChevronRightIcon';
 
 const StyledFailedQGConditionLink = styled(DangerButtonSecondary)`
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-h-7`}
   ${tw`sw-pl-2`}
   ${tw`sw-pr-1`}

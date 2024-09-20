@@ -93,7 +93,7 @@ export default function AzureProjectCreateRenderer(
     <PageContentFontWrapper>
       <header className="sw-mb-10">
         <Title className="sw-mb-4">{translate('onboarding.create_project.azure.title')}</Title>
-        <LightPrimary className="sw-body-sm">
+        <LightPrimary className="sw-typo-default">
           {isMonorepoSupported ? (
             <FormattedMessage
               id="onboarding.create_project.azure.subtitle.with_monorepo"

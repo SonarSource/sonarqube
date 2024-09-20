@@ -78,7 +78,7 @@ export default function AuditAppRenderer(props: Readonly<AuditAppRendererProps>)
 
   return (
     <LargeCenteredLayout as="main" id="audit-logs-page">
-      <PageContentFontWrapper className="sw-body-sm sw-my-8">
+      <PageContentFontWrapper className="sw-typo-default sw-my-8">
         <Helmet title={translate('audit_logs.page')} />
 
         <Title>{translate('audit_logs.page')}</Title>

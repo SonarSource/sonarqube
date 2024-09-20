@@ -114,7 +114,7 @@ const BannerInner = styled.div`
   ${tw`sw-box-border`}
   ${tw`sw-flex sw-items-center sw-justify-between sw-gap-3`}
   ${tw`sw-px-4`}
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
 `;
 
 const BannerCloseIcon = styled(InteractiveIconBase)<{

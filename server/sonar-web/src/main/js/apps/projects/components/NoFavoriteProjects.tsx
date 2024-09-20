@@ -24,16 +24,16 @@ import { translate } from '../../../helpers/l10n';
 export default function NoFavoriteProjects() {
   return (
     <div className="sw-py-8 sw-text-center">
-      <Highlight as="h3" className="sw-mb-2 sw-body-md-highlight">
+      <Highlight as="h3" className="sw-mb-2 sw-typo-lg-semibold">
         {translate('projects.no_favorite_projects')}
       </Highlight>
 
       <div>
-        <p className="sw-mt-2 sw-body-sm">
+        <p className="sw-mt-2 sw-typo-default">
           {translate('projects.no_favorite_projects.engagement')}
         </p>
         <p className="sw-mt-6">
-          <StandoutLink className="sw-mt-6 sw-body-sm-highlight" to="/projects/all">
+          <StandoutLink className="sw-mt-6 sw-typo-semibold" to="/projects/all">
             {translate('projects.explore_projects')}
           </StandoutLink>
         </p>

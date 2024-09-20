@@ -138,7 +138,7 @@ export class Histogram extends React.PureComponent<Props> {
 }
 
 const HistogramTick = styled.text`
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   fill: ${themeColor('pageContentLight')};
 
   ${TooltipWrapper} & {

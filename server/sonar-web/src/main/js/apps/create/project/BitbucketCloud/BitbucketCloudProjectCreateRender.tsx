@@ -77,7 +77,7 @@ export default function BitbucketCloudProjectCreateRenderer(
         <Title className="sw-mb-4">
           {translate('onboarding.create_project.bitbucketcloud.title')}
         </Title>
-        <LightPrimary className="sw-body-sm">
+        <LightPrimary className="sw-typo-default">
           {isMonorepoSupported ? (
             <FormattedMessage
               id="onboarding.create_project.bitbucketcloud.subtitle.with_monorepo"

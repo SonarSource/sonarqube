@@ -129,21 +129,15 @@ export default function EmailNotificationConfiguration(props: Readonly<Props>) {
     <form id={FORM_ID} onSubmit={onSubmit}>
       <NumberedList>
         <NumberedListItem className="sw-pt-6">
-          <span className="sw-body-sm-highlight">
-            {translate('email_notification.subheading.1')}
-          </span>
+          <span className="sw-typo-semibold">{translate('email_notification.subheading.1')}</span>
           <AuthenticationSelector configuration={newConfiguration} onChange={onChange} />
         </NumberedListItem>
         <NumberedListItem className="sw-pt-6">
-          <span className="sw-body-sm-highlight">
-            {translate('email_notification.subheading.2')}
-          </span>
+          <span className="sw-typo-semibold">{translate('email_notification.subheading.2')}</span>
           <CommonSMTP configuration={newConfiguration} onChange={onChange} />
         </NumberedListItem>
         <NumberedListItem className="sw-pt-6">
-          <span className="sw-body-sm-highlight">
-            {translate('email_notification.subheading.3')}
-          </span>
+          <span className="sw-typo-semibold">{translate('email_notification.subheading.3')}</span>
           <SenderInformation configuration={newConfiguration} onChange={onChange} />
         </NumberedListItem>
       </NumberedList>

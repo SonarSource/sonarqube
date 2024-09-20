@@ -47,7 +47,7 @@ export default function ComponentNavProjectBindingErrorNotif(
   }
 
   return (
-    <StyledBanner className="sw-body-sm sw-py-3 sw-px-4 sw-gap-4">
+    <StyledBanner className="sw-typo-default sw-py-3 sw-px-4 sw-gap-4">
       <FlagWarningIcon />
       <FormattedMessage id="component_navigation.pr_deco.error_detected_X" values={{ action }} />
     </StyledBanner>

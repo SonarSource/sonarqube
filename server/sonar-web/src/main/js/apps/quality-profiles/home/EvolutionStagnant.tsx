@@ -49,7 +49,7 @@ export default function EvolutionStagnant(props: Readonly<Props>) {
         {intl.formatMessage({ id: 'quality_profiles.not_updated_more_than_year' })}
       </FlagMessage>
 
-      <ul className="sw-flex sw-flex-col sw-gap-4 sw-body-sm">
+      <ul className="sw-flex sw-flex-col sw-gap-4 sw-typo-default">
         {outdated.map((profile) => (
           <li className="sw-flex sw-flex-col sw-gap-1" key={profile.key}>
             <div className="sw-truncate">

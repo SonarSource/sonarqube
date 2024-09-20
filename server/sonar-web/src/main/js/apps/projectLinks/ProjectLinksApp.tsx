@@ -103,7 +103,7 @@ export class ProjectLinksApp extends React.PureComponent<Props, State> {
     const { loading, links } = this.state;
     return (
       <LargeCenteredLayout>
-        <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+        <PageContentFontWrapper className="sw-my-8 sw-typo-default">
           <Helmet defer={false} title={translate('project_links.page')} />
           <Header onCreate={this.handleCreateLink} />
           <Spinner loading={loading}>

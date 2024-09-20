@@ -110,7 +110,7 @@ export default class ProfileFacet extends React.PureComponent<Props> {
         <FacetToggleActiveStyle
           selected={!!activation}
           aria-checked={activation}
-          className="js-active sw-body-xs"
+          className="js-active sw-typo-sm"
           onClick={isCompare ? this.stopPropagation : this.handleActiveClick}
           role="radio"
           tabIndex={-1}
@@ -120,7 +120,7 @@ export default class ProfileFacet extends React.PureComponent<Props> {
         <FacetToggleInActiveStyle
           selected={!activation}
           aria-checked={!activation}
-          className="js-inactive sw-body-xs sw-ml-1"
+          className="js-inactive sw-typo-sm sw-ml-1"
           onClick={isCompare ? this.stopPropagation : this.handleInactiveClick}
           role="radio"
           tabIndex={-1}

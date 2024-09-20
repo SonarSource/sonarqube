@@ -72,9 +72,9 @@ export function Analysis(props: Readonly<AnalysisProps>) {
   );
 
   return (
-    <div data-analysis-key={analysis.key} className="sw-body-sm">
+    <div data-analysis-key={analysis.key} className="sw-typo-default">
       <div className="sw-flex sw-justify-between sw-mb-1">
-        <div className="sw-body-sm-highlight">
+        <div className="sw-typo-semibold">
           <DateTimeFormatter date={analysis.date} />
         </div>
         {qualityGateStatus !== undefined && (
@@ -91,7 +91,7 @@ export function Analysis(props: Readonly<AnalysisProps>) {
                 ),
               }}
             />
-            <span className="sw-body-sm-highlight">
+            <span className="sw-typo-semibold">
               <FormattedMessage id={`metric.level.${qualityGateStatus}`} />
             </span>
           </div>

@@ -55,7 +55,7 @@ export function Profile({ currentUser }: ProfileProps) {
 
     return (
       <div className="sw-flex sw-items-center sw-mb-2">
-        <strong className="sw-body-sm-highlight sw-mr-1">{translate('my_profile.login')}:</strong>
+        <strong className="sw-typo-semibold sw-mr-1">{translate('my_profile.login')}:</strong>
         {currentUser.login && <span id="login">{currentUser.login}</span>}
         {isExternalProvider && <UserExternalIdentity user={currentUser} />}
       </div>
@@ -69,7 +69,7 @@ export function Profile({ currentUser }: ProfileProps) {
 
     return (
       <div className="sw-mb-2">
-        <strong className="sw-body-sm-highlight sw-mr-1">{translate('my_profile.email')}:</strong>
+        <strong className="sw-typo-semibold sw-mr-1">{translate('my_profile.email')}:</strong>
         <span id="email">{currentUser.email}</span>
       </div>
     );

@@ -345,7 +345,7 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
             <g key={tick}>
               {formatYTick != null && (
                 <text
-                  className="line-chart-tick line-chart-tick-x sw-body-sm"
+                  className="line-chart-tick line-chart-tick-x sw-typo-default"
                   dx="-1em"
                   dy="0.3em"
                   textAnchor="end"
@@ -382,7 +382,7 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
 
           return (
             <text
-              className="line-chart-tick sw-body-sm"
+              className="line-chart-tick sw-typo-default"
               // eslint-disable-next-line react/no-array-index-key
               key={index}
               textAnchor="end"

@@ -142,7 +142,7 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
   const isPortfolio = isPortfolioLike(qualifier);
 
   return (
-    <LargeCenteredLayout className="sw-py-8 sw-body-md" id="code-page">
+    <LargeCenteredLayout className="sw-py-8 sw-typo-lg" id="code-page">
       <Helmet defer={false} title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle} />
 
       <A11ySkipTarget anchor="code_main" />
@@ -203,7 +203,7 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
           </div>
 
           {(showComponentList || showSearch) && (
-            <div className="sw-flex sw-items-end sw-body-sm">
+            <div className="sw-flex sw-items-end sw-typo-default">
               <KeyboardHint
                 className="sw-mr-4 sw-ml-6"
                 command={`${KeyboardKeys.DownArrow} ${KeyboardKeys.UpArrow}`}

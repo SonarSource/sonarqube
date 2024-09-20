@@ -76,7 +76,7 @@ export default function ListFooter(props: ListFooterProps) {
     button = (
       <Button
         data-test="reload"
-        className="sw-ml-2 sw-body-sm"
+        className="sw-ml-2 sw-typo-default"
         isDisabled={loading}
         onClick={props.reload}
       >
@@ -88,7 +88,7 @@ export default function ListFooter(props: ListFooterProps) {
       <Button
         aria-label={loadMoreAriaLabel}
         data-test="show-more"
-        className="sw-ml-2 sw-body-sm"
+        className="sw-ml-2 sw-typo-default"
         isDisabled={loading}
         onClick={onLoadMore}
       >
@@ -103,7 +103,7 @@ export default function ListFooter(props: ListFooterProps) {
       ref={rootNode}
       className={classNames(
         'list-footer', // .list-footer is only used by Selenium tests; we should find a way to remove it.
-        'sw-body-sm sw-flex sw-items-center sw-justify-center',
+        'sw-typo-default sw-flex sw-items-center sw-justify-center',
         { 'sw-opacity-50 sw-duration-500 sw-ease-in-out': !ready },
         className,
       )}

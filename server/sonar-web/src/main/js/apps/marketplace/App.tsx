@@ -167,7 +167,7 @@ class App extends React.PureComponent<Props, State> {
 
     return (
       <LargeCenteredLayout as="main" id="marketplace-page">
-        <PageContentFontWrapper className="sw-body-sm sw-py-8">
+        <PageContentFontWrapper className="sw-typo-default sw-py-8">
           <Helmet title={translate('marketplace.page')} />
           <Header currentEdition={currentEdition} />
           <EditionBoxes currentEdition={currentEdition} />

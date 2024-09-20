@@ -50,7 +50,7 @@ export default function HotspotListMeta(props: Readonly<HotspotListMetaProps>) {
           translate(`hotspots.${emptyTranslationKey}.title`)}
       </span>
       {(hotspotsTotal > 0 || hasSelectedHotspot) && (
-        <span className="sw-body-sm">
+        <span className="sw-typo-default">
           <FormattedMessage
             id="hotspots.list_title"
             defaultMessage={
@@ -59,7 +59,7 @@ export default function HotspotListMeta(props: Readonly<HotspotListMetaProps>) {
                 : translate(`hotspots.list_title.${statusFilter}`)
             }
             values={{
-              0: <strong className="sw-body-sm-highlight">{hotspotsTotal}</strong>,
+              0: <strong className="sw-typo-semibold">{hotspotsTotal}</strong>,
             }}
           />
         </span>

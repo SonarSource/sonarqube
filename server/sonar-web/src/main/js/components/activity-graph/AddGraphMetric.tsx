@@ -165,7 +165,7 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
         }
       >
         <Button suffix={<IconChevronDown />}>
-          <span className="sw-body-sm sw-flex">
+          <span className="sw-typo-default sw-flex">
             {translate('project_activity.graphs.custom.add')}
           </span>
         </Button>

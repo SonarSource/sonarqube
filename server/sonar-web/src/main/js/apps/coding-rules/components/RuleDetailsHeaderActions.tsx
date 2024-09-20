@@ -44,7 +44,7 @@ export default function RuleDetailsHeaderActions(props: Readonly<Props>) {
   const TAGS_TO_DISPLAY = 1;
 
   return (
-    <Note className="sw-flex sw-flex-wrap sw-items-center sw-gap-2 sw-body-xs">
+    <Note className="sw-flex sw-flex-wrap sw-items-center sw-gap-2 sw-typo-sm">
       {/* Type */}
       <DocHelpTooltip
         content={
@@ -110,8 +110,8 @@ export default function RuleDetailsHeaderActions(props: Readonly<Props>) {
       {/* Tags */}
       <div className="it__coding-rules-detail-property" data-meta="tags">
         <TagsList
-          className="sw-body-xs"
-          tagsClassName="sw-body-xs"
+          className="sw-typo-sm"
+          tagsClassName="sw-typo-sm"
           allowUpdate={canWrite}
           tagsToDisplay={TAGS_TO_DISPLAY}
           tags={allTags.length > 0 ? allTags : [translate('coding_rules.no_tags')]}

@@ -83,7 +83,7 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
       <div className="it__hs-review-history">
         <PageTitle
           as="h2"
-          className="sw-body-md-highlight"
+          className="sw-typo-lg-semibold"
           text={translate('hotspot.section.activity')}
         />
 

@@ -50,7 +50,7 @@ export default class WorkspaceHeader extends React.PureComponent<Props> {
   render() {
     return (
       <StyledWorkSpaceHeader>
-        <StyledWorkspaceName className="sw-body-sm sw-inline-flex sw-items-center">
+        <StyledWorkspaceName className="sw-typo-default sw-inline-flex sw-items-center">
           {this.props.children}
         </StyledWorkspaceName>
 

@@ -39,7 +39,7 @@ export default class WorkspaceNavItem extends React.PureComponent<Props> {
     return (
       <StyledWorkspaceNavItem className="sw-mr-2">
         <StyledWorkSpaceNavItemButton
-          className="sw-body-sm sw-pr-8 sw-pl-2"
+          className="sw-typo-default sw-pr-8 sw-pl-2"
           onClick={this.handleNameClick}
         >
           {this.props.children}

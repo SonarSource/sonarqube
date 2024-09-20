@@ -34,7 +34,7 @@ export default function PluginUpdates({ pluginName, updates }: Readonly<PluginUp
   }
   return (
     <ListItem>
-      <strong className="sw-body-sm-highlight">{translate('marketplace.updates')}:</strong>
+      <strong className="sw-typo-semibold">{translate('marketplace.updates')}:</strong>
       <UnorderedList className="sw-mt-2">
         {updates.map((update) =>
           update.release ? (

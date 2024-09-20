@@ -86,7 +86,7 @@ export default function HotspotListItem(props: HotspotListItemProps) {
                 id="hotspots.location"
                 defaultMessage={translate(locationMessage)}
                 values={{
-                  0: <span className="sw-body-sm-highlight">{locations.length}</span>,
+                  0: <span className="sw-typo-semibold">{locations.length}</span>,
                 }}
               />
             </span>

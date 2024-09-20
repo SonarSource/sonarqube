@@ -54,7 +54,7 @@ export default function LanguageSelect(props: Readonly<Props>) {
 
   return (
     <div className="sw-mb-4">
-      <span className="sw-mr-2 sw-body-sm-highlight">
+      <span className="sw-mr-2 sw-typo-semibold">
         {intl.formatMessage({ id: 'quality_profiles.filter_by' })}
       </span>
       <SearchSelectDropdown

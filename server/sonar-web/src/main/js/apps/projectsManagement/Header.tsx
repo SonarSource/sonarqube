@@ -47,7 +47,7 @@ export default function Header(props: Readonly<Props>) {
           <div className="sw-mr-2">
             <span className="sw-mr-1">
               {translate('settings.projects.default_visibility_of_new_projects')}{' '}
-              <strong className="sw-body-sm-highlight">
+              <strong className="sw-typo-semibold">
                 {defaultProjectVisibility ? translate('visibility', defaultProjectVisibility) : '—'}
               </strong>
             </span>

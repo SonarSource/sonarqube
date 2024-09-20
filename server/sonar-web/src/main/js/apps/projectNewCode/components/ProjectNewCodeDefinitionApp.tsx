@@ -197,7 +197,7 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
 
       <Helmet defer={false} title={translate('project_baseline.page')} />
 
-      <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+      <PageContentFontWrapper className="sw-my-8 sw-typo-default">
         <AppHeader canAdmin={!!appState.canAdmin} />
 
         <Spinner loading={isLoading} />

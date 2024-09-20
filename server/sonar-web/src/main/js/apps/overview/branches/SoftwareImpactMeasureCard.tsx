@@ -83,7 +83,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
       className="sw-overflow-hidden sw-rounded-2 sw-flex-col"
     >
       <div className="sw-flex sw-items-center">
-        <ColorBold className="sw-body-sm-highlight">
+        <ColorBold className="sw-typo-semibold">
           {intl.formatMessage({ id: `software_quality.${softwareQuality}` })}
         </ColorBold>
         {failed && (
@@ -120,7 +120,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
             ) : (
               <StyledDash className="sw-font-bold" name="-" />
             )}
-            <TextSubdued className="sw-self-end sw-body-sm sw-pb-1">
+            <TextSubdued className="sw-self-end sw-typo-default sw-pb-1">
               {intl.formatMessage({ id: 'overview.measures.software_impact.total_open_issues' })}
             </TextSubdued>
           </div>

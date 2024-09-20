@@ -47,7 +47,7 @@ export default function EventInner({ event, readonly }: EventInnerProps) {
   } else if (isRichQualityProfileEvent(event)) {
     return (
       <div>
-        <Note className="sw-mr-1 sw-body-sm-highlight">
+        <Note className="sw-mr-1 sw-typo-semibold">
           {translate('event.category', event.category)}
         </Note>
         <Note>
@@ -69,11 +69,11 @@ export default function EventInner({ event, readonly }: EventInnerProps) {
       <div className="sw-min-w-0 sw-flex-1 sw-py-1/2">
         <div className="sw-flex sw-items-start">
           <span>
-            <Note className="sw-mr-1 sw-body-sm-highlight">
+            <Note className="sw-mr-1 sw-typo-semibold">
               {translate('event.category', event.category)}
               {event.category === 'VERSION' && ':'}
             </Note>
-            <Note className="sw-body-sm" title={event.description}>
+            <Note className="sw-typo-default" title={event.description}>
               {event.name}
             </Note>
           </span>

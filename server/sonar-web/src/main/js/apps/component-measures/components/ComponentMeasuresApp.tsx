@@ -200,7 +200,7 @@ export default function ComponentMeasuresApp() {
     <LargeCenteredLayout id="component-measures" className="sw-pt-8">
       <Suggestions suggestionGroup="component_measures" />
       <Helmet defer={false} title={translate('layout.measures')} />
-      <PageContentFontWrapper className="sw-body-sm">
+      <PageContentFontWrapper className="sw-typo-default">
         <Spinner isLoading={isLoading} />
 
         {measures.length > 0 ? (

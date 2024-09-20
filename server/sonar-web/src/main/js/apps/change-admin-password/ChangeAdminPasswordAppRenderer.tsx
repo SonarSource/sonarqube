@@ -66,7 +66,7 @@ export default function ChangeAdminPasswordAppRenderer(
     <CenteredLayout className="sw-h-screen">
       <Helmet defer={false} title={translate('users.change_admin_password.page')} />
 
-      <PageContentFontWrapper className="sw-body-sm sw-flex sw-flex-col sw-items-center sw-justify-center">
+      <PageContentFontWrapper className="sw-typo-default sw-flex sw-flex-col sw-items-center sw-justify-center">
         <Card className="sw-mx-auto sw-mt-24 sw-w-abs-600 sw-flex sw-items-stretch sw-flex-col">
           {success ? (
             <FlagMessage className="sw-my-8" variant="success">

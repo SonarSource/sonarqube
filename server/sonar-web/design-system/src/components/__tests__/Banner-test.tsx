@@ -44,7 +44,7 @@ it('should render with close button', async () => {
 function setupWithProps(props: Partial<FCProps<typeof Banner>> = {}) {
   return renderWithContext(
     <Banner {...props} variant="warning">
-      <Note className="sw-body-sm">{props.children ?? 'Test Message'}</Note>
+      <Note className="sw-typo-default">{props.children ?? 'Test Message'}</Note>
     </Banner>,
   );
 }

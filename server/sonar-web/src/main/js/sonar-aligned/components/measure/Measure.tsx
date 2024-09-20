@@ -29,13 +29,30 @@ import RatingComponent from '../../../app/components/metrics/RatingComponent';
 import RatingTooltipContent from '../../../components/measure/RatingTooltipContent';
 import { BranchLike } from '../../../types/branch-like';
 
+type FontClass =
+  | 'sw-heading-xs'
+  | 'sw-heading-sm'
+  | 'sw-heading-md'
+  | 'sw-heading-lg'
+  | 'sw-heading-xl'
+  | 'sw-typo-default'
+  | 'sw-typo-semibold'
+  | 'sw-typo-bold'
+  | 'sw-typo-sm'
+  | 'sw-typo-sm-semibold'
+  | 'sw-typo-lg'
+  | 'sw-typo-lg-semibold'
+  | 'sw-typo-label'
+  | 'sw-typo-helper-text'
+  | 'sw-typo-display';
+
 interface Props {
   badgeSize?: 'xs' | 'sm' | 'md';
   branchLike?: BranchLike;
   className?: string;
   componentKey: string;
   decimals?: number;
-  fontClassName?: `sw-body-${string}` | `sw-heading-lg`;
+  fontClassName?: FontClass;
   forceRatingMetric?: boolean;
   metricKey: string;
   metricType: string;
@@ -97,7 +114,7 @@ export default function Measure({
           className="sw-mr-2"
           size={small ? 'sm' : 'md'}
         />
-        <span className={small ? '' : 'sw-body-md'}>{formatted}</span>
+        <span className={small ? '' : 'sw-typo-lg'}>{formatted}</span>
       </>
     );
   }

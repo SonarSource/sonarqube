@@ -56,7 +56,7 @@ export function SonarLintPromotion({ currentUser, qgConditions }: SonarLintPromo
     return null;
   }
   return (
-    <InfoCard className="it__overview__sonarlint-promotion sw-body-sm">
+    <InfoCard className="it__overview__sonarlint-promotion sw-typo-default">
       <FormattedMessage
         id="overview.fix_failed_conditions_with_sonarlint"
         defaultMessage={translate('overview.fix_failed_conditions_with_sonarlint')}

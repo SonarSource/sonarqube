@@ -63,7 +63,7 @@ export default function EvolutionDeprecated({ profiles }: Readonly<Props>) {
         )}
       </FlagMessage>
 
-      <ul className="sw-flex sw-flex-col sw-gap-4 sw-body-sm">
+      <ul className="sw-flex sw-flex-col sw-gap-4 sw-typo-default">
         {sortedProfiles.map((profile) => (
           <li className="sw-flex sw-flex-col sw-gap-1" key={profile.key}>
             <div className="sw-truncate">

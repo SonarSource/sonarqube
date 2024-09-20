@@ -139,7 +139,7 @@ export default function ManualProjectCreate(props: Readonly<Props>) {
   return (
     <section
       aria-label={translate('onboarding.create_project.manual.title')}
-      className="sw-body-sm"
+      className="sw-typo-default"
     >
       <div className="sw-flex sw-justify-between">
         <FormattedMessage
@@ -163,7 +163,7 @@ export default function ManualProjectCreate(props: Readonly<Props>) {
       <div className="sw-max-w-[50%] sw-mt-2">
         <form
           id="create-project-manual"
-          className="sw-flex-col sw-body-sm"
+          className="sw-flex-col sw-typo-default"
           onSubmit={handleFormSubmit}
         >
           <ProjectValidation onChange={setProject} />

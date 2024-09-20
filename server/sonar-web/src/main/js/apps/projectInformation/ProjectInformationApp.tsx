@@ -74,7 +74,7 @@ function ProjectInformationApp(props: Props) {
     <main>
       <LargeCenteredLayout>
         <PageContentFontWrapper>
-          <div className="overview sw-my-6 sw-body-sm">
+          <div className="overview sw-my-6 sw-typo-default">
             <Title className="sw-mb-12">
               {translate(isApp ? 'application' : 'project', 'info.title')}
             </Title>

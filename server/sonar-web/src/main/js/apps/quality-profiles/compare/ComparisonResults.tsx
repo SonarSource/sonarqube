@@ -260,7 +260,7 @@ function Parameters({ params }: Readonly<{ params?: Params }>) {
     <ul>
       {Object.keys(params).map((key) => (
         <li className="sw-mt-2 sw-break-all" key={key}>
-          <code className="sw-body-sm">
+          <code className="sw-typo-default">
             {key}
             {': '}
             {params[key]}

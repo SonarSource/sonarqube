@@ -49,7 +49,7 @@ export default function TokenStepGenerator(props: TokenStepGeneratorProps) {
             </ButtonSecondary>
           ),
           field: (
-            <span className="sw-body-sm-highlight">
+            <span className="sw-typo-semibold">
               {translate('onboarding.tutorial.env_variables.field')}
             </span>
           ),

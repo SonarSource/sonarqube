@@ -204,7 +204,7 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
     const { defaultProjectVisibility } = this.state;
     return (
       <LargeCenteredLayout as="main" id="projects-management-page">
-        <PageContentFontWrapper className="sw-body-sm sw-my-8">
+        <PageContentFontWrapper className="sw-typo-default sw-my-8">
           <Helmet defer={false} title={translate('projects_management')} />
 
           <Header

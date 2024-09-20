@@ -71,7 +71,10 @@ export function GraphsLegendItem({
       ) : (
         <ChartLegend className="sw-mr-2" index={index} />
       )}
-      <span className="sw-body-sm" style={{ color: themeColor('graphCursorLineColor')({ theme }) }}>
+      <span
+        className="sw-typo-default"
+        style={{ color: themeColor('graphCursorLineColor')({ theme }) }}
+      >
         {name}
       </span>
       {isDeprecated && (

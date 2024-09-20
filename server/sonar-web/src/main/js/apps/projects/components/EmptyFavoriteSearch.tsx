@@ -29,10 +29,10 @@ export default function EmptyFavoriteSearch({ query }: { query: Query }) {
   return (
     <div aria-live="assertive" className="sw-py-8 sw-text-center">
       <FishVisual />
-      <Highlight as="h3" className="sw-body-md-highlight sw-mt-6">
+      <Highlight as="h3" className="sw-typo-lg-semibold sw-mt-6">
         {translate('no_results_search.favorites')}
       </Highlight>
-      <div className="sw-my-4 sw-body-sm">
+      <div className="sw-my-4 sw-typo-default">
         <FormattedMessage
           defaultMessage={translate('no_results_search.favorites.2')}
           id="no_results_search.favorites.2"

@@ -141,7 +141,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
             applyCodeDifferences(node);
           }}
         >
-          <h2 className="sw-body-sm-highlight sw-mb-4">
+          <h2 className="sw-typo-semibold sw-mb-4">
             {translate('coding_rules.description_context.title')}
           </h2>
           {isDefined(introductionSection) && (

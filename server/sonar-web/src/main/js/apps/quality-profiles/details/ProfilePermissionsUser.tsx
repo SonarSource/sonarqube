@@ -62,7 +62,7 @@ export default function ProfilePermissionsGroup(props: Readonly<Props>) {
           size="xs"
         />
         <div className="sw-truncate fs-mask">
-          <strong className="sw-body-sm-highlight">{user.name}</strong>
+          <strong className="sw-typo-semibold">{user.name}</strong>
           <Note className="sw-block">{user.login}</Note>
         </div>
       </div>

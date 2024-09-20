@@ -165,7 +165,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
     const intro = translate('onboarding.token.text', type);
 
     return (
-      <div className="sw-body-sm">
+      <div className="sw-typo-default">
         <FormattedMessage
           defaultMessage={intro}
           id={intro}

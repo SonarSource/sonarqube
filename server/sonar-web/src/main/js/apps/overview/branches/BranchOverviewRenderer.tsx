@@ -187,7 +187,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
               tourCompleted={tourCompleted}
             />
           )}
-          <div className="overview sw-my-6 sw-body-sm">
+          <div className="overview sw-my-6 sw-typo-default">
             <A11ySkipTarget anchor="overview_main" />
 
             {projectIsEmpty ? (

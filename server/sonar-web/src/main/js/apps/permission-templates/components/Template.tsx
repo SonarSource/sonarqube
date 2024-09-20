@@ -337,7 +337,7 @@ export default class Template extends React.PureComponent<Props, State> {
 
     return (
       <LargeCenteredLayout id="permission-template">
-        <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+        <PageContentFontWrapper className="sw-my-8 sw-typo-default">
           <Helmet defer={false} title={template.name} />
 
           <TemplateHeader

@@ -62,7 +62,7 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
       {!isPortfolioLike(project.qualifier) && (
         <InputSelect
           aria-label={translate('project_activity.filter_events')}
-          className="sw-mr-8 sw-body-sm sw-w-abs-200"
+          className="sw-mr-8 sw-typo-default sw-w-abs-200"
           isClearable
           onChange={(data: LabelValueSelectOption) => handleCategoryChange(data)}
           options={options}

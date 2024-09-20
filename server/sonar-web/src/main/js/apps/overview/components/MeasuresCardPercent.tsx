@@ -111,7 +111,7 @@ export default function MeasuresCardPercent(
       icon={renderIcon(measurementType, value)}
     >
       {shouldRenderRequiredLabel && (
-        <span className="sw-body-xs sw-mt-3">
+        <span className="sw-typo-sm sw-mt-3">
           {conditionFailed ? (
             <TextError
               className="sw-font-regular sw-inline"
@@ -123,7 +123,7 @@ export default function MeasuresCardPercent(
         </span>
       )}
       <div
-        className={classNames('sw-flex sw-body-xs sw-justify-between sw-items-center', {
+        className={classNames('sw-flex sw-typo-sm sw-justify-between sw-items-center', {
           'sw-mt-1': shouldRenderRequiredLabel,
           'sw-mt-3': !shouldRenderRequiredLabel,
         })}
@@ -141,7 +141,7 @@ export default function MeasuresCardPercent(
                     isDefined(linesValue) ? `${formattedMeasure} (${linesValue})` : '0',
                     localizeMetric(linesMetric),
                   )}
-                  className="sw-body-sm-highlight sw--mt-[3px]"
+                  className="sw-typo-semibold sw--mt-[3px]"
                   to={linesUrl}
                 >
                   {formattedMeasure}

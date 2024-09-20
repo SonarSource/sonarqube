@@ -35,7 +35,7 @@ interface Props {
 export default function FilesCounter({ className, current, total }: Props) {
   return (
     <Note className={classNames('sw-whitespace-nowrap', className)}>
-      <Counter className="sw-body-sm-highlight">
+      <Counter className="sw-typo-semibold">
         {isDefined(current) && formatMeasure(current, MetricType.Integer) + '/'}
         {formatMeasure(total, MetricType.Integer)}
       </Counter>{' '}

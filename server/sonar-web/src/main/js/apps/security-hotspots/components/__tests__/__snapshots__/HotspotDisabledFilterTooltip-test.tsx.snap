@@ -46,7 +46,7 @@ exports[`should render correctly and stop event propagation 1`] = `
 
 <div>
   <div
-    class="sw-body-sm sw-w-[190px]"
+    class="sw-typo-default sw-w-[190px]"
   >
     <p>
       indexation.page_unavailable.description
@@ -57,7 +57,7 @@ exports[`should render correctly and stop event propagation 1`] = `
       class="sw-mx-0 sw-my-3 sw-p-0 sw-w-full"
     />
     <span
-      class="sw-body-sm-highlight"
+      class="sw-typo-semibold"
     >
       indexation.learn_more
     </span>

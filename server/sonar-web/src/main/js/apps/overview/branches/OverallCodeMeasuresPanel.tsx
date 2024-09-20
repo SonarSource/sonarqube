@@ -134,7 +134,7 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
             />
           }
         >
-          <TextSubdued className="sw-body-xs sw-mt-3">
+          <TextSubdued className="sw-typo-sm sw-mt-3">
             {intl.formatMessage({
               id: 'overview.accepted_issues.help',
             })}

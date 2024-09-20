@@ -35,7 +35,7 @@ export default function PageActions(props: PageActionsProps) {
   const { canSetHome, effortTotal, paging } = props;
 
   return (
-    <div className="sw-body-sm sw-flex sw-items-center sw-gap-6 sw-justify-end sw-flex-1">
+    <div className="sw-typo-default sw-flex sw-items-center sw-gap-6 sw-justify-end sw-flex-1">
       <KeyboardHint title={translate('issues.to_select_issues')} command="ArrowUp ArrowDown" />
       <KeyboardHint title={translate('issues.to_navigate')} command="ArrowLeft ArrowRight" />
 

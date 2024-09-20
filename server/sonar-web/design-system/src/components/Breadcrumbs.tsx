@@ -179,7 +179,7 @@ export function BreadcrumbsFullWidth(props: Omit<Props, 'innerRef' | 'maxWidth'>
 const BreadcrumbWrapper = styled.nav`
   ${tw`sw-flex sw-items-center`}
   ${tw`sw-truncate`}
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
 
   color: ${themeContrast('breadcrumb')};
   background-color: ${themeColor('breadcrumb')};

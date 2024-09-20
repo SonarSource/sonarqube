@@ -40,7 +40,7 @@ export function ModalBody({ children, isScrollable = true, isOverflowVisible = f
 }
 
 const StyledMain = styled.div`
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-px-3`} // to accomodate a possible scrollbar
   ${tw`-sw-mx-3`}
   ${tw`sw-my-12`}

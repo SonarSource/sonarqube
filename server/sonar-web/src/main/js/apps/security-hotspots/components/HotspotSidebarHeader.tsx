@@ -84,7 +84,7 @@ function HotspotSidebarHeader(props: SecurityHotspotsAppRendererProps) {
         {component && (
           <Measure
             branchLike={branchLike}
-            className="it__hs-review-percentage sw-body-sm-highlight sw-ml-2"
+            className="it__hs-review-percentage sw-typo-semibold sw-ml-2"
             componentKey={component.key}
             metricKey={
               isBranch(branchLike) && !filters.inNewCodePeriod
@@ -97,7 +97,7 @@ function HotspotSidebarHeader(props: SecurityHotspotsAppRendererProps) {
         )}
       </Spinner>
 
-      <span className="sw-body-sm sw-ml-1">
+      <span className="sw-typo-default sw-ml-1">
         {translate('metric.security_hotspots_reviewed.name')}
       </span>
 

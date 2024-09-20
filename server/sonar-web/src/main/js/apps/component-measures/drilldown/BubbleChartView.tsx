@@ -198,7 +198,7 @@ export default function BubbleChartView(props: Readonly<Props>) {
           <div className="sw-text-right">
             {bubbleMetrics.colors && (
               <span className="sw-mr-3">
-                <strong className="sw-body-sm-highlight">
+                <strong className="sw-typo-semibold">
                   {translate('component_measures.legend.color')}
                 </strong>{' '}
                 {bubbleMetrics.colors.length > 1
@@ -209,7 +209,7 @@ export default function BubbleChartView(props: Readonly<Props>) {
                   : getLocalizedMetricName(bubbleMetrics.colors[0])}
               </span>
             )}
-            <strong className="sw-body-sm-highlight">
+            <strong className="sw-typo-semibold">
               {translate('component_measures.legend.size')}
             </strong>{' '}
             {getLocalizedMetricName(bubbleMetrics.size)}
@@ -231,7 +231,7 @@ export default function BubbleChartView(props: Readonly<Props>) {
   }
 
   return (
-    <BubbleChartWrapper className="sw-relative sw-body-sm">
+    <BubbleChartWrapper className="sw-relative sw-typo-default">
       {renderChartHeader()}
       {renderBubbleChart()}
       <div className="sw-text-center">{getLocalizedMetricName(bubbleMetrics.x)}</div>

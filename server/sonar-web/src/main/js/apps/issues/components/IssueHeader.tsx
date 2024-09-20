@@ -166,7 +166,7 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
         <div className="sw-mr-8 sw-flex-1 sw-flex sw-flex-col sw-gap-4 sw-min-w-0">
           <div className="sw-flex sw-flex-col sw-gap-2">
             <div className="sw-flex sw-items-center">
-              <PageContentFontWrapper className="sw-body-md-highlight" as="h1">
+              <PageContentFontWrapper className="sw-typo-lg-semibold" as="h1">
                 <IssueMessageHighlighting
                   message={issue.message}
                   messageFormattings={issue.messageFormattings}

@@ -52,7 +52,7 @@ export function PromotionNotification(props: CurrentUserContextInterface) {
         <Image alt="SonarQube + SonarLint" height={80} src="/images/sq-sl.svg" />
       </div>
       <PromotionNotificationContent className="sw-flex-1 sw-px-2 sw-py-4">
-        <span className="sw-body-sm-highlight">{translate('promotion.sonarlint.title')}</span>
+        <span className="sw-typo-semibold">{translate('promotion.sonarlint.title')}</span>
         <p className="sw-mt-2">{translate('promotion.sonarlint.content')}</p>
       </PromotionNotificationContent>
       <div className="sw-ml-2 sw-pl-2 sw-flex sw-flex-col sw-items-stretch">

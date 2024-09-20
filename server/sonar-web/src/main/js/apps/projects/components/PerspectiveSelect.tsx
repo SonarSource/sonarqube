@@ -49,13 +49,13 @@ export default function PerspectiveSelect(props: Readonly<Props>) {
       <StyledPageTitle
         id="aria-projects-perspective"
         as="label"
-        className="sw-body-sm-highlight sw-mr-2"
+        className="sw-typo-semibold sw-mr-2"
       >
         {translate('projects.perspective')}
       </StyledPageTitle>
       <Select
         ariaLabelledBy="aria-projects-perspective"
-        className="sw-mr-4 sw-body-sm"
+        className="sw-mr-4 sw-typo-default"
         hasDropdownAutoWidth
         isNotClearable
         onChange={handleChange}

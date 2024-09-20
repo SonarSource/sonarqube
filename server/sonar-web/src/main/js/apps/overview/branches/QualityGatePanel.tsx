@@ -129,7 +129,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
 
         {showCaycWarningInApp && (
           <InfoCard
-            className="sw-body-sm"
+            className="sw-typo-default"
             footer={
               <LinkStandalone to={caycUrl}>
                 <FormattedMessage id="overview.quality_gate.conditions.cayc.link" />
@@ -142,7 +142,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
 
         {showCaycWarningInProject && (
           <InfoCard
-            className="sw-body-sm"
+            className="sw-typo-default"
             footer={
               <LinkStandalone to={caycUrl}>
                 <FormattedMessage id="overview.quality_gate.conditions.cayc.link" />

@@ -59,7 +59,7 @@ function renderNewIssues(props: ProjectCardMeasuresProps) {
         metricKey={MetricKey.new_violations}
         metricType={MetricType.ShortInteger}
         value={measures[MetricKey.new_violations]}
-        className="sw-ml-2 sw-body-md-highlight"
+        className="sw-ml-2 sw-typo-lg-semibold"
       />
     </ProjectCardMeasure>
   );
@@ -78,7 +78,7 @@ function renderCoverage(props: ProjectCardMeasuresProps) {
           metricKey={coverageMetric}
           metricType={MetricType.Percent}
           value={measures[coverageMetric]}
-          className="sw-ml-2 sw-body-md-highlight"
+          className="sw-ml-2 sw-typo-lg-semibold"
         />
       </div>
     </ProjectCardMeasure>
@@ -108,7 +108,7 @@ function renderDuplication(props: ProjectCardMeasuresProps) {
           metricKey={duplicationMetric}
           metricType={MetricType.Percent}
           value={measures[duplicationMetric]}
-          className="sw-ml-2 sw-body-md-highlight"
+          className="sw-ml-2 sw-typo-lg-semibold"
         />
       </div>
     </ProjectCardMeasure>
@@ -186,7 +186,7 @@ function renderRatings(props: ProjectCardMeasuresProps) {
           metricKey={metricKey}
           metricType={metricType}
           value={measureValue}
-          className="sw-ml-2 sw-body-md-highlight"
+          className="sw-ml-2 sw-typo-lg-semibold"
         />
       </ProjectCardMeasure>
     );

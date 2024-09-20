@@ -75,7 +75,7 @@ function SettingsAppRenderer(props: Readonly<SettingsAppRendererProps>) {
       <PageContentFontWrapper className="sw-my-8">
         <PageHeader component={component} definitions={definitions} />
 
-        <div className="sw-body-sm sw-flex sw-items-stretch sw-justify-between">
+        <div className="sw-typo-default sw-flex sw-items-stretch sw-justify-between">
           <div className="sw-min-w-abs-250">
             <AllCategoriesList
               categories={categories}

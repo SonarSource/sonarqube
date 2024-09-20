@@ -61,7 +61,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
           id="onboarding.tutorial.with.gitlab_ci.variables.section.description"
           values={{
             /* This link will be added when the backend provides the project URL */
-            link: <span className="sw-body-sm-highlight">{pipelineDescriptionLinkLabel}</span>,
+            link: <span className="sw-typo-semibold">{pipelineDescriptionLinkLabel}</span>,
           }}
         />
 
@@ -87,7 +87,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
               id="onboarding.tutorial.with.gitlab_ci.variables.step3"
               values={{
                 value: (
-                  <span className="sw-body-sm-highlight">
+                  <span className="sw-typo-semibold">
                     {translate('onboarding.tutorial.with.gitlab_ci.variables.step3.value')}
                   </span>
                 ),
@@ -102,7 +102,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
               id="onboarding.tutorial.with.gitlab_ci.variables.section.step4"
               values={{
                 value: (
-                  <span className="sw-body-sm-highlight">
+                  <span className="sw-typo-semibold">
                     {translate('onboarding.tutorial.with.gitlab_ci.variables.section.step4.value')}
                   </span>
                 ),
@@ -122,7 +122,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
           id="onboarding.tutorial.with.gitlab_ci.variables.section2.description"
           values={{
             /* This link will be added when the backend provides the project URL */
-            link: <span className="sw-body-sm-highlight">{pipelineDescriptionLinkLabel}</span>,
+            link: <span className="sw-typo-semibold">{pipelineDescriptionLinkLabel}</span>,
           }}
         />
 
@@ -149,7 +149,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
               values={{
                 extra: <ClipboardIconButton copyValue={baseUrl} className="sw-ml-1 sw-align-sub" />,
                 field: (
-                  <span className="sw-body-sm-highlight">
+                  <span className="sw-typo-semibold">
                     {translate('onboarding.tutorial.env_variables.field')}
                   </span>
                 ),
@@ -163,7 +163,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
               id="onboarding.tutorial.with.gitlab_ci.variables.step3"
               values={{
                 value: (
-                  <span className="sw-body-sm-highlight">
+                  <span className="sw-typo-semibold">
                     {translate('onboarding.tutorial.with.gitlab_ci.variables.step3.value')}
                   </span>
                 ),
@@ -178,7 +178,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
               id="onboarding.tutorial.with.gitlab_ci.variables.section2.step4"
               values={{
                 value: (
-                  <span className="sw-body-sm-highlight">
+                  <span className="sw-typo-semibold">
                     {translate('onboarding.tutorial.with.gitlab_ci.variables.section.step4.value')}
                   </span>
                 ),

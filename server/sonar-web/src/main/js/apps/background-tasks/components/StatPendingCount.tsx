@@ -38,7 +38,7 @@ function StatPendingCount({ appState, onCancelAllPending, pendingCount }: Readon
 
   return (
     <div className="sw-flex sw-items-center">
-      <span className="sw-body-md-highlight sw-mr-1">{pendingCount}</span>
+      <span className="sw-typo-lg-semibold sw-mr-1">{pendingCount}</span>
       {translate('background_tasks.pending')}
       {appState.canAdmin && pendingCount > 0 && (
         <ConfirmButton

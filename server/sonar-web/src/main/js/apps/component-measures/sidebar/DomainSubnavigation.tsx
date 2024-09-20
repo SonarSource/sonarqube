@@ -78,7 +78,7 @@ export default function DomainSubnavigation(props: Readonly<Props>) {
     <SubnavigationAccordion
       header={
         <div className="sw-flex sw-items-center sw-gap-3">
-          <strong className="sw-body-sm-highlight">{getLocalizedMetricDomain(domain.name)}</strong>
+          <strong className="sw-typo-semibold">{getLocalizedMetricDomain(domain.name)}</strong>
           {helper && (
             <HelpTooltip overlay={helper}>
               <HelperHintIcon aria-hidden="false" description={helper} />

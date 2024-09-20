@@ -72,7 +72,7 @@ export function PluginRiskConsent(props: Readonly<PluginRiskConsentProps>) {
       <Helmet defer={false} title={translate('plugin_risk_consent.page')} />
 
       <Card
-        className="sw-body-md sw-min-w-[500px] sw-mx-auto sw-w-[40%] sw-text-center"
+        className="sw-typo-lg sw-min-w-[500px] sw-mx-auto sw-w-[40%] sw-text-center"
         data-testid="plugin-risk-consent-page"
       >
         <Title className="sw-mb-4">{translate('plugin_risk_consent.title')}</Title>

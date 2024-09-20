@@ -26,8 +26,7 @@ it('should render NewCodeLegend', () => {
   render(<NewCodeLegend text="the text" />);
 
   expect(screen.getByText('the text')).toHaveStyle({
-    'font-size': tailwindBaseConfig.theme.fontSize.sm[0],
-    'line-height': tailwindBaseConfig.theme.fontSize.sm[1],
+    font: 'var(--echoes-typography-text-default-regular)',
     'margin-left': tailwindBaseConfig.theme.spacing[2],
   });
 });

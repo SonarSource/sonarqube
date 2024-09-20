@@ -186,7 +186,7 @@ export const NakedLink = styled(BaseLink)`
 /** @deprecated Use either Link or LinkStandalone from Echoes instead.
  */
 export const DrilldownLink = styled(StyledBaseLink)`
-  ${tw`sw-heading-lg`}
+  ${tw`sw-heading-xl`}
   ${tw`sw-tracking-tight`}
   ${tw`sw-whitespace-nowrap`}
 

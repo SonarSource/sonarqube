@@ -1314,7 +1314,7 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <PageWrapperStyle id="issues-page">
         <LargeCenteredLayout>
-          <PageContentFontWrapper className="sw-body-sm">
+          <PageContentFontWrapper className="sw-typo-default">
             <div className="sw-w-full sw-flex" id="issues-page">
               {openIssue ? (
                 <Helmet

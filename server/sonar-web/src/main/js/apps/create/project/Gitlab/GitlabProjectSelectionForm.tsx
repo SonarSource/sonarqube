@@ -86,7 +86,7 @@ export default function GitlabProjectSelectionForm(
 
       {projects.length === 0 ? (
         <div className="sw-py-6 sw-px-2">
-          <LightPrimary className="sw-body-sm">{translate('no_results')}</LightPrimary>
+          <LightPrimary className="sw-typo-default">{translate('no_results')}</LightPrimary>
         </div>
       ) : (
         <ul className="sw-flex sw-flex-col sw-gap-3">

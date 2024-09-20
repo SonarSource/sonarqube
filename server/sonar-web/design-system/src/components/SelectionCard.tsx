@@ -153,7 +153,7 @@ const StyledContent = styled.div`
 `;
 
 const StyledRecommended = styled.div`
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-py-2 sw-px-4`}
   ${tw`sw-box-border`}
   ${tw`sw-rounded-b-2`}
@@ -172,7 +172,7 @@ const StyledRecommendedIcon = styled(RecommendedIcon)`
 const StyledLabel = styled.label`
   ${tw`sw-flex`}
   ${tw`sw-mb-3 sw-gap-2`}
-  ${tw`sw-body-sm-highlight`}
+  ${tw`sw-typo-semibold`}
 
   color: ${themeColor('selectionCardHeader')};
   cursor: inherit;

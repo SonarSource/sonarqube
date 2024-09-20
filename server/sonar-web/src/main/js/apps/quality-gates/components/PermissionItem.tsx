@@ -52,7 +52,7 @@ export default function PermissionItem(props: PermissionItemProps) {
 
       <ContentCell>
         <div className="sw-flex sw-flex-col">
-          <strong className="sw-body-sm-highlight">{item.name}</strong>
+          <strong className="sw-typo-semibold">{item.name}</strong>
           {isUser(item) && <Note>{item.login}</Note>}
         </div>
       </ContentCell>

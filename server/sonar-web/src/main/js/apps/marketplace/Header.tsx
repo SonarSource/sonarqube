@@ -31,7 +31,7 @@ export default function Header({ currentEdition }: Readonly<Props>) {
     <header id="marketplace-header">
       <Title>{translate('marketplace.page')}</Title>
       {currentEdition && (
-        <div className="sw-body-sm-highlight">
+        <div className="sw-typo-semibold">
           {translate('marketplace.page.you_are_running', currentEdition)}
         </div>
       )}

@@ -34,7 +34,7 @@ export const NewCodeLegendIcon = styled.span`
 
 const NewCodeLegendText = styled.span`
   ${tw`sw-align-middle`}
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-ml-2`}
   color: ${themeColor('graphCursorLineColor')};
 `;

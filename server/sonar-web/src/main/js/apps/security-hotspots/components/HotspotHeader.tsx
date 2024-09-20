@@ -81,7 +81,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
               discreet
             />
           </StyledPageTitle>
-          <div className="sw-mt-2 sw-mb-4 sw-body-sm">
+          <div className="sw-mt-2 sw-mb-4 sw-typo-default">
             <LightLabel>{rule.name}</LightLabel>
             <Link className="sw-ml-1" to={getRuleUrl(rule.key)} target="_blank">
               {rule.key}

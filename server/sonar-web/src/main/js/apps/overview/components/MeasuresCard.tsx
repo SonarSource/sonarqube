@@ -42,7 +42,7 @@ export default function MeasuresCard(
 
   return (
     <div>
-      <ColorBold className="sw-body-sm-highlight">{translate(label)}</ColorBold>
+      <ColorBold className="sw-typo-semibold">{translate(label)}</ColorBold>
       {failed && (
         <Badge className="sw-mt-1/2 sw-px-1 sw-ml-2" variant="deleted">
           {translate('overview.measures.failed_badge')}

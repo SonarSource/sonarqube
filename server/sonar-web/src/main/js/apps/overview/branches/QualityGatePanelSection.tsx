@@ -54,7 +54,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
             open={!collapsed}
             header={
               <div className="sw-flex sw-flex-col sw-text-sm">
-                <span className="sw-body-sm-highlight">{qgStatus.name}</span>
+                <span className="sw-typo-semibold">{qgStatus.name}</span>
               </div>
             }
           >

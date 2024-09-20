@@ -102,7 +102,7 @@ const Wrapper = styled.div`
 
 const StyledClipboardButton = styled(ClipboardButton)`
   ${tw`sw-select-none`}
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-top-6 sw-right-6`}
   ${tw`sw-absolute`}
 

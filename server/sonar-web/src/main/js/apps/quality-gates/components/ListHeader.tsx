@@ -54,7 +54,7 @@ export default function ListHeader({ canCreate }: Readonly<Props>) {
   return (
     <div className="sw-flex sw-justify-between sw-pb-4">
       <div className="sw-flex sw-justify-between">
-        <Title className="sw-flex sw-items-center sw-body-md-highlight sw-mb-0">
+        <Title className="sw-flex sw-items-center sw-typo-lg-semibold sw-mb-0">
           {translate('quality_gates.page')}
         </Title>
         <DocHelpTooltip

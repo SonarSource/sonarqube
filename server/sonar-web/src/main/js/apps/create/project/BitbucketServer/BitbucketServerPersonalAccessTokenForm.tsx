@@ -70,10 +70,10 @@ export default function BitbucketServerPersonalAccessTokenForm({
 
   return (
     <form className="sw-mt-3 sw-w-[50%]" onSubmit={handleSubmit}>
-      <LightPrimary as="h2" className="sw-heading-md">
+      <LightPrimary as="h2" className="sw-heading-lg">
         {translate('onboarding.create_project.pat_form.title')}
       </LightPrimary>
-      <LightPrimary as="p" className="sw-mt-2 sw-mb-4 sw-body-sm">
+      <LightPrimary as="p" className="sw-mt-2 sw-mb-4 sw-typo-default">
         {translate('onboarding.create_project.pat_form.help.bitbucket')}
       </LightPrimary>
 

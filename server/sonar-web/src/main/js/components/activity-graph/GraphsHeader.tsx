@@ -62,7 +62,7 @@ export default function GraphsHeader(props: Props) {
   return (
     <div className={className}>
       <ButtonGroup>
-        <label htmlFor="graph-type" className="sw-body-sm-highlight">
+        <label htmlFor="graph-type" className="sw-typo-semibold">
           {translate('project_activity.graphs.choose_type')}
         </label>
         <Select

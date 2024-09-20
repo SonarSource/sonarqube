@@ -58,10 +58,10 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
 
   return (
     <div data-testid="quality-gate-permissions">
-      <SubTitle as="h3" className="sw-body-md-highlight">
+      <SubTitle as="h3" className="sw-typo-lg-semibold">
         {translate('quality_gates.permissions')}
       </SubTitle>
-      <p className="sw-body-sm">{translate('quality_gates.permissions.help')}</p>
+      <p className="sw-typo-default">{translate('quality_gates.permissions.help')}</p>
       <div className={classNames({ 'sw-my-2': users.length + groups.length > 0 })}>
         <Spinner loading={loading}>
           <Table columnCount={3} columnWidths={['40px', 'auto', '1%']} width="100%">

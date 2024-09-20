@@ -57,7 +57,7 @@ export default function Login(props: Readonly<LoginProps>) {
       <Helmet defer={false} title={translate('login.page')} />
       <Image alt="" className="sw-mt-32" src="/images/sonar-logo-horizontal.png" />
       <Card className="sw-my-14 sw-p-0 sw-w-abs-350">
-        <PageContentFontWrapper className="sw-body-md sw-flex sw-flex-col sw-items-center sw-py-8 sw-px-4">
+        <PageContentFontWrapper className="sw-typo-lg sw-flex sw-flex-col sw-items-center sw-py-8 sw-px-4">
           <Image alt="" className="sw-mb-6" src="/images/embed-doc/sq-icon.svg" width={28} />
           <Title className="sw-mb-6">{translate('login.login_to_sonarqube')}</Title>
           <Spinner isLoading={loading}>

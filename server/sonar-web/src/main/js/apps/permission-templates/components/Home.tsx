@@ -36,7 +36,7 @@ interface Props {
 export default function Home(props: Props) {
   return (
     <LargeCenteredLayout id="users-page">
-      <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+      <PageContentFontWrapper className="sw-my-8 sw-typo-default">
         <Helmet defer={false} title={translate('permission_templates.page')} />
 
         <Header ready={props.ready} refresh={props.refresh} />

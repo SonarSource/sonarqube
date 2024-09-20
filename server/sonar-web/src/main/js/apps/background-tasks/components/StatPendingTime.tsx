@@ -37,7 +37,7 @@ export default function StatPendingTime({ pendingCount, pendingTime }: Readonly<
   }
   return (
     <div className="sw-flex sw-items-center">
-      <span className="sw-body-md-highlight sw-mr-1">{formatMeasure(pendingTime, 'MILLISEC')}</span>
+      <span className="sw-typo-lg-semibold sw-mr-1">{formatMeasure(pendingTime, 'MILLISEC')}</span>
       {translate('background_tasks.pending_time')}
       <HelpTooltip
         className="sw-ml-1"

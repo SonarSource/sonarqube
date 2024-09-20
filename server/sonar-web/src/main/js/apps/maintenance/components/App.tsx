@@ -175,7 +175,7 @@ export default class App extends React.PureComponent<Props, State> {
         <Helmet defaultTitle={translate('maintenance.page')} defer={false} />
 
         <CenteredLayout className="sw-flex sw-justify-around sw-mt-32" id="bd">
-          <Card className="sw-body-sm sw-p-10 sw-w-abs-400" id="nonav">
+          <Card className="sw-typo-default sw-p-10 sw-w-abs-400" id="nonav">
             {systemStatus === 'OFFLINE' && (
               <>
                 <MaintenanceTitle className="text-danger">

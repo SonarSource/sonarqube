@@ -128,11 +128,11 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
       return (
         <div>
           {this.props.initializing ? (
-            <div className="sw-p-4 sw-body-sm">
+            <div className="sw-p-4 sw-typo-default">
               <Spinner />
             </div>
           ) : (
-            <div className="sw-p-4 sw-body-sm">
+            <div className="sw-p-4 sw-typo-default">
               <LightLabel>{translate('no_results')}</LightLabel>
             </div>
           )}
@@ -154,7 +154,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
       >
         {newCodePeriod.baselineAnalysisKey !== undefined &&
           newCodePeriod.firstNewCodeAnalysisKey === undefined && (
-            <BaselineMarker className="sw-body-sm sw-mb-2">
+            <BaselineMarker className="sw-typo-default sw-mb-2">
               <span className="sw-py-1/2 sw-px-1">
                 {translate('project_activity.new_code_period_start')}
               </span>
@@ -199,7 +199,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
                     data-day={toShortISO8601String(Number(day))}
                     key={day}
                   >
-                    <div className="sw-body-md-highlight sw-mb-3">
+                    <div className="sw-typo-lg-semibold sw-mb-3">
                       <DateFormatter date={Number(day)} long />
                     </div>
                     <ul className="it__project-activity-analyses-list">

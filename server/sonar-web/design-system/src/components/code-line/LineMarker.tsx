@@ -59,7 +59,7 @@ function LineMarkerFunc(
 
 const Message = styled.div`
   ${tw`sw-absolute`}
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-rounded-1/2`}
   ${tw`sw-px-1`}
   ${tw`sw-left-0`}

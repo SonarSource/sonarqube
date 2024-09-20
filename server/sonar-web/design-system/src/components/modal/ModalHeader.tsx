@@ -37,14 +37,14 @@ export function ModalHeader({ description, title }: Props) {
 }
 
 const Description = styled.p`
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-mt-2`}
 
   color: ${themeColor('pageContent')};
 `;
 
 const Title = styled.h2`
-  ${tw`sw-heading-lg`}
+  ${tw`sw-heading-xl`}
 
   color: ${themeColor('pageTitle')};
 `;

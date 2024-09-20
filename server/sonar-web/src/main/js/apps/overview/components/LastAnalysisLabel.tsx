@@ -36,7 +36,7 @@ export default function LastAnalysisLabel({ analysisDate }: Readonly<Props>) {
           id: 'overview.last_analysis_x',
         },
         {
-          date: <DateFromNow className="sw-body-sm-highlight" date={analysisDate} />,
+          date: <DateFromNow className="sw-typo-semibold" date={analysisDate} />,
         },
       )}
     </span>

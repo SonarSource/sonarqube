@@ -81,7 +81,7 @@ const StyledSelect = styled(InputSelect)`
     ${tw`sw-p-0`};
     ${tw`sw-cursor-pointer`};
     ${tw`sw-flex sw-items-center`};
-    ${tw`sw-body-sm`};
+    ${tw`sw-typo-default`};
     ${tw`sw-select-none`};
 
     &:hover {

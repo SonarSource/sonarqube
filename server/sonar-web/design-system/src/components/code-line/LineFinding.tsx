@@ -86,7 +86,7 @@ const LineFindingStyled = styled(BareButton)<{ selected: boolean }>`
   ${tw`sw-w-full`}
   ${tw`sw-box-border`}
   ${(props) => (props.selected ? tw`sw-py-3` : tw`sw-py-2`)};
-  ${(props) => (props.selected ? tw`sw-body-md-highlight` : tw`sw-body-sm`)};
+  ${(props) => (props.selected ? tw`sw-typo-lg-semibold` : tw`sw-typo-default`)};
   ${(props) => (props.selected ? tw`sw-cursor-default` : tw`sw-cursor-pointer`)};
 
   border: ${(props) =>

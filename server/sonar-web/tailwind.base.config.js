@@ -19,11 +19,12 @@
  */
 const path = require('path');
 const { fontFamily } = require('tailwindcss/defaultTheme');
-const utilities = require('./tailwind-utilities');
+const echoesUtilities = require('./tailwind-echoes');
 
 module.exports = {
   prefix: 'sw-', // Prefix all tailwind classes with the sw- prefix to avoid collisions
   theme: {
+    colors: {},
     // Define cursors
     cursor: {
       auto: 'auto',
@@ -146,57 +147,9 @@ module.exports = {
   },
   corePlugins: {
     // Please respect the alphabetical order in the below plugins
-    alignItems: true, // .sw-items-x classes
-    alignSelf: true, // .sw-self-x classes
-    borderRadius: true, // .sw-rounded-x classes
-    boxSizing: true, // .sw-box-x classes
-    cursor: true, // .sw-cursor-not-allowed
-    display: true, // display classes .sw-grid .sw-flex
-    flex: true, // .sw-flex-1 .sw-flex-auto ... classes
-    flexDirection: true, // .sw-flex-row .sw-flex-col-reverse ... classes
-    flexGrow: true, // .sw-flex-grow .sw-flex-grow-0 classes
-    flexShrink: true, // .sw-flex-shrink .sw-flex-shrink-0 classes
-    flexWrap: true, // .sw-flex-wrap sw-flex-nowrap ... classes
-    fontFamily: true, // .sw-font-sans .sw-font-mono classes
-    fontSize: true, // .sw-text-sm and similar classes
-    fontWeight: true, // .sw-font-x classes
-    gap: true, // .sw-gap-x classes based on spacing
-    gridAutoFlow: true, // all css grid related classes: .sw-grid-cols-x .sw-col-span-x
-    gridColumn: true,
-    gridColumnEnd: true,
-    gridColumnStart: true,
-    gridRow: true,
-    gridRowEnd: true,
-    gridRowStart: true,
-    gridTemplateColumns: true,
-    gridTemplateRows: true,
-    height: true, // height classes .sw-h-x based on spacing + some more
-    inset: true, // placement classes .sw-top-x based on spacing + some more
-    justifyContent: true, // .sw-justify-x classes
-    lineHeight: true, // .sw-leading-x classes
-    margin: true, // .sw-m-x classes based on spacing
-    maxHeight: true, // sw-max-height classes .sw-max-h-x based on spacing + some more
-    maxWidth: true, // sw-max-width classes .sw-max-w-x based on spacing + some more
-    minHeight: true, // sw-min-height classes .sw-min-h-x based on spacing + some more
-    minWidth: true, // sw-min-width classes .sw-min-w-x based on spacing + some more
-    opacity: true, // sw-opacity-x classes
-    order: true, // .sw-order-x classes
-    overflow: true, // .sw-overflow-x classes
-    padding: true, // .sw-p-x classes based on spacing
-    pointerEvents: true, //.sw-pointer-events-none .sw-pointer-events-auto
-    position: true, // position classes .sw-relative .sw-absolute
     preflight: false, // disable preflight
-    textAlign: true, // .sw-text-x classes
-    textOverflow: true, // .sw-text-ellipsis, .sw-truncate
-    textTransform: true, // sw-uppercase, .sw-capitalize
-    userSelect: true, // .sw-select-none classes
-    verticalAlign: true, // .sw-align-x classes
-    width: true, // .sw-w-x classes based on spacing + some more
-    whitespace: true, // sw-whitespace-x classes
-    wordBreak: true, // .sw-break-normal, sw-break-all, sw-break-words classes
-    zIndex: true, // .sw-z-x classes
   },
-  plugins: [utilities],
+  plugins: [echoesUtilities],
   content: [
     path.resolve(__dirname, './src/**/!(__tests__|@types|api)/*.{ts,tsx}'),
     path.resolve(__dirname, './design-system/src/**/!(__tests__|@types|theme|helpers)/*.{ts,tsx}'),

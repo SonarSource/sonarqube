@@ -54,7 +54,7 @@ export default function BranchMetaTopBar({
   const locMeasure = findMeasure(measures, MetricKey.ncloc);
 
   const leftSection = (
-    <h1 className="sw-flex sw-gap-2 sw-items-center sw-heading-md">{branch.name}</h1>
+    <h1 className="sw-flex sw-gap-2 sw-items-center sw-heading-lg">{branch.name}</h1>
   );
   const rightSection = (
     <div className="sw-flex sw-gap-2 sw-items-center">
@@ -93,7 +93,7 @@ export default function BranchMetaTopBar({
   );
 
   return (
-    <div className="sw-flex sw-justify-between sw-whitespace-nowrap sw-body-sm sw-mb-2">
+    <div className="sw-flex sw-justify-between sw-whitespace-nowrap sw-typo-default sw-mb-2">
       {leftSection}
       {rightSection}
     </div>

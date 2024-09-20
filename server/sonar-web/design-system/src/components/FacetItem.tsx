@@ -102,14 +102,14 @@ BaseFacetItem.displayName = 'FacetItem'; // so that tests don't see the obfuscat
 export const FacetItem = styled(BaseFacetItem)``;
 
 const StyledButton = styled(ButtonSecondary)<{ active?: boolean; small?: boolean }>`
-  ${tw`sw-body-sm`};
+  ${tw`sw-typo-default`};
   ${tw`sw-box-border`};
   ${tw`sw-h-7`};
   ${tw`sw-px-1`};
   ${tw`sw-rounded-1`};
   ${tw`sw-w-full`};
 
-  ${({ small }) => (small ? tw`sw-body-xs sw-pr-0` : '')};
+  ${({ small }) => (small ? tw`sw-typo-sm sw-pr-0` : '')};
 
   --background: ${({ active }) => (active ? themeColor('facetItemSelected') : 'transparent')};
   --backgroundHover: ${({ active }) => (active ? themeColor('facetItemSelected') : 'transparent')};

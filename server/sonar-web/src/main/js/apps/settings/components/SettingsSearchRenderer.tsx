@@ -85,7 +85,7 @@ export default function SettingsSearchRenderer(props: Readonly<SettingsSearchRen
                       onClick={props.onClickOutside}
                       to={buildSettingLink(r, component)}
                     >
-                      <h3 className="sw-body-sm-highlight">{r.name ?? r.subCategory}</h3>
+                      <h3 className="sw-typo-semibold">{r.name ?? r.subCategory}</h3>
                       {isRealSettingKey(r.key) && (
                         <StyledNote>{translateWithParameters('settings.key_x', r.key)}</StyledNote>
                       )}

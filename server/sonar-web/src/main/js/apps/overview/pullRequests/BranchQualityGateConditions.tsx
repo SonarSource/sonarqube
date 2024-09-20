@@ -79,7 +79,7 @@ function FailedQGCondition(
   const url = getQGConditionUrl(component.key, condition, branchLike);
 
   return (
-    <StyledConditionButton className="sw-px-3 sw-py-2 sw-rounded-1 sw-body-sm" to={url}>
+    <StyledConditionButton className="sw-px-3 sw-py-2 sw-rounded-1 sw-typo-default" to={url}>
       <Badge className="sw-mr-2 sw-px-1" variant="deleted">
         {translate('overview.measures.failed_badge')}
       </Badge>
@@ -126,7 +126,7 @@ function FailedRatingMetric({ condition }: Readonly<FailedMetricProps>) {
           rating: `${intl.formatMessage({
             id: `metric_domain.${domain}`,
           })} ${intl.formatMessage({ id: 'metric.type.RATING' }).toLowerCase()}`,
-          value: <strong className="sw-body-sm-highlight">{formatMeasure(actual, type)}</strong>,
+          value: <strong className="sw-typo-semibold">{formatMeasure(actual, type)}</strong>,
           threshold: formatMeasure(error, type),
         },
       )}
@@ -149,7 +149,7 @@ function FailedGeneralMetric({ condition }: Readonly<FailedMetricProps>) {
         {
           metric: (
             <>
-              <strong className="sw-body-sm-highlight sw-mr-1">
+              <strong className="sw-typo-semibold sw-mr-1">
                 {formatMeasure(
                   condition.actual,
                   getShortType(metric.type),

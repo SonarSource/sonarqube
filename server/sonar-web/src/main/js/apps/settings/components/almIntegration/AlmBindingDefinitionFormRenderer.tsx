@@ -107,7 +107,7 @@ export default class AlmBindingDefinitionFormRenderer extends React.PureComponen
 
     const formBody = (
       <form id={FORM_ID} onSubmit={handleSubmit}>
-        <PageContentFontWrapper className="sw-body-sm" ref={errorListElementRef}>
+        <PageContentFontWrapper className="sw-typo-default" ref={errorListElementRef}>
           {validationError && !canSubmit && (
             <FlagMessage variant="error" className="sw-w-full sw-mb-2">
               <div>

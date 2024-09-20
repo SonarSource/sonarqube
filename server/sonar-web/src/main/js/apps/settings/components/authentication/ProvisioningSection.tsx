@@ -94,7 +94,7 @@ export default function ProvisioningSection(props: Readonly<Props>) {
                   value={ProvisioningType.jit}
                 >
                   <div>
-                    <div className="sw-body-sm-highlight">{jitTitle}</div>
+                    <div className="sw-typo-semibold">{jitTitle}</div>
 
                     <div className="sw-mt-1">{jitDescription}</div>
                   </div>
@@ -114,12 +114,12 @@ export default function ProvisioningSection(props: Readonly<Props>) {
                   disabled={!hasFeatureEnabled || hasDifferentProvider}
                 >
                   <div>
-                    <div className="sw-body-sm-highlight">{autoTitle}</div>
+                    <div className="sw-typo-semibold">{autoTitle}</div>
                     <div className="sw-mt-1">
                       {hasFeatureEnabled ? (
                         <>
                           {hasDifferentProvider && (
-                            <p className="sw-mb-2 sw-body-sm-highlight">
+                            <p className="sw-mb-2 sw-typo-semibold">
                               {translate('settings.authentication.form.other_provisioning_enabled')}
                             </p>
                           )}

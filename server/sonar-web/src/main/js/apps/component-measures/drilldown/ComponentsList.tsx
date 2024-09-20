@@ -55,9 +55,11 @@ export default function ComponentsList({ components, metric, metrics, ...props }
         otherMetrics.length > 0 && (
           <TableRow>
             <ContentCell />
-            <NumericalCell className="sw-body-sm">{getLocalizedMetricName(metric)}</NumericalCell>
+            <NumericalCell className="sw-typo-default">
+              {getLocalizedMetricName(metric)}
+            </NumericalCell>
             {otherMetrics.map((metric) => (
-              <NumericalCell className="sw-body-sm" key={metric.key}>
+              <NumericalCell className="sw-typo-default" key={metric.key}>
                 {getLocalizedMetricName(metric)}
               </NumericalCell>
             ))}

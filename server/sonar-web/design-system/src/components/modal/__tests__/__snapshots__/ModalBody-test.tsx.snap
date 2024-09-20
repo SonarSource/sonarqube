@@ -2,10 +2,7 @@
 
 exports[`renders with children 1`] = `
 .emotion-0 {
-  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 400;
+  font: var(--echoes-typography-text-default-regular);
   padding-left: 0.75rem;
   padding-right: 0.75rem;
   margin-left: -0.75rem;

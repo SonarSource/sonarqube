@@ -35,7 +35,7 @@ export default function NonAdminPagesContainer() {
   if (component && isApplication(component.qualifier) && !component.canBrowseAllChildProjects) {
     return (
       <CenteredLayout
-        className="sw-py-8 sw-body-md sw-flex sw-flex-col sw-items-center"
+        className="sw-py-8 sw-typo-lg sw-flex sw-flex-col sw-items-center"
         id="code-page"
       >
         <FlagMessage className="it__alert-no-access-all-child-project sw-mt-10" variant="error">

@@ -40,14 +40,14 @@ export function EmptyInstance(props: EmptyInstanceProps) {
   return (
     <div className="sw-text-center sw-py-8">
       <FishVisual />
-      <Highlight as="h3" className="sw-body-md-highlight sw-mt-6">
+      <Highlight as="h3" className="sw-typo-lg-semibold sw-mt-6">
         {showNewProjectButton
           ? translate('projects.no_projects.empty_instance.new_project')
           : translate('projects.no_projects.empty_instance')}
       </Highlight>
       {showNewProjectButton && (
         <div>
-          <p className="sw-mt-2 sw-body-sm">
+          <p className="sw-mt-2 sw-typo-default">
             {translate('projects.no_projects.empty_instance.how_to_add_projects')}
           </p>
           <Button

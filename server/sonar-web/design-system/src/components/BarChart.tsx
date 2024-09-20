@@ -96,7 +96,7 @@ function Xvalues<T>(
 
     return (
       <BarChartTick
-        className="sw-body-sm sw-cursor-pointer"
+        className="sw-typo-default sw-cursor-pointer"
         dy="-0.5em"
         // eslint-disable-next-line react/no-array-index-key
         key={index}

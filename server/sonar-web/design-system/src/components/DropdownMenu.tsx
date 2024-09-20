@@ -303,7 +303,7 @@ export const DropdownMenuWrapper = styled.ul`
   ${tw`sw-box-border`};
   ${tw`sw-min-w-input-small`}
   ${tw`sw-py-2`}
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
 
   &:focus {
     outline: none;
@@ -319,7 +319,7 @@ const itemStyle = (props: ThemedProps) => css`
   transition: none;
 
   ${tw`sw-flex sw-items-center`}
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-box-border`}
   ${tw`sw-w-full`}
   ${tw`sw-text-left`}

@@ -84,7 +84,7 @@ export const Pill = forwardRef<HTMLButtonElement, Readonly<PillProps>>(
 );
 
 const reusedStyles = css`
-  ${tw`sw-body-xs`};
+  ${tw`sw-typo-sm`};
   ${tw`sw-w-fit`};
   ${tw`sw-inline-block`};
   ${tw`sw-whitespace-nowrap`};

@@ -66,8 +66,8 @@ export class IssueTags extends React.PureComponent<Props> {
       <Tags
         allowUpdate={this.props.canSetTags && !component?.needIssueSync}
         ariaTagsListLabel={translate('issue.tags')}
-        className="js-issue-edit-tags sw-body-xs"
-        tagsClassName="sw-body-xs"
+        className="js-issue-edit-tags sw-typo-sm"
+        tagsClassName="sw-typo-sm"
         emptyText={translate('issue.no_tag')}
         menuId="issue-tags-menu"
         onClose={this.handleClose}

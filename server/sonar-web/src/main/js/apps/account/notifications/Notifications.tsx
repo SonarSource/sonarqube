@@ -48,10 +48,10 @@ export function Notifications({
 
   const header = emailOnly ? undefined : (
     <tr>
-      <th className="sw-body-sm-highlight">{translate('events')}</th>
+      <th className="sw-typo-semibold">{translate('events')}</th>
 
       {channels.map((channel) => (
-        <th className="sw-body-sm-highlight sw-text-right" key={channel}>
+        <th className="sw-typo-semibold sw-text-right" key={channel}>
           {translate('notification.channel', channel)}
         </th>
       ))}

@@ -81,7 +81,7 @@ export function Event({ event }: Props) {
             <QualityGateIndicator status={event.qualityGate.status} size="sm" />
           )}
         </div>
-        <span className="sw-body-sm-highlight">
+        <span className="sw-typo-semibold">
           {translate(`event.quality_gate.${event.qualityGate.status}`)}
         </span>
       </div>

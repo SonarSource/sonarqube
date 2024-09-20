@@ -47,7 +47,7 @@ export default function GroupsApp() {
 
   return (
     <LargeCenteredLayout>
-      <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+      <PageContentFontWrapper className="sw-my-8 sw-typo-default">
         <Helmet defer={false} title={translate('user_groups.page')} />
         <main>
           <Header manageProvider={manageProvider?.provider} />

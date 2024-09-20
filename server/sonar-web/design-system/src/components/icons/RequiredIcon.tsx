@@ -26,7 +26,7 @@ export function RequiredIcon(props: React.ComponentPropsWithoutRef<'em'>) {
 }
 
 export const StyledEm = styled.em`
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-not-italic`}
   ${tw`sw-ml-2`}
   color: ${themeColor('inputRequired')};

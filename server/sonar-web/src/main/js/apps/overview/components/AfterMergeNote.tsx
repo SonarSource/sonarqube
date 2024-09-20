@@ -34,7 +34,7 @@ export default function AfterMergeNote({ measures, overallMetric }: Readonly<Pro
   const afterMergeValue = findMeasure(measures, overallMetric)?.value;
 
   return afterMergeValue ? (
-    <Note className="sw-mt-2 sw-body-xs sw-inline-block">
+    <Note className="sw-mt-2 sw-typo-sm sw-inline-block">
       <strong className="sw-mr-1">{formatMeasure(afterMergeValue, MetricType.Percent)}</strong>
       <FormattedMessage id="component_measures.facet_category.overall_category.estimated" />
     </Note>

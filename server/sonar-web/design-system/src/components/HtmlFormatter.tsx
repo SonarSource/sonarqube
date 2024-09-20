@@ -22,12 +22,12 @@ import tw from 'twin.macro';
 import { themeBorder, themeColor } from '../helpers';
 
 export const HtmlFormatter = styled.div`
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
 
   a {
     color: ${themeColor('linkDefault')};
     border-bottom: ${themeBorder('default', 'linkDefault')};
-    ${tw`sw-no-underline sw-body-sm-highlight`};
+    ${tw`sw-no-underline sw-typo-semibold`};
 
     &:visited {
       color: ${themeColor('linkDefault')};
@@ -54,7 +54,7 @@ export const HtmlFormatter = styled.div`
   h2,
   h3 {
     color: ${themeColor('pageContentDark')};
-    ${tw`sw-body-md-highlight`}
+    ${tw`sw-typo-lg-semibold`}
     ${tw`sw-my-6`}
   }
 
@@ -62,7 +62,7 @@ export const HtmlFormatter = styled.div`
   h5,
   h6 {
     color: ${themeColor('pageContentDark')};
-    ${tw`sw-body-sm-highlight`}
+    ${tw`sw-typo-semibold`}
     ${tw`sw-mt-6 sw-mb-2`}
   }
 
@@ -128,7 +128,7 @@ export const HtmlFormatter = styled.div`
 
   th {
     ${tw`sw-py-1 sw-px-3`}
-    ${tw`sw-body-sm-highlight`}
+    ${tw`sw-typo-semibold`}
     ${tw`sw-text-center`}
     background-color: ${themeColor('backgroundPrimary')};
     border: ${themeBorder('default')};

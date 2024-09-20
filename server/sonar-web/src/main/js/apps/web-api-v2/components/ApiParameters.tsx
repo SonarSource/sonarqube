@@ -108,7 +108,7 @@ export default function ApiParameters({ data }: Readonly<Props>) {
                             id="api_documentation.v2.enum_description"
                             values={{
                               values: (
-                                <div className="sw-body-sm-highlight">
+                                <div className="sw-typo-semibold">
                                   {parameter.schema.enum.join(', ')}
                                 </div>
                               ),

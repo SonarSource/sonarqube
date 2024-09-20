@@ -59,7 +59,7 @@ export default function RepositoryVariables(props: RepositoryVariablesProps) {
                 {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}
               </LinkStandalone>
             ) : (
-              <span className="sw-body-sm-highlight">
+              <span className="sw-typo-semibold">
                 {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}
               </span>
             ),
@@ -109,7 +109,7 @@ export default function RepositoryVariables(props: RepositoryVariablesProps) {
             values={{
               extra: <ClipboardIconButton copyValue={baseUrl} className="sw-ml-1 sw-align-sub" />,
               field: (
-                <span className="sw-body-sm-highlight">
+                <span className="sw-typo-semibold">
                   {translate('onboarding.tutorial.env_variables.field')}
                 </span>
               ),

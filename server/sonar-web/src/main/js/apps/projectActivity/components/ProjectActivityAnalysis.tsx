@@ -121,7 +121,7 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
           ref={(ref) => (node = ref)}
         >
           <div className="it__project-activity-time">
-            <ActivityTime className="sw-h-page sw-body-sm-highlight sw-text-right sw-mr-2 sw-py-1/2">
+            <ActivityTime className="sw-h-page sw-typo-semibold sw-text-right sw-mr-2 sw-py-1/2">
               <TimeFormatter date={parsedDate} long={false}>
                 {(formattedTime) => (
                   <time dateTime={parsedDate.toISOString()}>{formattedTime}</time>
@@ -201,7 +201,7 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
         </ActivityAnalysisListItem>
       </Tooltip>
       {isBaseline && (
-        <BaselineMarker className="sw-body-sm sw-mt-2">
+        <BaselineMarker className="sw-typo-default sw-mt-2">
           <span className="sw-py-1/2 sw-px-1">
             {translate('project_activity.new_code_period_start')}
           </span>

@@ -66,7 +66,7 @@ export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) 
 
   const body = (
     <div className="sw-mb-10">
-      <SubHeading as="p" className="sw-body-sm">
+      <SubHeading as="p" className="sw-typo-default">
         <FormattedMessage
           id={
             isOptimizing
@@ -81,7 +81,7 @@ export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) 
 
       {sortedMissingConditions.length > 0 && (
         <>
-          <Title as="h4" className="sw-mb-2 sw-mt-4 sw-body-sm-highlight">
+          <Title as="h4" className="sw-mb-2 sw-mt-4 sw-typo-semibold">
             {translateWithParameters(
               'quality_gates.cayc.review_update_modal.add_condition.header',
               sortedMissingConditions.length,
@@ -98,7 +98,7 @@ export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) 
 
       {sortedWeakConditions.length > 0 && (
         <>
-          <Title as="h4" className="sw-mb-2 sw-mt-4 sw-body-sm-highlight">
+          <Title as="h4" className="sw-mb-2 sw-mt-4 sw-typo-semibold">
             {translateWithParameters(
               'quality_gates.cayc.review_update_modal.modify_condition.header',
               sortedWeakConditions.length,
@@ -113,7 +113,7 @@ export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) 
         </>
       )}
 
-      <Title as="h4" className="sw-mb-2 sw-mt-4 sw-body-sm-highlight">
+      <Title as="h4" className="sw-mb-2 sw-mt-4 sw-typo-semibold">
         {translate('quality_gates.cayc.review_update_modal.description2')}
       </Title>
     </div>

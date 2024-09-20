@@ -55,7 +55,7 @@ export default function PluginAvailable(props: Readonly<PluginAvailableProps>) {
         />
         {plugin.update.requires.length > 0 && (
           <p className="sw-mt-2">
-            <strong className="sw-body-sm-highlight">
+            <strong className="sw-typo-semibold">
               {translateWithParameters(
                 'marketplace.installing_this_plugin_will_also_install_x',
                 plugin.update.requires

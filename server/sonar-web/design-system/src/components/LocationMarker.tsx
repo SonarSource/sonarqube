@@ -55,7 +55,7 @@ export const LocationMarker = forwardRef<HTMLDivElement, Props>(InternalLocation
 
 export const StyledMarker = styled.div`
   ${tw`sw-flex sw-grow-0 sw-items-center sw-justify-center`}
-  ${tw`sw-body-sm-highlight`}
+  ${tw`sw-typo-semibold`}
   ${tw`sw-rounded-1/2`}
 
   height: 1.125rem;

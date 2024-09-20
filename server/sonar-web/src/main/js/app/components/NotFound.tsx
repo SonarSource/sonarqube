@@ -26,7 +26,7 @@ export default function NotFound() {
   return (
     <>
       <Helmet defaultTitle={translate('404_not_found')} defer={false} />
-      <PageContentFontWrapper className="sw-body-md">
+      <PageContentFontWrapper className="sw-typo-lg">
         <CenteredLayout className="sw-flex sw-flex-col sw-items-center">
           <Card className="sw-m-14 sw-w-abs-600">
             <Title>{translate('page_not_found')}</Title>

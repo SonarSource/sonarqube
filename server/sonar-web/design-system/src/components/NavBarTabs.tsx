@@ -98,7 +98,7 @@ export function DisabledTabLink(props: { label: string; overlay: React.ReactNode
 
 // Styling for <NavLink> due to its special className function, it conflicts when styled with Emotion.
 const NavBarTabLinkWrapper = styled.li`
-  ${tw`sw-body-md`};
+  ${tw`sw-typo-lg`};
   & > a {
     ${tw`sw-pb-3`};
     ${tw`sw-block`};
@@ -122,13 +122,13 @@ const NavBarTabLinkWrapper = styled.li`
   & > a.active > span[data-text],
   & > a[aria-expanded='true'] > span[data-text],
   & > a:active > span {
-    ${tw`sw-body-md-highlight`};
+    ${tw`sw-typo-lg-semibold`};
   }
 
   // This is a hack to have a link take the space of the bold font, so when active other ones are not moving
   & > a > span[data-text]::before {
     ${tw`sw-block`};
-    ${tw`sw-body-md-highlight`};
+    ${tw`sw-typo-lg-semibold`};
     ${tw`sw-h-0`};
     ${tw`sw-overflow-hidden`};
     ${tw`sw-invisible`};

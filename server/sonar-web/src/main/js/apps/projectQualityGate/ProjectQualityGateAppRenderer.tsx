@@ -128,7 +128,7 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
 
   return (
     <LargeCenteredLayout id="project-quality-gate">
-      <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+      <PageContentFontWrapper className="sw-my-8 sw-typo-default">
         <Suggestions suggestion={DocLink.CaYC} />
         <Helmet defer={false} title={translate('project_quality_gate.page')} />
         <A11ySkipTarget anchor="qg_main" />

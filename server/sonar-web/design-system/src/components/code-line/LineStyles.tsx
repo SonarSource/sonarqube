@@ -25,7 +25,7 @@ import { BareButton } from '../../sonar-aligned';
 export const SCMHighlight = styled.h6`
   color: ${themeColor('tooltipHighlight')};
 
-  ${tw`sw-body-sm-highlight`};
+  ${tw`sw-typo-semibold`};
   ${tw`sw-text-right`};
   ${tw`sw-min-w-[6rem]`};
   ${tw`sw-mr-4`};

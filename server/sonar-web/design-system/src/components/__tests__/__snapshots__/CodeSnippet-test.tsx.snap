@@ -35,10 +35,7 @@ exports[`should highlight code content correctly 1`] = `
   -ms-flex-align: center;
   align-items: center;
   height: 2.25rem;
-  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 600;
+  font: var(--echoes-typography-text-default-semi-bold);
   padding-left: 1rem;
   padding-right: 1rem;
   padding-top: 0.5rem;
@@ -54,10 +51,7 @@ exports[`should highlight code content correctly 1`] = `
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 400;
+  font: var(--echoes-typography-text-default-regular);
   right: 1.5rem;
   top: 1.5rem;
   position: absolute;
@@ -96,10 +90,7 @@ exports[`should highlight code content correctly 1`] = `
 }
 
 .emotion-6 code {
-  font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-  font-size: 0.875rem;
-  line-height: 1.125rem;
-  font-weight: 400;
+  font: var(--echoes-typography-code-default);
   background: rgb(252,252,253);
   color: rgb(51,53,60);
 }
@@ -121,10 +112,7 @@ exports[`should highlight code content correctly 1`] = `
 }
 
 .emotion-6 .hljs-comment {
-  font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-  font-size: 0.875rem;
-  line-height: 1.125rem;
-  font-style: italic;
+  font: var(--echoes-typography-code-comment);
   color: rgb(109,111,119);
 }
 
@@ -249,10 +237,7 @@ exports[`should show full size when multiline with no editing 1`] = `
   -ms-flex-align: center;
   align-items: center;
   height: 2.25rem;
-  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 600;
+  font: var(--echoes-typography-text-default-semi-bold);
   padding-left: 1rem;
   padding-right: 1rem;
   padding-top: 0.5rem;
@@ -268,10 +253,7 @@ exports[`should show full size when multiline with no editing 1`] = `
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 400;
+  font: var(--echoes-typography-text-default-regular);
   right: 1.5rem;
   top: 1.5rem;
   position: absolute;
@@ -310,10 +292,7 @@ exports[`should show full size when multiline with no editing 1`] = `
 }
 
 .emotion-6 code {
-  font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-  font-size: 0.875rem;
-  line-height: 1.125rem;
-  font-weight: 400;
+  font: var(--echoes-typography-code-default);
   background: rgb(252,252,253);
   color: rgb(51,53,60);
 }
@@ -335,10 +314,7 @@ exports[`should show full size when multiline with no editing 1`] = `
 }
 
 .emotion-6 .hljs-comment {
-  font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-  font-size: 0.875rem;
-  line-height: 1.125rem;
-  font-style: italic;
+  font: var(--echoes-typography-code-comment);
   color: rgb(109,111,119);
 }
 
@@ -465,10 +441,7 @@ exports[`should show reduced size when single line with no editing 1`] = `
   -ms-flex-align: center;
   align-items: center;
   height: 2.25rem;
-  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 600;
+  font: var(--echoes-typography-text-default-semi-bold);
   padding-left: 1rem;
   padding-right: 1rem;
   padding-top: 0.5rem;
@@ -484,10 +457,7 @@ exports[`should show reduced size when single line with no editing 1`] = `
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 400;
+  font: var(--echoes-typography-text-default-regular);
   right: 1.5rem;
   top: 1.5rem;
   position: absolute;
@@ -528,10 +498,7 @@ exports[`should show reduced size when single line with no editing 1`] = `
 }
 
 .emotion-6 code {
-  font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-  font-size: 0.875rem;
-  line-height: 1.125rem;
-  font-weight: 400;
+  font: var(--echoes-typography-code-default);
   background: rgb(252,252,253);
   color: rgb(51,53,60);
 }
@@ -553,10 +520,7 @@ exports[`should show reduced size when single line with no editing 1`] = `
 }
 
 .emotion-6 .hljs-comment {
-  font-family: Ubuntu Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-  font-size: 0.875rem;
-  line-height: 1.125rem;
-  font-style: italic;
+  font: var(--echoes-typography-code-comment);
   color: rgb(109,111,119);
 }
 

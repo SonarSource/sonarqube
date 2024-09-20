@@ -144,7 +144,7 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
   const filteredAlm = separateAvailableOptions(almCounts);
 
   return (
-    <div className="sw-body-sm">
+    <div className="sw-typo-default">
       <div className="sw-flex sw-flex-col">
         <Title className="sw-mb-10">{translate('onboarding.create_project.select_method')}</Title>
         <LightPrimary>

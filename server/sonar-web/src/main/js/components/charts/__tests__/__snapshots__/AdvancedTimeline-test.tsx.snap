@@ -170,7 +170,7 @@ exports[`should render correctly: Zoom enabled 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 15, 24)"
         x="15"
@@ -179,7 +179,7 @@ exports[`should render correctly: Zoom enabled 1`] = `
         October
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 20, 24)"
         x="20"
@@ -188,7 +188,7 @@ exports[`should render correctly: Zoom enabled 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 25, 24)"
         x="25"
@@ -197,7 +197,7 @@ exports[`should render correctly: Zoom enabled 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 30, 24)"
         x="30"
@@ -206,7 +206,7 @@ exports[`should render correctly: Zoom enabled 1`] = `
         06 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 35, 24)"
         x="35"
@@ -215,7 +215,7 @@ exports[`should render correctly: Zoom enabled 1`] = `
         Wed 02
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 40, 24)"
         x="40"
@@ -224,7 +224,7 @@ exports[`should render correctly: Zoom enabled 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 45, 24)"
         x="45"
@@ -233,7 +233,7 @@ exports[`should render correctly: Zoom enabled 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 50, 24)"
         x="50"
@@ -434,7 +434,7 @@ exports[`should render correctly: basisCurve 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 15, 24)"
         x="15"
@@ -443,7 +443,7 @@ exports[`should render correctly: basisCurve 1`] = `
         October
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 20, 24)"
         x="20"
@@ -452,7 +452,7 @@ exports[`should render correctly: basisCurve 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 25, 24)"
         x="25"
@@ -461,7 +461,7 @@ exports[`should render correctly: basisCurve 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 30, 24)"
         x="30"
@@ -470,7 +470,7 @@ exports[`should render correctly: basisCurve 1`] = `
         06 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 35, 24)"
         x="35"
@@ -479,7 +479,7 @@ exports[`should render correctly: basisCurve 1`] = `
         Wed 02
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 40, 24)"
         x="40"
@@ -488,7 +488,7 @@ exports[`should render correctly: basisCurve 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 45, 24)"
         x="45"
@@ -497,7 +497,7 @@ exports[`should render correctly: basisCurve 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 50, 24)"
         x="50"
@@ -698,7 +698,7 @@ exports[`should render correctly: default 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 15, 24)"
         x="15"
@@ -707,7 +707,7 @@ exports[`should render correctly: default 1`] = `
         October
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 20, 24)"
         x="20"
@@ -716,7 +716,7 @@ exports[`should render correctly: default 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 25, 24)"
         x="25"
@@ -725,7 +725,7 @@ exports[`should render correctly: default 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 30, 24)"
         x="30"
@@ -734,7 +734,7 @@ exports[`should render correctly: default 1`] = `
         06 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 35, 24)"
         x="35"
@@ -743,7 +743,7 @@ exports[`should render correctly: default 1`] = `
         Wed 02
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 40, 24)"
         x="40"
@@ -752,7 +752,7 @@ exports[`should render correctly: default 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 45, 24)"
         x="45"
@@ -761,7 +761,7 @@ exports[`should render correctly: default 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 50, 24)"
         x="50"
@@ -815,7 +815,7 @@ exports[`should render correctly: format y tick 1`] = `
     <g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -834,7 +834,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -853,7 +853,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -872,7 +872,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -891,7 +891,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -910,7 +910,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -929,7 +929,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -948,7 +948,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -967,7 +967,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -986,7 +986,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -1005,7 +1005,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -1024,7 +1024,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -1043,7 +1043,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -1062,7 +1062,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -1081,7 +1081,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -1100,7 +1100,7 @@ exports[`should render correctly: format y tick 1`] = `
       </g>
       <g>
         <text
-          class="line-chart-tick line-chart-tick-x sw-body-sm"
+          class="line-chart-tick line-chart-tick-x sw-typo-default"
           dx="-1em"
           dy="0.3em"
           text-anchor="end"
@@ -1122,7 +1122,7 @@ exports[`should render correctly: format y tick 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 15, 24)"
         x="15"
@@ -1131,7 +1131,7 @@ exports[`should render correctly: format y tick 1`] = `
         October
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 20, 24)"
         x="20"
@@ -1140,7 +1140,7 @@ exports[`should render correctly: format y tick 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 25, 24)"
         x="25"
@@ -1149,7 +1149,7 @@ exports[`should render correctly: format y tick 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 30, 24)"
         x="30"
@@ -1158,7 +1158,7 @@ exports[`should render correctly: format y tick 1`] = `
         06 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 35, 24)"
         x="35"
@@ -1167,7 +1167,7 @@ exports[`should render correctly: format y tick 1`] = `
         Wed 02
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 40, 24)"
         x="40"
@@ -1176,7 +1176,7 @@ exports[`should render correctly: format y tick 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 45, 24)"
         x="45"
@@ -1185,7 +1185,7 @@ exports[`should render correctly: format y tick 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 50, 24)"
         x="50"
@@ -1394,7 +1394,7 @@ exports[`should render correctly: leakPeriodDate 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 15, 24)"
         x="15"
@@ -1403,7 +1403,7 @@ exports[`should render correctly: leakPeriodDate 1`] = `
         October
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 20, 24)"
         x="20"
@@ -1412,7 +1412,7 @@ exports[`should render correctly: leakPeriodDate 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 25, 24)"
         x="25"
@@ -1421,7 +1421,7 @@ exports[`should render correctly: leakPeriodDate 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 30, 24)"
         x="30"
@@ -1430,7 +1430,7 @@ exports[`should render correctly: leakPeriodDate 1`] = `
         06 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 35, 24)"
         x="35"
@@ -1439,7 +1439,7 @@ exports[`should render correctly: leakPeriodDate 1`] = `
         Wed 02
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 40, 24)"
         x="40"
@@ -1448,7 +1448,7 @@ exports[`should render correctly: leakPeriodDate 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 45, 24)"
         x="45"
@@ -1457,7 +1457,7 @@ exports[`should render correctly: leakPeriodDate 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 50, 24)"
         x="50"
@@ -1541,7 +1541,7 @@ exports[`should render correctly: level metric 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 15, 24)"
         x="15"
@@ -1550,7 +1550,7 @@ exports[`should render correctly: level metric 1`] = `
         October
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 20, 24)"
         x="20"
@@ -1559,7 +1559,7 @@ exports[`should render correctly: level metric 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 25, 24)"
         x="25"
@@ -1568,7 +1568,7 @@ exports[`should render correctly: level metric 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 30, 24)"
         x="30"
@@ -1577,7 +1577,7 @@ exports[`should render correctly: level metric 1`] = `
         06 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 35, 24)"
         x="35"
@@ -1586,7 +1586,7 @@ exports[`should render correctly: level metric 1`] = `
         Wed 02
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 40, 24)"
         x="40"
@@ -1595,7 +1595,7 @@ exports[`should render correctly: level metric 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 45, 24)"
         x="45"
@@ -1604,7 +1604,7 @@ exports[`should render correctly: level metric 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 50, 24)"
         x="50"
@@ -1804,7 +1804,7 @@ exports[`should render correctly: no areas 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 15, 24)"
         x="15"
@@ -1813,7 +1813,7 @@ exports[`should render correctly: no areas 1`] = `
         October
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 20, 24)"
         x="20"
@@ -1822,7 +1822,7 @@ exports[`should render correctly: no areas 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 25, 24)"
         x="25"
@@ -1831,7 +1831,7 @@ exports[`should render correctly: no areas 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 30, 24)"
         x="30"
@@ -1840,7 +1840,7 @@ exports[`should render correctly: no areas 1`] = `
         06 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 35, 24)"
         x="35"
@@ -1849,7 +1849,7 @@ exports[`should render correctly: no areas 1`] = `
         Wed 02
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 40, 24)"
         x="40"
@@ -1858,7 +1858,7 @@ exports[`should render correctly: no areas 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 45, 24)"
         x="45"
@@ -1867,7 +1867,7 @@ exports[`should render correctly: no areas 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 50, 24)"
         x="50"
@@ -1973,7 +1973,7 @@ exports[`should render correctly: rating metric 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 15, 24)"
         x="15"
@@ -1982,7 +1982,7 @@ exports[`should render correctly: rating metric 1`] = `
         October
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 20, 24)"
         x="20"
@@ -1991,7 +1991,7 @@ exports[`should render correctly: rating metric 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 25, 24)"
         x="25"
@@ -2000,7 +2000,7 @@ exports[`should render correctly: rating metric 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 30, 24)"
         x="30"
@@ -2009,7 +2009,7 @@ exports[`should render correctly: rating metric 1`] = `
         06 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 35, 24)"
         x="35"
@@ -2018,7 +2018,7 @@ exports[`should render correctly: rating metric 1`] = `
         Wed 02
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 40, 24)"
         x="40"
@@ -2027,7 +2027,7 @@ exports[`should render correctly: rating metric 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 45, 24)"
         x="45"
@@ -2036,7 +2036,7 @@ exports[`should render correctly: rating metric 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 50, 24)"
         x="50"
@@ -2237,7 +2237,7 @@ exports[`should render correctly: selected date 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 15, 24)"
         x="15"
@@ -2246,7 +2246,7 @@ exports[`should render correctly: selected date 1`] = `
         October
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 20, 24)"
         x="20"
@@ -2255,7 +2255,7 @@ exports[`should render correctly: selected date 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 25, 24)"
         x="25"
@@ -2264,7 +2264,7 @@ exports[`should render correctly: selected date 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 30, 24)"
         x="30"
@@ -2273,7 +2273,7 @@ exports[`should render correctly: selected date 1`] = `
         06 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 35, 24)"
         x="35"
@@ -2282,7 +2282,7 @@ exports[`should render correctly: selected date 1`] = `
         Wed 02
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 40, 24)"
         x="40"
@@ -2291,7 +2291,7 @@ exports[`should render correctly: selected date 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 45, 24)"
         x="45"
@@ -2300,7 +2300,7 @@ exports[`should render correctly: selected date 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 50, 24)"
         x="50"
@@ -2526,7 +2526,7 @@ exports[`should render correctly: split point, but not Rating 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 15, 24)"
         x="15"
@@ -2535,7 +2535,7 @@ exports[`should render correctly: split point, but not Rating 1`] = `
         October
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 20, 24)"
         x="20"
@@ -2544,7 +2544,7 @@ exports[`should render correctly: split point, but not Rating 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 25, 24)"
         x="25"
@@ -2553,7 +2553,7 @@ exports[`should render correctly: split point, but not Rating 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 30, 24)"
         x="30"
@@ -2562,7 +2562,7 @@ exports[`should render correctly: split point, but not Rating 1`] = `
         06 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 35, 24)"
         x="35"
@@ -2571,7 +2571,7 @@ exports[`should render correctly: split point, but not Rating 1`] = `
         Wed 02
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 40, 24)"
         x="40"
@@ -2580,7 +2580,7 @@ exports[`should render correctly: split point, but not Rating 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 45, 24)"
         x="45"
@@ -2589,7 +2589,7 @@ exports[`should render correctly: split point, but not Rating 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 50, 24)"
         x="50"
@@ -2798,7 +2798,7 @@ exports[`should render correctly: zoomSpeed 1`] = `
       transform="translate(0, 20)"
     >
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 15, 24)"
         x="15"
@@ -2807,7 +2807,7 @@ exports[`should render correctly: zoomSpeed 1`] = `
         October
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 20, 24)"
         x="20"
@@ -2816,7 +2816,7 @@ exports[`should render correctly: zoomSpeed 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 25, 24)"
         x="25"
@@ -2825,7 +2825,7 @@ exports[`should render correctly: zoomSpeed 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 30, 24)"
         x="30"
@@ -2834,7 +2834,7 @@ exports[`should render correctly: zoomSpeed 1`] = `
         06 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 35, 24)"
         x="35"
@@ -2843,7 +2843,7 @@ exports[`should render correctly: zoomSpeed 1`] = `
         Wed 02
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 40, 24)"
         x="40"
@@ -2852,7 +2852,7 @@ exports[`should render correctly: zoomSpeed 1`] = `
         06 AM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 45, 24)"
         x="45"
@@ -2861,7 +2861,7 @@ exports[`should render correctly: zoomSpeed 1`] = `
         12 PM
       </text>
       <text
-        class="line-chart-tick sw-body-sm"
+        class="line-chart-tick sw-typo-default"
         text-anchor="end"
         transform="rotate(-35, 50, 24)"
         x="50"

@@ -47,7 +47,7 @@ export function IssueSuggestionCodeTab({ branchLike, issue, language }: Readonly
       {isPending && !isLoading && !isError && (
         <div className="sw-flex sw-flex-col sw-items-center">
           <OverviewQGPassedIcon className="sw-mt-6" />
-          <p className="sw-body-sm-highlight sw-mt-4">
+          <p className="sw-typo-semibold sw-mt-4">
             {translate('issues.code_fix.let_us_suggest_fix')}
           </p>
           <Button
@@ -62,7 +62,7 @@ export function IssueSuggestionCodeTab({ branchLike, issue, language }: Readonly
       {isLoading && (
         <div className="sw-flex sw-pt-6 sw-flex-col sw-items-center">
           <InProgressVisual />
-          <p className="sw-body-sm-highlight sw-mt-4">
+          <p className="sw-typo-semibold sw-mt-4">
             {translate('issues.code_fix.fix_is_being_generated')}
           </p>
         </div>
@@ -70,7 +70,7 @@ export function IssueSuggestionCodeTab({ branchLike, issue, language }: Readonly
       {isError && (
         <div className="sw-flex sw-flex-col sw-items-center">
           <OverviewQGNotComputedIcon className="sw-mt-6" />
-          <p className="sw-body-sm-highlight sw-mt-4">
+          <p className="sw-typo-semibold sw-mt-4">
             {translate('issues.code_fix.something_went_wrong')}
           </p>
           <p className="sw-my-4">{translate('issues.code_fix.not_able_to_generate_fix')}</p>

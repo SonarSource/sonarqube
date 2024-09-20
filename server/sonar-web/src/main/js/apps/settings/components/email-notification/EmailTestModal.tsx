@@ -133,7 +133,7 @@ export default function EmailTestModal() {
       title={formatMessage({ id: 'email_notification.test.modal_title' })}
     >
       <div className="sw-flex sw-justify-between sw-items-center">
-        <span className="sw-body-md-highlight">
+        <span className="sw-typo-lg-semibold">
           {formatMessage({ id: 'email_notification.test.title' })}
         </span>
         <Button onClick={() => setIsOpen(true)} variety={ButtonVariety.Default}>

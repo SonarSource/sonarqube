@@ -24,7 +24,7 @@ import { translate } from '../../../helpers/l10n';
 export default function NoIssues() {
   return (
     <div className="sw-text-center sw-py-8">
-      <Highlight as="h3" className="sw-body-md-highlight">
+      <Highlight as="h3" className="sw-typo-lg-semibold">
         {translate('issues.no_issues')}
       </Highlight>
     </div>

@@ -25,7 +25,7 @@ import { themeColor } from '../../../helpers/theme';
 /** @deprecated Use Heading from Echoes instead.
  */
 export const Title = styled.h1`
-  ${tw`sw-heading-lg`}
+  ${tw`sw-heading-xl`}
   ${tw`sw-mb-4`}
   color: ${themeColor('pageTitle')};
 `;
@@ -33,7 +33,7 @@ export const Title = styled.h1`
 /** @deprecated Use Heading from Echoes instead.
  */
 export const SubTitle = styled.h2`
-  ${tw`sw-heading-md`}
+  ${tw`sw-heading-lg`}
   ${tw`sw-mb-4`}
   color: ${themeColor('pageTitle')};
 `;
@@ -43,13 +43,13 @@ export const SubTitle = styled.h2`
 export const HeadingDark = styled.h2`
   color: ${themeColor('pageContentDark')};
 
-  ${tw`sw-body-sm-highlight`}
+  ${tw`sw-typo-semibold`}
 `;
 
 /** @deprecated Use Heading from Echoes instead.
  */
 export const SubHeading = styled.h3`
-  ${tw`sw-body-md-highlight`}
+  ${tw`sw-typo-lg-semibold`}
   ${tw`sw-mb-2`}
   color: ${themeColor('pageContent')};
 `;

@@ -38,7 +38,7 @@ export default function RuleDetailsHeaderMeta(props: Readonly<Props>) {
   const externalEngine = ruleDetails.repo.replace(new RegExp(`^${EXTERNAL_RULE_REPO_PREFIX}`), '');
 
   return (
-    <Note className="sw-flex sw-flex-wrap sw-items-center sw-gap-2 sw-body-xs" as="ul">
+    <Note className="sw-flex sw-flex-wrap sw-items-center sw-gap-2 sw-typo-sm" as="ul">
       {/* Template */}
       {!ruleDetails.isExternal && ruleDetails.isTemplate && (
         <>

@@ -58,7 +58,7 @@ export default class OtherTutorial extends React.PureComponent<Props, State> {
     const { step, token } = this.state;
 
     return (
-      <PageContentFontWrapper className="sw-body-sm">
+      <PageContentFontWrapper className="sw-typo-default">
         <div className="sw-mb-4">
           <Title>{translate('onboarding.project_analysis.header')} </Title>
           <LightLabel>{translate('onboarding.project_analysis.description')}</LightLabel>

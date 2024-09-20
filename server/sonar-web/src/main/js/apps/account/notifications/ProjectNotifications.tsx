@@ -70,7 +70,7 @@ export default function ProjectNotifications({
         <Link to={getProjectUrl(project.project)}>{project.projectName}</Link>
       </div>
       {!header && (
-        <div className="sw-body-sm-highlight sw-mb-2">{translate('notifications.send_email')}</div>
+        <div className="sw-typo-semibold sw-mb-2">{translate('notifications.send_email')}</div>
       )}
 
       <Table

@@ -37,7 +37,7 @@ export default function UserListItemIdentity({ identityProvider, user, managePro
   return (
     <div>
       <div className="sw-flex sw-flex-col">
-        <strong className="it__user-name sw-body-sm-highlight">{user.name}</strong>
+        <strong className="it__user-name sw-typo-semibold">{user.name}</strong>
         <Note className="it__user-login">{user.login}</Note>
       </div>
       {isDefined(user.email) && user.email !== '' && (

@@ -57,7 +57,7 @@ export default function Account() {
         )}
 
       <LargeCenteredLayout as="main">
-        <PageContentFontWrapper className="sw-body-sm sw-py-8">
+        <PageContentFontWrapper className="sw-typo-default sw-py-8">
           <Helmet
             defaultTitle={title}
             defer={false}

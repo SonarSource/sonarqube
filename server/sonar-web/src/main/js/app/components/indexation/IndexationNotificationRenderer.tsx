@@ -72,7 +72,7 @@ export default function IndexationNotificationRenderer(props: IndexationNotifica
   return (
     <div className={type === undefined ? 'sw-hidden' : ''}>
       <StyledBanner
-        className="sw-body-sm sw-py-3 sw-px-4 sw-gap-4"
+        className="sw-typo-default sw-py-3 sw-px-4 sw-gap-4"
         type={type ?? IndexationNotificationType.Completed}
         aria-live="assertive"
         role="alert"

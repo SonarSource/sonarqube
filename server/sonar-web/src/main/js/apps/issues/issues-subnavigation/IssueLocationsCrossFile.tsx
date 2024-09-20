@@ -132,7 +132,7 @@ export default class IssueLocationsCrossFile extends PureComponent<Props, State>
 
     return (
       <div key={groupIndex}>
-        <ComponentName className="sw-pb-1 sw-body-sm-highlight">
+        <ComponentName className="sw-pb-1 sw-typo-semibold">
           {collapsePath(group.componentName ?? '', COLLAPSE_PATH_LIMIT)}
         </ComponentName>
         {group.locations.length > 0 && (

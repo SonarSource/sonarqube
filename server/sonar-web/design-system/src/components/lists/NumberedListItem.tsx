@@ -34,7 +34,7 @@ export const NumberedListItem = styled.li`
     border-radius: 20px;
     content: counter(li);
 
-    ${tw`sw-body-sm-highlight`}
+    ${tw`sw-typo-semibold`}
     ${tw`sw-p-1`}
     ${tw`sw-mr-3`}
     ${tw`sw-inline-block`}

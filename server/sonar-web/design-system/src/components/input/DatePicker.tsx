@@ -157,7 +157,7 @@ export class DatePicker extends React.PureComponent<Props, State> {
                   <div className={classNames('sw-p-2')}>
                     <DayPicker
                       captionLayout="dropdown-buttons"
-                      className="sw-body-sm"
+                      className="sw-typo-default"
                       components={{
                         Caption: CustomCalendarNavigation,
                       }}

@@ -68,7 +68,7 @@ export function SubnavigationLinkItem({ children, ...props }: NavLinkProps) {
 const ItemBaseStyle = (props: ThemedProps) => css`
   ${tw`sw-flex sw-items-center sw-justify-between`}
   ${tw`sw-box-border`}
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-py-4 sw-pr-4`}
   ${tw`sw-w-full`}
   ${tw`sw-cursor-pointer`}

@@ -196,7 +196,7 @@ export default function Import(props: Readonly<Props>) {
   return (
     <>
       <div className="sw-my-4">
-        <h2 className="sw-heading-md">{translate('project_dump.import')}</h2>
+        <h2 className="sw-heading-lg">{translate('project_dump.import')}</h2>
       </div>
 
       <Spinner isLoading={isLoading}>

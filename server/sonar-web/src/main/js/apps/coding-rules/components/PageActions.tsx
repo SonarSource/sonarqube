@@ -29,7 +29,7 @@ export interface PageActionsProps {
 
 export default function PageActions(props: Readonly<PageActionsProps>) {
   return (
-    <div className="sw-body-sm sw-flex sw-items-center sw-gap-6 sw-justify-end sw-flex-1">
+    <div className="sw-typo-default sw-flex sw-items-center sw-gap-6 sw-justify-end sw-flex-1">
       <KeyboardHint title={translate('coding_rules.to_select_rules')} command="ArrowUp ArrowDown" />
       <KeyboardHint title={translate('coding_rules.to_navigate')} command="ArrowLeft ArrowRight" />
 

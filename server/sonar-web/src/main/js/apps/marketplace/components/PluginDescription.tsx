@@ -28,7 +28,7 @@ interface Props {
 export default function PluginDescription(props: Readonly<Props>) {
   return (
     <CellComponent>
-      <strong className="sw-body-sm-highlight">{props.plugin.name}</strong>
+      <strong className="sw-typo-semibold">{props.plugin.name}</strong>
       {props.plugin.category && <Badge className="sw-ml-2">{props.plugin.category}</Badge>}
       {props.plugin.description && <div className="sw-mt-2">{props.plugin.description}</div>}
     </CellComponent>

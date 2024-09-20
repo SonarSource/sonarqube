@@ -72,7 +72,7 @@ export default class EncryptionApp extends React.PureComponent<{}, State> {
 
     return (
       <LargeCenteredLayout id="encryption-page">
-        <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+        <PageContentFontWrapper className="sw-my-8 sw-typo-default">
           <Helmet defer={false} title={translate('property.category.security.encryption')} />
           <header>
             <Title>{translate('property.category.security.encryption')}</Title>

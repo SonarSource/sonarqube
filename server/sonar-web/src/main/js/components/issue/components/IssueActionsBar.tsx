@@ -54,7 +54,7 @@ export default function IssueActionsBar(props: Readonly<Props>) {
 
   return (
     <div className="sw-flex sw-gap-3 sw-min-w-0">
-      <ul className="it__issue-header-actions sw-flex sw-items-center sw-gap-3 sw-body-sm sw-min-w-0">
+      <ul className="it__issue-header-actions sw-flex sw-items-center sw-gap-3 sw-typo-default sw-min-w-0">
         <HighlightRing
           as="li"
           className="sw-relative"

@@ -34,7 +34,7 @@ export interface Props {
 
 export default function Stats({ component, pendingCount, pendingTime, ...props }: Readonly<Props>) {
   return (
-    <section className="sw-flex sw-items-center sw-my-4 sw-gap-8 sw-body-md">
+    <section className="sw-flex sw-items-center sw-my-4 sw-gap-8 sw-typo-lg">
       <StatPendingCount onCancelAllPending={props.onCancelAllPending} pendingCount={pendingCount} />
       {!component && (
         <>

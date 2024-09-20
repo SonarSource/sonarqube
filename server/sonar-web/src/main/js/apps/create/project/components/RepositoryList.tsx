@@ -104,7 +104,7 @@ export default function RepositoryList(props: Readonly<RepositoryListProps>) {
 
         {repositories.length === 0 ? (
           <div className="sw-py-6 sw-px-2">
-            <LightPrimary className="sw-body-sm">
+            <LightPrimary className="sw-typo-default">
               {formatMessage({ id: 'no_results' })}
             </LightPrimary>
           </div>
@@ -143,7 +143,7 @@ export default function RepositoryList(props: Readonly<RepositoryListProps>) {
       <SideColumn>
         {selected.size > 0 && (
           <SetupBox className="sw-rounded-2 sw-p-8 sw-mb-0">
-            <SetupBoxTitle className="sw-mb-2 sw-heading-md">
+            <SetupBoxTitle className="sw-mb-2 sw-heading-lg">
               <FormattedMessage
                 id="onboarding.create_project.x_repositories_selected"
                 values={{ count: selected.size }}

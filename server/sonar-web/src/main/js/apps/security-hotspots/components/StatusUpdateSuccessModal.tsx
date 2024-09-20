@@ -59,11 +59,11 @@ export default function StatusUpdateSuccessModal(props: StatusUpdateSuccessModal
       <p className="sw-hidden" id="modal_header_title">
         {modalTitle}
       </p>
-      <h2 className="sw-heading-md sw-text-center">
+      <h2 className="sw-heading-lg sw-text-center">
         {translateWithParameters('hotspots.successful_status_change_to_x', statusLabel)}
       </h2>
 
-      <div className="sw-text-center sw-mt-8 sw-body-sm">
+      <div className="sw-text-center sw-mt-8 sw-typo-default">
         <FormattedMessage
           id="hotspots.successfully_changed_to_x"
           defaultMessage={translate('hotspots.find_in_status_filter_x')}

@@ -132,7 +132,7 @@ export const buttonStyle = (props: ThemedProps) => css`
 
   ${tw`sw-inline-flex sw-items-center`}
   ${tw`sw-h-control`}
-  ${tw`sw-body-sm-highlight`}
+  ${tw`sw-typo-semibold`}
   ${tw`sw-py-2 sw-px-4`}
   ${tw`sw-rounded-2`}
   ${tw`sw-cursor-pointer`}

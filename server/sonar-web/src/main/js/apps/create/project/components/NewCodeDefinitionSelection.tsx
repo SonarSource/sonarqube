@@ -185,7 +185,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
     <section
       aria-label={translate('onboarding.create_project.new_code_definition.title')}
       id="project-ncd-selection"
-      className="sw-body-sm"
+      className="sw-typo-default"
     >
       <div className="sw-flex sw-justify-between">
         <FormattedMessage

@@ -314,7 +314,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
         </Heading>
 
         <LargeCenteredLayout>
-          <PageContentFontWrapper className="sw-flex sw-w-full sw-body-md">
+          <PageContentFontWrapper className="sw-flex sw-w-full sw-typo-lg">
             {this.renderSide()}
 
             <main className="sw-flex sw-flex-col sw-box-border sw-min-w-0 sw-pl-12 sw-pt-6 sw-flex-1">

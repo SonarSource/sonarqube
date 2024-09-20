@@ -48,7 +48,7 @@ export default function PluginInstalled({
       <ContentCell>
         <StyledUnorderedList>
           <ListItem className="sw-mt-0">
-            <strong className="sw-mr-1 sw-body-sm-highlight">{plugin.version}</strong>
+            <strong className="sw-mr-1 sw-typo-semibold">{plugin.version}</strong>
             {translate('marketplace._installed')}
           </ListItem>
           <PluginUpdates pluginName={plugin.name} updates={plugin.updates} />

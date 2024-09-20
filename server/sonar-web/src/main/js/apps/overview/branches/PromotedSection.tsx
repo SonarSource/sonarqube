@@ -61,7 +61,7 @@ export default function PromotedSection({
   return (
     <StyledWrapper className="sw-p-4 sw-pl-6 sw-my-6 sw-rounded-2">
       <div className="sw-flex sw-justify-between sw-mb-2">
-        <StyledTitle className="sw-body-md-highlight">{title}</StyledTitle>
+        <StyledTitle className="sw-typo-lg-semibold">{title}</StyledTitle>
 
         <ButtonIcon
           Icon={IconX}
@@ -71,7 +71,7 @@ export default function PromotedSection({
           variety={ButtonVariety.DefaultGhost}
         />
       </div>
-      <p className="sw-body-sm sw-mb-4">{content}</p>
+      <p className="sw-typo-default sw-mb-4">{content}</p>
       <div>
         <ButtonPrimary className="sw-mr-2" onClick={handlePrimaryButtonClick}>
           {primaryButtonLabel}

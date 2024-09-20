@@ -29,7 +29,7 @@ export default function UserCard({ user }: Props) {
   return (
     <>
       <Avatar hash={user.avatar} name={user.name} size="md" />
-      <span className="sw-heading-md fs-mask">{user.name}</span>
+      <span className="sw-heading-lg fs-mask">{user.name}</span>
     </>
   );
 }

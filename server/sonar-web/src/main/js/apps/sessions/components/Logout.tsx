@@ -39,7 +39,7 @@ export default function Logout() {
 
   return (
     <CenteredLayout>
-      <PageContentFontWrapper className="sw-body-md sw-mt-14 sw-text-center">
+      <PageContentFontWrapper className="sw-typo-lg sw-mt-14 sw-text-center">
         {translate('logging_out')}
       </PageContentFontWrapper>
     </CenteredLayout>

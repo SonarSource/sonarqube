@@ -40,7 +40,7 @@ export default function EmailNotificationOverview(props: Readonly<EmailTestModal
       <BasicSeparator className="sw-my-6" />
       <div className="sw-flex sw-justify-between">
         <div className="sw-grid sw-gap-4">
-          <span className="sw-body-md-highlight sw-col-span-2">
+          <span className="sw-typo-lg-semibold sw-col-span-2">
             {translate('email_notification.overview.heading')}
           </span>
 
@@ -100,7 +100,7 @@ export default function EmailNotificationOverview(props: Readonly<EmailTestModal
 function PublicValue({ messageKey, value }: Readonly<{ messageKey: string; value: string }>) {
   return (
     <>
-      <label className="sw-body-sm-highlight">{translate(messageKey)}</label>
+      <label className="sw-typo-semibold">{translate(messageKey)}</label>
       <div data-testid={`${messageKey}.value`}>
         <CodeSnippet className="sw-px-1 sw-truncate" isOneLine noCopy snippet={value} />
       </div>
@@ -111,7 +111,7 @@ function PublicValue({ messageKey, value }: Readonly<{ messageKey: string; value
 function PrivateValue({ messageKey }: Readonly<{ messageKey: string }>) {
   return (
     <>
-      <label className="sw-body-sm-highlight">{translate(messageKey)}</label>
+      <label className="sw-typo-semibold">{translate(messageKey)}</label>
       <span data-testid={`${messageKey}.value`}>
         <FormattedMessage id="email_notification.overview.private" />
       </span>

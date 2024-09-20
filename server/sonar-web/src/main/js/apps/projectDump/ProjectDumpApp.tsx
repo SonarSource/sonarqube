@@ -40,7 +40,7 @@ export function ProjectDumpApp({ component, hasFeature }: Readonly<Props>) {
 
   return (
     <LargeCenteredLayout id="project-dump">
-      <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+      <PageContentFontWrapper className="sw-my-8 sw-typo-default">
         <header className="sw-mb-5">
           <Helmet defer={false} title={translate('project_dump.page')} />
           <Title className="sw-mb-4">{translate('project_dump.page')}</Title>
@@ -61,7 +61,7 @@ export function ProjectDumpApp({ component, hasFeature }: Readonly<Props>) {
 
         <>
           <div className="sw-mb-4">
-            <h2 className="sw-heading-md">{translate('project_dump.export')}</h2>
+            <h2 className="sw-heading-lg">{translate('project_dump.export')}</h2>
           </div>
           <Export componentKey={component.key} />
           <BasicSeparator className="sw-my-8" />

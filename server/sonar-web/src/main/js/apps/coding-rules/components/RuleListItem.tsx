@@ -243,11 +243,7 @@ export default function RuleListItem(props: Readonly<Props>) {
           <div className="sw-flex sw-items-center">
             {renderActivation()}
 
-            <Link
-              className="sw-body-sm-highlight"
-              onClick={handleNameClick}
-              to={getRuleUrl(rule.key)}
-            >
+            <Link className="sw-typo-semibold" onClick={handleNameClick} to={getRuleUrl(rule.key)}>
               {rule.name}
             </Link>
           </div>
@@ -263,13 +259,13 @@ export default function RuleListItem(props: Readonly<Props>) {
         </div>
 
         <div className="sw-flex sw-items-center">
-          <div className="sw-grow sw-flex sw-gap-2 sw-items-center sw-body-xs">
+          <div className="sw-grow sw-flex sw-gap-2 sw-items-center sw-typo-sm">
             {rule.impacts.length > 0 && (
               <SoftwareImpactPillList softwareImpacts={rule.impacts} type="rule" />
             )}
           </div>
 
-          <TextSubdued as="ul" className="sw-flex sw-gap-1 sw-items-center sw-body-xs">
+          <TextSubdued as="ul" className="sw-flex sw-gap-1 sw-items-center sw-typo-sm">
             <li>{rule.langName}</li>
 
             <SeparatorCircleIcon aria-hidden as="li" />
@@ -324,8 +320,8 @@ export default function RuleListItem(props: Readonly<Props>) {
                 <li>
                   <TagsList
                     allowUpdate={false}
-                    className="sw-body-xs"
-                    tagsClassName="sw-body-xs"
+                    className="sw-typo-sm"
+                    tagsClassName="sw-typo-sm"
                     tags={allTags}
                   />
                 </li>

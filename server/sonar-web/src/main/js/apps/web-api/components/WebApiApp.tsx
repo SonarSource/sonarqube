@@ -167,7 +167,7 @@ export class WebApiApp extends React.PureComponent<Props, State> {
 
     return (
       <LargeCenteredLayout>
-        <PageContentFontWrapper className="sw-body-sm sw-w-full sw-flex">
+        <PageContentFontWrapper className="sw-typo-default sw-w-full sw-flex">
           <Helmet defer={false} title={translate('api_documentation.page')} />
           <div className="sw-w-full sw-flex">
             <NavContainer

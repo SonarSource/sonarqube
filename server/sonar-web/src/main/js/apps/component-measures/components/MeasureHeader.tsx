@@ -59,13 +59,13 @@ export default function MeasureHeader(props: Readonly<Props>) {
     <div className="sw-mb-4">
       <div className="sw-flex sw-items-center sw-justify-between sw-gap-4">
         <div className="it__measure-details-metric sw-flex sw-items-center sw-gap-1">
-          <strong className="sw-body-md-highlight">{title}</strong>
+          <strong className="sw-typo-lg-semibold">{title}</strong>
 
           <div className="sw-flex sw-items-center sw-ml-2">
             <Measure
               branchLike={branchLike}
               componentKey={component.key}
-              className={classNames('it__measure-details-value sw-body-md')}
+              className={classNames('it__measure-details-value sw-typo-lg')}
               metricKey={metric.key}
               metricType={metric.type}
               value={measureValue}

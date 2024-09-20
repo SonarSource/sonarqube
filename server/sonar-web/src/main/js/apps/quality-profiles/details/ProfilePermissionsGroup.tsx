@@ -61,7 +61,7 @@ export default function ProfilePermissionsGroup(props: Readonly<Props>) {
           name={group.name}
           size="xs"
         />
-        <strong className="sw-body-sm-highlight sw-truncate fs-mask">{group.name}</strong>
+        <strong className="sw-typo-semibold sw-truncate fs-mask">{group.name}</strong>
       </div>
       <DestructiveIcon
         Icon={TrashIcon}

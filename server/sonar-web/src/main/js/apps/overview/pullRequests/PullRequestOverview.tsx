@@ -92,7 +92,7 @@ export default function PullRequestOverview(props: Readonly<Readonly<Props>>) {
 
   return (
     <CenteredLayout>
-      <PageContentFontWrapper className="it__pr-overview sw-mt-12 sw-mb-8 sw-grid sw-grid-cols-12 sw-body-sm">
+      <PageContentFontWrapper className="it__pr-overview sw-mt-12 sw-mb-8 sw-grid sw-grid-cols-12 sw-typo-default">
         <div className="sw-col-start-2 sw-col-span-10">
           <PullRequestMetaTopBar pullRequest={pullRequest} measures={measures} />
           <BasicSeparator className="sw-my-4" />

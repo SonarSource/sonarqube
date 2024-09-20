@@ -45,7 +45,10 @@ export function dismissAllGlobalMessages() {
 
 function createToast(message: ReactNode, level: MessageLevel, overrides?: ToastOptions) {
   return toast(
-    <div className="fs-mask sw-body-sm sw-p-3 sw-pb-4" data-testid={`global-message__${level}`}>
+    <div
+      className="fs-mask sw-typo-default sw-p-3 sw-pb-4"
+      data-testid={`global-message__${level}`}
+    >
       {message}
     </div>,
     {

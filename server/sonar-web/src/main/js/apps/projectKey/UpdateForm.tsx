@@ -65,12 +65,12 @@ export default function UpdateForm(props: UpdateFormProps) {
           <div className="sw-mt-2">
             {translate('update_key.old_key')}
             {': '}
-            <strong className="sw-body-md-highlight">{component.key}</strong>
+            <strong className="sw-typo-lg-semibold">{component.key}</strong>
           </div>
           <div className="sw-mt-2">
             {translate('update_key.new_key')}
             {': '}
-            <strong className="sw-body-md-highlight">{newKey}</strong>
+            <strong className="sw-typo-lg-semibold">{newKey}</strong>
           </div>
         </>
       }

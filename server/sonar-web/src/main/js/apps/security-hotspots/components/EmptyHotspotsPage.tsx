@@ -43,7 +43,7 @@ export default function EmptyHotspotsPage(props: EmptyHotspotsPageProps) {
         height={100}
         src={`/images/${filtered && !filterByFile ? 'filter-large' : 'hotspot-large'}.svg`}
       />
-      <span className="sw-mt-10 sw-body-sm-highlight">
+      <span className="sw-mt-10 sw-typo-semibold">
         {translate(`hotspots.${emptyTranslationKey}.title`)}
       </span>
       <Note className="sw-w-abs-400 sw-text-center sw-mt-4">

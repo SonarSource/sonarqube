@@ -99,11 +99,11 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
   if (newIssuesCondition && !isApp) {
     issuesFooter = issuesConditionFailed ? (
       <TextError
-        className="sw-font-regular sw-body-xs sw-inline"
+        className="sw-font-regular sw-typo-sm sw-inline"
         text={getConditionRequiredLabel(newIssuesCondition, intl, true)}
       />
     ) : (
-      <LightLabel className="sw-body-xs">
+      <LightLabel className="sw-typo-sm">
         {getConditionRequiredLabel(newIssuesCondition, intl)}
       </LightLabel>
     );

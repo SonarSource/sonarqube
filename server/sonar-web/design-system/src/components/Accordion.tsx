@@ -83,7 +83,7 @@ const accordionStyle = (props: ThemedProps) => css`
     outline 0.2s ease;
 
   & > button {
-    ${tw`sw-body-sm-highlight`}
+    ${tw`sw-typo-semibold`}
   }
   ${tw`sw-rounded-2`}
   ${tw`sw-overflow-hidden`}

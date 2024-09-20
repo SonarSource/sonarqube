@@ -25,5 +25,5 @@ import { themeColor } from '../../../helpers';
 export const Note = styled.span`
   color: ${themeColor('pageContentLight')};
 
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
 `;

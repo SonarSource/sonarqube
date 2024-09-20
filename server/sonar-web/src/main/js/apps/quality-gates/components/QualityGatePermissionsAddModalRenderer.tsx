@@ -93,7 +93,7 @@ function OptionRenderer(option: Readonly<QGPermissionOption>) {
         <>
           <Avatar hash={option.avatar} name={option.name} />
           <div className="sw-ml-2">
-            <strong className="sw-body-sm-highlight sw-mr-1">{option.name}</strong>
+            <strong className="sw-typo-semibold sw-mr-1">{option.name}</strong>
             <br />
             <Note>{option.login}</Note>
           </div>
@@ -101,7 +101,7 @@ function OptionRenderer(option: Readonly<QGPermissionOption>) {
       ) : (
         <>
           <GenericAvatar Icon={IconPeople} name={option.name} />
-          <strong className="sw-body-sm-highlight sw-ml-2">{option.name}</strong>
+          <strong className="sw-typo-semibold sw-ml-2">{option.name}</strong>
         </>
       )}
     </div>

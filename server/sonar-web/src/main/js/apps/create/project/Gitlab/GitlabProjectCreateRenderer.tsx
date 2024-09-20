@@ -102,7 +102,7 @@ export default function GitlabProjectCreateRenderer(
     <>
       <header className="sw-mb-10">
         <Title className="sw-mb-4">{translate('onboarding.create_project.gitlab.title')}</Title>
-        <LightPrimary className="sw-body-sm">
+        <LightPrimary className="sw-typo-default">
           {isMonorepoSupported ? (
             <FormattedMessage
               id="onboarding.create_project.gitlab.subtitle.with_monorepo"

@@ -583,7 +583,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
           </Helmet>
         )}
         <LargeCenteredLayout id="coding-rules-page">
-          <PageContentFontWrapper className="sw-body-sm">
+          <PageContentFontWrapper className="sw-typo-default">
             <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12 sw-w-full">
               <StyledContentWrapper
                 as="nav"

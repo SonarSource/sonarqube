@@ -77,7 +77,7 @@ export default function App() {
 
   return (
     <LargeCenteredLayout id="quality-gates-page">
-      <PageContentFontWrapper className="sw-body-sm">
+      <PageContentFontWrapper className="sw-typo-default">
         <Helmet
           defer={false}
           titleTemplate={translateWithParameters(

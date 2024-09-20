@@ -49,10 +49,10 @@ export default function IssueMetaBar(props: Readonly<Props>) {
   const hasComments = !!issue.comments?.length;
 
   const issueMetaListItemClassNames =
-    'sw-body-xs sw-overflow-hidden sw-whitespace-nowrap sw-max-w-abs-150';
+    'sw-typo-sm sw-overflow-hidden sw-whitespace-nowrap sw-max-w-abs-150';
 
   return (
-    <ul className="sw-flex sw-items-center sw-gap-1 sw-body-xs sw-whitespace-nowrap">
+    <ul className="sw-flex sw-items-center sw-gap-1 sw-typo-sm sw-whitespace-nowrap">
       {issue.line && (
         <>
           <IssueMetaListItem className={issueMetaListItemClassNames}>

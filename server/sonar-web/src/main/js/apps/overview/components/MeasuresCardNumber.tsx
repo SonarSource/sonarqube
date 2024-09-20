@@ -54,7 +54,7 @@ export default function MeasuresCardNumber(
       failed={conditionFailed}
       {...rest}
     >
-      <span className="sw-body-xs sw-mt-3">
+      <span className="sw-typo-sm sw-mt-3">
         {showRequired &&
           condition &&
           (conditionFailed ? (

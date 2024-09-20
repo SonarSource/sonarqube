@@ -28,13 +28,13 @@ export function HotspotDisabledFilterTooltip() {
   const docUrl = useDocUrl(DocLink.InstanceAdminReindexation);
 
   return (
-    <div className="sw-body-sm sw-w-[190px]">
+    <div className="sw-typo-default sw-w-[190px]">
       <p>
         {translate('indexation.page_unavailable.description')}{' '}
         {translate('indexation.filter_unavailable.description')}
       </p>
       <hr className="sw-mx-0 sw-my-3 sw-p-0 sw-w-full" />
-      <span className="sw-body-sm-highlight">{translate('indexation.learn_more')}</span>
+      <span className="sw-typo-semibold">{translate('indexation.learn_more')}</span>
       <Link
         className="sw-ml-1"
         onMouseDown={(e) => {

@@ -36,7 +36,7 @@ export default function App() {
   return (
     <CenteredLayout>
       <Helmet defer={false} title={translate('deletion.page')} />
-      <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+      <PageContentFontWrapper className="sw-my-8 sw-typo-default">
         <Header component={component} />
         <Form component={component} />
       </PageContentFontWrapper>

@@ -290,9 +290,7 @@ export function TokensForm(props: Readonly<Props>) {
         >
           {tokens && tokens.length <= 0 ? (
             <TableRow>
-              <ContentCell className="sw-body-lg" colSpan={7}>
-                {translate('users.no_tokens')}
-              </ContentCell>
+              <ContentCell colSpan={7}>{translate('users.no_tokens')}</ContentCell>
             </TableRow>
           ) : (
             tokens?.map((token) => (

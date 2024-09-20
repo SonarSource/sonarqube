@@ -158,14 +158,14 @@ const IconWrapper = styled.div<{
 `;
 
 const Title = styled.span`
-  ${tw`sw-body-md-highlight`}
+  ${tw`sw-typo-lg-semibold`}
   color: ${themeColor('flagMessageText')};
 `;
 
 const StyledFlagContent = styled.div`
   ${tw`sw-pt-1/2`}
   ${tw`sw-overflow-auto`}
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
 `;
 
 const DismissButton = styled.button<{

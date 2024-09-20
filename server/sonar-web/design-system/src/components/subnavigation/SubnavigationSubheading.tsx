@@ -24,7 +24,7 @@ import { themeColor, themeContrast } from '../../helpers/theme';
 export const SubnavigationSubheading = styled.div`
   ${tw`sw-flex`}
   ${tw`sw-box-border`}
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-px-4 sw-pt-6 sw-pb-2`}
   ${tw`sw-w-full`}
 

@@ -36,14 +36,14 @@ export default function StatStillFailing({ failingCount, onShowFailing }: Readon
     <div className="sw-flex sw-items-center ">
       {failingCount > 0 ? (
         <StandoutLink
-          className="sw-body-md-highlight sw-align-baseline"
+          className="sw-typo-lg-semibold sw-align-baseline"
           to="#"
           onClick={onShowFailing}
         >
           {failingCount}
         </StandoutLink>
       ) : (
-        <span className="sw-body-md-highlight">{failingCount}</span>
+        <span className="sw-typo-lg-semibold">{failingCount}</span>
       )}
       <span className="sw-ml-1">{translate('background_tasks.failures')}</span>
       <HelpTooltip className="sw-ml-1" overlay={translate('background_tasks.failing_count')}>

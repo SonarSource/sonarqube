@@ -48,7 +48,7 @@ export function DetailsContent(props: DetailsContentProps) {
 
       <div className="sw-mt-10">
         <div className="sw-flex sw-flex-col">
-          <SubTitle as="h3" className="sw-body-md-highlight">
+          <SubTitle as="h3" className="sw-typo-lg-semibold">
             {translate('quality_gates.projects')}
             <DocHelpTooltip className="sw-ml-2" content={translate('quality_gates.projects.help')}>
               <HelperHintIcon />
@@ -56,7 +56,9 @@ export function DetailsContent(props: DetailsContentProps) {
           </SubTitle>
 
           {qualityGate.isDefault ? (
-            <p className="sw-body-sm sw-mb-2">{translate('quality_gates.projects_for_default')}</p>
+            <p className="sw-typo-default sw-mb-2">
+              {translate('quality_gates.projects_for_default')}
+            </p>
           ) : (
             <Projects
               canEdit={actions.associateProjects}

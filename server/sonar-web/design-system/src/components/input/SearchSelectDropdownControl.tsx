@@ -118,7 +118,7 @@ const StyledControl = styled.div`
   ${tw`sw-rounded-2`};
   ${tw`sw-box-border`};
   ${tw`sw-px-3`};
-  ${tw`sw-body-sm`};
+  ${tw`sw-typo-default`};
   ${tw`sw-h-control`};
   ${tw`sw-leading-6`};
   ${tw`sw-cursor-pointer`};

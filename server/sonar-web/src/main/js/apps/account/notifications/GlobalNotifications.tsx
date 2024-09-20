@@ -42,7 +42,7 @@ export default function GlobalNotifications(props: Readonly<Props>) {
       </Heading>
 
       {!props.header && (
-        <div className="sw-body-sm-highlight sw-mb-2">{translate('notifications.send_email')}</div>
+        <div className="sw-typo-semibold sw-mb-2">{translate('notifications.send_email')}</div>
       )}
 
       <Table className="sw-w-full" columnCount={2} header={props.header ?? null}>

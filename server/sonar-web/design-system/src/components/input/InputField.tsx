@@ -93,7 +93,7 @@ const baseStyle = (props: ThemedProps) => css`
   width: var(--inputSize);
   transition: border-color 0.2s ease;
 
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-box-border`}
   ${tw`sw-rounded-2`}
   ${tw`sw-px-3 sw-py-2`}

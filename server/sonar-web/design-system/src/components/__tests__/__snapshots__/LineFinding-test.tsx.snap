@@ -24,10 +24,7 @@ exports[`should render correctly as button 1`] = `
   box-sizing: border-box;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  font-size: 1rem;
-  line-height: 1.5rem;
-  font-weight: 600;
+  font: var(--echoes-typography-text-large-semi-bold);
   cursor: default;
   border: 1px solid rgb(253,162,155);
   color: rgb(62,67,87);

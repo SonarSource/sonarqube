@@ -131,11 +131,11 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
               issuesCondition &&
               (isIssuesConditionFailed ? (
                 <TextError
-                  className="sw-font-regular sw-body-xs sw-inline"
+                  className="sw-font-regular sw-typo-sm sw-inline"
                   text={getConditionRequiredLabel(issuesCondition, intl, true)}
                 />
               ) : (
-                <LightLabel className="sw-body-xs">
+                <LightLabel className="sw-typo-sm">
                   {getConditionRequiredLabel(issuesCondition, intl)}
                 </LightLabel>
               ))
@@ -160,7 +160,7 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
               )
             }
             footer={
-              <TextSubdued className="sw-body-xs">
+              <TextSubdued className="sw-typo-sm">
                 {intl.formatMessage({ id: 'overview.accepted_issues.help' })}
               </TextSubdued>
             }
@@ -188,7 +188,7 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
                   }
                   side={TooltipSide.Top}
                 >
-                  <span className="sw-body-sm sw-cursor-default">
+                  <span className="sw-typo-default sw-cursor-default">
                     <IconQuestionMark color="echoes-color-icon-subdued" />
                   </span>
                 </Tooltip>
@@ -201,7 +201,7 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
             url={fixedUrl}
             icon={fixedCount !== undefined && fixedCount !== '0' && <TrendDownCircleIcon />}
             footer={
-              <TextSubdued className="sw-body-xs">
+              <TextSubdued className="sw-typo-sm">
                 {intl.formatMessage({ id: 'overview.pull_request.fixed_issues.help' })}
               </TextSubdued>
             }

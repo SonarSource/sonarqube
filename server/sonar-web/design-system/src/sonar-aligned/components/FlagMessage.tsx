@@ -146,7 +146,7 @@ export const StyledFlag = styled.div<{
     ${tw`sw-overflow-auto`}
     ${tw`sw-text-left`}
     ${tw`sw-px-3 sw-py-2`}
-    ${tw`sw-body-sm`}
+    ${tw`sw-typo-default`}
     color: ${themeContrast('flagMessageBackground')};
   }
 `;

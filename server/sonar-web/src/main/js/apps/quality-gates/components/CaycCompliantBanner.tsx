@@ -55,7 +55,7 @@ export default function CaycCompliantBanner() {
         />
       </div>
       <div className="sw-my-2">{translate('quality_gates.cayc.banner.description2')}</div>
-      <ul className="sw-body-sm sw-flex sw-flex-col sw-gap-2">
+      <ul className="sw-typo-default sw-flex sw-flex-col sw-gap-2">
         {Object.values(OPTIMIZED_CAYC_CONDITIONS).map((condition) => (
           <li key={condition.metric}>
             <CheckIcon className="sw-mr-1 sw-pt-1/2" />

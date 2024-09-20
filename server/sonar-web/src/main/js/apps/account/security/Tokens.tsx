@@ -35,7 +35,7 @@ export default function Tokens({ login }: Readonly<Props>) {
         {translate('my_account.security')}
       </Heading>
 
-      <div className="sw-body-md sw-mb-4 sw-mr-4">
+      <div className="sw-typo-lg sw-mb-4 sw-mr-4">
         <InstanceMessage message={translate('my_account.tokens_description')} />
       </div>
 

@@ -466,7 +466,7 @@ export const TooltipWrapper = styled.div`
   ${tw`sw-block`};
   ${tw`sw-box-border`};
   ${tw`sw-h-auto`};
-  ${tw`sw-body-sm`};
+  ${tw`sw-typo-default`};
 
   &.top {
     margin-top: -${ARROW_MARGIN}px;
@@ -494,7 +494,8 @@ const TooltipWrapperArrow = styled.div`
   ${tw`sw-w-0`};
   ${tw`sw-h-0`};
   ${tw`sw-border-solid`};
-  ${tw`sw-border-transparent`};
+  border-color: var(--echoes-color-support-transparent);
+
   ${TooltipWrapper}.top & {
     border-width: ${ARROW_HEIGHT}px ${ARROW_WIDTH}px 0;
     border-top-color: ${themeColor('tooltipBackground')};

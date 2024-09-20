@@ -67,7 +67,7 @@ export default function WebApiApp() {
   return (
     <ApiFilterContext.Provider value={contextValue}>
       <LargeCenteredLayout>
-        <PageContentFontWrapper className="sw-body-sm">
+        <PageContentFontWrapper className="sw-typo-default">
           <Helmet defer={false} title={translate('api_documentation.page')} />
           <Spinner isLoading={isLoading}>
             {data && (

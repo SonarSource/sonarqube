@@ -362,7 +362,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
 
     return (
       <LargeCenteredLayout id="project-permissions-page">
-        <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+        <PageContentFontWrapper className="sw-my-8 sw-typo-default">
           <Helmet defer={false} title={translate('permissions.page')} />
 
           <PageHeader

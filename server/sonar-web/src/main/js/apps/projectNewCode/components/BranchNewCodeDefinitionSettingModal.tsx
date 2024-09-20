@@ -175,7 +175,7 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
 
     const formBody = (
       <form id={FORM_ID} onSubmit={this.handleSubmit}>
-        <PageContentFontWrapper className="sw-body-sm">
+        <PageContentFontWrapper className="sw-typo-default">
           <p className="sw-mb-3">{translate('baseline.new_code_period_for_branch_x.question')}</p>
           <div className="sw-flex sw-flex-col sw-mb-10 sw-gap-4" role="radiogroup">
             <NewCodeDefinitionPreviousVersionOption

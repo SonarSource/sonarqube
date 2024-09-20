@@ -82,7 +82,7 @@ export default function ListItem(props: Readonly<ListItemProps>) {
   return (
     <TableRow data-id={name}>
       <ContentCell>
-        <div className="sw-body-sm-highlight">{name}</div>
+        <div className="sw-typo-semibold">{name}</div>
         {group.default && <span className="sw-ml-1">({translate('default')})</span>}
         {managed && renderIdentityProviderIcon(manageProvider)}
         {isGroupLocal() && <Badge className="sw-ml-1">{translate('local')}</Badge>}

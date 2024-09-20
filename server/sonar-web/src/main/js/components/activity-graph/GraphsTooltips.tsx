@@ -104,7 +104,7 @@ export class GraphsTooltipsClass extends React.PureComponent<Props> {
       >
         <div className="sw-p-2">
           <div
-            className="sw-body-md-highlight sw-whitespace-nowrap"
+            className="sw-typo-lg-semibold sw-whitespace-nowrap"
             style={{ color: themeColor('selectionCardHeader')({ theme }) }}
           >
             <DateTimeFormatter date={selectedDate} />

@@ -49,7 +49,7 @@ export function FlowStep(props: Props) {
 const StyledLink = styled(BaseLink)`
   ${tw`sw-p-1 sw-rounded-1/2`}
   ${tw`sw-flex sw-items-center sw-flex-wrap sw-gap-2`}
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   
   color: ${themeColor('pageContent')};
   border-bottom: none;

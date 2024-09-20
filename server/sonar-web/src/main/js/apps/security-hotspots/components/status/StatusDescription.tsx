@@ -33,13 +33,13 @@ export default function StatusDescription(props: StatusDescriptionProps) {
   return (
     <div>
       <h2>
-        <LightPrimary className="sw-body-sm-highlight">
+        <LightPrimary className="sw-typo-semibold">
           {`${translate('status')}: `}
           {translate('hotspots.status_option', statusOption)}
         </LightPrimary>
       </h2>
       <Description className="sw-mt-1">
-        <LightLabel className="sw-body-sm">
+        <LightLabel className="sw-typo-default">
           {translate('hotspots.status_option', statusOption, 'description')}
         </LightLabel>
       </Description>

@@ -101,7 +101,7 @@ export function App({ component }: AppProps) {
 
   return (
     <LargeCenteredLayout id="project-webhooks">
-      <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+      <PageContentFontWrapper className="sw-my-8 sw-typo-default">
         <Suggestions suggestion={DocLink.Webhooks} />
         <Helmet defer={false} title={translate('webhooks.page')} />
         <PageHeader>

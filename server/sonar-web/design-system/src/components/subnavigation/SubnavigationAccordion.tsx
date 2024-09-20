@@ -82,7 +82,7 @@ export function SubnavigationAccordion(props: Props) {
 const SubnavigationAccordionItem = styled(BareButton)`
   ${tw`sw-flex sw-items-center sw-justify-between`}
   ${tw`sw-box-border`}
-  ${tw`sw-body-sm-highlight`}
+  ${tw`sw-typo-semibold`}
   ${tw`sw-p-4`}
   ${tw`sw-w-full`}
   ${tw`sw-cursor-pointer`}

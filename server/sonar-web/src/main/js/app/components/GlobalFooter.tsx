@@ -50,11 +50,11 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
 
   return (
     <StyledFooter className="sw-p-6" id="footer">
-      <PageContentFontWrapper className="sw-body-sm sw-h-full sw-flex sw-flex-col sw-items-stretch">
+      <PageContentFontWrapper className="sw-typo-default sw-h-full sw-flex sw-flex-col sw-items-stretch">
         {appState?.productionDatabase === false && (
           <FlagMessage className="sw-mb-4" id="evaluation_warning" variant="warning">
             <p>
-              <span className="sw-body-md-highlight">
+              <span className="sw-typo-lg-semibold">
                 {intl.formatMessage({ id: 'footer.production_database_warning' })}
               </span>
 

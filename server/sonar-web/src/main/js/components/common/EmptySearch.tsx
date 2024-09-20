@@ -25,10 +25,10 @@ export default function EmptySearch() {
   return (
     <div aria-live="assertive" className="sw-text-center sw-py-8">
       <FishVisual />
-      <Highlight as="h3" className="sw-body-md-highlight sw-mt-6">
+      <Highlight as="h3" className="sw-typo-lg-semibold sw-mt-6">
         {translate('no_results_search')}
       </Highlight>
-      <p className="sw-body-sm sw-mt-2">{translate('no_results_search.2')}</p>
+      <p className="sw-typo-default sw-mt-2">{translate('no_results_search.2')}</p>
     </div>
   );
 }

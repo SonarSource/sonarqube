@@ -58,7 +58,7 @@ export function AllSet(props: AllSetProps) {
         {translate('onboarding.tutorial.ci_outro.done')}
       </SubTitle>
       <MessageContainer>
-        <p className="sw-body-sm sw-mb-4">
+        <p className="sw-typo-default sw-mb-4">
           {translate('onboarding.tutorial.ci_outro.refresh_text')}
         </p>
         <ul className="sw-mb-6">

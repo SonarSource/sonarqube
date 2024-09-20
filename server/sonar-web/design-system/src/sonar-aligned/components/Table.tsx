@@ -84,7 +84,7 @@ export function Table(props: Readonly<TableProps>) {
 
       {caption && (
         <caption>
-          <div className="sw-py-4 sw-text-middle sw-flex sw-justify-center sw-body-sm-highlight">
+          <div className="sw-py-4 sw-text-middle sw-flex sw-justify-center sw-typo-semibold">
             {caption}
           </div>
         </caption>
@@ -286,13 +286,13 @@ const StyledTable = styled.table<{ gridTemplate?: string }>`
 const CellComponentStyled = styled.td`
   color: ${themeColor('pageContent')};
   ${tw`sw-items-center`}
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-py-4 sw-px-2`}
   ${tw`sw-align-middle`}
 
   thead > tr > & {
     color: ${themeColor('pageTitle')};
 
-    ${tw`sw-body-sm-highlight`}
+    ${tw`sw-typo-semibold`}
   }
 `;

@@ -150,7 +150,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
 
       <header className="sw-flex sw-items-center sw-mb-4 sw-justify-between">
         <div className="sw-flex">
-          <HeadingDark className="sw-body-md-highlight sw-m-0">
+          <HeadingDark className="sw-typo-lg-semibold sw-m-0">
             {translate('quality_gates.conditions')}
           </HeadingDark>
           {!qualityGate.isBuiltIn && (
@@ -218,7 +218,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
             </HighlightedSection>
 
             {hasFeature(Feature.BranchSupport) && (
-              <Note className="sw-mb-2 sw-body-sm">
+              <Note className="sw-mb-2 sw-typo-default">
                 {translate('quality_gates.conditions.cayc', 'description')}
               </Note>
             )}
@@ -241,7 +241,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
             />
 
             {hasFeature(Feature.BranchSupport) && (
-              <Note className="sw-mb-2 sw-body-sm">
+              <Note className="sw-mb-2 sw-typo-default">
                 {translate('quality_gates.conditions.new_code', 'description')}
               </Note>
             )}
@@ -263,7 +263,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
             />
 
             {hasFeature(Feature.BranchSupport) && (
-              <Note className="sw-mb-2 sw-body-sm">
+              <Note className="sw-mb-2 sw-typo-default">
                 {translate('quality_gates.conditions.overall_code', 'description')}
               </Note>
             )}
@@ -273,7 +273,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
 
       {qualityGate.caycStatus !== CaycStatus.NonCompliant && !editing && canEdit && (
         <div className="sw-mt-4 it__qg-unfollow-cayc">
-          <SubHeading as="p" className="sw-mb-2 sw-body-sm">
+          <SubHeading as="p" className="sw-mb-2 sw-typo-default">
             <FormattedMessage
               id="quality_gates.cayc_unfollow.description"
               defaultMessage={translate('quality_gates.cayc_unfollow.description')}
@@ -289,7 +289,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
       )}
 
       {existingConditions.length === 0 && (
-        <div className="sw-mt-4 sw-body-sm">
+        <div className="sw-mt-4 sw-typo-default">
           <LightPrimary as="p">{translate('quality_gates.no_conditions')}</LightPrimary>
         </div>
       )}

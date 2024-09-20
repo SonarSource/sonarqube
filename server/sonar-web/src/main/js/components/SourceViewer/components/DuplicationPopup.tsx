@@ -121,7 +121,7 @@ export default class DuplicationPopup extends PureComponent<Props> {
             <DuplicationHighlight>{duplicationHeader}</DuplicationHighlight>
             {duplications.map((duplication) => (
               <div className="sw-my-2" key={duplication.file.key}>
-                <div className="sw-flex sw-flex-wrap sw-body-sm">
+                <div className="sw-flex sw-flex-wrap sw-typo-default">
                   {this.isDifferentComponent(duplication.file, this.props.sourceViewerFile) && (
                     <div className="sw-mr-4">
                       <QualifierIcon className="sw-mr-1" qualifier={ComponentQualifier.Project} />

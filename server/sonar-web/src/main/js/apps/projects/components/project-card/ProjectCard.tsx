@@ -141,7 +141,7 @@ function renderFirstLine(
               <QualityGateIndicator
                 status={(measures[MetricKey.alert_status] as Status) ?? 'NONE'}
               />
-              <LightPrimary className="sw-ml-2 sw-body-sm-highlight">{formatted}</LightPrimary>
+              <LightPrimary className="sw-ml-2 sw-typo-semibold">{formatted}</LightPrimary>
             </span>
           </Tooltip>
         )}
@@ -151,12 +151,12 @@ function renderFirstLine(
         {isDefined(analysisDate) && analysisDate !== '' && (
           <DateTimeFormatter date={analysisDate}>
             {(formattedAnalysisDate) => (
-              <span className="sw-body-sm-highlight" title={formattedAnalysisDate}>
+              <span className="sw-typo-semibold" title={formattedAnalysisDate}>
                 <FormattedMessage
                   id="projects.last_analysis_on_x"
                   defaultMessage={translate('projects.last_analysis_on_x')}
                   values={{
-                    date: <DateFromNow className="sw-body-sm" date={analysisDate} />,
+                    date: <DateFromNow className="sw-typo-default" date={analysisDate} />,
                   }}
                 />
               </span>
@@ -170,7 +170,7 @@ function renderFirstLine(
                 <SeparatorCircleIcon className="sw-mx-1" />
 
                 <div>
-                  <span className="sw-body-sm-highlight sw-mr-1" data-key={MetricKey.new_lines}>
+                  <span className="sw-typo-semibold sw-mr-1" data-key={MetricKey.new_lines}>
                     <Measure
                       componentKey={key}
                       metricKey={MetricKey.new_lines}
@@ -179,7 +179,7 @@ function renderFirstLine(
                     />
                   </span>
 
-                  <span className="sw-body-sm">{translate('metric.new_lines.name')}</span>
+                  <span className="sw-typo-default">{translate('metric.new_lines.name')}</span>
                 </div>
               </>
             )
@@ -188,7 +188,7 @@ function renderFirstLine(
                 <SeparatorCircleIcon className="sw-mx-1" />
 
                 <div>
-                  <span className="sw-body-sm-highlight sw-mr-1" data-key={MetricKey.ncloc}>
+                  <span className="sw-typo-semibold sw-mr-1" data-key={MetricKey.ncloc}>
                     <Measure
                       componentKey={key}
                       metricKey={MetricKey.ncloc}
@@ -197,12 +197,12 @@ function renderFirstLine(
                     />
                   </span>
 
-                  <span className="sw-body-sm">{translate('metric.ncloc.name')}</span>
+                  <span className="sw-typo-default">{translate('metric.ncloc.name')}</span>
                 </div>
 
                 <SeparatorCircleIcon className="sw-mx-1" />
 
-                <span className="sw-body-sm" data-key={MetricKey.ncloc_language_distribution}>
+                <span className="sw-typo-default" data-key={MetricKey.ncloc_language_distribution}>
                   <ProjectCardLanguages distribution={measures.ncloc_language_distribution} />
                 </span>
               </>
@@ -213,7 +213,7 @@ function renderFirstLine(
             <SeparatorCircleIcon className="sw-mx-1" />
 
             <Tags
-              className="sw-body-sm"
+              className="sw-typo-default"
               emptyText={translate('issue.no_tag')}
               ariaTagsListLabel={translate('issue.tags')}
               tooltip={Tooltip}
@@ -257,7 +257,7 @@ function renderSecondLine(
         isEmpty(analysisDate) &&
         isLoggedIn(currentUser) &&
         isScannable && (
-          <Link className="sw-ml-2 sw-body-sm-highlight" to={getProjectUrl(key)}>
+          <Link className="sw-ml-2 sw-typo-semibold" to={getProjectUrl(key)}>
             {translate('projects.configure_analysis')}
           </Link>
         )}

@@ -37,17 +37,17 @@ function Header() {
   return (
     <TableRow>
       <ContentCell>
-        <Title className="sw-body-sm-highlight sw-m-0 sw-whitespace-nowrap">
+        <Title className="sw-typo-semibold sw-m-0 sw-whitespace-nowrap">
           {translate('quality_gates.conditions.metric')}
         </Title>
       </ContentCell>
       <ContentCell>
-        <Title className="sw-body-sm-highlight sw-m-0 sw-whitespace-nowrap">
+        <Title className="sw-typo-semibold sw-m-0 sw-whitespace-nowrap">
           {translate('quality_gates.conditions.operator')}
         </Title>
       </ContentCell>
       <NumericalCell>
-        <Title className="sw-body-sm-highlight sw-m-0 sw-whitespace-nowrap">
+        <Title className="sw-typo-semibold sw-m-0 sw-whitespace-nowrap">
           {translate('quality_gates.conditions.value')}
         </Title>
       </NumericalCell>

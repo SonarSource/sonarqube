@@ -178,7 +178,7 @@ export class QualityGateCondition extends React.PureComponent<Props> {
         <div className="sw-flex sw-flex-col sw-text-sm">
           <div className="sw-flex sw-items-center">
             <IssueTypeIcon className="sw-mr-2" type={metric.key} />
-            <span className="sw-body-sm-highlight sw-text-ellipsis sw-max-w-abs-300">
+            <span className="sw-typo-semibold sw-text-ellipsis sw-max-w-abs-300">
               {this.getPrimaryText()}
             </span>
           </div>

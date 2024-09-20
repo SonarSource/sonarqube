@@ -37,7 +37,7 @@ function ProjectBranchesApp(props: ProjectBranchesAppProps) {
 
   return (
     <LargeCenteredLayout id="project-branch-like">
-      <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+      <PageContentFontWrapper className="sw-my-8 sw-typo-default">
         <header className="sw-mb-5">
           <Helmet defer={false} title={translate('project_branch_pull_request.page')} />
           <Title className="sw-mb-4">{translate('project_branch_pull_request.page')}</Title>

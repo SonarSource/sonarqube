@@ -210,7 +210,7 @@ export const StyledInputWrapper = styled.div`
     ${tw`sw-rounded-2`}
     ${tw`sw-box-border`}
     ${tw`sw-pl-10`}
-    ${tw`sw-body-sm`}
+    ${tw`sw-typo-default`}
     ${tw`sw-w-full sw-h-control`}
 
     &::placeholder {
@@ -259,7 +259,7 @@ export const StyledNote = styled.span`
 
   ${tw`sw-absolute`}
   ${tw`sw-left-12 sw-right-10`}
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-text-right`}
   ${tw`sw-truncate`}
   ${tw`sw-pointer-events-none`}

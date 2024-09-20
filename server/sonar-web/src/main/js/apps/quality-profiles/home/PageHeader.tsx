@@ -66,7 +66,7 @@ export default function PageHeader(props: Readonly<Props>) {
           {translate('quality_profiles.page')}
         </Heading>
 
-        <div className="sw-body-sm">
+        <div className="sw-typo-default">
           {intl.formatMessage({ id: 'quality_profiles.intro' })}
 
           <Link className="sw-ml-2" to={docUrl}>

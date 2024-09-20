@@ -2,10 +2,7 @@
 
 exports[`should render with title 1`] = `
 .emotion-0 {
-  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  font-size: 1.5rem;
-  line-height: 1.75rem;
-  font-weight: 600;
+  font: var(--echoes-typography-heading-xlarge);
   color: rgb(29,33,47);
 }
 
@@ -23,18 +20,12 @@ exports[`should render with title 1`] = `
 
 exports[`should render with title and description 1`] = `
 .emotion-0 {
-  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  font-size: 1.5rem;
-  line-height: 1.75rem;
-  font-weight: 600;
+  font: var(--echoes-typography-heading-xlarge);
   color: rgb(29,33,47);
 }
 
 .emotion-2 {
-  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 400;
+  font: var(--echoes-typography-text-default-regular);
   margin-top: 0.5rem;
   color: rgb(62,67,87);
 }
@@ -58,10 +49,7 @@ exports[`should render with title and description 1`] = `
 
 exports[`should use the default title if not provided 1`] = `
 .emotion-0 {
-  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  font-size: 1.5rem;
-  line-height: 1.75rem;
-  font-weight: 600;
+  font: var(--echoes-typography-heading-xlarge);
   color: rgb(29,33,47);
 }
 

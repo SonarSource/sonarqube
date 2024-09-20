@@ -367,7 +367,7 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
       <div className="sw-flex sw-items-center sw-justify-end sw-h-control sw-mb-4">
         <Tooltip content={zoomTooltipText}>
           <span>
-            <Note className="sw-body-sm-highlight">{zoomLabel}</Note>
+            <Note className="sw-typo-semibold">{zoomLabel}</Note>
             {': '}
             {zoomLevelLabel}
           </span>
@@ -444,7 +444,7 @@ const BubbleChartGrid = styled.line`
 `;
 
 const BubbleChartTick = styled.text`
-  ${tw`sw-body-sm`}
+  ${tw`sw-typo-default`}
   ${tw`sw-select-none`}
   fill: ${themeColor('pageContentLight')};
   text-anchor: var(--align);

@@ -89,11 +89,11 @@ export default function PageHeader(props: Readonly<Props>) {
         <div className="sw-flex sw-items-center">
           {total != null && (
             <>
-              <LightPrimary id="projects-total" className="sw-body-sm-highlight sw-mr-1">
+              <LightPrimary id="projects-total" className="sw-typo-semibold sw-mr-1">
                 {total}
               </LightPrimary>
 
-              <LightLabel className="sw-body-sm">{translate('projects_')}</LightLabel>
+              <LightLabel className="sw-typo-default">{translate('projects_')}</LightLabel>
             </>
           )}
 

@@ -48,7 +48,7 @@ export function IssueMeasuresCardInner(props: Readonly<IssueMeasuresCardInnerPro
           'sw-opacity-60': disabled,
         })}
       >
-        <ColorBold className="sw-flex sw-items-center sw-gap-2 sw-body-sm-highlight">
+        <ColorBold className="sw-flex sw-items-center sw-gap-2 sw-typo-semibold">
           {header}
 
           {failed && (

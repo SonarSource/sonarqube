@@ -37,7 +37,7 @@ export default function ActivityLink(props: ActivityLinkProps) {
   const { branchLike, component, graph, label, metric } = props;
   return (
     <StandoutLink
-      className="sw-body-sm-highlight"
+      className="sw-typo-semibold"
       to={
         metric !== undefined && graph !== undefined && isCustomGraph(graph)
           ? getMeasureHistoryUrl(component, metric, branchLike)

@@ -28,7 +28,7 @@ export default function Unauthorized() {
   return (
     <CenteredLayout id="bd">
       <Helmet defer={false} title={translate('unauthorized.page')} />
-      <PageContentFontWrapper className="sw-body-md sw-flex sw-justify-center" id="nonav">
+      <PageContentFontWrapper className="sw-typo-lg sw-flex sw-justify-center" id="nonav">
         <Card className="sw-w-abs-500 sw-my-14 sw-text-center">
           <p id="unauthorized">{translate('unauthorized.message')}</p>
 

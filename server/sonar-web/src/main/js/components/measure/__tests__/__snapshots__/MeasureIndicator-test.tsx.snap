@@ -107,7 +107,7 @@ exports[`renders correctly for passed quality gate 1`] = `
       </svg>
     </div>
     <span
-      class="sw-body-md"
+      class="sw-typo-lg"
     >
       OK
     </span>

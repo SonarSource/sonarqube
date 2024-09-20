@@ -60,7 +60,7 @@ export function ComparisonContainer(props: Readonly<Props>) {
   };
 
   return (
-    <div className="sw-body-sm">
+    <div className="sw-typo-default">
       <div className="sw-flex sw-items-center">
         <ComparisonForm
           onCompare={handleCompare}

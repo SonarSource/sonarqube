@@ -114,7 +114,7 @@ export default function GitHubProjectCreateRenderer(
     <>
       <header className="sw-mb-10">
         <Title className="sw-mb-4">{translate('onboarding.create_project.github.title')}</Title>
-        <LightPrimary className="sw-body-sm">
+        <LightPrimary className="sw-typo-default">
           {isMonorepoSupported ? (
             <FormattedMessage
               id="onboarding.create_project.github.subtitle.with_monorepo"

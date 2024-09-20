@@ -34,7 +34,7 @@ export default function IssueItemLocationsQuantity(props: Props) {
       <div className="sw-flex sw-items-center sw-justify-center sw-gap-1 sw-overflow-hidden">
         <ExecutionFlowIcon />
         <span className="sw-truncate" title={`${quantity} ${message}`}>
-          <span className="sw-body-sm-highlight">{quantity}</span> {message}
+          <span className="sw-typo-semibold">{quantity}</span> {message}
         </span>
       </div>
     );

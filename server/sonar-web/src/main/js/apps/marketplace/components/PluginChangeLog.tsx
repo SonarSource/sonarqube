@@ -32,7 +32,7 @@ export interface Props {
 export default function PluginChangeLog({ release, update }: Props) {
   return (
     <div className="sw-p-4">
-      <span className="sw-body-md-highlight">{translate('changelog')}</span>
+      <span className="sw-typo-lg-semibold">{translate('changelog')}</span>
       <UnorderedList>
         {update.previousUpdates &&
           sortBy(update.previousUpdates, (prevUpdate) => prevUpdate.release?.date).map(

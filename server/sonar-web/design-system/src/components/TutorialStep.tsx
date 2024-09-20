@@ -38,7 +38,7 @@ export function TutorialStep({ children, title, stepNumber }: Props) {
 
 const StepDetails = styled.div`
   h3 {
-    ${tw`sw-body-sm-highlight`}
+    ${tw`sw-typo-semibold`}
     ${tw`sw-my-2`}
 
     color: ${themeColor('pageContent')};
@@ -47,7 +47,7 @@ const StepDetails = styled.div`
   &,
   h4,
   h5 {
-    ${tw`sw-body-sm`}
+    ${tw`sw-typo-default`}
     ${tw`sw-mb-2`}
 
     color: ${themeColor('pageContent')};
@@ -55,7 +55,7 @@ const StepDetails = styled.div`
 `;
 
 const Title = styled.h2`
-  ${tw`sw-body-md-highlight`}
+  ${tw`sw-typo-lg-semibold`}
   ${tw`sw-inline-block`}
   ${tw`sw-mb-4`}
 
@@ -74,7 +74,7 @@ const Step = styled.li<{ stepNumber?: number }>`
 
     ${tw`sw-inline-block`}
     ${tw`sw-align-middle`}
-    ${tw`sw-heading-md`}
+    ${tw`sw-heading-lg`}
     ${tw`sw-mr-2 sw--mt-1`}
   }
 

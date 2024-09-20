@@ -116,13 +116,11 @@ export default function SourceViewerHeader(props: Readonly<Props>) {
 
               return (
                 <div className="sw-flex sw-flex-col sw-gap-1" key={quality}>
-                  <Note className="it__source-viewer-header-measure-label sw-body-lg">
-                    {qualityTitle}
-                  </Note>
+                  <Note className="it__source-viewer-header-measure-label">{qualityTitle}</Note>
 
                   <span>
                     <StyledDrilldownLink
-                      className="sw-body-md"
+                      className="sw-typo-lg"
                       aria-label={intl.formatMessage(
                         { id: 'source_viewer.issue_link_x' },
                         {
@@ -140,13 +138,13 @@ export default function SourceViewerHeader(props: Readonly<Props>) {
             })}
 
             <div className="sw-flex sw-flex-col sw-gap-1" key={IssueType.SecurityHotspot}>
-              <Note className="it__source-viewer-header-measure-label sw-body-lg">
+              <Note className="it__source-viewer-header-measure-label">
                 {intl.formatMessage({ id: `issue.type.${IssueType.SecurityHotspot}` })}
               </Note>
 
               <span>
                 <StyledDrilldownLink
-                  className="sw-body-md"
+                  className="sw-typo-lg"
                   to={getComponentSecurityHotspotsUrl(project, branchLike, {
                     files: path,
                     ...DEFAULT_ISSUES_QUERY,
@@ -172,7 +170,7 @@ export default function SourceViewerHeader(props: Readonly<Props>) {
   return (
     <StyledHeaderContainer
       className={
-        'it__source-viewer-header sw-body-sm sw-flex sw-items-center sw-px-4 sw-py-3 ' +
+        'it__source-viewer-header sw-typo-default sw-flex sw-items-center sw-px-4 sw-py-3 ' +
         'sw-relative'
       }
     >
@@ -206,37 +204,31 @@ export default function SourceViewerHeader(props: Readonly<Props>) {
         <div className="sw-flex sw-gap-6 sw-items-center">
           {isDefined(measures[unitTestsOrLines]) && (
             <div className="sw-flex sw-flex-col sw-gap-1">
-              <Note className="it__source-viewer-header-measure-label sw-body-lg">
+              <Note className="it__source-viewer-header-measure-label">
                 {intl.formatMessage({ id: `metric.${unitTestsOrLines}.name` })}
               </Note>
 
-              <span className="sw-body-lg">
-                {formatMeasure(measures[unitTestsOrLines], MetricType.ShortInteger)}
-              </span>
+              <span>{formatMeasure(measures[unitTestsOrLines], MetricType.ShortInteger)}</span>
             </div>
           )}
 
           {isDefined(measures.coverage) && (
             <div className="sw-flex sw-flex-col sw-gap-1">
-              <Note className="it__source-viewer-header-measure-label sw-body-lg">
+              <Note className="it__source-viewer-header-measure-label">
                 {intl.formatMessage({ id: 'metric.coverage.name' })}
               </Note>
 
-              <span className="sw-body-lg">
-                {formatMeasure(measures.coverage, MetricType.Percent)}
-              </span>
+              <span>{formatMeasure(measures.coverage, MetricType.Percent)}</span>
             </div>
           )}
 
           {isDefined(measures.duplicationDensity) && (
             <div className="sw-flex sw-flex-col sw-gap-1">
-              <Note className="it__source-viewer-header-measure-label sw-body-lg">
+              <Note className="it__source-viewer-header-measure-label">
                 {intl.formatMessage({ id: 'duplications' })}
               </Note>
 
-              <span className="sw-body-lg">
-                {formatMeasure(measures.duplicationDensity, MetricType.Percent)}
-              </span>
+              <span>{formatMeasure(measures.duplicationDensity, MetricType.Percent)}</span>
             </div>
           )}
 

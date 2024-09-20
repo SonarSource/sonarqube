@@ -204,7 +204,7 @@ const Header = styled.div`
 const HeaderTitle = styled.span<{
   disabled?: boolean;
 }>`
-  ${tw`sw-body-sm-highlight`};
+  ${tw`sw-typo-semibold`};
 
   color: ${({ disabled }) =>
     disabled ? themeColor('facetHeaderDisabled') : themeColor('facetHeader')};
