@@ -30,9 +30,12 @@ import { ProjectBadgesServiceMock } from '../../../api/mocks/ProjectBadgesServic
 import ProjectLinksServiceMock from '../../../api/mocks/ProjectLinksServiceMock';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser, mockMeasure } from '../../../helpers/testMocks';
-import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
+import {
+  renderAppWithComponentContext,
+  RenderContext,
+} from '../../../helpers/testReactTestingUtils';
+import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
-import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
 
 jest.mock('../../../api/rules');
@@ -86,13 +89,14 @@ it('should show fields for project', async () => {
       description: 'Test description',
       tags: ['bar'],
     },
-    mockLoggedInUser(),
+    { currentUser: mockLoggedInUser(), featureList: [Feature.AiCodeAssurance] },
   );
   expect(await ui.projectPageTitle.find()).toBeInTheDocument();
   expect(ui.qualityGateList.get()).toBeInTheDocument();
   expect(ui.link.getAll(ui.qualityGateList.get())).toHaveLength(1);
   expect(ui.link.getAll(ui.qualityProfilesList.get())).toHaveLength(1);
   expect(ui.link.getAll(ui.externalLinksList.get())).toHaveLength(1);
+  expect(screen.getByText('project.info.ai_code_assurance.title')).toBeInTheDocument();
   expect(screen.getByText('Test description')).toBeInTheDocument();
   expect(screen.getByText('my-project')).toBeInTheDocument();
   expect(screen.getByText('visibility.private')).toBeInTheDocument();
@@ -114,7 +118,7 @@ it('should show application fields', async () => {
       description: 'Test description',
       tags: ['bar'],
     },
-    mockLoggedInUser(),
+    { currentUser: mockLoggedInUser() },
   );
   expect(await ui.applicationPageTitle.find()).toBeInTheDocument();
   expect(ui.qualityGateList.query()).not.toBeInTheDocument();
@@ -129,13 +133,28 @@ it('should show application fields', async () => {
 });
 
 it('should hide some fields for application', async () => {
-  renderProjectInformationApp({
-    qualifier: ComponentQualifier.Application,
-  });
+  renderProjectInformationApp(
+    {
+      qualifier: ComponentQualifier.Application,
+    },
+    { featureList: [Feature.AiCodeAssurance] },
+  );
   expect(await ui.applicationPageTitle.find()).toBeInTheDocument();
   expect(screen.getByText('application.info.empty_description')).toBeInTheDocument();
+  expect(screen.queryByText('project.info.ai_code_assurance.title')).not.toBeInTheDocument();
   expect(screen.getByText('visibility.public')).toBeInTheDocument();
   expect(ui.tags.get()).toHaveTextContent('no_tags');
+});
+
+it('should not display ai code assurence', async () => {
+  renderProjectInformationApp(
+    {
+      key: 'no-ai',
+    },
+    { featureList: [Feature.AiCodeAssurance] },
+  );
+  expect(await ui.projectPageTitle.find()).toBeInTheDocument();
+  expect(screen.queryByText('project.info.ai_code_assurance.title')).not.toBeInTheDocument();
 });
 
 it('should not show field that is not configured', async () => {
@@ -167,7 +186,7 @@ it('should hide visibility if public', async () => {
 
 function renderProjectInformationApp(
   overrides: Partial<Component> = {},
-  currentUser: CurrentUser = mockCurrentUser(),
+  context: RenderContext = { currentUser: mockCurrentUser() },
 ) {
   const component = mockComponent(overrides);
   componentsMock.registerComponent(component, [componentsMock.components[0].component]);
@@ -175,7 +194,7 @@ function renderProjectInformationApp(
   return renderAppWithComponentContext(
     'project/information',
     routes,
-    { currentUser },
+    { ...context },
     { component },
   );
 }

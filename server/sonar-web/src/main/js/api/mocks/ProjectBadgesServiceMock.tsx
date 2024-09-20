@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { isProjectAiCodeAssured } from '../ai-code-assurance';
 import { getProjectBadgesToken, renewProjectBadgesToken } from '../project-badges';
 
 jest.mock('../project-badges');
 jest.mock('../project-badges');
+jest.mock('../ai-code-assurance');
 
 const defaultToken = 'sqb_2b5052cef8eac91a921ac71be9227a27f6b6b38b';
 
@@ -32,10 +34,18 @@ export class ProjectBadgesServiceMock {
 
     jest.mocked(getProjectBadgesToken).mockImplementation(this.handleGetProjectBadgesToken);
     jest.mocked(renewProjectBadgesToken).mockImplementation(this.handleRenewProjectBadgesToken);
+    jest.mocked(isProjectAiCodeAssured).mockImplementation(this.handleProjectAiGeneratedCode);
   }
 
   handleGetProjectBadgesToken = () => {
     return Promise.resolve(this.token);
+  };
+
+  handleProjectAiGeneratedCode = (project: string) => {
+    if (project === 'no-ai') {
+      return Promise.resolve(false);
+    }
+    return Promise.resolve(true);
   };
 
   handleRenewProjectBadgesToken = () => {

@@ -18,11 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { BasicSeparator, SubTitle } from 'design-system';
+import { BasicSeparator, SubHeading, SubTitle } from 'design-system';
 import React, { PropsWithChildren, useEffect, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { getProjectLinks } from '../../../api/projectLinks';
+import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
+import { useProjectAiCodeAssuredQuery } from '../../../queries/ai-code-assurance';
+import { Feature } from '../../../types/features';
 import { Component, Measure, ProjectLink } from '../../../types/types';
 import MetaDescription from './components/MetaDescription';
 import MetaKey from './components/MetaKey';
@@ -41,8 +45,16 @@ export interface AboutProjectProps {
 
 export default function AboutProject(props: AboutProjectProps) {
   const { component, measures = [] } = props;
+  const { hasFeature } = useAvailableFeatures();
   const isApp = component.qualifier === ComponentQualifier.Application;
   const [links, setLinks] = useState<ProjectLink[] | undefined>(undefined);
+  const { data: isAiAssured } = useProjectAiCodeAssuredQuery(
+    { project: component.key },
+    {
+      enabled:
+        component.qualifier === ComponentQualifier.Project && hasFeature(Feature.AiCodeAssurance),
+    },
+  );
 
   useEffect(() => {
     if (!isApp) {
@@ -63,13 +75,24 @@ export default function AboutProject(props: AboutProjectProps) {
         (component.qualityGate ||
           (component.qualityProfiles && component.qualityProfiles.length > 0)) && (
           <ProjectInformationSection className="sw-pt-0 sw-flex sw-flex-col sw-gap-4">
-            {component.qualityGate && <MetaQualityGate qualityGate={component.qualityGate} />}
+            {component.qualityGate && (
+              <MetaQualityGate qualityGate={component.qualityGate} isAiAssured={isAiAssured} />
+            )}
 
             {component.qualityProfiles && component.qualityProfiles.length > 0 && (
               <MetaQualityProfiles profiles={component.qualityProfiles} />
             )}
           </ProjectInformationSection>
         )}
+
+      {isAiAssured === true && (
+        <ProjectInformationSection>
+          <SubHeading>{translate('project.info.ai_code_assurance.title')}</SubHeading>
+          <span>
+            <FormattedMessage id="projects.ai_code.content" />
+          </span>
+        </ProjectInformationSection>
+      )}
 
       <ProjectInformationSection>
         <MetaKey componentKey={component.key} qualifier={component.qualifier} />
