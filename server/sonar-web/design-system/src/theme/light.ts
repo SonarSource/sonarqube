@@ -343,16 +343,22 @@ export const lightTheme = {
     // pills
     pillCritical: COLORS.red[100],
     pillCriticalBorder: COLORS.red[800],
+    pillCriticalHover: COLORS.red[300],
     pillDanger: COLORS.red[50],
     pillDangerBorder: COLORS.red[600],
+    pillDangerHover: COLORS.red[200],
     pillWarning: COLORS.orange[50],
     pillWarningBorder: COLORS.orange[300],
+    pillWarningHover: COLORS.orange[200],
     pillCaution: COLORS.yellow[50],
     pillCautionBorder: COLORS.yellow[300],
+    pillCautionHover: COLORS.yellow[200],
     pillInfo: COLORS.blue[50],
     pillInfoBorder: COLORS.blue[300],
+    pillInfoHover: COLORS.blue[200],
     pillAccent: COLORS.indigo[50],
     pillAccentBorder: 'transparent',
+    pillAccentHover: COLORS.indigo[100],
 
     // input select
     selectOptionSelected: secondary.light,

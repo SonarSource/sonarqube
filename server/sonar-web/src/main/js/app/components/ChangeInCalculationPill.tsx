@@ -49,7 +49,7 @@ export default function ChangeInCalculation({ qualifier }: Readonly<Props>) {
       }
     >
       <Pill
-        variant={PillVariant.Accent}
+        variant={PillVariant.Info}
         className="sw-ml-2"
         onClick={() => setIsPopoverOpen(!isPopoverOpen)}
       >

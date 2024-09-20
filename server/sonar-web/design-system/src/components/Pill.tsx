@@ -51,6 +51,15 @@ const variantThemeBorderColors: Record<PillVariant, ThemeColors> = {
   [PillVariant.Accent]: 'pillAccentBorder',
 };
 
+const variantThemeHoverColors: Record<PillVariant, ThemeColors> = {
+  [PillVariant.Critical]: 'pillCriticalHover',
+  [PillVariant.Danger]: 'pillDangerHover',
+  [PillVariant.Warning]: 'pillWarningHover',
+  [PillVariant.Caution]: 'pillCautionHover',
+  [PillVariant.Info]: 'pillInfoHover',
+  [PillVariant.Accent]: 'pillAccentHover',
+};
+
 interface PillProps {
   ['aria-label']?: string;
   children: ReactNode;
@@ -110,4 +119,13 @@ const StyledPillButton = styled.button<{
   border-color: ${({ variant }) => themeColor(variantThemeBorderColors[variant])};
 
   cursor: pointer;
+
+  &:hover {
+    background-color: ${({ variant }) => themeColor(variantThemeHoverColors[variant])};
+  }
+
+  &:focus {
+    outline: var(--echoes-color-focus-default) solid var(--echoes-focus-border-width-default);
+    outline-offset: var(--echoes-focus-border-offset-default);
+  }
 `;
