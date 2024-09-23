@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Location } from '~sonar-aligned/types/router';
+import { MetricKey } from '../../../../sonar-aligned/types/metrics';
 import { BadgeOptions, BadgeType, getBadgeSnippet, getBadgeUrl } from '../utils';
 
 jest.mock('../../../../helpers/urls', () => ({
@@ -45,8 +46,20 @@ describe('#getBadgeUrl', () => {
     );
   });
 
+  it('should generate correct ai code assurance badge links', () => {
+    expect(getBadgeUrl(BadgeType.aiCodeAssurance, options, 'foo')).toBe(
+      'host/api/project_badges/ai_code_assurance?branch=master&project=foo&token=foo',
+    );
+  });
+
+  it('should generate correct ai code assurance badge links with timestamp', () => {
+    expect(getBadgeUrl(BadgeType.aiCodeAssurance, options, 'foo', true)).toContain(
+      'host/api/project_badges/ai_code_assurance?branch=master&project=foo&token=foo',
+    );
+  });
+
   it('should ignore undefined parameters', () => {
-    expect(getBadgeUrl(BadgeType.measure, { metric: 'alert_status' }, 'foo')).toBe(
+    expect(getBadgeUrl(BadgeType.measure, { metric: MetricKey.alert_status }, 'foo')).toBe(
       'host/api/project_badges/measure?metric=alert_status&token=foo',
     );
   });
@@ -59,9 +72,17 @@ describe('#getBadgeUrl', () => {
 });
 
 describe('#getBadgeSnippet', () => {
-  it('should generate a correct markdown image', () => {
-    expect(getBadgeSnippet(BadgeType.measure, { ...options, format: 'md' }, 'foo')).toBe(
+  it('should generate a correct markdown image for measure', () => {
+    const snippet = getBadgeSnippet(BadgeType.measure, options, 'foo');
+    expect(snippet).toBe(
       '[![alert_status](host/api/project_badges/measure?branch=master&project=foo&metric=alert_status&token=foo)](host/dashboard?id=foo&branch=master)',
+    );
+  });
+
+  it('should generate a correct markdown image for ai code assurance', () => {
+    const snippet = getBadgeSnippet(BadgeType.aiCodeAssurance, options, 'foo');
+    expect(snippet).toBe(
+      '[![overview.badges.ai_code_assurance](host/api/project_badges/ai_code_assurance?branch=master&project=foo&token=foo)](host/dashboard?id=foo&branch=master)',
     );
   });
 });

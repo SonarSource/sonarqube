@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getLocalizedMetricName } from '../../../helpers/l10n';
+import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { omitNil } from '../../../helpers/request';
 import { getHostUrl, getPathUrlAsString, getProjectUrl } from '../../../helpers/urls';
 
@@ -35,6 +35,7 @@ export interface BadgeOptions {
 export enum BadgeType {
   measure = 'measure',
   qualityGate = 'quality_gate',
+  aiCodeAssurance = 'ai_code_assurance',
 }
 
 export function getBadgeSnippet(type: BadgeType, options: BadgeOptions, token: string) {
@@ -51,6 +52,9 @@ export function getBadgeSnippet(type: BadgeType, options: BadgeOptions, token: s
   switch (type) {
     case BadgeType.measure:
       label = getLocalizedMetricName({ key: metric });
+      break;
+    case BadgeType.aiCodeAssurance:
+      label = translate('overview.badges.ai_code_assurance');
       break;
     case BadgeType.qualityGate:
     default:
@@ -70,16 +74,22 @@ export function getBadgeUrl(
   type: BadgeType,
   { branch, project, metric = 'alert_status', pullRequest }: BadgeOptions,
   token: string,
+  disableBrowserCache: boolean = false,
 ) {
   switch (type) {
     case BadgeType.qualityGate:
       return `${getHostUrl()}/api/project_badges/quality_gate?${new URLSearchParams(
         omitNil({ branch, project, pullRequest, token }),
-      ).toString()}`;
+      ).toString()}${disableBrowserCache ? `&${new Date().getTime()}` : ''}`;
+    case BadgeType.aiCodeAssurance:
+      return `${getHostUrl()}/api/project_badges/ai_code_assurance?${new URLSearchParams(
+        omitNil({ branch, project, pullRequest, token }),
+      ).toString()}${disableBrowserCache ? `&${new Date().getTime()}` : ''}`;
+
     case BadgeType.measure:
     default:
       return `${getHostUrl()}/api/project_badges/measure?${new URLSearchParams(
         omitNil({ branch, project, metric, pullRequest, token }),
-      ).toString()}`;
+      ).toString()}${disableBrowserCache ? `&${new Date().getTime()}` : ''}`;
   }
 }

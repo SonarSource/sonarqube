@@ -65,7 +65,9 @@ it('should renew token', async () => {
 
   expect(screen.getByAltText(`overview.badges.${BadgeType.measure}.alt`)).toHaveAttribute(
     'src',
-    `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.alert_status}&token=foo`,
+    expect.stringContaining(
+      `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.alert_status}&token=foo`,
+    ),
   );
 
   await user.click(screen.getByText('overview.badges.renew'));
@@ -74,12 +76,16 @@ it('should renew token', async () => {
     await screen.findByAltText(`overview.badges.${BadgeType.qualityGate}.alt`),
   ).toHaveAttribute(
     'src',
-    'host/api/project_badges/quality_gate?branch=branch-6.7&project=my-project&token=bar',
+    expect.stringContaining(
+      'host/api/project_badges/quality_gate?branch=branch-6.7&project=my-project&token=bar',
+    ),
   );
 
   expect(screen.getByAltText(`overview.badges.${BadgeType.measure}.alt`)).toHaveAttribute(
     'src',
-    `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.alert_status}&token=bar`,
+    expect.stringContaining(
+      `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.alert_status}&token=bar`,
+    ),
   );
 });
 
@@ -90,7 +96,8 @@ it('should update params', async () => {
 
   expect(
     screen.getByText(
-      `[![${MetricKey.alert_status}](host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.alert_status}&token=foo)](/dashboard)`,
+      `[![${MetricKey.alert_status}](host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.alert_status}&token=foo`,
+      { exact: false },
     ),
   ).toBeInTheDocument();
 
@@ -98,7 +105,8 @@ it('should update params', async () => {
 
   expect(
     screen.getByText(
-      `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.alert_status}&token=foo`,
+      'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=foo',
+      { exact: false },
     ),
   ).toBeInTheDocument();
 
@@ -107,7 +115,8 @@ it('should update params', async () => {
 
   expect(
     screen.getByText(
-      `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.coverage}&token=foo`,
+      'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=coverage&token=foo',
+      { exact: false },
     ),
   ).toBeInTheDocument();
 
@@ -119,7 +128,8 @@ it('should update params', async () => {
 
   expect(
     screen.getByText(
-      `host/api/project_badges/quality_gate?branch=branch-6.7&project=my-project&token=foo`,
+      'host/api/project_badges/quality_gate?branch=branch-6.7&project=my-project&token=foo',
+      { exact: false },
     ),
   ).toBeInTheDocument();
 
@@ -131,7 +141,8 @@ it('should update params', async () => {
 
   expect(
     screen.getByText(
-      `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.coverage}&token=foo`,
+      'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=coverage&token=foo',
+      { exact: false },
     ),
   ).toBeInTheDocument();
 });

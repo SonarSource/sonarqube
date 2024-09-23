@@ -36,6 +36,7 @@ import { useState } from 'react';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
 import {
@@ -45,6 +46,8 @@ import {
   useRenewBagdeTokenMutation,
 } from '../../../queries/badges';
 import { BranchLike } from '../../../types/branch-like';
+import { isProject } from '../../../types/component';
+import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import { BadgeFormats, BadgeOptions, BadgeType, getBadgeSnippet, getBadgeUrl } from './utils';
 
@@ -68,6 +71,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
   } = useBadgeTokenQuery(project);
   const { data: metricOptions, isLoading: isLoadingMetrics } = useBadgeMetricsQuery();
   const { mutate: renewToken, isPending: isRenewing } = useRenewBagdeTokenMutation();
+  const { hasFeature } = useAvailableFeatures();
   const isLoading = isLoadingMetrics || isLoadingToken || isRenewing;
 
   const handleSelectType = (selectedType: BadgeType) => {
@@ -107,7 +111,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
             image={
               <Image
                 alt={translate('overview.badges', BadgeType.measure, 'alt')}
-                src={getBadgeUrl(BadgeType.measure, fullBadgeOptions, token)}
+                src={getBadgeUrl(BadgeType.measure, fullBadgeOptions, token, true)}
               />
             }
             description={translate('overview.badges', BadgeType.measure, 'description', qualifier)}
@@ -119,7 +123,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
             image={
               <Image
                 alt={translate('overview.badges', BadgeType.qualityGate, 'alt')}
-                src={getBadgeUrl(BadgeType.qualityGate, fullBadgeOptions, token)}
+                src={getBadgeUrl(BadgeType.qualityGate, fullBadgeOptions, token, true)}
                 width="128px"
               />
             }
@@ -130,6 +134,25 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
               qualifier,
             )}
           />
+          {hasFeature(Feature.AiCodeAssurance) && isProject(qualifier) && (
+            <IllustratedSelectionCard
+              className="sw-w-abs-300 it__badge-button"
+              onClick={() => handleSelectType(BadgeType.aiCodeAssurance)}
+              selected={BadgeType.aiCodeAssurance === selectedType}
+              image={
+                <Image
+                  alt={translate('overview.badges', BadgeType.aiCodeAssurance, 'alt')}
+                  src={getBadgeUrl(BadgeType.aiCodeAssurance, fullBadgeOptions, token, true)}
+                />
+              }
+              description={translate(
+                'overview.badges',
+                BadgeType.aiCodeAssurance,
+                'description',
+                qualifier,
+              )}
+            />
+          )}
         </div>
       </Spinner>
 
