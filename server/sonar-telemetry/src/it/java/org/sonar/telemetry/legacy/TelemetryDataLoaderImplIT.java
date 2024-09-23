@@ -691,7 +691,7 @@ public class TelemetryDataLoaderImplIT {
 
   @Test
   public void load_shouldContainCloudUsage() {
-    CloudUsage cloudUsage = new CloudUsage(true, "1.27", "linux/amd64", "5.4.181-99.354.amzn2.x86_64", "10.1.0", false, "docker", false);
+    CloudUsage cloudUsage = new CloudUsage(true, "1.27", "linux/amd64", "5.4.181-99.354.amzn2.x86_64", "10.1.0", false, false, "docker", false);
     when(cloudUsageDataProvider.getCloudUsage()).thenReturn(cloudUsage);
 
     TelemetryData data = commercialUnderTest.load();

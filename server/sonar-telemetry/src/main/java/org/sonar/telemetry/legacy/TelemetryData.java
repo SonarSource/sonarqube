@@ -385,8 +385,8 @@ public class TelemetryData {
   }
 
   record CloudUsage(boolean kubernetes, @Nullable String kubernetesVersion, @Nullable String kubernetesPlatform,
-    @Nullable String kubernetesProvider,
-    @Nullable String officialHelmChart, boolean isOnOpenshift, @Nullable String containerRuntime, boolean officialImage) {
+                    @Nullable String kubernetesProvider, @Nullable String officialHelmChart, boolean isOnOpenshift,
+                    boolean isHelmAutoscalingEnabled, @Nullable String containerRuntime, boolean officialImage) {
   }
 
   public static class ProjectStatistics {

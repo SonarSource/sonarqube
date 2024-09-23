@@ -140,6 +140,13 @@ public class GlobalSystemSectionTest {
   }
 
   @Test
+  public void toProtobuf_whenHelmAutoscalingEnabled_returnIt() {
+    when(containerSupport.isHelmAutoscalingEnabled()).thenReturn(true);
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "Helm autoscaling", true);
+  }
+
+  @Test
   public void return_Lines_of_Codes_from_StatisticsSupport(){
     when(statisticsSupport.getLinesOfCode()).thenReturn(17752L);
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();

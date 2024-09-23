@@ -61,6 +61,7 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
     setAttribute(protobuf, NCLOC.getName() ,statisticsSupport.getLinesOfCode());
     setAttribute(protobuf, "Container", containerSupport.isRunningInContainer());
     setAttribute(protobuf, "Running on OpenShift", containerSupport.isRunningOnHelmOpenshift());
+    setAttribute(protobuf, "Helm autoscaling", containerSupport.isHelmAutoscalingEnabled());
     setAttribute(protobuf, "High Availability", true);
     setAttribute(protobuf, "External Users and Groups Provisioning",
       commonSystemInformation.getManagedInstanceProviderName());

@@ -696,7 +696,7 @@ class TelemetryDataJsonWriterTest {
       .setMessageSequenceNumber(1L)
       .setPlugins(Collections.emptyMap())
       .setManagedInstanceInformation(new TelemetryData.ManagedInstanceInformation(false, null))
-      .setCloudUsage(new TelemetryData.CloudUsage(true, "1.27", "linux/amd64", "5.4.181-99.354.amzn2.x86_64", "10.1.0", false, "docker", false))
+      .setCloudUsage(new TelemetryData.CloudUsage(true, "1.27", "linux/amd64", "5.4.181-99.354.amzn2.x86_64", "10.1.0", false, false, "docker", false))
       .setDatabase(new TelemetryData.Database("H2", "11"))
       .setNcdId(NCD_ID);
   }

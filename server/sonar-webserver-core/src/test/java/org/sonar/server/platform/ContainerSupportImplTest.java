@@ -59,6 +59,7 @@ public class ContainerSupportImplTest {
         "podman" : "");
     when(underTest.getMountOverlays()).thenReturn(containerContext.mountOverlays);
     when(system2.envVariable("IS_HELM_OPENSHIFT_ENABLED")).thenReturn(containerContext.isRunningOnOpenShiftEnvVariable);
+    when(system2.envVariable("IS_HELM_AUTOSCALING_ENABLED")).thenReturn(containerContext.isHelmAutoscalingEnabledEnvVariable);
     underTest.populateCache();
   }
 
@@ -85,15 +86,23 @@ public class ContainerSupportImplTest {
       .isEqualTo(containerContext.expectedRunningOnOpenShift);
   }
 
+  @Test
+  public void testIsHelmAutoscalingEnabled() {
+    assertThat(underTest.isHelmAutoscalingEnabled())
+      .isEqualTo(containerContext.expectedHelmAutoscaling);
+  }
+
   public enum ContainerEnvConfig {
-    DOCKER("docker", false, true, false, false, "/docker", "false", false),
-    PODMAN("podman", true, false, true, false, "", "false", false),
-    BUILDAH("buildah", true, false, false, true, "", "false", false),
-    CONTAINER_D("containerd", false, false, false, false, "/containerd", "false", false),
-    GENERAL_CONTAINER("general_container", true, false, false, false, "", "false", false),
-    NONE(null, false, false, false, false, "", null, false),
-    OPENSHIFT(null, false, false, false, false, "", "true", true),
-    OPENSHIFT_SET_TO_FALSE(null, false, false, false, false, "", "false", false);
+    DOCKER("docker", false, true, false, false, "/docker", "false", false, "false", false),
+    PODMAN("podman", true, false, true, false, "", "false", false, "false", false),
+    BUILDAH("buildah", true, false, false, true, "", "false", false, "false", false),
+    CONTAINER_D("containerd", false, false, false, false, "/containerd", "false", false, "false", false),
+    GENERAL_CONTAINER("general_container", true, false, false, false, "", "false", false, "false", false),
+    NONE(null, false, false, false, false, "", null, false, "false", false),
+    OPENSHIFT(null, false, false, false, false, "", "true", true, "false", false),
+    OPENSHIFT_SET_TO_FALSE(null, false, false, false, false, "", "false", false, "false", false),
+    HELM_AUTOSCALING_ENABLED(null, false, false, false, false, "", "true", true, "true", true);
+
     final String expectedContainerContext;
     final boolean hasContainerenvFile;
     final boolean hasDockerEnvFile;
@@ -102,10 +111,13 @@ public class ContainerSupportImplTest {
     final String mountOverlays;
     final String isRunningOnOpenShiftEnvVariable;
     final boolean expectedRunningOnOpenShift;
+    final String isHelmAutoscalingEnabledEnvVariable;
+    final boolean expectedHelmAutoscaling;
 
 
     ContainerEnvConfig(@Nullable String expectedContainerContext, boolean hasContainerenvFile, boolean hasDockerEnvFile, boolean hasPodmanEnvVariable,
-      boolean hasBuildahContainerenv, String mountOverlays, @Nullable String isRunningOnOpenShiftEnvVariable, boolean expectedRunningOnOpenShift) {
+      boolean hasBuildahContainerenv, String mountOverlays, @Nullable String isRunningOnOpenShiftEnvVariable, boolean expectedRunningOnOpenShift,
+      String isHelmAutoscalingEnabledEnvVariable, boolean expectedHelmAutoscaling) {
       this.expectedContainerContext = expectedContainerContext;
       this.hasContainerenvFile = hasContainerenvFile;
       this.hasDockerEnvFile = hasDockerEnvFile;
@@ -114,6 +126,8 @@ public class ContainerSupportImplTest {
       this.mountOverlays = mountOverlays;
       this.isRunningOnOpenShiftEnvVariable = isRunningOnOpenShiftEnvVariable;
       this.expectedRunningOnOpenShift = expectedRunningOnOpenShift;
+      this.isHelmAutoscalingEnabledEnvVariable = isHelmAutoscalingEnabledEnvVariable;
+      this.expectedHelmAutoscaling = expectedHelmAutoscaling;
     }
   }
 

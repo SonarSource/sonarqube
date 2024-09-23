@@ -32,4 +32,5 @@ public interface ContainerSupport {
 
   boolean isRunningOnHelmOpenshift();
 
+  boolean isHelmAutoscalingEnabled();
 }
