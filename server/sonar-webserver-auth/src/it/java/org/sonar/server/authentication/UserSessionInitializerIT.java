@@ -104,6 +104,7 @@ public class UserSessionInitializerIT {
     // exclude project_badge url, as they can be auth. by a token as queryparam
     assertPathIsIgnored("/api/project_badges/measure");
     assertPathIsIgnored("/api/project_badges/quality_gate");
+    assertPathIsIgnored("/api/project_badges/ai_code_assurance");
 
     // exlude passcode urls
     assertPathIsIgnoredWithAnonymousAccess("/api/ce/info");

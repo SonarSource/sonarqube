@@ -21,6 +21,6 @@ package org.sonar.server.badge.ws;
 
 import org.sonar.server.ws.WsAction;
 
-interface ProjectBadgesWsAction extends WsAction {
+public interface ProjectBadgesWsAction extends WsAction {
   // Marker interface
 }

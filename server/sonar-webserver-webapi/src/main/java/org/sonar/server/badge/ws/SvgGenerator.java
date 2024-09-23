@@ -166,6 +166,14 @@ public class SvgGenerator {
     return strSubstitutor.replace(errorTemplate);
   }
 
+  public static String readTemplate(String template, Class<?> clazz) {
+    try {
+      return IOUtils.toString(clazz.getResource(template), UTF_8);
+    } catch (IOException e) {
+      throw new IllegalStateException(String.format("Can't read svg template '%s'", template), e);
+    }
+  }
+
   private static int computeWidth(String text) {
     return text.chars()
       .mapToObj(i -> (char) i)
@@ -178,11 +186,7 @@ public class SvgGenerator {
   }
 
   private String readTemplate(String template) {
-    try {
-      return IOUtils.toString(getClass().getResource(template), UTF_8);
-    } catch (IOException e) {
-      throw new IllegalStateException(String.format("Can't read svg template '%s'", template), e);
-    }
+    return readTemplate(template, getClass());
   }
 
   static class Color {
