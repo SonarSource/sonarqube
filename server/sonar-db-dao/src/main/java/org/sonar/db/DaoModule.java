@@ -50,7 +50,6 @@ import org.sonar.db.issue.AnticipatedTransitionDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueFixedDao;
-import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.ProjectMeasureDao;
 import org.sonar.db.metric.MetricDao;
@@ -155,7 +154,6 @@ public class DaoModule extends Module {
     IssueFixedDao.class,
     IssuesDependencyDao.class,
     MeasureDao.class,
-    LiveMeasureDao.class,
     ProjectMeasureDao.class,
     MetricDao.class,
     NewCodePeriodDao.class,

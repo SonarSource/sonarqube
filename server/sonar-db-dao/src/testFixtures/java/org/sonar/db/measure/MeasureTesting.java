@@ -64,33 +64,6 @@ public class MeasureTesting {
       .setValue((double) cursor++);
   }
 
-  public static LiveMeasureDto newLiveMeasure() {
-    return new LiveMeasureDto()
-      .setMetricUuid(String.valueOf(cursor++))
-      .setComponentUuid(String.valueOf(cursor++))
-      .setProjectUuid(String.valueOf(cursor++))
-      .setData(String.valueOf(cursor++))
-      .setValue((double) cursor++);
-  }
-
-  public static LiveMeasureDto newLiveMeasure(ComponentDto component, MetricDto metric) {
-    return new LiveMeasureDto()
-      .setMetricUuid(metric.getUuid())
-      .setComponentUuid(component.uuid())
-      .setProjectUuid(component.branchUuid())
-      .setData(String.valueOf(cursor++))
-      .setValue((double) cursor++);
-  }
-
-  public static LiveMeasureDto newLiveMeasure(BranchDto branchDto, MetricDto metric) {
-    return new LiveMeasureDto()
-      .setMetricUuid(metric.getUuid())
-      .setComponentUuid(branchDto.getUuid())
-      .setProjectUuid(branchDto.getProjectUuid())
-      .setData(String.valueOf(cursor++))
-      .setValue((double) cursor++);
-  }
-
   public static MeasureDto newMeasure() {
     return newMeasure(String.valueOf(cursor++), String.valueOf(cursor++), "metric" + cursor++, (double) cursor++);
   }

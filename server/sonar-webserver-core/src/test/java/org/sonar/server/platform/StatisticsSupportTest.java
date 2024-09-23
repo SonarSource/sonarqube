@@ -35,7 +35,7 @@ public class StatisticsSupportTest {
   private final StatisticsSupport statisticsSupport = new StatisticsSupport(dbClient);
 
   @Test
-  public void should_return_metric_from_liveMeasureDao() {
+  public void should_return_metric() {
     when(dbClient.projectDao().getNclocSum(any(DbSession.class))).thenReturn(1800999L);
 
     long linesOfCode = statisticsSupport.getLinesOfCode();

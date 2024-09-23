@@ -114,16 +114,6 @@
       resolution is null
   </select>
 
-  <select id="selectDisabledComponentsWithLiveMeasures" parameterType="map" resultType="String">
-    select
-      lm.component_uuid
-    from live_measures lm
-    inner join components p on
-      p.uuid = lm.component_uuid
-      and p.enabled = ${_false}
-      and p.branch_uuid=#{branchUuid,jdbcType=VARCHAR}
-  </select>
-
   <select id="selectDisabledComponentsWithMeasures" parameterType="map" resultType="String">
     select
       m.component_uuid
@@ -637,17 +627,8 @@
     delete from project_branches where uuid=#{uuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteLiveMeasuresByProjectUuid">
-    delete from live_measures where project_uuid = #{projectUuid,jdbcType=VARCHAR}
-  </delete>
-
   <delete id="deleteMeasuresByBranchUuid">
     delete from measures where branch_uuid = #{branchUuid,jdbcType=VARCHAR}
-  </delete>
-
-  <delete id="deleteLiveMeasuresByComponentUuids">
-    delete from live_measures where component_uuid in <foreach item="componentUuid" index="index" collection="componentUuids" open="("
-                                                               separator="," close=")">#{componentUuid, jdbcType=VARCHAR}</foreach>
   </delete>
 
   <delete id="deleteMeasuresByComponentUuids">

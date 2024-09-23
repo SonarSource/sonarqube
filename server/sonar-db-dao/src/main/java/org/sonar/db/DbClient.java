@@ -50,7 +50,6 @@ import org.sonar.db.issue.AnticipatedTransitionDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueFixedDao;
-import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.ProjectMeasureDao;
 import org.sonar.db.metric.MetricDao;
@@ -177,7 +176,6 @@ public class DbClient {
   private final AnalysisPropertiesDao analysisPropertiesDao;
   private final QProfileEditUsersDao qProfileEditUsersDao;
   private final QProfileEditGroupsDao qProfileEditGroupsDao;
-  private final LiveMeasureDao liveMeasureDao;
   private final WebhookDao webhookDao;
   private final WebhookDeliveryDao webhookDeliveryDao;
   private final NewCodePeriodDao newCodePeriodDao;
@@ -276,7 +274,6 @@ public class DbClient {
     analysisPropertiesDao = getDao(map, AnalysisPropertiesDao.class);
     qProfileEditUsersDao = getDao(map, QProfileEditUsersDao.class);
     qProfileEditGroupsDao = getDao(map, QProfileEditGroupsDao.class);
-    liveMeasureDao = getDao(map, LiveMeasureDao.class);
     webhookDao = getDao(map, WebhookDao.class);
     webhookDeliveryDao = getDao(map, WebhookDeliveryDao.class);
     internalComponentPropertiesDao = getDao(map, InternalComponentPropertiesDao.class);
@@ -578,10 +575,6 @@ public class DbClient {
 
   public QProfileEditGroupsDao qProfileEditGroupsDao() {
     return qProfileEditGroupsDao;
-  }
-
-  public LiveMeasureDao liveMeasureDao() {
-    return liveMeasureDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {

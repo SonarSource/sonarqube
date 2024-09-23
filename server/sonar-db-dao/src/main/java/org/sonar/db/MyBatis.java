@@ -88,7 +88,6 @@ import org.sonar.db.issue.IssueMapper;
 import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.issue.PrIssueDto;
 import org.sonar.db.measure.LargestBranchNclocDto;
-import org.sonar.db.measure.LiveMeasureMapper;
 import org.sonar.db.measure.MeasureMapper;
 import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.measure.ProjectMeasureDto;
@@ -296,7 +295,6 @@ public class MyBatis {
       ComponentMapper.class,
       CveMapper.class,
       CveCweMapper.class,
-      LiveMeasureMapper.class,
       DefaultQProfileMapper.class,
       DuplicationMapper.class,
       EntityMapper.class,

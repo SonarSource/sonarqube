@@ -158,15 +158,6 @@ class PurgeCommands {
         });
     profiler.stop();
 
-    profiler.start("purgeDisabledComponents (live_measures)");
-      executeLargeInputs(
-        purgeMapper.selectDisabledComponentsWithLiveMeasures(rootComponentUuid),
-        input -> {
-          purgeMapper.deleteLiveMeasuresByComponentUuids(input);
-          return input;
-        });
-    profiler.stop();
-
     profiler.start("purgeDisabledComponents (measures)");
     executeLargeInputs(
       purgeMapper.selectDisabledComponentsWithMeasures(rootComponentUuid),
@@ -454,13 +445,6 @@ class PurgeCommands {
     profiler.start("deleteBranch (project_branches)");
     purgeMapper.deleteAppBranchProjectBranchesByProjectBranchUuid(rootUuid);
     purgeMapper.deleteBranchByUuid(rootUuid);
-    session.commit();
-    profiler.stop();
-  }
-
-  void deleteLiveMeasures(String rootUuid) {
-    profiler.start("deleteLiveMeasures (live_measures)");
-    purgeMapper.deleteLiveMeasuresByProjectUuid(rootUuid);
     session.commit();
     profiler.stop();
   }

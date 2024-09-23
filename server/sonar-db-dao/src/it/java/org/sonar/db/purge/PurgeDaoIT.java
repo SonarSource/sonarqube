@@ -78,7 +78,6 @@ import org.sonar.db.event.EventTesting;
 import org.sonar.db.issue.AnticipatedTransitionDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.ProjectMeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -324,15 +323,6 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
 
     MetricDto metric1 = db.measures().insertMetric();
     MetricDto metric2 = db.measures().insertMetric();
-    LiveMeasureDto liveMeasureMetric1OnFile = db.measures().insertLiveMeasure(srcFile, metric1);
-    LiveMeasureDto liveMeasureMetric2OnFile = db.measures().insertLiveMeasure(srcFile, metric2);
-    LiveMeasureDto liveMeasureMetric1OnDir = db.measures().insertLiveMeasure(dir, metric1);
-    LiveMeasureDto liveMeasureMetric2OnDir = db.measures().insertLiveMeasure(dir, metric2);
-    LiveMeasureDto liveMeasureMetric1OnProject = db.measures().insertLiveMeasure(mainBranch, metric1);
-    LiveMeasureDto liveMeasureMetric2OnProject = db.measures().insertLiveMeasure(mainBranch, metric2);
-    LiveMeasureDto liveMeasureMetric1OnNonSelected = db.measures().insertLiveMeasure(enabledFile, metric1);
-    LiveMeasureDto liveMeasureMetric2OnNonSelected = db.measures().insertLiveMeasure(enabledFile, metric2);
-    assertThat(db.countRowsOfTable("live_measures")).isEqualTo(8);
 
     db.measures().insertMeasure(srcFile,
       m -> m.addValue(metric1.getKey(), RandomUtils.nextInt(50)).addValue(metric2.getKey(), RandomUtils.nextInt(50)));
@@ -369,18 +359,6 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     // delete file sources of selected
     assertThat(db.countRowsOfTable("file_sources")).isOne();
     assertThat(db.getDbClient().fileSourceDao().selectByFileUuid(dbSession, nonSelectedFileSource.getFileUuid())).isNotNull();
-
-    // deletes live measure of selected
-    assertThat(db.countRowsOfTable("live_measures")).isEqualTo(4);
-    List<LiveMeasureDto> liveMeasureDtos = db.getDbClient().liveMeasureDao()
-      .selectByComponentUuidsAndMetricUuids(dbSession, Set.of(srcFile.uuid(), dir.uuid(), mainBranch.uuid(), enabledFile.uuid()),
-        Set.of(metric1.getUuid(), metric2.getUuid()));
-    assertThat(liveMeasureDtos)
-      .extracting(LiveMeasureDto::getComponentUuid)
-      .containsOnly(enabledFile.uuid(), mainBranch.uuid());
-    assertThat(liveMeasureDtos)
-      .extracting(LiveMeasureDto::getMetricUuid)
-      .containsOnly(metric1.getUuid(), metric2.getUuid());
 
     // delete measures of selected
     assertThat(db.countRowsOfTable("measures")).isEqualTo(2);
@@ -1714,29 +1692,21 @@ project.getProjectDto().getKey());
   }
 
   @Test
-  void delete_live_measures_when_deleting_project() {
+  void delete_measures_when_deleting_project() {
     MetricDto metric = db.measures().insertMetric();
 
     ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto dir1 = db.components().insertComponent(newDirectory(project1, "path"));
-    db.measures().insertLiveMeasure(project1, metric);
-    db.measures().insertLiveMeasure(dir1, metric);
     db.measures().insertMeasure(project1, m -> m.addValue(metric.getKey(), RandomUtils.nextInt(50)));
     db.measures().insertMeasure(dir1, m -> m.addValue(metric.getKey(), RandomUtils.nextInt(50)));
 
     ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto dir2 = db.components().insertComponent(newDirectory(project2, "path"));
-    db.measures().insertLiveMeasure(project2, metric);
-    db.measures().insertLiveMeasure(dir2, metric);
     db.measures().insertMeasure(project2, m -> m.addValue(metric.getKey(), RandomUtils.nextInt(50)));
     db.measures().insertMeasure(dir2, m -> m.addValue(metric.getKey(), RandomUtils.nextInt(50)));
 
     underTest.deleteProject(dbSession, project1.uuid(), project1.qualifier(), project1.name(), project1.getKey());
 
-    assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, List.of(project1.uuid(), dir1.uuid()),
-      List.of(metric.getUuid()))).isEmpty();
-    assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, List.of(project2.uuid(), dir2.uuid()),
-      List.of(metric.getUuid()))).hasSize(2);
     assertThat(dbClient.measureDao().selectByComponentUuid(dbSession, project1.uuid())).isEmpty();
     assertThat(dbClient.measureDao().selectByComponentUuid(dbSession, dir1.uuid())).isEmpty();
     assertThat(dbClient.measureDao().selectByComponentUuid(dbSession, project2.uuid())).isNotEmpty();

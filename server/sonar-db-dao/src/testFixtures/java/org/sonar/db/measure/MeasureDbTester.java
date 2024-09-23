@@ -35,7 +35,6 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 
-import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 import static org.sonar.db.measure.MeasureTesting.newMeasure;
 import static org.sonar.db.measure.MeasureTesting.newProjectMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -83,29 +82,6 @@ public class MeasureDbTester {
     dbClient.measureDao().insertOrUpdate(db.getSession(), dto);
     db.commit();
     return dto;
-  }
-
-  @SafeVarargs
-  public final LiveMeasureDto insertLiveMeasure(ComponentDto component, MetricDto metric, Consumer<LiveMeasureDto>... consumers) {
-    LiveMeasureDto dto = newLiveMeasure(component, metric);
-    Arrays.stream(consumers).forEach(c -> c.accept(dto));
-    dbClient.liveMeasureDao().insert(db.getSession(), dto);
-    db.commit();
-    return dto;
-  }
-
-  @SafeVarargs
-  public final LiveMeasureDto insertLiveMeasure(BranchDto branchDto, MetricDto metric, Consumer<LiveMeasureDto>... consumers) {
-    LiveMeasureDto dto = newLiveMeasure(branchDto, metric);
-    Arrays.stream(consumers).forEach(c -> c.accept(dto));
-    dbClient.liveMeasureDao().insert(db.getSession(), dto);
-    db.commit();
-    return dto;
-  }
-
-  @SafeVarargs
-  public final LiveMeasureDto insertLiveMeasure(ProjectData projectData, MetricDto metric, Consumer<LiveMeasureDto>... consumers) {
-    return insertLiveMeasure(projectData.getMainBranchComponent(), metric, consumers);
   }
 
   @SafeVarargs

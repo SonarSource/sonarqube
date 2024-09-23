@@ -37,7 +37,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
@@ -395,8 +394,7 @@ public class ListActionIT {
     RuleDto rule = newHotspotRule();
 
     db.components().insertSnapshot(project, s -> s.setLast(true).setPeriodMode(REFERENCE_BRANCH.name()));
-    MetricDto metric = db.measures().insertMetric(metricDto -> metricDto.setKey(ANALYSIS_FROM_SONARQUBE_9_4_KEY));
-    db.measures().insertLiveMeasure(project, metric);
+    db.measures().insertMeasure(project, m -> m.addValue(ANALYSIS_FROM_SONARQUBE_9_4_KEY, 1.0D));
 
     List<String> beforeNewCodePeriod = IntStream.range(0, 10).mapToObj(number -> db.issues().insertHotspot(rule, project, file, i -> i
       .setEffort(10L)

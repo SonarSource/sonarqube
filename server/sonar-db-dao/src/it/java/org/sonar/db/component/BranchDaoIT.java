@@ -595,13 +595,6 @@ class BranchDaoIT {
     ComponentDto project3 = projectData3.getMainBranchComponent();
     db.components().insertProjectBranch(project3, b -> b.setBranchType(BRANCH).setKey("p3-branch-1"));
 
-    MetricDto unanalyzedC = db.measures().insertMetric(m -> m.setKey("unanalyzed_c"));
-    MetricDto unanalyzedCpp = db.measures().insertMetric(m -> m.setKey("unanalyzed_cpp"));
-    db.measures().insertLiveMeasure(project1, unanalyzedC);
-    db.measures().insertLiveMeasure(project1, unanalyzedCpp);
-    db.measures().insertLiveMeasure(project2, unanalyzedCpp);
-    db.measures().insertLiveMeasure(project3, unanalyzedC);
-
     assertThat(underTest.countPrBranchAnalyzedLanguageByProjectUuid(db.getSession()))
       .extracting(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, PrBranchAnalyzedLanguageCountByProjectDto::getBranch,
         PrBranchAnalyzedLanguageCountByProjectDto::getPullRequest)

@@ -38,8 +38,6 @@ public interface PurgeMapper {
 
   Set<String> selectDisabledComponentsWithUnresolvedIssues(@Param("branchUuid") String branchUuid);
 
-  Set<String> selectDisabledComponentsWithLiveMeasures(@Param("branchUuid") String branchUuid);
-
   Set<String> selectDisabledComponentsWithMeasures(@Param("branchUuid") String branchUuid);
 
   void deleteAnalyses(@Param("analysisUuids") List<String> analysisUuids);
@@ -169,11 +167,7 @@ public interface PurgeMapper {
 
   void deleteBranchByUuid(@Param("uuid") String uuid);
 
-  void deleteLiveMeasuresByProjectUuid(@Param("projectUuid") String projectUuid);
-
   void deleteMeasuresByBranchUuid(@Param("branchUuid") String branchUuid);
-
-  void deleteLiveMeasuresByComponentUuids(@Param("componentUuids") List<String> componentUuids);
 
   void deleteMeasuresByComponentUuids(@Param("componentUuids") List<String> componentUuids);
 
