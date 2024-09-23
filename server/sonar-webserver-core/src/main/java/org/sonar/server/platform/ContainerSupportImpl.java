@@ -38,6 +38,7 @@ public class ContainerSupportImpl implements ContainerSupport {
   private static final String BUILDAH = "buildah";
   private static final String CONTAINER_D = "containerd";
   private static final String GENERAL_CONTAINER = "general_container";
+  private static final String IS_HELM_OPENSHIFT_ENABLED = "IS_HELM_OPENSHIFT_ENABLED";
 
   private static final String[] MOUNT_GREP_COMMAND = {"bash", "-c", "mount | grep 'overlay on /'"};
   private static final String[] CAT_COMMAND = {"bash", "-c", "cat /run/.containerenv"};
@@ -78,6 +79,11 @@ public class ContainerSupportImpl implements ContainerSupport {
   @Override
   public String getContainerContext() {
     return containerContextCache;
+  }
+
+  @Override
+  public boolean isRunningOnHelmOpenshift() {
+    return "true".equals(system2.envVariable(IS_HELM_OPENSHIFT_ENABLED));
   }
 
   private boolean isDocker() {

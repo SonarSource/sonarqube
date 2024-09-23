@@ -691,7 +691,7 @@ public class TelemetryDataLoaderImplIT {
 
   @Test
   public void load_shouldContainCloudUsage() {
-    CloudUsage cloudUsage = new CloudUsage(true, "1.27", "linux/amd64", "5.4.181-99.354.amzn2.x86_64", "10.1.0", "docker", false);
+    CloudUsage cloudUsage = new CloudUsage(true, "1.27", "linux/amd64", "5.4.181-99.354.amzn2.x86_64", "10.1.0", false, "docker", false);
     when(cloudUsageDataProvider.getCloudUsage()).thenReturn(cloudUsage);
 
     TelemetryData data = commercialUnderTest.load();
@@ -700,7 +700,7 @@ public class TelemetryDataLoaderImplIT {
 
   @Test
   public void default_quality_gate_sent_with_project() {
-    db.components().insertPublicProject().getMainBranchComponent();
+    db.components().insertPublicProject();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("anything").setBuiltIn(true));
     db.qualityGates().setDefaultQualityGate(qualityGate);
     TelemetryData data = communityUnderTest.load();

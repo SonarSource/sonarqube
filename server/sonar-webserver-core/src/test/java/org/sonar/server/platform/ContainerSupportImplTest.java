@@ -58,6 +58,7 @@ public class ContainerSupportImplTest {
       containerContext.hasPodmanEnvVariable ?
         "podman" : "");
     when(underTest.getMountOverlays()).thenReturn(containerContext.mountOverlays);
+    when(system2.envVariable("IS_HELM_OPENSHIFT_ENABLED")).thenReturn(containerContext.isRunningOnOpenShiftEnvVariable);
     underTest.populateCache();
   }
 
@@ -78,29 +79,41 @@ public class ContainerSupportImplTest {
       .isEqualTo(containerContext.expectedContainerContext != null);
   }
 
+  @Test
+  public void testIsRunningOnHelmOpenshift() {
+    assertThat(underTest.isRunningOnHelmOpenshift())
+      .isEqualTo(containerContext.expectedRunningOnOpenShift);
+  }
+
   public enum ContainerEnvConfig {
-    DOCKER("docker", false, true, false, false, "/docker"),
-    PODMAN("podman", true, false, true, false, ""),
-    BUILDAH("buildah", true, false, false, true, ""),
-    CONTAINER_D("containerd", false, false, false, false, "/containerd"),
-    GENERAL_CONTAINER("general_container", true, false, false, false, ""),
-    NONE(null, false, false, false, false, "");
+    DOCKER("docker", false, true, false, false, "/docker", "false", false),
+    PODMAN("podman", true, false, true, false, "", "false", false),
+    BUILDAH("buildah", true, false, false, true, "", "false", false),
+    CONTAINER_D("containerd", false, false, false, false, "/containerd", "false", false),
+    GENERAL_CONTAINER("general_container", true, false, false, false, "", "false", false),
+    NONE(null, false, false, false, false, "", null, false),
+    OPENSHIFT(null, false, false, false, false, "", "true", true),
+    OPENSHIFT_SET_TO_FALSE(null, false, false, false, false, "", "false", false);
     final String expectedContainerContext;
     final boolean hasContainerenvFile;
     final boolean hasDockerEnvFile;
     final boolean hasPodmanEnvVariable;
     final boolean hasBuildahContainerenv;
     final String mountOverlays;
+    final String isRunningOnOpenShiftEnvVariable;
+    final boolean expectedRunningOnOpenShift;
 
 
     ContainerEnvConfig(@Nullable String expectedContainerContext, boolean hasContainerenvFile, boolean hasDockerEnvFile, boolean hasPodmanEnvVariable,
-      boolean hasBuildahContainerenv, String mountOverlays) {
+      boolean hasBuildahContainerenv, String mountOverlays, @Nullable String isRunningOnOpenShiftEnvVariable, boolean expectedRunningOnOpenShift) {
       this.expectedContainerContext = expectedContainerContext;
       this.hasContainerenvFile = hasContainerenvFile;
       this.hasDockerEnvFile = hasDockerEnvFile;
       this.hasPodmanEnvVariable = hasPodmanEnvVariable;
       this.hasBuildahContainerenv = hasBuildahContainerenv;
       this.mountOverlays = mountOverlays;
+      this.isRunningOnOpenShiftEnvVariable = isRunningOnOpenShiftEnvVariable;
+      this.expectedRunningOnOpenShift = expectedRunningOnOpenShift;
     }
   }
 

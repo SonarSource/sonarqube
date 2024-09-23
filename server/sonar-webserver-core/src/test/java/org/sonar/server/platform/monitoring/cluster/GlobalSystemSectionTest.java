@@ -133,6 +133,13 @@ public class GlobalSystemSectionTest {
   }
 
   @Test
+  public void toProtobuf_whenOnOpenShift_returnIt() {
+    when(containerSupport.isRunningOnHelmOpenshift()).thenReturn(true);
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "Running on OpenShift", true);
+  }
+
+  @Test
   public void return_Lines_of_Codes_from_StatisticsSupport(){
     when(statisticsSupport.getLinesOfCode()).thenReturn(17752L);
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
