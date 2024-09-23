@@ -21,6 +21,7 @@ import { screen } from '@testing-library/react';
 import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { AiCodeAssuredServiceMock } from '../../../api/mocks/AiCodeAssuredServiceMock';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
@@ -53,6 +54,7 @@ const rulesHandler = new CodingRulesServiceMock();
 const badgesHandler = new ProjectBadgesServiceMock();
 const notificationsHandler = new NotificationsMock();
 const branchesHandler = new BranchesServiceMock();
+const aiCodeAssurance = new AiCodeAssuredServiceMock();
 
 const ui = {
   projectPageTitle: byRole('heading', { name: 'project.info.title' }),
@@ -76,6 +78,7 @@ afterEach(() => {
   badgesHandler.reset();
   notificationsHandler.reset();
   branchesHandler.reset();
+  aiCodeAssurance.reset();
 });
 
 it('should show fields for project', async () => {

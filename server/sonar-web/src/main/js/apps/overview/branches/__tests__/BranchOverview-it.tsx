@@ -22,10 +22,12 @@ import * as React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import { AiCodeAssuredServiceMock } from '../../../../api/mocks/AiCodeAssuredServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import ApplicationServiceMock from '../../../../api/mocks/ApplicationServiceMock';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import { MeasuresServiceMock } from '../../../../api/mocks/MeasuresServiceMock';
+import MessagesServiceMock from '../../../../api/mocks/MessagesServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
@@ -42,9 +44,10 @@ import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockAnalysis, mockAnalysisEvent } from '../../../../helpers/mocks/project-activity';
 import { mockQualityGateProjectStatus } from '../../../../helpers/mocks/quality-gates';
 import { mockLoggedInUser, mockMeasure, mockPaging } from '../../../../helpers/testMocks';
-import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { renderComponent, RenderContext } from '../../../../helpers/testReactTestingUtils';
 import { ComponentPropsType } from '../../../../helpers/testUtils';
 import { SoftwareQuality } from '../../../../types/clean-code-taxonomy';
+import { Feature } from '../../../../types/features';
 import { ProjectAnalysisEventCategory } from '../../../../types/project-activity';
 import { SettingsKey } from '../../../../types/settings';
 import { CaycStatus } from '../../../../types/types';
@@ -60,6 +63,8 @@ let projectActivityHandler: ProjectActivityServiceMock;
 let usersHandler: UsersServiceMock;
 let timeMarchineHandler: TimeMachineServiceMock;
 let qualityGatesHandler: QualityGatesServiceMock;
+let aiCodeAssuranceHandler: AiCodeAssuredServiceMock;
+let messageshandler: MessagesServiceMock;
 
 jest.mock('../../../../api/ce', () => ({
   getAnalysisStatus: jest.fn().mockResolvedValue({ component: { warnings: [] } }),
@@ -120,6 +125,8 @@ beforeAll(() => {
       },
     ],
   });
+  aiCodeAssuranceHandler = new AiCodeAssuredServiceMock();
+  messageshandler = new MessagesServiceMock();
 });
 
 afterEach(() => {
@@ -133,6 +140,8 @@ afterEach(() => {
   qualityGatesHandler.reset();
   almHandler.reset();
   settingsHandler.reset();
+  aiCodeAssuranceHandler.reset();
+  messageshandler.reset();
 });
 
 describe('project overview', () => {
@@ -319,6 +328,15 @@ describe('project overview', () => {
       'E',
       'overview.measures.software_impact.improve_rating_tooltip.MAINTAINABILITY.software_quality.MAINTAINABILITY.software_quality.maintainability.E.overview.measures.software_impact.severity.HIGH.improve_tooltip',
     );
+  });
+
+  it('should show unsolved message when project is AI assured', async () => {
+    const { user, ui } = getPageObjects();
+    renderBranchOverview({ branch: undefined }, { featureList: [Feature.AiCodeAssurance] });
+    expect(await ui.unsolvedOverallMessage.find()).toBeInTheDocument();
+    await user.click(ui.dismissUnsolvedButton.get());
+
+    expect(ui.unsolvedOverallMessage.query()).not.toBeInTheDocument();
   });
 
   // eslint-disable-next-line jest/expect-expect
@@ -843,7 +861,10 @@ it.each([
   },
 );
 
-function renderBranchOverview(props: Partial<ComponentPropsType<typeof BranchOverview>> = {}) {
+function renderBranchOverview(
+  props: Partial<ComponentPropsType<typeof BranchOverview>> = {},
+  context: RenderContext = {},
+) {
   const user = mockLoggedInUser();
   const component = mockComponent({
     breadcrumbs: [mockComponent({ key: 'foo' })],
@@ -856,5 +877,7 @@ function renderBranchOverview(props: Partial<ComponentPropsType<typeof BranchOve
       <Header component={component} currentUser={user} />
       <BranchOverview branch={mockMainBranch()} component={component} {...props} />
     </CurrentUserContextProvider>,
+    '/',
+    context,
   );
 }

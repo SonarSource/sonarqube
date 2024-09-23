@@ -24,6 +24,10 @@ import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-co
 export const getPageObjects = () => {
   const user = userEvent.setup();
   const selectors = {
+    unsolvedOverallMessage: byText(/overview.ai_assurance.unsolved_overall.title/),
+    dismissUnsolvedButton: byRole('button', {
+      name: 'overview.ai_assurance.unsolved_overall.dismiss',
+    }),
     overallCodeButton: byRole('tab', { name: /overview.overall_code/ }),
     softwareImpactMeasureCard: (softwareQuality: SoftwareQuality) =>
       byTestId(`overview__software-impact-card-${softwareQuality}`),

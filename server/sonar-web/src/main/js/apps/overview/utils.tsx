@@ -98,6 +98,9 @@ export const BRANCH_OVERVIEW_METRICS: string[] = [
   MetricKey.projects,
   MetricKey.lines,
   MetricKey.new_lines,
+
+  // others
+  MetricKey.violations,
 ];
 
 export const PR_METRICS: string[] = [

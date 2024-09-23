@@ -27,6 +27,7 @@ export enum MessageTypes {
   ProjectNcd90 = 'PROJECT_NCD_90',
   ProjectNcdPage90 = 'PROJECT_NCD_PAGE_90',
   BranchNcd90 = 'BRANCH_NCD_90',
+  UnresolvedFindingsInAIGeneratedCode = 'UNRESOLVED_FINDINGS_IN_AI_GENERATED_CODE',
 }
 
 export interface MessageDismissParams {
