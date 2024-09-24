@@ -35,7 +35,7 @@ definitions:
           - maven
           - sonar
         script:
-          - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey} -Dsonar.projectName='${projectName}'
+          - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${projectKey} -Dsonar.projectName='${projectName}'
   caches:
     sonar: ~/.sonar
 

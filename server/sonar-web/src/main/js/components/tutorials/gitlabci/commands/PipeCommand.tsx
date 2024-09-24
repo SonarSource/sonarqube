@@ -52,7 +52,7 @@ const BUILD_TOOL_SPECIFIC: {
   [BuildTools.Maven]: {
     image: 'maven:3-eclipse-temurin-17',
     script: () => `
-    - mvn verify sonar:sonar`,
+    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar`,
   },
   [BuildTools.DotNet]: {
     image: 'mcr.microsoft.com/dotnet/sdk:7.0',

@@ -333,7 +333,7 @@ definitions:
           - maven
           - sonar
         script:
-          - mvn verify sonar:sonar -Dsonar.projectKey=my-project -Dsonar.projectName='MyProject'
+          - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=my-project -Dsonar.projectName='MyProject'
   caches:
     sonar: ~/.sonar
 
