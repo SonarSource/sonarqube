@@ -130,7 +130,7 @@ class IssueCounter {
         .add(group);
     }
 
-    if (Severity.HIGH == group.getSeverity() && IssueStatus.ACCEPTED == issueStatus) {
+    if ((Severity.HIGH == group.getSeverity() || Severity.BLOCKER == group.getSeverity()) && IssueStatus.ACCEPTED == issueStatus) {
       highImpactAccepted.add(group);
     }
   }

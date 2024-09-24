@@ -313,7 +313,7 @@ public class IssueCounter extends IssueVisitor {
         falsePositives++;
       } else if (IssueStatus.ACCEPTED.equals(issue.issueStatus())) {
         accepted++;
-        if (issue.impacts().values().stream().anyMatch(severity -> severity == Severity.HIGH)) {
+        if (issue.impacts().values().stream().anyMatch(severity -> severity == Severity.HIGH || severity == Severity.BLOCKER)) {
           highImpactAccepted++;
         }
       }

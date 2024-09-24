@@ -58,6 +58,7 @@ import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.INFO;
 import static org.sonar.api.issue.impact.Severity.LOW;
 import static org.sonar.api.issue.impact.Severity.MEDIUM;
 import static org.sonar.api.measures.CoreMetrics.ACCEPTED_ISSUES;
@@ -115,7 +116,6 @@ import static org.sonar.api.measures.CoreMetrics.VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
-import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rules.RuleType.BUG;
@@ -187,13 +187,13 @@ class IssueCounterTest {
   void count_issues_by_status() {
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, org.sonar.api.rule.Severity.BLOCKER));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FALSE_POSITIVE, STATUS_RESOLVED, MAJOR));
     underTest.afterComponent(FILE1);
 
     underTest.beforeComponent(FILE2);
-    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER));
+    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, org.sonar.api.rule.Severity.BLOCKER));
     underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, MAJOR));
     underTest.afterComponent(FILE2);
 
@@ -215,14 +215,14 @@ class IssueCounterTest {
   void count_issues_by_resolution() {
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, org.sonar.api.rule.Severity.BLOCKER));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FALSE_POSITIVE, STATUS_RESOLVED, MAJOR));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, MAJOR));
     underTest.afterComponent(FILE1);
 
     underTest.beforeComponent(FILE2);
-    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER));
+    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, org.sonar.api.rule.Severity.BLOCKER));
     underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, MAJOR));
     underTest.onIssue(FILE2, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, MAJOR));
     underTest.afterComponent(FILE2);
@@ -245,13 +245,13 @@ class IssueCounterTest {
   void count_unresolved_issues_by_severity() {
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, org.sonar.api.rule.Severity.BLOCKER));
     // this resolved issue is ignored
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR));
     underTest.afterComponent(FILE1);
 
     underTest.beforeComponent(FILE2);
-    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER));
+    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, org.sonar.api.rule.Severity.BLOCKER));
     underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, MAJOR));
     underTest.afterComponent(FILE2);
 
@@ -270,13 +270,13 @@ class IssueCounterTest {
     // bottom-up traversal -> from files to project
     // file1 : one open code smell, one closed code smell (which will be excluded from metric)
     underTest.beforeComponent(FILE1);
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER).setType(CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, org.sonar.api.rule.Severity.BLOCKER).setType(CODE_SMELL));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR).setType(CODE_SMELL));
     underTest.afterComponent(FILE1);
 
     // file2 : one bug
     underTest.beforeComponent(FILE2);
-    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER).setType(BUG));
+    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, org.sonar.api.rule.Severity.BLOCKER).setType(BUG));
     underTest.afterComponent(FILE2);
 
     // file3 : one unresolved security hotspot
@@ -300,8 +300,8 @@ class IssueCounterTest {
 
     underTest.beforeComponent(FILE1);
     // created before -> existing issues (so ignored)
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER).setType(CODE_SMELL));
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER).setType(BUG));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, org.sonar.api.rule.Severity.BLOCKER).setType(CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, org.sonar.api.rule.Severity.BLOCKER).setType(BUG));
 
     // created after -> 4 new issues but 1 is closed
     underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, CRITICAL).setType(CODE_SMELL));
@@ -421,7 +421,7 @@ class IssueCounterTest {
 
   private static Map<String, Long> getImpactMeasure(long total, long high, long medium, long low, long info, long blocker) {
     Map<String, Long> map = getImpactMeasure(total, high, medium, low);
-    map.put(Severity.INFO.name(), info);
+    map.put(INFO.name(), info);
     map.put(Severity.BLOCKER.name(), blocker);
     return map;
   }
@@ -452,9 +452,10 @@ class IssueCounterTest {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
 
     underTest.beforeComponent(FILE1);
-    // created before -> existing issues with 1 high impact accepted
+    // created before -> existing issues with 2 high impact accepted (High and Blocker)
     underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, HIGH));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, HIGH));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, Severity.BLOCKER));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, MEDIUM));
 
     // created after -> 2 high impact accepted
@@ -469,9 +470,9 @@ class IssueCounterTest {
     underTest.afterComponent(PROJECT);
 
     assertIntValue(FILE1, entry(VIOLATIONS_KEY, 2), entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 3),
-      entry(HIGH_IMPACT_ACCEPTED_ISSUES_KEY, 3));
+      entry(HIGH_IMPACT_ACCEPTED_ISSUES_KEY, 4));
     assertIntValue(PROJECT, entry(VIOLATIONS_KEY, 2), entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 3),
-      entry(HIGH_IMPACT_ACCEPTED_ISSUES_KEY, 3));
+      entry(HIGH_IMPACT_ACCEPTED_ISSUES_KEY, 4));
   }
 
   @Test
@@ -510,7 +511,7 @@ class IssueCounterTest {
     // created after, but closed
     underTest.onIssue(FILE1, createNewSecurityHotspot().setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX));
 
-    for (String severity : Arrays.asList(CRITICAL, BLOCKER, MAJOR)) {
+    for (String severity : Arrays.asList(CRITICAL, org.sonar.api.rule.Severity.BLOCKER, MAJOR)) {
       DefaultIssue issue = createNewSecurityHotspot();
       issue.setSeverity(severity);
       underTest.onIssue(FILE1, issue);
