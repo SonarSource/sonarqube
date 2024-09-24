@@ -113,7 +113,6 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::ExtractToDirectory("$env:SONAR_DIRECTORY/sonar-scanner.zip", "$env:SONAR_DIRECTORY")
 rm ./.sonar/sonar-scanner.zip -Force -ErrorAction SilentlyContinue
 $env:Path += ";$env:SONAR_SCANNER_HOME/bin"
-$env:SONAR_SCANNER_OPTS="-server"
 `;
   }
   return `export SONAR_SCANNER_VERSION=${SONAR_SCANNER_CLI_LATEST_VERSION}
@@ -121,6 +120,5 @@ export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION${suf
 curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION${suffix}.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
 export PATH=$SONAR_SCANNER_HOME/bin:$PATH
-export SONAR_SCANNER_OPTS="-server"
 `;
 }
