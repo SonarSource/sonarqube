@@ -29,6 +29,7 @@ import {
   RenderContext,
   renderAppWithComponentContext,
 } from '../../../helpers/testReactTestingUtils';
+import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import routes from '../routes';
 
@@ -40,6 +41,10 @@ jest.mock('design-system', () => ({
   ...jest.requireActual('design-system'),
   addGlobalErrorMessage: jest.fn(),
   addGlobalSuccessMessage: jest.fn(),
+}));
+
+jest.mock('../../../api/ai-code-assurance', () => ({
+  isProjectAiCodeAssured: jest.fn().mockResolvedValue(true),
 }));
 
 let handler: QualityGatesServiceMock;
@@ -57,6 +62,8 @@ const ui = {
 
   saveButton: byRole('button', { name: 'save' }),
   noConditionsNewCodeWarning: byText('project_quality_gate.no_condition_on_new_code'),
+  aiCodeAssuranceMessage1: byText('project_quality_gate.ai_assured.message1'),
+  aiCodeAssuranceMessage2: byText('project_quality_gate.ai_assured.message2'),
 };
 
 beforeAll(() => {
@@ -112,6 +119,17 @@ it('shows warning for quality gate that doesnt have conditions on new code', asy
   await user.click(byText('QG without new code conditions').get());
 
   expect(ui.noConditionsNewCodeWarning.get()).toBeInTheDocument();
+});
+
+it('disable the QG selection if project is AI assured', async () => {
+  renderProjectQualityGateApp({ featureList: [Feature.AiCodeAssurance] });
+
+  expect(await ui.aiCodeAssuranceMessage1.find()).toBeInTheDocument();
+  expect(ui.aiCodeAssuranceMessage2.get()).toBeInTheDocument();
+  expect(ui.specificRadioQualityGate.get()).toBeDisabled();
+  expect(ui.defaultRadioQualityGate.get()).toBeDisabled();
+  expect(ui.qualityGatesSelect.get()).toBeDisabled();
+  expect(ui.saveButton.get()).toBeDisabled();
 });
 
 it('renders nothing and shows alert when any API fails', async () => {

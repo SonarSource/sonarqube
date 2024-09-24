@@ -184,12 +184,15 @@ class ProjectQualityGateApp extends React.PureComponent<Props, State> {
       return null;
     }
 
+    const { component } = this.props;
+
     const { allQualityGates, currentQualityGate, loading, selectedQualityGateName, submitting } =
       this.state;
 
     return (
       <ProjectQualityGateAppRenderer
         allQualityGates={allQualityGates}
+        component={component}
         currentQualityGate={currentQualityGate}
         loading={loading}
         onSubmit={this.handleSubmit}
