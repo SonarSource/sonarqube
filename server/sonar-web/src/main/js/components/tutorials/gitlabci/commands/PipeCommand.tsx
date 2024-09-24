@@ -57,8 +57,6 @@ const BUILD_TOOL_SPECIFIC: {
   [BuildTools.DotNet]: {
     image: 'mcr.microsoft.com/dotnet/sdk:7.0',
     script: (projectKey: string) => `
-      - "apt-get update"
-      - "apt-get install --yes --no-install-recommends openjdk-17-jre"
       - "dotnet tool install --global dotnet-sonarscanner"
       - "export PATH=\\"$PATH:$HOME/.dotnet/tools\\""
       - "dotnet sonarscanner begin /k:\\"${projectKey}\\" /d:sonar.token=\\"$SONAR_TOKEN\\" /d:\\"sonar.host.url=$SONAR_HOST_URL\\" "
