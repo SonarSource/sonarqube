@@ -369,7 +369,7 @@ exports[`should follow and complete all steps: Maven: pom.xml 1`] = `
 
 exports[`should follow and complete all steps: Other: gitlab-ci.yml 1`] = `
 "image: 
-    name: sonarsource/sonar-scanner-cli:latest
+    name: sonarsource/sonar-scanner-cli:11
     entrypoint: [""]
 
 variables:

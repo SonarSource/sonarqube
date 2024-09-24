@@ -85,7 +85,7 @@ const BUILD_TOOL_SPECIFIC: {
   },
   [BuildTools.Other]: {
     image: `
-    name: sonarsource/sonar-scanner-cli:latest
+    name: sonarsource/sonar-scanner-cli:11
     entrypoint: [""]`,
     script: () => `
     - sonar-scanner -Dsonar.host.url="\${SONAR_HOST_URL}"`,
