@@ -20,7 +20,6 @@
 package org.sonar.db.project;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -140,10 +139,6 @@ public class ProjectDao implements Dao {
     return session.getMapper(ProjectMapper.class);
   }
 
-  public Set<String> selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(DbSession session, String language) {
-    return mapper(session).selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(languageFilters.apply(language));
-  }
-
   public void updateNcloc(DbSession dbSession, String projectUuid, long ncloc) {
     mapper(dbSession).updateNcloc(projectUuid, ncloc);
   }
@@ -162,13 +157,5 @@ public class ProjectDao implements Dao {
 
   public int countProjects(DbSession session) {
     return mapper(session).countProjects();
-  }
-
-  public List<ProjectDto> selectProjectsByLanguage(DbSession dbSession, Set<String> setOfLanguages) {
-    Set<String> likeFilters = new HashSet<>();
-    for (String language : setOfLanguages) {
-      likeFilters.addAll(languageFilters.apply(language));
-    }
-    return mapper(dbSession).selectProjectsByLanguage(likeFilters);
   }
 }

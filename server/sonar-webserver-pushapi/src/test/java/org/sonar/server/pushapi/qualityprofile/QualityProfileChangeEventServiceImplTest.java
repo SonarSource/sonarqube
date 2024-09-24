@@ -20,12 +20,10 @@
 package org.sonar.server.pushapi.qualityprofile;
 
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.junit.Rule;
@@ -34,8 +32,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -51,14 +47,11 @@ import static java.util.List.of;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
-import static org.sonar.api.measures.Metric.ValueType.STRING;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newTemplateRule;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
 
 public class QualityProfileChangeEventServiceImplTest {
-
-  private final Random random = new SecureRandom();
 
   @Rule
   public DbTester db = DbTester.create();
@@ -114,7 +107,7 @@ public class QualityProfileChangeEventServiceImplTest {
     QProfileDto defaultQualityProfile = insertDefaultQualityProfile(language);
     RuleDto rule = insertCustomRule(templateRule, language, "<div>line1\nline2</div>");
     ActiveRuleChange activeRuleChange = changeActiveRule(defaultQualityProfile, rule, "paramChangeKey", "paramChangeValue");
-    insertQualityProfileLiveMeasure(mainBranch, projectData.getProjectDto(), language, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(NCLOC_LANGUAGE_DISTRIBUTION_KEY, language + "=100"));
 
     db.getSession().commit();
 
@@ -220,26 +213,5 @@ public class QualityProfileChangeEventServiceImplTest {
                 "\"language\":\"xoo\",\"severity\":\"" + Common.Severity.forNumber(rule1.getSeverity()).name() + "\"," +
                 "\"params\":[{\"key\":\"" + activeRuleParam1.getKey() + "\",\"value\":\"" + activeRuleParam1.getValue() + "\"}]}]," +
                 "\"deactivatedRules\":[\"repo2:ruleKey2\"]");
-  }
-
-  private void insertQualityProfileLiveMeasure(ComponentDto branch, ProjectDto projectDto, String language, String metricKey) {
-    MetricDto metric = insertMetric(metricKey);
-
-    Consumer<LiveMeasureDto> configureLiveMeasure = liveMeasure -> liveMeasure
-      .setMetricUuid(metric.getUuid())
-      .setComponentUuid(branch.uuid())
-      .setProjectUuid(projectDto.getUuid())
-      .setData(language + "=" + random.nextInt(10));
-
-    db.measures().insertLiveMeasure(branch, metric, configureLiveMeasure);
-  }
-
-  private MetricDto insertMetric(String metricKey) {
-    Consumer<MetricDto> configureMetric = metric -> metric
-      .setUuid("uuid")
-      .setValueType(STRING.name())
-      .setKey(metricKey);
-
-    return db.measures().insertMetric(configureMetric);
   }
 }

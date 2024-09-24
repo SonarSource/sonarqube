@@ -127,46 +127,6 @@
       p.kee=#{key,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage" parameterType="map" resultType="string">
-    select
-      p.uuid
-    from
-      live_measures lm
-    inner join
-      project_branches pb on pb.uuid = lm.component_uuid
-    inner join
-      projects p on p.uuid = pb.project_uuid
-    inner join
-      metrics m on m.uuid = lm.metric_uuid
-    where
-      m.name = 'ncloc_language_distribution'
-      and pb.is_main = ${_true}
-      and p.uuid not in (select project_uuid from project_qprofiles)
-      and
-      <foreach collection="languageFilters" index="index" item="languageFilter" open="(" separator=" or " close=")">
-        lm.text_value like #{languageFilter, jdbcType=VARCHAR} escape '/'
-      </foreach>
-  </select>
-
-  <select id="selectProjectsByLanguage" parameterType="map" resultType="Project">
-    select distinct
-      <include refid="projectColumns"/>
-    from
-      live_measures lm
-    inner join
-      project_branches pb on pb.uuid = lm.project_uuid and pb.is_main = ${_true}
-    inner join
-      projects p on p.uuid = pb.project_uuid
-    inner join
-      metrics m on m.uuid = lm.metric_uuid
-    where
-      m.name = 'ncloc_language_distribution'
-      and
-      <foreach collection="languageFilters" index="index" item="languageFilter" open="(" separator=" or " close=")">
-        lm.text_value like #{languageFilter, jdbcType=VARCHAR} escape '/'
-      </foreach>
-  </select>
-
   <insert id="insert" parameterType="Project">
     INSERT INTO projects (
       kee,

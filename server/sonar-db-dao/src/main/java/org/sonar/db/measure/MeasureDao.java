@@ -132,6 +132,10 @@ public class MeasureDao implements Dao {
     return mapper(dbSession).selectAllForProjectMainBranches();
   }
 
+  public List<ProjectMainBranchMeasureDto> selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile(DbSession dbSession) {
+    return mapper(dbSession).selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile();
+  }
+
   public List<MeasureDto> selectAllForMainBranches(DbSession dbSession) {
     return mapper(dbSession).selectAllForMainBranches();
   }

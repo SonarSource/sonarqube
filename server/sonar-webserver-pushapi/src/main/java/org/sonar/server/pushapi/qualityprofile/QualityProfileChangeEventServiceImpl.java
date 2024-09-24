@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.util.ParamChange;
@@ -42,6 +43,7 @@ import org.sonar.core.util.rule.RuleChange;
 import org.sonar.core.util.rule.RuleSetChangedEvent;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.measure.ProjectMainBranchMeasureDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -271,8 +273,22 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
   }
 
   private List<ProjectDto> getDefaultQualityProfileAssociatedProjects(DbSession dbSession, String language) {
-    Set<String> associatedProjectUuids = dbClient.projectDao().selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(dbSession, language);
+    Set<String> associatedProjectUuids = new HashSet<>();
+
+    List<ProjectMainBranchMeasureDto> measureDtos =
+      dbClient.measureDao().selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile(dbSession);
+    for (ProjectMainBranchMeasureDto measureDto : measureDtos) {
+      String distribution = (String) measureDto.getMetricValues().get(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+      if (distribution != null && distributionContainsLanguage(distribution, language)) {
+        associatedProjectUuids.add(measureDto.getProjectUuid());
+      }
+    }
+
     return dbClient.projectDao().selectByUuids(dbSession, associatedProjectUuids);
+  }
+
+  private static boolean distributionContainsLanguage(String distribution, String language) {
+    return distribution.startsWith(language + "=") || distribution.contains(";" + language + "=");
   }
 
   private List<ProjectDto> getManuallyAssociatedQualityProfileProjects(DbSession dbSession, List<QProfileDto> profiles) {

@@ -21,7 +21,6 @@ package org.sonar.db.project;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
@@ -68,8 +67,6 @@ public interface ProjectMapper {
   @CheckForNull
   ProjectDto selectByBranchUuid(String branchUuid);
 
-  Set<String> selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(@Param("languageFilters") Set<String> languageFilters);
-
   void updateNcloc(@Param("projectUuid") String projectUuid, @Param("ncloc") long ncloc);
 
   @CheckForNull
@@ -78,6 +75,4 @@ public interface ProjectMapper {
   int countIndexedProjects();
 
   int countProjects();
-
-  List<ProjectDto> selectProjectsByLanguage(@Param("languageFilters") Set<String> languageFilters);
 }

@@ -126,6 +126,16 @@
     and pb.is_main = ${_true}
   </select>
 
+  <select id="selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile" resultType="org.sonar.db.measure.ProjectMainBranchMeasureDto">
+    select p.uuid as projectUuid, m.json_value as jsonValue
+    from measures m
+    inner join project_branches pb on pb.uuid = m.component_uuid
+    inner join projects p on p.uuid = pb.project_uuid
+    where
+    pb.is_main = ${_true}
+    and p.uuid not in (select project_uuid from project_qprofiles)
+  </select>
+
   <select id="selectAllForMainBranches" resultType="org.sonar.db.measure.MeasureDto">
     select <include refid="columns"/> from measures m
     inner join project_branches pb on pb.uuid = m.component_uuid and pb.is_main = ${_true}

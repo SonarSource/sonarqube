@@ -19,18 +19,14 @@
  */
 package org.sonar.db.project;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
@@ -48,11 +44,7 @@ import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ProjectData;
 import org.sonar.db.entity.EntityDto;
-import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.db.metric.MetricDto;
-import org.sonar.db.qualityprofile.QProfileDto;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,12 +54,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
-import static org.sonar.api.measures.Metric.ValueType.STRING;
 
 class ProjectDaoIT {
-
-  private final Random random = new SecureRandom();
 
   private final System2 system2 = new AlwaysIncreasingSystem2(1000L);
 
@@ -352,18 +340,6 @@ class ProjectDaoIT {
   }
 
   @Test
-  void select_project_uuids_associated_to_default_quality_profile_for_specific_language() {
-    String language = "xoo";
-    Set<ProjectData> projects = insertProjects(random.nextInt(10));
-    insertDefaultQualityProfile(language);
-    insertProjectsLiveMeasures(language, projects);
-
-    Set<String> projectUuids = projectDao.selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(db.getSession(), language);
-
-    assertThat(projectUuids).containsExactlyInAnyOrderElementsOf(extractComponentUuids(projects));
-  }
-
-  @Test
   void update_ncloc_should_update_project() {
     String projectUuid = db.components().insertPublicProject().projectUuid();
 
@@ -443,72 +419,6 @@ class ProjectDaoIT {
     IntStream.range(0, 10).forEach(x -> db.components().insertPrivateProject());
 
     assertThat(projectDao.countProjects(db.getSession())).isEqualTo(10);
-  }
-
-  @Test
-  void selectProjectsByLanguage_whenTwoLanguagesArePassed_selectProjectsWithTheseLanguages() {
-    Consumer<MetricDto> configureMetric = metric -> metric
-      .setValueType(STRING.name())
-      .setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY);
-
-    MetricDto metric = db.measures().insertMetric(configureMetric);
-
-    ProjectData project1 = db.components().insertPrivateProject();
-    ProjectData project2 = db.components().insertPrivateProject();
-    ProjectData project3 = db.components().insertPrivateProject();
-    ProjectData project4 = db.components().insertPrivateProject();
-
-    insertLiveMeasure("c", metric).accept(project1);
-    insertLiveMeasure("cpp", metric).accept(project2);
-    insertLiveMeasure("java", metric).accept(project3);
-    insertLiveMeasure("cobol", metric).accept(project4);
-
-    List<ProjectDto> projectDtos = projectDao.selectProjectsByLanguage(db.getSession(), Set.of("cpp", "c"));
-
-    assertThat(projectDtos).extracting(ProjectDto::getUuid)
-      .containsExactlyInAnyOrder(project1.getProjectDto().getUuid(), project2.getProjectDto().getUuid());
-  }
-
-  private void insertDefaultQualityProfile(String language) {
-    QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setIsBuiltIn(true).setLanguage(language));
-    db.qualityProfiles().setAsDefault(profile);
-  }
-
-  private static Set<String> extractComponentUuids(Collection<ProjectData> components) {
-    return components
-      .stream()
-      .map(ProjectData::projectUuid)
-      .collect(Collectors.toSet());
-  }
-
-  private Set<ProjectData> insertProjects(int number) {
-    return IntStream
-      .rangeClosed(0, number)
-      .mapToObj(x -> db.components().insertPrivateProject())
-      .collect(Collectors.toSet());
-  }
-
-  private Consumer<LiveMeasureDto> configureLiveMeasure(String language, MetricDto metric, ComponentDto componentDto) {
-    return liveMeasure -> liveMeasure
-      .setMetricUuid(metric.getUuid())
-      .setComponentUuid(componentDto.uuid())
-      .setProjectUuid(componentDto.uuid())
-      .setData(language + "=" + random.nextInt(10));
-  }
-
-  private Consumer<ProjectData> insertLiveMeasure(String language, MetricDto metric) {
-    return (projectData) -> db.measures().insertLiveMeasure(projectData.getMainBranchComponent(), metric,
-      configureLiveMeasure(language, metric, projectData.getMainBranchComponent()));
-  }
-
-  private void insertProjectsLiveMeasures(String language, Set<ProjectData> projects) {
-    Consumer<MetricDto> configureMetric = metric -> metric
-      .setValueType(STRING.name())
-      .setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY);
-
-    MetricDto metric = db.measures().insertMetric(configureMetric);
-
-    projects.forEach(insertLiveMeasure(language, metric));
   }
 
   private void assertProject(ProjectDto dto, String name, String kee, String uuid, String desc, @Nullable String tags, boolean isPrivate) {

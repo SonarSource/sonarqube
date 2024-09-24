@@ -51,5 +51,7 @@ public interface MeasureMapper {
 
   List<ProjectMainBranchMeasureDto> selectAllForProjectMainBranches();
 
+  List<ProjectMainBranchMeasureDto> selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile();
+
   List<MeasureDto> selectAllForMainBranches();
 }

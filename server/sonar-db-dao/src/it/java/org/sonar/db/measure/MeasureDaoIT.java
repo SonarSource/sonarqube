@@ -52,6 +52,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.measure.MeasureTesting.newMeasure;
+import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 
 class MeasureDaoIT {
 
@@ -564,6 +565,41 @@ class MeasureDaoIT {
       .containsExactlyInAnyOrder(
         tuple(projectData1.projectUuid(), metric.getKey(), 3.0),
         tuple(projectData2.projectUuid(), metric.getKey(), 5.0)
+      );
+  }
+
+  @Test
+  void selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile() {
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    BranchDto branch1 = projectData1.getMainBranchDto();
+    BranchDto branch2 = db.components().insertProjectBranch(projectData1.getProjectDto());
+
+    ProjectData projectData2 = db.components().insertPrivateProject();
+    BranchDto branch3 = projectData2.getMainBranchDto();
+
+    // Insert measures for each branch and for a random component on branch1
+    MetricDto metric = db.measures().insertMetric();
+    MeasureDto measure1 = newMeasure(branch1, metric, 3);
+    MeasureDto measure2 = newMeasure(branch2, metric, 4);
+    MeasureDto measure3 = newMeasure(branch3, metric, 5);
+    MeasureDto measure4 = newMeasure(db.components().insertFile(branch1), metric, 7);
+
+    underTest.insertOrUpdate(db.getSession(), measure1);
+    underTest.insertOrUpdate(db.getSession(), measure2);
+    underTest.insertOrUpdate(db.getSession(), measure3);
+    underTest.insertOrUpdate(db.getSession(), measure4);
+
+    db.qualityProfiles().associateWithProject(projectData2.getProjectDto(), newQualityProfileDto());
+
+    List<ProjectMainBranchMeasureDto> measures =
+      underTest.selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile(db.getSession());
+    assertThat(measures).hasSize(1);
+    assertThat(measures)
+      .flatExtracting(m -> m.getMetricValues().entrySet().stream()
+        .map(entry -> tuple(m.getProjectUuid(), entry.getKey(), entry.getValue()))
+        .toList())
+      .containsExactly(
+        tuple(projectData1.projectUuid(), metric.getKey(), 3.0)
       );
   }
 
