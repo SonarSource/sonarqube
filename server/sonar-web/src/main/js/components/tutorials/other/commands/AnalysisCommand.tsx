@@ -57,7 +57,7 @@ export default function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
     case BuildTools.Other:
       return (
         <Other
-          arch={Arch.X86_64}
+          arch={arch}
           baseUrl={baseUrl}
           os={os}
           component={component}

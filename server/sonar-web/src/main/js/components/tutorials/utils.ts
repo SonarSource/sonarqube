@@ -124,19 +124,31 @@ export function shouldShowGithubCFamilyExampleRepositories(config: TutorialConfi
   return false;
 }
 
+export function shouldShowOsSelector(config: TutorialConfig) {
+  return (
+    config.buildTool === BuildTools.Cpp ||
+    config.buildTool === BuildTools.ObjectiveC ||
+    config.buildTool === BuildTools.Dart ||
+    config.buildTool === BuildTools.Other
+  );
+}
+
 export function shouldShowArchSelector(
   os: OSs | undefined,
   config: TutorialConfig,
   scannerDownloadExplicit = false,
 ) {
-  if (os !== OSs.Linux) {
+  if (!shouldShowOsSelector(config)) {
     return false;
   }
-  if (!isCFamily(config.buildTool)) {
+  if (os !== OSs.Linux && os !== OSs.MacOS) {
     return false;
   }
   if (scannerDownloadExplicit) {
     return true;
+  }
+  if (!isCFamily(config.buildTool)) {
+    return false;
   }
   if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Automatic) {
     return false;
@@ -182,7 +194,7 @@ export function getScannerUrlSuffix(os: OSs, arch?: Arch) {
     return '-windows-x64';
   }
   if (os === OSs.MacOS) {
-    return '-macosx-x64';
+    return '-macosx-' + (arch === Arch.Arm64 ? 'aarch64' : 'x64');
   }
   if (os === OSs.Linux) {
     return '-linux-' + (arch === Arch.Arm64 ? 'aarch64' : 'x64');

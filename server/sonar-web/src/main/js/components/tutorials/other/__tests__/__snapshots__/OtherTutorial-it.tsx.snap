@@ -87,8 +87,8 @@ exports[`can choose build tools and copy provided settings: c++ (automatic) and 
 
 exports[`can choose build tools and copy provided settings: c++ (automatic) and other linux: execute scanner 2`] = `
 "export SONAR_SCANNER_VERSION=6.2.0.4584
-export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux-x64
-curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux-x64.zip
+export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux-aarch64
+curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux-aarch64.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
 export PATH=$SONAR_SCANNER_HOME/bin:$PATH
 export SONAR_SCANNER_OPTS="-server"
@@ -104,8 +104,8 @@ exports[`can choose build tools and copy provided settings: c++ (automatic) and 
 
 exports[`can choose build tools and copy provided settings: c++ (automatic) and other macos: execute scanner 2`] = `
 "export SONAR_SCANNER_VERSION=6.2.0.4584
-export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-macosx-x64
-curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-macosx-x64.zip
+export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-macosx-aarch64
+curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-macosx-aarch64.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
 export PATH=$SONAR_SCANNER_HOME/bin:$PATH
 export SONAR_SCANNER_OPTS="-server"
@@ -192,8 +192,8 @@ export PATH=$HOME/.sonar/build-wrapper-macosx-x86:$PATH
 
 exports[`can choose build tools and copy provided settings: c++ (manual) macos: download scanner 1`] = `
 "export SONAR_SCANNER_VERSION=6.2.0.4584
-export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-macosx-x64
-curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-macosx-x64.zip
+export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-macosx-aarch64
+curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-macosx-aarch64.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
 export PATH=$SONAR_SCANNER_HOME/bin:$PATH
 export SONAR_SCANNER_OPTS="-server"
@@ -339,8 +339,8 @@ export PATH=$HOME/.sonar/build-wrapper-macosx-x86:$PATH
 
 exports[`can choose build tools and copy provided settings: objective-c macos: download scanner 1`] = `
 "export SONAR_SCANNER_VERSION=6.2.0.4584
-export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-macosx-x64
-curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-macosx-x64.zip
+export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-macosx-aarch64
+curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-macosx-aarch64.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
 export PATH=$SONAR_SCANNER_HOME/bin:$PATH
 export SONAR_SCANNER_OPTS="-server"
