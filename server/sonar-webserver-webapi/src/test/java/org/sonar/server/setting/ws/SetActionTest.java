@@ -1191,23 +1191,35 @@ public class SetActionTest {
   }
 
   @Test
-  public void fail_when_key_constraints_are_not_met() {
-    propertyDb.insertProperty(newGlobalPropertyDto("sonar.auth.gitlab.secret.secured", "secret"), null, null, null, null);
+  @UseDataProvider("keyConstraints")
+  public void fail_when_key_constraints_are_not_met(String constrainedKey, String conditionKey) {
+    propertyDb.insertProperty(newGlobalPropertyDto(conditionKey, "secret"), null, null, null, null);
 
     assertThatThrownBy(() -> {
-      callForGlobalSetting("sonar.auth.gitlab.url", "http://new.url");
+      callForGlobalSetting(constrainedKey, "newValue");
     })
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Setting 'sonar.auth.gitlab.secret.secured' must be empty to set 'sonar.auth.gitlab.url'");
+      .hasMessage(format("Setting '%s' must be empty to set '%s'", conditionKey, constrainedKey));
   }
 
   @Test
-  public void succeed_when_key_constraints_are_met() {
-    assertGlobalSettingIsNotSet("sonar.auth.gitlab.secret.secured");
+  @UseDataProvider("keyConstraints")
+  public void succeed_when_key_constraints_are_met(String constrainedKey, String conditionKey) {
+    assertGlobalSettingIsNotSet(conditionKey);
 
-    callForGlobalSetting("sonar.auth.gitlab.url", "http://new.url");
+    callForGlobalSetting(constrainedKey, "newValue");
 
-    assertGlobalSetting("sonar.auth.gitlab.url", "http://new.url");
+    assertGlobalSetting(constrainedKey, "newValue");
+  }
+
+  @DataProvider
+  public static Object[][] keyConstraints() {
+    return new Object[][] {
+      {"sonar.auth.gitlab.url", "sonar.auth.gitlab.secret.secured"},
+      {"sonar.auth.github.webUrl", "sonar.auth.github.clientSecret.secured"},
+      {"sonar.auth.github.apiUrl", "sonar.auth.github.clientSecret.secured"},
+      {"email.smtp_host.secured", "email.smtp_password.secured"}
+    };
   }
 
   @Test

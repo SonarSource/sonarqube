@@ -73,7 +73,8 @@ public class SetAction implements SettingsWsAction {
   static final Map<String, String> KEY_CONSTRAINTS = Map.of(
     "sonar.auth.gitlab.url", "sonar.auth.gitlab.secret.secured",
     "sonar.auth.github.webUrl", "sonar.auth.github.clientSecret.secured",
-    "sonar.auth.github.apiUrl", "sonar.auth.github.clientSecret.secured"
+    "sonar.auth.github.apiUrl", "sonar.auth.github.clientSecret.secured",
+    "email.smtp_host.secured", "email.smtp_password.secured"
   );
 
   private final PropertyDefinitions propertyDefinitions;
