@@ -67,9 +67,9 @@ get-binaries:
       - build-wrapper/
   script:
     # Download sonar-scanner
-    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.1.0.4477-linux-x64.zip'
+    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.0.4584-linux-x64.zip'
     - unzip -o sonar-scanner.zip
-    - mv sonar-scanner-6.1.0.4477-linux-x64 sonar-scanner
+    - mv sonar-scanner-6.2.0.4584-linux-x64 sonar-scanner
     # Download build-wrapper
     - curl -sSLo ./build-wrapper-linux-x86.zip "$SONAR_HOST_URL/static/cpp/build-wrapper-linux-x86.zip"
     - unzip -o build-wrapper-linux-x86.zip
@@ -133,9 +133,9 @@ get-binaries:
       
   script:
     # Download sonar-scanner
-    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.1.0.4477-linux-x64.zip'
+    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.0.4584-linux-x64.zip'
     - unzip -o sonar-scanner.zip
-    - mv sonar-scanner-6.1.0.4477-linux-x64 sonar-scanner
+    - mv sonar-scanner-6.2.0.4584-linux-x64 sonar-scanner
     
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
@@ -206,9 +206,9 @@ get-binaries:
       
   script:
     # Download sonar-scanner
-    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.1.0.4477-linux-x64.zip'
+    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.0.4584-linux-x64.zip'
     - unzip -o sonar-scanner.zip
-    - mv sonar-scanner-6.1.0.4477-linux-x64 sonar-scanner
+    - mv sonar-scanner-6.2.0.4584-linux-x64 sonar-scanner
     
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
