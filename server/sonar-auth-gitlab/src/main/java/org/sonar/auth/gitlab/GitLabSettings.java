@@ -123,6 +123,14 @@ public class GitLabSettings implements DevOpsPlatformSettings {
     return GITLAB_PROJECT_PERMISSIONS_PROVISIONING;
   }
 
+  public boolean isAllowedGroup(String group) {
+    return allowedGroups().stream().anyMatch(allowedGroup -> isExactGroupOrParentGroup(group, allowedGroup));
+  }
+
+  private static boolean isExactGroupOrParentGroup(String group, String allowedGroup) {
+    return group.equals(allowedGroup) || group.startsWith(allowedGroup + "/");
+  }
+
   static List<PropertyDefinition> definitions() {
     return Arrays.asList(
       PropertyDefinition.builder(GITLAB_AUTH_ENABLED)

@@ -35,8 +35,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
@@ -64,6 +67,10 @@ class GitLabIdentityProviderTest {
   @Mock
   private GitLabRestClient gitLabRestClient;
   @Mock
+  private Configuration configuration;
+
+  @Spy
+  @InjectMocks
   private GitLabSettings gitLabSettings;
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private GitLabIdentityProvider.ScribeFactory scribeFactory;
@@ -157,7 +164,7 @@ class GitLabIdentityProviderTest {
   @MethodSource("allowedGroups")
   void onCallback_withGroupSyncAndAllowedGroupsMatching_redirectsToRequestedPage(Set<String> allowedGroups) {
     when(gitLabSettings.syncUserGroups()).thenReturn(true);
-    when(gitLabSettings.allowedGroups()).thenReturn(allowedGroups);
+    when(configuration.getStringArray("sonar.auth.gitlab.allowedGroups")).thenReturn(allowedGroups.toArray(new String[0]));
 
     GsonUser gsonUser = mockGsonUser();
     Set<GsonGroup> gsonGroups = mockGitlabGroups();
@@ -180,7 +187,7 @@ class GitLabIdentityProviderTest {
   @MethodSource("notAllowedGroups")
   void onCallback_withGroupSyncAndAllowedGroupsNotMatching_shouldThrow(Set<String> allowedGroups) {
     when(gitLabSettings.syncUserGroups()).thenReturn(true);
-    when(gitLabSettings.allowedGroups()).thenReturn(allowedGroups);
+    when(configuration.getStringArray("sonar.auth.gitlab.allowedGroups")).thenReturn(allowedGroups.toArray(new String[0]));
 
     mockGsonUser();
     mockGitlabGroups();
