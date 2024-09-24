@@ -293,7 +293,7 @@ sonarqube-vulnerability-report:
 
 exports[`should follow and complete all steps: Groovy: build.gradle 1`] = `
 "plugins {
-  id "org.sonarqube" version "5.0.0.4638"
+  id "org.sonarqube" version "5.1.0.4882"
 }
 
 sonar {
@@ -307,7 +307,7 @@ sonar {
 
 exports[`should follow and complete all steps: Kotlin: build.gradle.kts 1`] = `
 "plugins {
-  id ("org.sonarqube") version "5.0.0.4638"
+  id ("org.sonarqube") version "5.1.0.4882"
 }
 
 sonar {
