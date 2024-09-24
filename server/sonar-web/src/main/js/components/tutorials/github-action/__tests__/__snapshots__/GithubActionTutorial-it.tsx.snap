@@ -184,7 +184,7 @@ jobs:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
+          sonar-scanner -Dsonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
 `;
 
 exports[`should follow and complete all steps: C++ Linux: .github/workflows/build.yml 1`] = `
@@ -220,7 +220,7 @@ jobs:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
+          sonar-scanner -Dsonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
 `;
 
 exports[`should follow and complete all steps: C++ MacOS: .github/workflows/build.yml 1`] = `
@@ -256,7 +256,7 @@ jobs:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
+          sonar-scanner -Dsonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
 `;
 
 exports[`should follow and complete all steps: C++ Windows: .github/workflows/build.yml 1`] = `
@@ -292,7 +292,7 @@ jobs:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
+          sonar-scanner -Dsonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
 `;
 
 exports[`should follow and complete all steps: C++: sonar-project.properties 1`] = `"sonar.projectKey=my-project"`;
@@ -442,7 +442,7 @@ jobs:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
+          sonar-scanner -Dsonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
 `;
 
 exports[`should follow and complete all steps: Objective-C Linux: .github/workflows/build.yml 1`] = `
@@ -478,7 +478,7 @@ jobs:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
+          sonar-scanner -Dsonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
 `;
 
 exports[`should follow and complete all steps: Objective-C MacOS: .github/workflows/build.yml 1`] = `
@@ -514,7 +514,7 @@ jobs:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
+          sonar-scanner -Dsonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
 `;
 
 exports[`should follow and complete all steps: Objective-C Windows: .github/workflows/build.yml 1`] = `
@@ -550,7 +550,7 @@ jobs:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
+          sonar-scanner -Dsonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
 `;
 
 exports[`should follow and complete all steps: Objective-C: sonar-project.properties 1`] = `"sonar.projectKey=my-project"`;

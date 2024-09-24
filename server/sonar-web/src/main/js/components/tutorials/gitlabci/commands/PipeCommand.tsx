@@ -66,16 +66,16 @@ const BUILD_TOOL_SPECIFIC: {
   [BuildTools.Cpp]: {
     image: 'gcc',
     script: (_, autoConfig?: AutoConfig) =>
-      `sonar-scanner/bin/sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}" ` +
+      `sonar-scanner/bin/sonar-scanner -Dsonar.host.url="\${SONAR_HOST_URL}" ` +
       (autoConfig === AutoConfig.Manual
-        ? `--define sonar.cfamily.compile-commands="\${BUILD_WRAPPER_OUT_DIR}/compile_commands.json"`
+        ? `-Dsonar.cfamily.compile-commands="\${BUILD_WRAPPER_OUT_DIR}/compile_commands.json"`
         : ''),
   },
   [BuildTools.ObjectiveC]: {
     image: 'gcc',
     script: (_) =>
-      `sonar-scanner/bin/sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}" ` +
-      `--define sonar.cfamily.compile-commands="\${BUILD_WRAPPER_OUT_DIR}/compile_commands.json"`,
+      `sonar-scanner/bin/sonar-scanner -Dsonar.host.url="\${SONAR_HOST_URL}" ` +
+      `-Dsonar.cfamily.compile-commands="\${BUILD_WRAPPER_OUT_DIR}/compile_commands.json"`,
   },
   [BuildTools.Dart]: {
     image: 'ghcr.io/cirruslabs/flutter:stable',
@@ -88,7 +88,7 @@ const BUILD_TOOL_SPECIFIC: {
     name: sonarsource/sonar-scanner-cli:latest
     entrypoint: [""]`,
     script: () => `
-    - sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}"`,
+    - sonar-scanner -Dsonar.host.url="\${SONAR_HOST_URL}"`,
   },
 };
 

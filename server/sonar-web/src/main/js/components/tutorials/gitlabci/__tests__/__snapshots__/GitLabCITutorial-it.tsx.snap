@@ -85,7 +85,7 @@ build:
   stage: build-analyze
   script:
     - build-wrapper/build-wrapper-linux-x86-64 --out-dir "\${BUILD_WRAPPER_OUT_DIR}" <your clean build command>
-    - sonar-scanner/bin/sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}" --define sonar.cfamily.compile-commands="\${BUILD_WRAPPER_OUT_DIR}/compile_commands.json"
+    - sonar-scanner/bin/sonar-scanner -Dsonar.host.url="\${SONAR_HOST_URL}" -Dsonar.cfamily.compile-commands="\${BUILD_WRAPPER_OUT_DIR}/compile_commands.json"
   cache:
     policy: pull
     key: "\${CI_COMMIT_SHORT_SHA}"
@@ -153,7 +153,7 @@ sonarqube-check:
     paths:
       - sonar-scanner/
 
-  script: sonar-scanner/bin/sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}" 
+  script: sonar-scanner/bin/sonar-scanner -Dsonar.host.url="\${SONAR_HOST_URL}" 
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
@@ -384,7 +384,7 @@ sonarqube-check:
   stage: sonarqube-check
   
   script: 
-    - sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}"
+    - sonar-scanner -Dsonar.host.url="\${SONAR_HOST_URL}"
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'

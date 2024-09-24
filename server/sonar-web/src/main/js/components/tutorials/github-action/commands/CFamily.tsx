@@ -56,7 +56,7 @@ const STEPS = (os?: OSs, arch?: Arch) => {
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"`;
+          sonar-scanner -Dsonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"`;
   } else if (OSs.MacOS === os) {
     return `
       - name: Install sonar-scanner and build-wrapper
@@ -72,7 +72,7 @@ const STEPS = (os?: OSs, arch?: Arch) => {
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"`;
+          sonar-scanner -Dsonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"`;
   } else if (OSs.Windows === os) {
     return `
       - name: Install sonar-scanner and build-wrapper
@@ -88,7 +88,7 @@ const STEPS = (os?: OSs, arch?: Arch) => {
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"`;
+          sonar-scanner -Dsonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"`;
   }
 
   return '';
