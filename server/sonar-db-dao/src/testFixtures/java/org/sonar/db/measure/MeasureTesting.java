@@ -109,4 +109,10 @@ public class MeasureTesting {
       .setBranchUuid(branchUuid)
       .addValue(metricKey, value);
   }
+
+  public static MeasureDto newMeasure(ComponentDto component) {
+    return new MeasureDto()
+      .setComponentUuid(component.uuid())
+      .setBranchUuid(component.branchUuid());
+  }
 }

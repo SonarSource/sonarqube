@@ -36,6 +36,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
+import static org.sonar.db.measure.MeasureTesting.newMeasure;
 import static org.sonar.db.measure.MeasureTesting.newProjectMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
@@ -49,7 +50,7 @@ public class MeasureDbTester {
   }
 
   @SafeVarargs
-  public final ProjectMeasureDto insertMeasureWithSensibleValues(ComponentDto component, SnapshotDto analysis, MetricDto metricDto, Consumer<ProjectMeasureDto>... consumers) {
+  public final ProjectMeasureDto insertProjectMeasureWithSensibleValues(ComponentDto component, SnapshotDto analysis, MetricDto metricDto, Consumer<ProjectMeasureDto>... consumers) {
     ProjectMeasureDto measureDto = createProjectMeasure(metricDto, analysis, component);
     Arrays.stream(consumers).forEach(c -> c.accept(measureDto));
     dbClient.projectMeasureDao().insert(db.getSession(), measureDto);
@@ -76,10 +77,10 @@ public class MeasureDbTester {
   }
 
   @SafeVarargs
-  public final LiveMeasureDto insertLiveMeasureWithSensibleValues(ComponentDto component, MetricDto metric, Consumer<LiveMeasureDto>... consumers) {
-    LiveMeasureDto dto = createLiveMeasure(metric, component);
+  public final MeasureDto insertMeasureWithSensibleValues(ComponentDto component, MetricDto metric, Consumer<MeasureDto>... consumers) {
+    MeasureDto dto = createMeasure(metric, component);
     Arrays.stream(consumers).forEach(c -> c.accept(dto));
-    dbClient.liveMeasureDao().insert(db.getSession(), dto);
+    dbClient.measureDao().insertOrUpdate(db.getSession(), dto);
     db.commit();
     return dto;
   }
@@ -123,6 +124,7 @@ public class MeasureDbTester {
     return insertMeasure(component.uuid(), component.branchUuid(), consumers);
   }
 
+  @SafeVarargs
   private MeasureDto insertMeasure(String componentUuid, String branchUuid, Consumer<MeasureDto>... consumers) {
     MeasureDto dto = new MeasureDto()
       .setComponentUuid(componentUuid)
@@ -142,11 +144,11 @@ public class MeasureDbTester {
     return metricDto;
   }
 
-  public static LiveMeasureDto createLiveMeasure(MetricDto metricDto, ComponentDto componentDto) {
+  public static MeasureDto createMeasure(MetricDto metricDto, ComponentDto componentDto) {
     BiConsumer<MetricDto, MeasureAdapter> populator = specificLiveMeasurePopulator.getOrDefault(metricDto.getKey(), defaultLiveMeasurePopulator);
-    LiveMeasureDto liveMeasureDto = newLiveMeasure(componentDto, metricDto);
-    populator.accept(metricDto, new MeasureAdapter(liveMeasureDto));
-    return liveMeasureDto;
+    MeasureDto measureDto = newMeasure(componentDto);
+    populator.accept(metricDto, new MeasureAdapter(measureDto, metricDto.getKey()));
+    return measureDto;
   }
 
   public static ProjectMeasureDto createProjectMeasure(MetricDto metricDto, SnapshotDto snapshotDto, ComponentDto projectComponentDto) {
@@ -156,12 +158,7 @@ public class MeasureDbTester {
     return measureDto;
   }
 
-  private static final Consumer<MeasureAdapter> ratingMeasurePopulator =
-    m -> {
-      int rating = ThreadLocalRandom.current().nextInt(1, 5);
-      char textValue = (char) ('A' + rating - 1);
-      m.setValue((double) rating).setData("" + textValue);
-    };
+  private static final Consumer<MeasureAdapter> ratingMeasurePopulator = m -> m.setValue((double) ThreadLocalRandom.current().nextInt(1, 5));
 
   private static final Map<String, BiConsumer<MetricDto, MeasureAdapter>> specificLiveMeasurePopulator = new HashMap<>() {
     {
@@ -215,23 +212,25 @@ public class MeasureDbTester {
 
   private static class MeasureAdapter {
     private final ProjectMeasureDto projectMeasure;
-    private final LiveMeasureDto liveMeasure;
+    private final MeasureDto measure;
+    private String metricKey;
 
-    private MeasureAdapter(LiveMeasureDto liveMeasure) {
+    private MeasureAdapter(MeasureDto measure, String metricKey) {
       this.projectMeasure = null;
-      this.liveMeasure = liveMeasure;
+      this.metricKey = metricKey;
+      this.measure = measure;
     }
 
     private MeasureAdapter(ProjectMeasureDto projectMeasure) {
       this.projectMeasure = projectMeasure;
-      this.liveMeasure = null;
+      this.measure = null;
     }
 
     public MeasureAdapter setValue(Double value) {
       if (projectMeasure != null) {
         projectMeasure.setValue(value);
-      } else if (liveMeasure != null) {
-        liveMeasure.setValue(value);
+      } else if (measure != null) {
+        measure.addValue(metricKey, value);
       }
       return this;
     }
@@ -239,8 +238,8 @@ public class MeasureDbTester {
     public MeasureAdapter setData(String data) {
       if (projectMeasure != null) {
         projectMeasure.setData(data);
-      } else if (liveMeasure != null) {
-        liveMeasure.setData(data);
+      } else if (measure != null) {
+        measure.addValue(metricKey, data);
       }
       return this;
     }
