@@ -185,7 +185,7 @@ subprojects {
   }
 
   ext {
-    protobufVersion = '3.21.12'
+    protobufVersion = '3.25.5'
   }
 
   sonar {
