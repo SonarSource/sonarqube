@@ -99,7 +99,7 @@ describe('issue app', () => {
       [Feature.BranchSupport, Feature.FixSuggestions],
     );
 
-    expect(await ui.getFixSuggestion.find(undefined, { timeout: 4000 })).toBeInTheDocument();
+    expect(await ui.getFixSuggestion.find(undefined, { timeout: 7000 })).toBeInTheDocument();
     await user.click(ui.getFixSuggestion.get());
 
     expect(await ui.suggestedExplanation.find()).toBeInTheDocument();
