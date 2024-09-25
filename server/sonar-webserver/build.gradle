@@ -10,7 +10,6 @@ dependencies {
   // please keep the list grouped by configuration and ordered by name
 
   api 'com.google.guava:guava'
-  api 'org.apache.tomcat.embed:tomcat-embed-core'
   api project(':sonar-core')
   api project(':server:sonar-auth-bitbucket')
   api project(':server:sonar-auth-github')
