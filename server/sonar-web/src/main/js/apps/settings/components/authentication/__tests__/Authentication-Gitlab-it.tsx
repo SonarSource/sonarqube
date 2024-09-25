@@ -150,11 +150,14 @@ const ui = {
   testConfiguration: glContainer.byRole('button', {
     name: 'settings.authentication.configuration.test',
   }),
-  continueAutoButton: byRole('button', {
-    name: 'settings.authentication.confirm_auto_provisioning.continue',
+  autoRadioButton: byRole('radio', {
+    name: 'settings.authentication.confirm_auto_provisioning.auto.label',
   }),
-  switchJitButton: byRole('button', {
-    name: 'settings.authentication.confirm_auto_provisioning.switch_jit',
+  jitRadioButton: byRole('radio', {
+    name: 'settings.authentication.confirm_auto_provisioning.jit.label',
+  }),
+  confirmChoiceButton: byRole('button', {
+    name: 'settings.authentication.confirm_auto_provisioning.confirm_choice',
   }),
   consentDialog: byRole('dialog', {
     name: 'settings.authentication.confirm_auto_provisioning.header',
@@ -639,7 +642,8 @@ describe('Gitlab Provisioning', () => {
     renderAuthentication([Feature.GitlabProvisioning]);
 
     expect(await ui.consentDialog.find()).toBeInTheDocument();
-    await user.click(ui.continueAutoButton.get());
+    await user.click(ui.autoRadioButton.get());
+    await user.click(ui.confirmChoiceButton.get());
 
     expect(await ui.autoProvisioningRadioButton.find()).toBeChecked();
     expect(ui.consentDialog.query()).not.toBeInTheDocument();
@@ -661,7 +665,8 @@ describe('Gitlab Provisioning', () => {
     renderAuthentication([Feature.GitlabProvisioning]);
 
     expect(await ui.consentDialog.find()).toBeInTheDocument();
-    await user.click(ui.switchJitButton.get());
+    await user.click(ui.jitRadioButton.get());
+    await user.click(ui.confirmChoiceButton.get());
 
     expect(await ui.jitProvisioningRadioButton.find()).toBeChecked();
     expect(ui.consentDialog.query()).not.toBeInTheDocument();

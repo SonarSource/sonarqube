@@ -199,11 +199,14 @@ const ui = {
   configDetailsDialog: byRole('dialog', {
     name: 'settings.authentication.github.configuration.validation.details.title',
   }),
-  continueAutoButton: byRole('button', {
-    name: 'settings.authentication.confirm_auto_provisioning.continue',
+  autoRadioButton: byRole('radio', {
+    name: 'settings.authentication.confirm_auto_provisioning.auto.label',
   }),
-  switchJitButton: byRole('button', {
-    name: 'settings.authentication.confirm_auto_provisioning.switch_jit',
+  jitRadioButton: byRole('radio', {
+    name: 'settings.authentication.confirm_auto_provisioning.jit.label',
+  }),
+  confirmChoiceButton: byRole('button', {
+    name: 'settings.authentication.confirm_auto_provisioning.confirm_choice',
   }),
   consentDialog: byRole('dialog', {
     name: 'settings.authentication.confirm_auto_provisioning.header',
@@ -744,7 +747,8 @@ describe('Github tab', () => {
       await user.click(await ui.tab.find());
 
       expect(await ui.consentDialog.find()).toBeInTheDocument();
-      await user.click(ui.continueAutoButton.get());
+      await user.click(ui.autoRadioButton.get());
+      await user.click(ui.confirmChoiceButton.get());
 
       expect(await ui.githubProvisioningButton.find()).toBeChecked();
       expect(ui.consentDialog.query()).not.toBeInTheDocument();
@@ -761,7 +765,8 @@ describe('Github tab', () => {
       await user.click(await ui.tab.find());
 
       expect(await ui.consentDialog.find()).toBeInTheDocument();
-      await user.click(ui.switchJitButton.get());
+      await user.click(ui.jitRadioButton.get());
+      await user.click(ui.confirmChoiceButton.get());
 
       expect(await ui.jitProvisioningButton.find()).toBeChecked();
       expect(ui.consentDialog.query()).not.toBeInTheDocument();
