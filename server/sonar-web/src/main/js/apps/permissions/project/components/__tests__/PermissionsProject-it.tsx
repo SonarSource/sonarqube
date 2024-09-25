@@ -449,6 +449,22 @@ describe('GitHub provisioning', () => {
         .every((item) => item.getAttributeNames().includes('disabled')),
     ).toBe(false);
   });
+
+  it.each([ComponentQualifier.Portfolio, ComponentQualifier.Application])(
+    'shoudlnt show sync warning for portfolio and applications',
+    async (qualifier) => {
+      const user = userEvent.setup();
+      const ui = getPageObject(user);
+      dopTranslationHandler.gitHubConfigurations.push(
+        mockGitHubConfiguration({ provisioningType: ProvisioningType.auto }),
+      );
+      renderPermissionsProjectApp({ qualifier }, { featureList: [Feature.GithubProvisioning] });
+      await ui.appLoaded();
+
+      expect(ui.pageTitle.get()).toBeInTheDocument();
+      expect(ui.nonGHProjectWarning.query()).not.toBeInTheDocument();
+    },
+  );
 });
 
 describe('GitLab provisioning', () => {

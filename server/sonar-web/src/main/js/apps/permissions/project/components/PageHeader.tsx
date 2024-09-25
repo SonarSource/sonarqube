@@ -109,7 +109,7 @@ export default function PageHeader(props: Readonly<Props>) {
               </div>
             </>
           )}
-          {githubProvisioningStatus && !isGitHubProject && (
+          {githubProvisioningStatus && !isGitHubProject && isProject(component.qualifier) && (
             <FlagMessage variant="warning" className="sw-mt-2">
               {translate('project_permission.local_project_with_github_provisioning')}
             </FlagMessage>
