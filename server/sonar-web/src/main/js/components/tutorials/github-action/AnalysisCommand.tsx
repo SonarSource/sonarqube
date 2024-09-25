@@ -25,6 +25,7 @@ import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import { BuildTools, TutorialConfig } from '../types';
 import CFamily from './commands/CFamily';
+import Dart from './commands/Dart';
 import DotNet from './commands/DotNet';
 import Gradle from './commands/Gradle';
 import JavaMaven from './commands/JavaMaven';
@@ -74,6 +75,15 @@ export function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
       return (
         <CFamily
           config={config}
+          branchesEnabled={branchSupportEnabled}
+          mainBranchName={mainBranchName}
+          monorepo={monorepo}
+          component={component}
+        />
+      );
+    case BuildTools.Dart:
+      return (
+        <Dart
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
           monorepo={monorepo}

@@ -183,6 +183,11 @@ it.each([AlmKeys.BitbucketCloud, AlmKeys.BitbucketServer, AlmKeys.GitHub, AlmKey
     await user.click(ui.macosButton.get());
     expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`objectivec: macos jenkinsfile`);
 
+    // Dart
+    await user.click(ui.dartBuildButton.get());
+    expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(`Dart: sonar-project.properties`);
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`Dart: jenkinsfile`);
+
     // Other
     await user.click(ui.otherBuildButton.get());
     expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(

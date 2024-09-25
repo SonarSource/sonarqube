@@ -128,6 +128,11 @@ it('should follow and complete all steps', async () => {
     'C++ (manual arm64) and Objective-C: sonar-project.properties',
   );
 
+  // Dart
+  await user.click(ui.dartBuildButton.get());
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Dart: sonar-project.properties');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('Dart: bitbucket-pipelines.yml');
+
   // Other
   await user.click(ui.otherBuildButton.get());
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(

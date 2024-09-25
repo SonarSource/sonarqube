@@ -259,6 +259,22 @@ it('can choose build tools and copy provided settings', async () => {
   );
   expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot('objective-c macos: execute scanner');
 
+  // Dart - Linux
+  await user.click(ui.dartBuildButton.get());
+  await user.click(ui.linuxButton.get());
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Dart linux: download scanner');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('Dart linux: execute scanner');
+
+  // Dart - Windows
+  await user.click(ui.windowsButton.get());
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Dart windows: download scanner');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('Dart windows: execute scanner');
+
+  // Dart - MacOS
+  await user.click(ui.macosButton.get());
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Dart macos: download scanner');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('Dart macos: execute scanner');
+
   // Other - Linux
   await user.click(ui.otherBuildButton.get());
   await user.click(ui.linuxButton.get());

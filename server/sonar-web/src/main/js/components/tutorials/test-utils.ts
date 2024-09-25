@@ -74,6 +74,7 @@ export function getTutorialBuildButtons() {
     dotnetBuildButton: byRole('radio', { name: `onboarding.build.${BuildTools.DotNet}` }),
     cppBuildButton: byRole('radio', { name: `onboarding.build.${BuildTools.Cpp}` }),
     objCBuildButton: byRole('radio', { name: `onboarding.build.${BuildTools.ObjectiveC}` }),
+    dartBuildButton: byRole('radio', { name: `onboarding.build.${BuildTools.Dart}` }),
     otherBuildButton: byRole('radio', { name: `onboarding.build.${BuildTools.Other}` }),
     windowsDotnetCoreButton: byRole('radio', {
       name: `onboarding.build.${BuildTools.DotNet}.win_core`,

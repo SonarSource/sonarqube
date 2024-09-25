@@ -103,6 +103,8 @@ export function getBuildToolOptions(supportCFamily: boolean) {
   if (supportCFamily) {
     list.push(BuildTools.Cpp);
     list.push(BuildTools.ObjectiveC);
+    // Both Dart and CFamily are available in Developer Edition and above
+    list.push(BuildTools.Dart);
   }
   list.push(BuildTools.Other);
   return list;

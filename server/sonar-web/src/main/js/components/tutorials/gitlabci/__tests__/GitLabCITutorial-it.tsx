@@ -88,6 +88,11 @@ it('should follow and complete all steps', async () => {
   await user.click(ui.autoConfigManual.get());
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('CPP - manual: gitlab-ci.yml');
 
+  // Dart
+  await user.click(ui.dartBuildButton.get());
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Dart: sonar-project.properties');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('Dart: gitlab-ci.yml');
+
   // Other
   await user.click(ui.otherBuildButton.get());
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Other: sonar-project.properties');

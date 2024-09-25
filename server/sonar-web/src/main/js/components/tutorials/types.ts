@@ -33,6 +33,7 @@ export enum BuildTools {
   Cpp = 'cpp',
   ObjectiveC = 'objectivec',
   DotNet = 'dotnet',
+  Dart = 'dart',
   Other = 'other',
 }
 

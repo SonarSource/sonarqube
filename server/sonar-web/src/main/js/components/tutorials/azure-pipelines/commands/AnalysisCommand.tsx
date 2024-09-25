@@ -53,6 +53,7 @@ export default function AnalysisCommand(props: AnalysisCommandProps) {
     case BuildTools.ObjectiveC:
       return <ClangGCC config={config} projectKey={projectKey} />;
 
+    case BuildTools.Dart:
     case BuildTools.Other:
       return <Other projectKey={projectKey} />;
 

@@ -117,6 +117,10 @@ it('should render correctly and allow token generation', async () => {
   await user.click(getTutorialBuildButtons().macosButton.get());
   assertObjCStepIsCorrectlyRendered(OSs.MacOS);
 
+  // Analysis step: Dart
+  await user.click(getTutorialBuildButtons().dartBuildButton.get());
+  assertOtherStepIsCorrectlyRendered();
+
   // Analysis step: Other
   await user.click(getTutorialBuildButtons().otherBuildButton.get());
   assertOtherStepIsCorrectlyRendered();

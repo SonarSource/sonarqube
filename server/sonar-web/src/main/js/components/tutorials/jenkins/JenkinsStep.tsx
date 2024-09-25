@@ -38,6 +38,7 @@ const BUILDTOOL_COMPONENT_MAP: {
   [BuildTools.DotNet]: DotNet,
   [BuildTools.Cpp]: CFamily,
   [BuildTools.ObjectiveC]: CFamily,
+  [BuildTools.Dart]: Other,
   [BuildTools.Other]: Other,
 };
 

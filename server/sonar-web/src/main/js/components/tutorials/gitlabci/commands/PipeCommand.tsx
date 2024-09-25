@@ -79,6 +79,12 @@ const BUILD_TOOL_SPECIFIC: {
       `sonar-scanner/bin/sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}" ` +
       `--define sonar.cfamily.compile-commands="\${BUILD_WRAPPER_OUT_DIR}/compile_commands.json"`,
   },
+  [BuildTools.Dart]: {
+    image: 'ghcr.io/cirruslabs/flutter:stable',
+    script: () => `
+    - <commands to build your project>
+    - sonar-scanner/bin/sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}"`,
+  },
   [BuildTools.Other]: {
     image: `
     name: sonarsource/sonar-scanner-cli:latest
@@ -187,7 +193,7 @@ export default function PipeCommand(props: Readonly<PipeCommandProps>) {
     stageDeclaration = ['sonarqube-check', ...stageDeclaration];
   }
 
-  if (isCFamily(buildTool)) {
+  if (isCFamily(buildTool) || buildTool === BuildTools.Dart) {
     stages = [getBinaries, ...stages];
     stageDeclaration = ['get-binaries', ...stageDeclaration];
   }

@@ -30,6 +30,7 @@ import { Arch, BuildTools, TutorialConfig } from '../types';
 import { isCFamily } from '../utils';
 import { PreambuleYaml } from './PreambuleYaml';
 import cFamilyExample from './commands/CFamily';
+import dartExample from './commands/Dart';
 import dotNetExample from './commands/DotNet';
 import gradleExample from './commands/Gradle';
 import mavenExample from './commands/Maven';
@@ -57,6 +58,7 @@ const YamlTemplate: Dictionary<BuildToolExampleBuilder> = {
   [BuildTools.DotNet]: dotNetExample,
   [BuildTools.Cpp]: cFamilyExample,
   [BuildTools.ObjectiveC]: cFamilyExample,
+  [BuildTools.Dart]: dartExample,
   [BuildTools.Other]: othersExample,
 };
 

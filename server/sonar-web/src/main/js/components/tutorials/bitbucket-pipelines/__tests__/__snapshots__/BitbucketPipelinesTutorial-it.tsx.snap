@@ -1,5 +1,38 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should follow and complete all steps: Dart: sonar-project.properties 1`] = `"sonar.projectKey=my-project"`;
+
+exports[`should follow and complete all steps: Dart: bitbucket-pipelines.yml 1`] = `
+"image: ghcr.io/cirruslabs/flutter:stable
+
+definitions:
+  steps:
+    - step: &build-step
+        name: Build the project, and run the SonarQube analysis
+        script:
+          - <commands to build your project>
+          - export SONAR_SCANNER_VERSION=6.1.0.4477
+          - mkdir $HOME/.sonar
+          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}-linux-x64.zip
+          - unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
+          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux-x64/bin"
+          - sonar-scanner
+  caches:
+    sonar: ~/.sonar
+
+clone:
+  depth: full
+
+pipelines:
+  branches:
+    '{main}':
+      - step: *build-step
+
+  pull-requests:
+    '**':
+      - step: *build-step"
+`;
+
 exports[`should follow and complete all steps: .NET: bitbucket-pipelines.yml 1`] = `
 "image: mcr.microsoft.com/dotnet/sdk:7.0
 

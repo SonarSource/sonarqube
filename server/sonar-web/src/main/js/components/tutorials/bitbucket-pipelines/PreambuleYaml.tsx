@@ -35,6 +35,7 @@ export function PreambuleYaml(props: PreambuleYamlProps) {
       return <GradleBuild component={component} />;
     case BuildTools.Cpp:
     case BuildTools.ObjectiveC:
+    case BuildTools.Dart:
     case BuildTools.Other:
       return <DefaultProjectKey component={component} />;
     default:

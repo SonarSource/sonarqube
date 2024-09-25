@@ -136,6 +136,10 @@ it('should follow and complete all steps', async () => {
     'Objective-C MacOS: .github/workflows/build.yml',
   );
 
+  // Dart
+  await user.click(ui.dartBuildButton.get());
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Dart: .github/workflows/build.yml');
+
   // Other
   await user.click(ui.otherBuildButton.get());
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(

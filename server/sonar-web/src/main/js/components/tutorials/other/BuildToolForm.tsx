@@ -43,6 +43,7 @@ export function BuildToolForm(props: Readonly<Props>) {
   function handleConfigChange(newConfig: TutorialConfig) {
     const selectOsByDefault = (newConfig.buildTool === BuildTools.Cpp ||
       newConfig.buildTool === BuildTools.ObjectiveC ||
+      newConfig.buildTool === BuildTools.Dart ||
       newConfig.buildTool === BuildTools.Other) && {
       os: OSs.Linux,
     };
@@ -65,6 +66,7 @@ export function BuildToolForm(props: Readonly<Props>) {
         />
       )}
       {(config.buildTool === BuildTools.Other ||
+        config.buildTool === BuildTools.Dart ||
         config.buildTool === BuildTools.Cpp ||
         config.buildTool === BuildTools.ObjectiveC) && (
         <RenderOptions
