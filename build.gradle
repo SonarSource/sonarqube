@@ -282,8 +282,8 @@ subprojects {
       dependency "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures:$pluginApiVersion"
       dependency 'org.sonarsource.xml:sonar-xml-plugin:2.10.0.4108'
       dependency 'org.sonarsource.iac:sonar-iac-plugin:1.36.0.12431'
-      dependency 'org.sonarsource.text:sonar-text-plugin:2.15.0.3845'
-      dependency 'com.sonarsource.text:sonar-text-enterprise-plugin:2.15.0.3845'
+      dependency 'org.sonarsource.text:sonar-text-plugin:2.16.0.4008'
+      dependency 'com.sonarsource.text:sonar-text-enterprise-plugin:2.16.0.4008'
       dependency 'com.sonarsource.jcl:sonar-jcl-plugin:1.3.0.1243'
 
       // please keep this list alphabetically ordered
