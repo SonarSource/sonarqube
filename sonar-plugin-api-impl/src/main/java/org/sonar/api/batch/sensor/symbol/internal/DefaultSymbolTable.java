@@ -107,7 +107,11 @@ public class DefaultSymbolTable extends DefaultStorable implements NewSymbolTabl
     @Override
     public NewSymbol newReference(TextRange range) {
       requireNonNull(range, "Provided range is null");
-      checkArgument(!declaration.overlap(range), "Overlapping symbol declaration and reference for symbol at %s", declaration);
+      checkArgument(!declaration.overlap(range),
+        "Overlapping symbol declaration and reference for symbol declared at %s and referenced at %s in file %s",
+        declaration,
+        range,
+        inputFile);
       references.add(range);
       return this;
     }
