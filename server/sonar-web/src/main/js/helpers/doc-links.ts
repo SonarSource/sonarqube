@@ -34,7 +34,7 @@ export enum DocLink {
   AlmGitHubAuth = '/instance-administration/authentication/github/',
   AlmGitHubIntegration = '/devops-platform-integration/github-integration/introduction/',
   AlmGitHubMonorepoWorkfileExample = '/devops-platform-integration/github-integration/adding-analysis-to-github-actions-workflow/#configuring-the-buildyml-file',
-  AlmGitLabAuth = '/instance-administration/authentication/gitlab/',
+  AlmGitLabAuth = '/instance-administration/authentication/gitlab/setting-up/',
   AlmGitLabAuthJITProvisioningMethod = '/instance-administration/authentication/gitlab/provisioning-modes/just-in-time/',
   AlmGitLabAuthAutoProvisioningMethod = '/instance-administration/authentication/gitlab/provisioning-modes/automatic/',
   AlmGitLabIntegration = '/devops-platform-integration/gitlab-integration/introduction/',
