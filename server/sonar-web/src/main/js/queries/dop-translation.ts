@@ -29,6 +29,8 @@ import {
   updateGitHubConfiguration,
 } from '../api/dop-translation';
 import { translate } from '../helpers/l10n';
+import { ProvisioningType } from '../types/provisioning';
+import { useSyncWithGitHubNow } from './identity-provider/github';
 
 /*
  * Project bindings
@@ -87,6 +89,7 @@ export function useCreateGitHubConfigurationMutation() {
 
 export function useUpdateGitHubConfigurationMutation() {
   const client = useQueryClient();
+  const { canSyncNow, synchronizeNow } = useSyncWithGitHubNow();
   return useMutation({
     mutationFn: ({
       gitHubConfiguration,
@@ -106,6 +109,9 @@ export function useUpdateGitHubConfigurationMutation() {
       });
       client.setQueryData(['dop-translation', 'github-configs', 'fetch'], gitHubConfiguration);
       client.invalidateQueries({ queryKey: ['identity_provider'] });
+      if (canSyncNow && gitHubConfiguration.provisioningType === ProvisioningType.auto) {
+        synchronizeNow();
+      }
       addGlobalSuccessMessage(translate('settings.authentication.form.settings.save_success'));
     },
   });

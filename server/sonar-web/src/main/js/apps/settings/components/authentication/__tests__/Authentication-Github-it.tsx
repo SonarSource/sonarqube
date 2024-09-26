@@ -25,6 +25,7 @@ import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector
 import ComputeEngineServiceMock from '../../../../../api/mocks/ComputeEngineServiceMock';
 import DopTranslationServiceMock from '../../../../../api/mocks/DopTranslationServiceMock';
 import GithubProvisioningServiceMock from '../../../../../api/mocks/GithubProvisioningServiceMock';
+import GitlabProvisioningServiceMock from '../../../../../api/mocks/GitlabProvisioningServiceMock';
 import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
 import SystemServiceMock from '../../../../../api/mocks/SystemServiceMock';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
@@ -42,6 +43,7 @@ let system: SystemServiceMock;
 let settingsHandler: SettingsServiceMock;
 let computeEngineHandler: ComputeEngineServiceMock;
 let dopTranslationHandler: DopTranslationServiceMock;
+let gitlabHandler: GitlabProvisioningServiceMock;
 
 const mockedGitHubConfigurationResponse = mockGitHubConfiguration({
   apiUrl: 'API url',
@@ -56,6 +58,7 @@ beforeEach(() => {
   system = new SystemServiceMock();
   settingsHandler = new SettingsServiceMock();
   computeEngineHandler = new ComputeEngineServiceMock();
+  gitlabHandler = new GitlabProvisioningServiceMock();
 });
 
 afterEach(() => {
@@ -64,6 +67,7 @@ afterEach(() => {
   system.reset();
   computeEngineHandler.reset();
   dopTranslationHandler.reset();
+  gitlabHandler.reset();
 });
 
 const ghContainer = byRole('tabpanel', { name: 'github GitHub' });

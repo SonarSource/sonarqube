@@ -36,7 +36,7 @@ import { translate } from '../../helpers/l10n';
 import { mapReactQueryResult } from '../../helpers/react-query';
 import { AlmSyncStatus, DevopsRolesMapping, ProvisioningType } from '../../types/provisioning';
 import { TaskStatuses, TaskTypes } from '../../types/tasks';
-import { createQueryHook, StaleTime } from '../common';
+import { StaleTime, createQueryHook } from '../common';
 
 export function useGitLabConfigurationsQuery() {
   return useQuery({
@@ -65,6 +65,8 @@ export function useCreateGitLabConfigurationMutation() {
 
 export function useUpdateGitLabConfigurationMutation() {
   const client = useQueryClient();
+  const { canSyncNow, synchronizeNow } = useSyncWithGitLabNow();
+
   return useMutation({
     mutationFn: ({
       id,
@@ -83,6 +85,9 @@ export function useUpdateGitLabConfigurationMutation() {
           total: 1,
         },
       });
+      if (canSyncNow && data.provisioningType === ProvisioningType.auto) {
+        synchronizeNow();
+      }
       addGlobalSuccessMessage(translate('settings.authentication.form.settings.save_success'));
     },
   });
