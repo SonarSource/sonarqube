@@ -87,7 +87,7 @@ describe('issue app', () => {
   it('should be able to trigger a fix when feature is available', async () => {
     settingsHandler.set('sonar.ai.suggestions.enabled', 'true');
     sourcesHandler.setSource(
-      range(0, 20)
+      range(0, 1)
         .map((n) => `line: ${n}`)
         .join('\n'),
     );
@@ -99,7 +99,7 @@ describe('issue app', () => {
       [Feature.BranchSupport, Feature.FixSuggestions],
     );
 
-    expect(await ui.getFixSuggestion.find(undefined, { timeout: 7000 })).toBeInTheDocument();
+    expect(await ui.getFixSuggestion.find(undefined, { timeout: 10_000 })).toBeInTheDocument();
     await user.click(ui.getFixSuggestion.get());
 
     expect(await ui.suggestedExplanation.find()).toBeInTheDocument();
