@@ -13,7 +13,9 @@ dependencies {
 jar {
   manifest {
     attributes(
-      'Main-Class' : "org.sonar.scanner.bootstrap.ScannerMain"
+      'Main-Class' : "org.sonar.scanner.bootstrap.ScannerMain",
+      // BouncyCastle library is a multi-release jar
+      'Multi-Release' : 'true'
     )
   }
 }
