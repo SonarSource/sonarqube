@@ -129,15 +129,15 @@
 
   <select id="selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage" parameterType="map" resultType="string">
     select
-      lm.project_uuid
+      p.uuid
     from
       live_measures lm
     inner join
-      projects p on p.uuid = lm.project_uuid
+      project_branches pb on pb.uuid = lm.component_uuid
+    inner join
+      projects p on p.uuid = pb.project_uuid
     inner join
       metrics m on m.uuid = lm.metric_uuid
-    inner join
-      project_branches pb on pb.uuid = lm.component_uuid
     where
       m.name = 'ncloc_language_distribution'
       and pb.is_main = ${_true}
@@ -154,7 +154,9 @@
     from
       live_measures lm
     inner join
-      projects p on p.uuid = lm.project_uuid
+      project_branches pb on pb.uuid = lm.project_uuid and pb.is_main = ${_true}
+    inner join
+      projects p on p.uuid = pb.project_uuid
     inner join
       metrics m on m.uuid = lm.metric_uuid
     where

@@ -488,17 +488,17 @@ class ProjectDaoIT {
       .collect(Collectors.toSet());
   }
 
-  private Consumer<LiveMeasureDto> configureLiveMeasure(String language, MetricDto metric, ProjectDto project, ComponentDto componentDto) {
+  private Consumer<LiveMeasureDto> configureLiveMeasure(String language, MetricDto metric, ComponentDto componentDto) {
     return liveMeasure -> liveMeasure
       .setMetricUuid(metric.getUuid())
       .setComponentUuid(componentDto.uuid())
-      .setProjectUuid(project.getUuid())
+      .setProjectUuid(componentDto.uuid())
       .setData(language + "=" + random.nextInt(10));
   }
 
   private Consumer<ProjectData> insertLiveMeasure(String language, MetricDto metric) {
     return (projectData) -> db.measures().insertLiveMeasure(projectData.getMainBranchComponent(), metric,
-      configureLiveMeasure(language, metric, projectData.getProjectDto(), projectData.getMainBranchComponent()));
+      configureLiveMeasure(language, metric, projectData.getMainBranchComponent()));
   }
 
   private void insertProjectsLiveMeasures(String language, Set<ProjectData> projects) {
