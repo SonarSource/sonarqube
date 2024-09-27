@@ -17,37 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v107;
+package org.sonar.server.platform.db.migration.version.v108;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.DatabaseUtils;
-import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
+import org.sonar.server.platform.db.migration.sql.AddPrimaryKeyBuilder;
+import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class AbstractCreateIndexOnMeasuresMigrated extends DdlChange {
+import static org.sonar.server.platform.db.migration.version.v108.CreateMeasuresTable.COLUMN_COMPONENT_UUID;
+import static org.sonar.server.platform.db.migration.version.v108.CreateMeasuresTable.MEASURES_TABLE_NAME;
 
-  static final String COLUMN_NAME = "measures_migrated";
-  private final String tableName;
-  private final String indexName;
+public class CreatePrimaryKeyOnMeasuresTable extends DdlChange {
 
-  public AbstractCreateIndexOnMeasuresMigrated(Database db, String tableName, String indexName) {
+  public CreatePrimaryKeyOnMeasuresTable(Database db) {
     super(db);
-    this.tableName = tableName;
-    this.indexName = indexName;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      if (!DatabaseUtils.indexExistsIgnoreCase(tableName, indexName, connection)) {
-        context.execute(new CreateIndexBuilder(getDialect())
-          .setTable(tableName)
-          .setName(indexName)
-          .addColumn(COLUMN_NAME, false)
-          .build());
-      }
+    createPrimaryKey(context);
+  }
+
+  private void createPrimaryKey(Context context) throws SQLException {
+    boolean pkExists = new DbPrimaryKeyConstraintFinder(getDatabase()).findConstraintName(MEASURES_TABLE_NAME).isPresent();
+    if (!pkExists) {
+      context.execute(new AddPrimaryKeyBuilder(MEASURES_TABLE_NAME, COLUMN_COMPONENT_UUID).build());
     }
   }
 }

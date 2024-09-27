@@ -17,15 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v107;
+package org.sonar.server.platform.db.migration.version.v108;
 
-import org.sonar.db.Database;
+import org.junit.jupiter.api.Test;
 
-public class AddMeasuresMigratedColumnToPortfoliosTable extends AbstractAddMeasuresMigratedColumnToTable {
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-  static final String PORTFOLIOS_TABLE_NAME = "portfolios";
+class DbVersion108Test {
 
-  public AddMeasuresMigratedColumnToPortfoliosTable(Database db) {
-    super(db, PORTFOLIOS_TABLE_NAME);
+  private final DbVersion108 underTest = new DbVersion108();
+
+  @Test
+  void migrationNumber_starts_at_108_000() {
+    verifyMinimumMigrationNumber(underTest, 108_000);
+  }
+
+  @Test
+  void verify_migration_is_not_empty() {
+    verifyMigrationNotEmpty(underTest);
   }
 }

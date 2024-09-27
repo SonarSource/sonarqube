@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v107;
+package org.sonar.server.platform.db.migration.version.v108;
 
 import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
 
-public class MigrateBranchesLiveMeasuresToMeasures extends AbstractMigrateLiveMeasuresToMeasures {
+public class MigratePortfoliosLiveMeasuresToMeasures extends AbstractMigrateLiveMeasuresToMeasures {
 
-  public MigrateBranchesLiveMeasuresToMeasures(Database db, System2 system2) {
-    super(db, system2, "project_branches", "branch");
+  protected MigratePortfoliosLiveMeasuresToMeasures(Database db, System2 system2) {
+    super(db, system2, "portfolios", "portfolio");
   }
 }

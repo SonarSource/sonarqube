@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v107;
+package org.sonar.server.platform.db.migration.version.v108;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -36,18 +36,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 
-class MigratePortfoliosLiveMeasuresToMeasuresIT {
+class MigrateBranchesLiveMeasuresToMeasuresIT {
 
   private static final String MEASURES_MIGRATED_COLUMN = "measures_migrated";
   public static final String SELECT_MEASURE = "select component_uuid, branch_uuid, json_value, json_value_hash, created_at, updated_at " +
     "from measures where component_uuid = '%s'";
 
   @RegisterExtension
-  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(MigratePortfoliosLiveMeasuresToMeasures.class);
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(MigrateBranchesLiveMeasuresToMeasures.class);
 
   private final SequenceUuidFactory uuidFactory = new SequenceUuidFactory();
   private final System2 system2 = mock();
-  private final DataChange underTest = new MigratePortfoliosLiveMeasuresToMeasures(db.database(), system2);
+  private final DataChange underTest = new MigrateBranchesLiveMeasuresToMeasures(db.database(), system2);
 
   @Test
   void shall_complete_when_tables_are_empty() throws SQLException {
@@ -57,18 +57,18 @@ class MigratePortfoliosLiveMeasuresToMeasuresIT {
   }
 
   @Test
-  void shall_not_migrate_when_portfolio_is_already_flagged() throws SQLException {
+  void shall_not_migrate_when_branch_is_already_flagged() throws SQLException {
     String nclocMetricUuid = insertMetric("ncloc", "INT");
     String qgStatusMetricUuid = insertMetric("quality_gate_status", "STRING");
     String metricWithDataUuid = insertMetric("metric_with_data", "DATA");
-    String portfolio1 = "portfolio_1";
-    insertMigratedPortfolio(portfolio1);
-    insertMeasure(portfolio1, nclocMetricUuid, Map.of("value", 120));
-    insertMeasure(portfolio1, qgStatusMetricUuid, Map.of("text_value", "ok"));
-    insertMeasure(portfolio1, metricWithDataUuid, Map.of("measure_data", "some data".getBytes(StandardCharsets.UTF_8)));
+    String branch1 = "branch_1";
+    insertMigratedBranch(branch1);
+    insertMeasure(branch1, nclocMetricUuid, Map.of("value", 120));
+    insertMeasure(branch1, qgStatusMetricUuid, Map.of("text_value", "ok"));
+    insertMeasure(branch1, metricWithDataUuid, Map.of("measure_data", "some data".getBytes(StandardCharsets.UTF_8)));
 
-    insertMigratedPortfolio("portfolio_2");
-    insertMeasure("portfolio_2", nclocMetricUuid, Map.of("value", 14220));
+    insertMigratedBranch("branch_2");
+    insertMeasure("branch_2", nclocMetricUuid, Map.of("value", 14220));
 
     underTest.execute();
 
@@ -76,57 +76,57 @@ class MigratePortfoliosLiveMeasuresToMeasuresIT {
   }
 
   @Test
-  void should_flag_portfolio_with_no_measures() throws SQLException {
-    String portfolio = "portfolio_3";
-    insertNotMigratedPortfolio(portfolio);
+  void should_flag_branch_with_no_measures() throws SQLException {
+    String branch = "branch_3";
+    insertNotMigratedBranch(branch);
 
     underTest.execute();
 
-    assertPortfolioMigrated(portfolio);
+    assertBranchMigrated(branch);
     assertThat(db.countRowsOfTable("measures")).isZero();
   }
 
   @Test
-  void should_migrate_portfolio_with_measures() throws SQLException {
+  void should_migrate_branch_with_measures() throws SQLException {
     String nclocMetricUuid = insertMetric("ncloc", "INT");
     String qgStatusMetricUuid = insertMetric("quality_gate_status", "STRING");
     String metricWithDataUuid = insertMetric("metric_with_data", "DATA");
 
-    String portfolio1 = "portfolio_4";
-    insertNotMigratedPortfolio(portfolio1);
+    String branch1 = "branch_4";
+    insertNotMigratedBranch(branch1);
     String component1 = uuidFactory.create();
     String component2 = uuidFactory.create();
-    insertMeasure(portfolio1, component1, nclocMetricUuid, Map.of("value", 120));
-    insertMeasure(portfolio1, component1, qgStatusMetricUuid, Map.of("text_value", "ok"));
-    insertMeasure(portfolio1, component2, metricWithDataUuid, Map.of("measure_data", "some data".getBytes(StandardCharsets.UTF_8)));
+    insertMeasure(branch1, component1, nclocMetricUuid, Map.of("value", 120));
+    insertMeasure(branch1, component1, qgStatusMetricUuid, Map.of("text_value", "ok"));
+    insertMeasure(branch1, component2, metricWithDataUuid, Map.of("measure_data", "some data".getBytes(StandardCharsets.UTF_8)));
 
-    String portfolio2 = "portfolio_5";
-    insertNotMigratedPortfolio(portfolio2);
-    insertMeasure(portfolio2, nclocMetricUuid, Map.of("value", 64));
+    String branch2 = "branch_5";
+    insertNotMigratedBranch(branch2);
+    insertMeasure(branch2, nclocMetricUuid, Map.of("value", 64));
 
-    String migratedPortfolio = "portfolio_6";
-    insertMigratedPortfolio(migratedPortfolio);
-    insertMeasure(migratedPortfolio, nclocMetricUuid, Map.of("value", 3684));
+    String migratedBranch = "branch_6";
+    insertMigratedBranch(migratedBranch);
+    insertMeasure(migratedBranch, nclocMetricUuid, Map.of("value", 3684));
 
     underTest.execute();
 
-    assertPortfolioMigrated(portfolio1);
-    assertPortfolioMigrated(portfolio2);
+    assertBranchMigrated(branch1);
+    assertBranchMigrated(branch2);
     assertThat(db.countRowsOfTable("measures")).isEqualTo(3);
 
     assertThat(db.select(format(SELECT_MEASURE, component1)))
       .hasSize(1)
       .extracting(t -> t.get("component_uuid"), t -> t.get("branch_uuid"), t -> t.get("json_value"), t -> t.get("json_value_hash"))
-      .containsOnly(tuple(component1, portfolio1, "{\"ncloc\":120.0,\"quality_gate_status\":\"ok\"}", 6033012287291512746L));
+      .containsOnly(tuple(component1, branch1, "{\"ncloc\":120.0,\"quality_gate_status\":\"ok\"}", 6033012287291512746L));
 
     assertThat(db.select(format(SELECT_MEASURE, component2)))
       .hasSize(1)
       .extracting(t -> t.get("component_uuid"), t -> t.get("branch_uuid"), t -> t.get("json_value"), t -> t.get("json_value_hash"))
-      .containsOnly(tuple(component2, portfolio1, "{\"metric_with_data\":\"some data\"}", -4524184678167636687L));
+      .containsOnly(tuple(component2, branch1, "{\"metric_with_data\":\"some data\"}", -4524184678167636687L));
   }
 
-  private void assertPortfolioMigrated(String portfolio) {
-    List<Map<String, Object>> result = db.select(format("select %s as \"MIGRATED\" from portfolios where uuid = '%s'", MEASURES_MIGRATED_COLUMN, portfolio));
+  private void assertBranchMigrated(String branch) {
+    List<Map<String, Object>> result = db.select(format("select %s as \"MIGRATED\" from project_branches where uuid = '%s'", MEASURES_MIGRATED_COLUMN, branch));
     assertThat(result)
       .hasSize(1)
       .extracting(t -> t.get("MIGRATED"))
@@ -142,15 +142,15 @@ class MigratePortfoliosLiveMeasuresToMeasuresIT {
     return metricUuid;
   }
 
-  private void insertMeasure(String portfolioUuid, String metricUuid, Map<String, Object> data) {
-    insertMeasure(portfolioUuid, uuidFactory.create(), metricUuid, data);
+  private void insertMeasure(String branchUuid, String metricUuid, Map<String, Object> data) {
+    insertMeasure(branchUuid, uuidFactory.create(), metricUuid, data);
   }
 
-  private void insertMeasure(String portfolioUuid, String componentUuid, String metricUuid, Map<String, Object> data) {
+  private void insertMeasure(String branchUuid, String componentUuid, String metricUuid, Map<String, Object> data) {
     Map<String, Object> dataMap = new HashMap<>(data);
     dataMap.put("uuid", uuidFactory.create());
     dataMap.put("component_uuid", componentUuid);
-    dataMap.put("project_uuid", portfolioUuid);
+    dataMap.put("project_uuid", branchUuid);
     dataMap.put("metric_uuid", metricUuid);
     dataMap.put("created_at", 12L);
     dataMap.put("updated_at", 12L);
@@ -158,25 +158,27 @@ class MigratePortfoliosLiveMeasuresToMeasuresIT {
     db.executeInsert("live_measures", dataMap);
   }
 
-  private void insertNotMigratedPortfolio(String portfolioUuid) {
-    insertPortfolio(portfolioUuid, false);
+  private void insertNotMigratedBranch(String branchUuid) {
+    insertBranch(branchUuid, false);
   }
 
-  private void insertMigratedPortfolio(String portfolioUuid) {
-    insertPortfolio(portfolioUuid, true);
+  private void insertMigratedBranch(String branchUuid) {
+    insertBranch(branchUuid, true);
   }
 
-  private void insertPortfolio(String portfolioUuid, boolean migrated) {
-    db.executeInsert("portfolios",
-      "uuid", portfolioUuid,
-      "kee", portfolioUuid,
-      "name", portfolioUuid,
-      "private", true,
-      "root_uuid", portfolioUuid,
-      "selection_mode", "MANUAL",
+  private void insertBranch(String branchUuid, boolean migrated) {
+    db.executeInsert("project_branches",
+      "uuid", branchUuid,
+      "kee", branchUuid,
+      "branch_type", "LONG",
+      "project_uuid", uuidFactory.create(),
       MEASURES_MIGRATED_COLUMN, migrated,
+      "need_issue_sync", false,
+      "is_main", true,
       "created_at", 12L,
       "updated_at", 12L
     );
   }
+
+
 }

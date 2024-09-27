@@ -17,40 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v107;
+package org.sonar.server.platform.db.migration.version.v108;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
-import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
-import org.sonar.server.platform.db.migration.def.ColumnDef;
-import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class AbstractAddMeasuresMigratedColumnToTable extends DdlChange {
+import static org.sonar.server.platform.db.migration.version.v108.CreateMeasuresTable.COLUMN_BRANCH_UUID;
+import static org.sonar.server.platform.db.migration.version.v108.CreateMeasuresTable.MEASURES_TABLE_NAME;
 
-  public static final String MIGRATION_FLAG_COLUMN_NAME = "measures_migrated";
-  private final String tableName;
+public class CreateIndexOnMeasuresTable extends DdlChange {
 
-  public AbstractAddMeasuresMigratedColumnToTable(Database db, String tableName) {
+  static final String INDEX_NAME = "measures_branch_uuid";
+
+  public CreateIndexOnMeasuresTable(Database db) {
     super(db);
-    this.tableName = tableName;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
     try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      if (!DatabaseUtils.tableColumnExists(connection, tableName, MIGRATION_FLAG_COLUMN_NAME)) {
-        ColumnDef columnDef = BooleanColumnDef.newBooleanColumnDefBuilder()
-          .setColumnName(MIGRATION_FLAG_COLUMN_NAME)
-          .setIsNullable(false)
-          .setDefaultValue(false)
-          .build();
-        context.execute(new AddColumnsBuilder(getDialect(), tableName)
-          .addColumn(columnDef)
-          .build());
-      }
+      createUniqueIndex(context, connection);
+    }
+  }
+
+  private void createUniqueIndex(Context context, Connection connection) {
+    if (!DatabaseUtils.indexExistsIgnoreCase(MEASURES_TABLE_NAME, INDEX_NAME, connection)) {
+      context.execute(new CreateIndexBuilder(getDialect())
+        .setTable(MEASURES_TABLE_NAME)
+        .setName(INDEX_NAME)
+        .addColumn(COLUMN_BRANCH_UUID, false)
+        .setUnique(false)
+        .build());
     }
   }
 }

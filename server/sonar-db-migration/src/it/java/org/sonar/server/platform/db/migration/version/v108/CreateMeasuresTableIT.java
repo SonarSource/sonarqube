@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v107;
+package org.sonar.server.platform.db.migration.version.v108;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -27,13 +27,13 @@ import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
-import static org.sonar.server.platform.db.migration.version.v107.CreateMeasuresTable.COLUMN_BRANCH_UUID;
-import static org.sonar.server.platform.db.migration.version.v107.CreateMeasuresTable.COLUMN_COMPONENT_UUID;
-import static org.sonar.server.platform.db.migration.version.v107.CreateMeasuresTable.COLUMN_CREATED_AT;
-import static org.sonar.server.platform.db.migration.version.v107.CreateMeasuresTable.COLUMN_JSON_VALUE;
-import static org.sonar.server.platform.db.migration.version.v107.CreateMeasuresTable.COLUMN_JSON_VALUE_HASH;
-import static org.sonar.server.platform.db.migration.version.v107.CreateMeasuresTable.COLUMN_UPDATED_AT;
-import static org.sonar.server.platform.db.migration.version.v107.CreateMeasuresTable.MEASURES_TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v108.CreateMeasuresTable.COLUMN_BRANCH_UUID;
+import static org.sonar.server.platform.db.migration.version.v108.CreateMeasuresTable.COLUMN_COMPONENT_UUID;
+import static org.sonar.server.platform.db.migration.version.v108.CreateMeasuresTable.COLUMN_CREATED_AT;
+import static org.sonar.server.platform.db.migration.version.v108.CreateMeasuresTable.COLUMN_JSON_VALUE;
+import static org.sonar.server.platform.db.migration.version.v108.CreateMeasuresTable.COLUMN_JSON_VALUE_HASH;
+import static org.sonar.server.platform.db.migration.version.v108.CreateMeasuresTable.COLUMN_UPDATED_AT;
+import static org.sonar.server.platform.db.migration.version.v108.CreateMeasuresTable.MEASURES_TABLE_NAME;
 
 class CreateMeasuresTableIT {
 

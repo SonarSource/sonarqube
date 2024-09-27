@@ -17,42 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v107;
+package org.sonar.server.platform.db.migration.version.v108;
 
 import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
-import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.v107.CreateMeasuresTable.COLUMN_COMPONENT_UUID;
-import static org.sonar.server.platform.db.migration.version.v107.CreateMeasuresTable.MEASURES_TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v108.CreateIndexOnProjectBranchesMeasuresMigrated.COLUMN_NAME;
+import static org.sonar.server.platform.db.migration.version.v108.CreateIndexOnProjectBranchesMeasuresMigrated.TABLE_NAME;
 
-class CreatePrimaryKeyOnMeasuresTableIT {
+class CreateIndexOnProjectBranchesMeasuresMigratedIT {
 
-  private static final String PK_NAME = "pk_measures";
+  private static final String INDEX_NAME = "pb_measures_migrated";
 
   @RegisterExtension
-  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreatePrimaryKeyOnMeasuresTable.class);
-
-  private final DdlChange underTest = new CreatePrimaryKeyOnMeasuresTable(db.database());
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateIndexOnProjectBranchesMeasuresMigrated.class);
+  private final CreateIndexOnProjectBranchesMeasuresMigrated underTest = new CreateIndexOnProjectBranchesMeasuresMigrated(db.database());
 
   @Test
-  void execute_shouldCreatePrimaryKey() throws SQLException {
-    db.assertNoPrimaryKey(MEASURES_TABLE_NAME);
+  void migration_should_create_index() throws SQLException {
+    db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
 
     underTest.execute();
 
-    db.assertPrimaryKey(MEASURES_TABLE_NAME, PK_NAME, COLUMN_COMPONENT_UUID);
+    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
   }
 
   @Test
-  void execute_shouldBeReentrant() throws SQLException {
-    db.assertNoPrimaryKey(MEASURES_TABLE_NAME);
-
+  void migration_should_be_reentrant() throws SQLException {
     underTest.execute();
     underTest.execute();
 
-    db.assertPrimaryKey(MEASURES_TABLE_NAME, PK_NAME, COLUMN_COMPONENT_UUID);
+    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
   }
 }

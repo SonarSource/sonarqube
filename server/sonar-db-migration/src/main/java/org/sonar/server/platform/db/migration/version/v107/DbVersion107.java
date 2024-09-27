@@ -56,16 +56,7 @@ public class DbVersion107 implements DbVersion {
       .add(10_7_012, "Create 'cves' table", CreateCvesTable.class)
       .add(10_7_013, "Create 'cve_cwe' table", CreateCveCweTable.class)
       .add(10_7_014, "Create 'issues_dependency' table", CreateIssuesDependencyTable.class)
-      .add(10_7_015, "Add 'ai_code_assurance' column to 'projects' table", AddAiCodeAssuranceColumnInProjectsTable.class)
-      .add(10_7_016, "Create 'measures' table", CreateMeasuresTable.class)
-      .add(10_7_017, "Add 'measures_migrated' column on 'project_branches' table", AddMeasuresMigratedColumnToProjectBranchesTable.class)
-      .add(10_7_018, "Create index on 'project_branches.measures_migrated'", CreateIndexOnProjectBranchesMeasuresMigrated.class)
-      .add(10_7_019, "Migrate the content of 'live_measures' to 'measures' for branches", MigrateBranchesLiveMeasuresToMeasures.class)
-      .add(10_7_020, "Add 'measures_migrated' column on 'portfolios' table", AddMeasuresMigratedColumnToPortfoliosTable.class)
-      .add(10_7_021, "Create index on 'portfolios.measures_migrated'", CreateIndexOnPortfoliosMeasuresMigrated.class)
-      .add(10_7_022, "Migrate the content of 'live_measures' to 'measures' for portfolios", MigratePortfoliosLiveMeasuresToMeasures.class)
-      .add(10_7_023, "Create primary key on 'measures' table", CreatePrimaryKeyOnMeasuresTable.class)
-      .add(10_7_024, "Create index on column 'branch_uuid' in 'measures' table", CreateIndexOnMeasuresTable.class);
+      .add(10_7_015, "Add 'ai_code_assurance' column to 'projects' table", AddAiCodeAssuranceColumnInProjectsTable.class);
   }
 
 }

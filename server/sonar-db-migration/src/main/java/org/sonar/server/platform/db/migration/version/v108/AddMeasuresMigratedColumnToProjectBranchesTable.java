@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v107;
+package org.sonar.server.platform.db.migration.version.v108;
 
 import org.sonar.db.Database;
 
-public class CreateIndexOnProjectBranchesMeasuresMigrated extends AbstractCreateIndexOnMeasuresMigrated {
+public class AddMeasuresMigratedColumnToProjectBranchesTable extends AbstractAddMeasuresMigratedColumnToTable {
 
-  static final String TABLE_NAME = "project_branches";
-  static final String INDEX_NAME = "pb_measures_migrated";
+  public static final String PROJECT_BRANCHES_TABLE_NAME = "project_branches";
 
-  public CreateIndexOnProjectBranchesMeasuresMigrated(Database db) {
-    super(db, TABLE_NAME, INDEX_NAME);
+  public AddMeasuresMigratedColumnToProjectBranchesTable(Database db) {
+    super(db, PROJECT_BRANCHES_TABLE_NAME);
   }
 }
