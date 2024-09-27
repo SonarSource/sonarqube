@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,11 +40,15 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.PortfolioData;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.project.Project;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,7 +66,7 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
-class PersistMeasuresStepTest {
+class PersistMeasuresStepIT {
 
   private static final Metric<?> STRING_METRIC = new Metric.Builder("string-metric", "String metric", Metric.ValueType.STRING).create();
   private static final Metric<?> INT_METRIC = new Metric.Builder("int-metric", "int metric", Metric.ValueType.INT).create();
@@ -126,6 +131,7 @@ class PersistMeasuresStepTest {
       .hasValueSatisfying(measure -> assertThat(measure.getMetricValues()).containsEntry(STRING_METRIC.getKey(), "dir-value"));
     assertThat(selectMeasure("file-uuid"))
       .hasValueSatisfying(measure -> assertThat(measure.getMetricValues()).containsEntry(STRING_METRIC.getKey(), "file-value"));
+    assertThat(getBranchMigratedFlag("project-uuid")).isTrue();
     verifyInsertsOrUpdates(3);
   }
 
@@ -147,6 +153,7 @@ class PersistMeasuresStepTest {
       .hasValueSatisfying(measure -> assertThat(measure.getMetricValues()).containsEntry(STRING_METRIC.getKey(), "subview-value"));
     assertThat(selectMeasure("project-uuid"))
       .hasValueSatisfying(measure -> assertThat(measure.getMetricValues()).containsEntry(STRING_METRIC.getKey(), "project-value"));
+    assertThat(getPortfolioMigratedFlag("view-uuid")).isTrue();
     verifyInsertsOrUpdates(3);
   }
 
@@ -162,6 +169,7 @@ class PersistMeasuresStepTest {
     Component project = ReportComponent.builder(Component.Type.PROJECT, -1).setUuid("project-uuid")
       .addChildren(files.toArray(Component[]::new))
       .build();
+    insertBranch();
     treeRootHolder.setRoot(project);
     analysisMetadataHolder.setBaseAnalysis(new Analysis.Builder().setUuid("uuid").setCreatedAt(1L).build());
     insertMeasure("file-uuid0", "project-uuid", STRING_METRIC, valuePrefix + "0");
@@ -177,6 +185,7 @@ class PersistMeasuresStepTest {
 
     // all measures are persisted, for project and all files
     assertThat(db.countRowsOfTable("measures")).isEqualTo(num + 1);
+    assertThat(getBranchMigratedFlag("project-uuid")).isTrue();
     verifyInsertsOrUpdates(num - 1);
     verifyUnchanged(1);
     verify(computeDuplicationDataMeasure, times(num)).compute(any(Component.class));
@@ -283,6 +292,7 @@ class PersistMeasuresStepTest {
 
     step().execute(context);
 
+    assertThat(getBranchMigratedFlag("project-uuid")).isTrue();
     verifyInsertsOrUpdates(0);
     verifyUnchanged(1);
   }
@@ -333,6 +343,9 @@ class PersistMeasuresStepTest {
     insertComponent("project-key", "project-uuid");
     insertComponent("dir-key", "dir-uuid");
     insertComponent("file-key", "file-uuid");
+
+    // branch is persisted in db
+    insertBranch();
   }
 
   private void preparePortfolio() {
@@ -348,14 +361,19 @@ class PersistMeasuresStepTest {
     treeRootHolder.setRoot(portfolio);
 
     // components as persisted in db
-    ComponentDto portfolioDto = insertComponent("view-key", "view-uuid");
+    PortfolioData portfolioDto1 = db.components().insertPrivatePortfolioData(c -> c.setUuid("view-uuid").setKey("view-key").setBranchUuid("view-uuid"));
     insertComponent("subview-key", "subview-uuid");
     insertComponent("project-key", "project-uuid");
-    analysisMetadataHolder.setProject(Project.from(portfolioDto));
+    analysisMetadataHolder.setProject(Project.from(portfolioDto1.getPortfolioDto()));
   }
 
   private Optional<MeasureDto> selectMeasure(String componentUuid) {
     return dbClient.measureDao().selectByComponentUuid(db.getSession(), componentUuid);
+  }
+
+  private void insertBranch() {
+    dbClient.branchDao().insert(db.getSession(), new BranchDto().setUuid("project-uuid").setProjectUuid("project-uuid").setKey("branch").setBranchType(BranchType.BRANCH).setIsMain(true));
+    db.commit();
   }
 
   private ComponentDto insertComponent(String key, String uuid) {
@@ -370,6 +388,20 @@ class PersistMeasuresStepTest {
 
   private PersistMeasuresStep step() {
     return new PersistMeasuresStep(dbClient, metricRepository, treeRootHolder, measureRepository, computeDuplicationDataMeasure);
+  }
+
+  private boolean getBranchMigratedFlag(String branch) {
+    List<Map<String, Object>> result = db.select(format("select measures_migrated as \"MIGRATED\" from project_branches where uuid = '%s'", branch));
+    assertThat(result).hasSize(1);
+
+    return (boolean) result.get(0).get("MIGRATED");
+  }
+
+  private boolean getPortfolioMigratedFlag(String portfolio) {
+    List<Map<String, Object>> result = db.select(format("select measures_migrated as \"MIGRATED\" from portfolios where uuid = '%s'", portfolio));
+    assertThat(result).hasSize(1);
+
+    return (boolean) result.get(0).get("MIGRATED");
   }
 
   private void verifyInsertsOrUpdates(int expectedInsertsOrUpdates) {

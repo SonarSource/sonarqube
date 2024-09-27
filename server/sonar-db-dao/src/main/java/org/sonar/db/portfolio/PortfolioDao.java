@@ -248,6 +248,11 @@ public class PortfolioDao implements Dao {
     return uuid;
   }
 
+  public long updateMeasuresMigrated(DbSession dbSession, String branchUuid, boolean measuresMigrated) {
+    long now = system2.now();
+    return mapper(dbSession).updateMeasuresMigrated(branchUuid, measuresMigrated, now);
+  }
+
   public void deleteProjects(DbSession dbSession, String portfolioUuid) {
     mapper(dbSession).deleteProjects(portfolioUuid);
   }

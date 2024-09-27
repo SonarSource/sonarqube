@@ -177,9 +177,15 @@ public class BranchDao implements Dao {
     long now = system2.now();
     return mapper(dbSession).updateNeedIssueSync(branchUuid, needIssueSync, now);
   }
+
   public long updateIsMain(DbSession dbSession, String branchUuid, boolean isMain) {
     long now = system2.now();
     return mapper(dbSession).updateIsMain(branchUuid, isMain, now);
+  }
+
+  public long updateMeasuresMigrated(DbSession dbSession, String branchUuid, boolean measuresMigrated) {
+    long now = system2.now();
+    return mapper(dbSession).updateMeasuresMigrated(branchUuid, measuresMigrated, now);
   }
 
   public boolean doAnyOfComponentsNeedIssueSync(DbSession session, List<String> components) {

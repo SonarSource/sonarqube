@@ -21,11 +21,13 @@ package org.sonar.db.portfolio;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -37,6 +39,7 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ApplicationProjectDto;
 import org.sonar.db.project.ProjectDto;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,6 +53,8 @@ import static org.mockito.Mockito.verify;
 
 class PortfolioDaoIT {
   private final System2 system2 = new AlwaysIncreasingSystem2(1L, 1);
+  private final SequenceUuidFactory uuidFactory = new SequenceUuidFactory();
+
   @RegisterExtension
   private final DbTester db = DbTester.create(system2);
   private final AuditPersister audit = mock(AuditPersister.class);
@@ -243,6 +248,25 @@ class PortfolioDaoIT {
       .extracting("name", "key", "uuid", "description", "private", "rootUuid", "parentUuid", "selectionMode", "selectionExpression")
       .containsExactly("newName", "KEY_name", "name", "newDesc", true, "root", "parent", "newMode", "newExp");
     verify(audit).updateComponent(any(), any());
+  }
+
+  @Test
+  void update_measures_migrated() {
+    PortfolioDto portfolio1 = db.components().insertPrivatePortfolioDto("name1");
+    PortfolioDto portfolio2 = db.components().insertPrivatePortfolioDto("name2");
+
+    portfolioDao.updateMeasuresMigrated(session, portfolio1.getUuid(), true);
+    portfolioDao.updateMeasuresMigrated(session, portfolio2.getUuid(), false);
+
+    assertThat(getMeasuresMigrated(portfolio1.getUuid())).isTrue();
+    assertThat(getMeasuresMigrated(portfolio2.getUuid())).isFalse();
+  }
+
+  private boolean getMeasuresMigrated(String uuid1) {
+    List<Map<String, Object>> select = db.select(session, format("select measures_migrated from portfolios where uuid = '%s'", uuid1));
+
+    assertThat(select).hasSize(1);
+    return (boolean) select.get(0).get("measures_migrated");
   }
 
   @Test
@@ -523,7 +547,8 @@ class PortfolioDaoIT {
 
   @Test
   void deleteReferencesTo_with_non_existing_reference_doesnt_fail() {
-    portfolioDao.deleteReferencesTo(session, "portfolio3");
+    assertThatCode(() -> portfolioDao.deleteReferencesTo(session, "portfolio3"))
+      .doesNotThrowAnyException();
   }
 
   @Test
@@ -737,7 +762,7 @@ class PortfolioDaoIT {
   }
 
   private PortfolioDto addPortfolio(PortfolioDto parent) {
-    return addPortfolio(parent, UuidFactoryFast.getInstance().create());
+    return addPortfolio(parent, uuidFactory.create());
   }
 
   private PortfolioDto addPortfolio(PortfolioDto parent, String uuid) {

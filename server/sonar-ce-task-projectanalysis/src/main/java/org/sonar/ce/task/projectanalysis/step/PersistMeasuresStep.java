@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.Component.Type;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -133,10 +134,34 @@ public class PersistMeasuresStep implements ComputationStep {
       }
     }
     persist(inserts, updates);
+    updateMeasureMigratedFlag();
 
     context.getStatistics()
       .add("insertsOrUpdates", insertsOrUpdates)
       .add("unchanged", unchanged);
+  }
+
+  private void updateMeasureMigratedFlag() {
+    Type type = treeRootHolder.getRoot().getType();
+    if (type == Type.PROJECT) {
+      persistBranchFlag();
+    } else if (type == Type.VIEW) {
+      persistPortfolioFlag();
+    }
+  }
+
+  private void persistBranchFlag() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.branchDao().updateMeasuresMigrated(dbSession, treeRootHolder.getRoot().getUuid(), true);
+      dbSession.commit();
+    }
+  }
+
+  private void persistPortfolioFlag() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.portfolioDao().updateMeasuresMigrated(dbSession, treeRootHolder.getRoot().getUuid(), true);
+      dbSession.commit();
+    }
   }
 
   private Set<MeasureHash> getDBMeasureHashes() {
@@ -153,7 +178,7 @@ public class PersistMeasuresStep implements ComputationStep {
     Map<String, Measure> measures = measureRepository.getRawMeasures(component);
     for (Map.Entry<String, Measure> measuresByMetricKey : measures.entrySet()) {
       String metricKey = measuresByMetricKey.getKey();
-      if (NOT_TO_PERSIST_ON_FILE_METRIC_KEYS.contains(metricKey) && component.getType() == Component.Type.FILE) {
+      if (NOT_TO_PERSIST_ON_FILE_METRIC_KEYS.contains(metricKey) && component.getType() == Type.FILE) {
         continue;
       }
       Metric metric = metricRepository.getByKey(metricKey);
@@ -166,7 +191,7 @@ public class PersistMeasuresStep implements ComputationStep {
         .filter(Objects::nonNull)
         .forEach(value -> measureDto.addValue(metric.getKey(), value));
 
-      if (component.getType() == Component.Type.FILE) {
+      if (component.getType() == Type.FILE) {
         if (computeDuplicationDataMeasure == null) {
           throw new IllegalStateException("ComputeDuplicationDataMeasure not initialized in container");
         }
