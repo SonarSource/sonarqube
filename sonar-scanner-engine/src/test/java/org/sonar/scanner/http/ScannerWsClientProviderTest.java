@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import nl.altindag.ssl.exception.GenericKeyStoreException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
@@ -318,6 +319,19 @@ class ScannerWsClientProviderTest {
         assertThat(r.code()).isEqualTo(200);
         assertThat(r.content()).isEqualTo("Success");
       }
+    }
+
+    @Test
+    void it_should_fail_if_invalid_truststore_password() {
+      scannerProps.put("sonar.host.url", sonarqubeMock.baseUrl());
+      scannerProps.put("sonar.scanner.truststorePath", toPath(requireNonNull(ScannerWsClientProviderTest.class.getResource("/ssl/client-truststore.p12"))).toString());
+      scannerProps.put("sonar.scanner.truststorePassword", "wrong_password");
+
+      var scannerPropsObj = new ScannerProperties(scannerProps);
+      var thrown = assertThrows(GenericKeyStoreException.class,
+        () -> underTest.provide(scannerPropsObj, env, GLOBAL_ANALYSIS_MODE, system2, ANALYSIS_WARNINGS, sonarUserHome));
+
+      assertThat(thrown).hasStackTraceContaining("Unable to read truststore");
     }
   }
 
