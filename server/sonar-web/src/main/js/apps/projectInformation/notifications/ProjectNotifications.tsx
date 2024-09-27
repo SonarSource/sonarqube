@@ -17,59 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Spinner } from '@sonarsource/echoes-react';
-import { Checkbox, FlagMessage, SubTitle } from 'design-system';
+import { FlagMessage, SubTitle } from 'design-system';
 import * as React from 'react';
-import {
-  WithNotificationsProps,
-  withNotifications,
-} from '../../../components/hoc/withNotifications';
-import { hasMessage, translate, translateWithParameters } from '../../../helpers/l10n';
-import { NotificationProjectType } from '../../../types/notifications';
+import NotificationsList from '../../../components/notifications/NotificationsList';
+import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 
 interface Props {
   component: Component;
 }
 
-export function ProjectNotifications(props: WithNotificationsProps & Props) {
-  const { channels, component, loading, notifications, perProjectTypes } = props;
-
-  const handleCheck = (type: NotificationProjectType, channel: string, checked: boolean) => {
-    if (checked) {
-      props.addNotification({ project: component.key, channel, type });
-    } else {
-      props.removeNotification({
-        project: component.key,
-        channel,
-        type,
-      });
-    }
-  };
-
-  const getCheckboxId = (type: string, channel: string) => {
-    return `project-notification-${component.key}-${type}-${channel}`;
-  };
-
-  const getDispatcherLabel = (dispatcher: string) => {
-    const globalMessageKey = ['notification.dispatcher', dispatcher];
-    const projectMessageKey = [...globalMessageKey, 'project'];
-    const shouldUseProjectMessage = hasMessage(...projectMessageKey);
-    return shouldUseProjectMessage
-      ? translate(...projectMessageKey)
-      : translate(...globalMessageKey);
-  };
-
-  const isEnabled = (type: string, channel: string) => {
-    return !!notifications.find(
-      (notification) =>
-        notification.type === type &&
-        notification.channel === channel &&
-        notification.project === component.key,
-    );
-  };
-
-  const emailChannel = channels[0];
+export default function ProjectNotifications(props: Props) {
+  const { component } = props;
 
   return (
     <form aria-labelledby="notifications-update-title">
@@ -79,32 +38,7 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
         {translate('notification.dispatcher.information')}
       </FlagMessage>
 
-      <Spinner className="sw-mt-6" isLoading={loading}>
-        <h3 id="notifications-update-title" className="sw-mt-6">
-          {translate('notifications.send_email')}
-        </h3>
-        <ul className="sw-list-none sw-mt-4 sw-pl-0">
-          {perProjectTypes.map((type) => (
-            <li className="sw-pl-0 sw-p-2" key={type}>
-              <Checkbox
-                right
-                className="sw-flex sw-justify-between"
-                label={translateWithParameters(
-                  'notification.dispatcher.description_x',
-                  getDispatcherLabel(type),
-                )}
-                checked={isEnabled(type, emailChannel)}
-                id={getCheckboxId(type, emailChannel)}
-                onCheck={(checked: boolean) => handleCheck(type, emailChannel, checked)}
-              >
-                {getDispatcherLabel(type)}
-              </Checkbox>
-            </li>
-          ))}
-        </ul>
-      </Spinner>
+      <NotificationsList className="sw-mt-6" project={component.key} />
     </form>
   );
 }
-
-export default withNotifications(ProjectNotifications);
