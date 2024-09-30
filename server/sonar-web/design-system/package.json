@@ -71,7 +71,7 @@
     "d3-selection": "3.0.0",
     "d3-shape": "3.2.0",
     "d3-zoom": "3.0.0",
-    "date-fns": "3.6.0",
+    "date-fns": "4.1.0",
     "lodash": "4.17.21",
     "react": "18.2.0",
     "react-day-picker": "8.10.0",

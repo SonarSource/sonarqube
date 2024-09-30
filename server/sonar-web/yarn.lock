@@ -6525,7 +6525,7 @@ __metadata:
     d3-selection: "npm:3.0.0"
     d3-shape: "npm:3.2.0"
     d3-zoom: "npm:3.0.0"
-    date-fns: "npm:3.6.0"
+    date-fns: "npm:4.1.0"
     dd-trace: "npm:4.25.0"
     design-system: "npm:1.0.0"
     diff: "npm:5.2.0"
@@ -8207,10 +8207,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:3.6.0":
-  version: 3.6.0
-  resolution: "date-fns@npm:3.6.0"
-  checksum: 10/cac35c58926a3b5d577082ff2b253612ec1c79eb6754fddef46b6a8e826501ea2cb346ecbd211205f1ba382ddd1f9d8c3f00bf433ad63cc3063454d294e3a6b8
+"date-fns@npm:4.1.0":
+  version: 4.1.0
+  resolution: "date-fns@npm:4.1.0"
+  checksum: 10/d5f6e9de5bbc52310f786099e18609289ed5e30af60a71e0646784c8185ddd1d0eebcf7c96b7faaaefc4a8366f3a3a4244d099b6d0866ee2bec80d1361e64342
   languageName: node
   linkType: hard
 
@@ -8600,7 +8600,7 @@ __metadata:
     d3-selection: 3.0.0
     d3-shape: 3.2.0
     d3-zoom: 3.0.0
-    date-fns: 3.6.0
+    date-fns: 4.1.0
     lodash: 4.17.21
     react: 18.2.0
     react-day-picker: 8.10.0
