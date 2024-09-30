@@ -25,7 +25,6 @@ import { useIntl } from 'react-intl';
 import { IMPACT_SEVERITIES } from '../../helpers/constants';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
-import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
 import DocumentationLink from '../common/DocumentationLink';
 import SoftwareImpactSeverityIcon from '../icon-mappers/SoftwareImpactSeverityIcon';
 import Facet, { BasicProps } from './Facet';
@@ -47,45 +46,10 @@ export default function SeverityFacet(props: Readonly<BasicProps>) {
     [],
   );
 
-  const isNotBlockerOrInfo = (severity: string) =>
-    severity !== SoftwareImpactSeverity.Blocker && severity !== SoftwareImpactSeverity.Info;
-
   return (
     <Facet
       {...props}
-      stats={Object.fromEntries(
-        Object.entries(props.stats ?? {})
-          .filter(([key]) => isNotBlockerOrInfo(key))
-          .map(([key, value]) => {
-            switch (key) {
-              case SoftwareImpactSeverity.Low:
-                return [key, value + (props.stats?.[SoftwareImpactSeverity.Info] ?? 0)];
-              case SoftwareImpactSeverity.High:
-                return [key, value + (props.stats?.[SoftwareImpactSeverity.Blocker] ?? 0)];
-              default:
-                return [key, value];
-            }
-          }),
-      )}
-      onChange={(values) => {
-        props.onChange({
-          ...values,
-          impactSeverities: (values.impactSeverities as string[] | undefined)
-            ?.map((s) => {
-              switch (s) {
-                case SoftwareImpactSeverity.Low:
-                  return [SoftwareImpactSeverity.Info, SoftwareImpactSeverity.Low];
-                case SoftwareImpactSeverity.High:
-                  return [SoftwareImpactSeverity.Blocker, SoftwareImpactSeverity.High];
-                default:
-                  return s;
-              }
-            })
-            .flat(),
-        });
-      }}
-      values={props.values.filter(isNotBlockerOrInfo)}
-      options={IMPACT_SEVERITIES.filter(isNotBlockerOrInfo)}
+      options={IMPACT_SEVERITIES}
       property="impactSeverities"
       renderName={renderName}
       renderTextName={renderTextName}
