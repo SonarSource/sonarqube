@@ -20,7 +20,6 @@
 
 import styled from '@emotion/styled';
 import { Checkbox, Spinner } from '@sonarsource/echoes-react';
-import classNames from 'classnames';
 import {
   ButtonSecondary,
   FlagMessage,
@@ -41,9 +40,7 @@ import { getBranchLikeQuery, isPullRequest } from '~sonar-aligned/helpers/branch
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Location, RawQuery, Router } from '~sonar-aligned/types/router';
-import { getCve } from '../../../api/cves';
 import { listIssues, searchIssues } from '../../../api/issues';
-import { getRuleDetails } from '../../../api/rules';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import EmptySearch from '../../../components/common/EmptySearch';
@@ -53,11 +50,9 @@ import withIndexationContext, {
   WithIndexationContextProps,
 } from '../../../components/hoc/withIndexationContext';
 import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
-import { IssueSuggestionCodeTab } from '../../../components/rules/IssueSuggestionCodeTab';
-import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import '../../../components/search-navigator.css';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
-import { fillBranchLike, isSameBranchLike } from '../../../helpers/branch-like';
+import { isSameBranchLike } from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { isDropdown, isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
@@ -67,7 +62,6 @@ import { serializeDate } from '../../../helpers/query';
 import { withBranchLikes } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
 import { isProject } from '../../../types/component';
-import { Cve } from '../../../types/cves';
 import {
   ASSIGNEE_ME,
   Facet,
@@ -77,10 +71,9 @@ import {
   ReferencedRule,
 } from '../../../types/issues';
 import { SecurityStandard } from '../../../types/security';
-import { Component, Dict, Issue, Paging, RuleDetails } from '../../../types/types';
+import { Component, Dict, Issue, Paging } from '../../../types/types';
 import { CurrentUser, UserBase } from '../../../types/users';
 import * as actions from '../actions';
-import SubnavigationIssuesList from '../issues-subnavigation/SubnavigationIssuesList';
 import { FiltersHeader } from '../sidebar/FiltersHeader';
 import { Sidebar } from '../sidebar/Sidebar';
 import '../styles.css';
@@ -100,12 +93,11 @@ import {
   shouldOpenStandardsFacet,
 } from '../utils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
+import IssueDetails from './IssueDetails';
 import IssueGuide from './IssueGuide';
 import IssueNewStatusAndTransitionGuide from './IssueNewStatusAndTransitionGuide';
-import IssueReviewHistoryAndComments from './IssueReviewHistoryAndComments';
 import IssuesList from './IssuesList';
 import IssuesListTitle from './IssuesListTitle';
-import IssuesSourceViewer from './IssuesSourceViewer';
 import NoIssues from './NoIssues';
 import NoMyIssues from './NoMyIssues';
 import PageActions from './PageActions';
@@ -124,20 +116,17 @@ export interface State {
   bulkChangeModal: boolean;
   checkAll?: boolean;
   checked: string[];
-  cve?: Cve;
   effortTotal?: number;
   facets: Dict<Facet>;
   issues: Issue[];
   loading: boolean;
   loadingFacets: Dict<boolean>;
   loadingMore: boolean;
-  loadingRule: boolean;
   locationsNavigator: boolean;
   myIssues: boolean;
   openFacets: Dict<boolean>;
   openIssue?: Issue;
   openPopup?: { issue: string; name: string };
-  openRuleDetails?: RuleDetails;
   paging?: Paging;
   query: Query;
   referencedComponentsById: Dict<ReferencedComponent>;
@@ -174,7 +163,6 @@ export class App extends React.PureComponent<Props, State> {
       loading: true,
       loadingFacets: {},
       loadingMore: false,
-      loadingRule: false,
       locationsNavigator: false,
       myIssues: areMyIssuesSelected(props.location.query),
       openFacets: {
@@ -230,7 +218,7 @@ export class App extends React.PureComponent<Props, State> {
     }
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentDidUpdate(prevProps: Props) {
     const { query } = this.props.location;
     const { query: prevQuery } = prevProps.location;
     const { openIssue } = this.state;
@@ -256,10 +244,6 @@ export class App extends React.PureComponent<Props, State> {
         selectedFlowIndex: 0,
         selectedLocationIndex: undefined,
       });
-    }
-
-    if (this.state.openIssue && this.state.openIssue.key !== prevState.openIssue?.key) {
-      this.loadRule().catch(() => undefined);
     }
   }
 
@@ -372,29 +356,6 @@ export class App extends React.PureComponent<Props, State> {
       }
     }
   };
-
-  async loadRule() {
-    const { openIssue } = this.state;
-
-    if (openIssue === undefined) {
-      return;
-    }
-
-    this.setState({ loadingRule: true });
-
-    const openRuleDetails = await getRuleDetails({ key: openIssue.rule })
-      .then((response) => response.rule)
-      .catch(() => undefined);
-
-    let cve: Cve | undefined;
-    if (typeof openIssue.cveId === 'string') {
-      cve = await getCve(openIssue.cveId);
-    }
-
-    if (this.mounted) {
-      this.setState({ loadingRule: false, openRuleDetails, cve });
-    }
-  }
 
   selectPreviousIssue = () => {
     const { issues } = this.state;
@@ -1057,87 +1018,13 @@ export class App extends React.PureComponent<Props, State> {
     );
   }
 
-  renderSide(openIssue: Issue | undefined) {
-    const { canBrowseAllChildProjects, qualifier = ComponentQualifier.Project } =
-      this.props.component ?? {};
-
-    const {
-      issues,
-      loading,
-      loadingMore,
-      paging,
-      selected,
-      selectedFlowIndex,
-      selectedLocationIndex,
-    } = this.state;
-
-    const warning = !canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
-      <FlagMessage
-        className="it__portfolio_warning sw-flex"
-        title={translate('issues.not_all_issue_show_why')}
-        variant="warning"
-      >
-        {translate('issues.not_all_issue_show')}
-      </FlagMessage>
-    );
-
-    return (
-      <SideBarStyle>
-        <ScreenPositionHelper className="sw-z-filterbar">
-          {({ top }) => (
-            <StyledNav
-              aria-label={openIssue ? translate('list_of_issues') : translate('filters')}
-              data-testid="issues-nav-bar"
-              className="issues-nav-bar sw-overflow-y-auto"
-              style={{ height: `calc((100vh - ${top}px) - ${LAYOUT_FOOTER_HEIGHT}px)` }}
-            >
-              <div className="sw-w-[300px] lg:sw-w-[390px] sw-h-full">
-                <A11ySkipTarget
-                  anchor="issues_sidebar"
-                  label={
-                    openIssue
-                      ? translate('issues.skip_to_list')
-                      : translate('issues.skip_to_filters')
-                  }
-                  weight={10}
-                />
-
-                {openIssue ? (
-                  <div className="sw-h-full">
-                    {warning && <div className="sw-py-4">{warning}</div>}
-
-                    <SubnavigationIssuesList
-                      fetchMoreIssues={this.fetchMoreIssues}
-                      issues={issues}
-                      loading={loading}
-                      loadingMore={loadingMore}
-                      onFlowSelect={this.selectFlow}
-                      onIssueSelect={this.openIssue}
-                      onLocationSelect={this.selectLocation}
-                      paging={paging}
-                      selected={selected}
-                      selectedFlowIndex={selectedFlowIndex}
-                      selectedLocationIndex={selectedLocationIndex}
-                    />
-                  </div>
-                ) : (
-                  this.renderFacets(warning)
-                )}
-              </div>
-            </StyledNav>
-          )}
-        </ScreenPositionHelper>
-      </SideBarStyle>
-    );
-  }
-
   renderList() {
     const { branchLike, component, currentUser, branchLikes } = this.props;
-    const { issues, loading, loadingMore, openIssue, paging, query } = this.state;
+    const { issues, loading, loadingMore, paging, query } = this.state;
     const selectedIndex = this.getSelectedIndex();
     const selectedIssue = selectedIndex !== undefined ? issues[selectedIndex] : undefined;
 
-    if (!paging || openIssue) {
+    if (!paging) {
       return null;
     }
 
@@ -1193,113 +1080,50 @@ export class App extends React.PureComponent<Props, State> {
     );
   }
 
-  renderHeader({
-    openIssue,
-    paging,
-  }: {
-    openIssue: Issue | undefined;
-    paging: Paging | undefined;
-  }) {
-    return openIssue ? (
-      <A11ySkipTarget anchor="issues_main" />
-    ) : (
-      <>
-        <A11ySkipTarget anchor="issues_main" />
-        <div className="sw-p-6 sw-flex sw-w-full sw-items-center sw-justify-between sw-box-border">
-          {this.renderBulkChange()}
-
-          <PageActions
-            canSetHome={!this.props.component}
-            effortTotal={this.state.effortTotal}
-            paging={this.props.component?.needIssueSync ? undefined : paging}
-          />
-        </div>
-      </>
-    );
-  }
-
-  renderPage() {
-    const { openRuleDetails, cve, checkAll, issues, loading, openIssue, paging, loadingRule } =
-      this.state;
+  renderIssueList() {
+    const { checkAll, loading, paging } = this.state;
 
     return (
       <ScreenPositionHelper>
         {({ top }) => (
           <StyledIssueWrapper
-            className={classNames('it__layout-page-main-inner sw-pt-0', {
-              'sw-overflow-y-auto sw-pl-12': !(openIssue && openRuleDetails),
-              'details-open sw-ml-12': openIssue && openRuleDetails,
-            })}
+            className="it__layout-page-main-inner sw-pt-0 sw-overflow-y-auto sw-pl-12"
             style={{ height: `calc((100vh - ${top + LAYOUT_FOOTER_HEIGHT}px)` }}
           >
-            {this.renderHeader({ openIssue, paging })}
+            <A11ySkipTarget anchor="issues_main" />
+            <div className="sw-p-6 sw-flex sw-w-full sw-items-center sw-justify-between sw-box-border">
+              {this.renderBulkChange()}
 
-            <Spinner isLoading={loadingRule}>
-              {openIssue && openRuleDetails ? (
-                <IssueTabViewer
-                  activityTabContent={
-                    <IssueReviewHistoryAndComments
-                      issue={openIssue}
-                      onChange={this.handleIssueChange}
-                    />
-                  }
-                  codeTabContent={
-                    <IssuesSourceViewer
-                      branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
-                      issues={issues}
-                      locationsNavigator={this.state.locationsNavigator}
-                      onIssueSelect={this.openIssue}
-                      onLocationSelect={this.selectLocation}
-                      openIssue={openIssue}
-                      selectedFlowIndex={this.state.selectedFlowIndex}
-                      selectedLocationIndex={this.state.selectedLocationIndex}
-                    />
-                  }
-                  suggestionTabContent={
-                    <IssueSuggestionCodeTab
-                      branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
-                      issue={openIssue}
-                      language={openRuleDetails.lang}
-                    />
-                  }
-                  extendedDescription={openRuleDetails.htmlNote}
-                  issue={openIssue}
-                  onIssueChange={this.handleIssueChange}
-                  ruleDescriptionContextKey={openIssue.ruleDescriptionContextKey}
-                  ruleDetails={openRuleDetails}
-                  cve={cve}
-                  selectedFlowIndex={this.state.selectedFlowIndex}
-                  selectedLocationIndex={this.state.selectedLocationIndex}
-                />
-              ) : (
-                <div
-                  className="sw-px-6 sw-pb-6"
-                  style={{ marginTop: `-${PSEUDO_SHADOW_HEIGHT}px` }}
-                >
-                  <Spinner
-                    ariaLabel={translate('issues.loading_issues')}
-                    className="sw-mt-4"
-                    isLoading={loading}
-                  >
-                    {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
-                      <div className="sw-mt-3">
-                        <FlagMessage variant="warning">
-                          <span>
-                            <FormattedMessage
-                              defaultMessage={translate('issue_bulk_change.max_issues_reached')}
-                              id="issue_bulk_change.max_issues_reached"
-                              values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
-                            />
-                          </span>
-                        </FlagMessage>
-                      </div>
-                    )}
+              <PageActions
+                canSetHome={!this.props.component}
+                effortTotal={this.state.effortTotal}
+                paging={this.props.component?.needIssueSync ? undefined : paging}
+              />
+            </div>
 
-                    {this.renderList()}
-                  </Spinner>
-                </div>
-              )}
-            </Spinner>
+            <div className="sw-px-6 sw-pb-6" style={{ marginTop: `-${PSEUDO_SHADOW_HEIGHT}px` }}>
+              <Spinner
+                ariaLabel={translate('issues.loading_issues')}
+                className="sw-mt-4"
+                isLoading={loading}
+              >
+                {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
+                  <div className="sw-mt-3">
+                    <FlagMessage variant="warning">
+                      <span>
+                        <FormattedMessage
+                          defaultMessage={translate('issue_bulk_change.max_issues_reached')}
+                          id="issue_bulk_change.max_issues_reached"
+                          values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
+                        />
+                      </span>
+                    </FlagMessage>
+                  </div>
+                )}
+
+                {this.renderList()}
+              </Spinner>
+            </div>
           </StyledIssueWrapper>
         )}
       </ScreenPositionHelper>
@@ -1307,41 +1131,92 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { openIssue, issues } = this.state;
+    const {
+      openIssue,
+      issues,
+      selectedFlowIndex,
+      selectedLocationIndex,
+      loading,
+      loadingMore,
+      paging,
+      selected,
+      locationsNavigator,
+    } = this.state;
     const { component, location } = this.props;
     const open = getOpen(location.query);
+    const { canBrowseAllChildProjects, qualifier = ComponentQualifier.Project } =
+      this.props.component ?? {};
+    const warning = !canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
+      <FlagMessage
+        className="it__portfolio_warning sw-flex"
+        title={translate('issues.not_all_issue_show_why')}
+        variant="warning"
+      >
+        {translate('issues.not_all_issue_show')}
+      </FlagMessage>
+    );
+
+    if (openIssue) {
+      return (
+        <IssueDetails
+          openIssue={openIssue}
+          component={component}
+          fetchMoreIssues={this.fetchMoreIssues}
+          handleIssueChange={this.handleIssueChange}
+          selectLocation={this.selectLocation}
+          selectedLocationIndex={selectedLocationIndex}
+          selectFlow={this.selectFlow}
+          selectedFlowIndex={selectedFlowIndex}
+          handleOpenIssue={this.openIssue}
+          issues={issues}
+          loading={loading}
+          loadingMore={loadingMore}
+          locationsNavigator={locationsNavigator}
+          paging={paging}
+          selected={selected}
+        />
+      );
+    }
 
     return (
       <PageWrapperStyle id="issues-page">
         <LargeCenteredLayout>
           <PageContentFontWrapper className="sw-typo-default">
             <div className="sw-w-full sw-flex" id="issues-page">
-              {openIssue ? (
-                <Helmet
-                  defer={false}
-                  title={openIssue.message}
-                  titleTemplate={translateWithParameters(
-                    'page_title.template.with_category',
-                    translate('issues.page'),
-                  )}
-                />
-              ) : (
-                <>
-                  <Helmet defer={false} title={translate('issues.page')} />
-                  <IssueGuide run={!open && !component?.needIssueSync && issues.length > 0} />
-                  <IssueNewStatusAndTransitionGuide
-                    run={!open && !component?.needIssueSync && issues.length > 0}
-                    togglePopup={this.handlePopupToggle}
-                    issues={issues}
-                  />
-                </>
-              )}
+              <Helmet defer={false} title={translate('issues.page')} />
+              <IssueGuide run={!open && !component?.needIssueSync && issues.length > 0} />
+              <IssueNewStatusAndTransitionGuide
+                run={!open && !component?.needIssueSync && issues.length > 0}
+                togglePopup={this.handlePopupToggle}
+                issues={issues}
+              />
 
               <h1 className="sw-sr-only">{translate('issues.page')}</h1>
 
-              {this.renderSide(openIssue)}
+              <SideBarStyle>
+                <ScreenPositionHelper className="sw-z-filterbar">
+                  {({ top }) => (
+                    <StyledNav
+                      aria-label={translate('filters')}
+                      data-testid="issues-nav-bar"
+                      className="issues-nav-bar sw-overflow-y-auto"
+                      style={{ height: `calc((100vh - ${top}px) - ${LAYOUT_FOOTER_HEIGHT}px)` }}
+                    >
+                      <div className="sw-w-[300px] lg:sw-w-[390px] sw-h-full">
+                        <A11ySkipTarget
+                          anchor="issues_sidebar"
+                          label={translate('issues.skip_to_filters')}
+                          weight={10}
+                        />
 
-              <main className="sw-relative sw-flex-1 sw-min-w-0">{this.renderPage()}</main>
+                        {this.renderFacets(warning)}
+                      </div>
+                    </StyledNav>
+                  )}
+                </ScreenPositionHelper>
+              </SideBarStyle>
+
+              <main className="sw-relative sw-flex-1 sw-min-w-0">{this.renderIssueList()}</main>
             </div>
           </PageContentFontWrapper>
         </LargeCenteredLayout>
