@@ -254,12 +254,15 @@ class PortfolioDaoIT {
   void update_measures_migrated() {
     PortfolioDto portfolio1 = db.components().insertPrivatePortfolioDto("name1");
     PortfolioDto portfolio2 = db.components().insertPrivatePortfolioDto("name2");
+    PortfolioDto portfolio3 = db.components().insertPrivatePortfolioDto("name3",
+      p -> p.setRootUuid(portfolio1.getUuid()).setParentUuid(portfolio1.getUuid()));
 
     portfolioDao.updateMeasuresMigrated(session, portfolio1.getUuid(), true);
     portfolioDao.updateMeasuresMigrated(session, portfolio2.getUuid(), false);
 
     assertThat(getMeasuresMigrated(portfolio1.getUuid())).isTrue();
     assertThat(getMeasuresMigrated(portfolio2.getUuid())).isFalse();
+    assertThat(getMeasuresMigrated(portfolio3.getUuid())).isTrue();
   }
 
   private boolean getMeasuresMigrated(String uuid1) {

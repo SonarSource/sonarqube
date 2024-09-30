@@ -567,6 +567,6 @@
       measures_migrated = #{measuresMigrated, jdbcType=BOOLEAN},
       updated_at = #{now, jdbcType=BIGINT}
     where
-      uuid = #{uuid, jdbcType=VARCHAR}
+      root_uuid = #{uuid, jdbcType=VARCHAR}
   </update>
 </mapper>
