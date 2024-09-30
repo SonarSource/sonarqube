@@ -6587,7 +6587,7 @@ __metadata:
     shared-store-hook: "npm:0.0.4"
     tailwindcss: "npm:3.4.13"
     turbo: "npm:1.11.3"
-    typescript: "npm:5.5.4"
+    typescript: "npm:5.6.2"
     valid-url: "npm:1.0.9"
     validator: "npm:13.12.0"
     whatwg-fetch: "npm:3.6.20"
@@ -8586,7 +8586,7 @@ __metadata:
     prettier-plugin-organize-imports: "npm:4.1.0"
     react-toastify: "npm:10.0.5"
     twin.macro: "npm:3.4.1"
-    typescript: "npm:5.5.4"
+    typescript: "npm:5.6.2"
     vite: "npm:5.4.8"
     vite-plugin-dts: "npm:3.9.1"
     whatwg-fetch: "npm:3.6.20"
@@ -16827,13 +16827,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:5.5.4":
-  version: 5.5.4
-  resolution: "typescript@npm:5.5.4"
+"typescript@npm:5.6.2":
+  version: 5.6.2
+  resolution: "typescript@npm:5.6.2"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10/1689ccafef894825481fc3d856b4834ba3cc185a9c2878f3c76a9a1ef81af04194849840f3c69e7961e2312771471bb3b460ca92561e1d87599b26c37d0ffb6f
+  checksum: 10/f95365d4898f357823e93d334ecda9fcade54f009b397c7d05b7621cd9e865981033cf89ccde0f3e3a7b73b1fdbae18e92bc77db237b43e912f053fef0f9a53b
   languageName: node
   linkType: hard
 
@@ -16847,13 +16847,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>":
-  version: 5.5.4
-  resolution: "typescript@patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>::version=5.5.4&hash=b45daf"
+"typescript@patch:typescript@npm%3A5.6.2#optional!builtin<compat/typescript>":
+  version: 5.6.2
+  resolution: "typescript@patch:typescript@npm%3A5.6.2#optional!builtin<compat/typescript>::version=5.6.2&hash=b45daf"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10/2c065f0ef81855eac25c9b658a3c9da65ffc005260c12854c2286f40f3667e1b1ecf8bdbdd37b59aa0397920378ce7900bff8cb32e0f1c7af6fd86efc676718c
+  checksum: 10/060a7349adf698477b411be4ace470aee6c2c1bd99917fdf5d33697c17ec55c64fe724eb10399387530b50e9913b41528dd8bfcca0a5fc8f8bac63fbb4580a2e
   languageName: node
   linkType: hard
 

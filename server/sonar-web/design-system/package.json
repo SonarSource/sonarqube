@@ -54,7 +54,7 @@
     "prettier": "3.3.3",
     "prettier-plugin-organize-imports": "4.1.0",
     "twin.macro": "3.4.1",
-    "typescript": "5.5.4",
+    "typescript": "5.6.2",
     "vite": "5.4.8",
     "vite-plugin-dts": "3.9.1",
     "whatwg-fetch": "3.6.20"
