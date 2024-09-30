@@ -278,8 +278,8 @@ describe('in non managed mode', () => {
     // Clear input to get an error on save
     await user.clear(ui.dialogSCMInput('SCM').get());
     await user.click(ui.createUserDialogButton.get());
+    // addGlobalError should be called with `Error: Empty SCM`
     expect(ui.dialogCreateUser.get()).toBeInTheDocument();
-    expect(await ui.dialogCreateUser.byText('Error: Empty SCM').find()).toBeInTheDocument();
     // Remove SCM account
     await user.click(ui.deleteSCMButton().get());
     expect(ui.dialogSCMInputs.queryAll()).toHaveLength(0);

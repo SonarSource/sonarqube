@@ -20,7 +20,7 @@
 import axios from 'axios';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
-import { HttpStatus, axiosToCatch, parseJSON, post } from '../helpers/request';
+import { HttpStatus, parseJSON, post } from '../helpers/request';
 import { IdentityProvider, Paging } from '../types/types';
 import {
   ChangePasswordResults,
@@ -85,14 +85,14 @@ export function postUser(data: {
   password?: string;
   scmAccounts: string[];
 }) {
-  return axiosToCatch.post<RestUserDetailed>(USERS_ENDPOINT, data);
+  return axios.post<RestUserDetailed>(USERS_ENDPOINT, data);
 }
 
 export function updateUser(
   id: string,
   data: Partial<Pick<RestUserDetailed, 'email' | 'name' | 'scmAccounts'>>,
 ) {
-  return axiosToCatch.patch<RestUserDetailed>(`${USERS_ENDPOINT}/${id}`, data);
+  return axios.patch<RestUserDetailed>(`${USERS_ENDPOINT}/${id}`, data);
 }
 
 export function deleteUser({ id, anonymize }: { anonymize?: boolean; id: string }) {
