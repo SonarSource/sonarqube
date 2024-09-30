@@ -85,7 +85,7 @@
     "autoprefixer": "10.4.20",
     "chalk": "4.1.2",
     "chokidar": "3.6.0",
-    "dd-trace": "4.25.0",
+    "dd-trace": "5.22.0",
     "design-system": "1.0.0",
     "esbuild": "0.20.2",
     "eslint": "8.57.1",
