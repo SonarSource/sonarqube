@@ -20,6 +20,11 @@
 package org.sonar.server.platform.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.platform.db.migration.adhoc.AddMeasuresMigratedColumnToPortfoliosTable;
+import org.sonar.server.platform.db.migration.adhoc.AddMeasuresMigratedColumnToProjectBranchesTable;
+import org.sonar.server.platform.db.migration.adhoc.CreateIndexOnPortfoliosMeasuresMigrated;
+import org.sonar.server.platform.db.migration.adhoc.CreateIndexOnProjectBranchesMeasuresMigrated;
+import org.sonar.server.platform.db.migration.adhoc.CreateMeasuresTable;
 
 public class SystemWsModule extends Module {
 
@@ -34,6 +39,13 @@ public class SystemWsModule extends Module {
       LivenessCheckerImpl.class,
       LivenessActionSupport.class,
       LivenessAction.class,
+
+      CreateMeasuresTable.class,
+      AddMeasuresMigratedColumnToProjectBranchesTable.class,
+      AddMeasuresMigratedColumnToPortfoliosTable.class,
+      CreateIndexOnProjectBranchesMeasuresMigrated.class,
+      CreateIndexOnPortfoliosMeasuresMigrated.class,
+      PrepareMigrationAction.class,
 
       InfoAction.class,
       LogsAction.class,

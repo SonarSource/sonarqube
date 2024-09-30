@@ -17,18 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
+package org.sonar.server.platform.db.migration.adhoc;
 
-import org.junit.Test;
-import org.sonar.core.platform.ListContainer;
+import org.sonar.db.Database;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class AddMeasuresMigratedColumnToPortfoliosTable extends AbstractAddMeasuresMigratedColumnToTable {
 
-public class SystemWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ListContainer container = new ListContainer();
-    new SystemWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(21);
+  static final String PORTFOLIOS_TABLE_NAME = "portfolios";
+
+  public AddMeasuresMigratedColumnToPortfoliosTable(Database db) {
+    super(db, PORTFOLIOS_TABLE_NAME);
   }
 }
