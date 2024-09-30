@@ -22,6 +22,7 @@ import { FlagMessage } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { DocLink } from '../../helpers/doc-links';
+import { useIsLegacyCCTMode } from '../../queries/settings';
 import DocumentationLink from '../common/DocumentationLink';
 
 interface AnalysisMissingInfoMessageProps {
@@ -35,10 +36,10 @@ export default function AnalysisMissingInfoMessage({
   qualifier,
   className,
 }: Readonly<AnalysisMissingInfoMessageProps>) {
+  const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
   const intl = useIntl();
-  // const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
 
-  if (hide) {
+  if (hide || isLoading || isLegacy) {
     return null;
   }
 

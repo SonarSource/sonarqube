@@ -124,7 +124,7 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
   );
 
   const filteredMetrics = difference(metricKeys, [
-    ...(allComponentsHaveSoftwareQualityMeasures
+    ...(allComponentsHaveSoftwareQualityMeasures && !isLegacy
       ? OLD_TAXONOMY_METRICS
       : CCT_SOFTWARE_QUALITY_METRICS),
     ...(allComponentsHaveRatings && !isLegacy

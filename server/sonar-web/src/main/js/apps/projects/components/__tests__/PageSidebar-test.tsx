@@ -95,8 +95,7 @@ it('should show legacy filters', async () => {
   ).toBeInTheDocument();
 });
 
-// eslint-disable-next-line jest/no-disabled-tests
-it.skip('should show non legacy filters', async () => {
+it('should show non legacy filters', async () => {
   settingsHandler.set(SettingsKey.LegacyMode, 'false');
   renderPageSidebar();
 

@@ -73,13 +73,13 @@ function renderFirstLine(
     MetricKey.maintainability_issues,
     MetricKey.security_issues,
   ].every((key) => measures[key] === undefined);
-  // const noRatingMetrics = [
-  //   MetricKey.software_quality_reliability_rating,
-  //   MetricKey.software_quality_maintainability_rating,
-  //   MetricKey.software_quality_security_rating,
-  // ].every((key) => measures[key] === undefined);
+  const noRatingMetrics = [
+    MetricKey.software_quality_reliability_rating,
+    MetricKey.software_quality_maintainability_rating,
+    MetricKey.software_quality_security_rating,
+  ].every((key) => measures[key] === undefined);
   const awaitingScan =
-    noSoftwareQualityMetrics &&
+    (noSoftwareQualityMetrics || noRatingMetrics) &&
     !isNewCode &&
     !isEmpty(analysisDate) &&
     measures.ncloc !== undefined;

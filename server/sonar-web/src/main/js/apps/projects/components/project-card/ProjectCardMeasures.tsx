@@ -31,6 +31,7 @@ import RatingComponent from '../../../../app/components/metrics/RatingComponent'
 import { duplicationRatingConverter } from '../../../../components/measure/utils';
 import { translate } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';
+import { useIsLegacyCCTMode } from '../../../../queries/settings';
 import { Dict } from '../../../../types/types';
 import ProjectCardMeasure from './ProjectCardMeasure';
 
@@ -115,7 +116,7 @@ function renderDuplication(props: ProjectCardMeasuresProps) {
   );
 }
 
-function renderRatings(props: ProjectCardMeasuresProps) {
+function renderRatings(props: ProjectCardMeasuresProps, isLegacy: boolean) {
   const { isNewCode, measures, componentKey } = props;
 
   const measuresByCodeLeak = isNewCode
@@ -125,7 +126,7 @@ function renderRatings(props: ProjectCardMeasuresProps) {
           iconLabel: translate(`metric.${MetricKey.security_issues}.short_name`),
           noShrink: true,
           metricKey:
-            measures[MetricKey.security_issues] === undefined
+            isLegacy || measures[MetricKey.security_issues] === undefined
               ? MetricKey.vulnerabilities
               : MetricKey.security_issues,
           metricRatingKey: MetricKey.security_rating,
@@ -134,7 +135,7 @@ function renderRatings(props: ProjectCardMeasuresProps) {
         {
           iconLabel: translate(`metric.${MetricKey.reliability_issues}.short_name`),
           metricKey:
-            measures[MetricKey.reliability_issues] === undefined
+            isLegacy || measures[MetricKey.reliability_issues] === undefined
               ? MetricKey.bugs
               : MetricKey.reliability_issues,
           metricRatingKey: MetricKey.reliability_rating,
@@ -143,7 +144,7 @@ function renderRatings(props: ProjectCardMeasuresProps) {
         {
           iconLabel: translate(`metric.${MetricKey.maintainability_issues}.short_name`),
           metricKey:
-            measures[MetricKey.maintainability_issues] === undefined
+            isLegacy || measures[MetricKey.maintainability_issues] === undefined
               ? MetricKey.code_smells
               : MetricKey.maintainability_issues,
           metricRatingKey: MetricKey.sqale_rating,
@@ -195,7 +196,7 @@ function renderRatings(props: ProjectCardMeasuresProps) {
 
 export default function ProjectCardMeasures(props: ProjectCardMeasuresProps) {
   const { isNewCode, measures, componentQualifier } = props;
-  // const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isLegacy } = useIsLegacyCCTMode();
 
   const { ncloc } = measures;
 
@@ -211,7 +212,7 @@ export default function ProjectCardMeasures(props: ProjectCardMeasuresProps) {
 
   const measureList = [
     renderNewIssues(props),
-    ...renderRatings(props),
+    ...renderRatings(props, !!isLegacy),
     renderCoverage(props),
     renderDuplication(props),
   ].filter(isDefined);
