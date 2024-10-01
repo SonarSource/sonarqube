@@ -26,7 +26,7 @@ import org.sonar.db.dialect.Dialect;
 
 public abstract class DataChange implements MigrationStep {
 
-  private final Database db;
+  protected final Database db;
 
   public DataChange(Database db) {
     this.db = db;
@@ -56,7 +56,7 @@ public abstract class DataChange implements MigrationStep {
     return connection;
   }
 
-  private Connection createDdlConnection() throws SQLException {
+  protected Connection createDdlConnection() throws SQLException {
     Connection res = db.getDataSource().getConnection();
     res.setAutoCommit(false);
     return res;

@@ -20,8 +20,6 @@
 package org.sonar.db.portfolio;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,12 +30,10 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.dialect.Oracle;
 import org.sonar.db.project.ApplicationProjectDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.platform.db.migration.adhoc.AddMeasuresMigratedColumnToPortfoliosTable;
 
-import static java.lang.String.format;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -715,20 +711,76 @@ public class PortfolioDaoTest {
     portfolioDao.updateMeasuresMigrated(session, portfolio1.getUuid(), true);
     portfolioDao.updateMeasuresMigrated(session, portfolio2.getUuid(), false);
 
-    assertThat(getMeasuresMigrated(portfolio1.getUuid())).isTrue();
-    assertThat(getMeasuresMigrated(portfolio2.getUuid())).isFalse();
+    assertThat(portfolioDao.isMeasuresMigrated(session, portfolio1.getUuid())).isTrue();
+    assertThat(portfolioDao.isMeasuresMigrated(session, portfolio2.getUuid())).isFalse();
   }
 
-  private boolean getMeasuresMigrated(String uuid1) {
-    List<Map<String, Object>> select = db.select(session,
-      format("select measures_migrated as \"MIGRATED\" from portfolios where uuid = '%s'", uuid1));
+  @Test
+  public void selectUuidsWithMeasuresMigratedFalse() throws SQLException {
+    createMeasuresMigratedColumn();
 
-    assertThat(select).hasSize(1);
-    Object value = select.get(0).get("MIGRATED");
-    if (db.getDbClient().getDatabase().getDialect().getId().equals(Oracle.ID)) {
-      return (long) value == 1;
-    }
-    return (boolean) value;
+    PortfolioDto migratedRoot = db.components().insertPrivatePortfolioDto();
+    PortfolioDto migratedChild1 = addPortfolio(migratedRoot);
+    PortfolioDto notMigratedRoot = db.components().insertPrivatePortfolioDto();
+    PortfolioDto notMigratedChild = addPortfolio(notMigratedRoot);
+    PortfolioDto notMigratedRoot2 = db.components().insertPrivatePortfolioDto();
+
+    // a parent portfolio and its children are expected to have the same migration status
+    db.getDbClient().portfolioDao().updateMeasuresMigrated(session, migratedRoot.getUuid(), true);
+    db.getDbClient().portfolioDao().updateMeasuresMigrated(session, migratedChild1.getUuid(), true);
+    db.getDbClient().portfolioDao().updateMeasuresMigrated(session, notMigratedRoot.getUuid(), false);
+    db.getDbClient().portfolioDao().updateMeasuresMigrated(session, notMigratedChild.getUuid(), false);
+
+    assertThat(portfolioDao.selectUuidsWithMeasuresMigratedFalse(session, 10))
+      .hasSize(2)
+      .containsOnly(notMigratedRoot.getUuid(), notMigratedRoot2.getUuid());
+
+    assertThat(portfolioDao.selectUuidsWithMeasuresMigratedFalse(session, 1))
+      .hasSize(1)
+      .containsOnly(notMigratedRoot.getUuid());
+  }
+
+  @Test
+  public void countByMeasuresMigratedFalse() throws SQLException {
+    createMeasuresMigratedColumn();
+
+    PortfolioDto root = db.components().insertPrivatePortfolioDto();
+    PortfolioDto child1 = addPortfolio(root);
+    PortfolioDto root2 = db.components().insertPrivatePortfolioDto();
+    PortfolioDto child2 = addPortfolio(root2);
+    PortfolioDto root3 = db.components().insertPrivatePortfolioDto();
+    db.components().insertPrivatePortfolioDto();
+
+    // a parent portfolio and its children are expected to have the same migration status
+    db.getDbClient().portfolioDao().updateMeasuresMigrated(session, root.getUuid(), true);
+    db.getDbClient().portfolioDao().updateMeasuresMigrated(session, child1.getUuid(), true);
+    db.getDbClient().portfolioDao().updateMeasuresMigrated(session, root2.getUuid(), false);
+    db.getDbClient().portfolioDao().updateMeasuresMigrated(session, child2.getUuid(), false);
+    db.getDbClient().portfolioDao().updateMeasuresMigrated(session, root3.getUuid(), false);
+
+    assertThat(portfolioDao.countByMeasuresMigratedFalse(session)).isEqualTo(3);
+  }
+
+  @Test
+  public void updateMeasuresMigrated() throws SQLException {
+    createMeasuresMigratedColumn();
+
+    PortfolioDto portfolio1 = db.components().insertPrivatePortfolioDto("name1");
+    PortfolioDto portfolio2 = db.components().insertPrivatePortfolioDto("name2");
+    PortfolioDto portfolio3 = db.components().insertPrivatePortfolioDto("name3",
+      p -> p.setRootUuid(portfolio1.getUuid()).setParentUuid(portfolio1.getUuid()));
+
+    portfolioDao.updateMeasuresMigrated(session, portfolio1.getUuid(), true);
+    portfolioDao.updateMeasuresMigrated(session, portfolio2.getUuid(), false);
+
+    assertThat(portfolioDao.isMeasuresMigrated(session, portfolio1.getUuid())).isTrue();
+    assertThat(portfolioDao.isMeasuresMigrated(session, portfolio2.getUuid())).isFalse();
+    assertThat(portfolioDao.isMeasuresMigrated(session, portfolio3.getUuid())).isTrue();
+  }
+
+  private void createMeasuresMigratedColumn() throws SQLException {
+    AddMeasuresMigratedColumnToPortfoliosTable migration = new AddMeasuresMigratedColumnToPortfoliosTable(db.getDbClient().getDatabase());
+    migration.execute();
   }
 
   private PortfolioDto addPortfolio(PortfolioDto parent) {

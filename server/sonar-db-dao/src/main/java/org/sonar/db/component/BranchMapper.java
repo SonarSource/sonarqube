@@ -73,4 +73,10 @@ public interface BranchMapper {
   short doAnyOfComponentsNeedIssueSync(@Param("componentKeys") List<String> components);
 
   int updateMeasuresMigrated(@Param("uuid") String uuid, @Param("measuresMigrated") boolean measuresMigrated, @Param("now") long now);
+
+  boolean isMeasuresMigrated(String uuid);
+
+  List<String> selectUuidsWithMeasuresMigratedFalse(int limit);
+
+  int countByMeasuresMigratedFalse();
 }

@@ -113,4 +113,10 @@ public interface PortfolioMapper {
   List<PortfolioDto> selectRootOfReferencersToAppBranch(@Param("appUuid") String appUuid, @Param("appBranchKey") String appBranchKey);
 
   int updateMeasuresMigrated(@Param("uuid") String uuid, @Param("measuresMigrated") boolean measuresMigrated, @Param("now") long now);
+
+  List<String> selectUuidsWithMeasuresMigratedFalse(int limit);
+
+  int countByMeasuresMigratedFalse();
+
+  boolean isMeasuresMigrated(@Param("uuid") String branchUuid);
 }

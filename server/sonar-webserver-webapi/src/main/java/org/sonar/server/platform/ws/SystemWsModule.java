@@ -25,6 +25,8 @@ import org.sonar.server.platform.db.migration.adhoc.AddMeasuresMigratedColumnToP
 import org.sonar.server.platform.db.migration.adhoc.CreateIndexOnPortfoliosMeasuresMigrated;
 import org.sonar.server.platform.db.migration.adhoc.CreateIndexOnProjectBranchesMeasuresMigrated;
 import org.sonar.server.platform.db.migration.adhoc.CreateMeasuresTable;
+import org.sonar.server.platform.db.migration.adhoc.MigrateBranchesLiveMeasuresToMeasures;
+import org.sonar.server.platform.db.migration.adhoc.MigratePortfoliosLiveMeasuresToMeasures;
 
 public class SystemWsModule extends Module {
 
@@ -46,6 +48,10 @@ public class SystemWsModule extends Module {
       CreateIndexOnProjectBranchesMeasuresMigrated.class,
       CreateIndexOnPortfoliosMeasuresMigrated.class,
       PrepareMigrationAction.class,
+
+      MigrateBranchesLiveMeasuresToMeasures.class,
+      MigratePortfoliosLiveMeasuresToMeasures.class,
+      MigrateMeasuresAction.class,
 
       InfoAction.class,
       LogsAction.class,
