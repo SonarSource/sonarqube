@@ -190,14 +190,14 @@ public class PersistMeasuresStep implements ComputationStep {
         .map(MeasureToMeasureDto::getMeasureValue)
         .filter(Objects::nonNull)
         .forEach(value -> measureDto.addValue(metric.getKey(), value));
+    }
 
-      if (component.getType() == Type.FILE) {
-        if (computeDuplicationDataMeasure == null) {
-          throw new IllegalStateException("ComputeDuplicationDataMeasure not initialized in container");
-        }
-        computeDuplicationDataMeasure.compute(component)
-          .ifPresent(duplicationData -> measureDto.addValue(DUPLICATIONS_DATA_KEY, duplicationData));
+    if (component.getType() == Type.FILE) {
+      if (computeDuplicationDataMeasure == null) {
+        throw new IllegalStateException("ComputeDuplicationDataMeasure not initialized in container");
       }
+      computeDuplicationDataMeasure.compute(component)
+        .ifPresent(duplicationData -> measureDto.addValue(DUPLICATIONS_DATA_KEY, duplicationData));
     }
 
     return measureDto;
