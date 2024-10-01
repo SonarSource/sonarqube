@@ -46,6 +46,8 @@ public class CorePropertyDefinitions {
   public static final String PLUGINS_RISK_CONSENT = "sonar.plugins.risk.consent";
   public static final String SUBCATEGORY_PROJECT_CREATION = "subProjectCreation";
 
+  public static final String SYSTEM_MEASURES_MIGRATION_ENABLED = "system.measures.migration.enabled";
+
   private CorePropertyDefinitions() {
     // only static stuff
   }

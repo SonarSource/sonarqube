@@ -248,4 +248,12 @@
     from dual
   </select>
 
+  <update id="updateMeasuresMigrated">
+    update project_branches
+    set
+    measures_migrated = #{measuresMigrated, jdbcType=BOOLEAN},
+    updated_at = #{now, jdbcType=BIGINT}
+    where
+    uuid = #{uuid, jdbcType=VARCHAR}
+  </update>
 </mapper>

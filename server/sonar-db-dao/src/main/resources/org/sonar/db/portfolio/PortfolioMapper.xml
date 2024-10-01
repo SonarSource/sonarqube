@@ -537,4 +537,13 @@
     WHERE
     uuid = #{uuid,jdbcType=VARCHAR}
   </update>
+
+  <update id="updateMeasuresMigrated">
+    update portfolios
+    set
+    measures_migrated = #{measuresMigrated, jdbcType=BOOLEAN},
+    updated_at = #{now, jdbcType=BIGINT}
+    where
+    uuid = #{uuid, jdbcType=VARCHAR}
+  </update>
 </mapper>

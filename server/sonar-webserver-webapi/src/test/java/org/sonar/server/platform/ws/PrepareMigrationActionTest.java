@@ -45,7 +45,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.sonar.server.platform.ws.PrepareMigrationAction.SYSTEM_MEASURES_MIGRATION_ENABLED;
+import static org.sonar.core.config.CorePropertyDefinitions.SYSTEM_MEASURES_MIGRATION_ENABLED;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @RunWith(DataProviderRunner.class)

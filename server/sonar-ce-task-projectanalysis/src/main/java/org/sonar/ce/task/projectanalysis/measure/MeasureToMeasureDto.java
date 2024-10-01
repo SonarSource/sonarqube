@@ -60,6 +60,14 @@ public class MeasureToMeasureDto {
     return out;
   }
 
+  public static Object getMeasureValue(Measure measure) {
+    Double doubleValue = valueAsDouble(measure);
+    if (doubleValue != null) {
+      return doubleValue;
+    }
+    return data(measure);
+  }
+
   private static void setAlert(MeasureDto measureDto, QualityGateStatus qualityGateStatus) {
     measureDto.setAlertStatus(qualityGateStatus.getStatus().name());
     measureDto.setAlertText(qualityGateStatus.getText());

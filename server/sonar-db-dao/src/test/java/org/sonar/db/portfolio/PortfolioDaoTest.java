@@ -19,6 +19,9 @@
  */
 package org.sonar.db.portfolio;
 
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,9 +32,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.dialect.Oracle;
 import org.sonar.db.project.ApplicationProjectDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.server.platform.db.migration.adhoc.AddMeasuresMigratedColumnToPortfoliosTable;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -697,6 +703,32 @@ public class PortfolioDaoTest {
     portfolioDao.deleteAllProjects(session);
     assertThat(db.countRowsOfTable(session, "portfolio_projects")).isZero();
     assertThat(db.countRowsOfTable(session, "portfolio_proj_branches")).isZero();
+  }
+
+  @Test
+  public void update_measures_migrated() throws SQLException {
+    new AddMeasuresMigratedColumnToPortfoliosTable(db.getDbClient().getDatabase()).execute();
+
+    PortfolioDto portfolio1 = db.components().insertPrivatePortfolioDto("name1");
+    PortfolioDto portfolio2 = db.components().insertPrivatePortfolioDto("name2");
+
+    portfolioDao.updateMeasuresMigrated(session, portfolio1.getUuid(), true);
+    portfolioDao.updateMeasuresMigrated(session, portfolio2.getUuid(), false);
+
+    assertThat(getMeasuresMigrated(portfolio1.getUuid())).isTrue();
+    assertThat(getMeasuresMigrated(portfolio2.getUuid())).isFalse();
+  }
+
+  private boolean getMeasuresMigrated(String uuid1) {
+    List<Map<String, Object>> select = db.select(session,
+      format("select measures_migrated as \"MIGRATED\" from portfolios where uuid = '%s'", uuid1));
+
+    assertThat(select).hasSize(1);
+    Object value = select.get(0).get("MIGRATED");
+    if (db.getDbClient().getDatabase().getDialect().getId().equals(Oracle.ID)) {
+      return (long) value == 1;
+    }
+    return (boolean) value;
   }
 
   private PortfolioDto addPortfolio(PortfolioDto parent) {

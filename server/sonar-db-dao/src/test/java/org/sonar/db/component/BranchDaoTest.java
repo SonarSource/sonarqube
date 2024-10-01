@@ -22,6 +22,7 @@ package org.sonar.db.component;
 import com.google.common.collect.Sets;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,10 +39,13 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.dialect.Oracle;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbProjectBranches;
+import org.sonar.server.platform.db.migration.adhoc.AddMeasuresMigratedColumnToProjectBranchesTable;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -775,5 +779,32 @@ public class BranchDaoTest {
     componentKeys.add(project.getKey());
 
     assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, componentKeys)).isTrue();
+  }
+
+  @Test
+  public void updateMeasuresMigrated() throws SQLException {
+    new AddMeasuresMigratedColumnToProjectBranchesTable(db.getDbClient().getDatabase()).execute();
+
+    ComponentDto project = db.components().insertPrivateProject();
+    String uuid1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH)).uuid();
+    String uuid2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH)).uuid();
+
+    underTest.updateMeasuresMigrated(dbSession, uuid1, true);
+    underTest.updateMeasuresMigrated(dbSession, uuid2, false);
+
+    assertThat(getMeasuresMigrated(uuid1)).isTrue();
+    assertThat(getMeasuresMigrated(uuid2)).isFalse();
+  }
+
+  private boolean getMeasuresMigrated(String uuid1) {
+    List<Map<String, Object>> select = db.select(dbSession,
+      format("select measures_migrated as \"MIGRATED\" from project_branches where uuid = '%s'", uuid1));
+
+    assertThat(select).hasSize(1);
+    Object value = select.get(0).get("MIGRATED");
+    if (db.getDbClient().getDatabase().getDialect().getId().equals(Oracle.ID)) {
+      return (long) value == 1;
+    }
+    return (boolean) value;
   }
 }

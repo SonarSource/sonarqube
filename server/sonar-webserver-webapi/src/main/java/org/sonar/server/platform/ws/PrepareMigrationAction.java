@@ -36,6 +36,7 @@ import org.sonar.server.platform.db.migration.adhoc.CreateMeasuresTable;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
+import static org.sonar.core.config.CorePropertyDefinitions.SYSTEM_MEASURES_MIGRATION_ENABLED;
 
 /**
  * Implementation of the {@code prepare_migration} action for the System WebService.
@@ -43,7 +44,6 @@ import static java.lang.String.format;
 public class PrepareMigrationAction implements SystemWsAction {
 
   public static final String PARAM_ENABLE = "enable";
-  public static final String SYSTEM_MEASURES_MIGRATION_ENABLED = "system.measures.migration.enabled";
   private final UserSession userSession;
   private final DbClient dbClient;
   private final CreateMeasuresTable createMeasuresTable;

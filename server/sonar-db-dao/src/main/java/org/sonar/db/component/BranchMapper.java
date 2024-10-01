@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
 public interface BranchMapper {
@@ -73,4 +72,5 @@ public interface BranchMapper {
 
   short doAnyOfComponentsNeedIssueSync(@Param("componentKeys") List<String> components);
 
+  int updateMeasuresMigrated(@Param("uuid") String uuid, @Param("measuresMigrated") boolean measuresMigrated, @Param("now") long now);
 }

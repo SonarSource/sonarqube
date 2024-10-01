@@ -80,6 +80,15 @@ public class MeasureTesting {
       .setValue((double) cursor++);
   }
 
+  public static JsonMeasureDto newJsonMeasure() {
+    JsonMeasureDto measureDto = new JsonMeasureDto()
+      .setComponentUuid(String.valueOf(cursor++))
+      .setBranchUuid(String.valueOf(cursor++))
+      .addValue("metric" + cursor++, (double) cursor++);
+    measureDto.computeJsonValueHash();
+    return measureDto;
+  }
+
   public static LiveMeasureDto createLiveMeasure(MetricDto metricDto, ComponentDto componentDto) {
     BiConsumer<MetricDto, MeasureAdapter> populator = specificLiveMeasurePopulator.getOrDefault(metricDto.getKey(), defaultLiveMeasurePopulator);
     LiveMeasureDto liveMeasureDto = newLiveMeasure(componentDto, metricDto);

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.measure.JsonMeasureMapper">
+
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
+    insert into measures (
+    component_uuid,
+    branch_uuid,
+    json_value,
+    json_value_hash,
+    created_at,
+    updated_at
+    ) values (
+    #{dto.componentUuid, jdbcType=VARCHAR},
+    #{dto.branchUuid, jdbcType=VARCHAR},
+    #{dto.jsonValue, jdbcType=VARCHAR},
+    #{dto.jsonValueHash, jdbcType=BIGINT},
+    #{now, jdbcType=BIGINT},
+    #{now, jdbcType=BIGINT}
+    )
+  </insert>
+
+  <update id="update" parameterType="map" useGeneratedKeys="false">
+    update measures set
+    json_value = #{dto.jsonValue, jdbcType=VARCHAR},
+    json_value_hash = #{dto.jsonValueHash, jdbcType=BIGINT},
+    updated_at = #{now, jdbcType=BIGINT}
+    where component_uuid = #{dto.componentUuid, jdbcType=VARCHAR}
+  </update>
+
+  <sql id="columns">
+    m.component_uuid as componentUuid,
+    m.branch_uuid as branchUuid,
+    m.json_value as jsonValue,
+    m.json_value_hash as jsonValueHash
+  </sql>
+
+  <select id="selectByComponentUuid" parameterType="map" resultType="org.sonar.db.measure.JsonMeasureDto">
+    select
+    <include refid="columns"/>
+    from measures m
+    where
+    m.component_uuid = #{componentUuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectBranchMeasureHashes" resultType="org.sonar.db.measure.JsonMeasureHash">
+    select component_uuid, json_value_hash
+    from measures
+    where branch_uuid = #{branchUuid, jdbcType=VARCHAR}
+  </select>
+
+</mapper>

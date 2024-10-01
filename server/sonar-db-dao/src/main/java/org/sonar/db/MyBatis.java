@@ -77,6 +77,7 @@ import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.issue.PrIssueDto;
 import org.sonar.db.mapping.ProjectMappingDto;
 import org.sonar.db.mapping.ProjectMappingsMapper;
+import org.sonar.db.measure.JsonMeasureMapper;
 import org.sonar.db.measure.LargestBranchNclocDto;
 import org.sonar.db.measure.LiveMeasureMapper;
 import org.sonar.db.measure.MeasureDto;
@@ -265,6 +266,7 @@ public class MyBatis {
       ComponentKeyUpdaterMapper.class,
       ComponentMapper.class,
       LiveMeasureMapper.class,
+      JsonMeasureMapper.class,
       DefaultQProfileMapper.class,
       DuplicationMapper.class,
       EsQueueMapper.class,

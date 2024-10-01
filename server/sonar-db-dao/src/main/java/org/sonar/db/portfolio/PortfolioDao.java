@@ -268,4 +268,8 @@ public class PortfolioDao implements Dao {
     return portfolioDto.isRoot() ? Qualifiers.VIEW : Qualifiers.SUBVIEW;
   }
 
+  public long updateMeasuresMigrated(DbSession dbSession, String branchUuid, boolean measuresMigrated) {
+    long now = system2.now();
+    return mapper(dbSession).updateMeasuresMigrated(branchUuid, measuresMigrated, now);
+  }
 }

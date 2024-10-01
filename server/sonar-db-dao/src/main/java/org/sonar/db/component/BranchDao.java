@@ -177,4 +177,9 @@ public class BranchDao implements Dao {
     }
     return false;
   }
+
+  public long updateMeasuresMigrated(DbSession dbSession, String branchUuid, boolean measuresMigrated) {
+    long now = system2.now();
+    return mapper(dbSession).updateMeasuresMigrated(branchUuid, measuresMigrated, now);
+  }
 }

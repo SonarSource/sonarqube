@@ -37,6 +37,7 @@ import org.sonar.db.measure.MeasureDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.ce.task.projectanalysis.measure.MeasureToMeasureDto.getMeasureValue;
 
 @RunWith(DataProviderRunner.class)
 public class MeasureToMeasureDtoTest {
@@ -179,5 +180,43 @@ public class MeasureToMeasureDtoTest {
       SOME_COMPONENT);
 
     assertThat(liveMeasureDto.getTextValue()).isEqualTo(Measure.Level.OK.name());
+  }
+
+  @Test
+  public void getMeasureValue_returns_null_if_measure_is_empty() {
+    assertThat(getMeasureValue(Measure.newMeasureBuilder().createNoValue())).isNull();
+  }
+
+  @Test
+  public void getMeasureValue_maps_value_to_1_or_0_and_data_from_data_field_for_BOOLEAN_metric() {
+    assertThat(getMeasureValue(Measure.newMeasureBuilder().create(true, SOME_DATA))).isEqualTo(1d);
+    assertThat(getMeasureValue(Measure.newMeasureBuilder().create(false, SOME_DATA))).isEqualTo(0d);
+  }
+
+  @Test
+  public void getMeasureValue_maps_value_and_data_from_data_field_for_INT_metric() {
+    assertThat(getMeasureValue(Measure.newMeasureBuilder().create(123, SOME_DATA))).isEqualTo(123.0);
+  }
+
+  @Test
+  public void getMeasureValue_maps_value_and_data_from_data_field_for_LONG_metric() {
+    assertThat(getMeasureValue(Measure.newMeasureBuilder().create((long) 456, SOME_DATA))).isEqualTo(456.0);
+  }
+
+  @Test
+  public void getMeasureValue_maps_value_and_data_from_data_field_for_DOUBLE_metric() {
+    assertThat(getMeasureValue(Measure.newMeasureBuilder().create(789, 1, SOME_DATA))).isEqualTo(789.0);
+  }
+
+  @Test
+  public void getMeasureValue_maps_to_only_data_for_STRING_metric() {
+    assertThat(getMeasureValue(
+      Measure.newMeasureBuilder().create(SOME_STRING))).isEqualTo(SOME_STRING);
+  }
+
+  @Test
+  public void getMeasureValue_maps_name_of_Level_to_data_and_has_no_value_for_LEVEL_metric() {
+    assertThat(getMeasureValue(
+      Measure.newMeasureBuilder().create(Measure.Level.OK))).isEqualTo(Measure.Level.OK.name());
   }
 }
