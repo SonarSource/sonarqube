@@ -11,7 +11,6 @@
   "ignoreDeps": [
     "org.ajoberstar.grgit",
     "com.bmuschko.docker-remote-api",
-    
     "com.sonarsource.abap:sonar-abap-plugin",
     "com.sonarsource.cobol:sonar-cobol-plugin",
     "com.sonarsource.cpp:sonar-cfamily-plugin",
@@ -67,6 +66,10 @@
       "enabled": false
     },
     {
+      "matchManagers": "npm",
+      "enabled": false
+    },
+    {
       "matchManagers": "gradle",
       "matchUpdateTypes": [
         "patch",
@@ -82,23 +85,6 @@
       ],
       "enabled": true,
       "groupName": "Major Backend Dependencies"
-    },
-    {
-      "matchManagers": "npm",
-      "matchUpdateTypes": [
-        "patch",
-        "minor"
-      ],
-      "enabled": true,
-      "groupName": "Minor Frontend Dependencies"
-    },
-    {
-      "matchManagers": "npm",
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "enabled": true,
-      "groupName": "Major Frontend Dependencies"
     }
   ]
 }
