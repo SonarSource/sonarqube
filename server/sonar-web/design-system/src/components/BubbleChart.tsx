@@ -33,6 +33,8 @@ import { Note } from '../sonar-aligned/components/typography';
 import { Tooltip } from './Tooltip';
 
 const TICKS_COUNT = 5;
+const DEFAULT_PADDING = [10, 10, 10, 10];
+const DEFAULT_SIZE_RANGE = [5, 45];
 
 interface BubbleItem<T> {
   backgroundColor?: string;
@@ -51,8 +53,8 @@ export interface BubbleChartProps<T> {
   displayXTicks?: boolean;
   displayYGrid?: boolean;
   displayYTicks?: boolean;
-  formatXTick: (tick: number) => string;
-  formatYTick: (tick: number) => string;
+  formatXTick?: (tick: number) => string;
+  formatYTick?: (tick: number) => string;
   height: number;
   items: Array<BubbleItem<T>>;
   onBubbleClick?: (ref?: T) => void;
@@ -68,36 +70,26 @@ export interface BubbleChartProps<T> {
 
 type Scale = ScaleLinear<number, number>;
 
-BubbleChart.defaultProps = {
-  displayXGrid: true,
-  displayXTicks: true,
-  displayYGrid: true,
-  displayYTicks: true,
-  formatXTick: (d: number) => String(d),
-  formatYTick: (d: number) => String(d),
-  padding: [10, 10, 10, 10],
-  sizeRange: [5, 45],
-};
-
 export function BubbleChart<T>(props: BubbleChartProps<T>) {
   const {
-    padding,
+    padding = DEFAULT_PADDING,
     height,
     items,
     xDomain,
     yDomain,
     sizeDomain,
-    sizeRange,
+    sizeRange = DEFAULT_SIZE_RANGE,
     zoomResetLabel = 'Reset',
     zoomTooltipText,
     zoomLabel = 'Zoom',
-    displayXTicks,
-    displayYTicks,
-    displayXGrid,
-    displayYGrid,
-    formatXTick,
-    formatYTick,
+    displayXTicks = true,
+    displayYTicks = true,
+    displayXGrid = true,
+    displayYGrid = true,
+    formatXTick = (d: number) => String(d),
+    formatYTick = (d: number) => String(d),
   } = props;
+
   const [transform, setTransform] = React.useState({ x: 0, y: 0, k: 1 });
   const nodeRef = React.useRef<SVGSVGElement>();
   const zoomRef = React.useRef<ZoomBehavior<Element, unknown>>();
@@ -325,8 +317,8 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
       );
     });
 
-    const xTicks = getTicks(xScale, props.formatXTick);
-    const yTicks = getTicks(yScale, props.formatYTick);
+    const xTicks = getTicks(xScale, formatXTick);
+    const yTicks = getTicks(yScale, formatYTick);
 
     return (
       <svg

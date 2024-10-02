@@ -22,12 +22,15 @@ import * as React from 'react';
 import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
-export interface SimpleInputProps extends DefaultSpecializedInputProps {
-  innerRef: React.ForwardedRef<HTMLInputElement>;
+interface SimpleInputProps extends DefaultSpecializedInputProps {
   value: string | number;
 }
 
-class SimpleInput extends React.PureComponent<SimpleInputProps> {
+type InternalProps = SimpleInputProps & {
+  innerRef: React.ForwardedRef<HTMLInputElement>;
+};
+
+class SimpleInput extends React.PureComponent<InternalProps> {
   handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.props.onChange(event.currentTarget.value);
   };
@@ -83,7 +86,7 @@ class SimpleInput extends React.PureComponent<SimpleInputProps> {
 }
 
 export default React.forwardRef(
-  (props: Omit<SimpleInputProps, 'innerRef'>, ref: React.ForwardedRef<HTMLInputElement>) => (
+  (props: SimpleInputProps, ref: React.ForwardedRef<HTMLInputElement>) => (
     <SimpleInput innerRef={ref} {...props} />
   ),
 );

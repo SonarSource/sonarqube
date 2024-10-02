@@ -34,13 +34,16 @@ interface State {
 }
 
 interface Props extends DefaultInputProps {
-  innerRef: React.ForwardedRef<HTMLElement>;
   input: React.ComponentType<
     React.PropsWithChildren<DefaultSpecializedInputProps> & React.RefAttributes<HTMLElement>
   >;
 }
 
-class InputForSecured extends React.PureComponent<Props, State> {
+type InternalProps = Props & {
+  innerRef: React.ForwardedRef<HTMLElement>;
+};
+
+class InputForSecured extends React.PureComponent<InternalProps, State> {
   state: State = {
     changing: !this.props.setting.hasValue,
   };
@@ -107,8 +110,6 @@ class InputForSecured extends React.PureComponent<Props, State> {
   }
 }
 
-export default React.forwardRef(
-  (props: Omit<Props, 'innerRef'>, ref: React.ForwardedRef<HTMLElement>) => (
-    <InputForSecured innerRef={ref} {...props} />
-  ),
-);
+export default React.forwardRef((props: Props, ref: React.ForwardedRef<HTMLElement>) => (
+  <InputForSecured innerRef={ref} {...props} />
+));

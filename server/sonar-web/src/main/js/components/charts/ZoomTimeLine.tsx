@@ -43,7 +43,7 @@ export interface Props {
   width: number;
 }
 
-export type PropsWithDefaults = Props & typeof ZoomTimeLine.defaultProps;
+const DEFAULT_PADDING = [0, 0, 18, 0];
 
 interface State {
   newZoomStart?: number;
@@ -53,11 +53,7 @@ interface State {
 type XScale = ScaleTime<number, number>;
 
 export class ZoomTimeLine extends React.PureComponent<Props, State> {
-  static defaultProps = {
-    padding: [0, 0, 18, 0],
-  };
-
-  constructor(props: PropsWithDefaults) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {};
@@ -93,7 +89,7 @@ export class ZoomTimeLine extends React.PureComponent<Props, State> {
   };
 
   getScales = () => {
-    const { padding } = this.props as PropsWithDefaults;
+    const { padding = DEFAULT_PADDING } = this.props;
 
     const availableWidth = this.props.width - padding[1] - padding[3];
     const availableHeight = this.props.height - padding[0] - padding[2];
@@ -356,9 +352,9 @@ export class ZoomTimeLine extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { padding } = this.props as PropsWithDefaults;
+    const { padding = DEFAULT_PADDING, height, width } = this.props;
 
-    if (!this.props.width || !this.props.height) {
+    if (width === 0 || height === 0) {
       return <div />;
     }
 
