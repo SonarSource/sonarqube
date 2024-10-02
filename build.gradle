@@ -209,7 +209,7 @@ subprojects {
   ext {
     protobufVersion = '3.25.5'
     springVersion = '5.3.39'
-    elasticSearchClientVersion = '7.17.22'
+    elasticSearchClientVersion = '7.17.24'
   }
 
   sonar {
