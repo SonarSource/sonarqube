@@ -367,7 +367,7 @@ subprojects {
       dependency 'jakarta.servlet:jakarta.servlet-api:4.0.4'
       dependency 'junit:junit:4.13.2'
       // JUnit 5
-      dependencySet(group: 'org.junit.jupiter', version: '5.10.2') {
+      dependencySet(group: 'org.junit.jupiter', version: '5.11.1') {
         entry 'junit-jupiter-api'
         entry 'junit-jupiter-engine'
         entry 'junit-jupiter-params'
