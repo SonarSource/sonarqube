@@ -22,7 +22,6 @@ dependencies {
   compileOnlyApi 'javax.annotation:javax.annotation-api'
 
     testImplementation 'com.squareup.okhttp3:mockwebserver'
-    testImplementation 'com.squareup.okio:okio'
     testImplementation 'commons-io:commons-io'
     testImplementation 'org.apache.commons:commons-lang3'
     testImplementation 'junit:junit'

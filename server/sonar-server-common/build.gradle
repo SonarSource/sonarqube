@@ -36,7 +36,6 @@ dependencies {
   testImplementation 'org.subethamail:subethasmtp'
   testImplementation 'com.squareup.okhttp3:mockwebserver'
   testImplementation 'com.squareup.okhttp3:okhttp-tls'
-  testImplementation 'com.squareup.okio:okio'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'junit:junit'
   testImplementation 'org.apache.logging.log4j:log4j-api'

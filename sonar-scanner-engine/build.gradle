@@ -59,7 +59,6 @@ dependencies {
 
   testImplementation 'com.squareup.okhttp3:mockwebserver'
   testImplementation 'com.squareup.okhttp3:okhttp'
-  testImplementation 'com.squareup.okio:okio'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'commons-io:commons-io'
   testImplementation 'junit:junit'
