@@ -154,10 +154,10 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
       }
       return;
     }
-    if (appState.isOperational(ProcessId.WEB_SERVER, false)) {
+    if (appState.tryToLockWebLeader()) {
+      tryToStartWebLeader(process);
+    } else if (appState.isOperational(ProcessId.WEB_SERVER, false)) {
       tryToStartProcess(process, () -> commandFactory.createWebCommand(false));
-    } else if (appState.tryToLockWebLeader()) {
-      tryToStartProcess(process, () -> commandFactory.createWebCommand(true));
     } else {
       Optional<String> leader = appState.getLeaderHostName();
       if (leader.isPresent()) {
@@ -165,6 +165,24 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
       } else {
         LOG.error("Initialization failed. All nodes must be restarted");
       }
+    }
+  }
+
+
+  /**
+   * Tries to start the web leader process. If the process fails to start, the web leader lock is released. If we would not release the lock
+   * then all nodes would need to be stopped and restarted.
+   */
+  private void tryToStartWebLeader(ManagedProcessHandler process) throws InterruptedException {
+    try {
+      boolean processStarted = tryToStartProcess(process, () -> commandFactory.createWebCommand(true));
+      if (!processStarted) {
+        appState.tryToReleaseWebLeaderLock();
+      }
+    } catch (InterruptedException e) {
+      logProcessStartFailure(process, e);
+      appState.tryToReleaseWebLeaderLock();
+      throw e;
     }
   }
 
@@ -180,7 +198,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     return appState.isOperational(ProcessId.ELASTICSEARCH, requireLocalEs);
   }
 
-  private void tryToStartProcess(ManagedProcessHandler processHandler, Supplier<AbstractCommand> commandSupplier) throws InterruptedException {
+  private boolean tryToStartProcess(ManagedProcessHandler processHandler, Supplier<AbstractCommand> commandSupplier) throws InterruptedException {
     // starter or restarter thread was interrupted, we should not proceed with starting the process
     if (Thread.currentThread().isInterrupted()) {
       throw new InterruptedException();
@@ -192,13 +210,19 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
         return processLauncher.launch(command);
       });
     } catch (RuntimeException e) {
-      // failed to start command -> do nothing
-      // the process failing to start will move directly to STOP state
-      // this early stop of the process will be picked up by onProcessStop (which calls hardStopAsync)
-      // through interface ProcessLifecycleListener#onProcessState implemented by SchedulerImpl
-      LOG.trace("Failed to start process [{}] (currentThread={})",
-        processHandler.getProcessId().getHumanReadableName(), Thread.currentThread().getName(), e);
+      logProcessStartFailure(processHandler, e);
+      return false;
     }
+    return true;
+  }
+
+  private static void logProcessStartFailure(ManagedProcessHandler processHandler, Exception e) {
+    // failed to start command -> do nothing
+    // the process failing to start will move directly to STOP state
+    // this early stop of the process will be picked up by onProcessStop (which calls hardStopAsync)
+    // through interface ProcessLifecycleListener#onProcessState implemented by SchedulerImpl
+    LOG.warn("Failed to start process [{}] (currentThread={})",
+      processHandler.getProcessId().getHumanReadableName(), Thread.currentThread().getName(), e);
   }
 
   @Override
@@ -211,6 +235,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
 
   private void stopImpl() {
     try {
+      appState.tryToReleaseWebLeaderLock();
       stopAll();
       finalizeStop();
     } catch (InterruptedException e) {

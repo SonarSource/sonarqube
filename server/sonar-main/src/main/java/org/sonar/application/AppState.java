@@ -48,6 +48,8 @@ public interface AppState extends AutoCloseable {
 
   boolean tryToLockWebLeader();
 
+  void tryToReleaseWebLeaderLock();
+
   void reset();
 
   void registerSonarQubeVersion(String sonarqubeVersion);

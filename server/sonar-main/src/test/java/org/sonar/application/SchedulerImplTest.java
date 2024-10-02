@@ -112,6 +112,18 @@ public class SchedulerImplTest {
   }
 
   @Test
+  public void schedule_whenWebLeaderFailsToStart_webLockIsReleased() throws InterruptedException {
+    TestAppSettings settings = new TestAppSettings();
+    SchedulerImpl underTest = newScheduler(settings, true);
+    clusterAppState.setOperational(ProcessId.ELASTICSEARCH);
+    processLauncher.makeStartupFail = WEB_SERVER;
+
+    underTest.schedule();
+
+    assertThat(clusterAppState.getWebLeaderLocked().get()).isFalse();
+  }
+
+  @Test
   public void start_and_stop_sequence_of_ES_WEB_CE_in_order() throws Exception {
     TestAppSettings settings = new TestAppSettings();
     SchedulerImpl underTest = newScheduler(settings, false);

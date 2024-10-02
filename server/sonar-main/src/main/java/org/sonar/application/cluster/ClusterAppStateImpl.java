@@ -131,6 +131,21 @@ public class ClusterAppStateImpl implements ClusterAppState {
   }
 
   @Override
+  public void tryToReleaseWebLeaderLock() {
+    tryToReleaseWebLeaderLock(hzMember.getUuid());
+  }
+
+  /**
+   * Tries to release the lock of the cluster leader. It is safe to call this method even if one is not sure about the UUID of the leader.
+   * If all nodes call this method then we can be confident that the lock is released.
+   * @param uuidOfLeader - the UUID of the leader to release the lock. In case the UUID is not the leader's uuid this method has no effect.
+   */
+  private void tryToReleaseWebLeaderLock(UUID uuidOfLeader) {
+    IAtomicReference<UUID> leader = hzMember.getAtomicReference(LEADER);
+    leader.compareAndSet(uuidOfLeader, null);
+  }
+
+  @Override
   public void reset() {
     throw new IllegalStateException("state reset is not supported in cluster mode");
   }
@@ -267,6 +282,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
     }
 
     private void removeOperationalProcess(UUID uuid) {
+      tryToReleaseWebLeaderLock(uuid);
       for (ClusterProcess clusterProcess : operationalProcesses.keySet()) {
         if (clusterProcess.getNodeUuid().equals(uuid)) {
           LOGGER.debug("Set node process off for [{}:{}] : ", clusterProcess.getNodeUuid(), clusterProcess.getProcessId());
