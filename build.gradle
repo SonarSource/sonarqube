@@ -381,7 +381,7 @@ subprojects {
       dependency 'net.sf.trove4j:core:3.1.0'
       dependency 'org.awaitility:awaitility:4.2.2'
       dependency 'org.apache.commons:commons-collections4:4.4'
-      dependency 'org.apache.commons:commons-csv:1.11.0'
+      dependency 'org.apache.commons:commons-csv:1.12.0'
       dependency 'org.apache.commons:commons-lang3:3.17.0'
       dependency 'org.apache.commons:commons-email:1.6.0'
       dependency 'org.apache.commons:commons-text:1.12.0'
