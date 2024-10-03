@@ -63,6 +63,7 @@ import static com.google.common.collect.Lists.asList;
 import static java.sql.Types.BIGINT;
 import static java.sql.Types.BIT;
 import static java.sql.Types.BOOLEAN;
+import static java.sql.Types.DECIMAL;
 import static java.sql.Types.DOUBLE;
 import static java.sql.Types.INTEGER;
 import static java.sql.Types.NUMERIC;
@@ -76,10 +77,12 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
 
   private static final Pattern INDEX_NAME_PATTERN = Pattern.compile("COALESCE\\(([\\w_]*),");
 
-  private static final Map<Integer, Integer> POSTGRES_TYPE_SUBSTITUTION = Map.of(BOOLEAN, BIT);
+  private static final Map<Integer, Integer> POSTGRES_TYPE_SUBSTITUTION = Map.of(BOOLEAN, BIT,
+    DOUBLE, NUMERIC);
   private static final Map<Integer, Integer> MSSQL_TYPE_SUBSTITUTION = Map.of(
     BOOLEAN, BIT,
-    VARCHAR, NVARCHAR);
+    VARCHAR, NVARCHAR,
+    DOUBLE, DECIMAL);
 
   private static final Map<Integer, Integer> ORACLE_TYPE_SUBSTITUTION = Map.of(
     BOOLEAN, NUMERIC,
