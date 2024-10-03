@@ -64,10 +64,12 @@ const ui = {
   localFilter: byRole('radio', { name: 'local' }),
   showMore: byRole('button', { name: 'show_more' }),
   aliceUpdateGroupButton: byRole('button', { name: 'users.update_users_groups.alice.merveille' }),
+  aliceViewGroupButton: byRole('button', { name: 'users.view_users_groups.alice.merveille' }),
   aliceUpdateButton: byRole('button', { name: 'users.manage_user.alice.merveille' }),
   denisUpdateButton: byRole('button', { name: 'users.manage_user.denis.villeneuve' }),
   alicedDeactivateButton: byText('users.deactivate'),
   bobUpdateGroupButton: byRole('button', { name: 'users.update_users_groups.bob.marley' }),
+  bobViewGroupButton: byRole('button', { name: 'users.view_users_groups.bob.marley' }),
   bobUpdateButton: byRole('button', { name: 'users.manage_user.bob.marley' }),
   scmAddButton: byRole('button', { name: 'add_verb' }),
   createUserDialogButton: byRole('button', { name: 'create' }),
@@ -117,6 +119,8 @@ const ui = {
   jackRow: byRole('row', { name: /Jack/ }),
 
   dialogGroups: byRole('dialog', { name: 'users.update_groups' }),
+  dialogViewGroups: byRole('dialog', { name: 'users.view_groups' }),
+  buttonCloseDialogViewGroups: byRole('button', { name: 'modal.close' }),
   allFilter: byRole('radio', { name: 'all' }),
   selectedFilter: byRole('radio', { name: 'selected' }),
   unselectedFilter: byRole('radio', { name: 'unselected' }),
@@ -509,13 +513,18 @@ describe('in manage mode', () => {
     expect(ui.createUserButton.get()).toBeDisabled();
   });
 
-  it("should not be able to add/remove a user's group", async () => {
+  it("should be able to view only a user's group", async () => {
+    const user = userEvent.setup({ skipHover: true });
     renderUsersApp();
 
     expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
-    expect(ui.aliceUpdateGroupButton.query()).not.toBeInTheDocument();
+    await user.click(ui.aliceViewGroupButton.get());
+    expect(ui.dialogViewGroups.get()).toBeInTheDocument();
+    expect(ui.dialogViewGroups.byRole('checkbox').query()).not.toBeInTheDocument();
+    await user.click(ui.buttonCloseDialogViewGroups.get());
     expect(ui.bobRow.get()).toBeInTheDocument();
-    expect(ui.bobUpdateGroupButton.query()).not.toBeInTheDocument();
+    await user.click(ui.bobViewGroupButton.get());
+    expect(ui.dialogViewGroups.byRole('checkbox').query()).not.toBeInTheDocument();
   });
 
   it('should not be able to update scm account', async () => {

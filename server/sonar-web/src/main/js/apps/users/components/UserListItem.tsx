@@ -37,6 +37,7 @@ import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';
 import UserListItemIdentity from './UserListItemIdentity';
 import UserScmAccounts from './UserScmAccounts';
+import ViewGroupsModal from './ViewGroupsModal';
 
 export interface UserListItemProps {
   identityProvider?: IdentityProvider;
@@ -85,17 +86,24 @@ export default function UserListItem(props: Readonly<UserListItemProps>) {
       <ContentCell>
         <Spinner isLoading={groupsAreLoading}>
           {groupsCount}
-          {manageProvider === undefined && (
-            <ButtonIcon
-              Icon={IconMoreVertical}
-              tooltipContent={translate('users.update_groups')}
-              className="it__user-groups sw-ml-2"
-              ariaLabel={translateWithParameters('users.update_users_groups', user.login)}
-              onClick={() => setOpenGroupForm(true)}
-              size={ButtonSize.Medium}
-              variety={ButtonVariety.DefaultGhost}
-            />
-          )}
+          <ButtonIcon
+            Icon={IconMoreVertical}
+            tooltipContent={
+              manageProvider === undefined
+                ? translate('users.update_groups')
+                : translate('users.view_groups')
+            }
+            className="it__user-groups sw-ml-2"
+            ariaLabel={translateWithParameters(
+              manageProvider === undefined
+                ? 'users.update_users_groups'
+                : 'users.view_users_groups',
+              user.login,
+            )}
+            onClick={() => setOpenGroupForm(true)}
+            size={ButtonSize.Medium}
+            variety={ButtonVariety.DefaultGhost}
+          />
         </Spinner>
       </ContentCell>
       <ContentCell>
@@ -119,7 +127,12 @@ export default function UserListItem(props: Readonly<UserListItemProps>) {
       </ActionCell>
 
       {openTokenForm && <TokensFormModal onClose={() => setOpenTokenForm(false)} user={user} />}
-      {openGroupForm && <GroupsForm onClose={() => setOpenGroupForm(false)} user={user} />}
+      {openGroupForm && manageProvider === undefined && (
+        <GroupsForm onClose={() => setOpenGroupForm(false)} user={user} />
+      )}
+      {openGroupForm && manageProvider !== undefined && (
+        <ViewGroupsModal onClose={() => setOpenGroupForm(false)} user={user} />
+      )}
     </TableRow>
   );
 }
