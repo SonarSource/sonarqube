@@ -79,6 +79,18 @@ public class MeasureDbTester {
   }
 
   @SafeVarargs
+  public final JsonMeasureDto insertJsonMeasure(ComponentDto component, Consumer<JsonMeasureDto>... consumers) {
+    JsonMeasureDto dto = new JsonMeasureDto()
+      .setComponentUuid(component.uuid())
+      .setBranchUuid(component.branchUuid());
+    Arrays.stream(consumers).forEach(c -> c.accept(dto));
+    dto.computeJsonValueHash();
+    dbClient.jsonMeasureDao().insert(db.getSession(), dto);
+    db.commit();
+    return dto;
+  }
+
+  @SafeVarargs
   public final MetricDto insertMetric(Consumer<MetricDto>... consumers) {
     MetricDto metricDto = newMetricDto();
     Arrays.stream(consumers).forEach(c -> c.accept(metricDto));

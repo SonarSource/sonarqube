@@ -111,6 +111,16 @@
       and p.branch_uuid=#{branchUuid,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectDisabledComponentsWithJsonMeasures" parameterType="map" resultType="String">
+    select
+      m.component_uuid
+    from measures m
+    inner join components p on
+      p.uuid = m.component_uuid
+      and p.enabled = ${_false}
+      and p.branch_uuid=#{branchUuid,jdbcType=VARCHAR}
+  </select>
+
   <delete id="deleteAnalysisMeasures" parameterType="map">
     delete from project_measures
     where
@@ -585,8 +595,17 @@
     delete from live_measures where project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteJsonMeasuresByBranchUuid">
+    delete from measures where branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+  </delete>
+
   <delete id="deleteLiveMeasuresByComponentUuids">
     delete from live_measures where component_uuid in <foreach item="componentUuid" index="index" collection="componentUuids" open="("
+                                                               separator="," close=")">#{componentUuid, jdbcType=VARCHAR}</foreach>
+  </delete>
+
+  <delete id="deleteJsonMeasuresByComponentUuids">
+    delete from measures where component_uuid in <foreach item="componentUuid" index="index" collection="componentUuids" open="("
                                                                separator="," close=")">#{componentUuid, jdbcType=VARCHAR}</foreach>
   </delete>
 
@@ -598,4 +617,3 @@
     delete from scanner_analysis_cache where branch_uuid = #{branchUuid,jdbcType=VARCHAR}
   </delete>
 </mapper>
-

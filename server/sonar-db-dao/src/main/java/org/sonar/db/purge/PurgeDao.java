@@ -40,10 +40,13 @@ import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.property.PropertyDto;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.dateToLong;
+import static org.sonar.core.config.CorePropertyDefinitions.SYSTEM_MEASURES_MIGRATION_ENABLED;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class PurgeDao implements Dao {
@@ -54,10 +57,12 @@ public class PurgeDao implements Dao {
 
   private final System2 system2;
   private final AuditPersister auditPersister;
+  private final PropertiesDao propertiesDao;
 
-  public PurgeDao(System2 system2, AuditPersister auditPersister) {
+  public PurgeDao(System2 system2, AuditPersister auditPersister, PropertiesDao propertiesDao) {
     this.system2 = system2;
     this.auditPersister = auditPersister;
+    this.propertiesDao = propertiesDao;
   }
 
   public void purge(DbSession session, PurgeConfiguration conf, PurgeListener listener, PurgeProfiler profiler) {
@@ -66,16 +71,18 @@ public class PurgeDao implements Dao {
     String rootUuid = conf.rootUuid();
     deleteAbortedAnalyses(rootUuid, commands);
     purgeAnalyses(commands, rootUuid);
-    purgeDisabledComponents(commands, conf, listener);
+    boolean measuresMigrationEnabled = isMeasuresMigrationEnabled();
+    purgeDisabledComponents(commands, conf, listener, measuresMigrationEnabled);
     deleteOldClosedIssues(conf, mapper, listener);
     purgeOldCeActivities(rootUuid, commands);
     purgeOldCeScannerContexts(rootUuid, commands);
 
     deleteOldDisabledComponents(commands, mapper, rootUuid);
-    purgeStaleBranches(commands, conf, mapper, rootUuid);
+    purgeStaleBranches(commands, conf, mapper, rootUuid, measuresMigrationEnabled);
   }
 
-  private static void purgeStaleBranches(PurgeCommands commands, PurgeConfiguration conf, PurgeMapper mapper, String rootUuid) {
+  private static void purgeStaleBranches(PurgeCommands commands, PurgeConfiguration conf, PurgeMapper mapper, String rootUuid,
+    boolean measuresMigrationEnabled) {
     Optional<Date> maxDate = conf.maxLiveDateOfInactiveBranches();
     if (maxDate.isEmpty()) {
       // not available if branch plugin is not installed
@@ -88,7 +95,7 @@ public class PurgeDao implements Dao {
 
     for (String branchUuid : branchUuids) {
       if (!rootUuid.equals(branchUuid)) {
-        deleteRootComponent(branchUuid, mapper, commands);
+        deleteRootComponent(branchUuid, mapper, commands, measuresMigrationEnabled);
       }
     }
   }
@@ -101,10 +108,11 @@ public class PurgeDao implements Dao {
     commands.purgeAnalyses(analysisUuids);
   }
 
-  private static void purgeDisabledComponents(PurgeCommands commands, PurgeConfiguration conf, PurgeListener listener) {
+  private static void purgeDisabledComponents(PurgeCommands commands, PurgeConfiguration conf, PurgeListener listener,
+    boolean measuresMigrationEnabled) {
     String rootUuid = conf.rootUuid();
     listener.onComponentsDisabling(rootUuid, conf.getDisabledComponentUuids());
-    commands.purgeDisabledComponents(rootUuid, conf.getDisabledComponentUuids(), listener);
+    commands.purgeDisabledComponents(rootUuid, conf.getDisabledComponentUuids(), listener, measuresMigrationEnabled);
   }
 
   private static void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper, PurgeListener listener) {
@@ -186,7 +194,7 @@ public class PurgeDao implements Dao {
     PurgeProfiler profiler = new PurgeProfiler();
     PurgeMapper purgeMapper = mapper(session);
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler, system2);
-    deleteRootComponent(uuid, purgeMapper, purgeCommands);
+    deleteRootComponent(uuid, purgeMapper, purgeCommands, isMeasuresMigrationEnabled());
   }
 
   public void deleteProject(DbSession session, String uuid, String qualifier, String name, String key) {
@@ -194,15 +202,16 @@ public class PurgeDao implements Dao {
     PurgeMapper purgeMapper = mapper(session);
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler, system2);
     long start = System2.INSTANCE.now();
+    boolean measuresMigrationEnabled = isMeasuresMigrationEnabled();
 
     List<String> branchUuids = session.getMapper(BranchMapper.class).selectByProjectUuid(uuid).stream()
       .map(BranchDto::getUuid)
       .filter(branchUuid -> !uuid.equals(branchUuid))
       .toList();
 
-    branchUuids.forEach(id -> deleteRootComponent(id, purgeMapper, purgeCommands));
+    branchUuids.forEach(id -> deleteRootComponent(id, purgeMapper, purgeCommands, measuresMigrationEnabled));
 
-    deleteRootComponent(uuid, purgeMapper, purgeCommands);
+    deleteRootComponent(uuid, purgeMapper, purgeCommands, measuresMigrationEnabled);
     auditPersister.deleteComponent(session, new ComponentNewValue(uuid, name, key, qualifier));
     logProfiling(profiler, start);
   }
@@ -218,7 +227,7 @@ public class PurgeDao implements Dao {
     LOG.info("");
   }
 
-  private static void deleteRootComponent(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
+  private static void deleteRootComponent(String rootUuid, PurgeMapper mapper, PurgeCommands commands, boolean measuresMigrationEnabled) {
     List<String> rootAndModulesOrSubviews = mapper.selectRootAndModulesOrSubviewsByProjectUuid(rootUuid);
     commands.deleteLinks(rootUuid);
     commands.deleteScannerCache(rootUuid);
@@ -231,6 +240,9 @@ public class PurgeDao implements Dao {
     commands.deleteWebhooks(rootUuid);
     commands.deleteWebhookDeliveries(rootUuid);
     commands.deleteLiveMeasures(rootUuid);
+    if (measuresMigrationEnabled) {
+      commands.deleteJsonMeasures(rootUuid);
+    }
     commands.deleteProjectMappings(rootUuid);
     commands.deleteProjectAlmSettings(rootUuid);
     commands.deletePermissions(rootUuid);
@@ -246,6 +258,13 @@ public class PurgeDao implements Dao {
     commands.deleteProject(rootUuid);
     commands.deleteUserDismissedMessages(rootUuid);
     commands.deleteOutdatedProperties(rootUuid);
+  }
+
+  private boolean isMeasuresMigrationEnabled() {
+    return Optional.ofNullable(propertiesDao.selectGlobalProperty(SYSTEM_MEASURES_MIGRATION_ENABLED))
+      .map(PropertyDto::getValue)
+      .map(Boolean::valueOf)
+      .orElse(false);
   }
 
   /**

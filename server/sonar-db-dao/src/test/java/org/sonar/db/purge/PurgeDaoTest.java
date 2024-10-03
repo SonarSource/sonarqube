@@ -22,6 +22,7 @@ package org.sonar.db.purge;
 import com.google.common.collect.ImmutableSet;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -70,6 +71,7 @@ import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventTesting;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.measure.JsonMeasureDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -84,6 +86,7 @@ import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.db.webhook.WebhookDto;
+import org.sonar.server.platform.db.migration.adhoc.CreateMeasuresTable;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -98,6 +101,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.config.CorePropertyDefinitions.SYSTEM_MEASURES_MIGRATION_ENABLED;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -267,7 +271,7 @@ public class PurgeDaoTest {
   }
 
   @Test
-  public void close_issues_clean_index_and_file_sources_of_disabled_components_specified_by_uuid_in_configuration() {
+  public void close_issues_clean_index_and_file_sources_of_disabled_components_specified_by_uuid_in_configuration() throws SQLException {
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     db.components().insertSnapshot(project);
@@ -306,6 +310,20 @@ public class PurgeDaoTest {
     LiveMeasureDto liveMeasureMetric1OnNonSelected = db.measures().insertLiveMeasure(enabledFile, metric1);
     LiveMeasureDto liveMeasureMetric2OnNonSelected = db.measures().insertLiveMeasure(enabledFile, metric2);
     assertThat(db.countRowsOfTable("live_measures")).isEqualTo(8);
+
+    createMeasuresTable();
+    db.properties().insertProperty(SYSTEM_MEASURES_MIGRATION_ENABLED, "true", null);
+
+    db.measures().insertJsonMeasure(srcFile,
+      m -> m.addValue(metric1.getKey(), RandomUtils.nextInt(50)).addValue(metric2.getKey(), RandomUtils.nextInt(50)));
+    db.measures().insertJsonMeasure(dir,
+      m -> m.addValue(metric1.getKey(), RandomUtils.nextInt(50)).addValue(metric2.getKey(), RandomUtils.nextInt(50)));
+    db.measures().insertJsonMeasure(project,
+      m -> m.addValue(metric1.getKey(), RandomUtils.nextInt(50)).addValue(metric2.getKey(), RandomUtils.nextInt(50)));
+    db.measures().insertJsonMeasure(enabledFile,
+      m -> m.addValue(metric1.getKey(), RandomUtils.nextInt(50)).addValue(metric2.getKey(), RandomUtils.nextInt(50)));
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(4);
+
     PurgeListener purgeListener = mock(PurgeListener.class);
 
     // back to present
@@ -348,6 +366,18 @@ public class PurgeDaoTest {
     assertThat(liveMeasureDtos)
       .extracting(LiveMeasureDto::getMetricUuid)
       .containsOnly(metric1.getUuid(), metric2.getUuid());
+
+    // delete json measures of selected
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(2);
+    List<JsonMeasureDto> measureDtos = Set.of(srcFile.uuid(), dir.uuid(), project.uuid(), enabledFile.uuid()).stream()
+      .map(component -> db.getDbClient().jsonMeasureDao().selectByComponentUuid(dbSession, component))
+      .filter(Optional::isPresent).map(Optional::get).toList();
+    assertThat(measureDtos)
+      .extracting(JsonMeasureDto::getComponentUuid)
+      .containsOnly(enabledFile.uuid(), project.uuid());
+    assertThat(measureDtos)
+      .allSatisfy(dto -> assertThat(dto.getMetricValues())
+        .containsOnlyKeys(metric1.getKey(), metric2.getKey()));
   }
 
   @Test
@@ -1517,23 +1547,67 @@ public class PurgeDaoTest {
   }
 
   @Test
-  public void delete_live_measures_when_deleting_project() {
+  public void delete_live_measures_when_deleting_project() throws SQLException {
+    createMeasuresTable();
+    db.properties().insertProperty(SYSTEM_MEASURES_MIGRATION_ENABLED, "true", null);
+
     MetricDto metric = db.measures().insertMetric();
 
     ComponentDto project1 = db.components().insertPublicProject();
     ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project1));
     db.measures().insertLiveMeasure(project1, metric);
     db.measures().insertLiveMeasure(module1, metric);
+    db.measures().insertJsonMeasure(project1, m -> m.addValue(metric.getKey(), RandomUtils.nextInt(50)));
+    db.measures().insertJsonMeasure(module1, m -> m.addValue(metric.getKey(), RandomUtils.nextInt(50)));
 
     ComponentDto project2 = db.components().insertPublicProject();
     ComponentDto module2 = db.components().insertComponent(ComponentTesting.newModuleDto(project2));
     db.measures().insertLiveMeasure(project2, metric);
     db.measures().insertLiveMeasure(module2, metric);
+    db.measures().insertJsonMeasure(project2, m -> m.addValue(metric.getKey(), RandomUtils.nextInt(50)));
+    db.measures().insertJsonMeasure(module2, m -> m.addValue(metric.getKey(), RandomUtils.nextInt(50)));
+
+    assertThat(db.countRowsOfTable("live_measures")).isEqualTo(4);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(4);
 
     underTest.deleteProject(dbSession, project1.uuid(), project1.qualifier(), project1.name(), project1.getKey());
 
+    assertThat(db.countRowsOfTable("live_measures")).isEqualTo(2);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(2);
     assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, asList(project1.uuid(), module1.uuid()), asList(metric.getUuid()))).isEmpty();
     assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, asList(project2.uuid(), module2.uuid()), asList(metric.getUuid()))).hasSize(2);
+    assertThat(dbClient.jsonMeasureDao().selectByComponentUuid(dbSession, project1.uuid())).isEmpty();
+    assertThat(dbClient.jsonMeasureDao().selectByComponentUuid(dbSession, module1.uuid())).isEmpty();
+    assertThat(dbClient.jsonMeasureDao().selectByComponentUuid(dbSession, project2.uuid())).isNotEmpty();
+    assertThat(dbClient.jsonMeasureDao().selectByComponentUuid(dbSession, module2.uuid())).isNotEmpty();
+  }
+
+  @Test
+  public void do_not_delete_json_measures_when_migration_disabled() throws SQLException {
+    createMeasuresTable();
+    db.properties().insertProperty(SYSTEM_MEASURES_MIGRATION_ENABLED, "false", null);
+
+    MetricDto metric = db.measures().insertMetric();
+
+    ComponentDto project1 = db.components().insertPublicProject();
+    ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project1));
+    db.measures().insertLiveMeasure(project1, metric);
+    db.measures().insertLiveMeasure(module1, metric);
+    db.measures().insertJsonMeasure(project1, m -> m.addValue(metric.getKey(), RandomUtils.nextInt(50)));
+    db.measures().insertJsonMeasure(module1, m -> m.addValue(metric.getKey(), RandomUtils.nextInt(50)));
+
+    assertThat(db.countRowsOfTable("live_measures")).isEqualTo(2);
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(2);
+
+    underTest.deleteProject(dbSession, project1.uuid(), project1.qualifier(), project1.name(), project1.getKey());
+
+    assertThat(db.countRowsOfTable("live_measures")).isZero();
+    assertThat(db.countRowsOfTable("measures")).isEqualTo(2);
+  }
+
+  private void createMeasuresTable() throws SQLException {
+    new CreateMeasuresTable(db.getDbClient().getDatabase()).execute();
+    db.executeDdl("truncate table measures");
   }
 
   private void verifyNoEffect(ComponentDto firstRoot, ComponentDto... otherRoots) {

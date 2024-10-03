@@ -138,7 +138,8 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void purgeDisabledComponents(String rootComponentUuid, Collection<String> disabledComponentUuids, PurgeListener listener) {
+  void purgeDisabledComponents(String rootComponentUuid, Collection<String> disabledComponentUuids, PurgeListener listener,
+    boolean measuresMigrationEnabled) {
     Set<String> missedDisabledComponentUuids = new HashSet<>();
 
     profiler.start("purgeDisabledComponents (file_sources)");
@@ -170,6 +171,18 @@ class PurgeCommands {
           return input;
         }));
     profiler.stop();
+
+    if (measuresMigrationEnabled) {
+      profiler.start("purgeDisabledComponents (measures)");
+      missedDisabledComponentUuids.addAll(
+        executeLargeInputs(
+          purgeMapper.selectDisabledComponentsWithJsonMeasures(rootComponentUuid),
+          input -> {
+            purgeMapper.deleteJsonMeasuresByComponentUuids(input);
+            return input;
+          }));
+      profiler.stop();
+    }
 
     session.commit();
 
@@ -455,6 +468,13 @@ class PurgeCommands {
   void deleteLiveMeasures(String rootUuid) {
     profiler.start("deleteLiveMeasures (live_measures)");
     purgeMapper.deleteLiveMeasuresByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
+
+  void deleteJsonMeasures(String rootUuid) {
+    profiler.start("deleteJsonMeasures (measures)");
+    purgeMapper.deleteJsonMeasuresByBranchUuid(rootUuid);
     session.commit();
     profiler.stop();
   }
