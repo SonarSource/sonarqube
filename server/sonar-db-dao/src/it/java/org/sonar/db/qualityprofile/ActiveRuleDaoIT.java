@@ -59,6 +59,7 @@ import static org.sonar.db.qualityprofile.ActiveRuleDto.createFor;
 class ActiveRuleDaoIT {
 
   private static final long NOW = 10_000_000L;
+  public static final String IMPACTS = "{\\“SECURITY\\”:\\”BLOCKER\\”,\\”MAINTAINABILITY\\”:\\”INFO\\”}";
 
   private QProfileDto profile1;
   private QProfileDto profile2;
@@ -272,6 +273,7 @@ class ActiveRuleDaoIT {
     ActiveRuleDto activeRule = createFor(profile1, rule1)
       .setSeverity(BLOCKER)
       .setInheritance(INHERITED)
+      .setImpacts(IMPACTS)
       .setIsExternal(false)
       .setCreatedAt(1000L)
       .setUpdatedAt(2000L);
@@ -285,6 +287,7 @@ class ActiveRuleDaoIT {
     assertThat(result.getProfileUuid()).isEqualTo(profile1.getRulesProfileUuid());
     assertThat(result.getSeverityString()).isEqualTo(BLOCKER);
     assertThat(result.getInheritance()).isEqualTo(INHERITED);
+    assertThat(result.getImpacts()).isEqualTo(IMPACTS);
     assertThat(result.isExternal()).isFalse();
     assertThat(result.getCreatedAt()).isEqualTo(1000L);
     assertThat(result.getUpdatedAt()).isEqualTo(2000L);
@@ -316,6 +319,7 @@ class ActiveRuleDaoIT {
     ActiveRuleDto activeRule = createFor(profile1, rule1)
       .setSeverity(BLOCKER)
       .setInheritance(INHERITED)
+      .setImpacts("{\"RELIABILITY\":\"INFO\"}")
       .setCreatedAt(1000L)
       .setUpdatedAt(2000L);
     underTest.insert(dbSession, activeRule);
@@ -324,6 +328,7 @@ class ActiveRuleDaoIT {
     ActiveRuleDto activeRuleUpdated = activeRule
       .setSeverity(MAJOR)
       .setInheritance(OVERRIDES)
+      .setImpacts(IMPACTS)
       // created at should not be updated
       .setCreatedAt(3000L)
       .setUpdatedAt(4000L);
@@ -337,6 +342,7 @@ class ActiveRuleDaoIT {
     assertThat(result.getProfileUuid()).isEqualTo(profile1.getRulesProfileUuid());
     assertThat(result.getSeverityString()).isEqualTo(MAJOR);
     assertThat(result.getInheritance()).isEqualTo(OVERRIDES);
+    assertThat(result.getImpacts()).isEqualTo(IMPACTS);
     assertThat(result.getCreatedAt()).isEqualTo(1000L);
     assertThat(result.getUpdatedAt()).isEqualTo(4000L);
   }

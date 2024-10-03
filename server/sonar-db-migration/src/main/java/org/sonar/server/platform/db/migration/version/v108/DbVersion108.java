@@ -55,6 +55,7 @@ public class DbVersion108 implements DbVersion {
       .add(10_8_012, "Drop 'measures_migrated' column on 'portfolios' table", DropMeasuresMigratedColumnInPortfoliosTable.class)
       .add(10_8_013, "Drop index on 'project_branches.measures_migrated'", DropIndexOnProjectBranchesMeasuresMigrated.class)
       .add(10_8_014, "Drop 'measures_migrated' column on 'project_branches' table", DropMeasuresMigratedColumnInProjectBranchesTable.class)
+      .add(10_8_015, "Add column 'impacts' in 'active_rules' table", AddImpactsColumnInActiveRulesTable.class)
     ;
   }
 

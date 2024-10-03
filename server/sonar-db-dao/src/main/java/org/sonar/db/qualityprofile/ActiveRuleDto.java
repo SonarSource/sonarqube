@@ -41,11 +41,12 @@ public class ActiveRuleDto {
   private String ruleUuid;
   private Integer severity;
   private String inheritance;
+  private String impacts;
   private long createdAt;
   private long updatedAt;
   private boolean prioritizedRule;
 
-  // These fields do not exists in db, it's only retrieve by joins
+  // These fields do not exist in db, it's only retrieve by joins
   private String repository;
   private String ruleField;
   private String ruleProfileUuid;
@@ -161,6 +162,16 @@ public class ActiveRuleDto {
     return this;
   }
 
+  @CheckForNull
+  public String getImpacts() {
+    return impacts;
+  }
+
+  public ActiveRuleDto setImpacts(@Nullable String impacts) {
+    this.impacts = impacts;
+    return this;
+  }
+
   public boolean isExternal() {
     return this.isExternal;
   }
@@ -170,11 +181,11 @@ public class ActiveRuleDto {
     return this;
   }
 
-  public boolean isPrioritizedRule(){
+  public boolean isPrioritizedRule() {
     return prioritizedRule;
   }
 
-  public ActiveRuleDto setPrioritizedRule(boolean prioritizedRule){
+  public ActiveRuleDto setPrioritizedRule(boolean prioritizedRule) {
     this.prioritizedRule = prioritizedRule;
     return this;
   }
