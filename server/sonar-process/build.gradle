@@ -28,7 +28,7 @@ dependencies {
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'junit:junit'
   testImplementation 'org.assertj:assertj-core'
-  testImplementation 'org.hamcrest:hamcrest-core'
+  testImplementation 'org.hamcrest:hamcrest'
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.awaitility:awaitility'

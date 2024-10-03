@@ -12,6 +12,6 @@ dependencies {
 
     testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'
-    testImplementation 'org.hamcrest:hamcrest-core'
+    testImplementation 'org.hamcrest:hamcrest'
     testImplementation 'org.mockito:mockito-core'
 }
