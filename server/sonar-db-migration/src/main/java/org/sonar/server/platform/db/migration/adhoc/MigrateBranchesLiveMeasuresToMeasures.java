@@ -19,9 +19,11 @@
  */
 package org.sonar.server.platform.db.migration.adhoc;
 
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
 
+@ServerSide
 public class MigrateBranchesLiveMeasuresToMeasures extends AbstractMigrateLiveMeasuresToMeasures {
 
   public MigrateBranchesLiveMeasuresToMeasures(Database db, System2 system2) {

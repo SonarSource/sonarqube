@@ -19,8 +19,10 @@
  */
 package org.sonar.server.platform.db.migration.adhoc;
 
+import org.sonar.api.server.ServerSide;
 import org.sonar.db.Database;
 
+@ServerSide
 public class CreateIndexOnProjectBranchesMeasuresMigrated extends AbstractCreateIndexOnMeasuresMigrated {
 
   static final String TABLE_NAME = "project_branches";

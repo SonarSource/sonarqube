@@ -20,6 +20,7 @@
 package org.sonar.server.platform.db.migration.adhoc;
 
 import java.sql.SQLException;
+import org.sonar.api.server.ServerSide;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 import org.sonar.server.platform.db.migration.step.CreateTableChange;
@@ -30,6 +31,7 @@ import static org.sonar.server.platform.db.migration.def.ClobColumnDef.newClobCo
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
+@ServerSide
 public class CreateMeasuresTable extends CreateTableChange {
   static final String MEASURES_TABLE_NAME = "measures";
   static final String COLUMN_COMPONENT_UUID = "component_uuid";

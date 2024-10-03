@@ -19,8 +19,10 @@
  */
 package org.sonar.server.platform.db.migration.adhoc;
 
+import org.sonar.api.server.ServerSide;
 import org.sonar.db.Database;
 
+@ServerSide
 public class AddMeasuresMigratedColumnToProjectBranchesTable extends AbstractAddMeasuresMigratedColumnToTable {
 
   public static final String PROJECT_BRANCHES_TABLE_NAME = "project_branches";

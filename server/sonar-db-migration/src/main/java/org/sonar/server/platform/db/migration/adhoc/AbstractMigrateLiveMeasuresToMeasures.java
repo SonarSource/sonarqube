@@ -88,7 +88,7 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
   }
 
   // This is a special entry point for the case of a configurable migration
-  public final void migrate(List<String> uuids) throws SQLException {
+  public void migrate(List<String> uuids) throws SQLException {
     try (Connection readConnection = createDdlConnection();
          Connection writeConnection = createDdlConnection()) {
       Context context = new Context(db, readConnection, writeConnection);

@@ -29,6 +29,6 @@ public class SystemWsModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new SystemWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(24);
+    assertThat(container.getAddedObjects()).hasSize(15);
   }
 }
