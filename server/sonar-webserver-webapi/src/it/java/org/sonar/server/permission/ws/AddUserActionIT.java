@@ -36,6 +36,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.ws.TestRequest;
@@ -416,5 +417,31 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Entity not found");
+  }
+
+  @Test
+  public void adding_permission_to_user_fails_if_not_authenticated_and_existing_login() {
+    userSession.anonymous();
+
+    TestRequest request = newRequest()
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
+  }
+
+  @Test
+  public void adding_permission_to_user_fails_if_not_authenticated_and_non_existing_login() {
+    userSession.anonymous();
+
+    TestRequest request = newRequest()
+      .setParam(PARAM_USER_LOGIN, "non-existing-login")
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
   }
 }

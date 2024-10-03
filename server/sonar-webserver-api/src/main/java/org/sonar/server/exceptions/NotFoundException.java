@@ -19,6 +19,7 @@
  */
 package org.sonar.server.exceptions;
 
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 import static java.lang.String.format;
@@ -31,15 +32,13 @@ public class NotFoundException extends ServerException {
   }
 
   /**
-   * @throws NotFoundException if the value if null
+   * @throws NotFoundException if the value is null
    * @return the value
    */
   public static <T> T checkFound(@Nullable T value, String message, Object... messageArguments) {
-    if (value == null) {
+    return Objects.requireNonNullElseGet(value, () -> {
       throw new NotFoundException(format(message, messageArguments));
-    }
-
-    return value;
+    });
   }
 
   /**
@@ -47,10 +46,7 @@ public class NotFoundException extends ServerException {
    * @return the value
    */
   public static <T> T checkFoundWithOptional(java.util.Optional<T> value, String message, Object... messageArguments) {
-    if (!value.isPresent()) {
-      throw new NotFoundException(format(message, messageArguments));
-    }
-
-    return value.get();
+    return value.orElseThrow(() -> new NotFoundException(format(message, messageArguments)));
   }
+
 }
