@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import {
   DangerButtonPrimary,
@@ -26,6 +27,8 @@ import {
   LightLabel,
   Modal,
   PencilIcon,
+  SafeHTMLInjection,
+  SanitizeLevel,
   TrashIcon,
   themeBorder,
 } from 'design-system';
@@ -35,7 +38,6 @@ import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import IssueChangelogDiff from '../../../components/issue/components/IssueChangelogDiff';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { sanitizeUserInput } from '../../../helpers/sanitize';
 import { ReviewHistoryType } from '../../../types/security-hotspots';
 import { Issue, IssueChangelog } from '../../../types/types';
 import HotspotCommentModal from '../../security-hotspots/components/HotspotCommentModal';
@@ -47,7 +49,20 @@ export interface HotspotReviewHistoryProps {
   onEditComment: (key: string, comment: string) => void;
 }
 
-export default function IssueReviewHistory(props: HotspotReviewHistoryProps) {
+const getUpdatedChangelog = ({ changelog }: { changelog: IssueChangelog[] }) =>
+  changelog.map((changelogItem) => {
+    const diffHasIssueStatusChange = changelogItem.diffs.some((diff) => diff.key === 'issueStatus');
+
+    return {
+      ...changelogItem,
+      // If the diff is an issue status change, we remove deprecated status and resolution diffs
+      diffs: changelogItem.diffs.filter(
+        (diff) => !(diffHasIssueStatusChange && ['resolution', 'status'].includes(diff.key)),
+      ),
+    };
+  });
+
+export default function IssueReviewHistory(props: Readonly<HotspotReviewHistoryProps>) {
   const { issue } = props;
   const [changeLog, setChangeLog] = React.useState<IssueChangelog[]>([]);
   const history = useGetIssueReviewHistory(issue, changeLog);
@@ -57,19 +72,8 @@ export default function IssueReviewHistory(props: HotspotReviewHistoryProps) {
   React.useEffect(() => {
     getIssueChangelog(issue.key).then(
       ({ changelog }) => {
-        const updatedChangelog = changelog.map((changelogItem) => {
-          const diffHasIssueStatusChange = changelogItem.diffs.some(
-            (diff) => diff.key === 'issueStatus',
-          );
+        const updatedChangelog = getUpdatedChangelog({ changelog });
 
-          return {
-            ...changelogItem,
-            // If the diff is an issue status change, we remove deprecated status and resolution diffs
-            diffs: changelogItem.diffs.filter(
-              (diff) => !(diffHasIssueStatusChange && ['resolution', 'status'].includes(diff.key)),
-            ),
-          };
-        });
         setChangeLog(updatedChangelog);
       },
       () => {},
@@ -85,6 +89,7 @@ export default function IssueReviewHistory(props: HotspotReviewHistoryProps) {
             <div className="sw-typo-semibold sw-mb-1">
               <DateTimeFormatter date={date} />
             </div>
+
             <LightLabel as="div" className="sw-flex sw-gap-2">
               {user.name && (
                 <div className="sw-flex sw-items-center sw-gap-1">
@@ -112,11 +117,9 @@ export default function IssueReviewHistory(props: HotspotReviewHistoryProps) {
 
             {type === ReviewHistoryType.Comment && key && html && markdown && (
               <div className="sw-mt-2 sw-flex sw-justify-between">
-                <CommentBox
-                  className="sw-pl-2 sw-ml-2 sw-typo-default"
-                  // eslint-disable-next-line react/no-danger
-                  dangerouslySetInnerHTML={{ __html: sanitizeUserInput(html) }}
-                />
+                <SafeHTMLInjection htmlAsString={html} sanitizeLevel={SanitizeLevel.USER_INPUT}>
+                  <CommentBox className="sw-pl-2 sw-ml-2 sw-typo-default" />
+                </SafeHTMLInjection>
 
                 {updatable && (
                   <div className="sw-flex sw-gap-6">
@@ -127,6 +130,7 @@ export default function IssueReviewHistory(props: HotspotReviewHistoryProps) {
                       size="small"
                       stopPropagation={false}
                     />
+
                     <DestructiveIcon
                       Icon={TrashIcon}
                       aria-label={translate('issue.comment.delete')}

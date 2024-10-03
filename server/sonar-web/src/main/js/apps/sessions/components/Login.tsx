@@ -24,6 +24,8 @@ import {
   Card,
   FlagMessage,
   PageContentFontWrapper,
+  SafeHTMLInjection,
+  SanitizeLevel,
   Title,
   themeBorder,
   themeColor,
@@ -33,7 +35,6 @@ import { Helmet } from 'react-helmet-async';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { Location } from '~sonar-aligned/types/router';
 import { translate } from '../../../helpers/l10n';
-import { sanitizeUserInput } from '../../../helpers/sanitize';
 import { getReturnUrl } from '../../../helpers/urls';
 import { IdentityProvider } from '../../../types/types';
 import LoginForm from './LoginForm';
@@ -69,11 +70,9 @@ export default function Login(props: Readonly<LoginProps>) {
               )}
 
               {message !== undefined && message.length > 0 && (
-                <StyledMessage
-                  className="markdown sw-rounded-2 sw-p-4 sw-mb-6"
-                  // eslint-disable-next-line react/no-danger
-                  dangerouslySetInnerHTML={{ __html: sanitizeUserInput(message) }}
-                />
+                <SafeHTMLInjection htmlAsString={message} sanitizeLevel={SanitizeLevel.USER_INPUT}>
+                  <StyledMessage className="markdown sw-rounded-2 sw-p-4 sw-mb-6" />
+                </SafeHTMLInjection>
               )}
 
               {identityProviders.length > 0 && (

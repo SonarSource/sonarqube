@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { ElementType } from 'react';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers/theme';
+import { SafeHTMLInjection } from '../sonar-aligned/helpers/sanitize';
 
 interface TextBoldProps {
   className?: string;
@@ -32,12 +34,9 @@ interface TextBoldProps {
  */
 export function TextBold({ match, name, className }: TextBoldProps) {
   return match ? (
-    <StyledText
-      className={className}
-      // Safe: comes from the search engine, that injects bold tags into component names
-      // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: match }}
-    />
+    <SafeHTMLInjection htmlAsString={match}>
+      <StyledText className={className} />
+    </SafeHTMLInjection>
   ) : (
     <StyledText className={className} title={name}>
       {name}
@@ -47,7 +46,7 @@ export function TextBold({ match, name, className }: TextBoldProps) {
 
 /** @deprecated Use Text (with `isSubdued` prop) from Echoes instead.
  */
-export function TextMuted({ text, className }: { className?: string; text: string }) {
+export function TextMuted({ text, className }: Readonly<{ className?: string; text: string }>) {
   return (
     <StyledMutedText className={className} title={text}>
       {text}

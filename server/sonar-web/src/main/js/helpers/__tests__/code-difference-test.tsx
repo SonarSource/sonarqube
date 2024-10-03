@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { render } from '@testing-library/react';
+import { SafeHTMLInjection } from 'design-system/lib';
 import React from 'react';
 import applyCodeDifferences from '../code-difference';
 
@@ -146,12 +147,8 @@ public void endpoint(HttpServletRequest request, HttpServletResponse response) t
 
 function renderDom(codeSnippet: string) {
   return render(
-    <div
-      className="markdown"
-      // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{
-        __html: codeSnippet,
-      }}
-    />,
+    <SafeHTMLInjection htmlAsString={codeSnippet}>
+      <div className="markdown" />
+    </SafeHTMLInjection>,
   );
 }

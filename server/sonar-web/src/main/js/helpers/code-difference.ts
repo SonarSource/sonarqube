@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { sanitizeHTMLNoSVGNoMathML } from 'design-system';
 import { diffLines } from 'diff';
 import { groupBy, keyBy } from 'lodash';
-import { sanitizeString } from './sanitize';
 
 const NUMBER_OF_EXAMPLES = 2;
 
@@ -85,7 +86,7 @@ function differentiateCode(compliant: string, nonCompliant: string) {
       nonCompliantCode += `<div class='code-removed'>${value}</div>`;
     }
   });
-  return [sanitizeString(nonCompliantCode), sanitizeString(compliantCode)];
+  return [sanitizeHTMLNoSVGNoMathML(nonCompliantCode), sanitizeHTMLNoSVGNoMathML(compliantCode)];
 }
 
 function replaceInDom(current: Element, code: string) {

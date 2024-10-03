@@ -22,6 +22,7 @@ import {
   CodeSyntaxHighlighter,
   FlagMessage,
   HtmlFormatter,
+  SanitizeLevel,
   ToggleButton,
   themeBorder,
   themeColor,
@@ -30,7 +31,6 @@ import * as React from 'react';
 import { RuleDescriptionSection, RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import applyCodeDifferences from '../../helpers/code-difference';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { sanitizeString } from '../../helpers/sanitize';
 import { isDefined } from '../../helpers/types';
 import { Cve as CveDetailsType } from '../../types/cves';
 import { CveDetails } from './CveDetails';
@@ -147,8 +147,9 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
           {isDefined(introductionSection) && (
             <CodeSyntaxHighlighter
               className="rule-desc"
-              htmlAsString={sanitizeString(introductionSection)}
+              htmlAsString={introductionSection}
               language={language}
+              sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
             />
           )}
           {defaultContext && (
@@ -180,8 +181,9 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
             <OtherContextOption />
           ) : (
             <CodeSyntaxHighlighter
-              htmlAsString={sanitizeString(selectedContext.content)}
+              htmlAsString={selectedContext.content}
               language={language}
+              sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
             />
           )}
 
@@ -200,14 +202,16 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
         {isDefined(introductionSection) && (
           <CodeSyntaxHighlighter
             className="rule-desc"
-            htmlAsString={sanitizeString(introductionSection)}
+            htmlAsString={introductionSection}
             language={language}
+            sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
           />
         )}
 
         <CodeSyntaxHighlighter
-          htmlAsString={sanitizeString(sections[0].content)}
+          htmlAsString={sections[0].content}
           language={language}
+          sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
         />
 
         {cve && <CveDetails cve={cve} />}

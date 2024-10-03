@@ -35,6 +35,28 @@
       ],
       1
     ],
+    "react/forbid-component-props": [
+      "error",
+      {
+        "forbid": [
+          {
+            "propName": "dangerouslySetInnerHTML",
+            "message": "Use the SafeHTMLInjection component instead of 'dangerouslySetInnerHTML', to prevent CSS injection along other XSS attacks"
+          }
+        ]
+      }
+    ],
+    "react/forbid-dom-props": [
+      "error",
+      {
+        "forbid": [
+          {
+            "propName": "dangerouslySetInnerHTML",
+            "message": "Use the SafeHTMLInjection component instead of 'dangerouslySetInnerHTML', to prevent CSS injection along other XSS attacks"
+          }
+        ]
+      }
+    ],
     "react/forbid-elements": [
       "warn",
       {

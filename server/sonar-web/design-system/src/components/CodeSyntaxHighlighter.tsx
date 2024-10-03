@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import hljs, { HighlightResult } from 'highlight.js';
@@ -26,6 +27,7 @@ import abap from 'highlightjs-sap-abap';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers/theme';
 import { hljsIssueIndicatorPlugin, hljsUnderlinePlugin } from '../sonar-aligned';
+import { SafeHTMLInjection, SanitizeLevel } from '../sonar-aligned/helpers/sanitize';
 
 hljs.registerLanguage('abap', abap);
 hljs.registerLanguage('apex', apex);
@@ -47,6 +49,7 @@ interface Props {
   escapeDom?: boolean;
   htmlAsString: string;
   language?: string;
+  sanitizeLevel?: SanitizeLevel;
   wrap?: boolean | 'words';
 }
 
@@ -60,8 +63,15 @@ const htmlDecode = (escapedCode: string) => {
   return doc.documentElement.textContent ?? '';
 };
 
-export function CodeSyntaxHighlighter(props: Props) {
-  const { className, htmlAsString, language, wrap, escapeDom = true } = props;
+export function CodeSyntaxHighlighter(props: Readonly<Props>) {
+  const {
+    className,
+    escapeDom = true,
+    htmlAsString,
+    language,
+    sanitizeLevel = SanitizeLevel.FORBID_STYLE,
+    wrap,
+  } = props;
   let highlightedHtmlAsString = htmlAsString;
 
   htmlAsString.match(GLOBAL_REGEXP)?.forEach((codeBlock) => {
@@ -95,16 +105,15 @@ export function CodeSyntaxHighlighter(props: Props) {
   });
 
   return (
-    <StyledSpan
-      className={classNames(
-        `hljs ${className ?? ''}`,
-        { 'code-wrap': wrap },
-        { 'wrap-words': wrap === 'words' },
-      )}
-      // Safe: value is escaped by highlight.js
-      // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: highlightedHtmlAsString }}
-    />
+    <SafeHTMLInjection htmlAsString={highlightedHtmlAsString} sanitizeLevel={sanitizeLevel}>
+      <StyledSpan
+        className={classNames(
+          `hljs ${className ?? ''}`,
+          { 'code-wrap': wrap },
+          { 'wrap-words': wrap === 'words' },
+        )}
+      />
+    </SafeHTMLInjection>
   );
 }
 

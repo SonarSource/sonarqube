@@ -27,6 +27,8 @@ import {
   InputTextArea,
   LabelValueSelectOption,
   Note,
+  SafeHTMLInjection,
+  SanitizeLevel,
   Switch,
 } from 'design-system';
 import * as React from 'react';
@@ -35,7 +37,6 @@ import { Profile } from '../../../api/quality-profiles';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
-import { sanitizeString } from '../../../helpers/sanitize';
 import { useActivateRuleMutation } from '../../../queries/quality-profiles';
 import { Feature } from '../../../types/features';
 import { IssueSeverity } from '../../../types/issues';
@@ -265,11 +266,12 @@ export default function ActivationFormModal(props: Readonly<Props>) {
                   />
                 )}
                 {param.htmlDesc !== undefined && (
-                  <Note
-                    as="div"
-                    // eslint-disable-next-line react/no-danger
-                    dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
-                  />
+                  <SafeHTMLInjection
+                    htmlAsString={param.htmlDesc}
+                    sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
+                  >
+                    <Note as="div" />
+                  </SafeHTMLInjection>
                 )}
               </FormField>
             ))

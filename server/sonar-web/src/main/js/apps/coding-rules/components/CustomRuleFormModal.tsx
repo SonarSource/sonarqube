@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { HttpStatusCode } from 'axios';
 import {
   ButtonPrimary,
@@ -28,6 +29,8 @@ import {
   LabelValueSelectOption,
   LightLabel,
   Modal,
+  SafeHTMLInjection,
+  SanitizeLevel,
 } from 'design-system';
 import * as React from 'react';
 import { Status } from '~sonar-aligned/types/common';
@@ -36,7 +39,6 @@ import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsEx
 import { RULE_STATUSES } from '../../../helpers/constants';
 import { csvEscape } from '../../../helpers/csv';
 import { translate } from '../../../helpers/l10n';
-import { sanitizeString } from '../../../helpers/sanitize';
 import { latinize } from '../../../helpers/strings';
 import { useCreateRuleMutation, useUpdateRuleMutation } from '../../../queries/rules';
 import {
@@ -294,11 +296,14 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
               value={actualValue}
             />
           )}
+
           {param.htmlDesc !== undefined && (
-            <LightLabel
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
-            />
+            <SafeHTMLInjection
+              htmlAsString={param.htmlDesc}
+              sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
+            >
+              <LightLabel />
+            </SafeHTMLInjection>
           )}
         </FormField>
       );

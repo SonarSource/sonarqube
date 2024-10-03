@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Badge, Card, LinkBox, LinkIcon, SubHeading, Tabs } from 'design-system';
+
+import { Badge, Card, LinkBox, LinkIcon, SafeHTMLInjection, SubHeading, Tabs } from 'design-system';
 import * as React from 'react';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -95,11 +96,9 @@ export default function Action(props: Props) {
         {action.deprecatedSince && <DeprecatedBadge since={action.deprecatedSince} />}
       </header>
 
-      <div
-        className="sw-mt-4 markdown"
-        // Safe: comes from the backend
-        dangerouslySetInnerHTML={{ __html: action.description }}
-      />
+      <SafeHTMLInjection htmlAsString={action.description}>
+        <div className="sw-mt-4 markdown" />
+      </SafeHTMLInjection>
 
       <div className="sw-mt-4">
         <Tabs options={tabOptions} onChange={(opt) => setTab(opt)} value={tab} />
