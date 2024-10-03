@@ -366,14 +366,6 @@ subprojects {
       dependency 'javax.xml.bind:jaxb-api:2.3.1'
       dependency 'jakarta.servlet:jakarta.servlet-api:4.0.4'
       dependency 'junit:junit:4.13.2'
-      // JUnit 5
-      dependencySet(group: 'org.junit.jupiter', version: '5.11.1') {
-        entry 'junit-jupiter-api'
-        entry 'junit-jupiter-engine'
-        entry 'junit-jupiter-params'
-        entry 'junit-vintage-engine'
-      }
-      dependency 'org.junit-pioneer:junit-pioneer:2.2.0'
       dependency 'org.xmlunit:xmlunit-core:2.10.0'
       dependency 'org.xmlunit:xmlunit-matchers:2.10.0'
       dependency 'org.lz4:lz4-java:1.8.0'
@@ -430,6 +422,18 @@ subprojects {
       dependency 'org.tmatesoft.svnkit:svnkit:1.10.11'
       dependency 'org.hamcrest:hamcrest:3.0'
       dependency 'org.jsoup:jsoup:1.18.1'
+      // JUnit 5
+      dependencySet(group: 'org.junit.jupiter', version: '5.11.1') {
+        entry 'junit-jupiter-api'
+        entry 'junit-jupiter-engine'
+        entry 'junit-jupiter-params'
+        entry 'junit-vintage-engine'
+      }
+      dependencySet(group: 'org.junit.platform', version: '1.11.1') {
+        entry 'junit-platform-suite-api'
+        entry 'junit-platform-suite-engine'
+      }
+      dependency 'org.junit-pioneer:junit-pioneer:2.2.0'
       dependency 'org.mindrot:jbcrypt:0.4'
       dependencySet(group: 'org.mockito', version: '5.14.1') {
         entry 'mockito-core'
@@ -455,8 +459,6 @@ subprojects {
       dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit5:4.9.0.1920') {
         exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
       }
-      dependency 'org.junit.platform:junit-platform-suite-api:1.10.2'
-      dependency 'org.junit.platform:junit-platform-suite-engine:1.10.2'
       dependency 'com.sonarsource.pdfreport:security-report-pdf-generation:1.0.0.98'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.32.0.2441'
       dependency("org.springframework:spring-context:${springVersion}") {
