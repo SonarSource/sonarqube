@@ -11,7 +11,7 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
+    testImplementation(platform("org.junit:junit-bom"))
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-params'
