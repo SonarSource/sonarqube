@@ -69,7 +69,7 @@ class AddAiCodeAssuranceColumnInProjectsTableIT {
   }
 
   private void assertAiCodeAssuranceColumnSetToDefault() {
-    Map<String, Object> selectResult = db.selectFirst("select ai_code_assurance from projects where UUID = 'uuid'");
+    Map<String, Object> selectResult = db.selectFirst("select ai_code_assurance from projects where uuid = 'uuid'");
     assertThat(selectResult).containsEntry(AI_CODE_ASSURANCE, DEFAULT_COLUMN_VALUE);
   }
 
