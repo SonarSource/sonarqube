@@ -30,6 +30,8 @@ import withCurrentUserContext from "../../app/components/current-user/withCurren
 import { CurrentUserContextInterface } from "../../app/components/current-user/CurrentUserContext";
 import { LoggedInUser } from "../../types/users";
 import { Button } from "../controls/buttons";
+import { GlobalSettingKeys } from '../../types/settings';
+import { getValue } from '../../api/settings';
 
 interface Props {
   currentUser: LoggedInUser;
@@ -46,12 +48,22 @@ class EmbedDocsPopup extends React.PureComponent<Props & CurrentUserContextInter
 
   state: State = {
     zohoUrl: '',
+    enableZoho: true
   };
 
   componentDidMount() {
-    this.getZohoDeskUrl();
+    this.getSetting();
   }
 
+  getSetting = async () => {
+    const enabledSupportLink = await getValue({ key: GlobalSettingKeys.CodescanSupportLink });
+    if (enabledSupportLink.value === undefined || enabledSupportLink.value === "true") {
+      this.getZohoDeskUrl();
+      this.setState({ enableZoho : true });
+    } else {
+      this.setState({ enableZoho : false });
+    }
+  }
   /*
    * Will be called by the first suggestion (if any), as well as the first link (documentation)
    * Since we don't know if we have any suggestions, we need to allow both to make the call.
@@ -140,7 +152,7 @@ class EmbedDocsPopup extends React.PureComponent<Props & CurrentUserContextInter
           </li>
         </ul>
         <ul className="menu abs-width-240">
-          <li>
+          <li style={{ display: this.state.enableZoho == false ? "none" : "list-item" }}>
             <Link
               className="display-flex-center"
               to={this.state.zohoUrl}
