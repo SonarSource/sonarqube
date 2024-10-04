@@ -53,7 +53,7 @@ import HotspotViewer from './components/HotspotViewer';
 
 export interface SecurityHotspotsAppRendererProps {
   branchLike?: BranchLike;
-  component: Component;
+  component?: Component;
   filterByCWE?: string;
   filterByCategory?: {
     category: string;
@@ -106,10 +106,13 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     standards,
   } = props;
 
-  const isProject = component.qualifier === ComponentQualifier.Project;
-
   const { top: topScroll } = useFollowScroll();
 
+  if (component === undefined) {
+    return null;
+  }
+
+  const isProject = component.qualifier === ComponentQualifier.Project;
   const distanceFromBottom = topScroll + window.innerHeight - document.body.clientHeight;
 
   const footerVisibleHeight =
