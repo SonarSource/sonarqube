@@ -23,7 +23,12 @@ import { getJSON } from '~sonar-aligned/helpers/request';
 import { Exporter, ProfileChangelogEvent } from '../apps/quality-profiles/types';
 import { csvEscape } from '../helpers/csv';
 import { RequestData, post, postJSON } from '../helpers/request';
-import { CleanCodeAttributeCategory, SoftwareImpact } from '../types/clean-code-taxonomy';
+import {
+  CleanCodeAttributeCategory,
+  SoftwareImpact,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../types/clean-code-taxonomy';
 import { Dict, Paging, ProfileInheritanceDetails, UserSelected } from '../types/types';
 
 export interface ProfileActions {
@@ -322,17 +327,25 @@ export function bulkDeactivateRules(data: BulkActivateParameters) {
 
 export interface ActivateRuleParameters {
   key: string;
-  params?: Dict<string>;
+  params?: Record<string, string>;
   prioritizedRule?: boolean;
   reset?: boolean;
   rule: string;
   severity?: string;
+  softwareQualityImpact?: Record<SoftwareQuality, SoftwareImpactSeverity>;
 }
 
 export function activateRule(data: ActivateRuleParameters) {
   const params =
     data.params && map(data.params, (value, key) => `${key}=${csvEscape(value)}`).join(';');
-  return post('/api/qualityprofiles/activate_rule', { ...data, params }).catch(throwGlobalError);
+  const softwareQualityImpact =
+    data.softwareQualityImpact &&
+    map(data.softwareQualityImpact, (value, key) => `${key}=${value}`).join(';');
+  return post('/api/qualityprofiles/activate_rule', {
+    ...data,
+    params,
+    softwareQualityImpact,
+  }).catch(throwGlobalError);
 }
 
 export interface DeactivateRuleParameters {

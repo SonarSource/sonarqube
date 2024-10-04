@@ -74,6 +74,7 @@ export enum DocLink {
   PullRequestAnalysis = '/analyzing-source-code/pull-request-analysis/introduction/',
   QualityGates = '/instance-administration/analysis-functions/quality-gates/',
   Root = '/',
+  RuleSeverity = '/instance-administration/analysis-functions/quality-profiles/#rule-severity',
   RulesOverview = '/user-guide/rules/overview',
   SecurityHotspots = '/user-guide/security-hotspots/',
   SecurityReports = '/user-guide/viewing-reports/security-reports/',

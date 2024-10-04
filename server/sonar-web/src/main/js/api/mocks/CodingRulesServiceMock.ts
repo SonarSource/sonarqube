@@ -31,8 +31,9 @@ import {
   mockRuleActivation,
   mockRuleRepository,
 } from '../../helpers/testMocks';
+import { SoftwareImpactSeverity, SoftwareQuality } from '../../types/clean-code-taxonomy';
 import { RuleRepository, SearchRulesResponse } from '../../types/coding-rules';
-import { RawIssuesResponse } from '../../types/issues';
+import { IssueSeverity, RawIssuesResponse } from '../../types/issues';
 import { RuleStatus, SearchRulesQuery } from '../../types/rules';
 import { SecurityStandard } from '../../types/security';
 import {
@@ -106,6 +107,22 @@ const FACET_RULE_MAP: { [key: string]: keyof Rule } = {
   severities: 'severity',
   statuses: 'status',
   tags: 'tags',
+};
+
+const MQRtoStandardSeverityMap = {
+  [SoftwareImpactSeverity.Info]: IssueSeverity.Info,
+  [SoftwareImpactSeverity.Low]: IssueSeverity.Minor,
+  [SoftwareImpactSeverity.Medium]: IssueSeverity.Major,
+  [SoftwareImpactSeverity.High]: IssueSeverity.Critical,
+  [SoftwareImpactSeverity.Blocker]: IssueSeverity.Blocker,
+};
+
+const StandardtoMQRSeverityMap = {
+  [IssueSeverity.Info]: SoftwareImpactSeverity.Info,
+  [IssueSeverity.Minor]: SoftwareImpactSeverity.Low,
+  [IssueSeverity.Major]: SoftwareImpactSeverity.Medium,
+  [IssueSeverity.Critical]: SoftwareImpactSeverity.High,
+  [IssueSeverity.Blocker]: SoftwareImpactSeverity.Blocker,
 };
 
 export const RULE_TAGS_MOCK = ['awesome', 'cute', 'nice'];
@@ -568,6 +585,12 @@ export default class CodingRulesServiceMock {
       activation.inherit = 'INHERITED';
       activation.prioritizedRule = parentActivation?.prioritizedRule ?? false;
       activation.severity = parentActivation?.severity ?? 'MAJOR';
+      activation.impacts = parentActivation?.impacts ?? [
+        {
+          softwareQuality: SoftwareQuality.Maintainability,
+          severity: SoftwareImpactSeverity.Medium,
+        },
+      ];
       activation.params = parentParams;
 
       return this.reply(undefined);
@@ -582,16 +605,53 @@ export default class CodingRulesServiceMock {
         currentActivation.params,
         Object.entries(data.params ?? {}).map(([key, value]) => ({ key, value })),
       ) &&
-      currentActivation.severity === data.severity &&
-      currentActivation.prioritizedRule === data.prioritizedRule
+      (!data.severity || currentActivation.severity === data.severity) &&
+      currentActivation.prioritizedRule === data.prioritizedRule &&
+      (!data.softwareQualityImpact ||
+        isEqual(
+          currentActivation.impacts,
+          Object.entries(data.softwareQualityImpact).map(([softwareQuality, severity]) => ({
+            softwareQuality,
+            severity,
+          })),
+        ))
     ) {
       return this.reply(undefined);
     }
 
+    const ruleImpacts = this.rules.find((r) => r.key === data.rule)?.impacts ?? [];
+    const inheritedImpacts =
+      this.rulesActivations[data.rule]?.find(({ qProfile }) => qProfile === data.key)?.impacts ??
+      [];
+    const severity = data.softwareQualityImpact
+      ? MQRtoStandardSeverityMap[data.softwareQualityImpact[SoftwareQuality.Maintainability]]
+      : data.severity;
+    const impacts = data.severity
+      ? [
+          ...ruleImpacts.filter(
+            (impact) => !inheritedImpacts.some((i) => i.softwareQuality === impact.softwareQuality),
+          ),
+          ...inheritedImpacts.filter(
+            (impact) => impact.softwareQuality !== SoftwareQuality.Maintainability,
+          ),
+          {
+            softwareQuality: SoftwareQuality.Maintainability,
+            severity:
+              StandardtoMQRSeverityMap[data.severity as keyof typeof StandardtoMQRSeverityMap],
+          },
+        ]
+      : Object.entries(data.softwareQualityImpact ?? {}).map(
+          ([softwareQuality, severity]: [SoftwareQuality, SoftwareImpactSeverity]) => ({
+            softwareQuality,
+            severity,
+          }),
+        );
+
     const nextActivations = [
       mockRuleActivation({
         qProfile: data.key,
-        severity: data.severity,
+        severity,
+        impacts,
         prioritizedRule: data.prioritizedRule,
         params: Object.entries(data.params ?? {}).map(([key, value]) => ({ key, value })),
       }),
@@ -604,7 +664,8 @@ export default class CodingRulesServiceMock {
       ...inheritingProfiles.map((profile) =>
         mockRuleActivation({
           qProfile: profile.key,
-          severity: data.severity,
+          severity,
+          impacts,
           prioritizedRule: data.prioritizedRule,
           inherit: 'INHERITED',
           params: Object.entries(data.params ?? {}).map(([key, value]) => ({ key, value })),

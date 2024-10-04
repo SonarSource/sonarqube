@@ -17,59 +17,73 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InputSelect, LabelValueSelectOption } from 'design-system';
+import { HelperText, Select } from '@sonarsource/echoes-react';
+import { isEmpty } from 'lodash';
 import * as React from 'react';
-import { OptionProps, SingleValueProps, components } from 'react-select';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
+import { FormattedMessage, useIntl } from 'react-intl';
+import SeverityIcon from '../../../components/icon-mappers/SeverityIcon';
+import SoftwareImpactSeverityIcon from '../../../components/icon-mappers/SoftwareImpactSeverityIcon';
 import { SEVERITIES } from '../../../helpers/constants';
-import { translate } from '../../../helpers/l10n';
-import { IssueSeverity } from '../../../types/issues';
+import { SoftwareImpactSeverity } from '../../../types/clean-code-taxonomy';
 
 export interface SeveritySelectProps {
+  id: string;
+  impactSeverity?: boolean;
   isDisabled: boolean;
-  onChange: (value: LabelValueSelectOption<IssueSeverity>) => void;
+  onChange: (value: string) => void;
+  recommendedSeverity: string;
   severity: string;
 }
 
-function Option(props: Readonly<OptionProps<LabelValueSelectOption<IssueSeverity>, false>>) {
-  // For tests and a11y
-  props.innerProps.role = 'option';
-  props.innerProps['aria-selected'] = props.isSelected;
-
-  return (
-    <components.Option {...props}>
-      <SeverityHelper className="sw-flex sw-items-center" severity={props.data.value} />
-    </components.Option>
-  );
-}
-
-function SingleValue(
-  props: Readonly<SingleValueProps<LabelValueSelectOption<IssueSeverity>, false>>,
-) {
-  return (
-    <components.SingleValue {...props}>
-      <SeverityHelper className="sw-flex sw-items-center" severity={props.data.value} />
-    </components.SingleValue>
-  );
-}
-
 export function SeveritySelect(props: SeveritySelectProps) {
-  const { isDisabled, severity } = props;
-  const serverityOption = SEVERITIES.map((severity) => ({
-    label: translate('severity', severity),
-    value: severity,
-  }));
+  const { isDisabled, severity, recommendedSeverity, impactSeverity, id } = props;
+  const intl = useIntl();
+  const Icon = impactSeverity ? SoftwareImpactSeverityIcon : SeverityIcon;
+  const getSeverityTranslation = (severity: string) =>
+    impactSeverity
+      ? intl.formatMessage({ id: `severity_impact.${severity}` })
+      : intl.formatMessage({ id: `severity.${severity}` });
+  const serverityOption = (impactSeverity ? Object.values(SoftwareImpactSeverity) : SEVERITIES).map(
+    (severity) => ({
+      label:
+        severity === recommendedSeverity
+          ? intl.formatMessage(
+              { id: 'coding_rules.custom_severity.severity_with_recommended' },
+              { severity: getSeverityTranslation(severity) },
+            )
+          : getSeverityTranslation(severity),
+      value: severity,
+      prefix: <Icon severity={severity} aria-hidden />,
+    }),
+  );
 
   return (
-    <InputSelect
-      aria-label={translate('severity')}
-      inputId="coding-rules-severity-select"
-      isDisabled={isDisabled}
-      onChange={props.onChange}
-      components={{ Option, SingleValue }}
-      options={serverityOption}
-      isSearchable={false}
-      value={serverityOption.find((s) => s.value === severity)}
-    />
+    <>
+      <Select
+        id={id}
+        isDisabled={isDisabled}
+        onChange={props.onChange}
+        data={serverityOption}
+        isSearchable={false}
+        isNotClearable
+        placeholder={
+          isDisabled && !isEmpty(severity) ? intl.formatMessage({ id: 'not_impacted' }) : undefined
+        }
+        value={severity}
+        valueIcon={<Icon severity={severity} aria-hidden />}
+      />
+      {severity !== recommendedSeverity && (
+        <HelperText className="sw-mt-2">
+          <FormattedMessage
+            id="coding_rules.custom_severity.not_recommended"
+            values={{
+              recommended: (
+                <b className="sw-lowercase">{getSeverityTranslation(recommendedSeverity)}</b>
+              ),
+            }}
+          />
+        </HelperText>
+      )}
+    </>
   );
 }

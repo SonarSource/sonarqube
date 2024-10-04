@@ -156,10 +156,13 @@ const selectors = {
     name: /coding_rules.deactivate_in_quality_profile/,
     hidden: true,
   }),
-  oldSeveritySelect: byLabelText('severity'),
   qualityProfileSelect: byLabelText('coding_rules.quality_profile'),
-  prioritizedSwitch: byRole('switch', { hidden: true }),
-  selectValue: byText(/severity\./),
+  oldSeveritySelect: byRole('combobox', { name: 'coding_rules.custom_severity.choose_severity' }),
+  mqrSwitch: byRole('switch'),
+  newSeveritySelect: (quality: SoftwareQuality) =>
+    byRole('combobox', { name: `software_quality.${quality}` }),
+  notRecommendedSeverity: byText('coding_rules.custom_severity.not_recommended'),
+  prioritizedSwitch: byRole('checkbox', { name: 'coding_rules.prioritized_rule.switch_label' }),
   activateQPDialog: byRole('dialog', { name: 'coding_rules.activate_in_quality_profile' }),
   changeButton: (profile: string) =>
     byRole('button', { name: `coding_rules.change_details_x.${profile}` }),

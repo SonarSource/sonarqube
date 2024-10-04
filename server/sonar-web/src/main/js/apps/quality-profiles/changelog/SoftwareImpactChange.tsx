@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import SoftwareImpactSeverityIcon from '../../../components/icon-mappers/SoftwareImpactSeverityIcon';
 import { ProfileChangelogEventImpactChange } from '../types';
 
 interface Props {
@@ -31,9 +32,19 @@ export default function SoftwareImpactChange({ impactChange }: Readonly<Props>) 
   const intl = useIntl();
 
   const labels = {
-    oldSeverity: intl.formatMessage({ id: `severity.${oldSeverity}` }),
+    oldSeverity: (
+      <>
+        <SoftwareImpactSeverityIcon severity={oldSeverity} />{' '}
+        {intl.formatMessage({ id: `severity_impact.${oldSeverity}` })}
+      </>
+    ),
     oldSoftwareQuality: intl.formatMessage({ id: `software_quality.${oldSoftwareQuality}` }),
-    newSeverity: intl.formatMessage({ id: `severity.${newSeverity}` }),
+    newSeverity: (
+      <>
+        <SoftwareImpactSeverityIcon severity={newSeverity} />{' '}
+        {intl.formatMessage({ id: `severity_impact.${newSeverity}` })}
+      </>
+    ),
     newSoftwareQuality: intl.formatMessage({ id: `software_quality.${newSoftwareQuality}` }),
   };
 

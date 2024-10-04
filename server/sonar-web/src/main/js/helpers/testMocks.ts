@@ -641,6 +641,9 @@ export function mockRuleActivation(overrides: Partial<RuleActivation> = {}): Rul
     qProfile: 'baz',
     severity: 'MAJOR',
     prioritizedRule: false,
+    impacts: [
+      { softwareQuality: SoftwareQuality.Maintainability, severity: SoftwareImpactSeverity.Medium },
+    ],
     ...overrides,
   };
 }

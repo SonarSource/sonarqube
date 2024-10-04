@@ -25,6 +25,8 @@ import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
   SoftwareImpact,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
 } from './clean-code-taxonomy';
 import { MessageFormatting, RawIssue } from './issues';
 import { NewCodeDefinitionType } from './new-code-definition';
@@ -519,6 +521,7 @@ export interface RestRule {
 
 export interface RuleActivation {
   createdAt: string;
+  impacts: { severity: SoftwareImpactSeverity; softwareQuality: SoftwareQuality }[];
   inherit: RuleInheritance;
   params: { key: string; value: string }[];
   prioritizedRule: boolean;

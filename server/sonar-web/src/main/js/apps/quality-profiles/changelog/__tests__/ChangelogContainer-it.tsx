@@ -92,8 +92,8 @@ it('should see the changelog', async () => {
   ui.checkRow(3, '', '', '', 'Rule 1', [
     /quality_profiles.deprecated_severity_set_to severity.CRITICAL/,
     /quality_profiles.changelog.cca_and_category_changed.*COMPLETE.*INTENTIONAL.*LAWFUL.*RESPONSIBLE/,
-    /quality_profiles.changelog.impact_added.severity.*MEDIUM.*RELIABILITY/,
-    /quality_profiles.changelog.impact_removed.severity.HIGH.*MAINTAINABILITY/,
+    /quality_profiles.changelog.impact_added.severity_impact.*MEDIUM.*RELIABILITY/,
+    /quality_profiles.changelog.impact_removed.severity_impact.HIGH.*MAINTAINABILITY/,
   ]);
   await user.click(ui.link.get(rows[1]));
   expect(screen.getByText('/coding_rules?rule_key=c%3Arule0')).toBeInTheDocument();
