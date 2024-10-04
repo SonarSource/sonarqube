@@ -9,7 +9,7 @@
     a.rule_uuid as "ruleUuid",
     a.failure_level as "severity",
     a.inheritance as "inheritance",
-    a.impacts as "impacts",
+    a.impacts as "impactsString",
     r.plugin_rule_key as "rulefield",
     r.plugin_name as "repository",
     rp.uuid as "ruleProfileUuid",
@@ -24,7 +24,7 @@
     a.rule_uuid as "ruleUuid",
     a.failure_level as "severity",
     a.inheritance as "inheritance",
-    a.impacts as "impacts",
+    a.impacts as "impactsString",
     a.prioritized_rule as "prioritizedRule",
     r.plugin_rule_key as "rulefield",
     r.plugin_name as "repository",
@@ -58,7 +58,7 @@
       #{ruleUuid, jdbcType=VARCHAR},
       #{severity, jdbcType=INTEGER},
       #{inheritance, jdbcType=VARCHAR},
-      #{impacts, jdbcType=VARCHAR},
+      #{impactsString, jdbcType=VARCHAR},
       #{prioritizedRule, jdbcType=BOOLEAN},
       #{createdAt, jdbcType=BIGINT},
       #{updatedAt, jdbcType=BIGINT}
@@ -70,7 +70,7 @@
     set
       failure_level = #{severity, jdbcType=INTEGER},
       inheritance = #{inheritance, jdbcType=VARCHAR},
-      impacts = #{impacts, jdbcType=VARCHAR},
+      impacts = #{impactsString, jdbcType=VARCHAR},
       prioritized_rule = #{prioritizedRule, jdbcType=BOOLEAN},
       updated_at = #{updatedAt, jdbcType=BIGINT}
     where
@@ -90,7 +90,8 @@
       from rules_profiles rp
       where rp.uuid = profile_uuid
       and rp.uuid in
-        <foreach collection="rulesProfileUuids" open="(" close=")" item="rulesProfileUuid" separator=",">#{rulesProfileUuid, jdbcType=VARCHAR}</foreach>
+        <foreach collection="rulesProfileUuids" open="(" close=")" item="rulesProfileUuid"
+                 separator=",">#{rulesProfileUuid, jdbcType=VARCHAR}</foreach>
       )
   </delete>
 
@@ -150,7 +151,8 @@
     <include refid="activeRuleKeyJoin"/>
     where
     r.uuid in <foreach collection="ruleUuids" item="ruleUuid" separator="," open="(" close=")">#{ruleUuid, jdbcType=VARCHAR}</foreach>
-    and rp.uuid in <foreach collection="ruleProfileUuids" item="ruleProfileUuid" separator="," open="(" close=")">#{ruleProfileUuid, jdbcType=VARCHAR}</foreach>
+    and rp.uuid in <foreach collection="ruleProfileUuids" item="ruleProfileUuid" separator="," open="("
+                            close=")">#{ruleProfileUuid, jdbcType=VARCHAR}</foreach>
   </select>
 
   <select id="selectPrioritizedRules" parameterType="map" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
@@ -342,7 +344,7 @@
     ar.uuid as "uuid",
     ar.failure_level as "severity",
     ar.inheritance as "inheritance",
-    ar.impacts as "impacts",
+    ar.impacts as "impactsString",
     ar.prioritized_rule as "prioritizedRule",
     r.uuid as "ruleUuid",
     r.plugin_name as "repository",

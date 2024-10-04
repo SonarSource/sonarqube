@@ -21,7 +21,9 @@ package org.sonar.db.qualityprofile;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -29,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
@@ -59,7 +62,14 @@ import static org.sonar.db.qualityprofile.ActiveRuleDto.createFor;
 class ActiveRuleDaoIT {
 
   private static final long NOW = 10_000_000L;
-  public static final String IMPACTS = "{\\“SECURITY\\”:\\”BLOCKER\\”,\\”MAINTAINABILITY\\”:\\”INFO\\”}";
+
+  static {
+    Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> map = new LinkedHashMap<>();
+    map.put(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.INFO);
+    map.put(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH);
+    IMPACTS = map;
+  }
+  public static final Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> IMPACTS;
 
   private QProfileDto profile1;
   private QProfileDto profile2;
@@ -121,9 +131,9 @@ class ActiveRuleDaoIT {
 
   @Test
   void selectByRuleIds() {
-    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
-    ActiveRuleDto activeRule2 = createFor(profile1, rule2).setSeverity(BLOCKER);
-    ActiveRuleDto activeRule3 = createFor(profile2, rule1).setSeverity(BLOCKER);
+    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER).setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
+    ActiveRuleDto activeRule2 = createFor(profile1, rule2).setSeverity(BLOCKER).setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
+    ActiveRuleDto activeRule3 = createFor(profile2, rule1).setSeverity(BLOCKER).setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
     underTest.insert(dbSession, activeRule1);
     underTest.insert(dbSession, activeRule2);
     underTest.insert(dbSession, activeRule3);
@@ -174,8 +184,8 @@ class ActiveRuleDaoIT {
 
     assertThat(underTest.selectByTypeAndProfileUuids(dbSession, singletonList(RuleType.VULNERABILITY.getDbConstant()),
       singletonList(profile1.getKee())))
-      .extracting(OrgActiveRuleDto::getOrgProfileUuid, OrgActiveRuleDto::getRuleUuid)
-      .contains(tuple(profile1.getKee(), rule1.getUuid()));
+        .extracting(OrgActiveRuleDto::getOrgProfileUuid, OrgActiveRuleDto::getRuleUuid)
+        .contains(tuple(profile1.getKee(), rule1.getUuid()));
   }
 
   @Test
@@ -187,7 +197,7 @@ class ActiveRuleDaoIT {
 
     assertThat(underTest.selectByTypeAndProfileUuids(dbSession, singletonList(RuleType.VULNERABILITY.getDbConstant()),
       singletonList(profile1.getKee())))
-      .isEmpty();
+        .isEmpty();
   }
 
   @Test
@@ -201,14 +211,14 @@ class ActiveRuleDaoIT {
       underTest.selectByTypeAndProfileUuids(dbSession,
         singletonList(RuleType.VULNERABILITY.getDbConstant()),
         singletonList(profile1.getKee())))
-      .extracting(OrgActiveRuleDto::getOrgProfileUuid, OrgActiveRuleDto::getRuleUuid)
-      .contains(tuple(profile1.getKee(), rule1.getUuid()));
+          .extracting(OrgActiveRuleDto::getOrgProfileUuid, OrgActiveRuleDto::getRuleUuid)
+          .contains(tuple(profile1.getKee(), rule1.getUuid()));
 
     assertThat(
       underTest.selectByTypeAndProfileUuids(dbSession,
         asList(RuleType.CODE_SMELL.getDbConstant(), RuleType.SECURITY_HOTSPOT.getDbConstant(), RuleType.BUG.getDbConstant()),
         singletonList(profile1.getKee())))
-      .isEmpty();
+          .isEmpty();
   }
 
   @Test
@@ -319,7 +329,7 @@ class ActiveRuleDaoIT {
     ActiveRuleDto activeRule = createFor(profile1, rule1)
       .setSeverity(BLOCKER)
       .setInheritance(INHERITED)
-      .setImpacts("{\"RELIABILITY\":\"INFO\"}")
+      .setImpactsString("{\"RELIABILITY\":\"INFO\"}")
       .setCreatedAt(1000L)
       .setUpdatedAt(2000L);
     underTest.insert(dbSession, activeRule);
@@ -630,8 +640,8 @@ class ActiveRuleDaoIT {
     assertThat(underTest.countActiveRulesByQuery(dbSession, builder.setProfiles(singletonList(profileWithoutActiveRule)).build())).isEmpty();
     assertThat(underTest.countActiveRulesByQuery(dbSession,
       builder.setProfiles(asList(profile1, profile2, profileWithoutActiveRule)).build())).containsOnly(
-      entry(profile1.getKee(), 2L),
-      entry(profile2.getKee(), 1L));
+        entry(profile1.getKee(), 2L),
+        entry(profile2.getKee(), 1L));
     assertThat(underTest.countActiveRulesByQuery(dbSession, builder.setProfiles(emptyList()).build())).isEmpty();
   }
 
@@ -665,10 +675,10 @@ class ActiveRuleDaoIT {
     ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder();
     assertThat(underTest.countActiveRulesByQuery(dbSession,
       builder.setProfiles(asList(profile1, profile2)).setInheritance(OVERRIDES).build()))
-      .containsOnly(entry(profile1.getKee(), 1L), entry(profile2.getKee(), 1L));
+        .containsOnly(entry(profile1.getKee(), 1L), entry(profile2.getKee(), 1L));
     assertThat(underTest.countActiveRulesByQuery(dbSession,
       builder.setProfiles(asList(profile1, profile2)).setInheritance(INHERITED).build()))
-      .containsOnly(entry(profile2.getKee(), 1L));
+        .containsOnly(entry(profile2.getKee(), 1L));
   }
 
   @Test
