@@ -395,6 +395,12 @@ public class UserSessionRule implements TestRule, UserSession, BeforeTestExecuti
   }
 
   @Override
+  public UserSession checkEntityPermissionOrElseThrowResourceForbiddenException(String projectPermission, EntityDto entity) {
+    currentUserSession.checkEntityPermissionOrElseThrowResourceForbiddenException(projectPermission, entity);
+    return this;
+  }
+
+  @Override
   public UserSession checkChildProjectsPermission(String projectPermission, ComponentDto component) {
     currentUserSession.checkChildProjectsPermission(projectPermission, component);
     return this;

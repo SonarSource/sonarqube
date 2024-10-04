@@ -78,7 +78,7 @@ public class UserDao implements Dao {
    * Select users by uuids, including disabled users. An empty list is returned
    * if list of uuids is empty, without any db round trips.
    *
-   * @return
+   * @return a list of users, in the same order as input uuids
    */
   public List<UserDto> selectByUuids(DbSession session, Collection<String> uuids) {
     return executeLargeInputs(uuids, mapper(session)::selectByUuids);
@@ -113,8 +113,7 @@ public class UserDao implements Dao {
         userQuery.getUserUuids(),
         partialSetOfUsers -> mapper(dbSession).selectUsers(
           UserQuery.copyWithNewRangeOfUserUuids(userQuery, partialSetOfUsers),
-          pagination)
-      );
+          pagination));
     }
     return mapper(dbSession).selectUsers(userQuery, pagination);
   }
@@ -191,7 +190,7 @@ public class UserDao implements Dao {
 
   /**
    * Search for an active user with the given emailCaseInsensitive exits in database
-   * Select is case insensitive. Result for searching 'mail@emailCaseInsensitive.com' or 'Mail@Email.com' is the same
+   * Select is case-insensitive. Result for searching 'mail@emailCaseInsensitive.com' or 'Mail@Email.com' is the same
    */
   public List<UserDto> selectByEmail(DbSession dbSession, String emailCaseInsensitive) {
     return mapper(dbSession).selectByEmail(emailCaseInsensitive.toLowerCase(ENGLISH));

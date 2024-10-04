@@ -68,7 +68,7 @@ class DefaultProjectBindingsControllerTest {
         status().isNotFound(),
         content().json("""
           {
-            "message": "Project binding 'uuid' not found"
+            "message": "You do not have access to this resource or it does not exist."
           }
           """));
   }
@@ -93,7 +93,7 @@ class DefaultProjectBindingsControllerTest {
   }
 
   @Test
-  void getProjectBinding_whenUserDoesntHaveProjectAdminPermissions_returnsForbidden() throws Exception {
+  void getProjectBinding_whenUserDoesntHaveProjectAdminPermissions_returnsNotFound() throws Exception {
     userSession.logIn();
     ProjectAlmSettingDto projectAlmSettingDto = mock();
     when(projectBindingsService.findProjectBindingByUuid(UUID)).thenReturn(Optional.of(projectAlmSettingDto));
@@ -102,10 +102,10 @@ class DefaultProjectBindingsControllerTest {
     mockMvc
       .perform(get(PROJECT_BINDINGS_ENDPOINT + "/uuid"))
       .andExpectAll(
-        status().isForbidden(),
+        status().isNotFound(),
         content().json("""
           {
-            "message": "Insufficient privileges"
+            "message": "You do not have access to this resource or it does not exist."
           }
           """));
   }

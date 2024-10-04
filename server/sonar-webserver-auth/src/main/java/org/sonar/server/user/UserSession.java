@@ -71,7 +71,7 @@ public interface UserSession {
   enum IdentityProvider {
     SONARQUBE("sonarqube"), GITHUB("github"), BITBUCKETCLOUD("bitbucket"), OTHER("other");
 
-    String key;
+    final String key;
 
     IdentityProvider(String key) {
       this.key = key;
@@ -188,6 +188,14 @@ public interface UserSession {
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkEntityPermission(String projectPermission, EntityDto entity);
+
+  /**
+   * Ensures that {@link #hasEntityPermission(String, EntityDto)} is {@code true},
+   * otherwise throws a {@link org.sonar.server.exceptions.ResourceForbiddenException}.
+   * <p>
+   * Differs from {@link #checkEntityPermission(String, EntityDto)} by throwing a different exception (ensuring no resource listing is possible).
+   */
+  UserSession checkEntityPermissionOrElseThrowResourceForbiddenException(String projectPermission, EntityDto entity);
 
   /**
    * Ensures that {@link #hasChildProjectsPermission(String, ComponentDto)} is {@code true}

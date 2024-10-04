@@ -28,8 +28,8 @@ import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.membership.request.GroupMembershipCreateRestRequest;
 import org.sonar.server.v2.api.membership.request.GroupsMembershipSearchRestRequest;
-import org.sonar.server.v2.api.membership.response.GroupsMembershipSearchRestResponse;
 import org.sonar.server.v2.api.membership.response.GroupMembershipRestResponse;
+import org.sonar.server.v2.api.membership.response.GroupsMembershipSearchRestResponse;
 import org.sonar.server.v2.api.model.RestPage;
 import org.sonar.server.v2.api.response.PageRestResponse;
 
@@ -50,10 +50,9 @@ public class DefaultGroupMembershipController implements GroupMembershipControll
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     SearchResults<UserGroupDto> groupMembershipSearchResults = searchMembership(groupsSearchRestRequest, restPage);
 
-    List<GroupMembershipRestResponse> groupMembershipRestRespons = toRestGroupMembershipResponse(groupMembershipSearchResults);
-    return new GroupsMembershipSearchRestResponse(groupMembershipRestRespons,
-      new PageRestResponse(restPage.pageIndex(), restPage.pageSize(), groupMembershipSearchResults.total())
-    );
+    List<GroupMembershipRestResponse> groupMembershipRestResponse = toRestGroupMembershipResponse(groupMembershipSearchResults);
+    return new GroupsMembershipSearchRestResponse(groupMembershipRestResponse,
+      new PageRestResponse(restPage.pageIndex(), restPage.pageSize(), groupMembershipSearchResults.total()));
   }
 
   private SearchResults<UserGroupDto> searchMembership(GroupsMembershipSearchRestRequest groupsSearchRestRequest, RestPage restPage) {

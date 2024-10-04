@@ -24,10 +24,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.ResourceForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.MockUserSession;
@@ -95,6 +97,30 @@ public class ThreadLocalUserSessionTest {
   public void throw_UnauthorizedException_when_no_session() {
     assertThatThrownBy(threadLocalUserSession::get)
       .isInstanceOf(UnauthorizedException.class);
+  }
+
+  @Test
+  public void checkEntityPermissionOrElseThrowResourceForbiddenException_returns_session_when_permission_to_entity() {
+    MockUserSession expected = new MockUserSession("jean-michel");
+
+    ProjectDto subProjectDto = new ProjectDto().setQualifier(Qualifiers.PROJECT).setUuid("subproject-uuid");
+    ProjectDto applicationAsProjectDto = new ProjectDto().setQualifier(Qualifiers.APP).setUuid("application-project-uuid");
+
+    expected.registerProjects(subProjectDto);
+    expected.registerApplication(applicationAsProjectDto, subProjectDto);
+    threadLocalUserSession.set(expected);
+
+    assertThat(threadLocalUserSession.checkEntityPermissionOrElseThrowResourceForbiddenException(USER, applicationAsProjectDto)).isEqualTo(threadLocalUserSession);
+  }
+
+  @Test
+  public void checkEntityPermissionOrElseThrowResourceForbiddenException_throws_ResourceForbiddenException_when_no_permission_to_entity() {
+    MockUserSession expected = new MockUserSession("jean-michel");
+    threadLocalUserSession.set(expected);
+    EntityDto entity = new ProjectDto();
+
+    assertThatThrownBy(() -> threadLocalUserSession.checkEntityPermissionOrElseThrowResourceForbiddenException(USER, entity))
+      .isInstanceOf(ResourceForbiddenException.class);
   }
 
   @Test

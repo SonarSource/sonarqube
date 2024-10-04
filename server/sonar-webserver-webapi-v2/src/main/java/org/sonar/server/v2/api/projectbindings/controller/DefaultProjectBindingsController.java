@@ -27,7 +27,7 @@ import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.projectbindings.service.ProjectBindingInformation;
 import org.sonar.server.common.projectbindings.service.ProjectBindingsSearchRequest;
 import org.sonar.server.common.projectbindings.service.ProjectBindingsService;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.exceptions.ResourceForbiddenException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.model.RestPage;
 import org.sonar.server.v2.api.projectbindings.model.ProjectBinding;
@@ -54,10 +54,10 @@ public class DefaultProjectBindingsController implements ProjectBindingsControll
     if (projectAlmSettingDto.isPresent()) {
       ProjectDto projectDto = projectBindingsService.findProjectFromBinding(projectAlmSettingDto.get())
         .orElseThrow(() -> new IllegalStateException(String.format("Project (uuid '%s') not found for binding '%s'", projectAlmSettingDto.get().getProjectUuid(), id)));
-      userSession.checkEntityPermission(USER, projectDto);
+      userSession.checkEntityPermissionOrElseThrowResourceForbiddenException(USER, projectDto);
       return toProjectBinding(projectDto, projectAlmSettingDto.get());
     } else {
-      throw new NotFoundException(String.format("Project binding '%s' not found", id));
+      throw new ResourceForbiddenException();
     }
   }
 
