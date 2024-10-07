@@ -35,7 +35,6 @@ import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { useRefreshBranchStatus } from '../../../queries/branch';
-import { Cve } from '../../../types/cves';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import { RuleDescriptionSection, RuleDescriptionSections } from '../../coding-rules/rule';
 import useStickyDetection from '../hooks/useStickyDetection';
@@ -44,7 +43,7 @@ import StatusReviewButton from './status/StatusReviewButton';
 interface Props {
   activityTabContent: React.ReactNode;
   codeTabContent: React.ReactNode;
-  cve: Cve | undefined;
+  cveId?: string;
   hotspot: Hotspot;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
   ruleDescriptionSections?: RuleDescriptionSection[];
@@ -74,7 +73,7 @@ export default function HotspotViewerTabs(props: Props) {
     hotspot,
     ruleDescriptionSections,
     ruleLanguage,
-    cve,
+    cveId,
   } = props;
 
   const { component } = useComponent();
@@ -217,7 +216,7 @@ export default function HotspotViewerTabs(props: Props) {
           <RuleDescription
             language={ruleLanguage}
             sections={rootCauseDescriptionSections}
-            cve={cve}
+            cveId={cveId}
           />
         )}
 

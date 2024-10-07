@@ -32,7 +32,6 @@ import StyledHeader from '../../apps/issues/components/StyledHeader';
 import { fillBranchLike } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
 import { withUseGetFixSuggestionsIssues } from '../../queries/fix-suggestions';
-import { Cve } from '../../types/cves';
 import { Issue, RuleDetails } from '../../types/types';
 import { CurrentUser, NoticeType } from '../../types/users';
 import ScreenPositionHelper from '../common/ScreenPositionHelper';
@@ -46,7 +45,7 @@ interface IssueTabViewerProps extends CurrentUserContextInterface {
   aiSuggestionAvailable: boolean;
   codeTabContent?: React.ReactNode;
   currentUser: CurrentUser;
-  cve?: Cve;
+  cveId?: string;
   extendedDescription?: string;
   issue: Issue;
   location: Location;
@@ -199,7 +198,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
       ruleDescriptionContextKey,
       extendedDescription,
       activityTabContent,
-      cve,
+      cveId,
       issue,
       suggestionTabContent,
       aiSuggestionAvailable,
@@ -243,7 +242,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
               descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ??
               descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]
             ).concat(descriptionSectionsByKey[RuleDescriptionSections.INTRODUCTION] ?? [])}
-            cve={cve}
+            cveId={cveId}
           />
         ),
       },

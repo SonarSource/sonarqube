@@ -32,7 +32,7 @@ import { RuleDescriptionSection, RuleDescriptionSections } from '../../apps/codi
 import applyCodeDifferences from '../../helpers/code-difference';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isDefined } from '../../helpers/types';
-import { Cve as CveDetailsType } from '../../types/cves';
+import { useCveQuery } from '../../queries/cves';
 import { CveDetails } from './CveDetails';
 import OtherContextOption from './OtherContextOption';
 
@@ -40,16 +40,10 @@ const OTHERS_KEY = 'others';
 
 interface Props {
   className?: string;
-  cve?: CveDetailsType;
+  cveId?: string;
   defaultContextKey?: string;
   language?: string;
   sections: RuleDescriptionSection[];
-}
-
-interface State {
-  contexts: RuleDescriptionContextDisplay[];
-  defaultContext?: RuleDescriptionContextDisplay;
-  selectedContext?: RuleDescriptionContextDisplay;
 }
 
 interface RuleDescriptionContextDisplay {
@@ -58,23 +52,24 @@ interface RuleDescriptionContextDisplay {
   key: string;
 }
 
-export default class RuleDescription extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = this.computeState();
-  }
+export default function RuleDescription({
+  className,
+  cveId,
+  defaultContextKey,
+  language,
+  sections,
+}: Readonly<Props>) {
+  const [contexts, setContexts] = React.useState<RuleDescriptionContextDisplay[]>([]);
+  const [defaultContext, setDefaultContext] = React.useState<
+    RuleDescriptionContextDisplay | undefined
+  >();
+  const [selectedContext, setSelectedContext] = React.useState<
+    RuleDescriptionContextDisplay | undefined
+  >();
 
-  componentDidUpdate(prevProps: Props) {
-    const { sections, defaultContextKey } = this.props;
+  const { data: cveData } = useCveQuery({ cveId });
 
-    if (prevProps.sections !== sections || prevProps.defaultContextKey !== defaultContextKey) {
-      this.setState(this.computeState());
-    }
-  }
-
-  computeState = () => {
-    const { sections, defaultContextKey } = this.props;
-
+  React.useEffect(() => {
     const contexts = sections
       .filter(
         (
@@ -103,95 +98,28 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
       defaultContext = contexts.find((context) => context.key === defaultContextKey);
     }
 
-    return {
-      contexts,
-      defaultContext,
-      selectedContext: defaultContext ?? contexts[0],
-    };
-  };
+    setContexts(contexts);
+    setDefaultContext(defaultContext);
+    setSelectedContext(defaultContext ?? contexts[0]);
+  }, [sections, defaultContextKey]);
 
-  handleToggleContext = (value: string) => {
-    const { contexts } = this.state;
-
+  const handleToggleContext = (value: string) => {
     const selected = contexts.find((ctxt) => ctxt.displayName === value);
-
     if (selected) {
-      this.setState({ selectedContext: selected });
+      setSelectedContext(selected);
     }
   };
 
-  render() {
-    const { className, language, sections, cve } = this.props;
-    const { contexts, defaultContext, selectedContext } = this.state;
+  const introductionSection = sections?.find(
+    (section) => section.key === RuleDescriptionSections.INTRODUCTION,
+  )?.content;
 
-    const introductionSection = sections?.find(
-      (section) => section.key === RuleDescriptionSections.INTRODUCTION,
-    )?.content;
+  const options = contexts.map((ctxt) => ({
+    label: ctxt.displayName,
+    value: ctxt.displayName,
+  }));
 
-    const options = contexts.map((ctxt) => ({
-      label: ctxt.displayName,
-      value: ctxt.displayName,
-    }));
-
-    if (contexts.length > 0 && selectedContext) {
-      return (
-        <StyledHtmlFormatter
-          className={className}
-          ref={(node: HTMLDivElement) => {
-            applyCodeDifferences(node);
-          }}
-        >
-          <h2 className="sw-typo-semibold sw-mb-4">
-            {translate('coding_rules.description_context.title')}
-          </h2>
-          {isDefined(introductionSection) && (
-            <CodeSyntaxHighlighter
-              className="rule-desc"
-              htmlAsString={introductionSection}
-              language={language}
-              sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
-            />
-          )}
-          {defaultContext && (
-            <FlagMessage variant="info" className="sw-mb-4">
-              {translateWithParameters(
-                'coding_rules.description_context.default_information',
-                defaultContext.displayName,
-              )}
-            </FlagMessage>
-          )}
-          <div className="sw-mb-4">
-            <ToggleButton
-              label={translate('coding_rules.description_context.title')}
-              onChange={this.handleToggleContext}
-              options={options}
-              value={selectedContext.displayName}
-            />
-
-            {selectedContext.key !== OTHERS_KEY && (
-              <h2>
-                {translateWithParameters(
-                  'coding_rules.description_context.subtitle',
-                  selectedContext.displayName,
-                )}
-              </h2>
-            )}
-          </div>
-          {selectedContext.key === OTHERS_KEY ? (
-            <OtherContextOption />
-          ) : (
-            <CodeSyntaxHighlighter
-              htmlAsString={selectedContext.content}
-              language={language}
-              sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
-            />
-          )}
-
-          {cve && <CveDetails cve={cve} />}
-        </StyledHtmlFormatter>
-      );
-    }
-
+  if (contexts.length > 0 && selectedContext) {
     return (
       <StyledHtmlFormatter
         className={className}
@@ -199,6 +127,9 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
           applyCodeDifferences(node);
         }}
       >
+        <h2 className="sw-typo-semibold sw-mb-4">
+          {translate('coding_rules.description_context.title')}
+        </h2>
         {isDefined(introductionSection) && (
           <CodeSyntaxHighlighter
             className="rule-desc"
@@ -207,17 +138,71 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
             sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
           />
         )}
+        {defaultContext && (
+          <FlagMessage variant="info" className="sw-mb-4">
+            {translateWithParameters(
+              'coding_rules.description_context.default_information',
+              defaultContext.displayName,
+            )}
+          </FlagMessage>
+        )}
+        <div className="sw-mb-4">
+          <ToggleButton
+            label={translate('coding_rules.description_context.title')}
+            onChange={handleToggleContext}
+            options={options}
+            value={selectedContext.displayName}
+          />
 
-        <CodeSyntaxHighlighter
-          htmlAsString={sections[0].content}
-          language={language}
-          sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
-        />
+          {selectedContext.key !== OTHERS_KEY && (
+            <h2>
+              {translateWithParameters(
+                'coding_rules.description_context.subtitle',
+                selectedContext.displayName,
+              )}
+            </h2>
+          )}
+        </div>
+        {selectedContext.key === OTHERS_KEY ? (
+          <OtherContextOption />
+        ) : (
+          <CodeSyntaxHighlighter
+            htmlAsString={selectedContext.content}
+            language={language}
+            sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
+          />
+        )}
 
-        {cve && <CveDetails cve={cve} />}
+        {cveData && <CveDetails cve={cveData} />}
       </StyledHtmlFormatter>
     );
   }
+
+  return (
+    <StyledHtmlFormatter
+      className={className}
+      ref={(node: HTMLDivElement) => {
+        applyCodeDifferences(node);
+      }}
+    >
+      {isDefined(introductionSection) && (
+        <CodeSyntaxHighlighter
+          className="rule-desc"
+          htmlAsString={introductionSection}
+          language={language}
+          sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
+        />
+      )}
+
+      <CodeSyntaxHighlighter
+        htmlAsString={sections[0].content}
+        language={language}
+        sanitizeLevel={SanitizeLevel.FORBID_SVG_MATHML}
+      />
+
+      {cveData && <CveDetails cve={cveData} />}
+    </StyledHtmlFormatter>
+  );
 }
 
 const StyledHtmlFormatter = styled(HtmlFormatter)`

@@ -26,7 +26,6 @@ import { Component } from '../../../types/types';
 import { HotspotHeader } from './HotspotHeader';
 
 import { Spinner } from 'design-system';
-import { Cve } from '../../../types/cves';
 import { CurrentUser } from '../../../types/users';
 import { RuleDescriptionSection } from '../../coding-rules/rule';
 import HotspotReviewHistoryAndComments from './HotspotReviewHistoryAndComments';
@@ -38,7 +37,7 @@ import StatusUpdateSuccessModal from './StatusUpdateSuccessModal';
 export interface HotspotViewerRendererProps {
   component: Component;
   currentUser: CurrentUser;
-  cve?: Cve;
+  cveId?: string;
   hotspot?: Hotspot;
   hotspotsReviewedMeasure?: string;
   lastStatusChangedTo?: HotspotStatusOption;
@@ -64,7 +63,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
     loading,
     ruleDescriptionSections,
     ruleLanguage,
-    cve,
+    cveId,
     selectedHotspotLocation,
     showStatusUpdateSuccessModal,
     standards,
@@ -115,7 +114,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
             onUpdateHotspot={props.onUpdateHotspot}
             ruleDescriptionSections={ruleDescriptionSections}
             ruleLanguage={ruleLanguage}
-            cve={cve}
+            cveId={cveId}
           />
         </div>
       )}

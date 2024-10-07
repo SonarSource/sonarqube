@@ -63,6 +63,10 @@ jest.mock('../../../components/common/ScreenPositionHelper', () => ({
   },
 }));
 
+jest.mock('../../../api/cves', () => ({
+  getCve: jest.fn(),
+}));
+
 beforeEach(() => {
   issuesHandler.reset();
   cveHandler.reset();

@@ -28,20 +28,18 @@ import {
   themeBorder,
   themeColor,
 } from 'design-system';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { getCve } from '../../../api/cves';
-import { getRuleDetails } from '../../../api/rules';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { IssueSuggestionCodeTab } from '../../../components/rules/IssueSuggestionCodeTab';
 import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import { fillBranchLike } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useRuleDetailsQuery } from '../../../queries/rules';
 import A11ySkipTarget from '../../../sonar-aligned/components/a11y/A11ySkipTarget';
 import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
 import { ComponentQualifier } from '../../../sonar-aligned/types/component';
-import { Cve } from '../../../types/cves';
-import { Component, Issue, Paging, RuleDetails } from '../../../types/types';
+import { Component, Issue, Paging } from '../../../types/types';
 import SubnavigationIssuesList from '../issues-subnavigation/SubnavigationIssuesList';
 import IssueReviewHistoryAndComments from './IssueReviewHistoryAndComments';
 import IssuesSourceViewer from './IssuesSourceViewer';
@@ -81,29 +79,9 @@ export default function IssueDetails({
   selectedFlowIndex,
   selectedLocationIndex,
 }: Readonly<IssueDetailsProps>) {
-  const [loadingRule, setLoadingRule] = React.useState(false);
-  const [openRuleDetails, setOpenRuleDetails] = React.useState<RuleDetails | undefined>(undefined);
-  const [cve, setCve] = React.useState<Cve | undefined>(undefined);
   const { canBrowseAllChildProjects, qualifier = ComponentQualifier.Project } = component ?? {};
-
-  useEffect(() => {
-    const loadRule = async () => {
-      setLoadingRule(true);
-
-      const openRuleDetails = await getRuleDetails({ key: openIssue.rule })
-        .then((response) => response.rule)
-        .catch(() => undefined);
-
-      let cve: Cve | undefined;
-      if (typeof openIssue.cveId === 'string') {
-        cve = await getCve(openIssue.cveId);
-      }
-      setLoadingRule(false);
-      setOpenRuleDetails(openRuleDetails);
-      setCve(cve);
-    };
-    loadRule().catch(() => undefined);
-  }, [openIssue.key, openIssue.rule, openIssue.cveId]);
+  const { data: ruleData, isLoading: isLoadingRule } = useRuleDetailsQuery({ key: openIssue.rule });
+  const openRuleDetails = ruleData?.rule;
 
   const warning = !canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
     <FlagMessage
@@ -177,7 +155,7 @@ export default function IssueDetails({
                   >
                     <A11ySkipTarget anchor="issues_main" />
 
-                    <Spinner isLoading={loadingRule}>
+                    <Spinner isLoading={isLoadingRule}>
                       {openRuleDetails && (
                         <IssueTabViewer
                           activityTabContent={
@@ -210,7 +188,7 @@ export default function IssueDetails({
                           onIssueChange={handleIssueChange}
                           ruleDescriptionContextKey={openIssue.ruleDescriptionContextKey}
                           ruleDetails={openRuleDetails}
-                          cve={cve}
+                          cveId={openIssue.cveId}
                           selectedFlowIndex={selectedFlowIndex}
                           selectedLocationIndex={selectedLocationIndex}
                         />
