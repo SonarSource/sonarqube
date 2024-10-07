@@ -45,7 +45,6 @@ import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.ce.analysis.cache.cleaning.AnalysisCacheCleaningModule;
 import org.sonar.ce.async.SynchronousAsyncExecution;
 import org.sonar.ce.cleaning.CeCleaningModule;
-import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.issue.index.NoAsyncIssueIndexing;
 import org.sonar.ce.logging.CeProcessLogging;
 import org.sonar.ce.monitoring.CEQueueStatusImpl;
@@ -67,6 +66,7 @@ import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
 import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.core.language.LanguagesProvider;
+import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.core.platform.Container;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -109,7 +109,6 @@ import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.metric.IssueCountMetrics;
-import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.notification.DefaultNotificationManager;
 import org.sonar.server.notification.NotificationService;
@@ -295,7 +294,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // DB
       new DaoModule(),
-      ReadOnlyPropertiesDao.class,
       DBSessionsImpl.class,
       DbClient.class,
 
@@ -324,9 +322,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       DatabaseSettingLoader.class,
       DatabaseSettingsEnabler.class,
       UrlSettings.class,
-
-      // add ReadOnlyPropertiesDao at level2 again so that it shadows PropertiesDao
-      ReadOnlyPropertiesDao.class,
 
       // plugins
       PluginClassloaderFactory.class,
