@@ -31,7 +31,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.issue.ImpactDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -156,8 +156,8 @@ class RuleDtoTest {
   @Test
   void addRuleDescriptionSectionDto_whenSameSectionAndContext_shouldThrowError() {
     RuleDto dto = new RuleDto();
-    String contextKey = randomAlphanumeric(50);
-    String displayName = randomAlphanumeric(50);
+    String contextKey = secure().nextAlphanumeric(50);
+    String displayName = secure().nextAlphanumeric(50);
     RuleDescriptionSectionDto section1 = createSection(SECTION_KEY, contextKey, displayName);
     dto.addRuleDescriptionSectionDto(section1);
     RuleDescriptionSectionDto section2 = createSection(SECTION_KEY, contextKey, displayName);

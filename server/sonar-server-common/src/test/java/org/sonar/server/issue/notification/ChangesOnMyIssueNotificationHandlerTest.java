@@ -50,7 +50,7 @@ import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.mock;
@@ -404,7 +404,7 @@ public class ChangesOnMyIssueNotificationHandlerTest {
 
   @DataProvider
   public static Object[][] userOrAnalysisChange() {
-    User changeAuthor = new User(randomAlphabetic(12), randomAlphabetic(10), randomAlphabetic(11));
+    User changeAuthor = new User(secure().nextAlphabetic(12), secure().nextAlphabetic(10), secure().nextAlphabetic(11));
     return new Object[][] {
       {new AnalysisChange(new Random().nextLong())},
       {new UserChange(new Random().nextLong(), changeAuthor)},
@@ -412,7 +412,7 @@ public class ChangesOnMyIssueNotificationHandlerTest {
   }
 
   private static Project newProject() {
-    String base = randomAlphabetic(6);
+    String base = secure().nextAlphabetic(6);
     return newProject(base);
   }
 
@@ -437,7 +437,7 @@ public class ChangesOnMyIssueNotificationHandlerTest {
   }
 
   private static Rule newRule() {
-    return newRandomNotAHotspotRule(randomAlphabetic(5));
+    return newRandomNotAHotspotRule(secure().nextAlphabetic(5));
   }
 
   private static Set<IssuesChangesNotification> randomSetOfNotifications(@Nullable String projectKey, @Nullable String assignee, @Nullable String changeAuthor) {

@@ -25,7 +25,7 @@ import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTester;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CeWorkerCountSettingWarningTest {
@@ -55,7 +55,7 @@ public class CeWorkerCountSettingWarningTest {
 
   @Test
   public void start_logs_a_warning_if_property_ceWorkerCount_exists_with_a_value() {
-    settings.setProperty(PROPERTY_SONAR_CE_WORKER_COUNT, randomAlphabetic(12));
+    settings.setProperty(PROPERTY_SONAR_CE_WORKER_COUNT, secure().nextAlphabetic(12));
 
     underTest.start();
 

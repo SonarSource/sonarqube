@@ -51,7 +51,7 @@ import org.sonarqube.ws.Issues.Operation;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -173,15 +173,15 @@ class SearchResponseFormatFormatOperationTest {
 
   private static IssueDto createIssue() {
     RuleDto ruleDto = newRule();
-    String projectUuid = "project_uuid_" + randomAlphanumeric(5);
+    String projectUuid = "project_uuid_" + secure().nextAlphanumeric(5);
     ComponentDto projectDto = newPrivateProjectDto();
     projectDto.setBranchUuid(projectUuid);
-    return newIssue(ruleDto, projectUuid, "project_key_" + randomAlphanumeric(5), projectDto);
+    return newIssue(ruleDto, projectUuid, "project_key_" + secure().nextAlphanumeric(5), projectDto);
   }
 
   @Test
   void formatOperation_should_add_branch_on_issue() {
-    String branchName = randomAlphanumeric(5);
+    String branchName = secure().nextAlphanumeric(5);
     searchResponseData = newSearchResponseDataBranch(branchName);
     Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
     assertThat(result.getIssue().getBranch()).isEqualTo(branchName);
@@ -206,8 +206,8 @@ class SearchResponseFormatFormatOperationTest {
   @Test
   void formatOperation_should_add_external_rule_engine_on_issue() {
     issueDto.setExternal(true);
-    String expected = randomAlphanumeric(5);
-    issueDto.setRuleKey(EXTERNAL_RULE_REPO_PREFIX + expected, randomAlphanumeric(5));
+    String expected = secure().nextAlphanumeric(5);
+    issueDto.setRuleKey(EXTERNAL_RULE_REPO_PREFIX + expected, secure().nextAlphanumeric(5));
 
     Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
@@ -237,7 +237,7 @@ class SearchResponseFormatFormatOperationTest {
 
   @Test
   void formatOperation_should_add_scope_main_on_issue_when_not_unit_test_file() {
-    componentDto.setQualifier(randomAlphanumeric(5));
+    componentDto.setQualifier(secure().nextAlphanumeric(5));
 
     Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
@@ -326,9 +326,9 @@ class SearchResponseFormatFormatOperationTest {
     issueDto = newIssue(ruleDto, component.branchUuid(), component.getKey(), component)
       .setType(CODE_SMELL)
       .setCleanCodeAttribute(CleanCodeAttribute.CLEAR)
-      .setRuleDescriptionContextKey("context_key_" + randomAlphanumeric(5))
+      .setRuleDescriptionContextKey("context_key_" + secure().nextAlphanumeric(5))
       .setAssigneeUuid(userDto.getUuid())
-      .setResolution("resolution_" + randomAlphanumeric(5))
+      .setResolution("resolution_" + secure().nextAlphanumeric(5))
       .setIssueCreationDate(new Date(currentTimeMillis() - 2_000))
       .setIssueUpdateDate(new Date(currentTimeMillis() - 1_000))
       .setIssueCloseDate(new Date(currentTimeMillis()));

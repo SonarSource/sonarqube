@@ -53,7 +53,7 @@ import org.sonarqube.ws.Developers.SearchEventsWsResponse;
 import org.sonarqube.ws.Developers.SearchEventsWsResponse.Event;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -132,7 +132,7 @@ public class SearchEventsActionIT {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     userSession.addProjectPermission(USER, projectData.getProjectDto());
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(branchName));
     SnapshotDto projectAnalysis = insertAnalysis(mainBranch, 1_500_000_000_000L);
     db.events().insertEvent(newQualityGateEvent(projectAnalysis).setDate(projectAnalysis.getCreatedAt()).setName("Passed"));
@@ -270,7 +270,7 @@ public class SearchEventsActionIT {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(mainBranchUuid);
-    queueDto.setUuid(randomAlphanumeric(40));
+    queueDto.setUuid(secure().nextAlphanumeric(40));
     queueDto.setCreatedAt(random.nextLong(Long.MAX_VALUE));
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);

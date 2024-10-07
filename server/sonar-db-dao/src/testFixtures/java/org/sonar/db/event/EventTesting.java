@@ -22,7 +22,7 @@ package org.sonar.db.event;
 import org.sonar.db.component.SnapshotDto;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class EventTesting {
 
@@ -33,8 +33,8 @@ public class EventTesting {
     return new EventDto()
       .setAnalysisUuid(analysis.getUuid())
       .setComponentUuid(analysis.getRootComponentUuid())
-      .setUuid(randomAlphanumeric(40))
-      .setName(randomAlphanumeric(400))
+      .setUuid(secure().nextAlphanumeric(40))
+      .setName(secure().nextAlphanumeric(400))
       .setDescription(null)
       .setCategory("Other")
       .setCreatedAt(System.currentTimeMillis())

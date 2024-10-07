@@ -89,7 +89,7 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -628,7 +628,7 @@ public class SearchActionIT {
 
   @Test
   public void return_lang_key_field_when_language_name_is_not_available() {
-    String unknownLanguage = "unknown_" + randomAlphanumeric(5);
+    String unknownLanguage = "unknown_" + secure().nextAlphanumeric(5);
     RuleDto rule = db.rules().insert(r -> r.setLanguage(unknownLanguage));
 
     indexRules();
@@ -882,7 +882,7 @@ public class SearchActionIT {
       tuple(ruleParam1.getName(), ruleParam1.getDefaultValue()),
       tuple(ruleParam2.getName(), ruleParam2.getDefaultValue()));
 
-    String unknownProfile = "unknown_profile" + randomAlphanumeric(5);
+    String unknownProfile = "unknown_profile" + secure().nextAlphanumeric(5);
 
     assertThatThrownBy(() -> {
       ws.newRequest()

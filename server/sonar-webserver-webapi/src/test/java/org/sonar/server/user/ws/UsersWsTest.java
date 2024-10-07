@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.ServletFilterHandler;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UsersWsTest {
@@ -49,7 +49,7 @@ public class UsersWsTest {
 
     @Override
     public void define(WebService.NewController context) {
-      context.createAction(randomAlphanumeric(10)).setHandler(ServletFilterHandler.INSTANCE);
+      context.createAction(secure().nextAlphanumeric(10)).setHandler(ServletFilterHandler.INSTANCE);
     }
 
   }

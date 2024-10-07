@@ -75,7 +75,7 @@ import static java.util.Collections.shuffle;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentCaptor.forClass;
@@ -119,7 +119,7 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
 
   private static final Component FILE = builder(Type.FILE, 11).build();
   private static final Component PROJECT = builder(Type.PROJECT, 1)
-    .setProjectVersion(randomAlphanumeric(10))
+    .setProjectVersion(secure().nextAlphanumeric(10))
     .addChildren(FILE).build();
 
   @Rule

@@ -21,15 +21,15 @@ package org.sonar.db.alm.integration.pat;
 
 import org.sonar.db.alm.pat.AlmPatDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class AlmPatsTesting {
 
   public static AlmPatDto newAlmPatDto() {
     AlmPatDto almPatDto = new AlmPatDto();
-    almPatDto.setAlmSettingUuid(randomAlphanumeric(40));
-    almPatDto.setPersonalAccessToken(randomAlphanumeric(2000));
-    almPatDto.setUserUuid(randomAlphanumeric(40));
+    almPatDto.setAlmSettingUuid(secure().nextAlphanumeric(40));
+    almPatDto.setPersonalAccessToken(secure().nextAlphanumeric(2000));
+    almPatDto.setUserUuid(secure().nextAlphanumeric(40));
     return almPatDto;
   }
 

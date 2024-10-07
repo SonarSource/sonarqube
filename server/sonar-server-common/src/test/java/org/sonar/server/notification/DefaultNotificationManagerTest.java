@@ -44,8 +44,7 @@ import org.sonar.server.notification.NotificationManager.EmailRecipient;
 import org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -137,7 +136,7 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void findSubscribedEmailRecipients_fails_with_NPE_if_projectKey_is_null() {
-    String dispatcherKey = randomAlphabetic(12);
+    String dispatcherKey = secure().nextAlphabetic(12);
 
     assertThatThrownBy(() -> underTest.findSubscribedEmailRecipients(dispatcherKey, null, ALL_MUST_HAVE_ROLE_USER))
       .isInstanceOf(NullPointerException.class)
@@ -146,7 +145,7 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void findSubscribedEmailRecipients_with_logins_fails_with_NPE_if_projectKey_is_null() {
-    String dispatcherKey = randomAlphabetic(12);
+    String dispatcherKey = secure().nextAlphabetic(12);
 
     assertThatThrownBy(() -> underTest.findSubscribedEmailRecipients(dispatcherKey, null, ImmutableSet.of(), ALL_MUST_HAVE_ROLE_USER))
       .isInstanceOf(NullPointerException.class)
@@ -155,8 +154,8 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void findSubscribedEmailRecipients_with_logins_fails_with_NPE_if_logins_is_null() {
-    String dispatcherKey = randomAlphabetic(12);
-    String projectKey = randomAlphabetic(6);
+    String dispatcherKey = secure().nextAlphabetic(12);
+    String projectKey = secure().nextAlphabetic(6);
 
     assertThatThrownBy(() -> underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey, null, ALL_MUST_HAVE_ROLE_USER))
       .isInstanceOf(NullPointerException.class)
@@ -165,8 +164,8 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void findSubscribedEmailRecipients_with_logins_returns_empty_if_login_set_is_empty() {
-    String dispatcherKey = randomAlphabetic(12);
-    String projectKey = randomAlphabetic(6);
+    String dispatcherKey = secure().nextAlphabetic(12);
+    String projectKey = secure().nextAlphabetic(6);
 
     Set<EmailRecipient> recipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey, ImmutableSet.of(), ALL_MUST_HAVE_ROLE_USER);
 
@@ -175,10 +174,10 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void findSubscribedEmailRecipients_returns_empty_if_no_email_recipients_in_project_for_dispatcher_key() {
-    String dispatcherKey = randomAlphabetic(12);
-    String globalPermission = randomAlphanumeric(4);
-    String projectPermission = randomAlphanumeric(5);
-    String projectKey = randomAlphabetic(6);
+    String dispatcherKey = secure().nextAlphabetic(12);
+    String globalPermission = secure().nextAlphanumeric(4);
+    String projectPermission = secure().nextAlphanumeric(5);
+    String projectKey = secure().nextAlphabetic(6);
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
       .thenReturn(Collections.emptySet());
 
@@ -191,10 +190,10 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void findSubscribedEmailRecipients_with_logins_returns_empty_if_no_email_recipients_in_project_for_dispatcher_key() {
-    String dispatcherKey = randomAlphabetic(12);
-    String globalPermission = randomAlphanumeric(4);
-    String projectPermission = randomAlphanumeric(5);
-    String projectKey = randomAlphabetic(6);
+    String dispatcherKey = secure().nextAlphabetic(12);
+    String globalPermission = secure().nextAlphanumeric(4);
+    String projectPermission = secure().nextAlphanumeric(5);
+    String projectKey = secure().nextAlphabetic(6);
     Set<String> logins = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> "login_" + i)
       .collect(Collectors.toSet());
@@ -210,10 +209,10 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void findSubscribedEmailRecipients_applies_distinct_permission_filtering_global_or_project_subscribers() {
-    String dispatcherKey = randomAlphabetic(12);
-    String globalPermission = randomAlphanumeric(4);
-    String projectPermission = randomAlphanumeric(5);
-    String projectKey = randomAlphabetic(6);
+    String dispatcherKey = secure().nextAlphabetic(12);
+    String globalPermission = secure().nextAlphanumeric(4);
+    String projectPermission = secure().nextAlphanumeric(5);
+    String projectKey = secure().nextAlphabetic(6);
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
       .thenReturn(
         newHashSet(EmailSubscriberDto.create("user1", false, "user1@foo"), EmailSubscriberDto.create("user3", false, "user3@foo"),
@@ -235,10 +234,10 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void findSubscribedEmailRecipients_with_logins_applies_distinct_permission_filtering_global_or_project_subscribers() {
-    String dispatcherKey = randomAlphabetic(12);
-    String globalPermission = randomAlphanumeric(4);
-    String projectPermission = randomAlphanumeric(5);
-    String projectKey = randomAlphabetic(6);
+    String dispatcherKey = secure().nextAlphabetic(12);
+    String globalPermission = secure().nextAlphanumeric(4);
+    String projectPermission = secure().nextAlphanumeric(5);
+    String projectKey = secure().nextAlphabetic(6);
     Set<String> logins = ImmutableSet.of("user1", "user2", "user3");
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey, logins))
       .thenReturn(
@@ -261,10 +260,10 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void findSubscribedEmailRecipients_does_not_call_db_for_project_permission_filtering_if_there_is_no_project_subscriber() {
-    String dispatcherKey = randomAlphabetic(12);
-    String globalPermission = randomAlphanumeric(4);
-    String projectPermission = randomAlphanumeric(5);
-    String projectKey = randomAlphabetic(6);
+    String dispatcherKey = secure().nextAlphabetic(12);
+    String globalPermission = secure().nextAlphanumeric(4);
+    String projectPermission = secure().nextAlphanumeric(5);
+    String projectKey = secure().nextAlphabetic(6);
     Set<EmailSubscriberDto> subscribers = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> EmailSubscriberDto.create("user" + i, true, "user" + i + "@sonarsource.com"))
       .collect(Collectors.toSet());
@@ -286,10 +285,10 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void findSubscribedEmailRecipients_with_logins_does_not_call_db_for_project_permission_filtering_if_there_is_no_project_subscriber() {
-    String dispatcherKey = randomAlphabetic(12);
-    String globalPermission = randomAlphanumeric(4);
-    String projectPermission = randomAlphanumeric(5);
-    String projectKey = randomAlphabetic(6);
+    String dispatcherKey = secure().nextAlphabetic(12);
+    String globalPermission = secure().nextAlphanumeric(4);
+    String projectPermission = secure().nextAlphanumeric(5);
+    String projectKey = secure().nextAlphabetic(6);
     Set<EmailSubscriberDto> subscribers = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> EmailSubscriberDto.create("user" + i, true, "user" + i + "@sonarsource.com"))
       .collect(Collectors.toSet());
@@ -311,10 +310,10 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void findSubscribedEmailRecipients_does_not_call_DB_for_project_permission_filtering_if_there_is_no_global_subscriber() {
-    String dispatcherKey = randomAlphabetic(12);
-    String globalPermission = randomAlphanumeric(4);
-    String projectPermission = randomAlphanumeric(5);
-    String projectKey = randomAlphabetic(6);
+    String dispatcherKey = secure().nextAlphabetic(12);
+    String globalPermission = secure().nextAlphanumeric(4);
+    String projectPermission = secure().nextAlphanumeric(5);
+    String projectKey = secure().nextAlphabetic(6);
     Set<EmailSubscriberDto> subscribers = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> EmailSubscriberDto.create("user" + i, false, "user" + i + "@sonarsource.com"))
       .collect(Collectors.toSet());
@@ -336,10 +335,10 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void findSubscribedEmailRecipients_with_logins_does_not_call_DB_for_project_permission_filtering_if_there_is_no_global_subscriber() {
-    String dispatcherKey = randomAlphabetic(12);
-    String globalPermission = randomAlphanumeric(4);
-    String projectPermission = randomAlphanumeric(5);
-    String projectKey = randomAlphabetic(6);
+    String dispatcherKey = secure().nextAlphabetic(12);
+    String globalPermission = secure().nextAlphanumeric(4);
+    String projectPermission = secure().nextAlphanumeric(5);
+    String projectKey = secure().nextAlphabetic(6);
     Set<EmailSubscriberDto> subscribers = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> EmailSubscriberDto.create("user" + i, false, "user" + i + "@sonarsource.com"))
       .collect(Collectors.toSet());

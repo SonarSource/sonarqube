@@ -57,7 +57,7 @@ public class ServerLoggingTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private final String rootLoggerName = RandomStringUtils.randomAlphabetic(20);
+  private final String rootLoggerName = RandomStringUtils.secure().nextAlphabetic(20);
   private LogbackHelper logbackHelper = spy(new LogbackHelper());
   private MapSettings settings = new MapSettings();
   private final ServerProcessLogging serverProcessLogging = mock(ServerProcessLogging.class);

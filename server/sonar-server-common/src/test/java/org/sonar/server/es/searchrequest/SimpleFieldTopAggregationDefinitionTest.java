@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -45,7 +45,7 @@ public class SimpleFieldTopAggregationDefinitionTest {
 
   @Test
   public void getters() {
-    String fieldName = RandomStringUtils.randomAlphabetic(12);
+    String fieldName = RandomStringUtils.secure().nextAlphabetic(12);
     boolean sticky = new Random().nextBoolean();
     SimpleFieldTopAggregationDefinition underTest = new SimpleFieldTopAggregationDefinition(fieldName, sticky);
 
@@ -55,7 +55,7 @@ public class SimpleFieldTopAggregationDefinitionTest {
 
   @Test
   public void getFilterScope_always_returns_the_same_instance() {
-    String fieldName = randomAlphabetic(12);
+    String fieldName = secure().nextAlphabetic(12);
     boolean sticky = RANDOM.nextBoolean();
     SimpleFieldTopAggregationDefinition underTest = new SimpleFieldTopAggregationDefinition(fieldName, sticky);
 

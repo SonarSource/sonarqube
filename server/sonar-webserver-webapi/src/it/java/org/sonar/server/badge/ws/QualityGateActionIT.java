@@ -51,7 +51,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -228,7 +228,7 @@ public class QualityGateActionIT {
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createQualityGateMetric();
     db.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), OK.name()));
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     db.measures().insertMeasure(branch, m -> m.addValue(metric.getKey(), ERROR.name()));
 

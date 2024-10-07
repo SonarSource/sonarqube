@@ -32,7 +32,7 @@ import org.sonar.process.LoggingRule;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static java.util.Collections.singleton;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doReturn;
@@ -83,7 +83,7 @@ public class SharedHealthStateImplTest {
     logging.setLevel(Level.TRACE);
     NodeHealth newNodeHealth = randomNodeHealth();
     Map<String, TimestampedNodeHealth> map = new HashMap<>();
-    map.put(randomAlphanumeric(4), new TimestampedNodeHealth(randomNodeHealth(), random.nextLong()));
+    map.put(secure().nextAlphanumeric(4), new TimestampedNodeHealth(randomNodeHealth(), random.nextLong()));
     doReturn(new HashMap<>(map)).when(hazelcastMember).getReplicatedMap(MAP_SQ_HEALTH_STATE);
     UUID uuid = UUID.randomUUID();
     when(hazelcastMember.getUuid()).thenReturn(uuid);
@@ -165,8 +165,8 @@ public class SharedHealthStateImplTest {
   public void readAll_logs_message_for_each_non_existing_member_ignored_if_TRACE() {
     logging.setLevel(Level.TRACE);
     Map<String, TimestampedNodeHealth> map = new HashMap<>();
-    String memberUuid1 = randomAlphanumeric(44);
-    String memberUuid2 = randomAlphanumeric(44);
+    String memberUuid1 = secure().nextAlphanumeric(44);
+    String memberUuid2 = secure().nextAlphanumeric(44);
     map.put(memberUuid1, new TimestampedNodeHealth(randomNodeHealth(), clusterTime - 1));
     map.put(memberUuid2, new TimestampedNodeHealth(randomNodeHealth(), clusterTime - 1));
     when(hazelcastMember.getClusterTime()).thenReturn(clusterTime);
@@ -238,8 +238,8 @@ public class SharedHealthStateImplTest {
       .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)])
       .setDetails(newNodeDetailsBuilder()
         .setType(random.nextBoolean() ? NodeDetails.Type.SEARCH : NodeDetails.Type.APPLICATION)
-        .setName(randomAlphanumeric(30))
-        .setHost(randomAlphanumeric(10))
+        .setName(secure().nextAlphanumeric(30))
+        .setHost(secure().nextAlphanumeric(10))
         .setPort(1 + random.nextInt(666))
         .setStartedAt(1 + random.nextInt(852))
         .build())

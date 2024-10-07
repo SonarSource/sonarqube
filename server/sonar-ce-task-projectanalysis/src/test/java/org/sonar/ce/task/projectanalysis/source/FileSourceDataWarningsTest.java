@@ -34,7 +34,7 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.source.linereader.LineReader;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -52,7 +52,7 @@ public class FileSourceDataWarningsTest {
   private Random random = new Random();
   private int line = 1 + new Random().nextInt(200);
   private long timeStamp = 9_887L + new Random().nextInt(300);
-  private String path = randomAlphabetic(50);
+  private String path = secure().nextAlphabetic(50);
 
   private FileSourceDataWarnings underTest = new FileSourceDataWarnings(taskMessages, system2);
 

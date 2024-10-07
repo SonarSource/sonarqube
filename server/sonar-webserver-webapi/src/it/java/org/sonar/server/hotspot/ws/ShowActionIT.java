@@ -64,11 +64,11 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
+import org.sonar.server.common.avatar.AvatarResolver;
+import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.common.avatar.AvatarResolver;
-import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.issue.IssueChangeWSSupport;
 import org.sonar.server.issue.IssueChangeWSSupport.FormattingContext;
 import org.sonar.server.issue.IssueChangeWSSupport.Load;
@@ -86,8 +86,7 @@ import org.sonarqube.ws.Common.User;
 import org.sonarqube.ws.Hotspots;
 
 import static java.util.Collections.emptySet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -148,7 +147,7 @@ public class ShowActionIT {
 
   @Test
   public void fails_with_NotFoundException_if_hotspot_does_not_exist() {
-    String key = randomAlphabetic(12);
+    String key = secure().nextAlphabetic(12);
     TestRequest request = actionTester.newRequest()
       .setParam("hotspot", key);
 
@@ -559,7 +558,7 @@ public class ShowActionIT {
     return RuleDescriptionSectionDto.builder()
       .uuid(uuidFactory.create())
       .key(assessTheProblemSectionKey)
-      .content(randomAlphabetic(200))
+      .content(secure().nextAlphabetic(200))
       .build();
   }
 
@@ -723,7 +722,7 @@ public class ShowActionIT {
     userSessionRule.registerProjects(projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(mainBranchComponent));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, mainBranchComponent, file, t -> t.setAssigneeUuid(randomAlphabetic(10)));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, mainBranchComponent, file, t -> t.setAssigneeUuid(secure().nextAlphabetic(10)));
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -802,7 +801,7 @@ public class ShowActionIT {
     userSessionRule.registerProjects(projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(mainBranchComponent));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
-    String authorLogin = randomAlphabetic(10);
+    String authorLogin = secure().nextAlphabetic(10);
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, mainBranchComponent, file, t -> t.setAuthorLogin(authorLogin));
     mockChangelogAndCommentsFormattingContext();
 
@@ -974,7 +973,7 @@ public class ShowActionIT {
   public void returns_branch_but_no_pullRequest_on_component_and_project_on_non_main_branch() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = dbTester.components().insertProjectBranch(mainBranchComponent, b -> b.setKey(branchName));
     userSessionRule.addProjectBranchMapping(mainBranchComponent.uuid(), branch);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(branch, mainBranchComponent.uuid()));
@@ -997,7 +996,7 @@ public class ShowActionIT {
   public void returns_pullRequest_but_no_branch_on_component_and_project_on_pullRequest() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
-    String pullRequestKey = randomAlphanumeric(100);
+    String pullRequestKey = secure().nextAlphanumeric(100);
     ComponentDto pullRequest = dbTester.components().insertProjectBranch(mainBranchComponent,
       t -> t.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
     userSessionRule.addProjectBranchMapping(mainBranchComponent.uuid(), pullRequest);

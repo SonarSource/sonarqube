@@ -65,7 +65,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -89,8 +89,8 @@ public class ChangeParentActionIT {
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
   private WsActionTester ws;
-  private Language language = LanguageTesting.newLanguage(randomAlphanumeric(20));
-  private String ruleRepository = randomAlphanumeric(5);
+  private Language language = LanguageTesting.newLanguage(secure().nextAlphanumeric(20));
+  private String ruleRepository = secure().nextAlphanumeric(5);
   private QProfileTreeImpl qProfileTree;
   private SonarQubeVersion sonarQubeVersion;
 
@@ -373,7 +373,7 @@ public class ChangeParentActionIT {
   }
 
   private RuleDto createRule() {
-    RuleDto rule = RuleTesting.newRule(RuleKey.of(ruleRepository, randomAlphanumeric(5)))
+    RuleDto rule = RuleTesting.newRule(RuleKey.of(ruleRepository, secure().nextAlphanumeric(5)))
       .setLanguage(language.getKey())
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);

@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HotspotsWsTest {
@@ -35,7 +35,7 @@ public class HotspotsWsTest {
   @Test
   public void define_controller() {
     String[] actionKeys = IntStream.range(0, 1 + new Random().nextInt(12))
-      .mapToObj(i -> i + randomAlphanumeric(10))
+      .mapToObj(i -> i + secure().nextAlphanumeric(10))
       .toArray(String[]::new);
     HotspotsWsAction[] actions = Arrays.stream(actionKeys)
       .map(actionKey -> new HotspotsWsAction() {

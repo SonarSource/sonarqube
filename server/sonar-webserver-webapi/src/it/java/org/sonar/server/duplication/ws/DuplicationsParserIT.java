@@ -31,7 +31,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
@@ -250,7 +250,7 @@ public class DuplicationsParserIT {
   @Test
   public void duplication_on_branch() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file1 = db.components().insertComponent(newFileDto(branch, project.uuid()));
     ComponentDto file2 = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -285,7 +285,7 @@ public class DuplicationsParserIT {
   @Test
   public void duplication_on_pull_request() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    String pullRequestKey = RandomStringUtils.secure().nextAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file1 = db.components().insertComponent(newFileDto(pullRequest));
     ComponentDto file2 = db.components().insertComponent(newFileDto(pullRequest));

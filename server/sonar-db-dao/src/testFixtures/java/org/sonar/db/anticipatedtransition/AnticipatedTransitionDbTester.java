@@ -27,7 +27,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.issue.AnticipatedTransitionDto;
 import org.sonar.db.issue.AnticipatedTransitionMapper;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class AnticipatedTransitionDbTester {
 
@@ -39,7 +39,7 @@ public class AnticipatedTransitionDbTester {
 
   public AnticipatedTransitionDto createForIssue(DefaultIssue issue, String userUuid, String filePath) {
     var dto = new AnticipatedTransitionDto(
-      "uuid_" + randomAlphabetic(5),
+      "uuid_" + secure().nextAlphabetic(5),
       issue.projectUuid(),
       userUuid,
       "wontfix",

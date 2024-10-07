@@ -36,7 +36,7 @@ import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleParamDto;
 
 import static java.util.Collections.emptySet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
@@ -154,7 +154,7 @@ public class DefaultRuleFinderIT {
   @Test
   public void findByKey_populates_system_tags_but_not_tags() {
     RuleDto ruleDto = dbTester.rules()
-      .insert(t -> t.setSystemTags(Set.of(randomAlphanumeric(5), randomAlphanumeric(6))).setTags(emptySet()));
+      .insert(t -> t.setSystemTags(Set.of(secure().nextAlphanumeric(5), secure().nextAlphanumeric(6))).setTags(emptySet()));
     dbTester.rules().insertRule();
 
     Rule rule = underTest.findByKey(ruleDto.getKey());

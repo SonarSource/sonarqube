@@ -70,7 +70,7 @@ public class QGChangeEventListenersImplTest {
   private final QGChangeEventListener listener3 = mock(QGChangeEventListener.class);
   private final List<QGChangeEventListener> listeners = Arrays.asList(listener1, listener2, listener3);
 
-  private final String project1Uuid = RandomStringUtils.randomAlphabetic(6);
+  private final String project1Uuid = RandomStringUtils.secure().nextAlphabetic(6);
   private final BranchDto project1 = newBranchDto(project1Uuid);
   private final DefaultIssue component1Issue = newDefaultIssue(project1Uuid);
   private final List<DefaultIssue> oneIssueOnComponent1 = singletonList(component1Issue);

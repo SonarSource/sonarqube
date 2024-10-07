@@ -33,7 +33,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueScope;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 
 public class IssueDocTesting {
@@ -86,13 +86,13 @@ public class IssueDocTesting {
     doc.setKey(Uuids.createFast());
     doc.setRuleUuid(Uuids.createFast());
     doc.setType(RuleType.CODE_SMELL);
-    doc.setAssigneeUuid("assignee_uuid_" + randomAlphabetic(26));
-    doc.setAuthorLogin("author_" + randomAlphabetic(5));
+    doc.setAssigneeUuid("assignee_uuid_" + secure().nextAlphabetic(26));
+    doc.setAuthorLogin("author_" + secure().nextAlphabetic(5));
     doc.setScope(IssueScope.MAIN);
-    doc.setLanguage("language_" + randomAlphabetic(5));
+    doc.setLanguage("language_" + secure().nextAlphabetic(5));
     doc.setComponentUuid(Uuids.createFast());
-    doc.setFilePath("filePath_" + randomAlphabetic(5));
-    doc.setDirectoryPath("directory_" + randomAlphabetic(5));
+    doc.setFilePath("filePath_" + secure().nextAlphabetic(5));
+    doc.setDirectoryPath("directory_" + secure().nextAlphabetic(5));
     doc.setProjectUuid(Uuids.createFast());
     doc.setLine(RANDOM.nextInt(1_000) + 1);
     doc.setStatus(STATUS_OPEN);

@@ -35,7 +35,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.System;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -105,7 +105,7 @@ public class SafeModeHealthActionTest {
     Health.Status randomStatus = Health.Status.values()[new Random().nextInt(Health.Status.values().length)];
     Health.Builder builder = Health.builder()
       .setStatus(randomStatus);
-    IntStream.range(0, new Random().nextInt(5)).mapToObj(i -> RandomStringUtils.randomAlphanumeric(3)).forEach(builder::addCause);
+    IntStream.range(0, new Random().nextInt(5)).mapToObj(i -> RandomStringUtils.secure().nextAlphanumeric(3)).forEach(builder::addCause);
     Health health = builder.build();
     when(healthChecker.checkNode()).thenReturn(health);
     TestRequest request = underTest.newRequest();
@@ -119,7 +119,7 @@ public class SafeModeHealthActionTest {
   public void response_contains_status_and_causes_from_HealthChecker_checkCluster() {
     authenticateWithPasscode();
     Health.Status randomStatus = Health.Status.values()[random.nextInt(Health.Status.values().length)];
-    String[] causes = IntStream.range(0, random.nextInt(33)).mapToObj(i -> randomAlphanumeric(4)).toArray(String[]::new);
+    String[] causes = IntStream.range(0, random.nextInt(33)).mapToObj(i -> secure().nextAlphanumeric(4)).toArray(String[]::new);
     Health.Builder healthBuilder = Health.builder()
       .setStatus(randomStatus);
     Arrays.stream(causes).forEach(healthBuilder::addCause);

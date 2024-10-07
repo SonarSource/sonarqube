@@ -43,7 +43,7 @@ import org.sonar.api.testfixtures.log.LogTester;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.issue.impact.Severity.BLOCKER;
@@ -102,7 +102,7 @@ public class ExternalIssueImporterTest {
     ExternalIssueReport.Issue input = new ExternalIssueReport.Issue();
     input.primaryLocation = new ExternalIssueReport.Location();
     input.primaryLocation.filePath = sourceFile.getProjectRelativePath();
-    input.primaryLocation.message = randomAlphabetic(5);
+    input.primaryLocation.message = secure().nextAlphabetic(5);
 
     runOn(input);
 
@@ -254,7 +254,7 @@ public class ExternalIssueImporterTest {
     input.type = "BUG";
     input.primaryLocation = new ExternalIssueReport.Location();
     input.primaryLocation.filePath = sourceFile.getProjectRelativePath();
-    input.primaryLocation.message = randomAlphabetic(5);
+    input.primaryLocation.message = secure().nextAlphabetic(5);
     report.issues = new ExternalIssueReport.Issue[]{input};
 
     ExternalIssueImporter underTest = new ExternalIssueImporter(this.context, report);
@@ -381,14 +381,14 @@ public class ExternalIssueImporterTest {
 
   private ExternalIssueReport.Issue newIssue(@Nullable ExternalIssueReport.TextRange textRange) {
     ExternalIssueReport.Issue input = new ExternalIssueReport.Issue();
-    input.engineId = randomAlphabetic(5);
-    input.ruleId = randomAlphabetic(5);
+    input.engineId = secure().nextAlphabetic(5);
+    input.ruleId = secure().nextAlphabetic(5);
     input.severity = "CRITICAL";
     input.type = "BUG";
     input.effortMinutes = random.nextInt(Integer.MAX_VALUE);
     input.primaryLocation = new ExternalIssueReport.Location();
     input.primaryLocation.filePath = sourceFile.getProjectRelativePath();
-    input.primaryLocation.message = randomAlphabetic(5);
+    input.primaryLocation.message = secure().nextAlphabetic(5);
     input.primaryLocation.textRange = textRange;
     return input;
   }

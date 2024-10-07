@@ -77,7 +77,7 @@ import org.sonar.telemetry.legacy.TelemetryData.ProjectStatistics;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -565,8 +565,8 @@ class TelemetryDataLoaderImplIT {
 
   @Test
   void send_server_id_and_version() {
-    String id = randomAlphanumeric(40);
-    String version = randomAlphanumeric(10);
+    String id = secure().nextAlphanumeric(40);
+    String version = secure().nextAlphanumeric(10);
     server.setId(id);
     server.setVersion(version);
 

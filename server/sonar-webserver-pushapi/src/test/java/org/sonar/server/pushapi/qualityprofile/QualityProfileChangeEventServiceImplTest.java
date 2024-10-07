@@ -44,7 +44,7 @@ import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonarqube.ws.Common;
 
 import static java.util.List.of;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
@@ -183,7 +183,7 @@ public class QualityProfileChangeEventServiceImplTest {
     RuleParamDto rule1Param = db.rules().insertRuleParam(rule1);
 
     ActiveRuleDto activeRule1 = db.qualityProfiles().activateRule(activatedQualityProfile, rule1);
-    ActiveRuleParamDto activeRuleParam1 = ActiveRuleParamDto.createFor(rule1Param).setValue(randomAlphanumeric(20));
+    ActiveRuleParamDto activeRuleParam1 = ActiveRuleParamDto.createFor(rule1Param).setValue(secure().nextAlphanumeric(20));
     db.getDbClient().activeRuleDao().insertParam(db.getSession(), activeRule1, activeRuleParam1);
     db.getSession().commit();
 
@@ -193,7 +193,7 @@ public class QualityProfileChangeEventServiceImplTest {
     RuleParamDto rule2Param = db.rules().insertRuleParam(rule2);
 
     ActiveRuleDto activeRule2 = db.qualityProfiles().activateRule(deactivatedQualityProfile, rule2);
-    ActiveRuleParamDto activeRuleParam2 = ActiveRuleParamDto.createFor(rule2Param).setValue(randomAlphanumeric(20));
+    ActiveRuleParamDto activeRuleParam2 = ActiveRuleParamDto.createFor(rule2Param).setValue(secure().nextAlphanumeric(20));
     db.getDbClient().activeRuleDao().insertParam(db.getSession(), activeRule2, activeRuleParam2);
     db.getSession().commit();
 

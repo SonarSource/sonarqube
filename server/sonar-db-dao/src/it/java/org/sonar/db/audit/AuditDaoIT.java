@@ -30,7 +30,7 @@ import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.audit.AuditDao.EXCEEDED_LENGTH;
 
@@ -131,7 +131,7 @@ class AuditDaoIT {
   @Test
   void insert_truncateVeryLongNewValue() {
     AuditDto auditDto = AuditTesting.newAuditDto();
-    String veryLongString = randomAlphanumeric(5000);
+    String veryLongString = secure().nextAlphanumeric(5000);
     auditDto.setNewValue(veryLongString);
 
     testAuditDao.insert(dbSession, auditDto);

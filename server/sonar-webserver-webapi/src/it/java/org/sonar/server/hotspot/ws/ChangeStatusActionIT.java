@@ -65,7 +65,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -140,7 +140,7 @@ public class ChangeStatusActionIT {
 
   @Test
   public void fails_with_IAE_if_parameter_status_is_missing() {
-    String key = randomAlphabetic(12);
+    String key = secure().nextAlphabetic(12);
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
       .setParam("hotspot", key);
@@ -153,7 +153,7 @@ public class ChangeStatusActionIT {
   @Test
   @UseDataProvider("badStatuses")
   public void fail_with_IAE_if_status_value_is_neither_REVIEWED_nor_TO_REVIEW(String badStatus) {
-    String key = randomAlphabetic(12);
+    String key = secure().nextAlphabetic(12);
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
       .setParam("hotspot", key)
@@ -170,7 +170,7 @@ public class ChangeStatusActionIT {
       Issue.STATUSES.stream()
         .filter(t -> !t.equals(STATUS_TO_REVIEW))
         .filter(t -> !t.equals(STATUS_REVIEWED)),
-      Stream.of(randomAlphabetic(22), ""))
+      Stream.of(secure().nextAlphabetic(22), ""))
       .map(t -> new Object[] {t})
       .toArray(Object[][]::new);
   }
@@ -178,7 +178,7 @@ public class ChangeStatusActionIT {
   @Test
   @UseDataProvider("badResolutions")
   public void fail_with_IAE_if_resolution_value_is_neither_FIXED_nor_SAFE(String validStatus, String badResolution) {
-    String key = randomAlphabetic(12);
+    String key = secure().nextAlphabetic(12);
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
       .setParam("hotspot", key)
@@ -202,7 +202,7 @@ public class ChangeStatusActionIT {
   @Test
   @UseDataProvider("validResolutions")
   public void fail_with_IAE_if_status_is_TO_REVIEW_and_resolution_is_set(String resolution) {
-    String key = randomAlphabetic(12);
+    String key = secure().nextAlphabetic(12);
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
       .setParam("hotspot", key)
@@ -224,7 +224,7 @@ public class ChangeStatusActionIT {
   }
 
   public void fail_with_IAE_if_status_is_RESOLVED_and_resolution_is_not_set() {
-    String key = randomAlphabetic(12);
+    String key = secure().nextAlphabetic(12);
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
       .setParam("hotspot", key)
@@ -238,7 +238,7 @@ public class ChangeStatusActionIT {
   @Test
   @UseDataProvider("validStatusAndResolutions")
   public void fails_with_NotFoundException_if_hotspot_does_not_exist(String status, @Nullable String resolution) {
-    String key = randomAlphabetic(12);
+    String key = secure().nextAlphabetic(12);
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
       .setParam("hotspot", key)
@@ -586,7 +586,7 @@ public class ChangeStatusActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(currentStatus).setResolution(currentResolution));
     when(transitionService.doTransition(any(), any(), any())).thenReturn(transitionDone);
-    String comment = randomAlphabetic(12);
+    String comment = secure().nextAlphabetic(12);
 
     newRequest(hotspot, newStatus, newResolution, comment).execute().assertNoContent();
 
@@ -644,7 +644,7 @@ public class ChangeStatusActionIT {
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, projectData.getProjectDto());
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(status).setResolution(resolution));
-    String comment = randomAlphabetic(12);
+    String comment = secure().nextAlphabetic(12);
 
     newRequest(hotspot, status, resolution, comment).execute().assertNoContent();
 

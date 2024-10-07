@@ -23,15 +23,15 @@ import org.junit.Test;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.NestedFieldFilterScope;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.SimpleFieldFilterScope;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class NestedFieldFilterScopeTest {
   @Test
   public void constructor_fails_with_NPE_if_fieldName_is_null() {
-    String nestedFieldName = randomAlphabetic(11);
-    String value = randomAlphabetic(12);
+    String nestedFieldName = secure().nextAlphabetic(11);
+    String value = secure().nextAlphabetic(12);
 
     assertThatThrownBy(() -> new NestedFieldFilterScope<>(null, nestedFieldName, value))
       .isInstanceOf(NullPointerException.class)
@@ -40,8 +40,8 @@ public class NestedFieldFilterScopeTest {
 
   @Test
   public void constructor_fails_with_NPE_if_nestedFieldName_is_null() {
-    String fieldName = randomAlphabetic(10);
-    String value = randomAlphabetic(12);
+    String fieldName = secure().nextAlphabetic(10);
+    String value = secure().nextAlphabetic(12);
 
     assertThatThrownBy(() -> new NestedFieldFilterScope<>(fieldName, null, value))
       .isInstanceOf(NullPointerException.class)
@@ -50,8 +50,8 @@ public class NestedFieldFilterScopeTest {
 
   @Test
   public void constructor_fails_with_NPE_if_value_is_null() {
-    String fieldName = randomAlphabetic(10);
-    String nestedFieldName = randomAlphabetic(11);
+    String fieldName = secure().nextAlphabetic(10);
+    String nestedFieldName = secure().nextAlphabetic(11);
 
     assertThatThrownBy(() -> new NestedFieldFilterScope<>(fieldName, nestedFieldName, null))
       .isInstanceOf(NullPointerException.class)
@@ -60,8 +60,8 @@ public class NestedFieldFilterScopeTest {
 
   @Test
   public void verify_getters() {
-    String fieldName = randomAlphabetic(10);
-    String nestedFieldName = randomAlphabetic(11);
+    String fieldName = secure().nextAlphabetic(10);
+    String nestedFieldName = secure().nextAlphabetic(11);
     Object value = new Object();
 
     NestedFieldFilterScope<Object> underTest = new NestedFieldFilterScope<>(fieldName, nestedFieldName, value);
@@ -73,11 +73,11 @@ public class NestedFieldFilterScopeTest {
 
   @Test
   public void verify_equals() {
-    String fieldName = randomAlphabetic(10);
-    String nestedFieldName = randomAlphabetic(11);
+    String fieldName = secure().nextAlphabetic(10);
+    String nestedFieldName = secure().nextAlphabetic(11);
     Object value = new Object();
-    String fieldName2 = randomAlphabetic(12);
-    String nestedFieldName2 = randomAlphabetic(13);
+    String fieldName2 = secure().nextAlphabetic(12);
+    String nestedFieldName2 = secure().nextAlphabetic(13);
     Object value2 = new Object();
     NestedFieldFilterScope<Object> underTest = new NestedFieldFilterScope<>(fieldName, nestedFieldName, value);
 
@@ -99,11 +99,11 @@ public class NestedFieldFilterScopeTest {
 
   @Test
   public void verify_hashcode() {
-    String fieldName = randomAlphabetic(10);
-    String nestedFieldName = randomAlphabetic(11);
+    String fieldName = secure().nextAlphabetic(10);
+    String nestedFieldName = secure().nextAlphabetic(11);
     Object value = new Object();
-    String fieldName2 = randomAlphabetic(12);
-    String nestedFieldName2 = randomAlphabetic(13);
+    String fieldName2 = secure().nextAlphabetic(12);
+    String nestedFieldName2 = secure().nextAlphabetic(13);
     Object value2 = new Object();
     NestedFieldFilterScope<Object> underTest = new NestedFieldFilterScope<>(fieldName, nestedFieldName, value);
 
@@ -125,11 +125,11 @@ public class NestedFieldFilterScopeTest {
 
   @Test
   public void verify_intersect() {
-    String fieldName = randomAlphabetic(10);
-    String nestedFieldName = randomAlphabetic(11);
+    String fieldName = secure().nextAlphabetic(10);
+    String nestedFieldName = secure().nextAlphabetic(11);
     Object value = new Object();
-    String fieldName2 = randomAlphabetic(12);
-    String nestedFieldName2 = randomAlphabetic(13);
+    String fieldName2 = secure().nextAlphabetic(12);
+    String nestedFieldName2 = secure().nextAlphabetic(13);
     Object value2 = new Object();
     NestedFieldFilterScope<Object> underTest = new NestedFieldFilterScope<>(fieldName, nestedFieldName, value);
 

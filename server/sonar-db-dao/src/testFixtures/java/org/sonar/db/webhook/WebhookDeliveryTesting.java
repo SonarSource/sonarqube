@@ -26,7 +26,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class WebhookDeliveryTesting {
 
@@ -51,16 +51,16 @@ public class WebhookDeliveryTesting {
   public static WebhookDeliveryDto newDto() {
     return new WebhookDeliveryDto()
       .setUuid(Uuids.createFast())
-      .setWebhookUuid(randomAlphanumeric(40))
-      .setProjectUuid(randomAlphanumeric(40))
-      .setCeTaskUuid(randomAlphanumeric(40))
-      .setAnalysisUuid(randomAlphanumeric(40))
-      .setName(randomAlphanumeric(10))
-      .setUrl(randomAlphanumeric(10))
+      .setWebhookUuid(secure().nextAlphanumeric(40))
+      .setProjectUuid(secure().nextAlphanumeric(40))
+      .setCeTaskUuid(secure().nextAlphanumeric(40))
+      .setAnalysisUuid(secure().nextAlphanumeric(40))
+      .setName(secure().nextAlphanumeric(10))
+      .setUrl(secure().nextAlphanumeric(10))
       .setDurationMs(RANDOM.nextInt(Integer.MAX_VALUE))
       .setHttpStatus(RANDOM.nextInt(Integer.MAX_VALUE))
       .setSuccess(RANDOM.nextBoolean())
-      .setPayload(randomAlphanumeric(10))
+      .setPayload(secure().nextAlphanumeric(10))
       .setCreatedAt(RANDOM.nextLong(Long.MAX_VALUE));
   }
 

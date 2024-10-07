@@ -22,7 +22,7 @@ package org.sonar.ce.task.log;
 import org.junit.Test;
 import org.sonar.ce.task.log.CeTaskMessages.Message;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -52,7 +52,7 @@ public class CeTaskMessagesMessageTest {
   @Test
   public void equals_is_based_on_text_and_timestamp() {
     long timestamp = 10_000_000_000L;
-    String text = randomAlphabetic(23);
+    String text = secure().nextAlphabetic(23);
     Message underTest = new Message(text, timestamp);
 
     assertThat(underTest)
@@ -67,7 +67,7 @@ public class CeTaskMessagesMessageTest {
   @Test
   public void hashsode_is_based_on_text_and_timestamp() {
     long timestamp = 10_000_000_000L;
-    String text = randomAlphabetic(23);
+    String text = secure().nextAlphabetic(23);
     Message underTest = new Message(text, timestamp);
 
     assertThat(underTest.hashCode())

@@ -23,7 +23,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -31,7 +31,7 @@ class UserTokenDtoTest {
 
   @Test
   void fail_if_token_hash_is_longer_than_255_characters() {
-    assertThatThrownBy(() -> new UserTokenDto().setTokenHash(randomAlphabetic(256)))
+    assertThatThrownBy(() -> new UserTokenDto().setTokenHash(secure().nextAlphabetic(256)))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Token hash length (256) is longer than the maximum authorized (255)");
   }

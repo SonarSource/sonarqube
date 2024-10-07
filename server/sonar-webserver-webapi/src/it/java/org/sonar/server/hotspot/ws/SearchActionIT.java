@@ -88,8 +88,7 @@ import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -214,8 +213,8 @@ public class SearchActionIT {
   @Test
   public void fail_with_IAE_if_parameter_branch_is_used_without_parameter_project() {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_HOTSPOTS, randomAlphabetic(2))
-      .setParam(PARAM_BRANCH, randomAlphabetic(1));
+      .setParam(PARAM_HOTSPOTS, secure().nextAlphabetic(2))
+      .setParam(PARAM_BRANCH, secure().nextAlphabetic(1));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -225,8 +224,8 @@ public class SearchActionIT {
   @Test
   public void fail_with_IAE_if_parameter_pullRequest_is_used_without_parameter_project() {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_HOTSPOTS, randomAlphabetic(2))
-      .setParam(PARAM_PULL_REQUEST, randomAlphabetic(1));
+      .setParam(PARAM_HOTSPOTS, secure().nextAlphabetic(2))
+      .setParam(PARAM_PULL_REQUEST, secure().nextAlphabetic(1));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -236,9 +235,9 @@ public class SearchActionIT {
   @Test
   public void fail_with_IAE_if_both_parameters_pullRequest_and_branch_are_provided() {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_PROJECT, randomAlphabetic(2))
-      .setParam(PARAM_BRANCH, randomAlphabetic(1))
-      .setParam(PARAM_PULL_REQUEST, randomAlphabetic(1));
+      .setParam(PARAM_PROJECT, secure().nextAlphabetic(2))
+      .setParam(PARAM_BRANCH, secure().nextAlphabetic(1))
+      .setParam(PARAM_PULL_REQUEST, secure().nextAlphabetic(1));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -249,7 +248,7 @@ public class SearchActionIT {
   @UseDataProvider("badStatuses")
   public void fails_with_IAE_if_status_parameter_is_neither_TO_REVIEW_or_REVIEWED(String badStatus) {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_PROJECT, randomAlphabetic(13))
+      .setParam(PARAM_PROJECT, secure().nextAlphabetic(13))
       .setParam(PARAM_STATUS, badStatus);
 
     assertThatThrownBy(request::execute)
@@ -261,7 +260,7 @@ public class SearchActionIT {
   public static Object[][] badStatuses() {
     return Stream.concat(
       Issue.STATUSES.stream(),
-      Stream.of(randomAlphabetic(3)))
+      Stream.of(secure().nextAlphabetic(3)))
       .filter(t -> !STATUS_REVIEWED.equals(t))
       .filter(t -> !STATUS_TO_REVIEW.equals(t))
       .map(t -> new Object[] {t})
@@ -272,7 +271,7 @@ public class SearchActionIT {
   @UseDataProvider("validStatusesAndResolutions")
   public void fail_with_IAE_if_parameter_status_is_specified_with_hotspots_parameter(String status, @Nullable String notUsed) {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_HOTSPOTS, randomAlphabetic(12))
+      .setParam(PARAM_HOTSPOTS, secure().nextAlphabetic(12))
       .setParam(PARAM_STATUS, status);
 
     assertThatThrownBy(request::execute)
@@ -284,7 +283,7 @@ public class SearchActionIT {
   @UseDataProvider("badResolutions")
   public void fails_with_IAE_if_resolution_parameter_is_neither_FIXED_nor_SAFE(String badResolution) {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_PROJECT, randomAlphabetic(13))
+      .setParam(PARAM_PROJECT, secure().nextAlphabetic(13))
       .setParam(PARAM_STATUS, STATUS_TO_REVIEW)
       .setParam(PARAM_RESOLUTION, badResolution);
 
@@ -298,7 +297,7 @@ public class SearchActionIT {
     return Stream.of(
       Issue.RESOLUTIONS.stream(),
       Issue.SECURITY_HOTSPOT_RESOLUTIONS.stream(),
-      Stream.of(randomAlphabetic(4)))
+      Stream.of(secure().nextAlphabetic(4)))
       .flatMap(t -> t)
       .filter(t -> !RESOLUTION_TYPES.contains(t))
       .map(t -> new Object[] {t})
@@ -309,7 +308,7 @@ public class SearchActionIT {
   @UseDataProvider("fixedOrSafeResolution")
   public void fails_with_IAE_if_resolution_is_provided_with_status_TO_REVIEW(String resolution) {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_PROJECT, randomAlphabetic(13))
+      .setParam(PARAM_PROJECT, secure().nextAlphabetic(13))
       .setParam(PARAM_STATUS, STATUS_TO_REVIEW)
       .setParam(PARAM_RESOLUTION, resolution);
 
@@ -322,7 +321,7 @@ public class SearchActionIT {
   @UseDataProvider("fixedOrSafeResolution")
   public void fails_with_IAE_if_resolution_is_provided_with_hotspots_parameter(String resolution) {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_HOTSPOTS, randomAlphabetic(13))
+      .setParam(PARAM_HOTSPOTS, secure().nextAlphabetic(13))
       .setParam(PARAM_RESOLUTION, resolution);
 
     assertThatThrownBy(request::execute)
@@ -340,7 +339,7 @@ public class SearchActionIT {
 
   @Test
   public void fails_with_NotFoundException_if_project_does_not_exist() {
-    String key = randomAlphabetic(12);
+    String key = secure().nextAlphabetic(12);
     TestRequest request = actionTester.newRequest()
       .setParam(PARAM_PROJECT, key);
 
@@ -775,7 +774,7 @@ public class SearchActionIT {
     IssueDto[] assigneeHotspots = IntStream.range(0, 1 + RANDOM.nextInt(10))
       .mapToObj(i -> {
         RuleDto rule = newRule(SECURITY_HOTSPOT);
-        insertHotspot(rule, project1, file1, randomAlphabetic(5));
+        insertHotspot(rule, project1, file1, secure().nextAlphabetic(5));
         return insertHotspot(rule, project1, file1, assigneeUuid);
       })
       .toArray(IssueDto[]::new);
@@ -937,7 +936,7 @@ public class SearchActionIT {
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto unresolvedHotspot = insertHotspot(rule, project, file, t -> t.setResolution(null));
     // unrealistic case since a resolution must be set, but shows a limit of current implementation (resolution is enough)
-    IssueDto badlyResolved = insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW).setResolution(randomAlphabetic(5)));
+    IssueDto badlyResolved = insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW).setResolution(secure().nextAlphabetic(5)));
     IssueDto badlyReviewed = insertHotspot(rule, project, file, t -> t.setStatus(STATUS_REVIEWED).setResolution(null));
     IssueDto badlyClosedHotspot = insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setResolution(null));
     indexIssues();
@@ -981,11 +980,11 @@ public class SearchActionIT {
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto hotspot = insertHotspot(rule, project, file,
       t -> t
-        .setStatus(randomAlphabetic(11))
+        .setStatus(secure().nextAlphabetic(11))
         .setLine(RANDOM.nextInt(230))
-        .setMessage(randomAlphabetic(10))
-        .setAssigneeUuid(randomAlphabetic(9))
-        .setAuthorLogin(randomAlphabetic(8))
+        .setMessage(secure().nextAlphabetic(10))
+        .setAssigneeUuid(secure().nextAlphabetic(9))
+        .setAuthorLogin(secure().nextAlphabetic(8))
         .setStatus(status)
         .setResolution(resolution));
     indexIssues();
@@ -1141,7 +1140,7 @@ public class SearchActionIT {
   public void returns_branch_field_of_components_of_branch() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey(branchName));
     userSessionRule.registerProjects(projectData.getProjectDto());
     indexPermissions();
@@ -1178,7 +1177,7 @@ public class SearchActionIT {
   public void returns_pullRequest_field_of_components_of_pullRequest() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
-    String pullRequestKey = randomAlphanumeric(100);
+    String pullRequestKey = secure().nextAlphanumeric(100);
     ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST)
       .setKey(pullRequestKey));
     userSessionRule.registerProjects(projectData.getProjectDto());

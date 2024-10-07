@@ -49,7 +49,7 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.TaintChecker;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.tuple;
@@ -83,7 +83,7 @@ public class PushEventFactoryTest {
   public void raiseEventOnIssue_whenNewTaintVulnerability_shouldCreateRaisedEvent() {
     DefaultIssue defaultIssue = createDefaultIssue()
       .setNew(true)
-      .setRuleDescriptionContextKey(randomAlphabetic(6));
+      .setRuleDescriptionContextKey(secure().nextAlphabetic(6));
 
     when(taintChecker.isTaintVulnerability(any())).thenReturn(true);
 
@@ -126,7 +126,7 @@ public class PushEventFactoryTest {
     DefaultIssue defaultIssue = createDefaultIssue()
       .setNew(true)
       .addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
-      .setRuleDescriptionContextKey(randomAlphabetic(6));
+      .setRuleDescriptionContextKey(secure().nextAlphabetic(6));
 
     when(taintChecker.isTaintVulnerability(any())).thenReturn(true);
 
@@ -261,7 +261,7 @@ public class PushEventFactoryTest {
       .setType(RuleType.SECURITY_HOTSPOT)
       .setStatus(Issue.STATUS_TO_REVIEW)
       .setNew(true)
-      .setRuleDescriptionContextKey(randomAlphabetic(6));
+      .setRuleDescriptionContextKey(secure().nextAlphabetic(6));
 
     assertThat(underTest.raiseEventOnIssue("some-project-uuid", defaultIssue))
       .isNotEmpty()

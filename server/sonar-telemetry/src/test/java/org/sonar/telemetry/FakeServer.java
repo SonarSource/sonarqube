@@ -22,15 +22,15 @@ package org.sonar.telemetry;
 import java.util.Date;
 import org.sonar.api.platform.Server;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class FakeServer extends Server {
   private String id;
   private String version;
 
   public FakeServer() {
-    this.id = randomAlphanumeric(20);
-    this.version = randomAlphanumeric(10);
+    this.id = secure().nextAlphanumeric(20);
+    this.version = secure().nextAlphanumeric(10);
   }
 
   @Override

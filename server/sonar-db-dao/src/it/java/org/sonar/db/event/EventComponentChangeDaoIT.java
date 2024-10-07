@@ -30,7 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -53,14 +53,14 @@ class EventComponentChangeDaoIT {
 
   @Test
   void selectByEventUuid_on_empty_table() {
-    assertThat(underTest.selectByEventUuid(dbSession, randomAlphabetic(10)))
+    assertThat(underTest.selectByEventUuid(dbSession, secure().nextAlphabetic(10)))
       .isEmpty();
   }
 
   @Test
   void selectByEventUuid_maps_columns_correctly() {
-    String eventBase = randomAlphabetic(5);
-    String rowBase = randomAlphabetic(6);
+    String eventBase = secure().nextAlphabetic(5);
+    String rowBase = secure().nextAlphabetic(6);
     String eventUuid = eventBase + "_event_uuid";
     String uuid = rowBase + "_uuid";
     EventComponentChangeDto dto = new EventComponentChangeDto()
@@ -101,8 +101,8 @@ class EventComponentChangeDaoIT {
 
   @Test
   void selectByAnalysisUuids_maps_columns_correctly() {
-    String eventBase = randomAlphabetic(5);
-    String rowBase = randomAlphabetic(6);
+    String eventBase = secure().nextAlphabetic(5);
+    String rowBase = secure().nextAlphabetic(6);
     String eventUuid = eventBase + "_event_uuid";
     String uuid = rowBase + "_uuid";
     EventComponentChangeDto dto = new EventComponentChangeDto()
@@ -143,8 +143,8 @@ class EventComponentChangeDaoIT {
 
   @Test
   void selectByEventUuid_branchKey_can_be_null() {
-    String eventBase = randomAlphabetic(5);
-    String rowBase = randomAlphabetic(6);
+    String eventBase = secure().nextAlphabetic(5);
+    String rowBase = secure().nextAlphabetic(6);
     String eventUuid = eventBase + "_event_uuid";
     EventComponentChangeDto dto = new EventComponentChangeDto()
       .setCategory(REMOVED)
@@ -168,8 +168,8 @@ class EventComponentChangeDaoIT {
 
   @Test
   void selectByEventUuid_returns_all_rows_for_specified_event() {
-    String eventBase = randomAlphabetic(5);
-    String rowBase = randomAlphabetic(6);
+    String eventBase = secure().nextAlphabetic(5);
+    String rowBase = secure().nextAlphabetic(6);
     String eventUuid1 = eventBase + "_event_uuid1";
     String eventUuid2 = eventBase + "_event_uuid2";
     EventComponentChangeDto[] event1Dtos = IntStream.range(0, 3)
@@ -192,7 +192,7 @@ class EventComponentChangeDaoIT {
         .setComponentName(rowBase + "_component_name")
         .setComponentBranchKey(null))
       .toArray(EventComponentChangeDto[]::new);
-    EventPurgeData doesNotMatter = new EventPurgeData(randomAlphabetic(7), randomAlphabetic(8));
+    EventPurgeData doesNotMatter = new EventPurgeData(secure().nextAlphabetic(7), secure().nextAlphabetic(8));
     when(system2.now()).thenReturn(now)
       .thenReturn(now + 1)
       .thenReturn(now + 2)
@@ -239,8 +239,8 @@ class EventComponentChangeDaoIT {
 
   @Test
   void selectByAnalysisUuids_returns_all_rows_for_specified_event() {
-    String eventBase = randomAlphabetic(5);
-    String rowBase = randomAlphabetic(6);
+    String eventBase = secure().nextAlphabetic(5);
+    String rowBase = secure().nextAlphabetic(6);
     String eventUuid1 = eventBase + "_event_uuid1";
     String eventUuid2 = eventBase + "_event_uuid2";
     EventComponentChangeDto[] event1Dtos = IntStream.range(0, 3)
@@ -263,7 +263,7 @@ class EventComponentChangeDaoIT {
         .setComponentName(rowBase + "_component_name")
         .setComponentBranchKey(null))
       .toArray(EventComponentChangeDto[]::new);
-    EventPurgeData doesNotMatter = new EventPurgeData(randomAlphabetic(7), randomAlphabetic(8));
+    EventPurgeData doesNotMatter = new EventPurgeData(secure().nextAlphabetic(7), secure().nextAlphabetic(8));
     when(system2.now()).thenReturn(now)
       .thenReturn(now + 1)
       .thenReturn(now + 2)

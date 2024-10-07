@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.component.Component.Status;
 
 import static com.google.common.base.Strings.repeat;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
@@ -239,7 +239,7 @@ public class ComponentImplTest {
       .setUuid("uuid_" + dbKey)
       .setReportAttributes(ReportAttributes.newBuilder(dbKey.hashCode()).build());
     if (type == PROJECT) {
-      String buildString = randomAlphabetic(15);
+      String buildString = secure().nextAlphabetic(15);
       builder.setProjectAttributes(new ProjectAttributes("version_1", buildString, "453def"));
     }
     return builder;

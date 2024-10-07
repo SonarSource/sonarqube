@@ -66,7 +66,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Map.entry;
 import static java.util.Map.of;
 import static java.util.Map.ofEntries;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
@@ -958,8 +958,8 @@ class QProfileRuleImplIT {
   @Test
   void bulk_activation() {
     int bulkSize = SearchOptions.MAX_PAGE_SIZE + 10 + new Random().nextInt(100);
-    String language = randomAlphanumeric(10);
-    String repositoryKey = randomAlphanumeric(10);
+    String language = secure().nextAlphanumeric(10);
+    String repositoryKey = secure().nextAlphanumeric(10);
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(language));
 
     List<RuleDto> rules = new ArrayList<>();
@@ -984,8 +984,8 @@ class QProfileRuleImplIT {
   @Test
   void bulk_deactivation() {
     int bulkSize = SearchOptions.MAX_PAGE_SIZE + 10 + new Random().nextInt(100);
-    String language = randomAlphanumeric(10);
-    String repositoryKey = randomAlphanumeric(10);
+    String language = secure().nextAlphanumeric(10);
+    String repositoryKey = secure().nextAlphanumeric(10);
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(language));
 
     List<RuleDto> rules = new ArrayList<>();

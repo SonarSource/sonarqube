@@ -21,7 +21,7 @@ package org.sonar.server.issue.notification;
 
 import org.junit.Test;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EmailMessageTest {
@@ -29,7 +29,7 @@ public class EmailMessageTest {
 
   @Test
   public void setHtmlMessage_sets_message_and_html_to_true() {
-    String message = randomAlphabetic(12);
+    String message = secure().nextAlphabetic(12);
 
     underTest.setHtmlMessage(message);
 
@@ -39,7 +39,7 @@ public class EmailMessageTest {
 
   @Test
   public void setPlainTextMessage_sets_message_and_html_to_false() {
-    String message = randomAlphabetic(12);
+    String message = secure().nextAlphabetic(12);
 
     underTest.setPlainTextMessage(message);
 

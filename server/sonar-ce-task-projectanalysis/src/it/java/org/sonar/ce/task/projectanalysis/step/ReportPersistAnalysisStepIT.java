@@ -42,7 +42,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.component.SnapshotTesting;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -92,7 +92,7 @@ public class ReportPersistAnalysisStepIT extends BaseStepTest {
 
   @Test
   public void persist_analysis() {
-    String projectVersion = randomAlphabetic(10);
+    String projectVersion = secure().nextAlphabetic(10);
     ComponentDto projectDto = ComponentTesting.newPrivateProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbTester.components().insertComponent(projectDto);
     ComponentDto directoryDto = ComponentTesting.newDirectory(projectDto, "CDEF", "src/main/java/dir").setKey("PROJECT_KEY:src/main/java/dir");
@@ -103,7 +103,7 @@ public class ReportPersistAnalysisStepIT extends BaseStepTest {
 
     Component file = ReportComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java").build();
     Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir").addChildren(file).build();
-    String buildString = Optional.ofNullable(projectVersion).map(v -> randomAlphabetic(7)).orElse(null);
+    String buildString = Optional.ofNullable(projectVersion).map(v -> secure().nextAlphabetic(7)).orElse(null);
     Component project = ReportComponent.builder(Component.Type.PROJECT, 1)
       .setUuid("ABCD")
       .setKey(PROJECT_KEY)

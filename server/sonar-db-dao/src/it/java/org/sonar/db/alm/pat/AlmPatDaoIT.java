@@ -30,7 +30,7 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.user.UserDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -78,7 +78,7 @@ class AlmPatDaoIT {
     AlmPatDto almPatDto = newAlmPatDto();
     almPatDto.setAlmSettingUuid(almSetting.getUuid());
 
-    String userUuid = randomAlphanumeric(40);
+    String userUuid = secure().nextAlphanumeric(40);
     almPatDto.setUserUuid(userUuid);
     underTest.insert(dbSession, almPatDto, null, null);
 
@@ -89,7 +89,7 @@ class AlmPatDaoIT {
       .containsExactly(A_UUID, almPatDto.getPersonalAccessToken(),
         userUuid, almSetting.getUuid(), NOW, NOW);
 
-    assertThat(underTest.selectByUserAndAlmSetting(dbSession, randomAlphanumeric(40), newGithubAlmSettingDto())).isNotPresent();
+    assertThat(underTest.selectByUserAndAlmSetting(dbSession, secure().nextAlphanumeric(40), newGithubAlmSettingDto())).isNotPresent();
   }
 
   @Test

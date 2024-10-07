@@ -36,8 +36,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NewIssuesStatisticsTest {
@@ -78,7 +77,7 @@ class NewIssuesStatisticsTest {
 
   @Test
   void add_counts_issues_on_current_analysis_globally_and_per_assignee() {
-    String assignee = randomAlphanumeric(10);
+    String assignee = secure().nextAlphanumeric(10);
     IntStream.range(0, 10)
       .mapToObj(i -> new DefaultIssue().setAssigneeUuid(assignee).setNew(true))
       .forEach(underTest::add);
@@ -93,7 +92,7 @@ class NewIssuesStatisticsTest {
 
   @Test
   void add_counts_issues_off_current_analysis_globally_and_per_assignee() {
-    String assignee = randomAlphanumeric(10);
+    String assignee = secure().nextAlphanumeric(10);
     IntStream.range(0, 10)
       .mapToObj(i -> new DefaultIssue().setAssigneeUuid(assignee).setNew(false))
       .forEach(underTest::add);
@@ -108,8 +107,8 @@ class NewIssuesStatisticsTest {
 
   @Test
   void add_counts_issue_per_component_on_current_analysis_globally_and_per_assignee() {
-    List<String> componentUuids = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
-    String assignee = randomAlphanumeric(10);
+    List<String> componentUuids = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> secure().nextAlphabetic(3)).toList();
+    String assignee = secure().nextAlphanumeric(10);
     componentUuids.stream()
       .map(componentUuid -> new DefaultIssue().setType(randomRuleTypeExceptHotspot).setComponentUuid(componentUuid).setAssigneeUuid(assignee).setNew(true))
       .forEach(underTest::add);
@@ -123,8 +122,8 @@ class NewIssuesStatisticsTest {
 
   @Test
   void add_counts_issue_per_component_off_current_analysis_globally_and_per_assignee() {
-    List<String> componentUuids = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
-    String assignee = randomAlphanumeric(10);
+    List<String> componentUuids = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> secure().nextAlphabetic(3)).toList();
+    String assignee = secure().nextAlphanumeric(10);
     componentUuids.stream()
       .map(componentUuid -> new DefaultIssue().setType(randomRuleTypeExceptHotspot).setComponentUuid(componentUuid).setAssigneeUuid(assignee).setNew(false))
       .forEach(underTest::add);
@@ -138,7 +137,7 @@ class NewIssuesStatisticsTest {
 
   @Test
   void add_does_not_count_component_if_null_neither_globally_nor_per_assignee() {
-    String assignee = randomAlphanumeric(10);
+    String assignee = secure().nextAlphanumeric(10);
     underTest.add(new DefaultIssue().setType(randomRuleTypeExceptHotspot).setComponentUuid(null).setAssigneeUuid(assignee).setNew(new Random().nextBoolean()));
 
     DistributedMetricStatsInt globalDistribution = underTest.globalStatistics().getDistributedMetricStats(Metric.COMPONENT);
@@ -153,9 +152,9 @@ class NewIssuesStatisticsTest {
 
   @Test
   void add_counts_issue_per_ruleKey_on_current_analysis_globally_and_per_assignee() {
-    String repository = randomAlphanumeric(3);
-    List<String> ruleKeys = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
-    String assignee = randomAlphanumeric(10);
+    String repository = secure().nextAlphanumeric(3);
+    List<String> ruleKeys = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> secure().nextAlphabetic(3)).toList();
+    String assignee = secure().nextAlphanumeric(10);
     ruleKeys.stream()
       .map(ruleKey -> new DefaultIssue().setType(randomRuleTypeExceptHotspot).setRuleKey(RuleKey.of(repository, ruleKey)).setAssigneeUuid(assignee).setNew(true))
       .forEach(underTest::add);
@@ -169,9 +168,9 @@ class NewIssuesStatisticsTest {
 
   @Test
   void add_counts_issue_per_ruleKey_off_current_analysis_globally_and_per_assignee() {
-    String repository = randomAlphanumeric(3);
-    List<String> ruleKeys = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
-    String assignee = randomAlphanumeric(10);
+    String repository = secure().nextAlphanumeric(3);
+    List<String> ruleKeys = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> secure().nextAlphabetic(3)).toList();
+    String assignee = secure().nextAlphanumeric(10);
     ruleKeys.stream()
       .map(ruleKey -> new DefaultIssue().setType(randomRuleTypeExceptHotspot).setRuleKey(RuleKey.of(repository, ruleKey)).setAssigneeUuid(assignee).setNew(false))
       .forEach(underTest::add);
@@ -185,7 +184,7 @@ class NewIssuesStatisticsTest {
 
   @Test
   void add_does_not_count_ruleKey_if_null_neither_globally_nor_per_assignee() {
-    String assignee = randomAlphanumeric(10);
+    String assignee = secure().nextAlphanumeric(10);
     underTest.add(new DefaultIssue().setType(randomRuleTypeExceptHotspot).setRuleKey(null).setAssigneeUuid(assignee).setNew(new Random().nextBoolean()));
 
     DistributedMetricStatsInt globalDistribution = underTest.globalStatistics().getDistributedMetricStats(Metric.RULE);
@@ -200,7 +199,7 @@ class NewIssuesStatisticsTest {
 
   @Test
   void add_counts_issue_per_assignee_on_current_analysis_globally_and_per_assignee() {
-    List<String> assignees = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
+    List<String> assignees = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> secure().nextAlphabetic(3)).toList();
     assignees.stream()
       .map(assignee -> new DefaultIssue().setType(randomRuleTypeExceptHotspot).setAssigneeUuid(assignee).setNew(true))
       .forEach(underTest::add);
@@ -228,7 +227,7 @@ class NewIssuesStatisticsTest {
 
   @Test
   void add_counts_issue_per_assignee_off_current_analysis_globally_and_per_assignee() {
-    List<String> assignees = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
+    List<String> assignees = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> secure().nextAlphabetic(3)).toList();
     assignees.stream()
       .map(assignee -> new DefaultIssue().setType(randomRuleTypeExceptHotspot).setAssigneeUuid(assignee).setNew(false))
       .forEach(underTest::add);
@@ -266,8 +265,8 @@ class NewIssuesStatisticsTest {
 
   @Test
   void add_counts_issue_per_tags_on_current_analysis_globally_and_per_assignee() {
-    List<String> tags = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
-    String assignee = randomAlphanumeric(10);
+    List<String> tags = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> secure().nextAlphabetic(3)).toList();
+    String assignee = secure().nextAlphanumeric(10);
     underTest.add(new DefaultIssue().setType(randomRuleTypeExceptHotspot).setTags(tags).setAssigneeUuid(assignee).setNew(true));
 
     DistributedMetricStatsInt globalDistribution = underTest.globalStatistics().getDistributedMetricStats(Metric.TAG);
@@ -278,8 +277,8 @@ class NewIssuesStatisticsTest {
 
   @Test
   void add_counts_issue_per_tags_off_current_analysis_globally_and_per_assignee() {
-    List<String> tags = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
-    String assignee = randomAlphanumeric(10);
+    List<String> tags = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> secure().nextAlphabetic(3)).toList();
+    String assignee = secure().nextAlphanumeric(10);
     underTest.add(new DefaultIssue().setType(randomRuleTypeExceptHotspot).setTags(tags).setAssigneeUuid(assignee).setNew(false));
 
     DistributedMetricStatsInt globalDistribution = underTest.globalStatistics().getDistributedMetricStats(Metric.TAG);
@@ -290,7 +289,7 @@ class NewIssuesStatisticsTest {
 
   @Test
   void add_does_not_count_tags_if_empty_neither_globally_nor_per_assignee() {
-    String assignee = randomAlphanumeric(10);
+    String assignee = secure().nextAlphanumeric(10);
     underTest.add(new DefaultIssue().setType(randomRuleTypeExceptHotspot).setTags(Collections.emptyList()).setAssigneeUuid(assignee).setNew(new Random().nextBoolean()));
 
     DistributedMetricStatsInt globalDistribution = underTest.globalStatistics().getDistributedMetricStats(Metric.TAG);
@@ -309,11 +308,11 @@ class NewIssuesStatisticsTest {
 
   @Test
   void verify_toString() {
-    String componentUuid = randomAlphanumeric(2);
-    String tag = randomAlphanumeric(3);
-    String assignee = randomAlphanumeric(4);
+    String componentUuid = secure().nextAlphanumeric(2);
+    String tag = secure().nextAlphanumeric(3);
+    String assignee = secure().nextAlphanumeric(4);
     int effort = 10 + new Random().nextInt(5);
-    RuleKey ruleKey = RuleKey.of(randomAlphanumeric(5), randomAlphanumeric(6));
+    RuleKey ruleKey = RuleKey.of(secure().nextAlphanumeric(5), secure().nextAlphanumeric(6));
     underTest.add(new DefaultIssue()
       .setType(randomRuleTypeExceptHotspot)
       .setComponentUuid(componentUuid)

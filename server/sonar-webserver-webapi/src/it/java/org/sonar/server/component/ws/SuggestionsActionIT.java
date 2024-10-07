@@ -30,7 +30,6 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
@@ -56,7 +55,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.IntStream.range;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.doReturn;
@@ -529,7 +528,7 @@ public class SuggestionsActionIT {
 
   @Test
   public void should_only_provide_project_for_certain_qualifiers() {
-    String query = randomAlphabetic(10);
+    String query = secure().nextAlphabetic(10);
 
     ProjectData appData = db.components().insertPublicApplication(v -> v.setName(query));
     ComponentDto app = appData.getMainBranchComponent();

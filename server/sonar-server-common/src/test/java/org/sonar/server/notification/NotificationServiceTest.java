@@ -30,7 +30,7 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.db.DbClient;
 import org.sonar.db.property.PropertiesDao;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyCollection;
@@ -210,7 +210,7 @@ public class NotificationServiceTest {
 
   @Test
   public void hasProjectSubscribersForType_returns_false_if_there_are_no_handler() {
-    String projectUuid = randomAlphabetic(7);
+    String projectUuid = secure().nextAlphabetic(7);
     NotificationService underTest = new NotificationService(dbClient);
 
     assertThat(underTest.hasProjectSubscribersForTypes(projectUuid, ImmutableSet.of(Notification1.class))).isFalse();
@@ -219,9 +219,9 @@ public class NotificationServiceTest {
 
   @Test
   public void hasProjectSubscribersForType_checks_property_for_each_dispatcher_key_supporting_Notification_type() {
-    String dispatcherKey1A = randomAlphabetic(5);
-    String dispatcherKey1B = randomAlphabetic(6);
-    String projectUuid = randomAlphabetic(7);
+    String dispatcherKey1A = secure().nextAlphabetic(5);
+    String dispatcherKey1B = secure().nextAlphabetic(6);
+    String projectUuid = secure().nextAlphabetic(7);
 
     NotificationHandler<Notification1> handler1A = getMockOfNotificationHandlerForType(Notification1.class);
     when(handler1A.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1A)));
@@ -252,10 +252,10 @@ public class NotificationServiceTest {
 
   @Test
   public void hasProjectSubscribersForType_checks_property_for_each_dispatcher_key_supporting_Notification_types() {
-    String dispatcherKey1A = randomAlphabetic(5);
-    String dispatcherKey1B = randomAlphabetic(6);
-    String dispatcherKey2 = randomAlphabetic(7);
-    String projectUuid = randomAlphabetic(8);
+    String dispatcherKey1A = secure().nextAlphabetic(5);
+    String dispatcherKey1B = secure().nextAlphabetic(6);
+    String dispatcherKey2 = secure().nextAlphabetic(7);
+    String projectUuid = secure().nextAlphabetic(8);
     NotificationHandler<Notification1> handler1A = getMockOfNotificationHandlerForType(Notification1.class);
     when(handler1A.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1A)));
 
@@ -289,9 +289,9 @@ public class NotificationServiceTest {
 
   @Test
   public void hasProjectSubscribersForType_returns_false_if_set_is_empty() {
-    String dispatcherKey1A = randomAlphabetic(5);
-    String dispatcherKey1B = randomAlphabetic(6);
-    String projectUuid = randomAlphabetic(7);
+    String dispatcherKey1A = secure().nextAlphabetic(5);
+    String dispatcherKey1B = secure().nextAlphabetic(6);
+    String projectUuid = secure().nextAlphabetic(7);
 
     NotificationHandler<Notification1> handler1A = getMockOfNotificationHandlerForType(Notification1.class);
     when(handler1A.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1A)));
@@ -313,9 +313,9 @@ public class NotificationServiceTest {
 
   @Test
   public void hasProjectSubscribersForType_returns_false_for_type_which_have_no_handler() {
-    String dispatcherKey1A = randomAlphabetic(5);
-    String dispatcherKey1B = randomAlphabetic(6);
-    String projectUuid = randomAlphabetic(7);
+    String dispatcherKey1A = secure().nextAlphabetic(5);
+    String dispatcherKey1B = secure().nextAlphabetic(6);
+    String projectUuid = secure().nextAlphabetic(7);
 
     NotificationHandler<Notification1> handler1A = getMockOfNotificationHandlerForType(Notification1.class);
     when(handler1A.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1A)));

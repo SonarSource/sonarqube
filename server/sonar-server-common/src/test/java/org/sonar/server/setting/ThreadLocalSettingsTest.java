@@ -40,7 +40,7 @@ import org.sonar.core.config.CorePropertyDefinitions;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.doAnswer;
@@ -310,9 +310,9 @@ public class ThreadLocalSettingsTest {
 
   @Test
   public void getProperties_return_properties_from_previous_thread_cache_if_DB_error_on_not_first_call() {
-    String key = randomAlphanumeric(3);
-    String value1 = randomAlphanumeric(4);
-    String value2 = randomAlphanumeric(5);
+    String key = secure().nextAlphanumeric(3);
+    String value1 = secure().nextAlphanumeric(4);
+    String value2 = secure().nextAlphanumeric(5);
     SettingLoader settingLoaderMock = mock(SettingLoader.class);
     PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
     doAnswer(invocationOnMock -> ImmutableMap.of(key, value1))
@@ -342,7 +342,7 @@ public class ThreadLocalSettingsTest {
   public void get_returns_empty_if_DB_error_on_first_call_ever_out_of_thread_cache() {
     SettingLoader settingLoaderMock = mock(SettingLoader.class);
     PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
-    String key = randomAlphanumeric(3);
+    String key = secure().nextAlphanumeric(3);
     doThrow(toBeThrown).when(settingLoaderMock).load(key);
     underTest = new ThreadLocalSettings(new PropertyDefinitions(system), new Properties(), settingLoaderMock);
 
@@ -353,7 +353,7 @@ public class ThreadLocalSettingsTest {
   public void get_returns_empty_if_DB_error_on_first_call_ever_in_thread_cache() {
     SettingLoader settingLoaderMock = mock(SettingLoader.class);
     PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
-    String key = randomAlphanumeric(3);
+    String key = secure().nextAlphanumeric(3);
     doThrow(toBeThrown).when(settingLoaderMock).load(key);
     underTest = new ThreadLocalSettings(new PropertyDefinitions(system), new Properties(), settingLoaderMock);
     underTest.load();

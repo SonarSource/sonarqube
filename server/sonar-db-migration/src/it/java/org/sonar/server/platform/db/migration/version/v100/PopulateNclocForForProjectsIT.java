@@ -29,7 +29,7 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PopulateNclocForForProjectsIT {
@@ -106,7 +106,7 @@ class PopulateNclocForForProjectsIT {
     Map<String, Object> map = new HashMap<>();
     String uuid = uuidFactory.create();
     map.put("UUID", uuid);
-    map.put("KEE", randomAlphabetic(20));
+    map.put("KEE", secure().nextAlphabetic(20));
     map.put("QUALIFIER", "TRK");
     map.put("PRIVATE", true);
     map.put("UPDATED_AT", System.currentTimeMillis());
@@ -119,7 +119,7 @@ class PopulateNclocForForProjectsIT {
     String uuid = uuidFactory.create();
     map.put("UUID", uuid);
     map.put("PROJECT_UUID", projectUuid);
-    map.put("KEE", randomAlphabetic(20));
+    map.put("KEE", secure().nextAlphabetic(20));
     map.put("BRANCH_TYPE", "PULL_REQUEST");
     map.put("UPDATED_AT", System.currentTimeMillis());
     map.put("CREATED_AT", System.currentTimeMillis());

@@ -39,12 +39,12 @@ import org.sonar.server.platform.db.migration.def.IntegerColumnDef;
 import org.sonar.server.platform.db.migration.def.TinyIntColumnDef;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RenameColumnsBuilderTest {
-  private static final String NEW_COLUMN_NAME = "new_" + randomAlphabetic(6).toLowerCase();
+  private static final String NEW_COLUMN_NAME = "new_" + secure().nextAlphabetic(6).toLowerCase();
 
   private static final DatabaseAndResult[] DATABASES = {
     new DatabaseAndResult(new H2(), "ALTER TABLE ${table_name} ALTER COLUMN ${old_column_name} RENAME TO ${new_column_name}"),
@@ -94,8 +94,8 @@ public class RenameColumnsBuilderTest {
     DatabaseAndResult database,
     ColumnDef columnDef) {
 
-    String oldColumnName = "old_" + randomAlphabetic(6).toLowerCase();
-    String tableName = "table_" + randomAlphabetic(6).toLowerCase();
+    String oldColumnName = "old_" + secure().nextAlphabetic(6).toLowerCase();
+    String tableName = "table_" + secure().nextAlphabetic(6).toLowerCase();
 
     List<String> result = new RenameColumnsBuilder(database.dialect(), tableName)
       .renameColumn(oldColumnName, columnDef)
@@ -123,7 +123,7 @@ public class RenameColumnsBuilderTest {
     DatabaseAndResult database,
     ColumnDef columnDef) {
 
-    String tableName = "table_" + randomAlphabetic(6).toLowerCase();
+    String tableName = "table_" + secure().nextAlphabetic(6).toLowerCase();
 
     RenameColumnsBuilder renameColumnsBuilder = new RenameColumnsBuilder(database.dialect(), tableName)
       .renameColumn(NEW_COLUMN_NAME, columnDef);
@@ -148,7 +148,7 @@ public class RenameColumnsBuilderTest {
     ColumnDef columnDef,
     String illegalColumnName) {
 
-    String tableName = "table_" + randomAlphabetic(6).toLowerCase();
+    String tableName = "table_" + secure().nextAlphabetic(6).toLowerCase();
 
     RenameColumnsBuilder renameColumnsBuilder = new RenameColumnsBuilder(database.dialect(), tableName)
       .renameColumn(illegalColumnName, columnDef);

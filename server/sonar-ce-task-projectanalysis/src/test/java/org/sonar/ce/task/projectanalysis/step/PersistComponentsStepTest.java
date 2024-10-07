@@ -32,7 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -47,7 +47,7 @@ public class PersistComponentsStepTest {
     Component component = mock(Component.class);
     DbClient dbClient = mock(DbClient.class);
     ComponentDao componentDao = mock(ComponentDao.class);
-    String projectKey = randomAlphabetic(20);
+    String projectKey = secure().nextAlphabetic(20);
 
     doReturn(component).when(treeRootHolder).getRoot();
     doReturn(projectKey).when(component).getKey();

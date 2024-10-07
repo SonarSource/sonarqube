@@ -49,7 +49,7 @@ import org.sonar.db.scim.ScimUserDto;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
@@ -169,7 +169,7 @@ public class UserDbTester {
   }
 
   public void markGroupAsGithubManaged(String groupUuid) {
-    db.getDbClient().externalGroupDao().insert(db.getSession(), new ExternalGroupDto(groupUuid, randomAlphanumeric(20), "github"));
+    db.getDbClient().externalGroupDao().insert(db.getSession(), new ExternalGroupDto(groupUuid, secure().nextAlphanumeric(20), "github"));
     db.commit();
   }
 

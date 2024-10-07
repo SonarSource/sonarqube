@@ -31,7 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
@@ -50,9 +50,9 @@ class AnalysisPropertiesDaoIT {
   @Test
   void insert_with_null_uuid_throws_NPE() {
     AnalysisPropertyDto analysisPropertyDto = new AnalysisPropertyDto()
-      .setAnalysisUuid(randomAlphanumeric(10))
-      .setKey(randomAlphanumeric(10))
-      .setValue(randomAlphanumeric(10));
+      .setAnalysisUuid(secure().nextAlphanumeric(10))
+      .setKey(secure().nextAlphanumeric(10))
+      .setValue(secure().nextAlphanumeric(10));
 
     assertThatThrownBy(() -> underTest.insert(dbSession, analysisPropertyDto))
       .isInstanceOf(NullPointerException.class)
@@ -62,9 +62,9 @@ class AnalysisPropertiesDaoIT {
   @Test
   void insert_with_null_key_throws_NPE() {
     AnalysisPropertyDto analysisPropertyDto = new AnalysisPropertyDto()
-      .setAnalysisUuid(randomAlphanumeric(10))
-      .setUuid(randomAlphanumeric(10))
-      .setValue(randomAlphanumeric(10));
+      .setAnalysisUuid(secure().nextAlphanumeric(10))
+      .setUuid(secure().nextAlphanumeric(10))
+      .setValue(secure().nextAlphanumeric(10));
 
     assertThatThrownBy(() -> underTest.insert(dbSession, analysisPropertyDto))
       .isInstanceOf(NullPointerException.class)
@@ -74,9 +74,9 @@ class AnalysisPropertiesDaoIT {
   @Test
   void insert_with_null_analysis_uuid_throws_NPE() {
     AnalysisPropertyDto analysisPropertyDto = new AnalysisPropertyDto()
-      .setUuid(randomAlphanumeric(10))
-      .setKey(randomAlphanumeric(10))
-      .setValue(randomAlphanumeric(10));
+      .setUuid(secure().nextAlphanumeric(10))
+      .setKey(secure().nextAlphanumeric(10))
+      .setValue(secure().nextAlphanumeric(10));
 
     assertThatThrownBy(() -> underTest.insert(dbSession, analysisPropertyDto))
       .isInstanceOf(NullPointerException.class)
@@ -86,9 +86,9 @@ class AnalysisPropertiesDaoIT {
   @Test
   void insert_with_null_value_throws_NPE() {
     AnalysisPropertyDto analysisPropertyDto = new AnalysisPropertyDto()
-      .setAnalysisUuid(randomAlphanumeric(10))
-      .setUuid(randomAlphanumeric(10))
-      .setKey(randomAlphanumeric(10));
+      .setAnalysisUuid(secure().nextAlphanumeric(10))
+      .setUuid(secure().nextAlphanumeric(10))
+      .setKey(secure().nextAlphanumeric(10));
 
     assertThatThrownBy(() -> underTest.insert(dbSession, analysisPropertyDto))
       .isInstanceOf(NullPointerException.class)
@@ -122,14 +122,14 @@ class AnalysisPropertiesDaoIT {
   @Test
   void insert_a_list() {
     List<AnalysisPropertyDto> propertyDtos = Arrays.asList(
-      newAnalysisPropertyDto(random.nextInt(8000), randomAlphanumeric(40)),
-      newAnalysisPropertyDto(random.nextInt(8000), randomAlphanumeric(40)),
-      newAnalysisPropertyDto(random.nextInt(8000), randomAlphanumeric(40)),
-      newAnalysisPropertyDto(random.nextInt(8000), randomAlphanumeric(40)),
-      newAnalysisPropertyDto(random.nextInt(8000), randomAlphanumeric(40)),
-      newAnalysisPropertyDto(random.nextInt(8000), randomAlphanumeric(40)),
-      newAnalysisPropertyDto(random.nextInt(8000), randomAlphanumeric(40)),
-      newAnalysisPropertyDto(random.nextInt(8000), randomAlphanumeric(40)));
+      newAnalysisPropertyDto(random.nextInt(8000), secure().nextAlphanumeric(40)),
+      newAnalysisPropertyDto(random.nextInt(8000), secure().nextAlphanumeric(40)),
+      newAnalysisPropertyDto(random.nextInt(8000), secure().nextAlphanumeric(40)),
+      newAnalysisPropertyDto(random.nextInt(8000), secure().nextAlphanumeric(40)),
+      newAnalysisPropertyDto(random.nextInt(8000), secure().nextAlphanumeric(40)),
+      newAnalysisPropertyDto(random.nextInt(8000), secure().nextAlphanumeric(40)),
+      newAnalysisPropertyDto(random.nextInt(8000), secure().nextAlphanumeric(40)),
+      newAnalysisPropertyDto(random.nextInt(8000), secure().nextAlphanumeric(40)));
 
     underTest.insert(dbSession, propertyDtos);
     assertThat(dbTester.countRowsOfTable(dbSession, "ANALYSIS_PROPERTIES")).isEqualTo(propertyDtos.size());
@@ -137,7 +137,7 @@ class AnalysisPropertiesDaoIT {
 
   @Test
   void selectByAnalysisUuid_should_return_correct_values() {
-    String analysisUuid = randomAlphanumeric(40);
+    String analysisUuid = secure().nextAlphanumeric(40);
 
     List<AnalysisPropertyDto> propertyDtos = Arrays.asList(
       newAnalysisPropertyDto(random.nextInt(8000), analysisUuid),
@@ -158,7 +158,7 @@ class AnalysisPropertiesDaoIT {
 
   @Test
   void selectByKeyAndAnalysisUuids_should_return_correct_values() {
-    String analysisUuid = randomAlphanumeric(40);
+    String analysisUuid = secure().nextAlphanumeric(40);
 
     List<AnalysisPropertyDto> propertyDtos = Arrays.asList(
       newAnalysisPropertyDto(random.nextInt(10), "key1", analysisUuid),
@@ -218,7 +218,7 @@ class AnalysisPropertiesDaoIT {
   }
 
   private AnalysisPropertyDto insertAnalysisPropertyDto(int valueLength) {
-    AnalysisPropertyDto analysisPropertyDto = newAnalysisPropertyDto(valueLength, randomAlphanumeric(40));
+    AnalysisPropertyDto analysisPropertyDto = newAnalysisPropertyDto(valueLength, secure().nextAlphanumeric(40));
     underTest.insert(dbSession, analysisPropertyDto);
     return analysisPropertyDto;
   }
@@ -227,13 +227,13 @@ class AnalysisPropertiesDaoIT {
     return new AnalysisPropertyDto()
       .setAnalysisUuid(analysisUuid)
       .setKey(key)
-      .setUuid(randomAlphanumeric(40))
-      .setValue(randomAlphanumeric(valueLength))
+      .setUuid(secure().nextAlphanumeric(40))
+      .setValue(secure().nextAlphanumeric(valueLength))
       .setCreatedAt(1_000L);
   }
 
   private AnalysisPropertyDto newAnalysisPropertyDto(int valueLength, String analysisUuid) {
-    return newAnalysisPropertyDto(valueLength, randomAlphanumeric(512), analysisUuid);
+    return newAnalysisPropertyDto(valueLength, secure().nextAlphanumeric(512), analysisUuid);
   }
 
   private void compareFirstValueWith(AnalysisPropertyDto analysisPropertyDto) {

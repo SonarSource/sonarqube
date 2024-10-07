@@ -41,7 +41,7 @@ import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
 import static java.lang.Math.abs;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
@@ -203,30 +203,30 @@ class DBSessionsImplTest {
     });
 
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       dbSession.selectOne(str);
       verify(myBatisDbSession).selectOne(str);
     });
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       Object object = new Object();
       dbSession.selectOne(str, object);
       verify(myBatisDbSession).selectOne(str, object);
     });
 
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       dbSession.selectList(str);
       verify(myBatisDbSession).selectList(str);
     });
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       Object object = new Object();
       dbSession.selectList(str, object);
       verify(myBatisDbSession).selectList(str, object);
     });
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       Object parameter = new Object();
       RowBounds rowBounds = new RowBounds();
       dbSession.selectList(str, parameter, rowBounds);
@@ -234,42 +234,42 @@ class DBSessionsImplTest {
     });
 
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
-      String mapKey = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
+      String mapKey = secure().nextAlphabetic(10);
       dbSession.selectMap(str, mapKey);
       verify(myBatisDbSession).selectMap(str, mapKey);
     });
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       Object parameter = new Object();
-      String mapKey = randomAlphabetic(10);
+      String mapKey = secure().nextAlphabetic(10);
       dbSession.selectMap(str, parameter, mapKey);
       verify(myBatisDbSession).selectMap(str, parameter, mapKey);
     });
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       Object parameter = new Object();
-      String mapKey = randomAlphabetic(10);
+      String mapKey = secure().nextAlphabetic(10);
       RowBounds rowBounds = new RowBounds();
       dbSession.selectMap(str, parameter, mapKey, rowBounds);
       verify(myBatisDbSession).selectMap(str, parameter, mapKey, rowBounds);
     });
 
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       ResultHandler handler = mock(ResultHandler.class);
       dbSession.select(str, handler);
       verify(myBatisDbSession).select(str, handler);
     });
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       Object parameter = new Object();
       ResultHandler handler = mock(ResultHandler.class);
       dbSession.select(str, parameter, handler);
       verify(myBatisDbSession).select(str, parameter, handler);
     });
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       Object parameter = new Object();
       ResultHandler handler = mock(ResultHandler.class);
       RowBounds rowBounds = new RowBounds();
@@ -278,36 +278,36 @@ class DBSessionsImplTest {
     });
 
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       dbSession.insert(str);
       verify(myBatisDbSession).insert(str);
     });
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       Object object = new Object();
       dbSession.insert(str, object);
       verify(myBatisDbSession).insert(str, object);
     });
 
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       dbSession.update(str);
       verify(myBatisDbSession).update(str);
     });
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       Object object = new Object();
       dbSession.update(str, object);
       verify(myBatisDbSession).update(str, object);
     });
 
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       dbSession.delete(str);
       verify(myBatisDbSession).delete(str);
     });
     verifyDelegation(batchOrRegular, (myBatisDbSession, dbSession) -> {
-      String str = randomAlphabetic(10);
+      String str = secure().nextAlphabetic(10);
       Object object = new Object();
       dbSession.delete(str, object);
       verify(myBatisDbSession).delete(str, object);
@@ -409,12 +409,12 @@ class DBSessionsImplTest {
   }
 
   private static DbSessionCaller[] DIRTYING_CALLS = {
-    session -> session.insert(randomAlphabetic(3)),
-    session -> session.insert(randomAlphabetic(2), new Object()),
-    session -> session.update(randomAlphabetic(3)),
-    session -> session.update(randomAlphabetic(3), new Object()),
-    session -> session.delete(randomAlphabetic(3)),
-    session -> session.delete(randomAlphabetic(3), new Object()),
+    session -> session.insert(secure().nextAlphabetic(3)),
+    session -> session.insert(secure().nextAlphabetic(2), new Object()),
+    session -> session.update(secure().nextAlphabetic(3)),
+    session -> session.update(secure().nextAlphabetic(3), new Object()),
+    session -> session.delete(secure().nextAlphabetic(3)),
+    session -> session.delete(secure().nextAlphabetic(3), new Object()),
   };
 
   private static DbSessionCaller[] COMMIT_CALLS = {
@@ -428,17 +428,17 @@ class DBSessionsImplTest {
   };
 
   private static DbSessionCaller[] NEUTRAL_CALLS = {
-    session -> session.selectOne(randomAlphabetic(3)),
-    session -> session.selectOne(randomAlphabetic(3), new Object()),
-    session -> session.select(randomAlphabetic(3), mock(ResultHandler.class)),
-    session -> session.select(randomAlphabetic(3), new Object(), mock(ResultHandler.class)),
-    session -> session.select(randomAlphabetic(3), new Object(), new RowBounds(), mock(ResultHandler.class)),
-    session -> session.selectList(randomAlphabetic(3)),
-    session -> session.selectList(randomAlphabetic(3), new Object()),
-    session -> session.selectList(randomAlphabetic(3), new Object(), new RowBounds()),
-    session -> session.selectMap(randomAlphabetic(3), randomAlphabetic(3)),
-    session -> session.selectMap(randomAlphabetic(3), new Object(), randomAlphabetic(3)),
-    session -> session.selectMap(randomAlphabetic(3), new Object(), randomAlphabetic(3), new RowBounds()),
+    session -> session.selectOne(secure().nextAlphabetic(3)),
+    session -> session.selectOne(secure().nextAlphabetic(3), new Object()),
+    session -> session.select(secure().nextAlphabetic(3), mock(ResultHandler.class)),
+    session -> session.select(secure().nextAlphabetic(3), new Object(), mock(ResultHandler.class)),
+    session -> session.select(secure().nextAlphabetic(3), new Object(), new RowBounds(), mock(ResultHandler.class)),
+    session -> session.selectList(secure().nextAlphabetic(3)),
+    session -> session.selectList(secure().nextAlphabetic(3), new Object()),
+    session -> session.selectList(secure().nextAlphabetic(3), new Object(), new RowBounds()),
+    session -> session.selectMap(secure().nextAlphabetic(3), secure().nextAlphabetic(3)),
+    session -> session.selectMap(secure().nextAlphabetic(3), new Object(), secure().nextAlphabetic(3)),
+    session -> session.selectMap(secure().nextAlphabetic(3), new Object(), secure().nextAlphabetic(3), new RowBounds()),
     session -> session.getMapper(Object.class),
     session -> session.getConfiguration(),
     session -> session.getConnection(),

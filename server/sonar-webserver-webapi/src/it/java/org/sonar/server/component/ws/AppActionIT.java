@@ -36,7 +36,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
@@ -257,7 +257,7 @@ public class AppActionIT {
   @Test
   public void branch() {
     userSession.logIn("john").addProjectPermission(USER, projectData.getProjectDto());
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(mainBranchComponent, b -> b.setKey(branchName));
     userSession.addProjectBranchMapping(projectData.getProjectDto().getUuid(), branch);
     ComponentDto directory = db.components().insertComponent(newDirectory(branch, "src"));
@@ -299,7 +299,7 @@ public class AppActionIT {
   @Test
   public void component_and_branch_parameters_provided() {
     userSession.logIn("john").addProjectPermission(USER, projectData.getProjectDto());
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(mainBranchComponent, b -> b.setKey(branchName));
     userSession.addProjectBranchMapping(projectData.projectUuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranchComponent.uuid()));
@@ -330,7 +330,7 @@ public class AppActionIT {
   public void component_and_pull_request_parameters_provided() {
     userSession.logIn("john").addProjectPermission(USER, projectData.getProjectDto())
       .registerBranches(projectData.getMainBranchDto());
-    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    String pullRequestKey = RandomStringUtils.secure().nextAlphanumeric(100);
     ComponentDto branch = db.components().insertProjectBranch(mainBranchComponent, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     userSession.addProjectBranchMapping(projectData.projectUuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranchComponent.uuid()));

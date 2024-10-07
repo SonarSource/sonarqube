@@ -60,7 +60,7 @@ import org.sonar.server.issue.notification.NewIssuesNotification.DetailsSupplier
 import org.sonar.server.issue.notification.NewIssuesNotification.RuleDefinition;
 
 import static java.util.Collections.emptyMap;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -553,7 +553,7 @@ public class NotificationFactoryTest {
       .setStatus(STATUS_OPEN);
     Map<String, UserDto> assigneesByUuid = nonEmptyAssigneesByUuid();
     ReportComponent project = ReportComponent.builder(PROJECT, 1).build();
-    String branchName = randomAlphabetic(12);
+    String branchName = secure().nextAlphabetic(12);
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(new Random().nextLong());
@@ -583,7 +583,7 @@ public class NotificationFactoryTest {
       .setStatus(STATUS_OPEN);
     Map<String, UserDto> assigneesByUuid = nonEmptyAssigneesByUuid();
     ReportComponent project = ReportComponent.builder(PROJECT, 1).build();
-    String branchName = randomAlphabetic(12);
+    String branchName = secure().nextAlphabetic(12);
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(new Random().nextLong());
@@ -604,7 +604,7 @@ public class NotificationFactoryTest {
   @Test
   public void newIssuesChangesNotification_fails_with_ISE_if_issue_has_assignee_not_in_assigneesByUuid() {
     RuleKey ruleKey = RuleKey.of("foo", "bar");
-    String assigneeUuid = randomAlphabetic(40);
+    String assigneeUuid = secure().nextAlphabetic(40);
     DefaultIssue issue = new DefaultIssue()
       .setRuleKey(ruleKey)
       .setKey("issueKey")
@@ -615,7 +615,7 @@ public class NotificationFactoryTest {
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(new Random().nextLong());
-    analysisMetadata.setBranch(newNonMainBranch(BranchType.BRANCH, randomAlphabetic(12)));
+    analysisMetadata.setBranch(newNonMainBranch(BranchType.BRANCH, secure().nextAlphabetic(12)));
 
     assertThatThrownBy(() ->  underTest.newIssuesChangesNotification(ImmutableSet.of(issue), assigneesByUuid))
       .isInstanceOf(IllegalStateException.class)
@@ -625,7 +625,7 @@ public class NotificationFactoryTest {
   @Test
   public void newIssuesChangesNotification_creates_assignee_from_UserDto() {
     RuleKey ruleKey = RuleKey.of("foo", "bar");
-    String assigneeUuid = randomAlphabetic(40);
+    String assigneeUuid = secure().nextAlphabetic(40);
     DefaultIssue issue = new DefaultIssue()
       .setRuleKey(ruleKey)
       .setKey("issueKey")
@@ -637,7 +637,7 @@ public class NotificationFactoryTest {
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(new Random().nextLong());
-    analysisMetadata.setBranch(newNonMainBranch(BranchType.BRANCH, randomAlphabetic(12)));
+    analysisMetadata.setBranch(newNonMainBranch(BranchType.BRANCH, secure().nextAlphabetic(12)));
     IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
     when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
 
@@ -667,7 +667,7 @@ public class NotificationFactoryTest {
     ruleRepository.add(ruleKey);
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(analysisDate);
-    analysisMetadata.setBranch(newNonMainBranch(BranchType.BRANCH, randomAlphabetic(12)));
+    analysisMetadata.setBranch(newNonMainBranch(BranchType.BRANCH, secure().nextAlphabetic(12)));
     IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
     when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
 
@@ -697,7 +697,7 @@ public class NotificationFactoryTest {
       .forEach(ruleKey -> ruleRepository.add(ruleKey));
     treeRootHolder.setRoot(project);
     analysisMetadata.setAnalysisDate(analysisDate);
-    analysisMetadata.setBranch(newNonMainBranch(BranchType.BRANCH, randomAlphabetic(12)));
+    analysisMetadata.setBranch(newNonMainBranch(BranchType.BRANCH, secure().nextAlphabetic(12)));
     IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
     when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
 

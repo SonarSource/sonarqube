@@ -59,7 +59,7 @@ import org.sonarqube.ws.Issues.Component;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.resources.Qualifiers.APP;
@@ -571,7 +571,7 @@ public class SearchActionComponentsIT {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insertIssue(rule, project, file);
 
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch, project.uuid()));
     IssueDto branchIssue = db.issues().insertIssue(rule, branch, branchFile);
@@ -609,7 +609,7 @@ public class SearchActionComponentsIT {
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch, project.uuid()));
     IssueDto branchIssue = db.issues().insertIssue(rule, branch, branchFile);
@@ -636,7 +636,7 @@ public class SearchActionComponentsIT {
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     IssueDto projectIssue = db.issues().insertIssue(rule, project, projectFile);
 
-    String pullRequestKey = randomAlphanumeric(100);
+    String pullRequestKey = secure().nextAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto pullRequestFile = db.components().insertComponent(newFileDto(pullRequest, project.uuid()));
     IssueDto pullRequestIssue = db.issues().insertIssue(rule, pullRequest, pullRequestFile);

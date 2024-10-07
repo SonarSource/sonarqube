@@ -29,7 +29,7 @@ import java.util.Set;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeThat;
 
@@ -110,7 +110,7 @@ public class NetworkUtilsImplTest {
 
   @Test
   public void toInetAddress_returns_empty_on_unvalid_IP_and_hostname() {
-    assertThat(underTest.toInetAddress(randomAlphabetic(32))).isEmpty();
+    assertThat(underTest.toInetAddress(secure().nextAlphabetic(32))).isEmpty();
   }
 
   @Test

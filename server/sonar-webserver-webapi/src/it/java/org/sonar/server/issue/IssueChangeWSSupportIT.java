@@ -57,7 +57,7 @@ import org.sonarqube.ws.Common.Comment;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -177,7 +177,7 @@ public class IssueChangeWSSupportIT {
     UserDto user1 = dbTester.users().insertUser();
     UserDto user2 = dbTester.users().insertUser();
     UserDto user3 = dbTester.users().insertUser();
-    String uuid = randomAlphabetic(30);
+    String uuid = secure().nextAlphabetic(30);
     IssueChangeDto fieldChangeUser1 = newFieldChange(issue)
       .setUserUuid(user1.getUuid())
       .setChangeData(new FieldDiffs().setDiff("f_change_user_1", null, null).toEncodedString());
@@ -209,7 +209,7 @@ public class IssueChangeWSSupportIT {
     UserDto user1 = dbTester.users().insertUser();
     UserDto user2 = dbTester.users().insertUser();
     UserDto user3 = dbTester.users().insertUser();
-    String uuid = randomAlphabetic(30);
+    String uuid = secure().nextAlphabetic(30);
     IssueChangeDto issueChangeUser1 = newComment(issue).setUserUuid(user1.getUuid());
     IssueChangeDto issueChangeUser2a = newComment(issue).setUserUuid(user2.getUuid());
     IssueChangeDto issueChangeUser2b = newComment(issue).setUserUuid(user2.getUuid());
@@ -234,7 +234,7 @@ public class IssueChangeWSSupportIT {
     UserDto user2 = dbTester.users().insertUser();
     UserDto user3 = dbTester.users().insertUser();
     UserDto user4 = dbTester.users().insertUser();
-    String uuid = randomAlphabetic(30);
+    String uuid = secure().nextAlphabetic(30);
     IssueChangeDto issueChangeUser1 = newComment(issue).setUserUuid(user1.getUuid());
     IssueChangeDto issueChangeUser2a = newComment(issue).setUserUuid(user2.getUuid());
     IssueChangeDto issueChangeUser2b = newComment(issue).setUserUuid(user2.getUuid());
@@ -280,7 +280,7 @@ public class IssueChangeWSSupportIT {
     ComponentDto file3 = insertFile();
     ComponentDto file4 = insertFile();
     ComponentDto file5 = insertFile();
-    String uuid = randomAlphabetic(30);
+    String uuid = secure().nextAlphabetic(30);
     IssueChangeDto fileChangeFile1 = newFieldChange(issue)
       .setChangeData(new FieldDiffs().setDiff("file", file1.uuid(), null).toEncodedString());
     IssueChangeDto fileChangeFile2 = newFieldChange(issue)
@@ -417,7 +417,7 @@ public class IssueChangeWSSupportIT {
   public void newFormattingContext_comments_without_userUuid_or_with_unknown_userUuid_are_not_updatable(Load load) {
     IssueDto issue = dbTester.issues().insertIssue();
     UserDto user1 = dbTester.users().insertUser();
-    String uuid = randomAlphabetic(30);
+    String uuid = secure().nextAlphabetic(30);
     IssueChangeDto issueChangeUser1 = newComment(issue);
     IssueChangeDto issueChangeUserUnknown = newComment(issue).setUserUuid(uuid);
     insertInRandomOrder(Arrays.asList(issueChangeUser1, issueChangeUserUnknown));
@@ -434,7 +434,7 @@ public class IssueChangeWSSupportIT {
     IssueDto issue = dbTester.issues().insertIssue();
     UserDto user1 = dbTester.users().insertUser();
     UserDto user2 = dbTester.users().insertUser();
-    String uuid = randomAlphabetic(30);
+    String uuid = secure().nextAlphabetic(30);
     IssueChangeDto issueChangeUser1 = newComment(issue).setUserUuid(user1.getUuid());
     IssueChangeDto issueChangeUser2 = newComment(issue).setUserUuid(user2.getUuid());
     IssueChangeDto issueChangeUserUnknown = newComment(issue).setUserUuid(uuid);
@@ -454,7 +454,7 @@ public class IssueChangeWSSupportIT {
     UserDto user1 = dbTester.users().insertUser();
     UserDto user2 = dbTester.users().insertUser();
     userSessionRule.logIn(user2);
-    String uuid = randomAlphabetic(30);
+    String uuid = secure().nextAlphabetic(30);
     IssueChangeDto issueChangeUser1a = newComment(issue).setUserUuid(user1.getUuid());
     IssueChangeDto issueChangeUser1b = newComment(issue).setUserUuid(user1.getUuid());
     IssueChangeDto issueChangeUser2a = newComment(issue).setUserUuid(user2.getUuid());
@@ -552,7 +552,7 @@ public class IssueChangeWSSupportIT {
     IssueDto issue1 = dbTester.issues().insertIssue();
     UserDto user1 = dbTester.users().insertUser();
     UserDto user2 = dbTester.users().insertUser(t -> t.setActive(false));
-    String uuid = randomAlphabetic(22);
+    String uuid = secure().nextAlphabetic(22);
     dbTester.issues().insertChange(newFieldChange(issue1)
       .setUserUuid(user1.getUuid())
       .setChangeData(new FieldDiffs()

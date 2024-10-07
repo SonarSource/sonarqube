@@ -22,7 +22,7 @@ package org.sonar.server.project;
 import org.junit.Test;
 
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -31,7 +31,7 @@ public class RekeyedProjectTest {
 
   @Test
   public void constructor_throws_NPE_if_project_is_null() {
-    assertThatThrownBy(() -> new RekeyedProject(null, randomAlphanumeric(3)))
+    assertThatThrownBy(() -> new RekeyedProject(null, secure().nextAlphanumeric(3)))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("project can't be null");
   }
@@ -46,7 +46,7 @@ public class RekeyedProjectTest {
   @Test
   public void verify_getters() {
     Project project = newRandomProject();
-    String previousKey = randomAlphanumeric(6);
+    String previousKey = secure().nextAlphanumeric(6);
     RekeyedProject underTest = new RekeyedProject(project, previousKey);
 
     assertThat(underTest.project()).isSameAs(project);
@@ -56,13 +56,13 @@ public class RekeyedProjectTest {
   @Test
   public void equals_is_based_on_project_and_previousKey() {
     Project project = newRandomProject();
-    String previousKey = randomAlphanumeric(6);
+    String previousKey = secure().nextAlphanumeric(6);
     RekeyedProject underTest = new RekeyedProject(project, previousKey);
 
     assertThat(underTest)
       .isEqualTo(underTest)
       .isEqualTo(new RekeyedProject(project, previousKey))
-      .isNotEqualTo(new RekeyedProject(project, randomAlphanumeric(11)))
+      .isNotEqualTo(new RekeyedProject(project, secure().nextAlphanumeric(11)))
       .isNotEqualTo(new RekeyedProject(newRandomProject(), previousKey))
       .isNotEqualTo(new Object())
       .isNotNull();
@@ -71,14 +71,14 @@ public class RekeyedProjectTest {
   @Test
   public void hashCode_is_based_on_project_and_previousKey() {
     Project project = newRandomProject();
-    String previousKey = randomAlphanumeric(6);
+    String previousKey = secure().nextAlphanumeric(6);
     RekeyedProject underTest = new RekeyedProject(project, previousKey);
 
     assertThat(underTest)
       .hasSameHashCodeAs(underTest)
       .hasSameHashCodeAs(new RekeyedProject(project, previousKey));
     assertThat(underTest.hashCode())
-      .isNotEqualTo(new RekeyedProject(project, randomAlphanumeric(11)).hashCode())
+      .isNotEqualTo(new RekeyedProject(project, secure().nextAlphanumeric(11)).hashCode())
       .isNotEqualTo(new RekeyedProject(newRandomProject(), previousKey).hashCode())
       .isNotEqualTo(new Object().hashCode());
   }

@@ -47,7 +47,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -92,7 +92,7 @@ class ActivateRuleActionIT {
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, RuleTesting.newRule().getKey().toString())
-      .setParam(PARAM_KEY, randomAlphanumeric(UUID_SIZE));
+      .setParam(PARAM_KEY, secure().nextAlphanumeric(UUID_SIZE));
 
     assertThatThrownBy(() -> request.execute())
       .isInstanceOf(UnauthorizedException.class);

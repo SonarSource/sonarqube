@@ -251,7 +251,7 @@ public class HttpConnectorTest {
   @Test
   public void systemPassCode_sets_header_when_value_is_not_null() throws InterruptedException {
     answerHelloWorld();
-    String systemPassCode = new Random().nextBoolean() ? "" : RandomStringUtils.randomAlphanumeric(21);
+    String systemPassCode = new Random().nextBoolean() ? "" : RandomStringUtils.secure().nextAlphanumeric(21);
     underTest = HttpConnector.newBuilder()
       .url(serverUrl)
       .systemPassCode(systemPassCode)

@@ -32,7 +32,7 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
 import org.sonar.db.project.ProjectDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -98,7 +98,7 @@ class ComponentKeyUpdaterDaoIT {
   void updateKey_updates_branches_too() {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(branchName));
     db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
     db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
@@ -125,7 +125,7 @@ class ComponentKeyUpdaterDaoIT {
   void updateKey_updates_pull_requests_too() {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    String pullRequestKey1 = randomAlphanumeric(100);
+    String pullRequestKey1 = secure().nextAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey1));
     db.components().insertComponent(newFileDto(pullRequest));
     db.components().insertComponent(newFileDto(pullRequest));

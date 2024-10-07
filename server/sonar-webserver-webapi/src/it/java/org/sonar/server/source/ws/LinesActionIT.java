@@ -49,7 +49,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -125,7 +125,7 @@ public class LinesActionIT {
   public void branch() {
     ProjectData project = db.components().insertPrivateProject();
 
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey(branchName));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.mainBranchUuid()));
     db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
@@ -151,7 +151,7 @@ public class LinesActionIT {
   public void pull_request() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    String pullRequestKey = randomAlphanumeric(100);
+    String pullRequestKey = secure().nextAlphanumeric(100);
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
     db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()

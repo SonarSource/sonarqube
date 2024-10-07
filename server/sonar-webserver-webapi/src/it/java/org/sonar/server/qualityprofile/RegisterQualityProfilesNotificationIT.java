@@ -71,7 +71,7 @@ import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singleton;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -374,6 +374,6 @@ public class RegisterQualityProfilesNotificationIT {
   }
 
   private static String newLanguageKey() {
-    return randomAlphanumeric(20).toLowerCase();
+    return secure().nextAlphanumeric(20).toLowerCase();
   }
 }

@@ -48,7 +48,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -267,7 +267,7 @@ public class UpdateGithubActionIT {
   @Test
   @UseDataProvider("secretParams")
   public void update_withSecretChange_shouldAuditDevOpsPlatformSecret(String secretParam) {
-    buildTestRequestWithoutSecrets().setParam(secretParam, randomAlphanumeric(10)).execute();
+    buildTestRequestWithoutSecrets().setParam(secretParam, secure().nextAlphanumeric(10)).execute();
     SecretNewValue expected = new SecretNewValue("DevOpsPlatform", GITHUB.getId());
     ArgumentCaptor<SecretNewValue> captor = ArgumentCaptor.forClass(SecretNewValue.class);
 

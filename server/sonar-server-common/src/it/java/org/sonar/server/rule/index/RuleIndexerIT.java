@@ -52,7 +52,7 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newRule;
@@ -136,7 +136,7 @@ public class RuleIndexerIT {
 
   @Test
   public void index_long_rule_description() {
-    RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), randomAlphanumeric(100000));
+    RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), secure().nextAlphanumeric(100000));
     RuleDto rule = dbTester.rules().insert(newRule(ruleDescriptionSectionDto));
 
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());

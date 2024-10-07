@@ -20,7 +20,6 @@
 package org.sonar.db.user;
 
 import java.security.SecureRandom;
-import java.util.Collections;
 import java.util.Locale;
 import java.util.Random;
 import javax.annotation.Nullable;
@@ -29,7 +28,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class UserTesting {
 
@@ -39,29 +38,29 @@ public class UserTesting {
 
   public static UserDto newUserDto() {
     return new UserDto()
-      .setUuid(randomAlphanumeric(40))
+      .setUuid(secure().nextAlphanumeric(40))
       .setActive(true)
       .setLocal(RANDOM.nextBoolean())
-      .setLogin(randomAlphanumeric(30))
-      .setName(randomAlphanumeric(30))
-      .setEmail(randomAlphanumeric(30))
-      .setScmAccounts(singletonList(randomAlphanumeric(40).toLowerCase(Locale.ENGLISH)))
-      .setExternalId(randomAlphanumeric(40))
-      .setExternalLogin(randomAlphanumeric(40))
-      .setExternalIdentityProvider(randomAlphanumeric(40))
-      .setSalt(randomAlphanumeric(40))
-      .setCryptedPassword(randomAlphanumeric(40))
+      .setLogin(secure().nextAlphanumeric(30))
+      .setName(secure().nextAlphanumeric(30))
+      .setEmail(secure().nextAlphanumeric(30))
+      .setScmAccounts(singletonList(secure().nextAlphanumeric(40).toLowerCase(Locale.ENGLISH)))
+      .setExternalId(secure().nextAlphanumeric(40))
+      .setExternalLogin(secure().nextAlphanumeric(40))
+      .setExternalIdentityProvider(secure().nextAlphanumeric(40))
+      .setSalt(secure().nextAlphanumeric(40))
+      .setCryptedPassword(secure().nextAlphanumeric(40))
       .setCreatedAt(RANDOM.nextLong(Long.MAX_VALUE))
       .setUpdatedAt(RANDOM.nextLong(Long.MAX_VALUE));
   }
 
   public static UserDto newUserDtoRealistic() {
     long timeNow = System.currentTimeMillis();
-    String loginAndAndId = randomAlphanumeric(30);
+    String loginAndAndId = secure().nextAlphanumeric(30);
     String realisticIdentityProvider = realisticIdentityProviders[nextInt(realisticIdentityProviders.length)];
     boolean isExternal = nextBoolean();
     String externalIdAndLogin = isExternal ? loginAndAndId + "_" + realisticIdentityProvider : loginAndAndId;
-    return new UserDto().setUuid(randomAlphanumeric(40))
+    return new UserDto().setUuid(secure().nextAlphanumeric(40))
       .setActive(nextBoolean())
       .setLocal(!isExternal)
       .setLogin(loginAndAndId)
@@ -107,9 +106,9 @@ public class UserTesting {
       .setName(name)
       .setEmail(email)
       .setLogin(login)
-      .setExternalId(randomAlphanumeric(40))
-      .setExternalLogin(randomAlphanumeric(40))
-      .setExternalIdentityProvider(randomAlphanumeric(40));
+      .setExternalId(secure().nextAlphanumeric(40))
+      .setExternalLogin(secure().nextAlphanumeric(40))
+      .setExternalIdentityProvider(secure().nextAlphanumeric(40));
   }
 
   public static UserDto newDisabledUser() {

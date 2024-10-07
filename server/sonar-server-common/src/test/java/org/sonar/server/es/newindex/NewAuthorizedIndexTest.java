@@ -27,7 +27,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
@@ -35,7 +35,7 @@ import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
 public class NewAuthorizedIndexTest {
 
-  private String someIndexName = randomAlphabetic(10).toLowerCase(Locale.ENGLISH);
+  private String someIndexName = secure().nextAlphabetic(10).toLowerCase(Locale.ENGLISH);
   private Index someIndex = Index.withRelations(someIndexName);
   private MapSettings settings = new MapSettings();
   private SettingsConfiguration defaultSettingsConfiguration = newBuilder(settings.asConfig()).build();

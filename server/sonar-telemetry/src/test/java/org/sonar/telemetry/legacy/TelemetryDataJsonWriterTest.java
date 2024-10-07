@@ -46,7 +46,7 @@ import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.util.DigestUtil;
 
 import static java.util.stream.Collectors.joining;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -138,8 +138,8 @@ class TelemetryDataJsonWriterTest {
 
   @Test
   void writes_database() {
-    String name = randomAlphabetic(12);
-    String version = randomAlphabetic(10);
+    String name = secure().nextAlphabetic(12);
+    String version = secure().nextAlphabetic(10);
     TelemetryData data = telemetryBuilder()
       .setDatabase(new TelemetryData.Database(name, version))
       .build();
@@ -226,7 +226,7 @@ class TelemetryDataJsonWriterTest {
 
   @Test
   void write_installation_version() {
-    String installationVersion = randomAlphabetic(5);
+    String installationVersion = secure().nextAlphabetic(5);
     TelemetryData data = telemetryBuilder()
       .setInstallationVersion(installationVersion)
       .build();

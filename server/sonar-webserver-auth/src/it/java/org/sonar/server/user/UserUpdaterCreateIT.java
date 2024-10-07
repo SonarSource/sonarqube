@@ -46,7 +46,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertNotNull;
@@ -349,7 +349,7 @@ public class UserUpdaterCreateIT {
 
   @Test
   public void fail_to_create_user_with_too_long_login() {
-    NewUser newUser = newUserBuilder().setLogin(randomAlphabetic(256)).build();
+    NewUser newUser = newUserBuilder().setLogin(secure().nextAlphabetic(256)).build();
     assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
     }))
       .isInstanceOf(BadRequestException.class)
@@ -371,7 +371,7 @@ public class UserUpdaterCreateIT {
 
   @Test
   public void fail_to_create_user_with_too_long_name() {
-    NewUser newUser = newUserBuilder().setName(randomAlphabetic(201)).build();
+    NewUser newUser = newUserBuilder().setName(secure().nextAlphabetic(201)).build();
     assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
     }))
       .isInstanceOf(BadRequestException.class)
@@ -380,7 +380,7 @@ public class UserUpdaterCreateIT {
 
   @Test
   public void fail_to_create_user_with_too_long_email() {
-    NewUser newUser = newUserBuilder().setEmail(randomAlphabetic(101)).build();
+    NewUser newUser = newUserBuilder().setEmail(secure().nextAlphabetic(101)).build();
     assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
     }))
       .isInstanceOf(BadRequestException.class)

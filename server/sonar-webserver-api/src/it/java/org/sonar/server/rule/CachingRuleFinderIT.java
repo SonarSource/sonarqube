@@ -39,7 +39,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
@@ -133,12 +133,12 @@ public class CachingRuleFinderIT {
 
   @Test
   public void findByKey_returns_null_when_repository_key_is_null() {
-    assertThat(underTest.findByKey(null, randomAlphabetic(2))).isNull();
+    assertThat(underTest.findByKey(null, secure().nextAlphabetic(2))).isNull();
   }
 
   @Test
   public void findByKey_returns_null_when_key_is_null() {
-    assertThat(underTest.findByKey(randomAlphabetic(2), null)).isNull();
+    assertThat(underTest.findByKey(secure().nextAlphabetic(2), null)).isNull();
   }
 
   @Test
@@ -175,7 +175,7 @@ public class CachingRuleFinderIT {
       .isEqualTo(otherRule.getKey());
     assertThat(underTest.find(RuleQuery.create().withRepositoryKey(repoKey.toLowerCase())))
       .isNull();
-    assertThat(underTest.find(RuleQuery.create().withRepositoryKey(randomAlphabetic(3))))
+    assertThat(underTest.find(RuleQuery.create().withRepositoryKey(secure().nextAlphabetic(3))))
       .isNull();
   }
 
@@ -196,7 +196,7 @@ public class CachingRuleFinderIT {
       .isEqualTo(otherRule.getKey());
     assertThat(underTest.find(RuleQuery.create().withKey(ruleKey.toLowerCase())))
       .isNull();
-    assertThat(underTest.find(RuleQuery.create().withKey(randomAlphabetic(3))))
+    assertThat(underTest.find(RuleQuery.create().withKey(secure().nextAlphabetic(3))))
       .isNull();
   }
 
@@ -217,7 +217,7 @@ public class CachingRuleFinderIT {
       .isEqualTo(otherRule.getKey());
     assertThat(underTest.find(RuleQuery.create().withConfigKey(configKey.toLowerCase())))
       .isNull();
-    assertThat(underTest.find(RuleQuery.create().withConfigKey(randomAlphabetic(3))))
+    assertThat(underTest.find(RuleQuery.create().withConfigKey(secure().nextAlphabetic(3))))
       .isNull();
   }
 
@@ -283,7 +283,7 @@ public class CachingRuleFinderIT {
       .containsExactly(otherRule.getKey());
     assertThat(underTest.findAll(RuleQuery.create().withRepositoryKey(repoKey.toLowerCase())))
       .isEmpty();
-    assertThat(underTest.findAll(RuleQuery.create().withRepositoryKey(randomAlphabetic(3))))
+    assertThat(underTest.findAll(RuleQuery.create().withRepositoryKey(secure().nextAlphabetic(3))))
       .isEmpty();
   }
 
@@ -306,7 +306,7 @@ public class CachingRuleFinderIT {
       .containsExactly(otherRule.getKey());
     assertThat(underTest.findAll(RuleQuery.create().withKey(ruleKey.toLowerCase())))
       .isEmpty();
-    assertThat(underTest.findAll(RuleQuery.create().withKey(randomAlphabetic(3))))
+    assertThat(underTest.findAll(RuleQuery.create().withKey(secure().nextAlphabetic(3))))
       .isEmpty();
   }
 
@@ -329,7 +329,7 @@ public class CachingRuleFinderIT {
       .containsExactly(otherRule.getKey());
     assertThat(underTest.findAll(RuleQuery.create().withConfigKey(configKey.toLowerCase())))
       .isEmpty();
-    assertThat(underTest.findAll(RuleQuery.create().withConfigKey(randomAlphabetic(3))))
+    assertThat(underTest.findAll(RuleQuery.create().withConfigKey(secure().nextAlphabetic(3))))
       .isEmpty();
   }
 

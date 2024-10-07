@@ -34,7 +34,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.Test;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -52,14 +52,14 @@ class DbSessionImplTest {
     Random random = new Random();
     boolean randomBoolean = random.nextBoolean();
     int randomInt = random.nextInt(200);
-    String randomStatement = randomAlphabetic(10);
+    String randomStatement = secure().nextAlphabetic(10);
     Object randomParameter = new Object();
     Cursor<Object> mockCursor = mock(Cursor.class);
     RowBounds rowBounds = new RowBounds();
     Object randomObject = new Object();
     List<Object> randomList = new ArrayList<>();
     Map<Object, Object> randomMap = new HashMap<>();
-    String randomMapKey = randomAlphabetic(10);
+    String randomMapKey = secure().nextAlphabetic(10);
     ResultHandler randomResultHandler = resultContext -> {
       // don't care
     };

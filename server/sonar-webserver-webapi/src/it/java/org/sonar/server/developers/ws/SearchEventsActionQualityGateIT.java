@@ -40,7 +40,7 @@ import org.sonarqube.ws.Developers.SearchEventsWsResponse.Event;
 
 import static java.lang.String.format;
 import static java.lang.String.join;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -99,7 +99,7 @@ public class SearchEventsActionQualityGateIT {
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     insertSuccessfulActivity(project, 1_500_000_000_000L);
     SnapshotDto branchAnalysis = insertSuccessfulActivity(branch, 1_500_000_000_000L);
@@ -279,7 +279,7 @@ public class SearchEventsActionQualityGateIT {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(mainBranchUuid);
-    queueDto.setUuid(randomAlphanumeric(40));
+    queueDto.setUuid(secure().nextAlphanumeric(40));
     queueDto.setCreatedAt(ANY_TIMESTAMP);
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);

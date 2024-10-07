@@ -48,8 +48,7 @@ import org.sonarqube.ws.System;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -180,7 +179,7 @@ public class HealthActionTest {
     Health.Status randomStatus = Health.Status.values()[new Random().nextInt(Health.Status.values().length)];
     Health.Builder builder = Health.builder()
       .setStatus(randomStatus);
-    IntStream.range(0, new Random().nextInt(5)).mapToObj(i -> RandomStringUtils.randomAlphanumeric(3)).forEach(builder::addCause);
+    IntStream.range(0, new Random().nextInt(5)).mapToObj(i -> RandomStringUtils.secure().nextAlphanumeric(3)).forEach(builder::addCause);
     Health health = builder.build();
     when(healthChecker.checkNode()).thenReturn(health);
     when(nodeInformation.isStandalone()).thenReturn(true);
@@ -195,7 +194,7 @@ public class HealthActionTest {
   public void response_contains_status_and_causes_from_HealthChecker_checkCluster_when_standalone() {
     authenticateWithRandomMethod();
     Health.Status randomStatus = Health.Status.values()[random.nextInt(Health.Status.values().length)];
-    String[] causes = IntStream.range(0, random.nextInt(33)).mapToObj(i -> randomAlphanumeric(4)).toArray(String[]::new);
+    String[] causes = IntStream.range(0, random.nextInt(33)).mapToObj(i -> secure().nextAlphanumeric(4)).toArray(String[]::new);
     Health.Builder healthBuilder = Health.builder()
       .setStatus(randomStatus);
     Arrays.stream(causes).forEach(healthBuilder::addCause);
@@ -268,12 +267,12 @@ public class HealthActionTest {
   private NodeHealth randomNodeHealth() {
     NodeHealth.Builder builder = newNodeHealthBuilder()
       .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)]);
-    IntStream.range(0, random.nextInt(4)).mapToObj(i -> randomAlphabetic(5)).forEach(builder::addCause);
+    IntStream.range(0, random.nextInt(4)).mapToObj(i -> secure().nextAlphabetic(5)).forEach(builder::addCause);
     return builder.setDetails(
         newNodeDetailsBuilder()
           .setType(random.nextBoolean() ? NodeDetails.Type.APPLICATION : NodeDetails.Type.SEARCH)
-          .setName(randomAlphanumeric(3))
-          .setHost(randomAlphanumeric(4))
+          .setName(secure().nextAlphanumeric(3))
+          .setHost(secure().nextAlphanumeric(4))
           .setPort(1 + random.nextInt(3))
           .setStartedAt(1 + random.nextInt(23))
           .build())
@@ -283,7 +282,7 @@ public class HealthActionTest {
   private NodeHealth randomNodeHealth(NodeDetails.Type type, String name, String host, int port, long started) {
     NodeHealth.Builder builder = newNodeHealthBuilder()
       .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)]);
-    IntStream.range(0, random.nextInt(4)).mapToObj(i -> randomAlphabetic(5)).forEach(builder::addCause);
+    IntStream.range(0, random.nextInt(4)).mapToObj(i -> secure().nextAlphabetic(5)).forEach(builder::addCause);
     return builder.setDetails(
         newNodeDetailsBuilder()
           .setType(type)

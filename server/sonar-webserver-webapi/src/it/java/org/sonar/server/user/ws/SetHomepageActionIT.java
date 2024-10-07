@@ -33,7 +33,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.user.ws.SetHomepageAction.PARAM_COMPONENT;
@@ -98,7 +98,7 @@ public class SetHomepageActionIT {
   @Test
   public void set_branch_homepage() {
     ComponentDto mainBranch = db.components().insertPublicProject().getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(branchName));
     UserDto user = db.users().insertUser();
     userSession.logIn(user);

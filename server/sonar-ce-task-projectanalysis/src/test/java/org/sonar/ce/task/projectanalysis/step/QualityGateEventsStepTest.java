@@ -47,7 +47,7 @@ import org.sonar.server.project.Project;
 import org.sonar.server.qualitygate.notification.QGChangeNotification;
 
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -61,7 +61,7 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.OK;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 
 public class QualityGateEventsStepTest {
-  private static final String PROJECT_VERSION = randomAlphabetic(19);
+  private static final String PROJECT_VERSION = secure().nextAlphabetic(19);
   private static final ReportComponent PROJECT_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1)
     .setUuid("uuid 1")
     .setKey("key 1")

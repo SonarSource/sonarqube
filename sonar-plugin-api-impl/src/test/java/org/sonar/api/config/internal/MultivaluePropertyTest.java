@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static java.util.function.UnaryOperator.identity;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
@@ -114,9 +114,9 @@ public class MultivaluePropertyTest {
   @DataProvider
   public static Object[][] plains() {
     return new Object[][] {
-      {randomAlphanumeric(1)},
-      {randomAlphanumeric(2)},
-      {randomAlphanumeric(3 + new Random().nextInt(5))}
+      {secure().nextAlphanumeric(1)},
+      {secure().nextAlphanumeric(2)},
+      {secure().nextAlphanumeric(3 + new Random().nextInt(5))}
     };
   }
 
@@ -147,7 +147,7 @@ public class MultivaluePropertyTest {
 
   @Test
   public void trimAccordingToStringTrim() {
-    String str = randomAlphanumeric(4);
+    String str = secure().nextAlphanumeric(4);
     for (int i = 0; i <= ' '; i++) {
       String prefixed = (char) i + str;
       String suffixed = (char) i + str;
@@ -166,11 +166,11 @@ public class MultivaluePropertyTest {
     String threePlusEmpty = randomTrimmedChars(3 + random.nextInt(5), random);
     String onePlusEmpty = randomTrimmedChars(1 + random.nextInt(5), random);
 
-    String plain = randomAlphanumeric(1);
-    String plainWithtrimmable = randomAlphanumeric(2) + onePlusEmpty + randomAlphanumeric(3);
-    String quotedWithSeparator = '"' + randomAlphanumeric(3) + ',' + randomAlphanumeric(2) + '"';
-    String quotedWithDoubleSeparator = '"' + randomAlphanumeric(3) + ",," + randomAlphanumeric(2) + '"';
-    String quotedWithtrimmable = '"' + randomAlphanumeric(3) + onePlusEmpty + randomAlphanumeric(2) + '"';
+    String plain = secure().nextAlphanumeric(1);
+    String plainWithtrimmable = secure().nextAlphanumeric(2) + onePlusEmpty + secure().nextAlphanumeric(3);
+    String quotedWithSeparator = '"' + secure().nextAlphanumeric(3) + ',' + secure().nextAlphanumeric(2) + '"';
+    String quotedWithDoubleSeparator = '"' + secure().nextAlphanumeric(3) + ",," + secure().nextAlphanumeric(2) + '"';
+    String quotedWithtrimmable = '"' + secure().nextAlphanumeric(3) + onePlusEmpty + secure().nextAlphanumeric(2) + '"';
 
     String[] empties = {oneEmpty, twoEmpty, threePlusEmpty};
     String[] strings = {plain, plainWithtrimmable,

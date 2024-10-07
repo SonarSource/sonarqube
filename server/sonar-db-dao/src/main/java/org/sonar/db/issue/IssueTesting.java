@@ -37,8 +37,7 @@ import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class IssueTesting {
 
@@ -73,14 +72,14 @@ public class IssueTesting {
       //TODO map to correct impact. Will be fixed with persistence of impacts on issues
       .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
       .setEffort((long) RANDOM.nextInt(10))
-      .setAssigneeUuid("assignee-uuid_" + randomAlphabetic(26))
-      .setAuthorLogin("author_" + randomAlphabetic(5))
+      .setAssigneeUuid("assignee-uuid_" + secure().nextAlphabetic(26))
+      .setAuthorLogin("author_" + secure().nextAlphabetic(5))
       // Starting from 1 in order to never get 0 (as it's a forbidden value)
       .setLine(RANDOM.nextInt(1, 1_001))
-      .setMessage("message_" + randomAlphabetic(5))
-      .setChecksum("checksum_" + randomAlphabetic(5))
-      .setTags(newHashSet("tag_" + randomAlphanumeric(5), "tag_" + randomAlphanumeric(5)))
-      .setRuleDescriptionContextKey("context_" + randomAlphabetic(5))
+      .setMessage("message_" + secure().nextAlphabetic(5))
+      .setChecksum("checksum_" + secure().nextAlphabetic(5))
+      .setTags(newHashSet("tag_" + secure().nextAlphanumeric(5), "tag_" + secure().nextAlphanumeric(5)))
+      .setRuleDescriptionContextKey("context_" + secure().nextAlphabetic(5))
       .setIssueCreationDate(new Date(System.currentTimeMillis() - 2_000))
       .setIssueUpdateDate(new Date(System.currentTimeMillis() - 1_500))
       .setCreatedAt(System.currentTimeMillis() - 1_000)
@@ -92,9 +91,9 @@ public class IssueTesting {
       .setUuid(UuidFactoryFast.getInstance().create())
       .setKey(UuidFactoryFast.getInstance().create())
       .setIssueKey(issue.getKey())
-      .setChangeData("data_" + randomAlphanumeric(40))
+      .setChangeData("data_" + secure().nextAlphanumeric(40))
       .setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE)
-      .setUserUuid("userUuid_" + randomAlphanumeric(40))
+      .setUserUuid("userUuid_" + secure().nextAlphanumeric(40))
       .setProjectUuid(issue.getProjectUuid())
       .setIssueChangeCreationDate(RANDOM.nextLong(Long.MAX_VALUE))
       .setCreatedAt(RANDOM.nextLong(Long.MAX_VALUE))

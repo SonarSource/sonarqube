@@ -26,7 +26,7 @@ import java.util.Locale;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -106,7 +106,7 @@ public class IndexTest {
 
   @Test
   public void getName_returns_constructor_parameter() {
-    String indexName = randomAlphabetic(10).toLowerCase(Locale.ENGLISH);
+    String indexName = secure().nextAlphabetic(10).toLowerCase(Locale.ENGLISH);
 
     assertThat(Index.simple(indexName).getName()).isEqualTo(indexName);
     assertThat(Index.withRelations(indexName).getName()).isEqualTo(indexName);
@@ -123,7 +123,7 @@ public class IndexTest {
 
   @Test
   public void getJoinField_returns_name_based_on_index_name() {
-    String indexName = randomAlphabetic(10).toLowerCase(Locale.ENGLISH);
+    String indexName = secure().nextAlphabetic(10).toLowerCase(Locale.ENGLISH);
     Index underTest = Index.withRelations(indexName);
 
     assertThat(underTest.getJoinField()).isEqualTo("join_" + indexName);

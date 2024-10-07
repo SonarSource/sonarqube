@@ -50,7 +50,7 @@ public class EvaluatedQualityGateTest {
   private final Level randomStatus = Level.values()[random.nextInt(Level.values().length)];
   private final EvaluatedCondition.EvaluationStatus randomEvaluationStatus = EvaluatedCondition.EvaluationStatus.values()[random
     .nextInt(EvaluatedCondition.EvaluationStatus.values().length)];
-  private final String randomValue = random.nextBoolean() ? null : RandomStringUtils.randomAlphanumeric(3);
+  private final String randomValue = random.nextBoolean() ? null : RandomStringUtils.secure().nextAlphanumeric(3);
 
   private EvaluatedQualityGate.Builder builder = newBuilder();
 

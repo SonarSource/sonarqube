@@ -45,8 +45,8 @@ public class PropsTest {
   @UseDataProvider("beforeAndAfterBlanks")
   public void constructor_trims_key_and_values_from_Properties_argument(String blankBefore, String blankAfter) {
     Properties properties = new Properties();
-    String key = RandomStringUtils.randomAlphanumeric(3);
-    String value = RandomStringUtils.randomAlphanumeric(3);
+    String key = RandomStringUtils.secure().nextAlphanumeric(3);
+    String value = RandomStringUtils.secure().nextAlphanumeric(3);
     properties.put(blankBefore + key + blankAfter, blankBefore + value + blankAfter);
 
     Props underTest = new Props(properties);

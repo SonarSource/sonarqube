@@ -56,7 +56,7 @@ import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
@@ -111,7 +111,7 @@ public class LogbackHelperTest {
 
   @Test
   public void buildLogPattern_puts_threadIdFieldPattern_from_RootLoggerConfig_non_null() {
-    String threadIdFieldPattern = RandomStringUtils.randomAlphabetic(5);
+    String threadIdFieldPattern = RandomStringUtils.secure().nextAlphabetic(5);
     String pattern = underTest.buildLogPattern(
       newRootLoggerConfigBuilder()
         .setProcessId(ProcessId.APP)
@@ -305,7 +305,7 @@ public class LogbackHelperTest {
 
   @Test
   public void apply_fails_with_IAE_if_LogLevelConfig_does_not_have_ROOT_LOGGER_NAME_of_LogBack() {
-    LogLevelConfig logLevelConfig = LogLevelConfig.newBuilder(randomAlphanumeric(2)).build();
+    LogLevelConfig logLevelConfig = LogLevelConfig.newBuilder(secure().nextAlphanumeric(2)).build();
 
     assertThatThrownBy(() -> underTest.apply(logLevelConfig, props))
       .isInstanceOf(IllegalArgumentException.class)

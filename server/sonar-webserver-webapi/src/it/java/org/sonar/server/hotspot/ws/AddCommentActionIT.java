@@ -52,7 +52,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -115,7 +115,7 @@ public class AddCommentActionIT {
 
   @Test
   public void fails_with_IAE_if_parameter_comment_is_missing() {
-    String key = randomAlphabetic(12);
+    String key = secure().nextAlphabetic(12);
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
       .setParam("hotspot", key);
@@ -127,11 +127,11 @@ public class AddCommentActionIT {
 
   @Test
   public void fails_with_NotFoundException_if_hotspot_does_not_exist() {
-    String key = randomAlphabetic(12);
+    String key = secure().nextAlphabetic(12);
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
       .setParam("hotspot", key)
-      .setParam("comment", randomAlphabetic(10));
+      .setParam("comment", secure().nextAlphabetic(10));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
@@ -146,7 +146,7 @@ public class AddCommentActionIT {
     RuleDto rule = dbTester.rules().insert(t -> t.setType(ruleType));
     IssueDto notAHotspot = dbTester.issues().insertIssue(rule, project, file, i -> i.setType(ruleType));
     userSessionRule.logIn();
-    TestRequest request = newRequest(notAHotspot, randomAlphabetic(12));
+    TestRequest request = newRequest(notAHotspot, secure().nextAlphabetic(12));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
@@ -168,7 +168,7 @@ public class AddCommentActionIT {
     RuleDto rule = dbTester.rules().insertHotspotRule();
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED));
     userSessionRule.logIn();
-    TestRequest request = newRequest(hotspot, randomAlphabetic(12));
+    TestRequest request = newRequest(hotspot, secure().nextAlphabetic(12));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
@@ -184,7 +184,7 @@ public class AddCommentActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = dbTester.rules().insertHotspotRule();
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
-    String comment = randomAlphabetic(12);
+    String comment = secure().nextAlphabetic(12);
     TestRequest request = newRequest(hotspot, comment);
 
     assertThatThrownBy(request::execute)
@@ -201,7 +201,7 @@ public class AddCommentActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = dbTester.rules().insertHotspotRule();
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
-    String comment = randomAlphabetic(12);
+    String comment = secure().nextAlphabetic(12);
 
     newRequest(hotspot, comment).execute().assertNoContent();
   }
@@ -216,7 +216,7 @@ public class AddCommentActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = dbTester.rules().insertHotspotRule();
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
-    String comment = randomAlphabetic(12);
+    String comment = secure().nextAlphabetic(12);
 
     newRequest(hotspot, comment).execute().assertNoContent();
   }
@@ -233,7 +233,7 @@ public class AddCommentActionIT {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDto rule = dbTester.rules().insertHotspotRule();
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(currentStatus).setResolution(currentResolution));
-    String comment = randomAlphabetic(12);
+    String comment = secure().nextAlphabetic(12);
 
     newRequest(hotspot, comment).execute().assertNoContent();
 

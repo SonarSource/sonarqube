@@ -50,7 +50,7 @@ import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.Status;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -236,7 +236,7 @@ public class ProjectStatusActionIT {
   public void return_live_status_when_branch_is_referenced_by_its_key() throws IOException {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(branchName));
 
     dbClient.snapshotDao().insert(dbSession, newAnalysis(branch)
@@ -261,7 +261,7 @@ public class ProjectStatusActionIT {
   public void return_live_status_when_pull_request_is_referenced_by_its_key() throws IOException {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    String pullRequestKey = RandomStringUtils.randomAlphanumeric(100);
+    String pullRequestKey = RandomStringUtils.secure().nextAlphanumeric(100);
     ComponentDto pr = db.components().insertProjectBranch(mainBranch, branch -> branch.setBranchType(BranchType.PULL_REQUEST)
       .setKey(pullRequestKey));
 

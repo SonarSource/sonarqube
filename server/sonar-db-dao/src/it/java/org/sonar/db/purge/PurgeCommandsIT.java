@@ -69,7 +69,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.tuple;
@@ -869,7 +869,7 @@ class PurgeCommandsIT {
     dbTester.getDbClient().duplicationDao().insert(dbTester.getSession(), new DuplicationUnitDto()
       .setAnalysisUuid(analysis.getUuid())
       .setComponentUuid(project.uuid())
-      .setHash(randomAlphabetic(12))
+      .setHash(secure().nextAlphabetic(12))
       .setIndexInFile(random.nextInt(10))
       .setStartLine(random.nextInt(10))
       .setEndLine(random.nextInt(10)));
@@ -899,10 +899,10 @@ class PurgeCommandsIT {
       "EVENT_UUID", newUuid(),
       "EVENT_COMPONENT_UUID", componentUuid,
       "EVENT_ANALYSIS_UUID", analysisUuid,
-      "CHANGE_CATEGORY", randomAlphabetic(12),
+      "CHANGE_CATEGORY", secure().nextAlphabetic(12),
       "COMPONENT_UUID", newUuid(),
-      "COMPONENT_KEY", randomAlphabetic(9),
-      "COMPONENT_NAME", randomAlphabetic(10),
+      "COMPONENT_KEY", secure().nextAlphabetic(9),
+      "COMPONENT_NAME", secure().nextAlphabetic(10),
       "CREATED_AT", 1L);
   }
 
@@ -936,8 +936,8 @@ class PurgeCommandsIT {
       "ANALYSIS_PROPERTIES",
       "UUID", newUuid(),
       "ANALYSIS_UUID", analysis1.getUuid(),
-      "KEE", randomAlphabetic(10),
-      "TEXT_VALUE", isEmpty ? null : randomAlphabetic(50),
+      "KEE", secure().nextAlphabetic(10),
+      "TEXT_VALUE", isEmpty ? null : secure().nextAlphabetic(50),
       "IS_EMPTY", isEmpty,
       "CREATED_AT", 1L);
   }
@@ -947,9 +947,9 @@ class PurgeCommandsIT {
     dbTester.executeInsert(
       "PROPERTIES",
       "UUID", newUuid(),
-      "PROP_KEY", randomAlphabetic(10),
+      "PROP_KEY", secure().nextAlphabetic(10),
       "ENTITY_UUID", component.uuid(),
-      "TEXT_VALUE", randomAlphabetic(10),
+      "TEXT_VALUE", secure().nextAlphabetic(10),
       "IS_EMPTY", isEmpty,
       "CREATED_AT", 1L);
   }

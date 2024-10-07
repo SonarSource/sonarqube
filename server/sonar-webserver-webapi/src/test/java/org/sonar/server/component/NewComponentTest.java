@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.server.common.component.NewComponent;
 
 import static com.google.common.base.Strings.repeat;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -136,7 +136,7 @@ public class NewComponentTest {
   public void isProject_shouldReturnFalse_whenQualifierIsNotProject() {
     NewComponent newComponent = underTest.setKey(KEY)
       .setName(NAME)
-      .setQualifier(randomAlphabetic(4))
+      .setQualifier(secure().nextAlphabetic(4))
       .build();
 
     assertThat(newComponent.isProject()).isFalse();

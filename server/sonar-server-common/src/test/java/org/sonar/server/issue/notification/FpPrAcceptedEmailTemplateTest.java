@@ -48,7 +48,7 @@ import org.sonar.test.html.HtmlFragmentAssert;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -102,7 +102,7 @@ public class FpPrAcceptedEmailTemplateTest {
 
   @Test
   public void format_sets_from_to_name_of_author_change_when_available() {
-    UserChange change = new UserChange(new Random().nextLong(), new User(randomAlphabetic(5), randomAlphabetic(6), randomAlphabetic(7)));
+    UserChange change = new UserChange(new Random().nextLong(), new User(secure().nextAlphabetic(5), secure().nextAlphabetic(6), secure().nextAlphabetic(7)));
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, Collections.emptySet(), ACCEPTED));
 
     assertThat(emailMessage.getFrom()).isEqualTo(change.getUser().getName().get());
@@ -110,7 +110,7 @@ public class FpPrAcceptedEmailTemplateTest {
 
   @Test
   public void format_sets_from_to_login_of_author_change_when_name_is_not_available() {
-    UserChange change = new UserChange(new Random().nextLong(), new User(randomAlphabetic(5), randomAlphabetic(6), null));
+    UserChange change = new UserChange(new Random().nextLong(), new User(secure().nextAlphabetic(5), secure().nextAlphabetic(6), null));
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, Collections.emptySet(), ACCEPTED));
 
     assertThat(emailMessage.getFrom()).isEqualTo(change.getUser().getLogin());
@@ -137,8 +137,8 @@ public class FpPrAcceptedEmailTemplateTest {
   }
 
   public void formats_returns_html_message_with_only_footer_and_header_when_no_issue(Change change, FpPrAccepted fpPrAccepted, String fpOrWontFixLabel) {
-    String wordingNotification = randomAlphabetic(20);
-    String host = randomAlphabetic(15);
+    String wordingNotification = secure().nextAlphabetic(20);
+    String host = secure().nextAlphabetic(15);
     when(i18n.message(Locale.ENGLISH, "notification.dispatcher.NewFalsePositiveIssue", "notification.dispatcher.NewFalsePositiveIssue"))
       .thenReturn(wordingNotification);
     when(emailSettings.getServerBaseURL()).thenReturn(host);
@@ -163,8 +163,8 @@ public class FpPrAcceptedEmailTemplateTest {
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
   public void formats_returns_html_message_for_single_issue_on_master(Change change, FpPrAccepted fpPrAccepted) {
     Project project = newProject("1");
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     ChangedIssue changedIssue = newChangedIssue("key", project, ruleName, randomRuleTypeHotspotExcluded());
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
@@ -183,8 +183,8 @@ public class FpPrAcceptedEmailTemplateTest {
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
   public void formats_returns_html_message_for_single_hotspot_on_master(Change change, FpPrAccepted fpPrAccepted) {
     Project project = newProject("1");
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     ChangedIssue changedIssue = newChangedIssue("key", project, ruleName, SECURITY_HOTSPOT);
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
@@ -202,10 +202,10 @@ public class FpPrAcceptedEmailTemplateTest {
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
   public void formats_returns_html_message_for_single_issue_on_branch(Change change, FpPrAccepted fpPrAccepted) {
-    String branchName = randomAlphabetic(6);
+    String branchName = secure().nextAlphabetic(6);
     Project project = newBranch("1", branchName);
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     String key = "key";
     ChangedIssue changedIssue = newChangedIssue(key, project, ruleName, randomRuleTypeHotspotExcluded());
     when(emailSettings.getServerBaseURL()).thenReturn(host);
@@ -225,10 +225,10 @@ public class FpPrAcceptedEmailTemplateTest {
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
   public void formats_returns_html_message_for_single_hotspot_on_branch(Change change, FpPrAccepted fpPrAccepted) {
-    String branchName = randomAlphabetic(6);
+    String branchName = secure().nextAlphabetic(6);
     Project project = newBranch("1", branchName);
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     String key = "key";
     ChangedIssue changedIssue = newChangedIssue(key, project, ruleName, SECURITY_HOTSPOT);
     when(emailSettings.getServerBaseURL()).thenReturn(host);
@@ -249,8 +249,8 @@ public class FpPrAcceptedEmailTemplateTest {
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
   public void formats_returns_html_message_for_multiple_issues_of_same_rule_on_same_project_on_master(Change change, FpPrAccepted fpPrAccepted) {
     Project project = newProject("1");
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     Rule rule = newRandomNotAHotspotRule(ruleName);
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, project, rule))
@@ -275,8 +275,8 @@ public class FpPrAcceptedEmailTemplateTest {
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
   public void formats_returns_html_message_for_multiple_hotspots_of_same_rule_on_same_project_on_master(Change change, FpPrAccepted fpPrAccepted) {
     Project project = newProject("1");
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     Rule rule = newSecurityHotspotRule(ruleName);
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, project, rule))
@@ -300,10 +300,10 @@ public class FpPrAcceptedEmailTemplateTest {
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
   public void formats_returns_html_message_for_multiple_issues_of_same_rule_on_same_project_on_branch(Change change, FpPrAccepted fpPrAccepted) {
-    String branchName = randomAlphabetic(19);
+    String branchName = secure().nextAlphabetic(19);
     Project project = newBranch("1", branchName);
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     Rule rule = newRandomNotAHotspotRule(ruleName);
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, project, rule))
@@ -327,10 +327,10 @@ public class FpPrAcceptedEmailTemplateTest {
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
   public void formats_returns_html_message_for_multiple_hotspots_of_same_rule_on_same_project_on_branch(Change change, FpPrAccepted fpPrAccepted) {
-    String branchName = randomAlphabetic(19);
+    String branchName = secure().nextAlphabetic(19);
     Project project = newBranch("1", branchName);
-    String ruleName = randomAlphabetic(8);
-    String host = randomAlphabetic(15);
+    String ruleName = secure().nextAlphabetic(8);
+    String host = secure().nextAlphabetic(15);
     Rule rule = newSecurityHotspotRule(ruleName);
     List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> newChangedIssue("issue_" + i, project, rule))
@@ -360,9 +360,9 @@ public class FpPrAcceptedEmailTemplateTest {
     Project project2 = newProject("B");
     Project project2Branch1 = newBranch("B", "a");
     Project project3 = newProject("C");
-    String host = randomAlphabetic(15);
+    String host = secure().nextAlphabetic(15);
     List<ChangedIssue> changedIssues = Stream.of(project1, project1Branch1, project1Branch2, project2, project2Branch1, project3)
-      .map(project -> newChangedIssue("issue_" + project.getUuid(), project, newRandomNotAHotspotRule(randomAlphabetic(2))))
+      .map(project -> newChangedIssue("issue_" + project.getUuid(), project, newRandomNotAHotspotRule(secure().nextAlphabetic(2))))
       .collect(toList());
     Collections.shuffle(changedIssues);
     when(emailSettings.getServerBaseURL()).thenReturn(host);
@@ -395,7 +395,7 @@ public class FpPrAcceptedEmailTemplateTest {
     Rule rule2 = newRandomNotAHotspotRule("a");
     Rule rule3 = newRandomNotAHotspotRule("b");
     Rule rule4 = newRandomNotAHotspotRule("X");
-    String host = randomAlphabetic(15);
+    String host = secure().nextAlphabetic(15);
     List<ChangedIssue> changedIssues = Stream.of(rule1, rule2, rule3, rule4)
       .map(rule -> newChangedIssue("issue_" + rule.getName(), project, rule))
       .collect(toList());
@@ -424,7 +424,7 @@ public class FpPrAcceptedEmailTemplateTest {
     Project project2Branch = newBranch("V", "AB");
     Rule rule1 = newRandomNotAHotspotRule("1");
     Rule rule2 = newRandomNotAHotspotRule("a");
-    String host = randomAlphabetic(15);
+    String host = secure().nextAlphabetic(15);
     List<ChangedIssue> changedIssues = Stream.of(
         IntStream.range(0, 39).mapToObj(i -> newChangedIssue("39_" + i, project1, rule1)),
         IntStream.range(0, 40).mapToObj(i -> newChangedIssue("40_" + i, project1, rule2)),
@@ -473,8 +473,8 @@ public class FpPrAcceptedEmailTemplateTest {
   @DataProvider
   public static Object[][] userOrAnalysisChange() {
     AnalysisChange analysisChange = new AnalysisChange(new Random().nextLong());
-    UserChange userChange = new UserChange(new Random().nextLong(), new User(randomAlphabetic(5), randomAlphabetic(6),
-      new Random().nextBoolean() ? null : randomAlphabetic(7)));
+    UserChange userChange = new UserChange(new Random().nextLong(), new User(secure().nextAlphabetic(5), secure().nextAlphabetic(6),
+      new Random().nextBoolean() ? null : secure().nextAlphabetic(7)));
     return new Object[][] {
       {analysisChange},
       {userChange}
@@ -484,8 +484,8 @@ public class FpPrAcceptedEmailTemplateTest {
   @DataProvider
   public static Object[][] fpOrWontFixValuesByUserOrAnalysisChange() {
     AnalysisChange analysisChange = new AnalysisChange(new Random().nextLong());
-    UserChange userChange = new UserChange(new Random().nextLong(), new User(randomAlphabetic(5), randomAlphabetic(6),
-      new Random().nextBoolean() ? null : randomAlphabetic(7)));
+    UserChange userChange = new UserChange(new Random().nextLong(), new User(secure().nextAlphabetic(5), secure().nextAlphabetic(6),
+      new Random().nextBoolean() ? null : secure().nextAlphabetic(7)));
     return new Object[][] {
       {analysisChange, FP},
       {analysisChange, ACCEPTED},
@@ -500,14 +500,14 @@ public class FpPrAcceptedEmailTemplateTest {
 
   private static ChangedIssue newChangedIssue(String key, Project project, Rule rule) {
     return new ChangedIssue.Builder(key)
-      .setNewStatus(randomAlphabetic(19))
+      .setNewStatus(secure().nextAlphabetic(19))
       .setProject(project)
       .setRule(rule)
       .build();
   }
 
   private static Rule newRule(String ruleName, RuleType ruleType) {
-    return new Rule(RuleKey.of(randomAlphabetic(6), randomAlphabetic(7)), ruleType, ruleName);
+    return new Rule(RuleKey.of(secure().nextAlphabetic(6), secure().nextAlphabetic(7)), ruleType, ruleName);
   }
 
   private static Project newProject(String uuid) {

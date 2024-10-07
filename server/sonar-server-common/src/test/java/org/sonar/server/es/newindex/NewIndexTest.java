@@ -33,7 +33,7 @@ import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.IndexType.IndexMainType;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
@@ -45,7 +45,7 @@ import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 public class NewIndexTest {
 
 
-  private static final String someIndexName = randomAlphabetic(5).toLowerCase();
+  private static final String someIndexName = secure().nextAlphabetic(5).toLowerCase();
   private MapSettings settings = new MapSettings();
   private SettingsConfiguration defaultSettingsConfiguration = newBuilder(settings.asConfig()).build();
 
@@ -209,7 +209,7 @@ public class NewIndexTest {
 
   @DataProvider
   public static Object[][] indexAndTypeMappings() {
-    String indexName = randomAlphabetic(5).toLowerCase();
+    String indexName = secure().nextAlphabetic(5).toLowerCase();
     MapSettings settings = new MapSettings();
     SettingsConfiguration defaultSettingsConfiguration = newBuilder(settings.asConfig()).build();
     Index index = Index.withRelations(indexName);

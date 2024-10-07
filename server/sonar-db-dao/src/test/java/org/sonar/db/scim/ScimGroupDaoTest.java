@@ -33,7 +33,7 @@ import org.sonar.db.OffsetBasedPagination;
 import org.sonar.db.Pagination;
 import org.sonar.db.user.GroupDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Fail.fail;
@@ -249,7 +249,7 @@ class ScimGroupDaoTest {
 
   @Test
   void deleteFromGroupUuid_shouldNotFail_whenNoGroup() {
-    assertThatCode(() -> scimGroupDao.deleteByGroupUuid(db.getSession(), randomAlphanumeric(6))).doesNotThrowAnyException();
+    assertThatCode(() -> scimGroupDao.deleteByGroupUuid(db.getSession(), secure().nextAlphanumeric(6))).doesNotThrowAnyException();
   }
 
 

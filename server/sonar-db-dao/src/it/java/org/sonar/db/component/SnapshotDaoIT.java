@@ -46,7 +46,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.ce.CeActivityDto.Status.CANCELED;
@@ -456,7 +456,7 @@ class SnapshotDaoIT {
     return new Object[][]{
       {null},
       {""},
-      {randomAlphanumeric(7)},
+      {secure().nextAlphanumeric(7)},
     };
   }
 
@@ -571,7 +571,7 @@ class SnapshotDaoIT {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(projectUuid);
-    queueDto.setUuid(randomAlphanumeric(40));
+    queueDto.setUuid(secure().nextAlphanumeric(40));
     queueDto.setCreatedAt(random.nextLong(Long.MAX_VALUE));
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);

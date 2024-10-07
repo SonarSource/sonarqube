@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -44,7 +44,7 @@ public class NestedFieldTopAggregationDefinitionTest {
   @Test
   @UseDataProvider("notOneLevelDeepPaths")
   public void constructor_supports_nestedFieldPath_only_one_level_deep(String unsupportedPath) {
-    String value = randomAlphabetic(7);
+    String value = secure().nextAlphabetic(7);
     boolean sticky = RANDOM.nextBoolean();
 
     assertThatThrownBy(() -> new NestedFieldTopAggregationDefinition<>(unsupportedPath, value, sticky))
@@ -68,7 +68,7 @@ public class NestedFieldTopAggregationDefinitionTest {
   @Test
   @UseDataProvider("emptyFieldNames")
   public void constructor_fails_with_IAE_if_empty_field_name(String unsupportedPath, List<String> expectedParsedFieldNames) {
-    String value = randomAlphabetic(7);
+    String value = secure().nextAlphabetic(7);
 
     assertThatThrownBy(() -> new NestedFieldTopAggregationDefinition<>(unsupportedPath, value, true))
       .isInstanceOf(IllegalArgumentException.class)
@@ -77,7 +77,7 @@ public class NestedFieldTopAggregationDefinitionTest {
 
   @DataProvider
   public static Object[][] emptyFieldNames() {
-    String str1 = randomAlphabetic(6);
+    String str1 = secure().nextAlphabetic(6);
     return new Object[][] {
       {".", emptyList()},
       {" . ", emptyList()},
@@ -90,9 +90,9 @@ public class NestedFieldTopAggregationDefinitionTest {
 
   @Test
   public void constructor_parses_nested_field_path() {
-    String fieldName = randomAlphabetic(5);
-    String nestedFieldName = randomAlphabetic(6);
-    String value = randomAlphabetic(7);
+    String fieldName = secure().nextAlphabetic(5);
+    String nestedFieldName = secure().nextAlphabetic(6);
+    String value = secure().nextAlphabetic(7);
     boolean sticky = RANDOM.nextBoolean();
     NestedFieldTopAggregationDefinition<String> underTest = new NestedFieldTopAggregationDefinition<>(fieldName + "." + nestedFieldName, value, sticky);
 
@@ -104,7 +104,7 @@ public class NestedFieldTopAggregationDefinitionTest {
 
   @Test
   public void constructor_fails_with_NPE_if_nestedFieldPath_is_null() {
-    String value = randomAlphabetic(7);
+    String value = secure().nextAlphabetic(7);
     boolean sticky = RANDOM.nextBoolean();
 
     assertThatThrownBy(() -> new NestedFieldTopAggregationDefinition<>(null, value, sticky))
@@ -114,7 +114,7 @@ public class NestedFieldTopAggregationDefinitionTest {
 
   @Test
   public void constructor_fails_with_NPE_if_value_is_null() {
-    String value = randomAlphabetic(7);
+    String value = secure().nextAlphabetic(7);
     boolean sticky = RANDOM.nextBoolean();
 
     assertThatThrownBy(() -> new NestedFieldTopAggregationDefinition<>(value, null, sticky))
@@ -124,9 +124,9 @@ public class NestedFieldTopAggregationDefinitionTest {
 
   @Test
   public void getFilterScope_always_returns_the_same_instance() {
-    String fieldName = randomAlphabetic(5);
-    String nestedFieldName = randomAlphabetic(6);
-    String value = randomAlphabetic(7);
+    String fieldName = secure().nextAlphabetic(5);
+    String nestedFieldName = secure().nextAlphabetic(6);
+    String value = secure().nextAlphabetic(7);
     boolean sticky = RANDOM.nextBoolean();
     NestedFieldTopAggregationDefinition<String> underTest = new NestedFieldTopAggregationDefinition<>(fieldName + "." + nestedFieldName, value, sticky);
 

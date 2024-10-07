@@ -36,8 +36,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -51,11 +50,11 @@ public class CeTaskMessagesImplIT {
 
   private DbClient dbClient = dbTester.getDbClient();
   private UuidFactory uuidFactory = mock(UuidFactory.class);
-  private String taskUuid = randomAlphabetic(12);
+  private String taskUuid = secure().nextAlphabetic(12);
 
   private CeTask ceTask = new CeTask.Builder()
     .setUuid(taskUuid)
-    .setType(randomAlphabetic(5))
+    .setType(secure().nextAlphabetic(5))
     .build();
 
   private CeTaskMessagesImpl underTest = new CeTaskMessagesImpl(dbClient, uuidFactory, ceTask);
@@ -69,8 +68,8 @@ public class CeTaskMessagesImplIT {
 
   @Test
   public void add_persist_message_to_DB() {
-    CeTaskMessages.Message message = new CeTaskMessages.Message(randomAlphabetic(20), 2_999L);
-    String uuid = randomAlphanumeric(40);
+    CeTaskMessages.Message message = new CeTaskMessages.Message(secure().nextAlphabetic(20), 2_999L);
+    String uuid = secure().nextAlphanumeric(40);
     when(uuidFactory.create()).thenReturn(uuid);
 
     underTest.add(message);
@@ -91,10 +90,10 @@ public class CeTaskMessagesImplIT {
     Random random = new Random();
     List<CeTaskMessages.Message> messages = Stream.of(
       // some (or none) non null Message before null one
-      IntStream.range(0, random.nextInt(5)).mapToObj(i -> new CeTaskMessages.Message(randomAlphabetic(3) + "_i", 1_999L + i)),
+      IntStream.range(0, random.nextInt(5)).mapToObj(i -> new CeTaskMessages.Message(secure().nextAlphabetic(3) + "_i", 1_999L + i)),
       Stream.of((CeTaskMessages.Message) null),
       // some (or none) non null Message after null one
-      IntStream.range(0, random.nextInt(5)).mapToObj(i -> new CeTaskMessages.Message(randomAlphabetic(3) + "_i", 1_999L + i)))
+      IntStream.range(0, random.nextInt(5)).mapToObj(i -> new CeTaskMessages.Message(secure().nextAlphabetic(3) + "_i", 1_999L + i)))
       .flatMap(t -> t)
       .collect(toList());
 

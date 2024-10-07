@@ -35,7 +35,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.SearchGroupMembershipDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.eq;
@@ -94,7 +94,7 @@ class QualityGateGroupPermissionsDaoIT {
 
   @Test
   void existsReturnsFalseWhenQGEditGroupsDoesNotExist() {
-    assertThat(underTest.exists(dbSession, randomAlphabetic(5), randomAlphabetic(5))).isFalse();
+    assertThat(underTest.exists(dbSession, secure().nextAlphabetic(5), secure().nextAlphabetic(5))).isFalse();
   }
 
   @Test
@@ -301,8 +301,8 @@ class QualityGateGroupPermissionsDaoIT {
 
   private QualityGateDto insertQualityGate() {
     QualityGateDto qg = new QualityGateDto()
-      .setUuid(randomAlphabetic(5))
-      .setName(randomAlphabetic(5));
+      .setUuid(secure().nextAlphabetic(5))
+      .setName(secure().nextAlphabetic(5));
     dbTester.getDbClient().qualityGateDao().insert(dbTester.getSession(), qg);
     dbTester.commit();
     return qg;

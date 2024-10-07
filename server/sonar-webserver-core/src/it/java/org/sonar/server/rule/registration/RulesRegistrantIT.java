@@ -39,8 +39,6 @@ import org.junit.runner.RunWith;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
@@ -94,7 +92,7 @@ import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -273,14 +271,14 @@ public class RulesRegistrantIT {
 
   @Test
   public void insert_then_remove_rule() {
-    String ruleKey = randomAlphanumeric(5);
+    String ruleKey = secure().nextAlphanumeric(5);
 
     // register one rule
     executeWithPluginRules(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule(ruleKey)
-        .setName(randomAlphanumeric(5))
-        .setHtmlDescription(randomAlphanumeric(20));
+        .setName(secure().nextAlphanumeric(5))
+        .setHtmlDescription(secure().nextAlphanumeric(20));
       repo.done();
     });
 
@@ -325,8 +323,8 @@ public class RulesRegistrantIT {
       IntStream.range(0, numberOfRules)
         .mapToObj(i -> "rule-" + i)
         .forEach(ruleKey -> repo.createRule(ruleKey)
-          .setName(randomAlphanumeric(20))
-          .setHtmlDescription(randomAlphanumeric(20)));
+          .setName(secure().nextAlphanumeric(20))
+          .setHtmlDescription(secure().nextAlphanumeric(20)));
       repo.done();
     });
 
@@ -820,7 +818,7 @@ public class RulesRegistrantIT {
   }
 
   private static RuleDescriptionSection createRuleDescriptionSection(String sectionKey, String description, @Nullable String contextKey) {
-    Context context = Optional.ofNullable(contextKey).map(key -> new Context(contextKey, contextKey + randomAlphanumeric(10))).orElse(null);
+    Context context = Optional.ofNullable(contextKey).map(key -> new Context(contextKey, contextKey + secure().nextAlphanumeric(10))).orElse(null);
     return RuleDescriptionSection.builder().sectionKey(sectionKey)
       .htmlContent(description)
       .context(context)

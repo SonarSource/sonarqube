@@ -32,7 +32,7 @@ import org.sonar.process.cluster.health.NodeHealth;
 
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.concat;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
@@ -120,7 +120,7 @@ public class ClusterHealthTest {
   private Health randomHealth() {
     Health.Builder healthBuilder = Health.builder();
     healthBuilder.setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)]);
-    IntStream.range(0, random.nextInt(3)).mapToObj(i -> randomAlphanumeric(3)).forEach(healthBuilder::addCause);
+    IntStream.range(0, random.nextInt(3)).mapToObj(i -> secure().nextAlphanumeric(3)).forEach(healthBuilder::addCause);
     return healthBuilder.build();
   }
 
@@ -134,8 +134,8 @@ public class ClusterHealthTest {
       .setDetails(
         NodeDetails.newNodeDetailsBuilder()
           .setType(random.nextBoolean() ? NodeDetails.Type.SEARCH : NodeDetails.Type.APPLICATION)
-          .setName(randomAlphanumeric(3))
-          .setHost(randomAlphanumeric(4))
+          .setName(secure().nextAlphanumeric(3))
+          .setHost(secure().nextAlphanumeric(4))
           .setPort(1 + random.nextInt(344))
           .setStartedAt(1 + random.nextInt(999))
           .build())
@@ -153,7 +153,7 @@ public class ClusterHealthTest {
     return NodeDetails.newNodeDetailsBuilder()
       .setType(NodeDetails.Type.APPLICATION)
       .setName(nodeName)
-      .setHost(randomAlphanumeric(4))
+      .setHost(secure().nextAlphanumeric(4))
       .setPort(3000)
       .setStartedAt(1_000L)
       .build();

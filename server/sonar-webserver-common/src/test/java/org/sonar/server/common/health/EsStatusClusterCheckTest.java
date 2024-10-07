@@ -27,11 +27,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
-import org.sonar.server.common.health.EsStatusClusterCheck;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.health.Health;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -96,8 +95,8 @@ public class EsStatusClusterCheckTest {
       .setStatus(status)
       .setDetails(NodeDetails.newNodeDetailsBuilder()
         .setType(random.nextBoolean() ? NodeDetails.Type.APPLICATION : NodeDetails.Type.SEARCH)
-        .setName(randomAlphanumeric(23))
-        .setHost(randomAlphanumeric(23))
+        .setName(secure().nextAlphanumeric(23))
+        .setHost(secure().nextAlphanumeric(23))
         .setPort(1 + random.nextInt(96))
         .setStartedAt(1 + random.nextInt(966))
         .build())

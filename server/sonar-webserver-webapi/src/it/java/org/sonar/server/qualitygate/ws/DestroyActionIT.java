@@ -40,7 +40,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -249,8 +249,8 @@ public class DestroyActionIT {
 
   private void insertARandomCondition(QualityGateDto qualityGate) {
     QualityGateConditionDto condition = new QualityGateConditionDto()
-            .setUuid(randomAlphanumeric(40))
-            .setMetricUuid(randomAlphanumeric(40))
+            .setUuid(secure().nextAlphanumeric(40))
+            .setMetricUuid(secure().nextAlphanumeric(40))
             .setQualityGateUuid(qualityGate.getUuid());
     db.getDbClient().gateConditionDao().insert(condition, db.getSession());
     db.commit();

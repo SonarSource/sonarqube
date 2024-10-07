@@ -49,20 +49,20 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.almsettings.DevOpsProjectCreatorFactory;
 import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
-import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.common.component.ComponentCreationParameters;
 import org.sonar.server.common.component.ComponentUpdater;
+import org.sonar.server.common.permission.PermissionTemplateService;
+import org.sonar.server.common.project.ProjectCreator;
+import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.management.ManagedInstanceService;
-import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
-import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.emptyMap;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
@@ -273,7 +273,7 @@ public class BranchReportSubmitterIT {
   }
 
   private String mockSuccessfulPrepareSubmitCall() {
-    String taskUuid = randomAlphabetic(12);
+    String taskUuid = secure().nextAlphabetic(12);
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(taskUuid));
     return taskUuid;
   }
@@ -293,7 +293,7 @@ public class BranchReportSubmitterIT {
   }
 
   private static BranchSupport.ComponentKey createComponentKeyOfBranch(String projectKey) {
-    return createComponentKeyOfBranch(projectKey, randomAlphabetic(5));
+    return createComponentKeyOfBranch(projectKey, secure().nextAlphabetic(5));
   }
 
   private static BranchSupport.ComponentKey createComponentKeyOfBranch(String projectKey, String branchKey) {

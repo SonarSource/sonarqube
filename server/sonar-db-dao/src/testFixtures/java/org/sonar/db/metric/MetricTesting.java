@@ -35,12 +35,12 @@ public class MetricTesting {
   public static MetricDto newMetricDto() {
     Metric.ValueType[] metricTypes = Metric.ValueType.values();
     return new MetricDto()
-      .setUuid(RandomStringUtils.randomAlphanumeric(40))
-      .setKey(RandomStringUtils.randomAlphanumeric(64))
-      .setShortName(RandomStringUtils.randomAlphanumeric(64))
+      .setUuid(RandomStringUtils.secure().nextAlphanumeric(40))
+      .setKey(RandomStringUtils.secure().nextAlphanumeric(64))
+      .setShortName(RandomStringUtils.secure().nextAlphanumeric(64))
       .setValueType(metricTypes[RANDOM.nextInt(metricTypes.length - 1)].name())
-      .setDomain(RandomStringUtils.randomAlphanumeric(64))
-      .setDescription(RandomStringUtils.randomAlphanumeric(250))
+      .setDomain(RandomStringUtils.secure().nextAlphanumeric(64))
+      .setDescription(RandomStringUtils.secure().nextAlphanumeric(250))
       .setBestValue(RANDOM.nextDouble())
       .setDeleteHistoricalData(RANDOM.nextBoolean())
       .setDirection(RANDOM.nextInt(Integer.MAX_VALUE))

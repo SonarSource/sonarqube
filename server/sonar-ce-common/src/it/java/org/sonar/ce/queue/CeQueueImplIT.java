@@ -50,7 +50,7 @@ import org.sonar.server.platform.NodeInformation;
 import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -81,8 +81,8 @@ public class CeQueueImplIT {
 
   @Test
   public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
-    String componentUuid = randomAlphabetic(3);
-    String mainComponentUuid = randomAlphabetic(4);
+    String componentUuid = secure().nextAlphabetic(3);
+    String mainComponentUuid = secure().nextAlphabetic(4);
     CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, new Component(componentUuid, mainComponentUuid), "submitter uuid");
     UserDto userDto = db.getDbClient().userDao().selectByUuid(db.getSession(), taskSubmit.getSubmitterUuid());
 
@@ -136,8 +136,8 @@ public class CeQueueImplIT {
 
   @Test
   public void submit_with_UNIQUE_QUEUE_PER_MAIN_COMPONENT_creates_task_when_there_is_a_pending_task_for_another_main_component() {
-    String mainComponentUuid = randomAlphabetic(5);
-    String otherMainComponentUuid = randomAlphabetic(6);
+    String mainComponentUuid = secure().nextAlphabetic(5);
+    String otherMainComponentUuid = secure().nextAlphabetic(6);
     CeTaskSubmit taskSubmit = createTaskSubmit("with_component", newComponent(mainComponentUuid), null);
     CeQueueDto dto = insertPendingInQueue(newComponent(otherMainComponentUuid));
 
@@ -151,7 +151,7 @@ public class CeQueueImplIT {
 
   @Test
   public void submit_with_UNIQUE_QUEUE_PER_MAIN_COMPONENT_does_not_create_task_when_there_is_one_pending_task_for_same_main_component() {
-    String mainComponentUuid = randomAlphabetic(5);
+    String mainComponentUuid = secure().nextAlphabetic(5);
     CeTaskSubmit taskSubmit = createTaskSubmit("with_component", newComponent(mainComponentUuid), null);
     CeQueueDto dto = insertPendingInQueue(newComponent(mainComponentUuid));
 
@@ -165,7 +165,7 @@ public class CeQueueImplIT {
 
   @Test
   public void submit_with_UNIQUE_QUEUE_PER_MAIN_COMPONENT_does_not_create_task_when_there_is_many_pending_task_for_same_main_component() {
-    String mainComponentUuid = randomAlphabetic(5);
+    String mainComponentUuid = secure().nextAlphabetic(5);
     CeTaskSubmit taskSubmit = createTaskSubmit("with_component", newComponent(mainComponentUuid), null);
     String[] uuids = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> insertPendingInQueue(newComponent(mainComponentUuid)))
@@ -182,7 +182,7 @@ public class CeQueueImplIT {
 
   @Test
   public void submit_without_UNIQUE_QUEUE_PER_MAIN_COMPONENT_creates_task_when_there_is_one_pending_task_for_same_main_component() {
-    String mainComponentUuid = randomAlphabetic(5);
+    String mainComponentUuid = secure().nextAlphabetic(5);
     CeTaskSubmit taskSubmit = createTaskSubmit("with_component", newComponent(mainComponentUuid), null);
     CeQueueDto dto = insertPendingInQueue(newComponent(mainComponentUuid));
 
@@ -195,7 +195,7 @@ public class CeQueueImplIT {
 
   @Test
   public void submit_without_UNIQUE_QUEUE_PER_MAIN_COMPONENT_creates_task_when_there_is_many_pending_task_for_same_main_component() {
-    String mainComponentUuid = randomAlphabetic(5);
+    String mainComponentUuid = secure().nextAlphabetic(5);
     CeTaskSubmit taskSubmit = createTaskSubmit("with_component", newComponent(mainComponentUuid), null);
     String[] uuids = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> insertPendingInQueue(newComponent(mainComponentUuid)))
@@ -213,7 +213,7 @@ public class CeQueueImplIT {
 
   @Test
   public void submit_with_UNIQUE_QUEUE_PER_TASK_TYPE_does_not_create_task_when_there_is_a_task_with_the_same_type() {
-    String mainComponentUuid = randomAlphabetic(5);
+    String mainComponentUuid = secure().nextAlphabetic(5);
     CeTaskSubmit taskSubmit = createTaskSubmit("some type", newComponent(mainComponentUuid), null);
     String[] uuids = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> insertPendingInQueue(newComponent(mainComponentUuid)))
@@ -229,7 +229,7 @@ public class CeQueueImplIT {
 
   @Test
   public void massSubmit_returns_tasks_for_each_CeTaskSubmit_populated_from_CeTaskSubmit_and_creates_CeQueue_row_for_each() {
-    String mainComponentUuid = randomAlphabetic(10);
+    String mainComponentUuid = secure().nextAlphabetic(10);
     CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, newComponent(mainComponentUuid), "submitter uuid");
     CeTaskSubmit taskSubmit2 = createTaskSubmit("some type");
     UserDto userDto1 = db.getDbClient().userDao().selectByUuid(db.getSession(), taskSubmit1.getSubmitterUuid());
@@ -247,7 +247,7 @@ public class CeQueueImplIT {
   public void massSubmit_populates_component_name_and_key_of_CeTask_if_project_exists() {
     ProjectData projectData = db.components().insertPrivateProject("PROJECT_1");
     CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, Component.fromDto(projectData.getMainBranchDto()), null);
-    CeTaskSubmit taskSubmit2 = createTaskSubmit("something", newComponent(randomAlphabetic(12)), null);
+    CeTaskSubmit taskSubmit2 = createTaskSubmit("something", newComponent(secure().nextAlphabetic(12)), null);
 
     List<CeTask> tasks = underTest.massSubmit(asList(taskSubmit1, taskSubmit2));
 
@@ -286,8 +286,8 @@ public class CeQueueImplIT {
 
   @Test
   public void massSubmit_with_UNIQUE_QUEUE_PER_MAIN_COMPONENT_creates_task_when_there_is_a_pending_task_for_another_main_component() {
-    String mainComponentUuid = randomAlphabetic(5);
-    String otherMainComponentUuid = randomAlphabetic(6);
+    String mainComponentUuid = secure().nextAlphabetic(5);
+    String otherMainComponentUuid = secure().nextAlphabetic(6);
     CeTaskSubmit taskSubmit = createTaskSubmit("with_component", newComponent(mainComponentUuid), null);
     CeQueueDto dto = insertPendingInQueue(newComponent(otherMainComponentUuid));
 
@@ -301,7 +301,7 @@ public class CeQueueImplIT {
 
   @Test
   public void massSubmit_with_UNIQUE_QUEUE_PER_MAIN_COMPONENT_does_not_create_task_when_there_is_one_pending_task_for_same_main_component() {
-    String mainComponentUuid = randomAlphabetic(5);
+    String mainComponentUuid = secure().nextAlphabetic(5);
     CeTaskSubmit taskSubmit = createTaskSubmit("with_component", newComponent(mainComponentUuid), null);
     CeQueueDto dto = insertPendingInQueue(newComponent(mainComponentUuid));
 
@@ -315,7 +315,7 @@ public class CeQueueImplIT {
 
   @Test
   public void massSubmit_with_UNIQUE_QUEUE_PER_MAIN_COMPONENT_does_not_create_task_when_there_is_many_pending_task_for_same_main_component() {
-    String mainComponentUuid = randomAlphabetic(5);
+    String mainComponentUuid = secure().nextAlphabetic(5);
     CeTaskSubmit taskSubmit = createTaskSubmit("with_component", newComponent(mainComponentUuid), null);
     String[] uuids = IntStream.range(0, 7)
       .mapToObj(i -> insertPendingInQueue(newComponent(mainComponentUuid)))
@@ -332,7 +332,7 @@ public class CeQueueImplIT {
 
   @Test
   public void massSubmit_without_UNIQUE_QUEUE_PER_MAIN_COMPONENT_creates_task_when_there_is_one_pending_task_for_other_main_component() {
-    String mainComponentUuid = randomAlphabetic(5);
+    String mainComponentUuid = secure().nextAlphabetic(5);
     CeTaskSubmit taskSubmit = createTaskSubmit("with_component", newComponent(mainComponentUuid), null);
     CeQueueDto dto = insertPendingInQueue(newComponent(mainComponentUuid));
 
@@ -346,7 +346,7 @@ public class CeQueueImplIT {
 
   @Test
   public void massSubmit_without_UNIQUE_QUEUE_PER_MAIN_COMPONENT_creates_task_when_there_is_many_pending_task_for_other_main_component() {
-    String mainComponentUuid = randomAlphabetic(5);
+    String mainComponentUuid = secure().nextAlphabetic(5);
     CeTaskSubmit taskSubmit = createTaskSubmit("with_component", newComponent(mainComponentUuid), null);
     String[] uuids = IntStream.range(0, 2 + new Random().nextInt(5))
       .mapToObj(i -> insertPendingInQueue(newComponent(mainComponentUuid)))
@@ -365,11 +365,11 @@ public class CeQueueImplIT {
 
   @Test
   public void massSubmit_with_UNIQUE_QUEUE_PER_MAIN_COMPONENT_creates_tasks_depending_on_whether_there_is_pending_task_for_same_main_component() {
-    String mainComponentUuid1 = randomAlphabetic(5);
-    String mainComponentUuid2 = randomAlphabetic(6);
-    String mainComponentUuid3 = randomAlphabetic(7);
-    String mainComponentUuid4 = randomAlphabetic(8);
-    String mainComponentUuid5 = randomAlphabetic(9);
+    String mainComponentUuid1 = secure().nextAlphabetic(5);
+    String mainComponentUuid2 = secure().nextAlphabetic(6);
+    String mainComponentUuid3 = secure().nextAlphabetic(7);
+    String mainComponentUuid4 = secure().nextAlphabetic(8);
+    String mainComponentUuid5 = secure().nextAlphabetic(9);
     CeTaskSubmit taskSubmit1 = createTaskSubmit("with_one_pending", newComponent(mainComponentUuid1), null);
     CeQueueDto dto1 = insertPendingInQueue(newComponent(mainComponentUuid1));
     Component componentForMainComponentUuid2 = newComponent(mainComponentUuid2);
@@ -402,7 +402,7 @@ public class CeQueueImplIT {
 
   @Test
   public void cancel_pending() {
-    CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeTask task = submit(CeTaskTypes.REPORT, newComponent(secure().nextAlphabetic(12)));
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
 
     underTest.cancel(db.getSession(), queueDto);
@@ -415,7 +415,7 @@ public class CeQueueImplIT {
   @Test
   public void cancel_pending_whenNodeNameProvided_setItInCeActivity() {
     when(nodeInformation.getNodeName()).thenReturn(Optional.of(NODE_NAME));
-    CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeTask task = submit(CeTaskTypes.REPORT, newComponent(secure().nextAlphabetic(12)));
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
 
     underTest.cancel(db.getSession(), queueDto);
@@ -428,7 +428,7 @@ public class CeQueueImplIT {
   @Test
   public void cancel_pending_whenNodeNameNOtProvided_setNulInCeActivity() {
     when(nodeInformation.getNodeName()).thenReturn(Optional.empty());
-    CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeTask task = submit(CeTaskTypes.REPORT, newComponent(secure().nextAlphabetic(12)));
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
 
     underTest.cancel(db.getSession(), queueDto);
@@ -440,7 +440,7 @@ public class CeQueueImplIT {
 
   @Test
   public void fail_to_cancel_if_in_progress() {
-    CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(11)));
+    CeTask task = submit(CeTaskTypes.REPORT, newComponent(secure().nextAlphabetic(11)));
     CeQueueDto ceQueueDto = db.getDbClient().ceQueueDao().tryToPeek(session, task.getUuid(), WORKER_UUID).get();
 
     assertThatThrownBy(() -> underTest.cancel(db.getSession(), ceQueueDto))
@@ -450,9 +450,9 @@ public class CeQueueImplIT {
 
   @Test
   public void cancelAll_pendings_but_not_in_progress() {
-    CeTask inProgressTask = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
-    CeTask pendingTask1 = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
-    CeTask pendingTask2 = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeTask inProgressTask = submit(CeTaskTypes.REPORT, newComponent(secure().nextAlphabetic(12)));
+    CeTask pendingTask1 = submit(CeTaskTypes.REPORT, newComponent(secure().nextAlphabetic(12)));
+    CeTask pendingTask2 = submit(CeTaskTypes.REPORT, newComponent(secure().nextAlphabetic(12)));
 
     db.getDbClient().ceQueueDao().tryToPeek(session, inProgressTask.getUuid(), WORKER_UUID);
 
@@ -469,7 +469,7 @@ public class CeQueueImplIT {
 
   @Test
   public void pauseWorkers_marks_workers_as_paused_if_zero_tasks_in_progress() {
-    submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    submit(CeTaskTypes.REPORT, newComponent(secure().nextAlphabetic(12)));
     // task is pending
 
     assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.RESUMED);
@@ -480,7 +480,7 @@ public class CeQueueImplIT {
 
   @Test
   public void pauseWorkers_marks_workers_as_pausing_if_some_tasks_in_progress() {
-    CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeTask task = submit(CeTaskTypes.REPORT, newComponent(secure().nextAlphabetic(12)));
     db.getDbClient().ceQueueDao().tryToPeek(session, task.getUuid(), WORKER_UUID);
     // task is in-progress
 
@@ -501,7 +501,7 @@ public class CeQueueImplIT {
 
   @Test
   public void resumeWorkers_resumes_pausing_workers() {
-    CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeTask task = submit(CeTaskTypes.REPORT, newComponent(secure().nextAlphabetic(12)));
     db.getDbClient().ceQueueDao().tryToPeek(session, task.getUuid(), WORKER_UUID);
     // task is in-progress
 
@@ -523,7 +523,7 @@ public class CeQueueImplIT {
 
   @Test
   public void fail_in_progress_task() {
-    CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeTask task = submit(CeTaskTypes.REPORT, newComponent(secure().nextAlphabetic(12)));
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().tryToPeek(db.getSession(), task.getUuid(), WORKER_UUID).get();
 
     underTest.fail(db.getSession(), queueDto, "TIMEOUT", "Failed on timeout");
@@ -541,7 +541,7 @@ public class CeQueueImplIT {
   @Test
   public void fail_in_progress_task_whenNodeNameProvided_setsItInCeActivityDto() {
     when(nodeInformation.getNodeName()).thenReturn(Optional.of(NODE_NAME));
-    CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeTask task = submit(CeTaskTypes.REPORT, newComponent(secure().nextAlphabetic(12)));
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().tryToPeek(db.getSession(), task.getUuid(), WORKER_UUID).get();
 
     underTest.fail(db.getSession(), queueDto, "TIMEOUT", "Failed on timeout");
@@ -557,7 +557,7 @@ public class CeQueueImplIT {
 
   @Test
   public void fail_throws_exception_if_task_is_pending() {
-    CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeTask task = submit(CeTaskTypes.REPORT, newComponent(secure().nextAlphabetic(12)));
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
 
     Throwable thrown = catchThrowable(() -> underTest.fail(db.getSession(), queueDto, "TIMEOUT", "Failed on timeout"));

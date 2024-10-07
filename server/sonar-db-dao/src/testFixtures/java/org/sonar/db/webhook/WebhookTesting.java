@@ -24,7 +24,7 @@ import java.util.Calendar;
 import java.util.function.Consumer;
 import org.sonar.db.project.ProjectDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class WebhookTesting {
 
@@ -55,10 +55,10 @@ public class WebhookTesting {
   @SafeVarargs
   private static WebhookDto getWebhookDto(Consumer<WebhookDto>... consumers) {
     WebhookDto res = new WebhookDto()
-      .setUuid(randomAlphanumeric(40))
-      .setName(randomAlphanumeric(64))
-      .setUrl("https://www.random-site/" + randomAlphanumeric(256))
-      .setSecret(randomAlphanumeric(10))
+      .setUuid(secure().nextAlphanumeric(40))
+      .setName(secure().nextAlphanumeric(64))
+      .setUrl("https://www.random-site/" + secure().nextAlphanumeric(256))
+      .setSecret(secure().nextAlphanumeric(10))
       .setCreatedAt(Calendar.getInstance().getTimeInMillis());
     Arrays.stream(consumers).forEach(consumer -> consumer.accept(res));
     return res;

@@ -29,7 +29,7 @@ import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
@@ -226,7 +226,7 @@ public class ComponentTesting {
 
 
   public static BranchDto newBranchDto(@Nullable String projectUuid, BranchType branchType) {
-    String key = "branch_" + randomAlphanumeric(248);
+    String key = "branch_" + secure().nextAlphanumeric(248);
     return new BranchDto()
       .setKey(key)
       .setUuid(Uuids.createFast())
@@ -240,7 +240,7 @@ public class ComponentTesting {
   }
 
   public static BranchDto newBranchDto(ComponentDto branchComponent, BranchType branchType, String projectUuid) {
-    String key = "branch_" + randomAlphanumeric(248);
+    String key = "branch_" + secure().nextAlphanumeric(248);
 
     return new BranchDto()
       .setKey(key)

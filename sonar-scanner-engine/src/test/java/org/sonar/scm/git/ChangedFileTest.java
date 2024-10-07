@@ -27,7 +27,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 
 import static org.apache.commons.lang3.RandomStringUtils.random;
-import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ChangedFileTest {
@@ -87,7 +87,7 @@ public class ChangedFileTest {
       random(5),
       InputFile.Type.MAIN,
       random(5),
-      Integer.parseInt(randomNumeric(5)),
+      Integer.parseInt(secure().nextNumeric(5)),
       new SensorStrategy(),
       oldRelativePath);
   }

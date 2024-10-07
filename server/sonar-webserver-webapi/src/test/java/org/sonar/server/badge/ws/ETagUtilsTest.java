@@ -21,7 +21,7 @@ package org.sonar.server.badge.ws;
 
 import org.junit.Test;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -29,12 +29,12 @@ public class ETagUtilsTest {
 
   @Test
   public void getETag_should_start_with_W_SLASH() {
-    assertThat(ETagUtils.getETag(randomAlphanumeric(15))).startsWith("W/");
+    assertThat(ETagUtils.getETag(secure().nextAlphanumeric(15))).startsWith("W/");
   }
 
   @Test
   public void getETag_should_return_same_value_for_same_input() {
-    String input = randomAlphanumeric(200);
+    String input = secure().nextAlphanumeric(200);
     assertThat(ETagUtils.getETag(input)).isEqualTo(ETagUtils.getETag(input));
   }
 }

@@ -38,7 +38,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.source.FileSourceDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
@@ -52,7 +52,7 @@ class ScrollForFileMoveComponentDaoIT {
 
   @Test
   void scrollAllFilesForFileMove_has_no_effect_if_project_does_not_exist() {
-    String nonExistingProjectUuid = randomAlphabetic(10);
+    String nonExistingProjectUuid = secure().nextAlphabetic(10);
 
     underTest.scrollAllFilesForFileMove(dbSession, nonExistingProjectUuid, resultContext -> Assertions.fail("handler should not be " +
       "called"));

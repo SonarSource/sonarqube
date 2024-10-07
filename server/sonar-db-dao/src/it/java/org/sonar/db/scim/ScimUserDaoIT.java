@@ -39,7 +39,7 @@ import org.sonar.db.Pagination;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
@@ -360,7 +360,7 @@ class ScimUserDaoIT {
 
   @Test
   void deleteFromUserUuid_shouldNotFail_whenNoUser() {
-    assertThatCode(() -> scimUserDao.deleteByUserUuid(dbSession, randomAlphanumeric(6))).doesNotThrowAnyException();
+    assertThatCode(() -> scimUserDao.deleteByUserUuid(dbSession, secure().nextAlphanumeric(6))).doesNotThrowAnyException();
   }
 
   private List<ScimUserTestData> insertScimUsersWithUsers(List<String> userLogins) {
@@ -377,7 +377,7 @@ class ScimUserDaoIT {
   }
 
   private ScimUserTestData insertScimUser(String scimUserUuid) {
-    return insertScimUser(scimUserUuid, randomAlphanumeric(40));
+    return insertScimUser(scimUserUuid, secure().nextAlphanumeric(40));
   }
 
   private ScimUserTestData insertScimUser(String scimUserUuid, String userUuid) {

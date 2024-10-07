@@ -61,7 +61,7 @@ import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.project.DefaultBranchNameResolver;
 
 import static java.util.stream.IntStream.rangeClosed;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -375,7 +375,7 @@ public class ComponentUpdaterIT {
   }
 
   private void createComponent_shouldFail_whenCreatingComponentWithExistingKeyButDifferentCase(String qualifier) {
-    String existingKey = randomAlphabetic(5).toUpperCase();
+    String existingKey = secure().nextAlphabetic(5).toUpperCase();
     db.components().insertPrivateProject(component -> component.setKey(existingKey));
     String newKey = existingKey.toLowerCase();
 
@@ -397,7 +397,7 @@ public class ComponentUpdaterIT {
 
   @Test
   public void createComponent_shouldFail_whenCreatingComponentWithMultipleExistingKeyButDifferentCase() {
-    String existingKey = randomAlphabetic(5).toUpperCase();
+    String existingKey = secure().nextAlphabetic(5).toUpperCase();
     String existingKeyLowerCase = existingKey.toLowerCase();
     db.components().insertPrivateProject(component -> component.setKey(existingKey));
     db.components().insertPrivateProject(component -> component.setKey(existingKeyLowerCase));
@@ -420,7 +420,7 @@ public class ComponentUpdaterIT {
 
   @Test
   public void createComponent_shouldFail_whenCreatingComponentWithMultipleExistingPortfolioKeysButDifferentCase() {
-    String existingKey = randomAlphabetic(5).toUpperCase();
+    String existingKey = secure().nextAlphabetic(5).toUpperCase();
     String existingKeyLowerCase = existingKey.toLowerCase();
     db.components().insertPrivatePortfolio(portfolio -> portfolio.setKey(existingKey));
     db.components().insertPrivatePortfolio(portfolio -> portfolio.setKey(existingKeyLowerCase));

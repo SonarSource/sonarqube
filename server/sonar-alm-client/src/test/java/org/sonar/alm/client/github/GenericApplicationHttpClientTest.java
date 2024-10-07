@@ -47,7 +47,7 @@ import org.sonar.auth.github.security.AccessToken;
 import org.sonar.auth.github.security.UserAccessToken;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
@@ -66,9 +66,9 @@ public class GenericApplicationHttpClientTest {
 
   private GenericApplicationHttpClient underTest;
 
-  private final AccessToken accessToken = new UserAccessToken(randomAlphabetic(10));
-  private final String randomEndPoint = "/" + randomAlphabetic(10);
-  private final String randomBody = randomAlphabetic(40);
+  private final AccessToken accessToken = new UserAccessToken(secure().nextAlphabetic(10));
+  private final String randomEndPoint = "/" + secure().nextAlphabetic(10);
+  private final String randomBody = secure().nextAlphabetic(40);
   private String appUrl;
 
   @Before

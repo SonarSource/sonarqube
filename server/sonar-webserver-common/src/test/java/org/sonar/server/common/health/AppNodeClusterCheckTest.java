@@ -31,7 +31,7 @@ import org.sonar.server.health.Health;
 
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.of;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.sonar.process.cluster.health.NodeHealth.Status.GREEN;
 import static org.sonar.process.cluster.health.NodeHealth.Status.RED;
 import static org.sonar.process.cluster.health.NodeHealth.Status.YELLOW;
@@ -275,8 +275,8 @@ public class AppNodeClusterCheckTest {
       .setStatus(status)
       .setDetails(NodeDetails.newNodeDetailsBuilder()
         .setType(type)
-        .setHost(randomAlphanumeric(32))
-        .setName(randomAlphanumeric(32))
+        .setHost(secure().nextAlphanumeric(32))
+        .setName(secure().nextAlphanumeric(32))
         .setPort(1 + random.nextInt(88))
         .setStartedAt(1 + random.nextInt(54))
         .build())

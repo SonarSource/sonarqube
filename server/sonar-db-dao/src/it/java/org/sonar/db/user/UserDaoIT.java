@@ -49,7 +49,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -843,7 +843,7 @@ class UserDaoIT {
   }
 
   private UserGroupDto insertUserGroup(UserDto user) {
-    GroupDto group = newGroupDto().setName(randomAlphanumeric(30));
+    GroupDto group = newGroupDto().setName(secure().nextAlphanumeric(30));
     dbClient.groupDao().insert(session, group);
 
     UserGroupDto dto = new UserGroupDto().setUserUuid(user.getUuid()).setGroupUuid(group.getUuid());

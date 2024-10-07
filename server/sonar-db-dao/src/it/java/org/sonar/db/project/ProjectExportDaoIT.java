@@ -202,13 +202,13 @@ class ProjectExportDaoIT {
         .setIsExternal(isExternal)
         .setIsAdHoc(isAdHoc)
         .setRuleKey(ruleKey)
-        .setPluginKey("pluginKey" + RandomStringUtils.randomAlphanumeric(10))
+        .setPluginKey("pluginKey" + RandomStringUtils.secure().nextAlphanumeric(10))
         .setStatus(ruleStatus);
       if (isAdHoc) {
-        rule.setAdHocName("ad_hoc_rule" + RandomStringUtils.randomAlphabetic(10))
+        rule.setAdHocName("ad_hoc_rule" + RandomStringUtils.secure().nextAlphabetic(10))
           .setAdHocType(RuleType.VULNERABILITY)
           .setAdHocSeverity(Severity.CRITICAL)
-          .setAdHocDescription("ad hoc description: " + RandomStringUtils.randomAlphanumeric(100));
+          .setAdHocDescription("ad hoc description: " + RandomStringUtils.secure().nextAlphanumeric(100));
       }
     };
   }

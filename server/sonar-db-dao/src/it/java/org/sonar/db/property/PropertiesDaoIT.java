@@ -50,7 +50,7 @@ import org.sonar.db.user.UserDto;
 import static com.google.common.collect.ImmutableSet.of;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -91,8 +91,8 @@ class PropertiesDaoIT {
     UserDto user1 = db.users().insertUser(u -> u.setLogin("user1"));
     UserDto user2 = db.users().insertUser(u -> u.setLogin("user2"));
     String projectUuid = db.components().insertPrivateProject().getProjectDto().getUuid();
-    String projectKey = randomAlphabetic(4);
-    String projectName = randomAlphabetic(4);
+    String projectKey = secure().nextAlphabetic(4);
+    String projectName = secure().nextAlphabetic(4);
 
 
     // global subscription
@@ -135,9 +135,9 @@ class PropertiesDaoIT {
   @Test
   void findEmailRecipientsForNotification_returns_empty_on_empty_properties_table() {
     db.users().insertUser();
-    String dispatcherKey = randomAlphabetic(5);
-    String channelKey = randomAlphabetic(6);
-    String projectKey = randomAlphabetic(7);
+    String dispatcherKey = secure().nextAlphabetic(5);
+    String channelKey = secure().nextAlphabetic(6);
+    String projectKey = secure().nextAlphabetic(7);
 
     Set<EmailSubscriberDto> subscribers = underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey,
       projectKey);
@@ -148,9 +148,9 @@ class PropertiesDaoIT {
   @Test
   void findEmailRecipientsForNotification_with_logins_returns_empty_on_empty_properties_table() {
     db.users().insertUser();
-    String dispatcherKey = randomAlphabetic(5);
-    String channelKey = randomAlphabetic(6);
-    String projectKey = randomAlphabetic(7);
+    String dispatcherKey = secure().nextAlphabetic(5);
+    String channelKey = secure().nextAlphabetic(6);
+    String projectKey = secure().nextAlphabetic(7);
     Set<String> logins = of("user1", "user2");
 
     Set<EmailSubscriberDto> subscribers = underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey,
@@ -166,10 +166,10 @@ class PropertiesDaoIT {
     UserDto user3 = db.users().insertUser(withEmail("user3"));
     UserDto user4 = db.users().insertUser(withEmail("user4"));
     ProjectDto project = insertPrivateProject("PROJECT_A");
-    String dispatcherKey = randomAlphabetic(5);
-    String otherDispatcherKey = randomAlphabetic(6);
-    String channelKey = randomAlphabetic(7);
-    String otherChannelKey = randomAlphabetic(8);
+    String dispatcherKey = secure().nextAlphabetic(5);
+    String otherDispatcherKey = secure().nextAlphabetic(6);
+    String channelKey = secure().nextAlphabetic(7);
+    String otherChannelKey = secure().nextAlphabetic(8);
     // user1 subscribed only globally
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user1.getUuid(), user1.getLogin(),
       null, null);
@@ -203,10 +203,10 @@ class PropertiesDaoIT {
     UserDto user3 = db.users().insertUser(withEmail("user3"));
     UserDto user4 = db.users().insertUser(withEmail("user4"));
     ProjectDto project = insertPrivateProject("PROJECT_A");
-    String dispatcherKey = randomAlphabetic(5);
-    String otherDispatcherKey = randomAlphabetic(6);
-    String channelKey = randomAlphabetic(7);
-    String otherChannelKey = randomAlphabetic(8);
+    String dispatcherKey = secure().nextAlphabetic(5);
+    String otherDispatcherKey = secure().nextAlphabetic(6);
+    String channelKey = secure().nextAlphabetic(7);
+    String otherChannelKey = secure().nextAlphabetic(8);
     // user1 subscribed only globally
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user1.getUuid(), user1.getLogin(),
       null, null);
@@ -276,13 +276,13 @@ class PropertiesDaoIT {
     UserDto user2 = db.users().insertUser(withEmail("user2"));
     UserDto user3 = db.users().insertUser(withEmail("user3"));
     UserDto user4 = db.users().insertUser(withEmail("user4"));
-    String projectKey = randomAlphabetic(3);
-    String otherProjectKey = randomAlphabetic(4);
+    String projectKey = secure().nextAlphabetic(3);
+    String otherProjectKey = secure().nextAlphabetic(4);
     ProjectDto project = insertPrivateProject(projectKey);
-    String dispatcherKey = randomAlphabetic(5);
-    String otherDispatcherKey = randomAlphabetic(6);
-    String channelKey = randomAlphabetic(7);
-    String otherChannelKey = randomAlphabetic(8);
+    String dispatcherKey = secure().nextAlphabetic(5);
+    String otherDispatcherKey = secure().nextAlphabetic(6);
+    String channelKey = secure().nextAlphabetic(7);
+    String otherChannelKey = secure().nextAlphabetic(8);
     // user1 subscribed only globally
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user1.getUuid(), user1.getLogin(),
       null, null);
@@ -320,13 +320,13 @@ class PropertiesDaoIT {
     UserDto user2 = db.users().insertUser(withEmail("user2"));
     UserDto user3 = db.users().insertUser(withEmail("user3"));
     UserDto user4 = db.users().insertUser(withEmail("user4"));
-    String projectKey = randomAlphabetic(3);
-    String otherProjectKey = randomAlphabetic(4);
+    String projectKey = secure().nextAlphabetic(3);
+    String otherProjectKey = secure().nextAlphabetic(4);
     ProjectDto project = insertPrivateProject(projectKey);
-    String dispatcherKey = randomAlphabetic(5);
-    String otherDispatcherKey = randomAlphabetic(6);
-    String channelKey = randomAlphabetic(7);
-    String otherChannelKey = randomAlphabetic(8);
+    String dispatcherKey = secure().nextAlphabetic(5);
+    String otherDispatcherKey = secure().nextAlphabetic(6);
+    String channelKey = secure().nextAlphabetic(7);
+    String otherChannelKey = secure().nextAlphabetic(8);
     // user1 subscribed only globally
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user1.getUuid(), user1.getLogin(),
       null, null);
@@ -375,10 +375,10 @@ class PropertiesDaoIT {
     UserDto user2 = db.users().insertUser(noEmail("user2"));
     UserDto user3 = db.users().insertUser(withEmail("user3"));
     UserDto user4 = db.users().insertUser(noEmail("user4"));
-    String projectKey = randomAlphabetic(3);
+    String projectKey = secure().nextAlphabetic(3);
     ProjectDto project = insertPrivateProject(projectKey);
-    String dispatcherKey = randomAlphabetic(4);
-    String channelKey = randomAlphabetic(5);
+    String dispatcherKey = secure().nextAlphabetic(4);
+    String channelKey = secure().nextAlphabetic(5);
     // user1 and user2 subscribed on project and globally
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user1.getUuid(), user1.getLogin(),
       null, null);
@@ -411,10 +411,10 @@ class PropertiesDaoIT {
     UserDto user3 = db.users().insertUser(withEmail("user3"));
     UserDto user4 = db.users().insertUser(noEmail("user4"));
     Set<String> allLogins = of("user1", "user2", "user3");
-    String projectKey = randomAlphabetic(3);
+    String projectKey = secure().nextAlphabetic(3);
     ProjectDto project = insertPrivateProject(projectKey);
-    String dispatcherKey = randomAlphabetic(4);
-    String channelKey = randomAlphabetic(5);
+    String dispatcherKey = secure().nextAlphabetic(4);
+    String channelKey = secure().nextAlphabetic(5);
     // user1 and user2 subscribed on project and globally
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, user1.getUuid(), user1.getLogin(),
       null, null);

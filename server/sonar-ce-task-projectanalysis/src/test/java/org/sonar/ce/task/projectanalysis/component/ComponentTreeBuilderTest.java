@@ -39,7 +39,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.project.Project;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
@@ -60,7 +60,7 @@ class ComponentTreeBuilderTest {
   private static final String NO_SCM_BASE_PATH = "";
   // both no project as "" or null should be supported
   private static final ProjectAttributes SOME_PROJECT_ATTRIBUTES = new ProjectAttributes(
-    randomAlphabetic(20), new Random().nextBoolean() ? null : randomAlphabetic(12), "1def5123");
+    secure().nextAlphabetic(20), new Random().nextBoolean() ? null : secure().nextAlphabetic(12), "1def5123");
 
   @RegisterExtension
   private final ScannerComponentProvider scannerComponentProvider = new ScannerComponentProvider();
@@ -117,7 +117,7 @@ class ComponentTreeBuilderTest {
   void by_default_project_fields_are_loaded_from_report() {
     String nameInReport = "the name";
     String descriptionInReport = "the desc";
-    String buildString = randomAlphabetic(21);
+    String buildString = secure().nextAlphabetic(21);
     Component root = call(newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
@@ -149,7 +149,7 @@ class ComponentTreeBuilderTest {
 
   @Test
   void project_name_is_loaded_from_report_if_present_and_on_main_branch() {
-    String reportName = randomAlphabetic(5);
+    String reportName = secure().nextAlphabetic(5);
     ScannerReport.Component reportProject = newBuilder()
       .setType(PROJECT)
       .setName(reportName)
@@ -162,7 +162,7 @@ class ComponentTreeBuilderTest {
 
   @Test
   void project_name_is_loaded_from_db_if_not_on_main_branch() {
-    String reportName = randomAlphabetic(5);
+    String reportName = secure().nextAlphabetic(5);
     ScannerReport.Component reportProject = newBuilder()
       .setType(PROJECT)
       .setName(reportName)
@@ -185,7 +185,7 @@ class ComponentTreeBuilderTest {
 
   @Test
   void project_description_is_loaded_from_report_if_present_and_on_main_branch() {
-    String reportDescription = randomAlphabetic(5);
+    String reportDescription = secure().nextAlphabetic(5);
     ScannerReport.Component reportProject = newBuilder()
       .setType(PROJECT)
       .setDescription(reportDescription)
@@ -198,7 +198,7 @@ class ComponentTreeBuilderTest {
 
   @Test
   void project_description_is_loaded_from_db_if_not_on_main_branch() {
-    String reportDescription = randomAlphabetic(5);
+    String reportDescription = secure().nextAlphabetic(5);
     ScannerReport.Component reportProject = newBuilder()
       .setType(PROJECT)
       .setDescription(reportDescription)
@@ -257,7 +257,7 @@ class ComponentTreeBuilderTest {
   @Test
   void any_component_with_projectRelativePath_has_this_value_appended_to_scmBasePath_and_a_slash_as_scmPath_if_scmBasePath_is_not_empty() {
     ScannerReport.Component project = createProject();
-    String scmBasePath = randomAlphabetic(10);
+    String scmBasePath = secure().nextAlphabetic(10);
 
     Component root = call(project, scmBasePath, SOME_PROJECT_ATTRIBUTES);
     assertThat(root.getReportAttributes().getScmPath())

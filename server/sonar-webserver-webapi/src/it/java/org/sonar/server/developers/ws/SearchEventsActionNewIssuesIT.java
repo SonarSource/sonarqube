@@ -50,7 +50,7 @@ import org.sonarqube.ws.Developers.SearchEventsWsResponse.Event;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -306,7 +306,7 @@ public class SearchEventsActionNewIssuesIT {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(mainBranchUuid);
-    queueDto.setUuid(randomAlphanumeric(40));
+    queueDto.setUuid(secure().nextAlphanumeric(40));
     queueDto.setCreatedAt(random.nextLong(Long.MAX_VALUE));
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);

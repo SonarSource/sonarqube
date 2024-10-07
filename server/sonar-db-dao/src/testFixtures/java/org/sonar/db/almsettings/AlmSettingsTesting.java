@@ -24,8 +24,8 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.ProjectDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
+
 
 public class AlmSettingsTesting {
 
@@ -35,45 +35,45 @@ public class AlmSettingsTesting {
 
   public static AlmSettingDto newGithubAlmSettingDto() {
     return new AlmSettingDto()
-      .setKey(randomAlphanumeric(200))
-      .setUrl(randomAlphanumeric(2000))
-      .setAppId(randomNumeric(8))
-      .setClientId(randomNumeric(8))
-      .setClientSecret(randomAlphanumeric(80))
-      .setPrivateKey(randomAlphanumeric(2000))
+      .setKey(secure().nextAlphanumeric(200))
+      .setUrl(secure().nextAlphanumeric(2000))
+      .setAppId(secure().nextNumeric(8))
+      .setClientId(secure().nextNumeric(8))
+      .setClientSecret(secure().nextAlphanumeric(80))
+      .setPrivateKey(secure().nextAlphanumeric(2000))
       .setAlm(ALM.GITHUB);
   }
 
   public static AlmSettingDto newAzureAlmSettingDto() {
     return new AlmSettingDto()
-      .setKey(randomAlphanumeric(200))
-      .setPersonalAccessToken(randomAlphanumeric(2000))
-      .setUrl(randomAlphanumeric(2000))
+      .setKey(secure().nextAlphanumeric(200))
+      .setPersonalAccessToken(secure().nextAlphanumeric(2000))
+      .setUrl(secure().nextAlphanumeric(2000))
       .setAlm(ALM.AZURE_DEVOPS);
   }
 
   public static AlmSettingDto newGitlabAlmSettingDto() {
     return new AlmSettingDto()
-      .setKey(randomAlphanumeric(200))
-      .setPersonalAccessToken(randomAlphanumeric(2000))
-      .setUrl(randomAlphanumeric(2000))
+      .setKey(secure().nextAlphanumeric(200))
+      .setPersonalAccessToken(secure().nextAlphanumeric(2000))
+      .setUrl(secure().nextAlphanumeric(2000))
       .setAlm(ALM.GITLAB);
   }
 
   public static AlmSettingDto newBitbucketAlmSettingDto() {
     return new AlmSettingDto()
-      .setKey(randomAlphanumeric(200))
-      .setUrl(randomAlphanumeric(2000))
-      .setPersonalAccessToken(randomAlphanumeric(2000))
+      .setKey(secure().nextAlphanumeric(200))
+      .setUrl(secure().nextAlphanumeric(2000))
+      .setPersonalAccessToken(secure().nextAlphanumeric(2000))
       .setAlm(ALM.BITBUCKET);
   }
 
   public static AlmSettingDto newBitbucketCloudAlmSettingDto() {
     return new AlmSettingDto()
-      .setKey(randomAlphanumeric(200))
-      .setClientId(randomAlphanumeric(50))
-      .setAppId(randomAlphanumeric(80))
-      .setClientSecret(randomAlphanumeric(50))
+      .setKey(secure().nextAlphanumeric(200))
+      .setClientId(secure().nextAlphanumeric(50))
+      .setAppId(secure().nextAlphanumeric(80))
+      .setClientSecret(secure().nextAlphanumeric(50))
       .setAlm(ALM.BITBUCKET_CLOUD);
   }
 
@@ -85,7 +85,7 @@ public class AlmSettingsTesting {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(githubAlmSetting.getUuid())
       .setProjectUuid(project.getUuid())
-      .setAlmRepo(randomAlphanumeric(256))
+      .setAlmRepo(secure().nextAlphanumeric(256))
       .setSummaryCommentEnabled(true)
       .setMonorepo(monorepo);
   }
@@ -105,8 +105,8 @@ public class AlmSettingsTesting {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(azureAlmSetting.getUuid())
       .setProjectUuid(project.getUuid())
-      .setAlmSlug(randomAlphanumeric(256))
-      .setAlmRepo(randomAlphanumeric(256))
+      .setAlmSlug(secure().nextAlphanumeric(256))
+      .setAlmRepo(secure().nextAlphanumeric(256))
       .setMonorepo(false);
   }
 
@@ -114,8 +114,8 @@ public class AlmSettingsTesting {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(bitbucketAlmSetting.getUuid())
       .setProjectUuid(project.getUuid())
-      .setAlmRepo(randomAlphanumeric(256))
-      .setAlmSlug(randomAlphanumeric(256))
+      .setAlmRepo(secure().nextAlphanumeric(256))
+      .setAlmSlug(secure().nextAlphanumeric(256))
       .setMonorepo(false);
   }
 
@@ -123,7 +123,7 @@ public class AlmSettingsTesting {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(bitbucketCloudAlmSetting.getUuid())
       .setProjectUuid(project.getUuid())
-      .setAlmRepo(randomAlphanumeric(256))
+      .setAlmRepo(secure().nextAlphanumeric(256))
       .setMonorepo(false);
   }
 }

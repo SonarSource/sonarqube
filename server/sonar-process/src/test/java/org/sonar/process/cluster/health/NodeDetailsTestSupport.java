@@ -25,7 +25,7 @@ import java.io.ObjectOutputStream;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.sonar.process.cluster.health.NodeDetails.newNodeDetailsBuilder;
 import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
 
@@ -56,7 +56,7 @@ public class NodeDetailsTestSupport {
     NodeHealth.Builder builder = newNodeHealthBuilder()
       .setStatus(randomStatus())
       .setDetails(randomNodeDetails());
-    IntStream.range(0, minCauseCount + random.nextInt(2)).mapToObj(i -> randomAlphanumeric(4)).forEach(builder::addCause);
+    IntStream.range(0, minCauseCount + random.nextInt(2)).mapToObj(i -> secure().nextAlphanumeric(4)).forEach(builder::addCause);
     return builder;
   }
 
@@ -68,8 +68,8 @@ public class NodeDetailsTestSupport {
   NodeDetails.Builder randomNodeDetailsBuilder() {
     return newNodeDetailsBuilder()
       .setType(randomType())
-      .setName(randomAlphanumeric(3))
-      .setHost(randomAlphanumeric(10))
+      .setName(secure().nextAlphanumeric(3))
+      .setHost(secure().nextAlphanumeric(10))
       .setPort(1 + random.nextInt(10))
       .setStartedAt(1 + random.nextInt(666));
   }

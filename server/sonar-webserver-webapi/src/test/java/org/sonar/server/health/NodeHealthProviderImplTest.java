@@ -30,8 +30,7 @@ import org.sonar.process.NetworkUtils;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -57,7 +56,7 @@ public class NodeHealthProviderImplTest {
 
   @Test
   public void constructor_thows_NPE_if_NetworkUtils_getHostname_returns_null() {
-    mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
+    mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), secure().nextAlphanumeric(3));
 
     assertThatThrownBy(() -> new NodeHealthProviderImpl(mapSettings.asConfig(), healthChecker, server, networkUtils))
       .isInstanceOf(NullPointerException.class);
@@ -65,8 +64,8 @@ public class NodeHealthProviderImplTest {
 
   @Test
   public void constructor_throws_ISE_if_node_port_property_is_not_set() {
-    mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
-    when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(23));
+    mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), secure().nextAlphanumeric(3));
+    when(networkUtils.getHostname()).thenReturn(secure().nextAlphanumeric(23));
 
     assertThatThrownBy(() -> new NodeHealthProviderImpl(mapSettings.asConfig(), healthChecker, server, networkUtils))
       .isInstanceOf(IllegalStateException.class)
@@ -85,9 +84,9 @@ public class NodeHealthProviderImplTest {
   public void get_returns_HEALTH_status_and_causes_from_HealthChecker_checkNode() {
     setRequiredPropertiesForConstructor();
     setStartedAt();
-    when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(4));
+    when(networkUtils.getHostname()).thenReturn(secure().nextAlphanumeric(4));
     Health.Status randomStatus = Health.Status.values()[random.nextInt(Health.Status.values().length)];
-    String[] expected = IntStream.range(0, random.nextInt(4)).mapToObj(s -> randomAlphabetic(55)).toArray(String[]::new);
+    String[] expected = IntStream.range(0, random.nextInt(4)).mapToObj(s -> secure().nextAlphabetic(55)).toArray(String[]::new);
     Health.Builder healthBuilder = Health.builder()
       .setStatus(randomStatus);
     Arrays.stream(expected).forEach(healthBuilder::addCause);
@@ -104,7 +103,7 @@ public class NodeHealthProviderImplTest {
   public void get_returns_APPLICATION_type() {
     setRequiredPropertiesForConstructor();
     setStartedAt();
-    when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(23));
+    when(networkUtils.getHostname()).thenReturn(secure().nextAlphanumeric(23));
     when(healthChecker.checkNode()).thenReturn(Health.builder()
       .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
       .build());
@@ -117,7 +116,7 @@ public class NodeHealthProviderImplTest {
 
   @Test
   public void get_returns_name_and_port_from_properties_at_constructor_time() {
-    String name = randomAlphanumeric(3);
+    String name = secure().nextAlphanumeric(3);
     int port = 1 + random.nextInt(4);
     mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), name);
     mapSettings.setProperty(CLUSTER_NODE_HZ_PORT.getKey(), port);
@@ -125,7 +124,7 @@ public class NodeHealthProviderImplTest {
     when(healthChecker.checkNode()).thenReturn(Health.builder()
       .setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)])
       .build());
-    when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(3));
+    when(networkUtils.getHostname()).thenReturn(secure().nextAlphanumeric(3));
     NodeHealthProviderImpl underTest = new NodeHealthProviderImpl(mapSettings.asConfig(), healthChecker, server, networkUtils);
 
     NodeHealth nodeHealth = underTest.get();
@@ -144,8 +143,8 @@ public class NodeHealthProviderImplTest {
 
   @Test
   public void get_returns_host_from_property_if_set_at_constructor_time() {
-    String host = randomAlphanumeric(4);
-    mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
+    String host = secure().nextAlphanumeric(4);
+    mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), secure().nextAlphanumeric(3));
     mapSettings.setProperty(CLUSTER_NODE_HZ_PORT.getKey(), 1 + random.nextInt(4));
     mapSettings.setProperty(CLUSTER_NODE_HOST.getKey(), host);
     setStartedAt();
@@ -159,7 +158,7 @@ public class NodeHealthProviderImplTest {
     assertThat(nodeHealth.getDetails().getHost()).isEqualTo(host);
 
     // change values in properties
-    mapSettings.setProperty(CLUSTER_NODE_HOST.getKey(), randomAlphanumeric(66));
+    mapSettings.setProperty(CLUSTER_NODE_HOST.getKey(), secure().nextAlphanumeric(66));
 
     NodeHealth newNodeHealth = underTest.get();
 
@@ -177,7 +176,7 @@ public class NodeHealthProviderImplTest {
   }
 
   private void getReturnsHostnameFromNetworkUtils(String hostPropertyValue) {
-    String host = randomAlphanumeric(3);
+    String host = secure().nextAlphanumeric(3);
     setRequiredPropertiesForConstructor();
     if (hostPropertyValue != null) {
       mapSettings.setProperty(CLUSTER_NODE_HOST.getKey(), hostPropertyValue);
@@ -194,7 +193,7 @@ public class NodeHealthProviderImplTest {
     assertThat(nodeHealth.getDetails().getHost()).isEqualTo(host);
 
     // change hostname
-    when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(4));
+    when(networkUtils.getHostname()).thenReturn(secure().nextAlphanumeric(4));
 
     NodeHealth newNodeHealth = underTest.get();
 
@@ -204,7 +203,7 @@ public class NodeHealthProviderImplTest {
   @Test
   public void get_returns_started_from_server_startedAt_at_constructor_time() {
     setRequiredPropertiesForConstructor();
-    when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(4));
+    when(networkUtils.getHostname()).thenReturn(secure().nextAlphanumeric(4));
     Date date = new Date();
     when(server.getStartedAt()).thenReturn(date);
     when(healthChecker.checkNode()).thenReturn(Health.builder()
@@ -229,7 +228,7 @@ public class NodeHealthProviderImplTest {
   }
 
   private void setRequiredPropertiesForConstructor() {
-    mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
+    mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), secure().nextAlphanumeric(3));
     mapSettings.setProperty(CLUSTER_NODE_HZ_PORT.getKey(), 1 + random.nextInt(4));
   }
 }

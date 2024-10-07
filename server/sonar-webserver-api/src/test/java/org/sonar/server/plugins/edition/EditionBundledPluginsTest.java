@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.updatecenter.common.Plugin;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -40,21 +40,21 @@ public class EditionBundledPluginsTest {
 
   @Test
   public void isEditionBundled_on_Plugin_returns_false_for_SonarSource_and_non_commercial_license() {
-    Plugin plugin = newPlugin(randomizeCase("SonarSource"), randomAlphanumeric(3));
+    Plugin plugin = newPlugin(randomizeCase("SonarSource"), secure().nextAlphanumeric(3));
 
     assertThat(EditionBundledPlugins.isEditionBundled(plugin)).isFalse();
   }
 
   @Test
   public void isEditionBundled_on_Plugin_returns_false_for_license_SonarSource_and_non_SonarSource_organization() {
-    Plugin plugin = newPlugin(randomAlphanumeric(3), randomizeCase("SonarSource"));
+    Plugin plugin = newPlugin(secure().nextAlphanumeric(3), randomizeCase("SonarSource"));
 
     assertThat(EditionBundledPlugins.isEditionBundled(plugin)).isFalse();
   }
 
   @Test
   public void isEditionBundled_on_Plugin_returns_false_for_license_Commercial_and_non_SonarSource_organization() {
-    Plugin plugin = newPlugin(randomAlphanumeric(3), randomizeCase("Commercial"));
+    Plugin plugin = newPlugin(secure().nextAlphanumeric(3), randomizeCase("Commercial"));
 
     assertThat(EditionBundledPlugins.isEditionBundled(plugin)).isFalse();
   }
@@ -81,21 +81,21 @@ public class EditionBundledPluginsTest {
 
   @Test
   public void isEditionBundled_on_PluginInfo_returns_false_for_SonarSource_and_non_commercial_license() {
-    PluginInfo pluginInfo = newPluginInfo(randomizeCase("SonarSource"), randomAlphanumeric(3));
+    PluginInfo pluginInfo = newPluginInfo(randomizeCase("SonarSource"), secure().nextAlphanumeric(3));
 
     assertThat(EditionBundledPlugins.isEditionBundled(pluginInfo)).isFalse();
   }
 
   @Test
   public void isEditionBundled_on_PluginInfo_returns_false_for_license_SonarSource_and_non_SonarSource_organization() {
-    PluginInfo pluginInfo = newPluginInfo(randomAlphanumeric(3), randomizeCase("SonarSource"));
+    PluginInfo pluginInfo = newPluginInfo(secure().nextAlphanumeric(3), randomizeCase("SonarSource"));
 
     assertThat(EditionBundledPlugins.isEditionBundled(pluginInfo)).isFalse();
   }
 
   @Test
   public void isEditionBundled_on_PluginInfo_returns_false_for_license_Commercial_and_non_SonarSource_organization() {
-    PluginInfo pluginInfo = newPluginInfo(randomAlphanumeric(3), randomizeCase("Commercial"));
+    PluginInfo pluginInfo = newPluginInfo(secure().nextAlphanumeric(3), randomizeCase("Commercial"));
 
     assertThat(EditionBundledPlugins.isEditionBundled(pluginInfo)).isFalse();
   }
@@ -122,24 +122,24 @@ public class EditionBundledPluginsTest {
   }
 
   private PluginInfo newPluginInfo(String organization, String license) {
-    PluginInfo pluginInfo = new PluginInfo(randomAlphanumeric(2));
+    PluginInfo pluginInfo = new PluginInfo(secure().nextAlphanumeric(2));
     if (random.nextBoolean()) {
-      pluginInfo.setName(randomAlphanumeric(3));
+      pluginInfo.setName(secure().nextAlphanumeric(3));
     }
     if (random.nextBoolean()) {
-      pluginInfo.setOrganizationUrl(randomAlphanumeric(4));
+      pluginInfo.setOrganizationUrl(secure().nextAlphanumeric(4));
     }
     if (random.nextBoolean()) {
-      pluginInfo.setIssueTrackerUrl(randomAlphanumeric(5));
+      pluginInfo.setIssueTrackerUrl(secure().nextAlphanumeric(5));
     }
     if (random.nextBoolean()) {
-      pluginInfo.setIssueTrackerUrl(randomAlphanumeric(6));
+      pluginInfo.setIssueTrackerUrl(secure().nextAlphanumeric(6));
     }
     if (random.nextBoolean()) {
-      pluginInfo.setBasePlugin(randomAlphanumeric(7));
+      pluginInfo.setBasePlugin(secure().nextAlphanumeric(7));
     }
     if (random.nextBoolean()) {
-      pluginInfo.setHomepageUrl(randomAlphanumeric(8));
+      pluginInfo.setHomepageUrl(secure().nextAlphanumeric(8));
     }
     return pluginInfo
       .setOrganizationName(organization)
@@ -147,24 +147,24 @@ public class EditionBundledPluginsTest {
   }
 
   private Plugin newPlugin(String organization, String license) {
-    Plugin plugin = Plugin.factory(randomAlphanumeric(2));
+    Plugin plugin = Plugin.factory(secure().nextAlphanumeric(2));
     if (random.nextBoolean()) {
-      plugin.setName(randomAlphanumeric(3));
+      plugin.setName(secure().nextAlphanumeric(3));
     }
     if (random.nextBoolean()) {
-      plugin.setOrganizationUrl(randomAlphanumeric(4));
+      plugin.setOrganizationUrl(secure().nextAlphanumeric(4));
     }
     if (random.nextBoolean()) {
-      plugin.setTermsConditionsUrl(randomAlphanumeric(5));
+      plugin.setTermsConditionsUrl(secure().nextAlphanumeric(5));
     }
     if (random.nextBoolean()) {
-      plugin.setIssueTrackerUrl(randomAlphanumeric(6));
+      plugin.setIssueTrackerUrl(secure().nextAlphanumeric(6));
     }
     if (random.nextBoolean()) {
-      plugin.setCategory(randomAlphanumeric(7));
+      plugin.setCategory(secure().nextAlphanumeric(7));
     }
     if (random.nextBoolean()) {
-      plugin.setHomepageUrl(randomAlphanumeric(8));
+      plugin.setHomepageUrl(secure().nextAlphanumeric(8));
     }
     return plugin
       .setLicense(license)

@@ -99,7 +99,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
@@ -2008,16 +2008,16 @@ oldCreationDate));
 
   private void insertPropertyFor(ComponentDto... components) {
     Stream.of(components).forEach(componentDto -> db.properties().insertProperty(new PropertyDto()
-        .setKey(randomAlphabetic(3))
-        .setValue(randomAlphabetic(3))
+        .setKey(secure().nextAlphabetic(3))
+        .setValue(secure().nextAlphabetic(3))
         .setEntityUuid(componentDto.uuid()),
       componentDto.getKey(), componentDto.name(), componentDto.qualifier(), null));
   }
 
   private void insertPropertyFor(ProjectDto project) {
     db.properties().insertProperty(new PropertyDto()
-        .setKey(randomAlphabetic(3))
-        .setValue(randomAlphabetic(3))
+        .setKey(secure().nextAlphabetic(3))
+        .setValue(secure().nextAlphabetic(3))
         .setEntityUuid(project.getUuid()),
       null, project.getKey(), null, null);
   }
@@ -2029,9 +2029,9 @@ oldCreationDate));
 
   private void insertProjectMeasureFor(ComponentDto... components) {
     Arrays.stream(components).forEach(componentDto -> db.getDbClient().projectMeasureDao().insert(dbSession, new ProjectMeasureDto()
-      .setMetricUuid(randomAlphabetic(3))
+      .setMetricUuid(secure().nextAlphabetic(3))
       .setComponentUuid(componentDto.uuid())
-      .setAnalysisUuid(randomAlphabetic(3))));
+      .setAnalysisUuid(secure().nextAlphabetic(3))));
     dbSession.commit();
   }
 

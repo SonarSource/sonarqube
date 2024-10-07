@@ -51,7 +51,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -246,7 +246,7 @@ class IssueMapperIT {
 
   @Test
   void scrollClosedByComponentUuid_returns_empty_when_no_issue_for_component() {
-    String componentUuid = randomAlphabetic(10);
+    String componentUuid = secure().nextAlphabetic(10);
     RecorderResultHandler resultHandler = new RecorderResultHandler();
 
     underTest.scrollClosedByComponentUuid(componentUuid, new Date().getTime(), resultHandler);

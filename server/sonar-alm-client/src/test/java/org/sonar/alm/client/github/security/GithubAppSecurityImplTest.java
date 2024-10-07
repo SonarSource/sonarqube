@@ -30,8 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.auth.github.GithubAppConfiguration;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -42,7 +41,7 @@ public class GithubAppSecurityImplTest {
 
   @Test
   public void createAppToken_fails_with_IAE_if_privateKey_content_is_garbage() {
-    String garbage = randomAlphanumeric(555);
+    String garbage = secure().nextAlphanumeric(555);
     GithubAppConfiguration githubAppConfiguration = createAppConfigurationForPrivateKey(garbage);
 
     assertThatThrownBy(() -> underTest.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey()))
@@ -146,12 +145,12 @@ public class GithubAppSecurityImplTest {
   }
 
   private GithubAppConfiguration createAppConfiguration() {
-    return new GithubAppConfiguration(new Random().nextLong(), REAL_PRIVATE_KEY, randomAlphanumeric(5));
+    return new GithubAppConfiguration(new Random().nextLong(), REAL_PRIVATE_KEY, secure().nextAlphanumeric(5));
   }
 
   private GithubAppConfiguration createAppConfigurationForPrivateKey(String privateKey) {
     long applicationId = new Random().nextInt(654);
-    return new GithubAppConfiguration(applicationId, privateKey, randomAlphabetic(8));
+    return new GithubAppConfiguration(applicationId, privateKey, secure().nextAlphabetic(8));
   }
 
   private static final String REAL_PRIVATE_KEY = "-----BEGIN RSA PRIVATE KEY-----\n" +

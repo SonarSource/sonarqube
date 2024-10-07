@@ -31,7 +31,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.platform.ServerId;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -45,7 +45,7 @@ import static org.sonar.server.platform.serverid.ServerIdFactoryImpl.crc32Hex;
 
 @RunWith(DataProviderRunner.class)
 public class ServerIdFactoryImplTest {
-  private static final ServerId A_SERVERID = ServerId.of(randomAlphabetic(DATABASE_ID_LENGTH), randomAlphabetic(UUID_DATASET_ID_LENGTH));
+  private static final ServerId A_SERVERID = ServerId.of(secure().nextAlphabetic(DATABASE_ID_LENGTH), secure().nextAlphabetic(UUID_DATASET_ID_LENGTH));
 
   private MapSettings settings = new MapSettings();
   private Configuration config = settings.asConfig();
@@ -99,10 +99,10 @@ public class ServerIdFactoryImplTest {
   public static Object[][] anyFormatServerId() {
     return new Object[][] {
       {ServerId.parse(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()))},
-      {ServerId.parse(randomAlphabetic(NOT_UUID_DATASET_ID_LENGTH))},
-      {ServerId.parse(randomAlphabetic(UUID_DATASET_ID_LENGTH))},
-      {ServerId.of(randomAlphabetic(DATABASE_ID_LENGTH), randomAlphabetic(NOT_UUID_DATASET_ID_LENGTH))},
-      {ServerId.of(randomAlphabetic(DATABASE_ID_LENGTH), randomAlphabetic(UUID_DATASET_ID_LENGTH))}
+      {ServerId.parse(secure().nextAlphabetic(NOT_UUID_DATASET_ID_LENGTH))},
+      {ServerId.parse(secure().nextAlphabetic(UUID_DATASET_ID_LENGTH))},
+      {ServerId.of(secure().nextAlphabetic(DATABASE_ID_LENGTH), secure().nextAlphabetic(NOT_UUID_DATASET_ID_LENGTH))},
+      {ServerId.of(secure().nextAlphabetic(DATABASE_ID_LENGTH), secure().nextAlphabetic(UUID_DATASET_ID_LENGTH))}
     };
   }
 

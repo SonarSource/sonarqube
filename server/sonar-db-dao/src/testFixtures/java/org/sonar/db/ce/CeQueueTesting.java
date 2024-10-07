@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
@@ -41,11 +41,11 @@ public class CeQueueTesting {
   public static CeQueueDto newCeQueueDto(String uuid) {
     return new CeQueueDto()
       .setUuid(uuid)
-      .setComponentUuid(randomAlphanumeric(40))
-      .setEntityUuid(randomAlphanumeric(39))
+      .setComponentUuid(secure().nextAlphanumeric(40))
+      .setEntityUuid(secure().nextAlphanumeric(39))
       .setStatus(CeQueueDto.Status.PENDING)
       .setTaskType(CeTaskTypes.REPORT)
-      .setSubmitterUuid(randomAlphanumeric(255))
+      .setSubmitterUuid(secure().nextAlphanumeric(255))
       .setCreatedAt(RANDOM.nextLong(Long.MAX_VALUE))
       .setUpdatedAt(RANDOM.nextLong(Long.MAX_VALUE));
   }

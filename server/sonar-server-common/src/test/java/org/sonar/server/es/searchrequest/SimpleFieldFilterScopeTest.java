@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.NestedFieldFilterScope;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.SimpleFieldFilterScope;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -37,7 +37,7 @@ public class SimpleFieldFilterScopeTest {
 
   @Test
   public void getFieldName() {
-    String fieldName = randomAlphabetic(12);
+    String fieldName = secure().nextAlphabetic(12);
     SimpleFieldFilterScope underTest = new SimpleFieldFilterScope(fieldName);
 
     assertThat(underTest.getFieldName()).isEqualTo(fieldName);
@@ -45,8 +45,8 @@ public class SimpleFieldFilterScopeTest {
 
   @Test
   public void verify_equals() {
-    String fieldName1 = randomAlphabetic(11);
-    String fieldName2 = randomAlphabetic(12);
+    String fieldName1 = secure().nextAlphabetic(11);
+    String fieldName2 = secure().nextAlphabetic(12);
     SimpleFieldFilterScope underTest = new SimpleFieldFilterScope(fieldName1);
 
     assertThat(underTest)
@@ -61,8 +61,8 @@ public class SimpleFieldFilterScopeTest {
 
   @Test
   public void verify_hashcode() {
-    String fieldName1 = randomAlphabetic(11);
-    String fieldName2 = randomAlphabetic(12);
+    String fieldName1 = secure().nextAlphabetic(11);
+    String fieldName2 = secure().nextAlphabetic(12);
     SimpleFieldFilterScope underTest = new SimpleFieldFilterScope(fieldName1);
 
     assertThat(underTest.hashCode())
@@ -77,8 +77,8 @@ public class SimpleFieldFilterScopeTest {
 
   @Test
   public void verify_intersect() {
-    String fieldName1 = randomAlphabetic(11);
-    String fieldName2 = randomAlphabetic(12);
+    String fieldName1 = secure().nextAlphabetic(11);
+    String fieldName2 = secure().nextAlphabetic(12);
     SimpleFieldFilterScope underTest = new SimpleFieldFilterScope(fieldName1);
 
     assertThat(underTest.intersect(underTest)).isTrue();

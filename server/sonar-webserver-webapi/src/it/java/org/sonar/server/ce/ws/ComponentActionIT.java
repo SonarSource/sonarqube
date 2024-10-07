@@ -52,7 +52,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -176,7 +176,7 @@ public class ComponentActionIT {
   public void branch_in_activity() {
     ProjectData project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey(branchName));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     CeActivityDto activity = insertActivity("T1", project.getMainBranchComponent(), project.getProjectDto(), SUCCESS, analysis);
@@ -197,7 +197,7 @@ public class ComponentActionIT {
   public void branch_in_queue_analysis() {
     ProjectData project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey(branchName));
     CeQueueDto queue1 = insertQueue("T1", project.getMainBranchComponent(), project.getProjectDto(), IN_PROGRESS);
     insertCharacteristic(queue1, CeTaskCharacteristics.BRANCH, branchName);

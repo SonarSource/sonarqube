@@ -53,7 +53,7 @@ import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static java.util.Collections.synchronizedList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -410,8 +410,8 @@ public class SchedulerImplTest {
   }
 
   private ImmutableMap.Builder<String, String> addRequiredNodeProperties(ImmutableMap.Builder<String, String> builder) {
-    builder.put(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(4));
-    builder.put(CLUSTER_NODE_HOST.getKey(), randomAlphanumeric(4));
+    builder.put(CLUSTER_NODE_NAME.getKey(), secure().nextAlphanumeric(4));
+    builder.put(CLUSTER_NODE_HOST.getKey(), secure().nextAlphanumeric(4));
     builder.put(CLUSTER_NODE_HZ_PORT.getKey(), String.valueOf(1 + new Random().nextInt(999)));
     return builder;
   }

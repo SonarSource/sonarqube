@@ -25,8 +25,7 @@ import java.util.function.Consumer;
 import org.sonar.core.util.Uuids;
 
 import static java.util.Arrays.stream;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 
 public class QualityProfileTesting {
 
@@ -45,7 +44,7 @@ public class QualityProfileTesting {
       .setKee(uuid)
       .setRulesProfileUuid(Uuids.createFast())
       .setName(uuid)
-      .setLanguage(randomAlphanumeric(20))
+      .setLanguage(secure().nextAlphanumeric(20))
       .setLastUsed(RANDOM.nextLong(Long.MAX_VALUE));
   }
 
@@ -55,11 +54,11 @@ public class QualityProfileTesting {
    */
   public static QProfileChangeDto newQProfileChangeDto() {
     return new QProfileChangeDto()
-      .setUuid(randomAlphanumeric(40))
-      .setRulesProfileUuid(randomAlphanumeric(40))
+      .setUuid(secure().nextAlphanumeric(40))
+      .setRulesProfileUuid(secure().nextAlphanumeric(40))
       .setCreatedAt(RANDOM.nextLong(Long.MAX_VALUE))
       .setChangeType("ACTIVATED")
-      .setUserUuid("userUuid_" + randomAlphanumeric(10));
+      .setUserUuid("userUuid_" + secure().nextAlphanumeric(10));
   }
 
   /**
@@ -67,9 +66,9 @@ public class QualityProfileTesting {
    */
   public static RulesProfileDto newRuleProfileDto(Consumer<RulesProfileDto>... populators) {
     RulesProfileDto dto = new RulesProfileDto()
-      .setUuid("uuid" + randomAlphabetic(10))
-      .setName("name" + randomAlphabetic(10))
-      .setLanguage("lang" + randomAlphabetic(5))
+      .setUuid("uuid" + secure().nextAlphabetic(10))
+      .setName("name" + secure().nextAlphabetic(10))
+      .setLanguage("lang" + secure().nextAlphabetic(5))
       .setIsBuiltIn(false);
     stream(populators).forEach(p -> p.accept(dto));
     return dto;

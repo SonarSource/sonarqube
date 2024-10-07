@@ -24,7 +24,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 import org.junit.Test;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 
@@ -47,7 +47,7 @@ public class FieldAwareTest {
     fieldSetters.forEach(c -> {
       TestFieldAware underTest = new TestFieldAware();
       // should not fail for other field name
-      c.accept(underTest, randomAlphabetic(1 + new Random().nextInt(10)));
+      c.accept(underTest, secure().nextAlphabetic(1 + new Random().nextInt(10)));
       // fails whatever the case
       Stream.of("indexType", "indextype", "InDexType", "INDEXTYPE")
         .forEach(illegalFieldName -> {

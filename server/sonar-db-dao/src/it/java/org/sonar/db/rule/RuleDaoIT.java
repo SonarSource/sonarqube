@@ -58,7 +58,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -684,9 +684,9 @@ class RuleDaoIT {
     RuleDto rule = db.rules().insert();
     RuleDescriptionSectionDto existingSection = rule.getRuleDescriptionSectionDtos().iterator().next();
     RuleDescriptionSectionDto newSection = RuleDescriptionSectionDto.builder()
-      .uuid(randomAlphanumeric(20))
+      .uuid(secure().nextAlphanumeric(20))
       .key("new_key")
-      .content(randomAlphanumeric(1000))
+      .content(secure().nextAlphanumeric(1000))
       .build();
 
     rule.addRuleDescriptionSectionDto(newSection);
@@ -707,9 +707,9 @@ class RuleDaoIT {
     Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = rule.getRuleDescriptionSectionDtos();
     RuleDescriptionSectionDto existingSection = ruleDescriptionSectionDtos.iterator().next();
     RuleDescriptionSectionDto replacingSection = RuleDescriptionSectionDto.builder()
-      .uuid(randomAlphanumeric(20))
+      .uuid(secure().nextAlphanumeric(20))
       .key(existingSection.getKey())
-      .content(randomAlphanumeric(1000))
+      .content(secure().nextAlphanumeric(1000))
       .build();
 
     rule.replaceRuleDescriptionSectionDtos(List.of(replacingSection));
@@ -727,11 +727,11 @@ class RuleDaoIT {
     RuleDto rule = db.rules().insert();
     Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = rule.getRuleDescriptionSectionDtos();
     RuleDescriptionSectionDto existingSection = ruleDescriptionSectionDtos.iterator().next();
-    RuleDescriptionSectionContextDto contextDto = RuleDescriptionSectionContextDto.of(randomAlphanumeric(10), randomAlphanumeric(10));
+    RuleDescriptionSectionContextDto contextDto = RuleDescriptionSectionContextDto.of(secure().nextAlphanumeric(10), secure().nextAlphanumeric(10));
     RuleDescriptionSectionDto replacingSection = RuleDescriptionSectionDto.builder()
-      .uuid(randomAlphanumeric(20))
+      .uuid(secure().nextAlphanumeric(20))
       .key(existingSection.getKey())
-      .content(randomAlphanumeric(1000))
+      .content(secure().nextAlphanumeric(1000))
       .context(contextDto)
       .build();
 
@@ -1290,8 +1290,8 @@ class RuleDaoIT {
 
   @Test
   void insertDeprecatedRuleKey_with_same_RuleKey_should_fail() {
-    String repositoryKey = randomAlphanumeric(50);
-    String ruleKey = randomAlphanumeric(50);
+    String repositoryKey = secure().nextAlphanumeric(50);
+    String ruleKey = secure().nextAlphanumeric(50);
     RuleDbTester ruleTester = db.rules();
     ruleTester.insertDeprecatedKey(d -> d.setOldRepositoryKey(repositoryKey)
       .setOldRuleKey(ruleKey));
@@ -1374,7 +1374,7 @@ class RuleDaoIT {
 
   private static RuleDescriptionSectionDto createDefaultRuleDescriptionSection() {
     return RuleDescriptionSectionDto.createDefaultRuleDescriptionSection(UuidFactoryFast.getInstance().create(),
-      RandomStringUtils.randomAlphanumeric(1000));
+      RandomStringUtils.secure().nextAlphanumeric(1000));
   }
 
   private static class Accumulator<T> implements Consumer<T> {

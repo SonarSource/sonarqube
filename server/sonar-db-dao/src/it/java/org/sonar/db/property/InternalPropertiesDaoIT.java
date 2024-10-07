@@ -48,7 +48,7 @@ import org.sonar.db.audit.model.PropertyNewValue;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
@@ -494,7 +494,7 @@ class InternalPropertiesDaoIT {
 
   @Test
   void tryLock_fails_if_it_would_insert_concurrently() {
-    String name = randomAlphabetic(5);
+    String name = secure().nextAlphabetic(5);
     String propertyKey = propertyKeyOf(name);
 
     long now = new Random().nextInt();
@@ -516,7 +516,7 @@ class InternalPropertiesDaoIT {
   @Test
   void tryLock_fails_if_concurrent_caller_succeeded_first() {
     int lockDurationSeconds = 60;
-    String name = randomAlphabetic(5);
+    String name = secure().nextAlphabetic(5);
     String propertyKey = propertyKeyOf(name);
 
     long now = new Random().nextInt(4_889_989);
@@ -548,7 +548,7 @@ class InternalPropertiesDaoIT {
 
   @Test
   void tryLock_throws_IAE_if_lock_name_length_is_too_long() {
-    String tooLongName = randomAlphabetic(LOCK_NAME_MAX_LENGTH + 1);
+    String tooLongName = secure().nextAlphabetic(LOCK_NAME_MAX_LENGTH + 1);
 
     assertThatThrownBy(() -> underTest.tryLock(dbSession, tooLongName, 60))
       .isInstanceOf(IllegalArgumentException.class)

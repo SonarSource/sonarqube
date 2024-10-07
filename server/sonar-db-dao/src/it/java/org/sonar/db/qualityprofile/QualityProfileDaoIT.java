@@ -45,7 +45,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -220,8 +220,8 @@ class QualityProfileDaoIT {
 
   private RulesProfileDto insertRulesProfile() {
     RulesProfileDto dto = new RulesProfileDto()
-      .setName(randomAlphanumeric(10))
-      .setLanguage(randomAlphanumeric(3))
+      .setName(secure().nextAlphanumeric(10))
+      .setLanguage(secure().nextAlphanumeric(3))
       .setUuid(Uuids.createFast())
       .setIsBuiltIn(false);
     db.getDbClient().qualityProfileDao().insert(dbSession, dto);

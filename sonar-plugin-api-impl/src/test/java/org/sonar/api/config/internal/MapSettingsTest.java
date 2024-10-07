@@ -42,7 +42,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -79,14 +79,14 @@ public class MapSettingsTest {
   public void set_throws_NPE_if_key_is_null() {
     MapSettings underTest = new MapSettings();
 
-    expectKeyNullNPE(() -> underTest.set(null, randomAlphanumeric(3)));
+    expectKeyNullNPE(() -> underTest.set(null, secure().nextAlphanumeric(3)));
   }
 
   @Test
   public void set_throws_NPE_if_value_is_null() {
     MapSettings underTest = new MapSettings();
 
-    assertThatThrownBy(() -> underTest.set(randomAlphanumeric(3), null))
+    assertThatThrownBy(() -> underTest.set(secure().nextAlphanumeric(3), null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("value can't be null");
   }
@@ -95,7 +95,7 @@ public class MapSettingsTest {
   public void set_accepts_empty_value_and_trims_it() {
     MapSettings underTest = new MapSettings();
     Random random = new Random();
-    String key = randomAlphanumeric(3);
+    String key = secure().nextAlphanumeric(3);
 
     underTest.set(key, blank(random));
 
@@ -118,7 +118,7 @@ public class MapSettingsTest {
 
   @Test
   public void set_property_string_throws_NPE_if_key_is_null() {
-    String key = randomAlphanumeric(3);
+    String key = secure().nextAlphanumeric(3);
 
     Settings underTest = new MapSettings(new PropertyDefinitions(System2.INSTANCE, singletonList(PropertyDefinition.builder(key).multiValues(true).build())));
 
@@ -139,7 +139,7 @@ public class MapSettingsTest {
     Random random = new Random();
     String blankBefore = blank(random);
     String blankAfter = blank(random);
-    String key = randomAlphanumeric(3);
+    String key = secure().nextAlphanumeric(3);
 
     setPropertyCaller.accept(underTest, blankBefore + key + blankAfter);
 
@@ -148,7 +148,7 @@ public class MapSettingsTest {
 
   @Test
   public void set_property_string_array_trims_key() {
-    String key = randomAlphanumeric(3);
+    String key = secure().nextAlphanumeric(3);
 
     Settings underTest = new MapSettings(new PropertyDefinitions(System2.INSTANCE, singletonList(PropertyDefinition.builder(key).multiValues(true).build())));
 
@@ -188,8 +188,8 @@ public class MapSettingsTest {
     Random random = new Random();
     String blankBefore = blank(random);
     String blankAfter = blank(random);
-    String key = randomAlphanumeric(3);
-    String value = randomAlphanumeric(3);
+    String key = secure().nextAlphanumeric(3);
+    String value = secure().nextAlphanumeric(3);
 
     underTest.setProperty(key, blankBefore + value + blankAfter);
 

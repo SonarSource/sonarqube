@@ -57,7 +57,7 @@ public class CeTasksMBeanImplTest {
   private static final int WORKER_MAX_COUNT = 666;
   private static final int WORKER_COUNT = 56;
   private static final Set<CeWorker> WORKERS = IntStream.range(0, 2 + new Random().nextInt(10))
-    .mapToObj(i -> RandomStringUtils.randomAlphabetic(15))
+    .mapToObj(i -> RandomStringUtils.secure().nextAlphabetic(15))
     .map(uuid -> {
       CeWorker res = mock(CeWorker.class);
       when(res.getUUID()).thenReturn(uuid);

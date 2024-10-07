@@ -34,7 +34,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -79,7 +79,7 @@ class ProjectInfoTest {
 
   @Test
   void fail_with_too_long_version() {
-    String version = randomAlphabetic(101);
+    String version = secure().nextAlphabetic(101);
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, version);
 
@@ -91,7 +91,7 @@ class ProjectInfoTest {
 
   @Test
   void fail_with_too_long_buildString() {
-    String buildString = randomAlphabetic(101);
+    String buildString = secure().nextAlphabetic(101);
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.BUILD_STRING_PROPERTY, buildString);
 
@@ -114,7 +114,7 @@ class ProjectInfoTest {
 
   @Test
   void getProjectVersion_contains_value_of_property() {
-    String value = RandomStringUtils.randomAlphabetic(10);
+    String value = RandomStringUtils.secure().nextAlphabetic(10);
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, value);
 
@@ -136,7 +136,7 @@ class ProjectInfoTest {
 
   @Test
   void getBuildString_contains_value_of_property() {
-    String value = RandomStringUtils.randomAlphabetic(10);
+    String value = RandomStringUtils.secure().nextAlphabetic(10);
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.BUILD_STRING_PROPERTY, value);
 

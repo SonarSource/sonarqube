@@ -32,7 +32,7 @@ import org.sonar.process.cluster.health.SharedHealthStateImpl;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static java.lang.String.valueOf;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,10 +48,10 @@ public class NodeHealthModuleTest {
     Server server = mock(Server.class);
     NetworkUtils networkUtils = mock(NetworkUtils.class);
     // settings required by NodeHealthProvider
-    mapSettings.setProperty("sonar.cluster.node.name", randomAlphanumeric(3));
+    mapSettings.setProperty("sonar.cluster.node.name", secure().nextAlphanumeric(3));
     mapSettings.setProperty("sonar.cluster.node.port", valueOf(1 + random.nextInt(10)));
     when(server.getStartedAt()).thenReturn(new Date());
-    when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(12));
+    when(networkUtils.getHostname()).thenReturn(secure().nextAlphanumeric(12));
     // upper level dependencies
     container.add(
       mock(System2.class),

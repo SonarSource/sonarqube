@@ -35,8 +35,7 @@ import org.sonar.server.issue.notification.NewIssuesNotification.RuleDefinition;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -87,7 +86,7 @@ public class NewIssuesNotificationIT {
 
   @Test
   public void set_project_version() {
-    String version = randomAlphanumeric(5);
+    String version = secure().nextAlphanumeric(5);
 
     underTest.setProjectVersion(version);
 
@@ -108,10 +107,10 @@ public class NewIssuesNotificationIT {
 
   @Test
   public void getProjectKey_returns_projectKey_if_setProject_has_been_called() {
-    String projectKey = randomAlphabetic(5);
-    String projectName = randomAlphabetic(6);
-    String branchName = randomAlphabetic(7);
-    String pullRequest = randomAlphabetic(8);
+    String projectKey = secure().nextAlphabetic(5);
+    String projectName = secure().nextAlphabetic(6);
+    String branchName = secure().nextAlphabetic(7);
+    String pullRequest = secure().nextAlphabetic(8);
     underTest.setProject(projectKey, projectName, branchName, pullRequest);
 
     assertThat(underTest.getProjectKey()).isEqualTo(projectKey);
@@ -119,7 +118,7 @@ public class NewIssuesNotificationIT {
 
   @Test
   public void getProjectKey_returns_value_of_field_projectKey() {
-    String projectKey = randomAlphabetic(5);
+    String projectKey = secure().nextAlphabetic(5);
     underTest.setFieldValue("projectKey", projectKey);
 
     assertThat(underTest.getProjectKey()).isEqualTo(projectKey);
@@ -421,16 +420,16 @@ public class NewIssuesNotificationIT {
 
   @Test
   public void RuleDefinition_implements_equals_base_on_name_and_language() {
-    String name = randomAlphabetic(5);
-    String language = randomAlphabetic(6);
+    String name = secure().nextAlphabetic(5);
+    String language = secure().nextAlphabetic(6);
     RuleDefinition underTest = new RuleDefinition(name, language);
 
     assertThat(underTest)
       .isEqualTo(underTest)
       .isEqualTo(new RuleDefinition(name, language))
       .isNotEqualTo(new RuleDefinition(language, name))
-      .isNotEqualTo(new RuleDefinition(randomAlphabetic(7), name))
-      .isNotEqualTo(new RuleDefinition(language, randomAlphabetic(7)))
+      .isNotEqualTo(new RuleDefinition(secure().nextAlphabetic(7), name))
+      .isNotEqualTo(new RuleDefinition(language, secure().nextAlphabetic(7)))
       .isNotEqualTo(new RuleDefinition(language, null))
       .isNotNull()
       .isNotEqualTo(new Object());
@@ -438,8 +437,8 @@ public class NewIssuesNotificationIT {
 
   @Test
   public void RuleDefinition_implements_hashcode_base_on_name_and_language() {
-    String name = randomAlphabetic(5);
-    String language = randomAlphabetic(6);
+    String name = secure().nextAlphabetic(5);
+    String language = secure().nextAlphabetic(6);
     RuleDefinition underTest = new RuleDefinition(name, language);
 
     assertThat(underTest)
@@ -448,8 +447,8 @@ public class NewIssuesNotificationIT {
 
     assertThat(underTest.hashCode())
       .isNotEqualTo(new RuleDefinition(language, name).hashCode())
-      .isNotEqualTo(new RuleDefinition(randomAlphabetic(7), name).hashCode())
-      .isNotEqualTo(new RuleDefinition(language, randomAlphabetic(7)).hashCode())
+      .isNotEqualTo(new RuleDefinition(secure().nextAlphabetic(7), name).hashCode())
+      .isNotEqualTo(new RuleDefinition(language, secure().nextAlphabetic(7)).hashCode())
       .isNotEqualTo(new RuleDefinition(language, null).hashCode())
       .isNotEqualTo(new Object().hashCode());
   }

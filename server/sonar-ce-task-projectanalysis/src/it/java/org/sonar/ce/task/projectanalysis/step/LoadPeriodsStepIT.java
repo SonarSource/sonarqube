@@ -58,7 +58,7 @@ import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.project.Project;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
@@ -465,7 +465,7 @@ public class LoadPeriodsStepIT extends BaseStepTest {
   @DataProvider
   public static Object[][] stringConsideredAsVersions() {
     return new Object[][] {
-      {randomAlphabetic(5)},
+      {secure().nextAlphabetic(5)},
       {"1,3"},
       {"1.3"},
       {"0 1"},
@@ -478,7 +478,7 @@ public class LoadPeriodsStepIT extends BaseStepTest {
   public static Object[][] projectVersionNullOrNot() {
     return new Object[][] {
       {null},
-      {randomAlphabetic(15)},
+      {secure().nextAlphabetic(15)},
     };
   }
 

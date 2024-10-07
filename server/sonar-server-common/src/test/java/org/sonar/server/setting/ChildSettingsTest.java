@@ -29,7 +29,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -42,21 +42,21 @@ public class ChildSettingsTest {
 
   @Test
   public void childSettings_should_retrieve_parent_settings() {
-    String multipleValuesKey = randomAlphanumeric(19);
+    String multipleValuesKey = secure().nextAlphanumeric(19);
     PropertyDefinition multipleValues = PropertyDefinition.builder(multipleValuesKey).multiValues(true).build();
     MapSettings parent = new MapSettings(new PropertyDefinitions(System2.INSTANCE, Collections.singletonList(multipleValues)));
     ChildSettings underTest = new ChildSettings(parent);
 
-    parent.setProperty(randomAlphanumeric(10), randomAlphanumeric(20));
-    parent.setProperty(randomAlphanumeric(11), RANDOM.nextLong());
-    parent.setProperty(randomAlphanumeric(12), RANDOM.nextDouble());
-    parent.setProperty(randomAlphanumeric(13), RANDOM.nextFloat());
-    parent.setProperty(randomAlphanumeric(14), RANDOM.nextBoolean());
-    parent.setProperty(randomAlphanumeric(15), RANDOM.nextInt(Integer.MAX_VALUE));
-    parent.setProperty(randomAlphanumeric(16), new Date(RANDOM.nextInt()));
-    parent.setProperty(randomAlphanumeric(17), new Date(RANDOM.nextInt()), true);
-    parent.setProperty(randomAlphanumeric(18), new Date(RANDOM.nextInt()), false);
-    parent.setProperty(multipleValuesKey, new String[] {randomAlphanumeric(10), randomAlphanumeric(20)});
+    parent.setProperty(secure().nextAlphanumeric(10), secure().nextAlphanumeric(20));
+    parent.setProperty(secure().nextAlphanumeric(11), RANDOM.nextLong());
+    parent.setProperty(secure().nextAlphanumeric(12), RANDOM.nextDouble());
+    parent.setProperty(secure().nextAlphanumeric(13), RANDOM.nextFloat());
+    parent.setProperty(secure().nextAlphanumeric(14), RANDOM.nextBoolean());
+    parent.setProperty(secure().nextAlphanumeric(15), RANDOM.nextInt(Integer.MAX_VALUE));
+    parent.setProperty(secure().nextAlphanumeric(16), new Date(RANDOM.nextInt()));
+    parent.setProperty(secure().nextAlphanumeric(17), new Date(RANDOM.nextInt()), true);
+    parent.setProperty(secure().nextAlphanumeric(18), new Date(RANDOM.nextInt()), false);
+    parent.setProperty(multipleValuesKey, new String[] {secure().nextAlphanumeric(10), secure().nextAlphanumeric(20)});
 
     assertThat(underTest.getProperties()).isEqualTo(parent.getProperties());
   }
@@ -70,16 +70,16 @@ public class ChildSettingsTest {
 
   @Test
   public void set_will_throw_NPE_if_value_is_null() {
-    assertThatThrownBy(() -> underTest.set(randomAlphanumeric(10), null))
+    assertThatThrownBy(() -> underTest.set(secure().nextAlphanumeric(10), null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("value can't be null");
   }
 
   @Test
   public void childSettings_override_parent() {
-    String key = randomAlphanumeric(10);
-    parent.setProperty(key, randomAlphanumeric(20));
-    underTest.setProperty(key, randomAlphanumeric(10));
+    String key = secure().nextAlphanumeric(10);
+    parent.setProperty(key, secure().nextAlphanumeric(20));
+    underTest.setProperty(key, secure().nextAlphanumeric(10));
 
     Optional<String> result = underTest.get(key);
     assertThat(result).isPresent();
@@ -88,13 +88,13 @@ public class ChildSettingsTest {
 
   @Test
   public void remove_should_not_throw_exception_if_key_is_not_present() {
-    underTest.remove(randomAlphanumeric(90));
+    underTest.remove(secure().nextAlphanumeric(90));
   }
 
   @Test
   public void remove_should_remove_value() {
-    String key = randomAlphanumeric(10);
-    String childValue = randomAlphanumeric(10);
+    String key = secure().nextAlphanumeric(10);
+    String childValue = secure().nextAlphanumeric(10);
 
     underTest.set(key, childValue);
     assertThat(underTest.get(key)).isEqualTo(Optional.of(childValue));
@@ -105,9 +105,9 @@ public class ChildSettingsTest {
 
   @Test
   public void remove_should_retrieve_parent_value() {
-    String key = randomAlphanumeric(10);
-    String childValue = randomAlphanumeric(10);
-    String parentValue = randomAlphanumeric(10);
+    String key = secure().nextAlphanumeric(10);
+    String childValue = secure().nextAlphanumeric(10);
+    String parentValue = secure().nextAlphanumeric(10);
 
     parent.setProperty(key, parentValue);
     underTest.set(key, childValue);

@@ -44,7 +44,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -141,8 +141,8 @@ public class ExportAnalysesStepIT {
 
   @DataProvider
   public static Object[][] versionAndBuildStringCombinations() {
-    String version = randomAlphabetic(7);
-    String buildString = randomAlphabetic(12);
+    String version = secure().nextAlphabetic(7);
+    String buildString = secure().nextAlphabetic(12);
     return new Object[][] {
       {null, null},
       {version, null},

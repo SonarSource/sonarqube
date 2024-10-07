@@ -38,7 +38,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -133,7 +133,7 @@ class ActivateRulesActionIT {
   void fail_if_not_logged_in() {
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_TARGET_KEY, randomAlphanumeric(UUID_SIZE));
+      .setParam(PARAM_TARGET_KEY, secure().nextAlphanumeric(UUID_SIZE));
 
     assertThatThrownBy(() -> request.execute())
       .isInstanceOf(UnauthorizedException.class);

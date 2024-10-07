@@ -39,7 +39,7 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.property.InternalProperties;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
@@ -56,8 +56,8 @@ import static org.sonar.core.platform.ServerId.UUID_DATASET_ID_LENGTH;
 @RunWith(DataProviderRunner.class)
 public class ServerIdManagerIT {
 
-  private static final ServerId WITH_DATABASE_ID_SERVER_ID = ServerId.of(randomAlphanumeric(DATABASE_ID_LENGTH), randomAlphanumeric(NOT_UUID_DATASET_ID_LENGTH));
-  private static final String CHECKSUM_1 = randomAlphanumeric(12);
+  private static final ServerId WITH_DATABASE_ID_SERVER_ID = ServerId.of(secure().nextAlphanumeric(DATABASE_ID_LENGTH), secure().nextAlphanumeric(NOT_UUID_DATASET_ID_LENGTH));
+  private static final String CHECKSUM_1 = secure().nextAlphanumeric(12);
 
   @Rule
   public final DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -115,7 +115,7 @@ public class ServerIdManagerIT {
 
   @Test
   public void web_leader_creates_server_id_from_current_serverId_with_databaseId_if_checksum_fails() {
-    ServerId currentServerId = ServerId.of(randomAlphanumeric(DATABASE_ID_LENGTH), randomAlphanumeric(UUID_DATASET_ID_LENGTH));
+    ServerId currentServerId = ServerId.of(secure().nextAlphanumeric(DATABASE_ID_LENGTH), secure().nextAlphanumeric(UUID_DATASET_ID_LENGTH));
     insertServerId(currentServerId);
     insertChecksum("does_not_match_WITH_DATABASE_ID_SERVER_ID");
     mockChecksumOf(currentServerId, "matches_WITH_DATABASE_ID_SERVER_ID");

@@ -48,8 +48,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
 import org.sonar.server.project.Project;
 
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -274,7 +273,7 @@ public class BuildComponentTreeStepIT {
   @Test
   public void generate_keys_when_using_existing_branch() {
     ComponentDto projectDto = dbTester.components().insertPublicProject().getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto componentDto = dbTester.components().insertProjectBranch(projectDto, b -> b.setKey(branchName));
     Branch branch = mock(Branch.class);
     when(branch.getName()).thenReturn(branchName);
@@ -398,7 +397,7 @@ public class BuildComponentTreeStepIT {
 
   @Test
   public void set_projectVersion_when_it_is_set_on_first_analysis() {
-    String scannerProjectVersion = randomAlphabetic(12);
+    String scannerProjectVersion = secure().nextAlphabetic(12);
     setAnalysisMetadataHolder();
     reportReader.setMetadata(createReportMetadata(scannerProjectVersion, NO_SCANNER_BUILD_STRING));
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
@@ -412,7 +411,7 @@ public class BuildComponentTreeStepIT {
   @Test
   @UseDataProvider("oneParameterNullNonNullCombinations")
   public void set_projectVersion_when_it_is_set_on_later_analysis(@Nullable String previousAnalysisProjectVersion) {
-    String scannerProjectVersion = randomAlphabetic(12);
+    String scannerProjectVersion = secure().nextAlphabetic(12);
     setAnalysisMetadataHolder();
     reportReader.setMetadata(createReportMetadata(scannerProjectVersion, NO_SCANNER_BUILD_STRING));
     ComponentDto project = insertComponent(newPrivateProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
@@ -428,7 +427,7 @@ public class BuildComponentTreeStepIT {
   @Test
   @UseDataProvider("oneParameterNullNonNullCombinations")
   public void set_buildString(@Nullable String buildString) {
-    String projectVersion = randomAlphabetic(7);
+    String projectVersion = secure().nextAlphabetic(7);
     setAnalysisMetadataHolder();
     reportReader.setMetadata(createReportMetadata(projectVersion, buildString));
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
@@ -442,7 +441,7 @@ public class BuildComponentTreeStepIT {
   public static Object[][] oneParameterNullNonNullCombinations() {
     return new Object[][] {
       {null},
-      {randomAlphabetic(7)}
+      {secure().nextAlphabetic(7)}
     };
   }
 

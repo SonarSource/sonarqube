@@ -37,7 +37,7 @@ import static org.sonar.server.common.almintegration.ProjectKeyGenerator.PROJECT
 public class ProjectKeyGeneratorTest {
 
   private static final int MAX_UUID_SIZE = 40;
-  private static final String UUID_STRING = RandomStringUtils.randomAlphanumeric(MAX_UUID_SIZE);
+  private static final String UUID_STRING = RandomStringUtils.secure().nextAlphanumeric(MAX_UUID_SIZE);
 
   @Mock
   private UuidFactory uuidFactory;
@@ -52,7 +52,7 @@ public class ProjectKeyGeneratorTest {
 
   @Test
   public void generateUniqueProjectKey_shortProjectName_shouldAppendUuid() {
-    String fullProjectName = RandomStringUtils.randomAlphanumeric(10);
+    String fullProjectName = RandomStringUtils.secure().nextAlphanumeric(10);
 
     assertThat(projectKeyGenerator.generateUniqueProjectKey(fullProjectName))
       .isEqualTo(generateExpectedKeyName(fullProjectName));
@@ -60,7 +60,7 @@ public class ProjectKeyGeneratorTest {
 
   @Test
   public void generateUniqueProjectKey_projectNameEqualsToMaximumSize_shouldTruncateProjectNameAndPreserveUUID() {
-    String fullProjectName = RandomStringUtils.randomAlphanumeric(MAX_PROJECT_KEY_SIZE);
+    String fullProjectName = RandomStringUtils.secure().nextAlphanumeric(MAX_PROJECT_KEY_SIZE);
 
     String projectKey = projectKeyGenerator.generateUniqueProjectKey(fullProjectName);
     assertThat(projectKey)
@@ -70,7 +70,7 @@ public class ProjectKeyGeneratorTest {
 
   @Test
   public void generateUniqueProjectKey_projectNameBiggerThanMaximumSize_shouldTruncateProjectNameAndPreserveUUID() {
-    String fullProjectName = RandomStringUtils.randomAlphanumeric(MAX_PROJECT_KEY_SIZE + 50);
+    String fullProjectName = RandomStringUtils.secure().nextAlphanumeric(MAX_PROJECT_KEY_SIZE + 50);
 
     String projectKey = projectKeyGenerator.generateUniqueProjectKey(fullProjectName);
     assertThat(projectKey)

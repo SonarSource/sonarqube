@@ -28,7 +28,7 @@ import org.sonar.db.component.ComponentDto;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.component.ComponentTesting.newBranchComponent;
@@ -54,8 +54,8 @@ class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   @Test
   void searchProjectStatistics_does_not_return_results_if_assignee_does_not_match() {
     ComponentDto project = newPrivateProjectDto();
-    String user1Uuid = randomAlphanumeric(40);
-    String user2Uuid = randomAlphanumeric(40);
+    String user1Uuid = secure().nextAlphanumeric(40);
+    String user2Uuid = secure().nextAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(newDocForProject("issue1", project).setAssigneeUuid(user1Uuid).setFuncCreationDate(new Date(from + 1L)));
 
@@ -67,7 +67,7 @@ class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   @Test
   void searchProjectStatistics_returns_results_if_assignee_matches() {
     ComponentDto project = newPrivateProjectDto();
-    String user1Uuid = randomAlphanumeric(40);
+    String user1Uuid = secure().nextAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(newDocForProject("issue1", project).setAssigneeUuid(user1Uuid).setFuncCreationDate(new Date(from + 1L)));
 
@@ -79,7 +79,7 @@ class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   @Test
   void searchProjectStatistics_returns_results_if_functional_date_is_strictly_after_from_date() {
     ComponentDto project = newPrivateProjectDto();
-    String userUuid = randomAlphanumeric(40);
+    String userUuid = secure().nextAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(newDocForProject("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)));
 
@@ -91,7 +91,7 @@ class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   @Test
   void searchProjectStatistics_does_not_return_results_if_functional_date_is_same_as_from_date() {
     ComponentDto project = newPrivateProjectDto();
-    String userUuid = randomAlphanumeric(40);
+    String userUuid = secure().nextAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(newDocForProject("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from)));
 
@@ -103,7 +103,7 @@ class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   @Test
   void searchProjectStatistics_does_not_return_resolved_issues() {
     ComponentDto project = newPrivateProjectDto();
-    String userUuid = randomAlphanumeric(40);
+    String userUuid = secure().nextAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(
       newDocForProject("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
@@ -119,7 +119,7 @@ class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   @Test
   void searchProjectStatistics_does_not_return_results_if_functional_date_is_before_from_date() {
     ComponentDto project = newPrivateProjectDto();
-    String userUuid = randomAlphanumeric(40);
+    String userUuid = secure().nextAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(newDocForProject("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from - 1000L)));
 
@@ -131,7 +131,7 @@ class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   @Test
   void searchProjectStatistics_returns_issue_count() {
     ComponentDto project = newPrivateProjectDto();
-    String userUuid = randomAlphanumeric(40);
+    String userUuid = secure().nextAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(
       newDocForProject("issue1", project).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
@@ -148,7 +148,7 @@ class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
     ComponentDto project1 = newPrivateProjectDto();
     ComponentDto project2 = newPrivateProjectDto();
     ComponentDto project3 = newPrivateProjectDto();
-    String userUuid = randomAlphanumeric(40);
+    String userUuid = secure().nextAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(
       newDocForProject("issue1", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),
@@ -175,7 +175,7 @@ class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
     ComponentDto project1 = newPrivateProjectDto();
     ComponentDto project2 = newPrivateProjectDto();
     ComponentDto project3 = newPrivateProjectDto();
-    String userUuid = randomAlphanumeric(40);
+    String userUuid = secure().nextAlphanumeric(40);
     long from = 1_111_234_567_000L;
     indexIssues(
       newDocForProject("issue1", project1).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1_000L)),
@@ -201,7 +201,7 @@ class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   void searchProjectStatistics_return_branch_issues() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto branch = newBranchComponent(project, newBranchDto(project).setKey("branch"));
-    String userUuid = randomAlphanumeric(40);
+    String userUuid = secure().nextAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(
       newDoc("issue1", project.uuid(), branch).setAssigneeUuid(userUuid).setFuncCreationDate(new Date(from + 1L)),

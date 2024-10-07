@@ -31,7 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 import org.sonar.db.webhook.WebhookDeliveryTesting;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -105,7 +105,7 @@ public class WebhookDeliveryStorageIT {
   @Test
   public void persist_effective_url_if_present() {
     when(uuidFactory.create()).thenReturn(DELIVERY_UUID);
-    String effectiveUrl = randomAlphabetic(15);
+    String effectiveUrl = secure().nextAlphabetic(15);
     WebhookDelivery delivery = newBuilderTemplate()
       .setEffectiveUrl(effectiveUrl)
       .build();
@@ -118,7 +118,7 @@ public class WebhookDeliveryStorageIT {
 
   private static WebhookDelivery.Builder newBuilderTemplate() {
     return new WebhookDelivery.Builder()
-      .setWebhook(new Webhook("WEBHOOK_UUID_1", "COMPONENT1", "TASK1", RandomStringUtils.randomAlphanumeric(40),"Jenkins", "http://jenkins", null))
+      .setWebhook(new Webhook("WEBHOOK_UUID_1", "COMPONENT1", "TASK1", RandomStringUtils.secure().nextAlphanumeric(40),"Jenkins", "http://jenkins", null))
       .setPayload(new WebhookPayload("my-project", "{json}"))
       .setAt(1_000_000L)
       .setHttpStatus(200)

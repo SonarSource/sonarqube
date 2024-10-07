@@ -37,7 +37,7 @@ public class AbstractStopRequestWatcherTest {
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
-  private String threadName = RandomStringUtils.randomAlphabetic(12);
+  private String threadName = RandomStringUtils.secure().nextAlphabetic(12);
   private TestBooleanSupplier booleanSupplier = new TestBooleanSupplier();
   private TestAction stopAction = new TestAction();
 

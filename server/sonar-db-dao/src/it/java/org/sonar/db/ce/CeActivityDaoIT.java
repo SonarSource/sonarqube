@@ -51,7 +51,7 @@ import org.sonar.db.project.ProjectDto;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.Pagination.forPage;
@@ -64,9 +64,9 @@ import static org.sonar.db.ce.CeTaskTypes.REPORT;
 
 class CeActivityDaoIT {
 
-  private static final String ENTITY_1 = randomAlphabetic(12);
-  private static final String MAINCOMPONENT_2 = randomAlphabetic(13);
-  private static final String COMPONENT_1 = randomAlphabetic(14);
+  private static final String ENTITY_1 = secure().nextAlphabetic(12);
+  private static final String MAINCOMPONENT_2 = secure().nextAlphabetic(13);
+  private static final String COMPONENT_1 = secure().nextAlphabetic(14);
 
   private static final long INITIAL_TIME = 1_450_000_000_000L;
   private static final String NODE_NAME = "node1";
@@ -158,11 +158,11 @@ class CeActivityDaoIT {
   @ParameterizedTest
   @MethodSource("notCanceledStatus")
   void insert_resets_is_last_and_main_is_last_fields_based_on_component_and_main_component(CeActivityDto.Status status) {
-    String project1 = randomAlphabetic(5);
-    String branch11 = randomAlphabetic(6);
-    String project2 = randomAlphabetic(8);
-    String branch21 = randomAlphabetic(9);
-    String type = randomAlphabetic(10);
+    String project1 = secure().nextAlphabetic(5);
+    String branch11 = secure().nextAlphabetic(6);
+    String project2 = secure().nextAlphabetic(8);
+    String branch21 = secure().nextAlphabetic(9);
+    String type = secure().nextAlphabetic(10);
 
     String task1Project1 = insertAndCommit(newUuid(), type, project1, project1, status).getUuid();
     assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(true, true));
@@ -220,10 +220,10 @@ class CeActivityDaoIT {
   @ParameterizedTest
   @MethodSource("notCanceledStatus")
   void insert_resets_is_last_and_main_is_last_fields_based_on_type(CeActivityDto.Status status) {
-    String type1 = randomAlphabetic(10);
-    String type2 = randomAlphabetic(11);
-    String project = randomAlphabetic(5);
-    String branch = randomAlphabetic(6);
+    String type1 = secure().nextAlphabetic(10);
+    String type2 = secure().nextAlphabetic(11);
+    String project = secure().nextAlphabetic(5);
+    String branch = secure().nextAlphabetic(6);
 
     String type1Project1 = insertAndCommit(newUuid(), type1, project, project, status).getUuid();
     assertIsLastAndMainIsLastFieldsOf(type1Project1).containsOnly(tuple(true, true));
@@ -262,9 +262,9 @@ class CeActivityDaoIT {
   @ParameterizedTest
   @MethodSource("notCanceledStatus")
   void insert_resets_is_last_and_main_is_last_fields_based_on_component_or_not(CeActivityDto.Status status) {
-    String project = randomAlphabetic(5);
-    String type1 = randomAlphabetic(11);
-    String type2 = randomAlphabetic(11);
+    String project = secure().nextAlphabetic(5);
+    String type1 = secure().nextAlphabetic(11);
+    String type2 = secure().nextAlphabetic(11);
 
     String type1Project1 = insertAndCommit(newUuid(), type1, project, project, status).getUuid();
     assertIsLastAndMainIsLastFieldsOf(type1Project1).containsOnly(tuple(true, true));
@@ -303,9 +303,9 @@ class CeActivityDaoIT {
   @ParameterizedTest
   @MethodSource("notCanceledStatus")
   void insert_does_not_resets_is_last_and_main_is_last_fields_if_status_is_CANCELED(CeActivityDto.Status status) {
-    String project = randomAlphabetic(5);
-    String branch = randomAlphabetic(6);
-    String type = randomAlphabetic(10);
+    String project = secure().nextAlphabetic(5);
+    String branch = secure().nextAlphabetic(6);
+    String type = secure().nextAlphabetic(10);
 
     String task1Project1 = insertAndCommit(newUuid(), type, project, project, status).getUuid();
     assertIsLastAndMainIsLastFieldsOf(task1Project1).containsOnly(tuple(true, true));

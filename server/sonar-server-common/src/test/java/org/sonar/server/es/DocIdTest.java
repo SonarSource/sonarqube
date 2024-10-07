@@ -21,43 +21,43 @@ package org.sonar.server.es;
 
 import org.junit.Test;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DocIdTest {
   @Test
   public void equals_is_based_on_index_type_and_id() {
-    String index = randomAlphabetic(5);
-    String type = randomAlphabetic(6);
-    String id = randomAlphabetic(7);
+    String index = secure().nextAlphabetic(5);
+    String type = secure().nextAlphabetic(6);
+    String id = secure().nextAlphabetic(7);
     DocId underTest = new DocId(index, type, id);
 
     assertThat(underTest)
       .isEqualTo(new DocId(index, type, id))
-      .isNotEqualTo(new DocId(randomAlphabetic(7), type, id))
-      .isNotEqualTo(new DocId(index, type, randomAlphabetic(7)))
-      .isNotEqualTo(new DocId(index, randomAlphabetic(7), id))
-      .isNotEqualTo(new DocId(randomAlphabetic(7), randomAlphabetic(8), id))
-      .isNotEqualTo(new DocId(randomAlphabetic(7), type, randomAlphabetic(8)))
-      .isNotEqualTo(new DocId(index, randomAlphabetic(7), randomAlphabetic(8)))
-      .isNotEqualTo(new DocId(randomAlphabetic(7), randomAlphabetic(8), randomAlphabetic(9)));
+      .isNotEqualTo(new DocId(secure().nextAlphabetic(7), type, id))
+      .isNotEqualTo(new DocId(index, type, secure().nextAlphabetic(7)))
+      .isNotEqualTo(new DocId(index, secure().nextAlphabetic(7), id))
+      .isNotEqualTo(new DocId(secure().nextAlphabetic(7), secure().nextAlphabetic(8), id))
+      .isNotEqualTo(new DocId(secure().nextAlphabetic(7), type, secure().nextAlphabetic(8)))
+      .isNotEqualTo(new DocId(index, secure().nextAlphabetic(7), secure().nextAlphabetic(8)))
+      .isNotEqualTo(new DocId(secure().nextAlphabetic(7), secure().nextAlphabetic(8), secure().nextAlphabetic(9)));
   }
 
   @Test
   public void hashcode_is_based_on_index_type_and_id() {
-    String index = randomAlphabetic(5);
-    String type = randomAlphabetic(6);
-    String id = randomAlphabetic(7);
+    String index = secure().nextAlphabetic(5);
+    String type = secure().nextAlphabetic(6);
+    String id = secure().nextAlphabetic(7);
     DocId underTest = new DocId(index, type, id);
 
     assertThat(underTest.hashCode())
       .isEqualTo(new DocId(index, type, id).hashCode())
-      .isNotEqualTo(new DocId(randomAlphabetic(7), type, id).hashCode())
-      .isNotEqualTo(new DocId(index, type, randomAlphabetic(7)).hashCode())
-      .isNotEqualTo(new DocId(index, randomAlphabetic(7), id).hashCode())
-      .isNotEqualTo(new DocId(randomAlphabetic(7), randomAlphabetic(8), id).hashCode())
-      .isNotEqualTo(new DocId(randomAlphabetic(7), type, randomAlphabetic(8)).hashCode())
-      .isNotEqualTo(new DocId(index, randomAlphabetic(7), randomAlphabetic(8)).hashCode())
-      .isNotEqualTo(new DocId(randomAlphabetic(7), randomAlphabetic(8), randomAlphabetic(9)).hashCode());
+      .isNotEqualTo(new DocId(secure().nextAlphabetic(7), type, id).hashCode())
+      .isNotEqualTo(new DocId(index, type, secure().nextAlphabetic(7)).hashCode())
+      .isNotEqualTo(new DocId(index, secure().nextAlphabetic(7), id).hashCode())
+      .isNotEqualTo(new DocId(secure().nextAlphabetic(7), secure().nextAlphabetic(8), id).hashCode())
+      .isNotEqualTo(new DocId(secure().nextAlphabetic(7), type, secure().nextAlphabetic(8)).hashCode())
+      .isNotEqualTo(new DocId(index, secure().nextAlphabetic(7), secure().nextAlphabetic(8)).hashCode())
+      .isNotEqualTo(new DocId(secure().nextAlphabetic(7), secure().nextAlphabetic(8), secure().nextAlphabetic(9)).hashCode());
   }
 }

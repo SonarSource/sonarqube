@@ -53,7 +53,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -244,7 +244,7 @@ public class MeasureActionIT {
 
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = createIntMetricAndMeasure(project, BUGS_KEY, 5_000);
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
     db.measures().insertMeasure(branch, m -> m.addValue(metric.getKey(), 10_000d));
 

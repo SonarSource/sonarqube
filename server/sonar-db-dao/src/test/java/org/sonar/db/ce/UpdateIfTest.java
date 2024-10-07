@@ -48,7 +48,7 @@ class UpdateIfTest {
 
   @Test
   void newProperties_constructor_fails_with_IAE_if_workerUuid_is_41_or_more() {
-    String workerUuid = RandomStringUtils.randomAlphanumeric(41 + new Random().nextInt(5));
+    String workerUuid = RandomStringUtils.secure().nextAlphanumeric(41 + new Random().nextInt(5));
 
     assertThatThrownBy(() -> new UpdateIf.NewProperties(CeQueueDto.Status.PENDING, workerUuid, 123, 456))
       .isInstanceOf(IllegalArgumentException.class)

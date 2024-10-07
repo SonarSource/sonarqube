@@ -40,7 +40,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
@@ -109,7 +109,7 @@ public class ShowActionIT {
   public void duplications_by_file_key_and_branch() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     userSessionRule.addProjectBranchMapping(project.uuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -165,7 +165,7 @@ public class ShowActionIT {
   public void duplications_by_file_key_and_pull_request() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
-    String pullRequestKey = randomAlphanumeric(100);
+    String pullRequestKey = secure().nextAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
     userSessionRule.addProjectBranchMapping(project.uuid(), pullRequest);
     ComponentDto file = db.components().insertComponent(newFileDto(pullRequest, project.uuid()));

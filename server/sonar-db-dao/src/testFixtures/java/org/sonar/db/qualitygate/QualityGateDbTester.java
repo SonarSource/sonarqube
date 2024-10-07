@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
@@ -33,8 +32,8 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
+
 
 public class QualityGateDbTester {
   private static final String DEFAULT_QUALITY_GATE_PROPERTY_NAME = "qualitygate.default";
@@ -60,7 +59,7 @@ public class QualityGateDbTester {
   @SafeVarargs
   public final QualityGateDto insertQualityGate(Consumer<QualityGateDto>... dtoPopulators) {
     QualityGateDto qualityGate = new QualityGateDto()
-      .setName(randomAlphanumeric(30))
+      .setName(secure().nextAlphanumeric(30))
       .setUuid(Uuids.createFast())
       .setBuiltIn(false);
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(qualityGate));
@@ -92,7 +91,7 @@ public class QualityGateDbTester {
       .setUuid(Uuids.createFast())
       .setMetricUuid(metric.getUuid())
       .setOperator("GT")
-      .setErrorThreshold(randomNumeric(10));
+      .setErrorThreshold(secure().nextNumeric(10));
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(condition));
     dbClient.gateConditionDao().insert(condition, db.getSession());
     db.commit();

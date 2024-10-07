@@ -23,7 +23,7 @@ import java.util.Random;
 import org.junit.Test;
 import org.sonar.db.ce.CeActivityDto;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.CeTaskInterruptedException.isTaskInterruptedException;
 
@@ -31,7 +31,7 @@ public class CeTaskInterruptedExceptionTest {
 
   @Test
   public void isCauseInterruptedException_returns_CeTaskInterruptedException_or_subclass() {
-    String message = randomAlphabetic(50);
+    String message = secure().nextAlphabetic(50);
     CeActivityDto.Status status = randomStatus();
     CeTaskInterruptedException e1 = new CeTaskInterruptedException(message, status) {
 
@@ -46,7 +46,7 @@ public class CeTaskInterruptedExceptionTest {
 
   @Test
   public void isCauseInterruptedException_returns_CeTaskInterruptedException_or_subclass_in_cause_chain() {
-    String message = randomAlphabetic(50);
+    String message = secure().nextAlphabetic(50);
     CeActivityDto.Status status = randomStatus();
     CeTaskInterruptedException e1 = new CeTaskInterruptedException(message, status) {
 

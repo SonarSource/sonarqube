@@ -32,7 +32,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.aggregations.metrics.MinAggregationBuilder;
 import org.junit.Test;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -65,7 +65,7 @@ public class TopAggregationHelperTest {
     AggregationBuilder[] subAggs = IntStream.range(0, 1 + new Random().nextInt(12))
       .mapToObj(i -> AggregationBuilders.min("subAgg_" + i))
       .toArray(AggregationBuilder[]::new);
-    String topAggregationName = randomAlphabetic(10);
+    String topAggregationName = secure().nextAlphabetic(10);
 
     AggregationBuilder aggregationBuilder = underTest.buildTopAggregation(topAggregationName, topAggregation,
       NO_EXTRA_FILTER, t -> Arrays.stream(subAggs).forEach(t::subAggregation));
@@ -84,7 +84,7 @@ public class TopAggregationHelperTest {
     when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.of(computerFilter));
     when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
     MinAggregationBuilder subAggregation = AggregationBuilders.min("donut");
-    String topAggregationName = randomAlphabetic(10);
+    String topAggregationName = secure().nextAlphabetic(10);
 
     FilterAggregationBuilder aggregationBuilder = underTest.buildTopAggregation(topAggregationName, topAggregation,
       NO_EXTRA_FILTER, t -> t.subAggregation(subAggregation));
@@ -101,7 +101,7 @@ public class TopAggregationHelperTest {
     when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.empty());
     when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
     MinAggregationBuilder subAggregation = AggregationBuilders.min("donut");
-    String topAggregationName = randomAlphabetic(10);
+    String topAggregationName = secure().nextAlphabetic(10);
 
     FilterAggregationBuilder aggregationBuilder = underTest.buildTopAggregation(topAggregationName, topAggregation,
       NO_EXTRA_FILTER, t -> t.subAggregation(subAggregation));
@@ -112,7 +112,7 @@ public class TopAggregationHelperTest {
 
   @Test
   public void buildTopAggregation_adds_filter_from_FiltersComputer_for_TopAggregation_and_extra_one() {
-    String topAggregationName = randomAlphabetic(10);
+    String topAggregationName = secure().nextAlphabetic(10);
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
     SimpleFieldTopAggregationDefinition otherTopAggregation = new SimpleFieldTopAggregationDefinition("acme", false);
     BoolQueryBuilder computerFilter = boolQuery();
@@ -135,7 +135,7 @@ public class TopAggregationHelperTest {
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
     when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.empty());
     MinAggregationBuilder subAggregation = AggregationBuilders.min("donut");
-    String topAggregationName = randomAlphabetic(10);
+    String topAggregationName = secure().nextAlphabetic(10);
 
     underTest.buildTopAggregation(topAggregationName, topAggregation, NO_EXTRA_FILTER, t -> t.subAggregation(subAggregation));
 
@@ -144,7 +144,7 @@ public class TopAggregationHelperTest {
 
   @Test
   public void buildTermTopAggregation_adds_term_subaggregation_from_subAggregationHelper() {
-    String topAggregationName = randomAlphabetic(10);
+    String topAggregationName = secure().nextAlphabetic(10);
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
     TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
     when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
@@ -164,7 +164,7 @@ public class TopAggregationHelperTest {
     AggregationBuilder[] subAggs = IntStream.range(0, 1 + new Random().nextInt(12))
       .mapToObj(i -> AggregationBuilders.min("subAgg_" + i))
       .toArray(AggregationBuilder[]::new);
-    String topAggregationName = randomAlphabetic(10);
+    String topAggregationName = secure().nextAlphabetic(10);
     TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
     when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
     AggregationBuilder[] allSubAggs = Stream.concat(Arrays.stream(subAggs), Stream.of(termSubAgg)).toArray(AggregationBuilder[]::new);
@@ -186,7 +186,7 @@ public class TopAggregationHelperTest {
     BoolQueryBuilder otherFilter = boolQuery();
     when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.of(computerFilter));
     when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
-    String topAggregationName = randomAlphabetic(10);
+    String topAggregationName = secure().nextAlphabetic(10);
     TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
     when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
 
@@ -205,7 +205,7 @@ public class TopAggregationHelperTest {
     BoolQueryBuilder otherFilter = boolQuery();
     when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.empty());
     when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
-    String topAggregationName = randomAlphabetic(10);
+    String topAggregationName = secure().nextAlphabetic(10);
     TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
     when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
 
@@ -219,7 +219,7 @@ public class TopAggregationHelperTest {
 
   @Test
   public void buildTermTopAggregation_adds_filter_from_FiltersComputer_for_TopAggregation_and_extra_one() {
-    String topAggregationName = randomAlphabetic(10);
+    String topAggregationName = secure().nextAlphabetic(10);
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
     SimpleFieldTopAggregationDefinition otherTopAggregation = new SimpleFieldTopAggregationDefinition("acme", false);
     BoolQueryBuilder computerFilter = boolQuery();

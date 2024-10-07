@@ -34,7 +34,7 @@ import org.sonar.server.notification.email.EmailNotificationChannel;
 
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -128,7 +128,7 @@ public class QGChangeNotificationHandlerTest {
 
   @Test
   public void deliver_has_no_effect_if_no_notification_has_subscribed_recipients_to_QGChange_notifications() {
-    String projectKey = randomAlphabetic(12);
+    String projectKey = secure().nextAlphabetic(12);
     QGChangeNotification notification = newNotification(projectKey);
     when(emailNotificationChannel.isActivated()).thenReturn(true);
     when(notificationManager.findSubscribedEmailRecipients(QG_CHANGE_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER))
@@ -145,7 +145,7 @@ public class QGChangeNotificationHandlerTest {
 
   @Test
   public void deliver_ignores_notification_without_projectKey() {
-    String projectKey = randomAlphabetic(10);
+    String projectKey = secure().nextAlphabetic(10);
     Set<QGChangeNotification> withProjectKey = IntStream.range(0, 1 + new Random().nextInt(5))
       .mapToObj(i -> newNotification(projectKey))
       .collect(toSet());
@@ -178,8 +178,8 @@ public class QGChangeNotificationHandlerTest {
 
   @Test
   public void deliver_checks_by_projectKey_if_notifications_have_subscribed_assignee_to_QGChange_notifications() {
-    String projectKey1 = randomAlphabetic(10);
-    String projectKey2 = randomAlphabetic(11);
+    String projectKey1 = secure().nextAlphabetic(10);
+    String projectKey2 = secure().nextAlphabetic(11);
     Set<QGChangeNotification> notifications1 = randomSetOfNotifications(projectKey1);
     Set<QGChangeNotification> notifications2 = randomSetOfNotifications(projectKey2);
     when(emailNotificationChannel.isActivated()).thenReturn(true);
@@ -216,8 +216,8 @@ public class QGChangeNotificationHandlerTest {
 
   @Test
   public void deliver_send_notifications_to_all_subscribers_of_all_projects() {
-    String projectKey1 = randomAlphabetic(10);
-    String projectKey2 = randomAlphabetic(11);
+    String projectKey1 = secure().nextAlphabetic(10);
+    String projectKey2 = secure().nextAlphabetic(11);
     Set<QGChangeNotification> notifications1 = randomSetOfNotifications(projectKey1);
     Set<QGChangeNotification> notifications2 = randomSetOfNotifications(projectKey2);
     when(emailNotificationChannel.isActivated()).thenReturn(true);

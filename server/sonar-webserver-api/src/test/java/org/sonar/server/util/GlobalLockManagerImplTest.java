@@ -32,7 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.InternalPropertiesDao;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -151,7 +151,7 @@ public class GlobalLockManagerImplTest {
   @DataProvider
   public static Object[][] randomValidLockName() {
     return new Object[][] {
-      {randomAlphabetic(1 + new Random().nextInt(LOCK_NAME_MAX_LENGTH))}
+      {secure().nextAlphabetic(1 + new Random().nextInt(LOCK_NAME_MAX_LENGTH))}
     };
   }
 

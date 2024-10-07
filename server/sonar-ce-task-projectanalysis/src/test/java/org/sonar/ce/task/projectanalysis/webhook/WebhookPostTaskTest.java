@@ -47,7 +47,7 @@ import org.sonar.server.webhook.WebHooks;
 import org.sonar.server.webhook.WebhookPayload;
 import org.sonar.server.webhook.WebhookPayloadFactory;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -90,36 +90,36 @@ public class WebhookPostTaskTest {
   @Test
   public void call_webhooks_with_analysis_and_qualitygate() {
     QualityGate.Condition condition = newConditionBuilder()
-      .setMetricKey(randomAlphanumeric(96))
+      .setMetricKey(secure().nextAlphanumeric(96))
       .setOperator(QualityGate.Operator.LESS_THAN)
-      .setErrorThreshold(randomAlphanumeric(22))
-      .build(QualityGate.EvaluationStatus.OK, randomAlphanumeric(33));
+      .setErrorThreshold(secure().nextAlphanumeric(22))
+      .build(QualityGate.EvaluationStatus.OK, secure().nextAlphanumeric(33));
     QualityGate qualityGate = newQualityGateBuilder()
-      .setId(randomAlphanumeric(23))
-      .setName(randomAlphanumeric(66))
+      .setId(secure().nextAlphanumeric(23))
+      .setName(secure().nextAlphanumeric(66))
       .setStatus(QualityGate.Status.values()[random.nextInt(QualityGate.Status.values().length)])
       .add(condition)
       .build();
 
-    callWebHooks(randomAlphanumeric(40), qualityGate);
+    callWebHooks(secure().nextAlphanumeric(40), qualityGate);
   }
 
   private void callWebHooks(@Nullable String analysisUUid, @Nullable QualityGate qualityGate) {
     Project project = newProjectBuilder()
-      .setUuid(randomAlphanumeric(3))
-      .setKey(randomAlphanumeric(4))
-      .setName(randomAlphanumeric(5))
+      .setUuid(secure().nextAlphanumeric(3))
+      .setKey(secure().nextAlphanumeric(4))
+      .setName(secure().nextAlphanumeric(5))
       .build();
     CeTask ceTask = newCeTaskBuilder()
       .setStatus(CeTask.Status.values()[random.nextInt(CeTask.Status.values().length)])
-      .setId(randomAlphanumeric(6))
+      .setId(secure().nextAlphanumeric(6))
       .build();
     Date date = new Date();
-    Map<String, String> properties = ImmutableMap.of(randomAlphanumeric(17), randomAlphanumeric(18));
+    Map<String, String> properties = ImmutableMap.of(secure().nextAlphanumeric(17), secure().nextAlphanumeric(18));
     Branch branch = newBranchBuilder()
       .setIsMain(random.nextBoolean())
       .setType(Branch.Type.values()[random.nextInt(Branch.Type.values().length)])
-      .setName(randomAlphanumeric(29))
+      .setName(secure().nextAlphanumeric(29))
       .build();
 
     PostProjectAnalysisTaskTester.of(underTest)

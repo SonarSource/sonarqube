@@ -44,7 +44,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -523,7 +523,7 @@ public class IssueQueryFactoryTest {
   public void search_issue_from_branch() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(branchName));
 
     assertThat(underTest.create(new SearchRequest()
@@ -542,7 +542,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void search_file_issue_from_branch() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
@@ -570,7 +570,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void search_issue_on_component_only_from_branch() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    String branchName = randomAlphanumeric(248);
+    String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
 
