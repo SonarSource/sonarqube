@@ -49,6 +49,7 @@ export enum CleanCodeAttribute {
   Trustworthy = 'TRUSTWORTHY',
 }
 
+// The order here is important. Please be mindful about the order when adding new software qualities.
 export enum SoftwareQuality {
   Security = 'SECURITY',
   Reliability = 'RELIABILITY',

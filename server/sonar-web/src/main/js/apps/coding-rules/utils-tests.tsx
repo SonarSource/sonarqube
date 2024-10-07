@@ -118,6 +118,11 @@ const selectors = {
   extendDescriptionButton: byRole('button', { name: 'coding_rules.extend_description' }),
   extendDescriptionTextbox: byRole('textbox', { name: 'coding_rules.extend_description' }),
   prioritizedRuleCell: byRole('cell', { name: /coding_rules.prioritized_rule.title/ }),
+  oldSeverityCustomizedCell: byRole('cell', { name: /coding_rules.severity_customized.message/ }),
+  newSeverityCustomizedCell: byRole('cell', {
+    name: /coding_rules.impact_customized.message/,
+  }).byText('coding_rules.impact_customized.message'),
+  qualityProfileRow: byRole('table', { name: 'coding_rules.quality_profiles' }).byRole('row'),
   saveButton: byRole('button', { name: 'save' }),
   cancelButton: byRole('button', { name: 'cancel' }),
   removeButton: byRole('button', { name: 'remove' }),

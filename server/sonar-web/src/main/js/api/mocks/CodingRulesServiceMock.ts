@@ -629,7 +629,9 @@ export default class CodingRulesServiceMock {
     const impacts = data.severity
       ? [
           ...ruleImpacts.filter(
-            (impact) => !inheritedImpacts.some((i) => i.softwareQuality === impact.softwareQuality),
+            (impact) =>
+              impact.softwareQuality !== SoftwareQuality.Maintainability &&
+              !inheritedImpacts.some((i) => i.softwareQuality === impact.softwareQuality),
           ),
           ...inheritedImpacts.filter(
             (impact) => impact.softwareQuality !== SoftwareQuality.Maintainability,
