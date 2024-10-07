@@ -8,12 +8,20 @@ variables:
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
 
 stages:
-  - sonarqube-check
+  - build-sonar
   - sonarqube-vulnerability-report
 
-sonarqube-check:
-  stage: sonarqube-check
+build-sonar:
+  stage: build-sonar
   
+  
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "\${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
+      
   script: 
       - "dotnet tool install --global dotnet-sonarscanner"
       - "export PATH=\\"$PATH:$HOME/.dotnet/tools\\""
@@ -54,26 +62,33 @@ variables:
 
 stages:
   - get-binaries
-  - build-analyze
+  - build-sonar
   - sonarqube-vulnerability-report
 
 get-binaries:
   stage: get-binaries
+  
   cache:
-    policy: push
-    key: "\${CI_COMMIT_SHORT_SHA}"
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
     paths:
+      - "\${SONAR_USER_HOME}/cache"
       - sonar-scanner/
       - build-wrapper/
   script:
     # Download sonar-scanner
-    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.0.4584-linux-x64.zip'
-    - unzip -o sonar-scanner.zip
-    - mv sonar-scanner-6.2.0.4584-linux-x64 sonar-scanner
-    # Download build-wrapper
-    - curl -sSLo ./build-wrapper-linux-x86.zip "$SONAR_HOST_URL/static/cpp/build-wrapper-linux-x86.zip"
-    - unzip -o build-wrapper-linux-x86.zip
-    - mv build-wrapper-linux-x86 build-wrapper
+    - if [ ! -d sonar-scanner ]; then
+        curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.0.4584-linux-x64.zip' &&
+        unzip -o sonar-scanner.zip &&
+        mv sonar-scanner-6.2.0.4584-linux-x64 sonar-scanner;
+      fi
+    
+    # Download build wrapper
+    - if [ ! -d build-wrapper ]; then
+        curl -sSLo ./build-wrapper-linux-x86.zip "$SONAR_HOST_URL/static/cpp/build-wrapper-linux-x86.zip" &&
+        unzip -o build-wrapper-linux-x86.zip &&
+        mv build-wrapper-linux-x86 build-wrapper;
+      fi
 
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
@@ -81,17 +96,20 @@ get-binaries:
     - if: $CI_COMMIT_BRANCH == 'main'
     - if: $CI_COMMIT_BRANCH == 'develop'
 
-build:
-  stage: build-analyze
+build-sonar:
+  stage: build-sonar
   script:
     - build-wrapper/build-wrapper-linux-x86-64 --out-dir "\${BUILD_WRAPPER_OUT_DIR}" <your clean build command>
     - sonar-scanner/bin/sonar-scanner -Dsonar.host.url="\${SONAR_HOST_URL}" -Dsonar.cfamily.compile-commands="\${BUILD_WRAPPER_OUT_DIR}/compile_commands.json"
+  
   cache:
-    policy: pull
-    key: "\${CI_COMMIT_SHORT_SHA}"
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
     paths:
-    - sonar-scanner/
-    - build-wrapper/
+      - "\${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
+      - build-wrapper/
+
 
 sonarqube-vulnerability-report:
   stage: sonarqube-vulnerability-report
@@ -120,22 +138,26 @@ variables:
 
 stages:
   - get-binaries
-  - sonarqube-check
+  - build-sonar
   - sonarqube-vulnerability-report
 
 get-binaries:
   stage: get-binaries
+  
   cache:
-    policy: push
-    key: "\${CI_COMMIT_SHORT_SHA}"
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
     paths:
+      - "\${SONAR_USER_HOME}/cache"
       - sonar-scanner/
       
   script:
     # Download sonar-scanner
-    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.0.4584-linux-x64.zip'
-    - unzip -o sonar-scanner.zip
-    - mv sonar-scanner-6.2.0.4584-linux-x64 sonar-scanner
+    - if [ ! -d sonar-scanner ]; then
+        curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.0.4584-linux-x64.zip' &&
+        unzip -o sonar-scanner.zip &&
+        mv sonar-scanner-6.2.0.4584-linux-x64 sonar-scanner;
+      fi
     
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
@@ -143,16 +165,19 @@ get-binaries:
     - if: $CI_COMMIT_BRANCH == 'main'
     - if: $CI_COMMIT_BRANCH == 'develop'
 
-sonarqube-check:
-  stage: sonarqube-check
+build-sonar:
+  stage: build-sonar
   dependencies:
     - get-binaries
-  cache:
-    policy: pull
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
 
+  
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "\${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
+      
   script: sonar-scanner/bin/sonar-scanner -Dsonar.host.url="\${SONAR_HOST_URL}" 
   allow_failure: true
   rules:
@@ -193,22 +218,26 @@ variables:
 
 stages:
   - get-binaries
-  - sonarqube-check
+  - build-sonar
   - sonarqube-vulnerability-report
 
 get-binaries:
   stage: get-binaries
+  
   cache:
-    policy: push
-    key: "\${CI_COMMIT_SHORT_SHA}"
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
     paths:
+      - "\${SONAR_USER_HOME}/cache"
       - sonar-scanner/
       
   script:
     # Download sonar-scanner
-    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.0.4584-linux-x64.zip'
-    - unzip -o sonar-scanner.zip
-    - mv sonar-scanner-6.2.0.4584-linux-x64 sonar-scanner
+    - if [ ! -d sonar-scanner ]; then
+        curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.0.4584-linux-x64.zip' &&
+        unzip -o sonar-scanner.zip &&
+        mv sonar-scanner-6.2.0.4584-linux-x64 sonar-scanner;
+      fi
     
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
@@ -216,9 +245,17 @@ get-binaries:
     - if: $CI_COMMIT_BRANCH == 'main'
     - if: $CI_COMMIT_BRANCH == 'develop'
 
-sonarqube-check:
-  stage: sonarqube-check
+build-sonar:
+  stage: build-sonar
   
+  
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "\${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
+      
   script: 
     - <commands to build your project>
     - sonar-scanner/bin/sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}"
@@ -260,12 +297,20 @@ variables:
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
 
 stages:
-  - sonarqube-check
+  - build-sonar
   - sonarqube-vulnerability-report
 
-sonarqube-check:
-  stage: sonarqube-check
+build-sonar:
+  stage: build-sonar
   
+  
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "\${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
+      
   script: gradle sonar
   allow_failure: true
   rules:
@@ -327,12 +372,20 @@ variables:
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
 
 stages:
-  - sonarqube-check
+  - build-sonar
   - sonarqube-vulnerability-report
 
-sonarqube-check:
-  stage: sonarqube-check
+build-sonar:
+  stage: build-sonar
   
+  
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "\${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
+      
   script: 
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
   allow_failure: true
@@ -377,12 +430,20 @@ variables:
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
 
 stages:
-  - sonarqube-check
+  - build-sonar
   - sonarqube-vulnerability-report
 
-sonarqube-check:
-  stage: sonarqube-check
+build-sonar:
+  stage: build-sonar
   
+  
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "\${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
+      
   script: 
     - sonar-scanner -Dsonar.host.url="\${SONAR_HOST_URL}"
   allow_failure: true

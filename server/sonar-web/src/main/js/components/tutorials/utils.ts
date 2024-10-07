@@ -209,3 +209,10 @@ export function shouldFetchBuildWrapper(buildTool: BuildTools, autoConfig?: Auto
     buildTool === BuildTools.ObjectiveC
   );
 }
+
+export function shouldFetchScanner(buildTool: BuildTools) {
+  if (isCFamily(buildTool)) {
+    return true;
+  }
+  return [BuildTools.Dart].includes(buildTool);
+}

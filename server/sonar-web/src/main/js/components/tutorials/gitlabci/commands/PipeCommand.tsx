@@ -28,6 +28,7 @@ import {
   getScannerUrlSuffix,
   isCFamily,
   shouldFetchBuildWrapper,
+  shouldFetchScanner,
 } from '../../utils';
 
 export interface PipeCommandProps {
@@ -95,31 +96,39 @@ const BUILD_TOOL_SPECIFIC: {
 export default function PipeCommand(props: Readonly<PipeCommandProps>) {
   const { projectKey, buildTool, config, arch } = props;
   const { autoConfig } = config;
-
   const { image, script } = BUILD_TOOL_SPECIFIC[buildTool];
 
   const suffix = getScannerUrlSuffix(OSs.Linux, arch);
   const buildWrapperFolder = getBuildWrapperFolderLinux(arch);
 
-  const getBinaries = `get-binaries:
-  stage: get-binaries
+  const cacheDefinition = `
   cache:
-    policy: push
-    key: "\${CI_COMMIT_SHORT_SHA}"
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
     paths:
+      - "\${SONAR_USER_HOME}/cache"
       - sonar-scanner/
-      ${shouldFetchBuildWrapper(buildTool, autoConfig) ? `- build-wrapper/` : ''}
+      ${shouldFetchBuildWrapper(buildTool, autoConfig) ? '- build-wrapper/' : ''}`;
+
+  const getBinariesStage = `get-binaries:
+  stage: get-binaries
+  ${cacheDefinition}
   script:
     # Download sonar-scanner
-    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_CLI_LATEST_VERSION}${suffix}.zip'
-    - unzip -o sonar-scanner.zip
-    - mv sonar-scanner-${SONAR_SCANNER_CLI_LATEST_VERSION}${suffix} sonar-scanner
+    - if [ ! -d sonar-scanner ]; then
+        curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_CLI_LATEST_VERSION}${suffix}.zip' &&
+        unzip -o sonar-scanner.zip &&
+        mv sonar-scanner-${SONAR_SCANNER_CLI_LATEST_VERSION}${suffix} sonar-scanner;
+      fi
     ${
       shouldFetchBuildWrapper(buildTool, autoConfig)
-        ? `# Download build-wrapper
-    - curl -sSLo ./${buildWrapperFolder}.zip "$SONAR_HOST_URL/static/cpp/${buildWrapperFolder}.zip"
-    - unzip -o ${buildWrapperFolder}.zip
-    - mv ${buildWrapperFolder} build-wrapper
+        ? `
+    # Download build wrapper
+    - if [ ! -d build-wrapper ]; then
+        curl -sSLo ./${buildWrapperFolder}.zip "$SONAR_HOST_URL/static/cpp/${buildWrapperFolder}.zip" &&
+        unzip -o ${buildWrapperFolder}.zip &&
+        mv ${buildWrapperFolder} build-wrapper;
+      fi
 `
         : ''
     }
@@ -129,32 +138,24 @@ export default function PipeCommand(props: Readonly<PipeCommandProps>) {
     - if: $CI_COMMIT_BRANCH == 'main'
     - if: $CI_COMMIT_BRANCH == 'develop'`;
 
-  const buildAnalyze = `build:
-  stage: build-analyze
+  const sonarWithBuildWrapperStage = `build-sonar:
+  stage: build-sonar
   script:
     - build-wrapper/${getBuildWrapperExecutableLinux(arch)} --out-dir "\${BUILD_WRAPPER_OUT_DIR}" <your clean build command>
     - ${script(projectKey, autoConfig)}
-  cache:
-    policy: pull
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-    - sonar-scanner/
-    - build-wrapper/`;
+  ${cacheDefinition}
+`;
 
-  const sonarqubeCheck = `sonarqube-check:
-  stage: sonarqube-check
+  const sonarStage = `build-sonar:
+  stage: build-sonar
   ${
     isCFamily(buildTool)
       ? `dependencies:
     - get-binaries
-  cache:
-    policy: pull
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
 `
       : ''
   }
+  ${cacheDefinition}
   script: ${script(projectKey, autoConfig)}
   allow_failure: true
   rules:
@@ -163,7 +164,7 @@ export default function PipeCommand(props: Readonly<PipeCommandProps>) {
     - if: $CI_COMMIT_BRANCH == 'main'
     - if: $CI_COMMIT_BRANCH == 'develop'`;
 
-  const vulnerabilityReport = `sonarqube-vulnerability-report:
+  const vulnerabilityReportStage = `sonarqube-vulnerability-report:
   stage: sonarqube-vulnerability-report
   script:
     - 'curl -u "\${SONAR_TOKEN}:" "\${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=${projectKey}&branch=\${CI_COMMIT_BRANCH}&pullRequest=\${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
@@ -179,21 +180,19 @@ export default function PipeCommand(props: Readonly<PipeCommandProps>) {
       sast: gl-sast-sonar-report.json
 `;
 
-  let stageDeclaration = ['sonarqube-vulnerability-report'];
-  let stages = [vulnerabilityReport];
+  let stageDeclaration: string[] = [];
+  let stages: string[] = [];
 
   if (shouldFetchBuildWrapper(buildTool, autoConfig)) {
     // only for c-family languages on manual configuration
-    stages = [buildAnalyze, ...stages];
-    stageDeclaration = ['build-analyze', ...stageDeclaration];
+    stages = [getBinariesStage, sonarWithBuildWrapperStage, vulnerabilityReportStage];
+    stageDeclaration = ['get-binaries', 'build-sonar', 'sonarqube-vulnerability-report'];
+  } else if (shouldFetchScanner(buildTool)) {
+    stages = [getBinariesStage, sonarStage, vulnerabilityReportStage];
+    stageDeclaration = ['get-binaries', 'build-sonar', 'sonarqube-vulnerability-report'];
   } else {
-    stages = [sonarqubeCheck, ...stages];
-    stageDeclaration = ['sonarqube-check', ...stageDeclaration];
-  }
-
-  if (isCFamily(buildTool) || buildTool === BuildTools.Dart) {
-    stages = [getBinaries, ...stages];
-    stageDeclaration = ['get-binaries', ...stageDeclaration];
+    stages = [sonarStage, vulnerabilityReportStage];
+    stageDeclaration = ['build-sonar', 'sonarqube-vulnerability-report'];
   }
 
   const stageDefinition =
