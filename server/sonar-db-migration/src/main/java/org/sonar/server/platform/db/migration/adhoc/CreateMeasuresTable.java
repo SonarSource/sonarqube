@@ -48,7 +48,7 @@ public class CreateMeasuresTable extends CreateTableChange {
   @Override
   public void execute(DdlChange.Context context, String tableName) throws SQLException {
     context.execute(new CreateTableBuilder(getDialect(), tableName)
-      .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_COMPONENT_UUID).setIsNullable(false).setLimit(UUID_SIZE).build())
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_COMPONENT_UUID).setIsNullable(false).setLimit(UUID_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName(COLUMN_BRANCH_UUID).setIsNullable(false).setLimit(UUID_SIZE).build())
       .addColumn(newClobColumnDefBuilder().setColumnName(COLUMN_JSON_VALUE).setIsNullable(false).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName(COLUMN_JSON_VALUE_HASH).setIsNullable(false).build())

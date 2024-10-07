@@ -49,7 +49,7 @@ public class CreateMeasuresTableTest {
     underTest.execute();
 
     db.assertTableExists(MEASURES_TABLE_NAME);
-    db.assertNoPrimaryKey(MEASURES_TABLE_NAME);
+    db.assertPrimaryKey(MEASURES_TABLE_NAME, "pk_measures", "component_uuid");
     db.assertColumnDefinition(MEASURES_TABLE_NAME, COLUMN_COMPONENT_UUID, Types.VARCHAR, UUID_SIZE, false);
     db.assertColumnDefinition(MEASURES_TABLE_NAME, COLUMN_BRANCH_UUID, Types.VARCHAR, UUID_SIZE, false);
     db.assertColumnDefinition(MEASURES_TABLE_NAME, COLUMN_JSON_VALUE, Types.CLOB, null, false);
