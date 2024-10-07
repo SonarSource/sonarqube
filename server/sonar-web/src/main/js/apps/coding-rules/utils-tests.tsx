@@ -161,7 +161,7 @@ const selectors = {
     name: /coding_rules.deactivate_in_quality_profile/,
     hidden: true,
   }),
-  qualityProfileSelect: byLabelText('coding_rules.quality_profile'),
+  qualityProfileSelect: byRole('combobox', { name: 'coding_rules.quality_profile' }),
   oldSeveritySelect: byRole('combobox', { name: 'coding_rules.custom_severity.choose_severity' }),
   mqrSwitch: byRole('switch'),
   newSeveritySelect: (quality: SoftwareQuality) =>

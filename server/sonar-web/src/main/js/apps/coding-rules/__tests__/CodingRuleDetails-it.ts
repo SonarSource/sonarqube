@@ -177,6 +177,15 @@ it('can activate/change/deactivate rule in quality profile', async () => {
   renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule1', [Feature.PrioritizedRules]);
   expect(await ui.qpLink('QP Foo').find()).toBeInTheDocument();
 
+  // Activate profile with inherited ones java rule
+  await user.click(ui.activateButton.get());
+  await user.click(ui.qualityProfileSelect.get());
+  await user.click(byRole('option', { name: 'QP FooBarBaz' }).get());
+  await user.type(ui.paramInput('1').get(), 'paramInput');
+  await user.click(ui.activateButton.get(ui.activateQPDialog.get()));
+  expect(ui.qpLink('QP FooBarBaz').get()).toBeInTheDocument();
+  expect(ui.qpLink('QP FooBaz').get()).toBeInTheDocument();
+
   // Activate rule in quality profile
   expect(ui.prioritizedRuleCell.query()).not.toBeInTheDocument();
   await user.click(ui.activateButton.get());
@@ -194,13 +203,6 @@ it('can activate/change/deactivate rule in quality profile', async () => {
     'coding_rules.impact_customized.detailsoftware_quality.MAINTAINABILITYseverity_impact.MEDIUMseverity_impact.LOW',
   );
 
-  // Activate last java rule
-  await user.click(ui.activateButton.get());
-  await user.type(ui.paramInput('1').get(), 'paramInput');
-  await user.click(ui.activateButton.get(ui.activateQPDialog.get()));
-  expect(ui.qpLink('QP FooBarBaz').get()).toBeInTheDocument();
-  expect(ui.qpLink('QP FooBaz').get()).toBeInTheDocument();
-
   // Rule is activated in all quality profiles - show notification in dialog
   await user.click(ui.activateButton.get(screen.getByRole('main')));
   expect(ui.activaInAllQPs.get()).toBeInTheDocument();
@@ -215,10 +217,10 @@ it('can activate/change/deactivate rule in quality profile', async () => {
   await user.click(ui.newSeveritySelect(SoftwareQuality.Maintainability).get());
   await user.click(byRole('option', { name: 'severity_impact.BLOCKER' }).get());
   await user.click(ui.saveButton.get(ui.changeQPDialog.get()));
-  expect(await ui.qualityProfileRow.findAt(5)).toHaveTextContent('QP FooBaz');
-  expect(ui.qualityProfileRow.getAt(5)).toHaveTextContent('New');
+  expect(await ui.qualityProfileRow.findAt(4)).toHaveTextContent('QP FooBaz');
+  expect(ui.qualityProfileRow.getAt(4)).toHaveTextContent('New');
   await expect(
-    ui.newSeverityCustomizedCell.get(ui.qualityProfileRow.getAt(5)),
+    ui.newSeverityCustomizedCell.get(ui.qualityProfileRow.getAt(4)),
   ).toHaveATooltipWithContent(
     'coding_rules.impact_customized.detailsoftware_quality.MAINTAINABILITYseverity_impact.MEDIUMseverity_impact.BLOCKER',
   );
@@ -226,9 +228,9 @@ it('can activate/change/deactivate rule in quality profile', async () => {
   // Revert rule details in quality profile
   await user.click(ui.revertToParentDefinitionButton.get());
   await user.click(ui.yesButton.get());
-  expect(await ui.qualityProfileRow.findAt(5)).toHaveTextContent('QP FooBaz');
-  expect(await ui.qualityProfileRow.findAt(5)).not.toHaveTextContent('New');
-  expect(ui.newSeverityCustomizedCell.query(ui.qualityProfileRow.getAt(5))).not.toBeInTheDocument();
+  expect(await ui.qualityProfileRow.findAt(4)).toHaveTextContent('QP FooBaz');
+  expect(await ui.qualityProfileRow.findAt(4)).not.toHaveTextContent('New');
+  expect(ui.newSeverityCustomizedCell.query(ui.qualityProfileRow.getAt(4))).not.toBeInTheDocument();
 
   // Deactivate rule in quality profile
   await user.click(ui.deactivateInQPButton('QP FooBar').get());

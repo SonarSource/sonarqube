@@ -18,14 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Button, ButtonVariety, Checkbox, Modal, Text } from '@sonarsource/echoes-react';
+import { Button, ButtonVariety, Checkbox, Modal, Select, Text } from '@sonarsource/echoes-react';
 import {
   FlagMessage,
   FormField,
   InputField,
-  InputSelect,
   InputTextArea,
-  LabelValueSelectOption,
   Note,
   SafeHTMLInjection,
   SanitizeLevel,
@@ -74,9 +72,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
   const [changedPrioritizedRule, setChangedPrioritizedRule] = React.useState<boolean | undefined>(
     undefined,
   );
-  const [changedProfile, setChangedProfile] = React.useState<ProfileWithDepth | undefined>(
-    undefined,
-  );
+  const [changedProfile, setChangedProfile] = React.useState<string | undefined>(undefined);
   const [changedParams, setChangedParams] = React.useState<Record<string, string> | undefined>(
     undefined,
   );
@@ -94,7 +90,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
 
   const prioritizedRule =
     changedPrioritizedRule ?? (activation ? activation.prioritizedRule : false);
-  const profile = changedProfile ?? profilesWithDepth[0];
+  const profile = profiles.find((p) => p.key === changedProfile) ?? profilesWithDepth[0];
   const params = changedParams ?? getRuleParams({ activation, rule });
   const severity =
     changedSeverity ?? ((activation ? activation.severity : rule.severity) as IssueSeverity);
@@ -105,7 +101,11 @@ export default function ActivationFormModal(props: Readonly<Props>) {
       .map((impact) => [impact.softwareQuality, impact.severity] as const) ?? []),
     ...changedImpactSeveritiesMap,
   ]);
-  const profileOptions = profilesWithDepth.map((p) => ({ label: p.name, value: p }));
+  const profileOptions = profilesWithDepth.map((p) => ({
+    label: p.name,
+    value: p.key,
+    prefix: '   '.repeat(p.depth),
+  }));
   const isCustomRule = !!(rule as RuleDetails).templateKey;
   const activeInAllProfiles = profilesWithDepth.length <= 0;
   const isUpdateMode = !!activation;
@@ -167,48 +167,56 @@ export default function ActivationFormModal(props: Readonly<Props>) {
       }
       content={
         <form className="sw-pb-10" id={FORM_ID} onSubmit={handleFormSubmit}>
+          <Text as="div">
+            <FormattedMessage
+              id="coding_rules.rule_name.title"
+              values={{
+                name: <Text isSubdued>{rule.name}</Text>,
+              }}
+            />
+          </Text>
+
           {!isUpdateMode && activeInAllProfiles && (
-            <FlagMessage className="sw-mb-2" variant="info">
+            <FlagMessage className="sw-mt-4 sw-mb-6" variant="info">
               {intl.formatMessage({ id: 'coding_rules.active_in_all_profiles' })}
             </FlagMessage>
           )}
 
-          <FormField
-            ariaLabel={intl.formatMessage({ id: 'coding_rules.quality_profile' })}
-            label={intl.formatMessage({ id: 'coding_rules.quality_profile' })}
-            htmlFor="coding-rules-quality-profile-select-input"
-          >
-            <InputSelect
-              id="coding-rules-quality-profile-select"
-              inputId="coding-rules-quality-profile-select-input"
-              isClearable={false}
-              isDisabled={submitting || profilesWithDepth.length < MIN_PROFILES_TO_ENABLE_SELECT}
-              onChange={({ value }: LabelValueSelectOption<ProfileWithDepth>) => {
-                setChangedProfile(value);
-              }}
-              getOptionLabel={({ value }: LabelValueSelectOption<ProfileWithDepth>) =>
-                '   '.repeat(value.depth) + value.name
-              }
-              options={profileOptions}
-              value={profileOptions.find(({ value }) => value.key === profile?.key)}
-            />
-          </FormField>
+          {profilesWithDepth.length >= MIN_PROFILES_TO_ENABLE_SELECT ? (
+            <FormField
+              className="sw-mt-4"
+              ariaLabel={intl.formatMessage({ id: 'coding_rules.quality_profile' })}
+              label={intl.formatMessage({ id: 'coding_rules.quality_profile' })}
+              htmlFor="coding-rules-quality-profile-select"
+            >
+              <Select
+                id="coding-rules-quality-profile-select"
+                isNotClearable
+                isDisabled={submitting}
+                onChange={(value) => setChangedProfile(value ?? undefined)}
+                data={profileOptions}
+                value={profile?.key}
+              />
+            </FormField>
+          ) : (
+            <>
+              {(isUpdateMode || !activeInAllProfiles) && (
+                <Text as="div" className="sw-mb-6">
+                  <FormattedMessage
+                    id="coding_rules.quality_profile.title"
+                    values={{
+                      name: <Text isSubdued>{profile?.name}</Text>,
+                    }}
+                  />
+                </Text>
+              )}
+            </>
+          )}
 
           {hasFeature(Feature.PrioritizedRules) && (
             <FormField
               ariaLabel={intl.formatMessage({ id: 'coding_rules.prioritized_rule.title' })}
               label={intl.formatMessage({ id: 'coding_rules.prioritized_rule.title' })}
-              description={
-                <div className="sw-text-xs">
-                  {intl.formatMessage({ id: 'coding_rules.prioritized_rule.note' })}
-                  <DocumentationLink
-                    className="sw-ml-2 sw-whitespace-nowrap"
-                    to={DocLink.InstanceAdminQualityProfilesPrioritizingRules}
-                  >
-                    {intl.formatMessage({ id: 'learn_more' })}
-                  </DocumentationLink>
-                </div>
-              }
             >
               <Checkbox
                 onCheck={(checked) => setChangedPrioritizedRule(!!checked)}
@@ -216,6 +224,17 @@ export default function ActivationFormModal(props: Readonly<Props>) {
                 id="coding-rules-prioritized-rule"
                 checked={prioritizedRule}
               />
+              {prioritizedRule && (
+                <FlagMessage className="sw-mt-2" variant="info">
+                  {intl.formatMessage({ id: 'coding_rules.prioritized_rule.note' })}
+                  <DocumentationLink
+                    className="sw-ml-2 sw-whitespace-nowrap"
+                    to={DocLink.InstanceAdminQualityProfilesPrioritizingRules}
+                  >
+                    {intl.formatMessage({ id: 'learn_more' })}
+                  </DocumentationLink>
+                </FlagMessage>
+              )}
             </FormField>
           )}
 
@@ -360,10 +379,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
   );
 }
 
-function getQualityProfilesWithDepth(
-  profiles: Profile[] = [],
-  ruleLang?: string,
-): ProfileWithDepth[] {
+function getQualityProfilesWithDepth(profiles: Profile[], ruleLang?: string): ProfileWithDepth[] {
   return sortProfiles(
     profiles.filter(
       (profile) =>
@@ -387,7 +403,7 @@ function getRuleParams({
   rule: RuleDetails | Rule;
 }) {
   const params: Record<string, string> = {};
-  if (rule?.params) {
+  if (rule.params) {
     for (const param of rule.params) {
       params[param.key] = param.defaultValue ?? '';
     }
