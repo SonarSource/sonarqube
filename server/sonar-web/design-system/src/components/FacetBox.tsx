@@ -188,6 +188,13 @@ const ChevronAndTitle = styled(BareButton)<{
   ${tw`sw-items-center`};
 
   cursor: ${({ expandable }) => (expandable ? 'pointer' : 'default')};
+
+  &:focus-visible {
+    background: transparent;
+    outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
+    outline-offset: 4px;
+    border-radius: var(--echoes-border-radius-200);
+  }
 `;
 
 const ClearIcon = styled(DestructiveIcon)`

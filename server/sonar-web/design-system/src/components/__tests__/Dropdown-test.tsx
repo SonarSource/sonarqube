@@ -20,7 +20,7 @@
 import { screen } from '@testing-library/react';
 import { renderWithRouter } from '../../helpers/testUtils';
 import { ButtonSecondary } from '../../sonar-aligned/components/buttons';
-import { ActionsDropdown, Dropdown } from '../Dropdown';
+import { Dropdown } from '../Dropdown';
 
 describe('Dropdown', () => {
   it('renders', async () => {
@@ -87,21 +87,6 @@ describe('Dropdown', () => {
       <Dropdown id="test-menu" overlay={<div id="overlay" />} {...rest}>
         {children ?? <ButtonSecondary />}
       </Dropdown>,
-    );
-  }
-});
-
-describe('ActionsDropdown', () => {
-  it('renders', () => {
-    setup();
-    expect(screen.getByRole('button')).toHaveAccessibleName('menu');
-  });
-
-  function setup() {
-    return renderWithRouter(
-      <ActionsDropdown id="test-menu">
-        <div id="overlay" />
-      </ActionsDropdown>,
     );
   }
 });

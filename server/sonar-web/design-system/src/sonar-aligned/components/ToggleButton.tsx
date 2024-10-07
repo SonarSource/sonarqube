@@ -113,9 +113,9 @@ const OptionButton = styled(ButtonSecondary)<{ selected: boolean }>`
     color: ${themeContrast('toggleHover')};
   }
 
-  &:focus,
-  &:active {
-    outline: ${themeBorder('focus', 'toggleFocus')};
+  &:focus-visible {
+    outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
+    outline-offset: var(--echoes-focus-border-offset-default);
     z-index: 1;
   }
 `;

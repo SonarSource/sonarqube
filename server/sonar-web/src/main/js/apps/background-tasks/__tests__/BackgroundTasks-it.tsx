@@ -414,7 +414,7 @@ function getPageObject() {
           name: `background_tasks.show_actions_for_task_x_in_list.${rowIndex}`,
         }),
       );
-      await user.click(within(row).getByRole('menuitem', { name: label }));
+      await user.click(screen.getByRole('menuitem', { name: label }));
     },
   };
 

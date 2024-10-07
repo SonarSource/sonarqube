@@ -128,7 +128,6 @@ export const buttonStyle = (props: ThemedProps) => css`
   background-color: var(--background);
   transition:
     background-color 0.2s ease,
-    outline 0.2s ease;
 
   ${tw`sw-inline-flex sw-items-center`}
   ${tw`sw-h-control`}
@@ -143,9 +142,14 @@ export const buttonStyle = (props: ThemedProps) => css`
   }
 
   &:focus,
-  &:active {
+  &:active,
+  &:focus-visible {
     color: var(--color);
-    outline: ${themeBorder('focus', 'var(--focus)')(props)};
+  }
+
+  &:focus-visible {
+    outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
+    outline-offset: var(--echoes-focus-border-offset-default);
   }
 
   &:disabled,

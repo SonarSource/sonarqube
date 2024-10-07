@@ -62,7 +62,7 @@ const ui = {
   activateMoreRulesButton: byRole('button', { name: 'quality_profiles.activate_more' }),
   activateMoreLink: byRole('link', { name: 'quality_profiles.activate_more' }),
   activateMoreRulesLink: byRole('menuitem', { name: 'quality_profiles.activate_more_rules' }),
-  backUpLink: byRole('menuitem', { name: 'backup_verb' }),
+  backUpLink: byRole('menuitem', { name: 'backup_verb open_in_new_tab' }),
   compareLink: byRole('menuitem', { name: 'compare' }),
   extendButton: byRole('menuitem', { name: 'extend' }),
   copyButton: byRole('menuitem', { name: 'copy' }),
@@ -382,7 +382,7 @@ describe('Admin or user with permission', () => {
       await ui.waitForDataLoaded();
 
       await user.click(await ui.qualityProfileActions.find());
-      expect(ui.setAsDefaultButton.get()).toBeDisabled();
+      expect(ui.setAsDefaultButton.get()).toHaveAttribute('aria-disabled', 'true');
     });
 
     it("should be able to delete a Quality Profile and it's children", async () => {

@@ -17,10 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ActionsDropdown, ItemButton, ItemDangerButton } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
 
+import {
+  ButtonIcon,
+  ButtonVariety,
+  DropdownMenu,
+  IconMoreVertical,
+} from '@sonarsource/echoes-react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { WebhookResponse, WebhookUpdatePayload } from '../../../types/webhook';
 import CreateWebhookForm from './CreateWebhookForm';
@@ -46,21 +51,38 @@ export default function WebhookActions(props: Props) {
 
   return (
     <>
-      <ActionsDropdown
-        toggleClassName="it__webhook-actions"
+      <DropdownMenu.Root
+        className="it__webhook-actions"
         id={webhook.key}
-        ariaLabel={translateWithParameters('webhooks.show_actions', webhook.name)}
+        items={
+          <>
+            <DropdownMenu.ItemButton onClick={() => setUpdating(true)}>
+              {translate('update_verb')}
+            </DropdownMenu.ItemButton>
+            {webhook.latestDelivery && (
+              <DropdownMenu.ItemButton
+                className="it__webhook-deliveries"
+                onClick={() => setDeliveries(true)}
+              >
+                {translate('webhooks.deliveries.show')}
+              </DropdownMenu.ItemButton>
+            )}
+            <DropdownMenu.ItemButtonDestructive
+              className="it__webhook-delete"
+              onClick={() => setDeleting(true)}
+            >
+              {translate('delete')}
+            </DropdownMenu.ItemButtonDestructive>
+          </>
+        }
       >
-        <ItemButton onClick={() => setUpdating(true)}>{translate('update_verb')}</ItemButton>
-        {webhook.latestDelivery && (
-          <ItemButton className="it__webhook-deliveries" onClick={() => setDeliveries(true)}>
-            {translate('webhooks.deliveries.show')}
-          </ItemButton>
-        )}
-        <ItemDangerButton className="it__webhook-delete" onClick={() => setDeleting(true)}>
-          {translate('delete')}
-        </ItemDangerButton>
-      </ActionsDropdown>
+        <ButtonIcon
+          className="it__webhook-actions"
+          Icon={IconMoreVertical}
+          ariaLabel={translateWithParameters('webhooks.show_actions', webhook.name)}
+          variety={ButtonVariety.Default}
+        />
+      </DropdownMenu.Root>
 
       {deliveries && <DeliveriesForm onClose={() => setDeliveries(false)} webhook={webhook} />}
 

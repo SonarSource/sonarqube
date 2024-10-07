@@ -18,18 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
+  ButtonIcon,
+  ButtonSize,
+  DropdownMenu,
+  IconEdit,
+  IconMoreVertical,
+  Tooltip,
+} from '@sonarsource/echoes-react';
+import {
   ActionCell,
-  ActionsDropdown,
   Badge,
   ContentCell,
   FlagWarningIcon,
-  InteractiveIcon,
-  ItemButton,
-  PencilIcon,
   TableRowInteractive,
 } from 'design-system';
 import * as React from 'react';
-import Tooltip from '../../../components/controls/Tooltip';
 import BranchLikeIcon from '../../../components/icon-mappers/BranchLikeIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -128,36 +131,44 @@ export default function BranchListRow(props: BranchListRowProps) {
       </ContentCell>
       <ActionCell>
         {!branch.newCodePeriod && (
-          <InteractiveIcon
-            Icon={PencilIcon}
-            aria-label={translateWithParameters('branch_list.edit_for_x', branch.name)}
+          <ButtonIcon
+            Icon={IconEdit}
+            ariaLabel={translateWithParameters('branch_list.edit_for_x', branch.name)}
             onClick={() => props.onOpenEditModal(branch)}
-            className="sw-mr-2"
-            size="small"
+            size={ButtonSize.Medium}
           />
         )}
         {branch.newCodePeriod && (
-          <ActionsDropdown
-            allowResizing
+          <DropdownMenu.Root
             id={`new-code-action-${branch.name}`}
-            ariaLabel={translateWithParameters('branch_list.show_actions_for_x', branch.name)}
+            items={
+              <>
+                <Tooltip
+                  content={
+                    isCompliant
+                      ? null
+                      : translate('project_baseline.compliance.warning.title.project')
+                  }
+                >
+                  <DropdownMenu.ItemButton
+                    isDisabled={!isCompliant}
+                    onClick={() => props.onResetToDefault(branch.name)}
+                  >
+                    {translate('reset_to_default')}
+                  </DropdownMenu.ItemButton>
+                </Tooltip>
+                <DropdownMenu.ItemButton onClick={() => props.onOpenEditModal(branch)}>
+                  {translate('edit')}
+                </DropdownMenu.ItemButton>
+              </>
+            }
           >
-            <Tooltip
-              content={
-                isCompliant ? null : translate('project_baseline.compliance.warning.title.project')
-              }
-            >
-              <ItemButton
-                disabled={!isCompliant}
-                onClick={() => props.onResetToDefault(branch.name)}
-              >
-                {translate('reset_to_default')}
-              </ItemButton>
-            </Tooltip>
-            <ItemButton onClick={() => props.onOpenEditModal(branch)}>
-              {translate('edit')}
-            </ItemButton>
-          </ActionsDropdown>
+            <ButtonIcon
+              Icon={IconMoreVertical}
+              ariaLabel={translateWithParameters('branch_list.show_actions_for_x', branch.name)}
+              size={ButtonSize.Medium}
+            />
+          </DropdownMenu.Root>
         )}
       </ActionCell>
     </TableRowInteractive>

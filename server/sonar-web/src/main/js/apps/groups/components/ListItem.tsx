@@ -18,16 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { ButtonIcon, DropdownMenu, IconMoreVertical } from '@sonarsource/echoes-react';
 import {
-  ActionsDropdown,
   Badge,
   ContentCell,
   DestructiveIcon,
-  ItemButton,
-  ItemDangerButton,
-  ItemDivider,
   NumericalCell,
-  PopupZLevel,
   Spinner,
   TableRow,
   TrashIcon,
@@ -108,23 +104,28 @@ export default function ListItem(props: Readonly<ListItemProps>) {
               />
             )}
             {!isManaged() && (
-              <ActionsDropdown
-                allowResizing
+              <DropdownMenu.Root
                 id={`group-actions-${group.name}`}
-                ariaLabel={translateWithParameters('groups.edit', group.name)}
-                zLevel={PopupZLevel.Global}
+                items={
+                  <>
+                    <DropdownMenu.ItemButton onClick={() => setGroupToEdit(group)}>
+                      {translate('update_details')}
+                    </DropdownMenu.ItemButton>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.ItemButtonDestructive
+                      className="it__quality-profiles__delete"
+                      onClick={() => setGroupToDelete(group)}
+                    >
+                      {translate('delete')}
+                    </DropdownMenu.ItemButtonDestructive>
+                  </>
+                }
               >
-                <ItemButton onClick={() => setGroupToEdit(group)}>
-                  {translate('update_details')}
-                </ItemButton>
-                <ItemDivider />
-                <ItemDangerButton
-                  className="it__quality-profiles__delete"
-                  onClick={() => setGroupToDelete(group)}
-                >
-                  {translate('delete')}
-                </ItemDangerButton>
-              </ActionsDropdown>
+                <ButtonIcon
+                  Icon={IconMoreVertical}
+                  ariaLabel={translateWithParameters('groups.edit', group.name)}
+                />
+              </DropdownMenu.Root>
             )}
           </>
         )}

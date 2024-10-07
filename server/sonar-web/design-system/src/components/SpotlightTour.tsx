@@ -19,7 +19,14 @@
  */
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
-import { LinkStandalone } from '@sonarsource/echoes-react';
+import {
+  Button,
+  ButtonIcon,
+  ButtonVariety,
+  IconX,
+  LinkStandalone,
+  TooltipProvider,
+} from '@sonarsource/echoes-react';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import ReactJoyride, {
@@ -31,9 +38,6 @@ import { LinkProps } from 'react-router-dom';
 import tw from 'twin.macro';
 import { GLOBAL_POPUP_Z_INDEX, PopupZLevel, themeColor } from '../helpers';
 import { findAnchor } from '../helpers/dom';
-import { ButtonPrimary } from '../sonar-aligned/components/buttons';
-import { ButtonLink, WrapperButton } from './buttons';
-import { CloseIcon } from './icons';
 import { PopupWrapper } from './popups';
 
 type Placement = 'left' | 'right' | 'top' | 'bottom' | 'center';
@@ -72,7 +76,7 @@ function TooltipComponent({
   size,
   isLastStep,
   backProps,
-  skipProps,
+  skipProps: { 'aria-label': skipPropsAriaLabel, ...skipProps },
   closeProps,
   primaryProps,
   stepXofYLabel,
@@ -162,12 +166,13 @@ function TooltipComponent({
         }}
       >
         <strong className="sw-typo-lg-semibold sw-mb-2">{step.title}</strong>
-        <WrapperButton
-          className="sw-w-[30px] sw-h-[30px] sw--mt-2 sw--mr-2 sw-flex sw-justify-center"
+        <ButtonIcon
+          Icon={IconX}
+          ariaLabel={skipPropsAriaLabel}
+          className="sw--mt-2 sw--mr-2"
+          variety={ButtonVariety.DefaultGhost}
           {...skipProps}
-        >
-          <CloseIcon className="sw-mr-0" />
-        </WrapperButton>
+        />
       </div>
       <div>{step.content}</div>
 
@@ -188,15 +193,19 @@ function TooltipComponent({
         <span />
         <div>
           {index > 0 && (
-            <ButtonLink className="sw-mr-4" {...backProps}>
+            <Button className="sw-mr-4" variety={ButtonVariety.DefaultGhost} {...backProps}>
               {backProps.title}
-            </ButtonLink>
+            </Button>
           )}
           {continuous && !isLastStep && (
-            <ButtonPrimary {...primaryProps}>{primaryProps.title}</ButtonPrimary>
+            <Button variety={ButtonVariety.Primary} {...primaryProps}>
+              {primaryProps.title}
+            </Button>
           )}
           {(!continuous || isLastStep) && (
-            <ButtonPrimary {...closeProps}>{closeProps.title}</ButtonPrimary>
+            <Button variety={ButtonVariety.Primary} {...closeProps}>
+              {closeProps.title}
+            </Button>
           )}
         </div>
       </div>
@@ -253,13 +262,15 @@ export function SpotlightTour(props: SpotlightTourProps) {
       tooltipComponent={(
         tooltipProps: React.PropsWithChildren<TooltipRenderProps & { step: SpotlightTourStep }>,
       ) => (
-        <TooltipComponent
-          actionLabel={actionLabel}
-          actionPath={actionPath}
-          stepXofYLabel={stepXofYLabel}
-          width={width}
-          {...tooltipProps}
-        />
+        <TooltipProvider>
+          <TooltipComponent
+            actionLabel={actionLabel}
+            actionPath={actionPath}
+            stepXofYLabel={stepXofYLabel}
+            width={width}
+            {...tooltipProps}
+          />
+        </TooltipProvider>
       )}
       {...otherProps}
     />

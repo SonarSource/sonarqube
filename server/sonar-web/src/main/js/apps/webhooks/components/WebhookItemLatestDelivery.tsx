@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagErrorIcon, FlagSuccessIcon, InteractiveIcon, MenuIcon } from 'design-system';
+import { ButtonIcon, ButtonSize, IconMoreVertical } from '@sonarsource/echoes-react';
+import { FlagErrorIcon, FlagSuccessIcon } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
@@ -42,12 +43,12 @@ export default function WebhookItemLatestDelivery({ webhook }: Props) {
       <div className="sw-ml-2 sw-flex sw-items-center">
         <DateTimeFormatter date={webhook.latestDelivery.at} />
         <span title={translateWithParameters('webhooks.last_execution.open_for_x', webhook.name)}>
-          <InteractiveIcon
+          <ButtonIcon
             className="sw-ml-2"
-            Icon={MenuIcon}
-            aria-label={translateWithParameters('webhooks.last_execution.open_for_x', webhook.name)}
+            Icon={IconMoreVertical}
+            ariaLabel={translateWithParameters('webhooks.last_execution.open_for_x', webhook.name)}
             onClick={() => setModalOpen(true)}
-            size="small"
+            size={ButtonSize.Medium}
           />
         </span>
       </div>

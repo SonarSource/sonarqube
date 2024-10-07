@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { PopupZLevel, SearchSelectDropdown, SubHeading } from 'design-system';
+import { InputSize, Select } from '@sonarsource/echoes-react';
+import { SubHeading } from 'design-system';
 import * as React from 'react';
-import { Options } from 'react-select';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location, Router } from '~sonar-aligned/types/router';
 import { translate } from '../../../helpers/l10n';
@@ -33,37 +33,19 @@ export interface LanguagesProps extends AdditionalCategoryComponentProps {
   router: Router;
 }
 
-interface SelectOption {
-  label: string;
-  originalValue: string;
-  value: string;
-}
-
 export function Languages(props: Readonly<LanguagesProps>) {
   const { categories, component, definitions, location, router, selectedCategory } = props;
-  const { availableLanguages, selectedLanguage } = getLanguages(categories, selectedCategory);
+  const { availableLanguages, selectedLanguage } = React.useMemo(
+    () => getLanguages(categories, selectedCategory),
+    [categories, selectedCategory],
+  );
 
-  const handleOnChange = (newOption: SelectOption) => {
+  const handleOnChange = (selection: string | null) => {
     router.push({
       ...location,
-      query: { ...location.query, category: newOption.originalValue },
+      query: { ...location.query, category: selection ?? LANGUAGES_CATEGORY },
     });
   };
-
-  const handleLanguagesSearch = React.useCallback(
-    (query: string, cb: (options: Options<SelectOption>) => void) => {
-      const normalizedQuery = query.toLowerCase();
-
-      cb(
-        availableLanguages.filter(
-          (lang) =>
-            lang.label.toLowerCase().includes(normalizedQuery) ||
-            lang.value.includes(normalizedQuery),
-        ),
-      );
-    },
-    [availableLanguages],
-  );
 
   return (
     <>
@@ -71,15 +53,13 @@ export function Languages(props: Readonly<LanguagesProps>) {
         {translate('property.category.languages')}
       </SubHeading>
       <div data-test="language-select">
-        <SearchSelectDropdown
-          defaultOptions={availableLanguages}
-          controlAriaLabel={translate('property.category.languages')}
+        <Select
+          data={availableLanguages}
           onChange={handleOnChange}
-          loadOptions={handleLanguagesSearch}
-          placeholder={translate('settings.languages.select_a_language_placeholder')}
-          controlSize="medium"
-          zLevel={PopupZLevel.Content}
-          value={availableLanguages.find((language) => language.value === selectedLanguage)}
+          value={selectedLanguage ?? null /* null clears the input */}
+          ariaLabelledBy="languages-category-title"
+          isSearchable
+          size={InputSize.Medium}
         />
       </div>
       {selectedLanguage && (
@@ -101,17 +81,19 @@ function getLanguages(categories: string[], selectedCategory: string) {
     .filter((c) => CATEGORY_OVERRIDES[c.toLowerCase()] === lowerCasedLanguagesCategory)
     .map((c) => ({
       label: getCategoryName(c),
-      value: c.toLowerCase(),
-      originalValue: c,
+      value: c,
     }));
 
   let selectedLanguage = undefined;
 
-  if (
-    lowerCasedSelectedCategory !== lowerCasedLanguagesCategory &&
-    availableLanguages.find((c) => c.value === lowerCasedSelectedCategory)
-  ) {
-    selectedLanguage = lowerCasedSelectedCategory;
+  if (lowerCasedSelectedCategory !== lowerCasedLanguagesCategory) {
+    const match = availableLanguages.find(
+      (c) => c.value.toLowerCase() === lowerCasedSelectedCategory,
+    );
+
+    if (match) {
+      selectedLanguage = match.value;
+    }
   }
 
   return {

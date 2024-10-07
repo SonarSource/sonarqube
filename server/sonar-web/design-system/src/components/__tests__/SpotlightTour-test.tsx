@@ -28,42 +28,42 @@ it('should display the spotlight tour', async () => {
   renderSpotlightTour({ callback });
 
   expect(await screen.findByRole('alertdialog')).toBeInTheDocument();
-  expect(screen.getByRole('alertdialog')).toHaveTextContent(
-    'Trust The FooFoo bar is bazstep 1 of 5next',
-  );
+  let dialog = screen.getByRole('alertdialog');
+  expect(dialog).toHaveTextContent('Trust The Foo');
+  expect(dialog).toHaveTextContent('Foo bar is baz');
   expect(screen.getByText('step 1 of 5')).toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: 'next' }));
 
-  expect(screen.getByRole('alertdialog')).toHaveTextContent(
-    'Trust The BazBaz foo is barstep 2 of 5go_backnext',
-  );
+  dialog = screen.getByRole('alertdialog');
+  expect(dialog).toHaveTextContent('Trust The Baz');
+  expect(dialog).toHaveTextContent('Baz foo is bar');
   expect(callback).toHaveBeenCalled();
 
   await user.click(screen.getByRole('button', { name: 'next' }));
 
-  expect(screen.getByRole('alertdialog')).toHaveTextContent(
-    'Trust The BarBar baz is foostep 3 of 5go_backnext',
-  );
+  dialog = screen.getByRole('alertdialog');
+  expect(dialog).toHaveTextContent('Trust The Bar');
+  expect(dialog).toHaveTextContent('Bar baz is foo');
 
   await user.click(screen.getByRole('button', { name: 'next' }));
 
-  expect(screen.getByRole('alertdialog')).toHaveTextContent(
-    'Trust The Foo 2Foo baz is barstep 4 of 5go_backnext',
-  );
+  dialog = screen.getByRole('alertdialog');
+  expect(dialog).toHaveTextContent('Trust The Foo 2');
+  expect(dialog).toHaveTextContent('Foo baz is bar');
 
   await user.click(screen.getByRole('button', { name: 'go_back' }));
 
-  expect(screen.getByRole('alertdialog')).toHaveTextContent(
-    'Trust The BarBar baz is foostep 3 of 5go_backnext',
-  );
+  dialog = screen.getByRole('alertdialog');
+  expect(dialog).toHaveTextContent('Trust The Bar');
+  expect(dialog).toHaveTextContent('Bar baz is foo');
 
   await user.click(screen.getByRole('button', { name: 'next' }));
   await user.click(screen.getByRole('button', { name: 'next' }));
 
-  expect(screen.getByRole('alertdialog')).toHaveTextContent(
-    'Trust The Baz 2Baz bar is foostep 5 of 5go_backclose',
-  );
+  dialog = screen.getByRole('alertdialog');
+  expect(dialog).toHaveTextContent('Trust The Baz 2');
+  expect(dialog).toHaveTextContent('Baz bar is foo');
 
   expect(screen.queryByRole('button', { name: 'next' })).not.toBeInTheDocument();
 

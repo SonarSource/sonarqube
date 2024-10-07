@@ -24,12 +24,7 @@ exports[`should highlight code content correctly 1`] = `
   border: var(--border);
   color: var(--color);
   background-color: var(--background);
-  -webkit-transition: background-color 0.2s ease,outline 0.2s ease;
-  transition: background-color 0.2s ease,outline 0.2s ease;
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
+  transition:background-color 0.2s ease,display: inline-flex;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -64,9 +59,14 @@ exports[`should highlight code content correctly 1`] = `
 }
 
 .emotion-4:focus,
-.emotion-4:active {
+.emotion-4:active,
+.emotion-4:focus-visible {
   color: var(--color);
-  outline: 4px solid var(--focus);
+}
+
+.emotion-4:focus-visible {
+  outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
+  outline-offset: var(--echoes-focus-border-offset-default);
 }
 
 .emotion-4:disabled,
@@ -226,12 +226,7 @@ exports[`should show full size when multiline with no editing 1`] = `
   border: var(--border);
   color: var(--color);
   background-color: var(--background);
-  -webkit-transition: background-color 0.2s ease,outline 0.2s ease;
-  transition: background-color 0.2s ease,outline 0.2s ease;
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
+  transition:background-color 0.2s ease,display: inline-flex;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -266,9 +261,14 @@ exports[`should show full size when multiline with no editing 1`] = `
 }
 
 .emotion-4:focus,
-.emotion-4:active {
+.emotion-4:active,
+.emotion-4:focus-visible {
   color: var(--color);
-  outline: 4px solid var(--focus);
+}
+
+.emotion-4:focus-visible {
+  outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
+  outline-offset: var(--echoes-focus-border-offset-default);
 }
 
 .emotion-4:disabled,
@@ -430,12 +430,7 @@ exports[`should show reduced size when single line with no editing 1`] = `
   border: var(--border);
   color: var(--color);
   background-color: var(--background);
-  -webkit-transition: background-color 0.2s ease,outline 0.2s ease;
-  transition: background-color 0.2s ease,outline 0.2s ease;
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
+  transition:background-color 0.2s ease,display: inline-flex;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -472,9 +467,14 @@ exports[`should show reduced size when single line with no editing 1`] = `
 }
 
 .emotion-4:focus,
-.emotion-4:active {
+.emotion-4:active,
+.emotion-4:focus-visible {
   color: var(--color);
-  outline: 4px solid var(--focus);
+}
+
+.emotion-4:focus-visible {
+  outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
+  outline-offset: var(--echoes-focus-border-offset-default);
 }
 
 .emotion-4:disabled,

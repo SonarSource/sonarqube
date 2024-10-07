@@ -90,7 +90,7 @@ function isMeasured(state: State): state is OwnState & Measurements {
  * - `placement` is now `align` and `side`, based on the {@link Echoes.TooltipAlign | TooltipAlign} and {@link Echoes.TooltipSide | TooltipSide} enums.
  * - `visible` is now `isOpen`
  */
-export default function Tooltip(props: TooltipProps) {
+export default function LegacyTooltip(props: TooltipProps) {
   // `overlay` is a ReactNode, so it can be `undefined` or `null`. This allows to easily
   // render a tooltip conditionally. More generally, we avoid rendering empty tooltips.
   return props.content != null && props.content !== '' ? (

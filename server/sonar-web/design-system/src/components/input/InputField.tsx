@@ -59,13 +59,13 @@ InputTextArea.displayName = 'InputTextArea';
 const defaultStyle = (props: ThemedProps) => css`
   --border: ${themeBorder('default', 'inputBorder')(props)};
   --focusBorder: ${themeBorder('default', 'inputFocus')(props)};
-  --focusOutline: ${themeBorder('focus', 'inputFocus')(props)};
+  --focusOutline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
 `;
 
 const dangerStyle = (props: ThemedProps) => css`
   --border: ${themeBorder('default', 'inputDanger')(props)};
   --focusBorder: ${themeBorder('default', 'inputDangerFocus')(props)};
-  --focusOutline: ${themeBorder('focus', 'inputDangerFocus')(props)};
+  --focusOutline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
 `;
 
 const getInputVariant = (props: ThemedProps & { isInvalid?: boolean; isValid?: boolean }) => {
@@ -102,6 +102,7 @@ const baseStyle = (props: ThemedProps) => css`
   &:focus-visible {
     border: var(--focusBorder);
     outline: var(--focusOutline);
+    outline-offset: var(--echoes-focus-border-offset-default);
   }
 
   &:disabled,

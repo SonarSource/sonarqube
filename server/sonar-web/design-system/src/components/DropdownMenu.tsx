@@ -23,7 +23,7 @@ import classNames from 'classnames';
 import React, { ForwardedRef, forwardRef } from 'react';
 import tw from 'twin.macro';
 import { INPUT_SIZES } from '../helpers/constants';
-import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
+import { themeColor, themeContrast } from '../helpers/theme';
 import { InputSizeKeys, ThemedProps } from '../types/theme';
 import { BaseLink, LinkProps } from './Link';
 import NavLink from './NavLink';
@@ -370,10 +370,13 @@ const itemStyle = (props: ThemedProps) => css`
     color: var(--color);
     background-color: ${themeColor('dropdownMenuFocus')(props)};
     text-decoration: none;
-    outline: ${themeBorder('focus', 'dropdownMenuFocusBorder')(props)};
-    outline-offset: -4px;
     border: none;
     border-bottom: none;
+  }
+
+  &:focus-visible {
+    borderLeft: '2px solid var(--echoes-color-focus-default)',
+    marginLeft: '-2px',
   }
 
   &:disabled,

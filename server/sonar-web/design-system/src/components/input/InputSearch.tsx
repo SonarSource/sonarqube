@@ -226,7 +226,8 @@ export const StyledInputWrapper = styled.div`
     &:focus,
     &:active {
       border: ${themeBorder('default', 'inputFocus')};
-      outline: ${themeBorder('focus', 'inputFocus')};
+      outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
+      outline-offset: var(--echoes-focus-border-offset-default);
     }
 
     &::-webkit-search-decoration,
@@ -251,6 +252,11 @@ export const StyledSearchIconWrapper = styled.div`
 export const StyledInteractiveIcon = styled(InteractiveIcon)`
   ${tw`sw-absolute`}
   ${tw`sw-right-2`}
+
+  &:focus,
+  &:active {
+    outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
+  }
 `;
 
 export const StyledNote = styled.span`

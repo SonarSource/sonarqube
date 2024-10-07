@@ -21,7 +21,7 @@ import styled from '@emotion/styled';
 import { PropsWithChildren } from 'react';
 import { FormattedMessage } from 'react-intl';
 import tw from 'twin.macro';
-import { OPACITY_20_PERCENT, themeBorder, themeColor } from '../helpers';
+import { themeBorder, themeColor } from '../helpers';
 import { BareButton } from '../sonar-aligned/components/buttons';
 import { getTabId, getTabPanelId } from '../sonar-aligned/helpers/tabs';
 import { Badge } from './Badge';
@@ -131,7 +131,7 @@ const TabButton = styled(BareButton)<{
   }
 
   &:active {
-    outline: ${themeBorder('xsActive', 'tabSelected', OPACITY_20_PERCENT)};
+    outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
     z-index: 1;
   }
 

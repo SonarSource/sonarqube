@@ -18,14 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-  ActionCell,
-  ActionsDropdown,
-  Badge,
-  ContentCell,
-  ItemButton,
-  ItemDangerButton,
-  TableRowInteractive,
-} from 'design-system';
+  ButtonIcon,
+  ButtonVariety,
+  DropdownMenu,
+  IconMoreVertical,
+} from '@sonarsource/echoes-react';
+import { ActionCell, Badge, ContentCell, TableRowInteractive } from 'design-system';
 import * as React from 'react';
 import { isBranch, isMainBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import QualityGateStatus from '../../../app/components/nav/component/branch-like/QualityGateStatus';
@@ -75,34 +73,41 @@ function BranchLikeRow(props: BranchLikeRowProps) {
         </ContentCell>
       )}
       <ActionCell>
-        <ActionsDropdown
-          allowResizing
+        <DropdownMenu.Root
           id={`branch-settings-action-${branchLikeDisplayName}`}
-          ariaLabel={translateWithParameters(
-            'project_branch_pull_request.branch.actions_label',
-            branchLikeDisplayName,
-          )}
-        >
-          {isBranch(branchLike) && !isMainBranch(branchLike) && (
-            <ItemButton onClick={props.onSetAsMain}>
-              {translate('project_branch_pull_request.branch.set_main')}
-            </ItemButton>
-          )}
-
-          {isMainBranch(branchLike) ? (
-            <ItemButton onClick={props.onRename}>
-              {translate('project_branch_pull_request.branch.rename')}
-            </ItemButton>
-          ) : (
-            <ItemDangerButton onClick={props.onDelete}>
-              {translate(
-                isPullRequest(branchLike)
-                  ? 'project_branch_pull_request.pull_request.delete'
-                  : 'project_branch_pull_request.branch.delete',
+          items={
+            <>
+              {isBranch(branchLike) && !isMainBranch(branchLike) && (
+                <DropdownMenu.ItemButton onClick={props.onSetAsMain}>
+                  {translate('project_branch_pull_request.branch.set_main')}
+                </DropdownMenu.ItemButton>
               )}
-            </ItemDangerButton>
-          )}
-        </ActionsDropdown>
+
+              {isMainBranch(branchLike) ? (
+                <DropdownMenu.ItemButton onClick={props.onRename}>
+                  {translate('project_branch_pull_request.branch.rename')}
+                </DropdownMenu.ItemButton>
+              ) : (
+                <DropdownMenu.ItemButtonDestructive onClick={props.onDelete}>
+                  {translate(
+                    isPullRequest(branchLike)
+                      ? 'project_branch_pull_request.pull_request.delete'
+                      : 'project_branch_pull_request.branch.delete',
+                  )}
+                </DropdownMenu.ItemButtonDestructive>
+              )}
+            </>
+          }
+        >
+          <ButtonIcon
+            Icon={IconMoreVertical}
+            ariaLabel={translateWithParameters(
+              'project_branch_pull_request.branch.actions_label',
+              branchLikeDisplayName,
+            )}
+            variety={ButtonVariety.Default}
+          />
+        </DropdownMenu.Root>
       </ActionCell>
     </TableRowInteractive>
   );

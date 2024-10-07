@@ -18,13 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { useIntl } from 'react-intl';
 import { PopupPlacement, PopupZLevel } from '../helpers/positioning';
 import { InputSizeKeys } from '../types/theme';
 import { DropdownMenu } from './DropdownMenu';
 import { DropdownToggler } from './DropdownToggler';
-import { InteractiveIcon } from './InteractiveIcon';
-import { MenuIcon } from './icons/MenuIcon';
 
 type OnClickCallback = (event?: React.MouseEvent<HTMLElement>) => void;
 type A11yAttrs = Pick<React.AriaAttributes, 'aria-controls' | 'aria-expanded' | 'aria-haspopup'> & {
@@ -136,32 +133,4 @@ export class Dropdown extends React.PureComponent<Readonly<Props>, State> {
       </DropdownToggler>
     );
   }
-}
-
-interface ActionsDropdownProps extends Omit<Props, 'children' | 'overlay'> {
-  ariaLabel?: string;
-  buttonSize?: 'small' | 'medium';
-  children: React.ReactNode;
-  toggleClassName?: string;
-}
-
-/** @deprecated Use DropdownMenu.Root and other DropdownMenu.* elements from Echoes instead.
- * See the {@link https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3354918914/DropdownMenus | Migration Guide}
- */
-export function ActionsDropdown(props: Readonly<ActionsDropdownProps>) {
-  const { children, buttonSize, ariaLabel, toggleClassName, ...dropdownProps } = props;
-
-  const intl = useIntl();
-
-  return (
-    <Dropdown overlay={children} {...dropdownProps}>
-      <InteractiveIcon
-        Icon={MenuIcon}
-        aria-label={ariaLabel ?? intl.formatMessage({ id: 'menu' })}
-        className={toggleClassName}
-        size={buttonSize}
-        stopPropagation={false}
-      />
-    </Dropdown>
-  );
 }

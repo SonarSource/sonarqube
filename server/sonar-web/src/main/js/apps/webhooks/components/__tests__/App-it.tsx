@@ -287,7 +287,7 @@ function getPageObject() {
       await user.click(
         within(row).getByRole('button', { name: `webhooks.show_actions.${webhookName}` }),
       );
-      await user.click(within(row).getByRole(role, { name: actionName }));
+      await user.click(screen.getByRole(role, { name: actionName }));
     },
     clickWebhookLatestDelivery: async (rowIndex: number, webhookName: string) => {
       const row = ui.getWebhookRow(rowIndex);

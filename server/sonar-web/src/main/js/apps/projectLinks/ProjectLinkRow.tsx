@@ -17,15 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  ActionCell,
-  ContentCell,
-  DestructiveIcon,
-  Link,
-  Note,
-  TableRow,
-  TrashIcon,
-} from 'design-system';
+import { ButtonIcon, ButtonSize, ButtonVariety, IconDelete } from '@sonarsource/echoes-react';
+import { ActionCell, ContentCell, Link, Note, TableRow } from 'design-system';
 import * as React from 'react';
 import isValidUri from '../../app/utils/isValidUri';
 import ConfirmButton from '../../components/controls/ConfirmButton';
@@ -70,11 +63,12 @@ export default class LinkRow extends React.PureComponent<Props> {
         onConfirm={this.props.onDelete}
       >
         {({ onClick }) => (
-          <DestructiveIcon
-            Icon={TrashIcon}
-            aria-label={translateWithParameters('project_links.delete_x_link', link.name ?? '')}
+          <ButtonIcon
+            Icon={IconDelete}
+            ariaLabel={translateWithParameters('project_links.delete_x_link', link.name ?? '')}
             onClick={onClick}
-            size="small"
+            size={ButtonSize.Medium}
+            variety={ButtonVariety.DangerGhost}
           />
         )}
       </ConfirmButton>

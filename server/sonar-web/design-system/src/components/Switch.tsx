@@ -20,7 +20,7 @@
 import styled from '@emotion/styled';
 import { ForwardedRef, forwardRef } from 'react';
 import tw from 'twin.macro';
-import { themeBorder, themeColor, themeContrast, themeShadow } from '../helpers';
+import { themeColor, themeContrast, themeShadow } from '../helpers';
 import { CheckIcon } from './icons';
 
 interface Props {
@@ -95,7 +95,7 @@ const StyledSwitch = styled.button<StyledProps>`
   background: ${({ active }) => (active ? themeColor('switchActive') : themeColor('switch'))};
   border: none;
   transition: 0.3s ease;
-  transition-property: background, outline;
+  transition-property: background;
 
   &:hover:not(:disabled),
   &:active:not(:disabled),
@@ -113,8 +113,8 @@ const StyledSwitch = styled.button<StyledProps>`
 
   &:focus:not(:disabled),
   &:active:not(:disabled) {
-    outline: ${({ active }) =>
-      active ? themeBorder('focus', 'switchActive') : themeBorder('focus', 'switch')};
+    outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
+    outline-offset: var(--echoes-focus-border-offset-default);
   }
 `;
 

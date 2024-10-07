@@ -42,7 +42,7 @@ export * from './CodeSyntaxHighlighter';
 export * from './ColorsLegend';
 export * from './CoverageIndicator';
 export * from './DonutChart';
-export { ActionsDropdown, Dropdown } from './Dropdown';
+export { Dropdown } from './Dropdown';
 export * from './DropdownMenu';
 export { DropdownToggler } from './DropdownToggler';
 export * from './DuplicationsIndicator';

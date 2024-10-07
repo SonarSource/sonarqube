@@ -147,7 +147,11 @@ export function selectStyle<
       cursor: 'pointer',
       background: themeColor('inputBackground')({ theme }),
       transition: 'border 0.2s ease, outline 0.2s ease',
-      outline: isFocused && !menuIsOpen ? themeBorder('focus', 'inputFocus')({ theme }) : 'none',
+      outline:
+        isFocused && !menuIsOpen
+          ? 'var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default)'
+          : 'none',
+      borderRadius: '4px',
       ...(isDisabled && {
         color: themeContrast('inputDisabled')({ theme }),
         background: themeColor('inputDisabled')({ theme }),
@@ -164,9 +168,11 @@ export function selectStyle<
     }),
     option: (base, { isFocused, isSelected }) => ({
       ...base,
+      borderLeft: '2px solid transparent',
       ...((isSelected || isFocused) && {
         background: themeColor('selectOptionSelected')({ theme }),
         color: themeContrast('primaryLight')({ theme }),
+        borderLeftColor: 'var(--echoes-color-focus-default)',
       }),
     }),
     singleValue: (base) => ({

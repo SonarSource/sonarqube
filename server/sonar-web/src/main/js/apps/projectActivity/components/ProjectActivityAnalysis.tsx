@@ -18,17 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import classNames from 'classnames';
 import {
-  ActionsDropdown,
-  HelperHintIcon,
-  ItemButton,
-  ItemDangerButton,
-  ItemDivider,
-  PopupZLevel,
-  themeBorder,
-  themeColor,
-} from 'design-system';
+  ButtonIcon,
+  ButtonSize,
+  ButtonVariety,
+  DropdownMenu,
+  IconMoreVertical,
+} from '@sonarsource/echoes-react';
+import classNames from 'classnames';
+import { HelperHintIcon, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import { WrappedComponentProps, injectIntl } from 'react-intl';
 import ClickEventBoundary from '../../../components/controls/ClickEventBoundary';
@@ -133,38 +131,51 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
           {(canAddVersion || canAddEvent || canDeleteAnalyses) && (
             <ClickEventBoundary>
               <div className="sw-h-page sw-grow-0 sw-shrink-0 sw-mr-4 sw-relative">
-                <ActionsDropdown
-                  ariaLabel={translateWithParameters(
-                    'project_activity.analysis_X_actions',
-                    analysis.buildString ?? formatDate(parsedDate, formatterOption),
-                  )}
-                  buttonSize="small"
+                <DropdownMenu.Root
                   id="it__analysis-actions"
-                  zLevel={PopupZLevel.Absolute}
+                  items={
+                    <>
+                      {canAddVersion && (
+                        <DropdownMenu.ItemButton
+                          className="js-add-version"
+                          onClick={() => setDialog(Dialog.AddVersion)}
+                        >
+                          {translate('project_activity.add_version')}
+                        </DropdownMenu.ItemButton>
+                      )}
+                      {canAddEvent && (
+                        <DropdownMenu.ItemButton
+                          className="js-add-event"
+                          onClick={() => setDialog(Dialog.AddEvent)}
+                        >
+                          {translate('project_activity.add_custom_event')}
+                        </DropdownMenu.ItemButton>
+                      )}
+                      {(canAddVersion || canAddEvent) && canDeleteAnalyses && (
+                        <DropdownMenu.Separator />
+                      )}
+                      {canDeleteAnalyses && (
+                        <DropdownMenu.ItemButtonDestructive
+                          className="js-delete-analysis"
+                          onClick={() => setDialog(Dialog.RemoveAnalysis)}
+                        >
+                          {translate('project_activity.delete_analysis')}
+                        </DropdownMenu.ItemButtonDestructive>
+                      )}
+                    </>
+                  }
                 >
-                  {canAddVersion && (
-                    <ItemButton
-                      className="js-add-version"
-                      onClick={() => setDialog(Dialog.AddVersion)}
-                    >
-                      {translate('project_activity.add_version')}
-                    </ItemButton>
-                  )}
-                  {canAddEvent && (
-                    <ItemButton className="js-add-event" onClick={() => setDialog(Dialog.AddEvent)}>
-                      {translate('project_activity.add_custom_event')}
-                    </ItemButton>
-                  )}
-                  {(canAddVersion || canAddEvent) && canDeleteAnalyses && <ItemDivider />}
-                  {canDeleteAnalyses && (
-                    <ItemDangerButton
-                      className="js-delete-analysis"
-                      onClick={() => setDialog(Dialog.RemoveAnalysis)}
-                    >
-                      {translate('project_activity.delete_analysis')}
-                    </ItemDangerButton>
-                  )}
-                </ActionsDropdown>
+                  <ButtonIcon
+                    Icon={IconMoreVertical}
+                    ariaLabel={translateWithParameters(
+                      'project_activity.analysis_X_actions',
+                      analysis.buildString ?? formatDate(parsedDate, formatterOption),
+                    )}
+                    className="-sw-mt-1"
+                    size={ButtonSize.Medium}
+                    variety={ButtonVariety.PrimaryGhost}
+                  />
+                </DropdownMenu.Root>
 
                 {[Dialog.AddEvent, Dialog.AddVersion].includes(dialog as Dialog) && (
                   <AddEventForm

@@ -144,11 +144,11 @@ const StyledControl = styled.div`
   &:focus-visible,
   &:focus-within {
     border: ${themeBorder('default', 'inputFocus')};
-    outline: ${themeBorder('focus', 'inputFocus')};
+    outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
 
     &.is-discreet {
       ${tw`sw-rounded-1 sw-border-none`};
-      outline: ${themeBorder('focus', 'discreetFocusBorder')};
+      outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
     }
   }
 `;
