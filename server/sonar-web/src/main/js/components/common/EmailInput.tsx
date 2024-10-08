@@ -51,7 +51,6 @@ export default function EmailIput(props: Readonly<Props>) {
         <InputField
           id={id}
           isInvalid={isEmailValid === false}
-          isValid={isEmailValid === true}
           size="full"
           onChange={({ currentTarget }) => {
             const isValid = isMandotory

@@ -138,7 +138,6 @@ export default function NewCodeDefinition() {
                         previousNonCompliantValue={newCodeDefinition?.previousNonCompliantValue}
                         projectKey={newCodeDefinition?.projectKey}
                         updatedAt={newCodeDefinition?.updatedAt}
-                        isChanged={isFormTouched}
                         isValid={isValid}
                         onChangeDays={setNumberOfDays}
                         onSelect={setSelectedNewCodeDefinitionType}

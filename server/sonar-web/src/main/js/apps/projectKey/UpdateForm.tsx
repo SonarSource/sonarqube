@@ -85,7 +85,6 @@ export default function UpdateForm(props: UpdateFormProps) {
               name="update_key.new_key"
               required
               isInvalid={hasChanged && error !== undefined}
-              isValid={hasChanged && error === undefined}
               autoFocus
               onChange={onInputChange}
               value={newKey}

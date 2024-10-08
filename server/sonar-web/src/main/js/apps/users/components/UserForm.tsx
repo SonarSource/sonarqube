@@ -185,7 +185,6 @@ export default function UserForm(props: Props) {
                     !doesLoginHaveValidCharacter ||
                     !doesLoginStartWithLetterOrNumber
                   }
-                  isValid={!isLoginAlreadyUsed && login.length >= MINIMUM_LOGIN_LENGTH}
                   maxLength={MAXIMUM_LOGIN_LENGTH}
                   minLength={MINIMUM_LOGIN_LENGTH}
                   size="full"
@@ -242,7 +241,6 @@ export default function UserForm(props: Props) {
           >
             <div className="sw-flex sw-items-center">
               <InputField
-                isValid={isCreateUserForm ? nameIsValid : undefined}
                 isInvalid={nameIsInvalid}
                 autoFocus={!!user}
                 autoComplete="off"

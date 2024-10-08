@@ -185,7 +185,6 @@ export default function ManualProjectCreate(props: Readonly<Props>) {
                 type="text"
                 value={mainBranchName}
                 isInvalid={mainBranchNameIsInvalid}
-                isValid={mainBranchNameIsValid}
                 required
               />
               {mainBranchNameIsInvalid && <FlagErrorIcon className="sw-ml-2" />}
