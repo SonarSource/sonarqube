@@ -38,6 +38,14 @@ interface BadgeProps extends React.PropsWithChildren {
   variant?: BadgeVariant;
 }
 
+function getColor(variantInfo: ThemeColors) {
+  if (variantInfo === 'badgeCounterFailed') {
+    return 'var(--echoes-color-text-danger-bold)';
+  }
+
+  return themeContrast(variantInfo);
+}
+
 export function Badge({ className, children, title, variant = 'default' }: BadgeProps) {
   const commonProps = {
     'aria-label': title,
@@ -87,7 +95,7 @@ const StyledCounter = styled.span<{
   ${tw`sw-items-center sw-justify-center`};
   ${tw`sw-rounded-pill`};
 
-  color: ${({ variantInfo }) => themeContrast(variantInfo)};
+  color: ${({ variantInfo }) => getColor(variantInfo)};
   background-color: ${({ variantInfo }) => themeColor(variantInfo)};
   border: ${({ variantInfo }) =>
     themeBorder(
