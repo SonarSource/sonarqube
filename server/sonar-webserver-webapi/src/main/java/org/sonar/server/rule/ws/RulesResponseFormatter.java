@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -53,7 +55,9 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
+import org.sonar.server.issue.ImpactFormatter;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -218,6 +222,7 @@ public class RulesResponseFormatter {
     builder.setPrioritizedRule(activeRule.isPrioritizedRule());
     builder.setCreatedAt(DateUtils.formatDateTime(activeRule.getCreatedAt()));
     builder.setUpdatedAt(DateUtils.formatDateTime(activeRule.getUpdatedAt()));
+    builder.setImpacts(mapImpacts(activeRule.getImpacts()));
     Rules.Active.Param.Builder paramBuilder = Rules.Active.Param.newBuilder();
     for (ActiveRuleParamDto parameter : parameters) {
       builder.addParams(paramBuilder.clear()
@@ -247,6 +252,15 @@ public class RulesResponseFormatter {
     RuleDto rule = searchResult.getRules().get(0);
     return mapper.toWsRule(rule, searchResult, Collections.emptySet(),
       ruleWsSupport.getUsersByUuid(dbSession, searchResult.getRules()), emptyMap());
+  }
+
+  public static Rules.Impacts mapImpacts(Map<SoftwareQuality, Severity> impacts) {
+    Rules.Impacts.Builder impactsBuilder = Rules.Impacts.newBuilder();
+    impacts.forEach((quality, severity) ->
+      impactsBuilder.addImpacts(Common.Impact.newBuilder()
+        .setSoftwareQuality(Common.SoftwareQuality.valueOf(quality.name()))
+        .setSeverity(ImpactFormatter.mapImpactSeverity(severity))));
+    return impactsBuilder.build();
   }
 
   static class SearchResult {

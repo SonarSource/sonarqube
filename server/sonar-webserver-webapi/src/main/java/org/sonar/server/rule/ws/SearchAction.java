@@ -183,7 +183,8 @@ public class SearchAction implements RulesWsAction {
           FACET_IMPACT_SOFTWARE_QUALITY)),
         new Change("10.2",
           format("Parameters '%s', '%s', and '%s' are now deprecated. Use '%s' and '%s' instead.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES,
-            PARAM_IMPACT_SOFTWARE_QUALITIES, PARAM_IMPACT_SEVERITIES)));
+            PARAM_IMPACT_SOFTWARE_QUALITIES, PARAM_IMPACT_SEVERITIES)),
+        new Change("10.8", "The field 'impacts' has been added to the response"));
 
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")

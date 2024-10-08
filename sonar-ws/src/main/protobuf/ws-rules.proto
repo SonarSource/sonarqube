@@ -192,6 +192,7 @@ message Active {
   optional string createdAt = 6;
   optional string updatedAt = 7;
   optional bool prioritizedRule = 8;
+  optional Impacts impacts = 9;
 
   message Param {
     optional string key = 1;
