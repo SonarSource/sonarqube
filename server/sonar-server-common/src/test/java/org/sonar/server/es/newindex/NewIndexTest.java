@@ -45,9 +45,9 @@ import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 public class NewIndexTest {
 
 
-  private static final String someIndexName = secure().nextAlphabetic(5).toLowerCase();
-  private MapSettings settings = new MapSettings();
-  private SettingsConfiguration defaultSettingsConfiguration = newBuilder(settings.asConfig()).build();
+  private static final String SOME_INDEX_NAME = secure().nextAlphabetic(5).toLowerCase();
+  private final MapSettings settings = new MapSettings();
+  private final SettingsConfiguration defaultSettingsConfiguration = newBuilder(settings.asConfig()).build();
 
   @Test
   @UseDataProvider("indexWithAndWithoutRelations")
@@ -353,9 +353,9 @@ public class NewIndexTest {
 
   @Test
   public void createTypeMapping_with_IndexRelationType_fails_with_ISE_if_index_does_not_allow_relations() {
-    IndexType.IndexRelationType indexRelationType = IndexType.relation(IndexType.main(Index.withRelations(someIndexName), "bar"), "bar");
+    IndexType.IndexRelationType indexRelationType = IndexType.relation(IndexType.main(Index.withRelations(SOME_INDEX_NAME), "bar"), "bar");
 
-    Index index = Index.simple(someIndexName);
+    Index index = Index.simple(SOME_INDEX_NAME);
     IndexMainType mainType = IndexType.main(index, "foo");
     NewIndex underTest = new NewIndex(index, defaultSettingsConfiguration) {
       @Override
@@ -377,8 +377,8 @@ public class NewIndexTest {
   @DataProvider
   public static Object[][] indexWithAndWithoutRelations() {
     return new Object[][] {
-      {Index.simple(someIndexName)},
-      {Index.withRelations(someIndexName)}
+      {Index.simple(SOME_INDEX_NAME)},
+      {Index.withRelations(SOME_INDEX_NAME)}
     };
   }
 

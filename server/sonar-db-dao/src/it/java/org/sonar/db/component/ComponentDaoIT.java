@@ -127,7 +127,7 @@ class ComponentDaoIT {
       .setKey("org.struts:struts")
       .setName("Struts")
       .setLongName("Apache Struts")).getMainBranchComponent();
-    ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
+    db.components().insertPrivateProject().getMainBranchComponent();
 
     ComponentDto result = underTest.selectByUuid(dbSession, project.uuid()).get();
     assertThat(result).isNotNull();
@@ -174,7 +174,6 @@ class ComponentDaoIT {
 
   @Test
   void selectByUuid_on_disabled_component() {
-    ComponentDto enabledProject = db.components().insertPublicProject(p -> p.setEnabled(true)).getMainBranchComponent();
     ComponentDto disabledProject = db.components().insertPublicProject(p -> p.setEnabled(false)).getMainBranchComponent();
 
     ComponentDto result = underTest.selectByUuid(dbSession, disabledProject.uuid()).get();
@@ -1402,11 +1401,11 @@ class ComponentDaoIT {
     db.components().insertPublicProject(p -> p.setKey("-key")).getMainBranchComponent();
 
     ComponentQuery privateProjectsQuery = ComponentQuery.builder().setPrivate(true).setQualifiers(PROJECT).build();
-    ComponentQuery ProjectsQuery = ComponentQuery.builder().setPrivate(false).setQualifiers(PROJECT).build();
+    ComponentQuery projectsQuery = ComponentQuery.builder().setPrivate(false).setQualifiers(PROJECT).build();
     ComponentQuery allProjectsQuery = ComponentQuery.builder().setPrivate(null).setQualifiers(PROJECT).build();
 
     assertThat(underTest.selectByQuery(dbSession, privateProjectsQuery, forPage(1).andSize(10))).extracting(ComponentDto::getKey).containsExactly("private-key");
-    assertThat(underTest.selectByQuery(dbSession, ProjectsQuery, forPage(1).andSize(10))).extracting(ComponentDto::getKey).containsExactly("-key");
+    assertThat(underTest.selectByQuery(dbSession, projectsQuery, forPage(1).andSize(10))).extracting(ComponentDto::getKey).containsExactly("-key");
     assertThat(underTest.selectByQuery(dbSession, allProjectsQuery, forPage(1).andSize(10))).extracting(ComponentDto::getKey).containsOnly("-key", "private-key");
   }
 

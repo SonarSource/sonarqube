@@ -116,7 +116,9 @@ public class MultivaluePropertyTest {
     return new Object[][] {
       {secure().nextAlphanumeric(1)},
       {secure().nextAlphanumeric(2)},
-      {secure().nextAlphanumeric(3 + new Random().nextInt(5))}
+      {secure().nextAlphanumeric(3)},
+      {secure().nextAlphanumeric(5)},
+      {secure().nextAlphanumeric(8)}
     };
   }
 
@@ -215,7 +217,9 @@ public class MultivaluePropertyTest {
     return new Object[][] {
       {randomTrimmedChars(1, random)},
       {randomTrimmedChars(2, random)},
-      {randomTrimmedChars(3 + random.nextInt(5), random)}
+      {randomTrimmedChars(3, random)},
+      {randomTrimmedChars(5, random)},
+      {randomTrimmedChars(8, random)}
     };
   }
 

@@ -579,7 +579,7 @@ public class SearchActionIT {
 
     assertThat(responseProject1.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
-      .doesNotContainAnyElementsOf(Arrays.stream(hotspots2).map(IssueDto::getKey).collect(toList()));
+      .doesNotContainAnyElementsOf(Arrays.stream(hotspots2).map(IssueDto::getKey).toList());
     assertThat(responseProject1.getComponentsList())
       .extracting(Component::getKey)
       .containsOnly(project1.getKey(), file1.getKey());
@@ -936,9 +936,12 @@ public class SearchActionIT {
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     IssueDto unresolvedHotspot = insertHotspot(rule, project, file, t -> t.setResolution(null));
     // unrealistic case since a resolution must be set, but shows a limit of current implementation (resolution is enough)
-    IssueDto badlyResolved = insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW).setResolution(secure().nextAlphabetic(5)));
-    IssueDto badlyReviewed = insertHotspot(rule, project, file, t -> t.setStatus(STATUS_REVIEWED).setResolution(null));
-    IssueDto badlyClosedHotspot = insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setResolution(null));
+    //Badly Resolved
+    insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW).setResolution("Resolution"));
+    //Badly Reviewed
+    insertHotspot(rule, project, file, t -> t.setStatus(STATUS_REVIEWED).setResolution(null));
+    //Badly Closed
+    insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setResolution(null));
     indexIssues();
 
     SearchWsResponse response = newRequest(project, STATUS_TO_REVIEW, null, null, null)

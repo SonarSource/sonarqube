@@ -62,13 +62,19 @@ public class AuthorizationDocTest {
   public void projectUuidOf_returns_substring_if_starts_with_id_prefix() {
     assertThat(AuthorizationDoc.entityUuidOf("auth_")).isEmpty();
 
-    String id = secure().nextAlphabetic(1 + new Random().nextInt(10));
+    String id = "u";
+    assertThat(AuthorizationDoc.entityUuidOf("auth_" + id)).isEqualTo(id);
+
+    id = "uuid";
+    assertThat(AuthorizationDoc.entityUuidOf("auth_" + id)).isEqualTo(id);
+
+    id = "aMuchLongerUuid";
     assertThat(AuthorizationDoc.entityUuidOf("auth_" + id)).isEqualTo(id);
   }
 
   @Test
   public void projectUuidOf_returns_argument_if_does_not_starts_with_id_prefix() {
-    String id = secure().nextAlphabetic(1 + new Random().nextInt(10));
+    String id = "uuid";
     assertThat(AuthorizationDoc.entityUuidOf(id)).isEqualTo(id);
     assertThat(AuthorizationDoc.entityUuidOf("")).isEmpty();
   }

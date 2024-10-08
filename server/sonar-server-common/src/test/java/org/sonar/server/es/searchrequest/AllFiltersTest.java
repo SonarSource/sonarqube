@@ -70,21 +70,20 @@ public class AllFiltersTest {
 
   @Test
   public void addFilter_fails_if_field_with_name_already_exists() {
-    String name1 = secure().nextAlphabetic(12);
-    String name2 = secure().nextAlphabetic(15);
+    String name = secure().nextAlphabetic(15);
     FilterScope filterScope1 = mock(FilterScope.class);
     FilterScope filterScope2 = mock(FilterScope.class);
     RequestFiltersComputer.AllFilters allFilters = RequestFiltersComputer.newAllFilters();
-    allFilters.addFilter(name2, filterScope1, boolQuery());
+    allFilters.addFilter(name, filterScope1, boolQuery());
 
     Stream.<ThrowingCallable>of(
       // exact same call
-      () -> allFilters.addFilter(name2, filterScope1, boolQuery()),
+      () -> allFilters.addFilter(name, filterScope1, boolQuery()),
       // call with a different fieldName
-      () -> allFilters.addFilter(name2, filterScope2, boolQuery()))
+      () -> allFilters.addFilter(name, filterScope2, boolQuery()))
       .forEach(t -> assertThatThrownBy(t)
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("A filter with name " + name2 + " has already been added"));
+        .hasMessage("A filter with name " + name + " has already been added"));
   }
 
   @Test

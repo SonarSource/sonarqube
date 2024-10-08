@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -61,10 +62,12 @@ import static org.sonar.server.issue.notification.IssuesChangesNotificationBuild
 
 @RunWith(DataProviderRunner.class)
 public class FpPrAcceptedEmailTemplateTest {
-  private I18n i18n = mock(I18n.class);
-  private EmailSettings emailSettings = mock(EmailSettings.class);
-  private FpOrAcceptedEmailTemplate underTest = new FpOrAcceptedEmailTemplate(i18n, emailSettings);
+  private final I18n i18n = mock(I18n.class);
+  private final EmailSettings emailSettings = mock(EmailSettings.class);
+  private final FpOrAcceptedEmailTemplate underTest = new FpOrAcceptedEmailTemplate(i18n, emailSettings);
 
+  private static final long DATE_LONG = Instant.now().toEpochMilli();
+  
   @Test
   public void format_returns_null_on_Notification() {
     EmailMessage emailMessage = underTest.format(mock(Notification.class));
@@ -102,7 +105,7 @@ public class FpPrAcceptedEmailTemplateTest {
 
   @Test
   public void format_sets_from_to_name_of_author_change_when_available() {
-    UserChange change = new UserChange(new Random().nextLong(), new User(secure().nextAlphabetic(5), secure().nextAlphabetic(6), secure().nextAlphabetic(7)));
+    UserChange change = new UserChange(DATE_LONG, new User(secure().nextAlphabetic(5), secure().nextAlphabetic(6), secure().nextAlphabetic(7)));
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, Collections.emptySet(), ACCEPTED));
 
     assertThat(emailMessage.getFrom()).isEqualTo(change.getUser().getName().get());
@@ -110,7 +113,7 @@ public class FpPrAcceptedEmailTemplateTest {
 
   @Test
   public void format_sets_from_to_login_of_author_change_when_name_is_not_available() {
-    UserChange change = new UserChange(new Random().nextLong(), new User(secure().nextAlphabetic(5), secure().nextAlphabetic(6), null));
+    UserChange change = new UserChange(DATE_LONG, new User(secure().nextAlphabetic(5), secure().nextAlphabetic(6), null));
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, Collections.emptySet(), ACCEPTED));
 
     assertThat(emailMessage.getFrom()).isEqualTo(change.getUser().getLogin());
@@ -118,7 +121,7 @@ public class FpPrAcceptedEmailTemplateTest {
 
   @Test
   public void format_sets_from_to_null_when_analysisChange() {
-    AnalysisChange change = new AnalysisChange(new Random().nextLong());
+    AnalysisChange change = new AnalysisChange(DATE_LONG);
     EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, Collections.emptySet(), ACCEPTED));
 
     assertThat(emailMessage.getFrom()).isNull();
@@ -472,8 +475,8 @@ public class FpPrAcceptedEmailTemplateTest {
 
   @DataProvider
   public static Object[][] userOrAnalysisChange() {
-    AnalysisChange analysisChange = new AnalysisChange(new Random().nextLong());
-    UserChange userChange = new UserChange(new Random().nextLong(), new User(secure().nextAlphabetic(5), secure().nextAlphabetic(6),
+    AnalysisChange analysisChange = new AnalysisChange(DATE_LONG);
+    UserChange userChange = new UserChange(DATE_LONG, new User(secure().nextAlphabetic(5), secure().nextAlphabetic(6),
       new Random().nextBoolean() ? null : secure().nextAlphabetic(7)));
     return new Object[][] {
       {analysisChange},
@@ -483,8 +486,8 @@ public class FpPrAcceptedEmailTemplateTest {
 
   @DataProvider
   public static Object[][] fpOrWontFixValuesByUserOrAnalysisChange() {
-    AnalysisChange analysisChange = new AnalysisChange(new Random().nextLong());
-    UserChange userChange = new UserChange(new Random().nextLong(), new User(secure().nextAlphabetic(5), secure().nextAlphabetic(6),
+    AnalysisChange analysisChange = new AnalysisChange(DATE_LONG);
+    UserChange userChange = new UserChange(DATE_LONG, new User(secure().nextAlphabetic(5), secure().nextAlphabetic(6),
       new Random().nextBoolean() ? null : secure().nextAlphabetic(7)));
     return new Object[][] {
       {analysisChange, FP},

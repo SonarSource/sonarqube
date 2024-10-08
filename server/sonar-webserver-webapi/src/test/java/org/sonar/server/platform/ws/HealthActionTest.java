@@ -67,10 +67,10 @@ public class HealthActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private final Random random = new Random();
-  private HealthChecker healthChecker = mock(HealthChecker.class);
-  private NodeInformation nodeInformation = mock(NodeInformation.class);
-  private SystemPasscode systemPasscode = mock(SystemPasscode.class);
-  private WsActionTester underTest = new WsActionTester(new HealthAction(nodeInformation, new HealthActionSupport(healthChecker), systemPasscode, userSessionRule));
+  private final HealthChecker healthChecker = mock(HealthChecker.class);
+  private final NodeInformation nodeInformation = mock(NodeInformation.class);
+  private final SystemPasscode systemPasscode = mock(SystemPasscode.class);
+  private final WsActionTester underTest = new WsActionTester(new HealthAction(nodeInformation, new HealthActionSupport(healthChecker), systemPasscode, userSessionRule));
 
   @Test
   public void verify_definition() {

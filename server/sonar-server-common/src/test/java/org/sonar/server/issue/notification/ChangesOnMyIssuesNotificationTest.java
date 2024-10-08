@@ -20,7 +20,6 @@
 package org.sonar.server.issue.notification;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.Random;
 import org.junit.Test;
 import org.sonar.api.notifications.Notification;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.AnalysisChange;
@@ -37,7 +36,7 @@ public class ChangesOnMyIssuesNotificationTest {
   @Test
   public void key_is_ChangesOnMyIssues() {
     ChangesOnMyIssuesNotification underTest = new ChangesOnMyIssuesNotification(
-      new UserChange(new Random().nextLong(), new User(secure().nextAlphabetic(2), secure().nextAlphabetic(3), secure().nextAlphabetic(4))),
+      new UserChange(1L, new User(secure().nextAlphabetic(2), secure().nextAlphabetic(3), secure().nextAlphabetic(4))),
       ImmutableSet.of());
 
     assertThat(underTest.getType()).isEqualTo("ChangesOnMyIssues");
@@ -45,7 +44,7 @@ public class ChangesOnMyIssuesNotificationTest {
 
   @Test
   public void equals_is_based_on_change_and_issues() {
-    AnalysisChange analysisChange = new AnalysisChange(new Random().nextLong());
+    AnalysisChange analysisChange = new AnalysisChange(1L);
     ChangedIssue changedIssue = IssuesChangesNotificationBuilderTesting.newChangedIssue("doo", IssuesChangesNotificationBuilderTesting.newProject("prj"),
       newRandomNotAHotspotRule("rul"));
     ChangesOnMyIssuesNotification underTest = new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.of(changedIssue));
@@ -60,7 +59,7 @@ public class ChangesOnMyIssuesNotificationTest {
 
   @Test
   public void hashcode_is_based_on_change_and_issues() {
-    AnalysisChange analysisChange = new AnalysisChange(new Random().nextLong());
+    AnalysisChange analysisChange = new AnalysisChange(1L);
     ChangedIssue changedIssue = IssuesChangesNotificationBuilderTesting.newChangedIssue("doo", IssuesChangesNotificationBuilderTesting.newProject("prj"),
       newRandomNotAHotspotRule("rul"));
     ChangesOnMyIssuesNotification underTest = new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.of(changedIssue));
