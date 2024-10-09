@@ -116,6 +116,4 @@ public interface PortfolioMapper {
   List<PortfolioDto> selectRootOfReferencersToAppBranch(@Param("appUuid") String appUuid, @Param("appBranchKey") String appBranchKey);
 
   List<KeyWithUuidDto> selectUuidsByKey(@Param("rootKey") String rootKey);
-
-  int updateMeasuresMigrated(@Param("uuid") String uuid, @Param("measuresMigrated") boolean measuresMigrated, @Param("now") long now);
 }

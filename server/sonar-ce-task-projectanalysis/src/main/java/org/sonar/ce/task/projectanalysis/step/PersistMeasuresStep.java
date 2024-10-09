@@ -135,34 +135,10 @@ public class PersistMeasuresStep implements ComputationStep {
       }
     }
     persist(inserts, updates);
-    updateMeasureMigratedFlag();
 
     context.getStatistics()
       .add("insertsOrUpdates", insertsOrUpdates)
       .add("unchanged", unchanged);
-  }
-
-  private void updateMeasureMigratedFlag() {
-    Type type = treeRootHolder.getRoot().getType();
-    if (type == Type.PROJECT) {
-      persistBranchFlag();
-    } else if (type == Type.VIEW) {
-      persistPortfolioFlag();
-    }
-  }
-
-  private void persistBranchFlag() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.branchDao().updateMeasuresMigrated(dbSession, treeRootHolder.getRoot().getUuid(), true);
-      dbSession.commit();
-    }
-  }
-
-  private void persistPortfolioFlag() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.portfolioDao().updateMeasuresMigrated(dbSession, treeRootHolder.getRoot().getUuid(), true);
-      dbSession.commit();
-    }
   }
 
   private Set<MeasureHash> getDBMeasureHashes() {

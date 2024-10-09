@@ -21,7 +21,6 @@ package org.sonar.db.portfolio;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -39,7 +38,6 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ApplicationProjectDto;
 import org.sonar.db.project.ProjectDto;
 
-import static java.lang.String.format;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -248,28 +246,6 @@ class PortfolioDaoIT {
       .extracting("name", "key", "uuid", "description", "private", "rootUuid", "parentUuid", "selectionMode", "selectionExpression")
       .containsExactly("newName", "KEY_name", "name", "newDesc", true, "root", "parent", "newMode", "newExp");
     verify(audit).updateComponent(any(), any());
-  }
-
-  @Test
-  void update_measures_migrated() {
-    PortfolioDto portfolio1 = db.components().insertPrivatePortfolioDto("name1");
-    PortfolioDto portfolio2 = db.components().insertPrivatePortfolioDto("name2");
-    PortfolioDto portfolio3 = db.components().insertPrivatePortfolioDto("name3",
-      p -> p.setRootUuid(portfolio1.getUuid()).setParentUuid(portfolio1.getUuid()));
-
-    portfolioDao.updateMeasuresMigrated(session, portfolio1.getUuid(), true);
-    portfolioDao.updateMeasuresMigrated(session, portfolio2.getUuid(), false);
-
-    assertThat(getMeasuresMigrated(portfolio1.getUuid())).isTrue();
-    assertThat(getMeasuresMigrated(portfolio2.getUuid())).isFalse();
-    assertThat(getMeasuresMigrated(portfolio3.getUuid())).isTrue();
-  }
-
-  private boolean getMeasuresMigrated(String uuid1) {
-    List<Map<String, Object>> select = db.select(session, format("select measures_migrated from portfolios where uuid = '%s'", uuid1));
-
-    assertThat(select).hasSize(1);
-    return (boolean) select.get(0).get("measures_migrated");
   }
 
   @Test

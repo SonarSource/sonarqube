@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +47,6 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.project.Project;
 
-import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -131,7 +129,6 @@ class PersistMeasuresStepIT {
       .hasValueSatisfying(measure -> assertThat(measure.getMetricValues()).containsEntry(STRING_METRIC.getKey(), "dir-value"));
     assertThat(selectMeasure("file-uuid"))
       .hasValueSatisfying(measure -> assertThat(measure.getMetricValues()).containsEntry(STRING_METRIC.getKey(), "file-value"));
-    assertThat(getBranchMigratedFlag("project-uuid")).isTrue();
     verifyInsertsOrUpdates(3);
   }
 
@@ -153,7 +150,6 @@ class PersistMeasuresStepIT {
       .hasValueSatisfying(measure -> assertThat(measure.getMetricValues()).containsEntry(STRING_METRIC.getKey(), "subview-value"));
     assertThat(selectMeasure("project-uuid"))
       .hasValueSatisfying(measure -> assertThat(measure.getMetricValues()).containsEntry(STRING_METRIC.getKey(), "project-value"));
-    assertThat(getPortfolioMigratedFlag("view-uuid")).isTrue();
     verifyInsertsOrUpdates(3);
   }
 
@@ -185,7 +181,6 @@ class PersistMeasuresStepIT {
 
     // all measures are persisted, for project and all files
     assertThat(db.countRowsOfTable("measures")).isEqualTo(num + 1);
-    assertThat(getBranchMigratedFlag("project-uuid")).isTrue();
     verifyInsertsOrUpdates(num - 1);
     verifyUnchanged(1);
     verify(computeDuplicationDataMeasure, times(num)).compute(any(Component.class));
@@ -292,7 +287,6 @@ class PersistMeasuresStepIT {
 
     step().execute(context);
 
-    assertThat(getBranchMigratedFlag("project-uuid")).isTrue();
     verifyInsertsOrUpdates(0);
     verifyUnchanged(1);
   }
@@ -388,20 +382,6 @@ class PersistMeasuresStepIT {
 
   private PersistMeasuresStep step() {
     return new PersistMeasuresStep(dbClient, metricRepository, treeRootHolder, measureRepository, computeDuplicationDataMeasure);
-  }
-
-  private boolean getBranchMigratedFlag(String branch) {
-    List<Map<String, Object>> result = db.select(format("select measures_migrated as \"MIGRATED\" from project_branches where uuid = '%s'", branch));
-    assertThat(result).hasSize(1);
-
-    return (boolean) result.get(0).get("MIGRATED");
-  }
-
-  private boolean getPortfolioMigratedFlag(String portfolio) {
-    List<Map<String, Object>> result = db.select(format("select measures_migrated as \"MIGRATED\" from portfolios where uuid = '%s'", portfolio));
-    assertThat(result).hasSize(1);
-
-    return (boolean) result.get(0).get("MIGRATED");
   }
 
   private void verifyInsertsOrUpdates(int expectedInsertsOrUpdates) {

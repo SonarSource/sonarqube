@@ -42,7 +42,6 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbProjectBranches;
 
-import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -749,26 +748,6 @@ class BranchDaoIT {
     Optional<BranchDto> newMainBranch = underTest.selectByUuid(dbSession, nonMainBranch.getUuid());
     assertThat(newMainBranch).isPresent().get().extracting(BranchDto::isMain).isEqualTo(true);
 
-  }
-
-  @Test
-  void updateMeasuresMigrated() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    String uuid1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH)).uuid();
-    String uuid2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH)).uuid();
-
-    underTest.updateMeasuresMigrated(dbSession, uuid1, true);
-    underTest.updateMeasuresMigrated(dbSession, uuid2, false);
-
-    assertThat(getMeasuresMigrated(uuid1)).isTrue();
-    assertThat(getMeasuresMigrated(uuid2)).isFalse();
-  }
-
-  private boolean getMeasuresMigrated(String uuid1) {
-    List<Map<String, Object>> select = db.select(dbSession, format("select measures_migrated from project_branches where uuid = '%s'", uuid1));
-
-    assertThat(select).hasSize(1);
-    return (boolean) select.get(0).get("measures_migrated");
   }
 
   @Test

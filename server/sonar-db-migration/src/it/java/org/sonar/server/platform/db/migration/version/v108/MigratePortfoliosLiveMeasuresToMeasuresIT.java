@@ -35,6 +35,7 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -60,6 +61,17 @@ class MigratePortfoliosLiveMeasuresToMeasuresIT {
     underTest.execute();
 
     assertThat(db.countRowsOfTable("measures")).isZero();
+  }
+
+  @Test
+  void migration_does_nothing_if_live_measures_table_is_missing() {
+    db.executeDdl("drop table live_measures");
+    db.assertTableDoesNotExist("live_measures");
+    String branch = "portfolio_1";
+    insertNotMigratedPortfolio(branch);
+
+    assertThatCode(underTest::execute)
+      .doesNotThrowAnyException();
   }
 
   @Test

@@ -49,7 +49,13 @@ public class DbVersion108 implements DbVersion {
       .add(10_8_006, "Migrate the content of 'live_measures' to 'measures' for portfolios", MigratePortfoliosLiveMeasuresToMeasures.class)
       .add(10_8_007, "Create primary key on 'measures' table", CreatePrimaryKeyOnMeasuresTable.class)
       .add(10_8_008, "Create index on column 'branch_uuid' in 'measures' table", CreateIndexOnMeasuresTable.class)
-      .add(10_8_009, "Drop column 'from_hotspot' in the 'issues' table", DropColumnFromHotspotInIssues.class);
+      .add(10_8_009, "Drop column 'from_hotspot' in the 'issues' table", DropColumnFromHotspotInIssues.class)
+      .add(10_8_010, "Drop 'live_measures' table", DropLiveMeasuresTable.class)
+      .add(10_8_011, "Drop index on 'portfolios.measures_migrated'", DropIndexOnPortfoliosMeasuresMigrated.class)
+      .add(10_8_012, "Drop 'measures_migrated' column on 'portfolios' table", DropMeasuresMigratedColumnInPortfoliosTable.class)
+      .add(10_8_013, "Drop index on 'project_branches.measures_migrated'", DropIndexOnProjectBranchesMeasuresMigrated.class)
+      .add(10_8_014, "Drop 'measures_migrated' column on 'project_branches' table", DropMeasuresMigratedColumnInProjectBranchesTable.class)
+    ;
   }
 
 }

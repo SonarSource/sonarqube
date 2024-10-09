@@ -31,6 +31,7 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class PopulateNclocForForProjectsIT {
 
@@ -46,6 +47,15 @@ class PopulateNclocForForProjectsIT {
     Map<String, Long> expectedNclocByProjectUuid = populateData();
     underTest.execute();
     verifyNclocCorrectlyPopulatedForProjects(expectedNclocByProjectUuid);
+  }
+
+  @Test
+  void migration_does_nothing_if_live_measures_table_is_missing() {
+    db.executeDdl("drop table live_measures");
+    db.assertTableDoesNotExist("live_measures");
+
+    assertThatCode(underTest::execute)
+      .doesNotThrowAnyException();
   }
 
   @Test

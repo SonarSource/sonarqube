@@ -20,6 +20,7 @@
 package org.sonar.server.platform.db.migration.version.v108;
 
 import com.google.gson.Gson;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 import org.sonar.server.platform.db.migration.step.Select;
@@ -100,6 +102,13 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
+    try (Connection c = getDatabase().getDataSource().getConnection()) {
+      // the table is later deleted, this check ensures the migration re-entrance
+      if (!DatabaseUtils.tableExists("live_measures", c)) {
+        return;
+      }
+    }
+
     List<String> uuids = context.prepareSelect(getSelectUuidQuery())
       .setBoolean(1, false)
       .list(row -> row.getString(1));
