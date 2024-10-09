@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { Badge } from '../../components/Badge';
@@ -90,9 +91,12 @@ const Wrapper = styled.div`
 
 const OptionButton = styled(ButtonSecondary)<{ selected: boolean }>`
   background: ${(props) => (props.selected ? themeColor('toggleHover') : themeColor('toggle'))};
-  color: ${(props) => (props.selected ? themeContrast('toggleHover') : themeContrast('toggle'))};
   border: none;
+  color: ${(props) => (props.selected ? themeContrast('toggleHover') : themeContrast('toggle'))};
+  font-weight: ${(props) =>
+    props.selected ? 'var(--echoes-font-weight-semi-bold)' : 'var(--echoes-font-weight-regular)'};
   height: auto;
+
   ${tw`sw-rounded-0`};
   ${tw`sw-truncate`};
 

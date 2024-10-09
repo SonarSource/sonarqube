@@ -214,7 +214,7 @@ export const StyledInputWrapper = styled.div`
     ${tw`sw-w-full sw-h-control`}
 
     &::placeholder {
-      color: ${themeColor('inputPlaceholder')};
+      color: var(--echoes-color-text-placeholder);
 
       ${tw`sw-truncate`}
     }

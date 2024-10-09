@@ -89,7 +89,7 @@ const baseStyle = (props: ThemedProps) => css`
   ${tw`sw-px-3 sw-py-2`}
 
   &::placeholder {
-    color: ${themeColor('inputPlaceholder')(props)};
+    color: var(--echoes-color-text-placeholder);
   }
 
   &:hover {
@@ -114,7 +114,7 @@ const baseStyle = (props: ThemedProps) => css`
 
     ${tw`sw-cursor-not-allowed`};
     &::placeholder {
-      color: ${themeContrast('inputDisabled')(props)};
+      color: var(--echoes-color-text-disabled);
     }
   }
 `;
