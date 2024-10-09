@@ -32,6 +32,7 @@ export const EMAIL_NOTIFICATION_CATEGORY = 'email_notification';
 
 export const CATEGORY_OVERRIDES: Dict<string> = {
   abap: LANGUAGES_CATEGORY,
+  ansible: LANGUAGES_CATEGORY,
   apex: LANGUAGES_CATEGORY,
   azureresourcemanager: LANGUAGES_CATEGORY,
   'c / c++ / objective-c': LANGUAGES_CATEGORY,
