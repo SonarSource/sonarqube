@@ -27,9 +27,9 @@ export function OverviewQGPassedIcon({ className }: { className?: string }) {
     <svg
       className={className}
       fill="none"
-      height="150"
+      height="136"
       role="img"
-      viewBox="0 0 154 150"
+      viewBox="0 0 154 136"
       width="154"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -75,7 +75,7 @@ export function OverviewQGPassedIcon({ className }: { className?: string }) {
         cy="122.676"
         fill={themeColor('illustrationPrimary')({ theme })}
         rx="22.5"
-        ry="24.2076"
+        ry="22.5"
       />
       <path d="M14 121.063L21 128.594L34 114.607" stroke="white" strokeWidth="6" />
       <path
