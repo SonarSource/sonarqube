@@ -22,7 +22,7 @@ package org.sonar.scanner.http.ssl;
 import java.nio.file.Path;
 
 public class CertificateStore {
-  public static final String DEFAULT_PASSWORD = "sonar";
+  public static final String DEFAULT_PASSWORD = "changeit";
   public static final String DEFAULT_STORE_TYPE = "PKCS12";
   private final Path path;
   private final String keyStorePassword;
