@@ -37,8 +37,30 @@ public class JsonMeasureDao implements Dao {
     return mapper(dbSession).insert(dto, system2.now());
   }
 
+  /**
+   * Update a measure. The measure json value will be overwritten.
+   */
   public int update(DbSession dbSession, JsonMeasureDto dto) {
     return mapper(dbSession).update(dto, system2.now());
+  }
+
+  /**
+   * Unlike {@link #update(DbSession, JsonMeasureDto)}, this method will not overwrite the entire json value,
+   * but will update the measures inside the json.
+   */
+  public int insertOrUpdate(DbSession dbSession, JsonMeasureDto dto) {
+    long now = system2.now();
+    Optional<JsonMeasureDto> existingMeasureOpt = selectByComponentUuid(dbSession, dto.getComponentUuid());
+    if (existingMeasureOpt.isPresent()) {
+      JsonMeasureDto existingDto = existingMeasureOpt.get();
+      existingDto.getMetricValues().putAll(dto.getMetricValues());
+      dto.getMetricValues().putAll(existingDto.getMetricValues());
+      dto.computeJsonValueHash();
+      return mapper(dbSession).update(dto, now);
+    } else {
+      dto.computeJsonValueHash();
+      return mapper(dbSession).insert(dto, now);
+    }
   }
 
   public Optional<JsonMeasureDto> selectByComponentUuid(DbSession dbSession, String componentUuid) {

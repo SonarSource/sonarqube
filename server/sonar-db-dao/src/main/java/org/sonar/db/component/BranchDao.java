@@ -19,7 +19,6 @@
  */
 package org.sonar.db.component;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -150,8 +149,7 @@ public class BranchDao implements Dao {
     return mapper(dbSession).updateMeasuresMigrated(branchUuid, measuresMigrated, now);
   }
 
-  @VisibleForTesting
-  boolean isMeasuresMigrated(DbSession dbSession, String uuid) {
+  public boolean isMeasuresMigrated(DbSession dbSession, String uuid) {
     return mapper(dbSession).isMeasuresMigrated(uuid);
   }
 

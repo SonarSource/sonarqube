@@ -19,7 +19,9 @@
  */
 package org.sonar.server.measure.live;
 
+import com.google.common.collect.ImmutableMap;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -41,12 +43,15 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.platform.db.migration.adhoc.AddMeasuresMigratedColumnToProjectBranchesTable;
+import org.sonar.server.platform.db.migration.adhoc.CreateMeasuresTable;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.QualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.setting.ProjectConfigurationLoader;
 import org.sonar.server.setting.TestProjectConfigurationLoader;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -54,6 +59,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.core.config.CorePropertyDefinitions.SYSTEM_MEASURES_MIGRATION_ENABLED;
 
 @RunWith(DataProviderRunner.class)
 public class LiveMeasureComputerImplTest {
@@ -80,13 +86,18 @@ public class LiveMeasureComputerImplTest {
   private BranchDto branch;
 
   @Before
-  public void setUp() {
-    metric1 = db.measures().insertMetric();
-    metric2 = db.measures().insertMetric();
+  public void setUp() throws SQLException {
+    createMeasuresTable();
+    createMeasuresMigratedColumn();
+
+    metric1 = db.measures().insertMetric(m -> m.setValueType("INT"));
+    metric2 = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     project = db.components().insertPublicProject();
     branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.uuid()).get();
+    db.getDbClient().branchDao().updateMeasuresMigrated(db.getSession(), branch.getUuid(), true);
     db.measures().insertLiveMeasure(project, metric2, lm -> lm.setValue(1d));
+    db.measures().insertJsonMeasure(project, m -> m.addValue(metric2.getKey(), 1d));
 
     when(componentIndexFactory.create(any(), any())).thenReturn(componentIndex);
     when(measureUpdateFormulaFactory.getFormulaMetrics()).thenReturn(Set.of(toMetric(metric1), toMetric(metric2)));
@@ -95,7 +106,9 @@ public class LiveMeasureComputerImplTest {
 
   @Test
   public void loads_measure_matrix_and_calls_tree_updater() {
-    SnapshotDto snapshot = markProjectAsAnalyzed(project);
+    db.properties().insertProperty(SYSTEM_MEASURES_MIGRATION_ENABLED, "true", null);
+
+    markProjectAsAnalyzed(project);
     when(componentIndex.getAllUuids()).thenReturn(Set.of(project.uuid()));
 
     liveMeasureComputer.refresh(db.getSession(), List.of(project));
@@ -108,7 +121,64 @@ public class LiveMeasureComputerImplTest {
     assertThat(treeUpdater.getMeasureMatrix().getMeasure(project, metric2.getKey()).get().getValue()).isEqualTo(1d);
 
     // new measures were persisted
-    assertThat(db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), project.uuid(), metric1.getKey()).get().getValue()).isEqualTo(2d);
+    assertThat(db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), project.uuid(), metric1.getKey()))
+      .hasValueSatisfying(m -> assertThat(m.getValue()).isEqualTo(2d));
+    assertThat(db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), project.uuid(), metric2.getKey()))
+      .hasValueSatisfying(m -> assertThat(m.getValue()).isEqualTo(1d));
+    assertThat(db.getDbClient().jsonMeasureDao().selectByComponentUuid(db.getSession(), project.uuid()))
+      .hasValueSatisfying(m -> assertThat(m.getMetricValues()).containsExactlyInAnyOrderEntriesOf(
+        ImmutableMap.of(metric1.getKey(), 2d, metric2.getKey(), 1d)));
+  }
+
+  @Test
+  public void no_json_measure_update_when_migration_disabled() {
+    db.properties().insertProperty(SYSTEM_MEASURES_MIGRATION_ENABLED, "false", null);
+
+    markProjectAsAnalyzed(project);
+    when(componentIndex.getAllUuids()).thenReturn(Set.of(project.uuid()));
+
+    liveMeasureComputer.refresh(db.getSession(), List.of(project));
+
+    // tree updater was called
+    assertThat(treeUpdater.getMeasureMatrix()).isNotNull();
+
+    // measure matrix was loaded with formula's metrics and measures
+    assertThat(treeUpdater.getMeasureMatrix().getMetricByUuid(metric2.getUuid())).isNotNull();
+    assertThat(treeUpdater.getMeasureMatrix().getMeasure(project, metric2.getKey()).get().getValue()).isEqualTo(1d);
+
+    // no json measures were persisted
+    assertThat(db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), project.uuid(), metric1.getKey()))
+      .hasValueSatisfying(m -> assertThat(m.getValue()).isEqualTo(2d));
+    assertThat(db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), project.uuid(), metric2.getKey()))
+      .hasValueSatisfying(m -> assertThat(m.getValue()).isEqualTo(1d));
+    assertThat(db.getDbClient().jsonMeasureDao().selectByComponentUuid(db.getSession(), project.uuid()))
+      .hasValueSatisfying(m -> assertThat(m.getMetricValues()).containsExactly(entry(metric2.getKey(), 1d)));
+  }
+
+  @Test
+  public void no_json_measure_update_when_migration_enabled_and_branch_not_migrated() {
+    db.properties().insertProperty(SYSTEM_MEASURES_MIGRATION_ENABLED, "true", null);
+    db.getDbClient().branchDao().updateMeasuresMigrated(db.getSession(), branch.getUuid(), false);
+
+    markProjectAsAnalyzed(project);
+    when(componentIndex.getAllUuids()).thenReturn(Set.of(project.uuid()));
+
+    liveMeasureComputer.refresh(db.getSession(), List.of(project));
+
+    // tree updater was called
+    assertThat(treeUpdater.getMeasureMatrix()).isNotNull();
+
+    // measure matrix was loaded with formula's metrics and measures
+    assertThat(treeUpdater.getMeasureMatrix().getMetricByUuid(metric2.getUuid())).isNotNull();
+    assertThat(treeUpdater.getMeasureMatrix().getMeasure(project, metric2.getKey()).get().getValue()).isEqualTo(1d);
+
+    // no json measures were persisted
+    assertThat(db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), project.uuid(), metric1.getKey()))
+      .hasValueSatisfying(m -> assertThat(m.getValue()).isEqualTo(2d));
+    assertThat(db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), project.uuid(), metric2.getKey()))
+      .hasValueSatisfying(m -> assertThat(m.getValue()).isEqualTo(1d));
+    assertThat(db.getDbClient().jsonMeasureDao().selectByComponentUuid(db.getSession(), project.uuid()))
+      .hasValueSatisfying(m -> assertThat(m.getMetricValues()).containsExactly(entry(metric2.getKey(), 1d)));
   }
 
   @Test
@@ -148,6 +218,16 @@ public class LiveMeasureComputerImplTest {
     assertThat(qgChangeEvents.get(0).getPreviousStatus()).contains(Metric.Level.OK);
     assertThat(qgChangeEvents.get(0).getProjectConfiguration()).isEqualTo(configuration);
     assertThat(qgChangeEvents.get(0).getQualityGateSupplier().get()).contains(newQualityGate);
+  }
+
+  private void createMeasuresTable() throws SQLException {
+    new CreateMeasuresTable(db.getDbClient().getDatabase()).execute();
+    db.executeDdl("truncate table measures");
+  }
+
+  private void createMeasuresMigratedColumn() throws SQLException {
+    AddMeasuresMigratedColumnToProjectBranchesTable migration = new AddMeasuresMigratedColumnToProjectBranchesTable(db.getDbClient().getDatabase());
+    migration.execute();
   }
 
   private SnapshotDto markProjectAsAnalyzed(ComponentDto p) {

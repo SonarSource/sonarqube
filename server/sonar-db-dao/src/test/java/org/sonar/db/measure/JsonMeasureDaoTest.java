@@ -30,6 +30,7 @@ import org.sonar.server.platform.db.migration.adhoc.CreateIndexOnPortfoliosMeasu
 import org.sonar.server.platform.db.migration.adhoc.CreateIndexOnProjectBranchesMeasuresMigrated;
 import org.sonar.server.platform.db.migration.adhoc.CreateMeasuresTable;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.measure.MeasureTesting.newJsonMeasure;
 
@@ -70,6 +71,59 @@ public class JsonMeasureDaoTest {
     assertThat(count).isEqualTo(1);
     verifyTableSize(1);
     verifyPersisted(dto);
+  }
+
+  @Test
+  public void insertOrUpdate_inserts_or_updates_measure() {
+    // insert
+    JsonMeasureDto dto = newJsonMeasure();
+    int count = underTest.insertOrUpdate(db.getSession(), dto);
+    assertThat(count).isEqualTo(1);
+    verifyTableSize(1);
+    verifyPersisted(dto);
+
+    // update
+    String key = dto.getMetricValues().keySet().stream().findFirst().orElseThrow();
+    dto.addValue(key, 10d);
+    count = underTest.insertOrUpdate(db.getSession(), dto);
+    assertThat(count).isEqualTo(1);
+    verifyTableSize(1);
+    verifyPersisted(dto);
+  }
+
+  @Test
+  public void insertOrUpdate_merges_measures() {
+    // insert
+    Double value2 = 10d;
+    JsonMeasureDto dto = newJsonMeasure();
+    dto.getMetricValues().clear();
+    dto.addValue("key1", 11d)
+      .addValue("key2", value2);
+    int count = underTest.insert(db.getSession(), dto);
+    verifyPersisted(dto);
+    verifyTableSize(1);
+    assertThat(count).isEqualTo(1);
+
+    // update key1 value, remove key2 (must not disappear from DB) and add key3
+    Double value1 = 12d;
+    Double value3 = 13d;
+    dto.addValue("key1", value1)
+      .addValue("key3", value3)
+      .getMetricValues().remove("key2");
+    count = underTest.insertOrUpdate(db.getSession(), dto);
+    assertThat(count).isEqualTo(1);
+    verifyTableSize(1);
+
+    assertThat(underTest.selectByComponentUuid(db.getSession(), dto.getComponentUuid()))
+      .hasValueSatisfying(selected -> {
+        assertThat(selected.getComponentUuid()).isEqualTo(dto.getComponentUuid());
+        assertThat(selected.getBranchUuid()).isEqualTo(dto.getBranchUuid());
+        assertThat(selected.getMetricValues()).contains(
+          entry("key1", value1),
+          entry("key2", value2),
+          entry("key3", value3));
+        assertThat(selected.getJsonValueHash()).isEqualTo(dto.computeJsonValueHash());
+      });
   }
 
   @Test

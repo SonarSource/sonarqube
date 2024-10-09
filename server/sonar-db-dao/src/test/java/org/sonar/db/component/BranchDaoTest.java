@@ -712,6 +712,29 @@ public class BranchDaoTest {
     assertThat(underTest.isMeasuresMigrated(dbSession, uuid2)).isFalse();
   }
 
+  @Test
+  public void isMeasuresMigrated() throws SQLException {
+    createMeasuresMigratedColumn();
+
+    // master branch with flag set to false
+    ComponentDto project = db.components().insertPrivateProject();
+    // branches & PRs
+    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    ComponentDto branch3 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    ComponentDto branch4 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+
+    db.getDbClient().branchDao().updateMeasuresMigrated(dbSession, branch1.branchUuid(), true);
+    db.getDbClient().branchDao().updateMeasuresMigrated(dbSession, branch2.branchUuid(), false);
+    db.getDbClient().branchDao().updateMeasuresMigrated(dbSession, branch3.branchUuid(), true);
+
+    assertThat(underTest.isMeasuresMigrated(dbSession, project.uuid())).isFalse();
+    assertThat(underTest.isMeasuresMigrated(dbSession, branch1.uuid())).isTrue();
+    assertThat(underTest.isMeasuresMigrated(dbSession, branch2.uuid())).isFalse();
+    assertThat(underTest.isMeasuresMigrated(dbSession, branch3.uuid())).isTrue();
+    assertThat(underTest.isMeasuresMigrated(dbSession, branch4.uuid())).isFalse();
+  }
+
   private void createMeasuresMigratedColumn() throws SQLException {
     AddMeasuresMigratedColumnToProjectBranchesTable migration = new AddMeasuresMigratedColumnToProjectBranchesTable(db.getDbClient().getDatabase());
     migration.execute();

@@ -21,6 +21,7 @@ package org.sonar.server.measure.live;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,10 +36,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.measure.JsonMeasureDto;
 import org.sonar.db.measure.LiveMeasureComparator;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
@@ -50,9 +53,12 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.groupingBy;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.core.config.CorePropertyDefinitions.SYSTEM_MEASURES_MIGRATION_ENABLED;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class LiveMeasureComputerImpl implements LiveMeasureComputer {
+
+  private static final Set<String> TEXT_VALUE_TYPES = Set.of("STRING", "LEVEL", "DATA", "DISTRIB");
 
   private final DbClient dbClient;
   private final MeasureUpdateFormulaFactory formulaFactory;
@@ -100,28 +106,63 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     Configuration config = projectConfigurationLoader.loadProjectConfiguration(dbSession, branchComponent);
     ProjectDto project = loadProject(dbSession, branch.getProjectUuid());
     QualityGate qualityGate = qGateComputer.loadQualityGate(dbSession, project, branch);
-    MeasureMatrix matrix = loadMeasureMatrix(dbSession, components.getAllUuids(), qualityGate);
+    Collection<String> metricKeys = getKeysOfAllInvolvedMetrics(qualityGate);
+    Map<String, MetricDto> metricsPerUuid = dbClient.metricDao().selectByKeys(dbSession, metricKeys).stream().collect(uniqueIndex(MetricDto::getUuid));
+    MeasureMatrix matrix = loadMeasureMatrix(dbSession, components.getAllUuids(), metricsPerUuid);
 
     treeUpdater.update(dbSession, lastAnalysis.get(), config, components, branch, matrix);
 
     Metric.Level previousStatus = loadPreviousStatus(dbSession, branchComponent);
     EvaluatedQualityGate evaluatedQualityGate = qGateComputer.refreshGateStatus(branchComponent, qualityGate, matrix, config);
-    persistAndIndex(dbSession, matrix, branchComponent);
+    persistAndIndex(dbSession, matrix, branchComponent, metricsPerUuid);
 
     return Optional.of(new QGChangeEvent(project, branch, lastAnalysis.get(), config, previousStatus, () -> Optional.of(evaluatedQualityGate)));
   }
 
-  private MeasureMatrix loadMeasureMatrix(DbSession dbSession, Set<String> componentUuids, QualityGate qualityGate) {
-    Collection<String> metricKeys = getKeysOfAllInvolvedMetrics(qualityGate);
-    Map<String, MetricDto> metricsPerUuid = dbClient.metricDao().selectByKeys(dbSession, metricKeys).stream().collect(uniqueIndex(MetricDto::getUuid));
+  private MeasureMatrix loadMeasureMatrix(DbSession dbSession, Set<String> componentUuids, Map<String, MetricDto> metricsPerUuid) {
     List<LiveMeasureDto> measures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, componentUuids, metricsPerUuid.keySet());
     return new MeasureMatrix(componentUuids, metricsPerUuid.values(), measures);
   }
 
-  private void persistAndIndex(DbSession dbSession, MeasureMatrix matrix, ComponentDto branchComponent) {
+  private void persistAndIndex(DbSession dbSession, MeasureMatrix matrix, ComponentDto branchComponent,
+    Map<String, MetricDto> metricsPerUuid) {
     // persist the measures that have been created or updated
     matrix.getChanged().sorted(LiveMeasureComparator.INSTANCE).forEach(m -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, m));
+
+    if (isMeasuresMigrationEnabled() && dbClient.branchDao().isMeasuresMigrated(dbSession, branchComponent.uuid())) {
+      Map<String, JsonMeasureDto> measureDtoPerComponent = new HashMap<>();
+      matrix.getChanged().sorted(LiveMeasureComparator.INSTANCE).forEach(m -> {
+        MetricDto metricDto = metricsPerUuid.get(m.getMetricUuid());
+        Object metricValue = getMetricValue(m, metricDto.getValueType());
+        if (metricValue != null) {
+          measureDtoPerComponent.compute(m.getComponentUuid(), (componentUuid, measureDto) -> {
+            if (measureDto == null) {
+              measureDto = new JsonMeasureDto()
+                .setComponentUuid(componentUuid)
+                .setBranchUuid(m.getProjectUuid());
+            }
+            return measureDto.addValue(
+              metricDto.getKey(),
+              metricValue
+            );
+          });
+        }
+      });
+      measureDtoPerComponent.values().forEach(m -> dbClient.jsonMeasureDao().insertOrUpdate(dbSession, m));
+    }
+
     projectIndexer.commitAndIndexComponents(dbSession, singleton(branchComponent), ProjectIndexer.Cause.MEASURE_CHANGE);
+  }
+
+  private boolean isMeasuresMigrationEnabled() {
+    return Optional.ofNullable(dbClient.propertiesDao().selectGlobalProperty(SYSTEM_MEASURES_MIGRATION_ENABLED))
+      .map(PropertyDto::getValue)
+      .map(Boolean::valueOf)
+      .orElse(false);
+  }
+
+  private static Object getMetricValue(LiveMeasureDto measure, String valueType) {
+    return TEXT_VALUE_TYPES.contains(valueType) ? measure.getDataAsString() : measure.getValue();
   }
 
   @CheckForNull
