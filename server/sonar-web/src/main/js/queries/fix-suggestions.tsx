@@ -17,10 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { some } from 'lodash';
 import React, { useContext } from 'react';
-import { getFixSuggestionsIssues, getSuggestions } from '../api/fix-suggestions';
+import {
+  checkSuggestionServiceStatus,
+  getFixSuggestionsIssues,
+  getSuggestions,
+  SuggestionServiceStatusCheckResponse,
+} from '../api/fix-suggestions';
 import { useAvailableFeatures } from '../app/components/available-features/withAvailableFeatures';
 import { CurrentUserContext } from '../app/components/current-user/CurrentUserContext';
 import { Feature } from '../types/features';
@@ -180,4 +186,10 @@ export function withUseGetFixSuggestionsIssues<P extends { issue: Issue }>(
     const { data } = useGetFixSuggestionsIssuesQuery(props.issue);
     return <Component aiSuggestionAvailable={data?.aiSuggestion === 'AVAILABLE'} {...props} />;
   };
+}
+
+export function useCheckServiceMutation() {
+  return useMutation<SuggestionServiceStatusCheckResponse, AxiosError>({
+    mutationFn: checkSuggestionServiceStatus,
+  });
 }

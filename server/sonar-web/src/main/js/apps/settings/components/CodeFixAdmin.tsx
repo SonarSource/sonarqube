@@ -17,16 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Button, ButtonVariety, Checkbox, LinkStandalone } from '@sonarsource/echoes-react';
-import { BasicSeparator, Title } from 'design-system';
+import styled from '@emotion/styled';
+import {
+  Button,
+  ButtonVariety,
+  Checkbox,
+  IconCheckCircle,
+  IconError,
+  LinkStandalone,
+  Spinner,
+  Text,
+} from '@sonarsource/echoes-react';
+import { MutationStatus } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import {
+  BasicSeparator,
+  HighlightedSection,
+  themeColor,
+  Title,
+  UnorderedList,
+} from 'design-system';
 import React, { useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { SuggestionServiceStatusCheckResponse } from '../../../api/fix-suggestions';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
 import { getAiCodeFixTermsOfServiceUrl } from '../../../helpers/urls';
-import { useRemoveCodeSuggestionsCache } from '../../../queries/fix-suggestions';
+import {
+  useCheckServiceMutation,
+  useRemoveCodeSuggestionsCache,
+} from '../../../queries/fix-suggestions';
 import { useGetValueQuery, useSaveSimpleValueMutation } from '../../../queries/settings';
 import { Feature } from '../../../types/features';
 import { SettingsKey } from '../../../types/settings';
@@ -49,6 +71,14 @@ function CodeFixAdmin({ hasFeature }: Readonly<Props>) {
 
   const [enableCodeFix, setEnableCodeFix] = React.useState(isCodeFixEnabled);
   const [acceptedTerms, setAcceptedTerms] = React.useState(false);
+  const {
+    mutate: checkService,
+    isIdle,
+    isPending,
+    status,
+    error,
+    data,
+  } = useCheckServiceMutation();
   const isValueChanged = enableCodeFix !== isCodeFixEnabled;
 
   useEffect(() => {
@@ -75,7 +105,7 @@ function CodeFixAdmin({ hasFeature }: Readonly<Props>) {
 
   return (
     <div className="sw-flex">
-      <div className="sw-flex-1 sw-p-6">
+      <div className="sw-flex-grow sw-p-6">
         <Title className="sw-heading-md sw-mb-6">{translate('property.codefix.admin.title')}</Title>
         <PromotedSection
           content={
@@ -135,8 +165,145 @@ function CodeFixAdmin({ hasFeature }: Readonly<Props>) {
           </div>
         )}
       </div>
+      <div className="sw-flex-col sw-w-abs-600 sw-p-6">
+        <HighlightedSection className="sw-items-start">
+          <Title className="sw-heading-sm sw-mb-6">
+            {translate('property.codefix.admin.serviceCheck.title')}
+          </Title>
+          <p>{translate('property.codefix.admin.serviceCheck.description1')}</p>
+          <p className="sw-mt-4">{translate('property.codefix.admin.serviceCheck.description2')}</p>
+          <Button
+            className="sw-mt-4"
+            variety={ButtonVariety.Default}
+            onClick={() => checkService()}
+            isDisabled={isPending}
+          >
+            {translate('property.codefix.admin.serviceCheck.action')}
+          </Button>
+          {!isIdle && (
+            <div>
+              <BasicSeparator className="sw-my-4" />
+              <ServiceCheckResultView data={data} error={error} status={status} />
+            </div>
+          )}
+        </HighlightedSection>
+      </div>
     </div>
   );
+}
+
+interface ServiceCheckResultViewProps {
+  data: SuggestionServiceStatusCheckResponse | undefined;
+  error: AxiosError | null;
+  status: MutationStatus;
+}
+
+function ServiceCheckResultView({ data, error, status }: Readonly<ServiceCheckResultViewProps>) {
+  switch (status) {
+    case 'pending':
+      return <Spinner label={translate('property.codefix.admin.serviceCheck.spinner.label')} />;
+    case 'error':
+      return (
+        <ErrorMessage
+          text={`${translate('property.codefix.admin.serviceCheck.result.requestError')} ${error?.status ?? 'No status'}`}
+        />
+      );
+    case 'success':
+      return ServiceCheckValidResponseView(data);
+  }
+  // normally unreachable
+  throw Error(`Unexpected response from the service status check, received ${status}`);
+}
+
+function ServiceCheckValidResponseView(data: SuggestionServiceStatusCheckResponse | undefined) {
+  switch (data?.status) {
+    case 'SUCCESS':
+      return (
+        <SuccessMessage text={translate('property.codefix.admin.serviceCheck.result.success')} />
+      );
+    case 'TIMEOUT':
+    case 'CONNECTION_ERROR':
+      return (
+        <div className="sw-flex">
+          <IconError className="sw-mr-1" color="echoes-color-icon-danger" />
+          <div className="sw-flex-col">
+            <ErrorLabel
+              text={translate('property.codefix.admin.serviceCheck.result.unresponsive.message')}
+            />
+            <p className="sw-mt-4">
+              <ErrorLabel
+                text={translate(
+                  'property.codefix.admin.serviceCheck.result.unresponsive.causes.title',
+                )}
+              />
+            </p>
+            <UnorderedList className="sw-ml-8" ticks>
+              <ErrorListItem className="sw-mb-2">
+                <ErrorLabel
+                  text={translate(
+                    'property.codefix.admin.serviceCheck.result.unresponsive.causes.1',
+                  )}
+                />
+              </ErrorListItem>
+              <ErrorListItem>
+                <ErrorLabel
+                  text={translate(
+                    'property.codefix.admin.serviceCheck.result.unresponsive.causes.2',
+                  )}
+                />
+              </ErrorListItem>
+            </UnorderedList>
+          </div>
+        </div>
+      );
+    case 'UNAUTHORIZED':
+      return (
+        <ErrorMessage text={translate('property.codefix.admin.serviceCheck.result.unauthorized')} />
+      );
+    case 'SERVICE_ERROR':
+      return (
+        <ErrorMessage text={translate('property.codefix.admin.serviceCheck.result.serviceError')} />
+      );
+    default:
+      return (
+        <ErrorMessage
+          text={`${translate('property.codefix.admin.serviceCheck.result.unknown')} ${data?.status ?? 'no status returned from the service'}`}
+        />
+      );
+  }
+}
+
+function ErrorMessage({ text }: Readonly<TextProps>) {
+  return (
+    <div className="sw-flex">
+      <IconError className="sw-mr-1" color="echoes-color-icon-danger" />
+      <ErrorLabel text={text} />
+    </div>
+  );
+}
+
+function ErrorLabel({ text }: Readonly<TextProps>) {
+  return <Text colorOverride="echoes-color-text-danger">{text}</Text>;
+}
+
+function SuccessMessage({ text }: Readonly<TextProps>) {
+  return (
+    <div className="sw-flex">
+      <IconCheckCircle className="sw-mr-1" color="echoes-color-icon-success" />
+      <Text colorOverride="echoes-color-text-success">{text}</Text>
+    </div>
+  );
+}
+
+const ErrorListItem = styled.li`
+  ::marker {
+    color: ${themeColor('errorText')};
+  }
+`;
+
+interface TextProps {
+  /** The text to display inside the component */
+  text: string;
 }
 
 export default withAvailableFeatures(CodeFixAdmin);

@@ -50,14 +50,14 @@ export const cveHandler = new CveServiceMock();
 export const componentsHandler = new ComponentsServiceMock();
 export const sourcesHandler = new SourcesServiceMock();
 export const branchHandler = new BranchesServiceMock();
-export const fixIssueHanlder = new FixIssueServiceMock();
+export const fixIssueHandler = new FixIssueServiceMock();
 export const settingsHandler = new SettingsServiceMock();
 
 export const ui = {
   loading: byText('issues.loading_issues'),
   fixGenerated: byText('issues.code_fix.fix_is_being_generated'),
   noFixAvailable: byText('issues.code_fix.something_went_wrong'),
-  suggestedExplanation: byText(fixIssueHanlder.fixSuggestion.explanation),
+  suggestedExplanation: byText(fixIssueHandler.fixSuggestion.explanation),
   issuePageHeadering: byRole('heading', { level: 1, name: 'issues.page' }),
   issueItemAction1: byRole('link', { name: 'Issue with no location message' }),
   issueItemAction2: byRole('link', { name: 'FlowIssue' }),
