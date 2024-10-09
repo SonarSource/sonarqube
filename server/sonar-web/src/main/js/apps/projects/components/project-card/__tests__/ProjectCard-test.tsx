@@ -310,7 +310,7 @@ describe('upgrade scenario (awaiting scan)', () => {
   });
 
   it('should not display awaiting analysis badge if legacy mode is enabled', async () => {
-    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
     renderProjectCard({
       ...PROJECT,
       measures: {
@@ -329,7 +329,7 @@ describe('upgrade scenario (awaiting scan)', () => {
   });
 
   it('should not display new values if legacy mode is enabled', async () => {
-    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
     measuresHandler.registerComponentMeasures({
       [PROJECT.key]: {
         ...newRatings,

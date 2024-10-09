@@ -190,6 +190,7 @@ import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.db.CheckAnyonePermissionsAtStartup;
 import org.sonar.server.platform.telemetry.ProjectCppAutoconfigTelemetryProvider;
 import org.sonar.server.platform.telemetry.TelemetryFipsEnabledProvider;
+import org.sonar.server.platform.telemetry.TelemetryMQRModePropertyProvider;
 import org.sonar.server.platform.telemetry.TelemetryNclocProvider;
 import org.sonar.server.platform.telemetry.TelemetryPortfolioConfidentialFlagProvider;
 import org.sonar.server.platform.telemetry.TelemetryUserEnabledProvider;
@@ -675,6 +676,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // new telemetry metrics
       ProjectCppAutoconfigTelemetryProvider.class,
       TelemetryVersionProvider.class,
+      TelemetryMQRModePropertyProvider.class,
       TelemetryNclocProvider.class,
       TelemetryUserEnabledProvider.class,
       TelemetryFipsEnabledProvider.class,

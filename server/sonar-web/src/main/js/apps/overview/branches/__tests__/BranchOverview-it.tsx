@@ -487,7 +487,7 @@ describe('project overview', () => {
   });
 
   it('should display old measures if in legacy mode', async () => {
-    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
     const { user, ui } = getPageObjects();
     renderBranchOverview();
 
@@ -526,7 +526,7 @@ describe('project overview', () => {
       MetricKey.software_quality_maintainability_rating,
     );
     measuresHandler.deleteComponentMeasure('foo', MetricKey.software_quality_reliability_rating);
-    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
     const { user, ui } = getPageObjects();
     renderBranchOverview();
 

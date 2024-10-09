@@ -687,7 +687,7 @@ describe('ratings', () => {
   });
 
   it('should not show gaps message and metric change button in legacy mode', async () => {
-    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
     timeMachineHandler.setMeasureHistory([
       mockMeasureHistory({
         metric: MetricKey.reliability_rating,

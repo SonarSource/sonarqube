@@ -106,7 +106,7 @@ describe('rendering', () => {
   });
 
   it('should correctly render the default overview and navigation in legacy mode', async () => {
-    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
     const { ui, user } = getPageObject();
     renderMeasuresApp();
 
@@ -212,7 +212,7 @@ describe('rendering', () => {
   });
 
   it('should show old measures and no flag message if no rating measures and legacy mode', async () => {
-    settingsHandler.set(SettingsKey.LegacyMode, 'true');
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
     measuresHandler.deleteComponentMeasure(
       'foo',
       MetricKey.software_quality_maintainability_rating,

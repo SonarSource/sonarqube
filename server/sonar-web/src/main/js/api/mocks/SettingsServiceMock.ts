@@ -138,8 +138,8 @@ export default class SettingsServiceMock {
       value: 'true',
     },
     {
-      key: 'sonar.old_world',
-      value: 'false',
+      key: SettingsKey.MQRMode,
+      value: 'true',
     },
   ];
 

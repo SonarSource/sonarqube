@@ -54,7 +54,7 @@ it.each([
   ['Project', '/projects', ComponentQualifier.Project],
   ['Portfolios', '/portfolios', ComponentQualifier.Portfolio],
 ])('should not render on %s page if isLegacy', (_, path, qualifier) => {
-  settingsHandler.set(SettingsKey.LegacyMode, 'true');
+  settingsHandler.set(SettingsKey.MQRMode, 'false');
   render(path);
   expect(ui.alert.get()).toBeInTheDocument();
   expect(ui.alertText(qualifier).get()).toBeInTheDocument();

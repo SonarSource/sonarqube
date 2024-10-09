@@ -85,7 +85,7 @@ it('should allow to clear all filters', async () => {
 });
 
 it('should show legacy filters', async () => {
-  settingsHandler.set(SettingsKey.LegacyMode, 'true');
+  settingsHandler.set(SettingsKey.MQRMode, 'false');
   renderPageSidebar();
 
   expect(await screen.findAllByText(/projects.facets.rating_option/)).toHaveLength(20);
@@ -96,7 +96,7 @@ it('should show legacy filters', async () => {
 });
 
 it('should show non legacy filters', async () => {
-  settingsHandler.set(SettingsKey.LegacyMode, 'false');
+  settingsHandler.set(SettingsKey.MQRMode, 'true');
   renderPageSidebar();
 
   expect(await screen.findAllByText(/projects.facets.rating_option/)).toHaveLength(20);
