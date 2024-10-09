@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { LinkStandalone } from '@sonarsource/echoes-react';
 import { CloseIcon, InputField, InteractiveIcon } from 'design-system';
 import React, { useState } from 'react';
@@ -50,7 +51,6 @@ export default function MetaLink({ link }: Readonly<Props>) {
   return (
     <li>
       <LinkStandalone
-        hasExternalIcon={false}
         onClick={isValid ? undefined : handleClick}
         shouldPreventDefault={!isValid}
         to={link.url}

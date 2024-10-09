@@ -151,7 +151,7 @@ function getPageObjects() {
     versionLabel: (version?: string) =>
       version ? byText(/footer\.version\s*(\d.\d)/) : byText(/footer\.version/),
     ltaDocumentationLinkActive: byRole('link', {
-      name: `footer.version.status.active open_in_new_tab`,
+      name: `footer.version.status.active`,
     }),
   };
 

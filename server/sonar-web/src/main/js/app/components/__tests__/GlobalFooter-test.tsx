@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { addDays, subDays } from 'date-fns';
 import * as React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
@@ -132,9 +133,9 @@ const ui = {
   pluginsLink: byRole('link', { name: 'opens_in_new_window footer.plugins' }),
   apiLink: byRole('link', { name: 'footer.web_api' }),
   ltaDocumentationLinkActive: byRole('link', {
-    name: `footer.version.status.active open_in_new_tab`,
+    name: `footer.version.status.active`,
   }),
   ltaDocumentationLinkInactive: byRole('link', {
-    name: `footer.version.status.inactive open_in_new_tab`,
+    name: `footer.version.status.inactive`,
   }),
 };

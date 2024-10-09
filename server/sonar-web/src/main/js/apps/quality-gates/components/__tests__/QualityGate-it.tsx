@@ -579,9 +579,10 @@ it('should advertise the Sonar way Quality Gate as AI-ready', async () => {
   });
 
   await user.click(await screen.findByRole('link', { name: /Sonar way/ }));
+
   expect(
     await screen.findByRole('link', {
-      name: 'quality_gates.ai_generated.description.clean_ai_generated_code open_in_new_tab',
+      name: 'quality_gates.ai_generated.description.clean_ai_generated_code',
     }),
   ).toBeInTheDocument();
 });

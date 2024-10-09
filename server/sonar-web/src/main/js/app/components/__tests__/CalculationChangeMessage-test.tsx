@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import React from 'react';
 import { Outlet, Route } from 'react-router-dom';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
@@ -28,7 +29,7 @@ import CalculationChangeMessage from '../calculation-notification/CalculationCha
 
 const ui = {
   alert: byRole('alert'),
-  learnMoreLink: byRole('link', { name: 'learn_more open_in_new_tab' }),
+  learnMoreLink: byRole('link', { name: 'learn_more' }),
 
   alertText: (qualifier: string) => byText(`notification.calculation_change.message.${qualifier}`),
 };

@@ -48,7 +48,7 @@ const ui = {
   codeFixTitle: byRole('heading', { name: 'property.codefix.admin.title' }),
   changeCodeFixCheckbox: byRole('checkbox', { name: 'property.codefix.admin.checkbox.label' }),
   acceptTermCheckbox: byRole('checkbox', {
-    name: 'property.codefix.admin.terms property.codefix.admin.acceptTerm.terms open_in_new_tab',
+    name: 'property.codefix.admin.terms property.codefix.admin.acceptTerm.terms',
   }),
   saveButton: byRole('button', { name: 'save' }),
 };
