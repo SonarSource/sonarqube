@@ -155,6 +155,7 @@ public class MeasureDbTester {
       put(CoreMetrics.RELIABILITY_ISSUES_KEY, (metric, m) -> m.setData("{\"LOW\":0,\"MEDIUM\":1,\"HIGH\":0,\"total\":1}"));
       put(CoreMetrics.MAINTAINABILITY_ISSUES_KEY, (metric, m) -> m.setData("{\"LOW\":0,\"MEDIUM\":1,\"HIGH\":0,\"total\":1}"));
       put(CoreMetrics.SECURITY_ISSUES_KEY, (metric, m) -> m.setData("{\"LOW\":0,\"MEDIUM\":1,\"HIGH\":0,\"total\":1}"));
+      put(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY, (metric, m) -> m.setData("java=123;xml=10"));
     }
   };
 
