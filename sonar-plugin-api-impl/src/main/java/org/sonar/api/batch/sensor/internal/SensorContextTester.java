@@ -442,8 +442,9 @@ public class SensorContextTester implements SensorContext {
   }
 
   @Override
-  public void addTelemetryProperty(String s, String s1) {
-    throw new UnsupportedOperationException("addTelemetryProperty");
+  public void addTelemetryProperty(String key, String value) {
+    //No Need to check the source of the plugin in the tester
+    sensorStorage.storeTelemetry(key, value);
   }
 
   public void setCacheEnabled(boolean enabled) {

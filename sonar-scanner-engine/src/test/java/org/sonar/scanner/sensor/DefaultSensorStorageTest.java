@@ -20,14 +20,12 @@
 package org.sonar.scanner.sensor;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.assertj.core.groups.Tuple;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
@@ -66,34 +64,37 @@ import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.repository.ContextPropertiesCache;
+import org.sonar.scanner.repository.TelemetryCache;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class DefaultSensorStorageTest {
+class DefaultSensorStorageTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  public File temp;
 
   private DefaultSensorStorage underTest;
   private MapSettings settings;
   private IssuePublisher moduleIssues;
   private ScannerReportWriter reportWriter;
   private ContextPropertiesCache contextPropertiesCache = new ContextPropertiesCache();
+  private TelemetryCache telemetryCache = new TelemetryCache();
   private BranchConfiguration branchConfiguration;
   private DefaultInputProject project;
   private ScannerReportReader reportReader;
   private ReportPublisher reportPublisher;
 
-  @Before
-  public void prepare() throws Exception {
+  @BeforeEach
+  public void prepare() {
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.<Integer>findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.<String>findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
@@ -103,8 +104,7 @@ public class DefaultSensorStorageTest {
     moduleIssues = mock(IssuePublisher.class);
 
     reportPublisher = mock(ReportPublisher.class);
-    final File reportDir = temp.newFolder();
-    FileStructure fileStructure = new FileStructure(reportDir);
+    FileStructure fileStructure = new FileStructure(temp);
     reportWriter = new ScannerReportWriter(fileStructure);
     reportReader = new ScannerReportReader(fileStructure);
     when(reportPublisher.getWriter()).thenReturn(reportWriter);
@@ -113,16 +113,16 @@ public class DefaultSensorStorageTest {
     branchConfiguration = mock(BranchConfiguration.class);
 
     underTest = new DefaultSensorStorage(metricFinder,
-      moduleIssues, settings.asConfig(), reportPublisher, mock(SonarCpdBlockIndex.class), contextPropertiesCache, new ScannerMetrics(), branchConfiguration);
+      moduleIssues, settings.asConfig(), reportPublisher, mock(SonarCpdBlockIndex.class), contextPropertiesCache, telemetryCache, new ScannerMetrics(), branchConfiguration);
 
     project = new DefaultInputProject(ProjectDefinition.create()
       .setKey("foo")
-      .setBaseDir(temp.newFolder())
-      .setWorkDir(temp.newFolder()));
+      .setBaseDir(temp)
+      .setWorkDir(temp));
   }
 
   @Test
-  public void should_merge_coverage() {
+  void should_merge_coverage() {
     DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setLines(5).build();
 
     DefaultCoverage coverage = new DefaultCoverage(underTest);
@@ -144,7 +144,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void shouldFailIfUnknownMetric() {
+  void shouldFailIfUnknownMetric() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").build();
 
     assertThatThrownBy(() -> underTest.store(new DefaultMeasure()
@@ -156,7 +156,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void shouldIgnoreMeasuresOnFolders() {
+  void shouldIgnoreMeasuresOnFolders() {
     underTest.store(new DefaultMeasure()
       .on(new DefaultInputDir("foo", "bar"))
       .forMetric(CoreMetrics.LINES)
@@ -166,9 +166,9 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void shouldIgnoreMeasuresOnModules() throws IOException {
-    ProjectDefinition module = ProjectDefinition.create().setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder());
-    ProjectDefinition root = ProjectDefinition.create().addSubProject(module);
+  void shouldIgnoreMeasuresOnModules() {
+    ProjectDefinition module = ProjectDefinition.create().setBaseDir(temp).setWorkDir(temp);
+    ProjectDefinition.create().addSubProject(module);
 
     underTest.store(new DefaultMeasure()
       .on(new DefaultInputModule(module))
@@ -179,7 +179,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void should_save_issue() {
+  void should_save_issue() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").build();
 
     DefaultIssue issue = new DefaultIssue(project).at(new DefaultIssueLocation().on(file));
@@ -191,7 +191,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void should_save_external_issue() {
+  void should_save_external_issue() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").build();
 
     DefaultExternalIssue externalIssue = new DefaultExternalIssue(project).at(new DefaultIssueLocation().on(file));
@@ -203,7 +203,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void should_skip_issue_on_pr_when_file_status_is_SAME() {
+  void should_skip_issue_on_pr_when_file_status_is_SAME() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
     when(branchConfiguration.isPullRequest()).thenReturn(true);
 
@@ -214,7 +214,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void has_issues_delegates_to_report_publisher() {
+  void has_issues_delegates_to_report_publisher() {
     DefaultInputFile file1 = new TestInputFileBuilder("foo", "src/Foo1.php").setStatus(InputFile.Status.SAME).build();
     DefaultInputFile file2 = new TestInputFileBuilder("foo", "src/Foo2.php").setStatus(InputFile.Status.SAME).build();
 
@@ -224,7 +224,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void should_save_highlighting() {
+  void should_save_highlighting() {
     DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php")
       .setContents("// comment").build();
 
@@ -235,7 +235,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void should_skip_highlighting_on_pr_when_file_status_is_SAME() {
+  void should_skip_highlighting_on_pr_when_file_status_is_SAME() {
     DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php")
       .setContents("// comment")
       .setStatus(InputFile.Status.SAME).build();
@@ -248,7 +248,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void should_save_file_measure() {
+  void should_save_file_measure() {
     DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php")
       .build();
 
@@ -263,7 +263,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void should_not_skip_file_measures_on_pull_request_when_file_status_is_SAME() {
+  void should_not_skip_file_measures_on_pull_request_when_file_status_is_SAME() {
     DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
     when(branchConfiguration.isPullRequest()).thenReturn(true);
 
@@ -278,7 +278,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void should_skip_significant_code_on_pull_request_when_file_status_is_SAME() {
+  void should_skip_significant_code_on_pull_request_when_file_status_is_SAME() {
     DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php")
       .setStatus(InputFile.Status.SAME)
       .setContents("foo")
@@ -293,7 +293,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void should_save_significant_code() {
+  void should_save_significant_code() {
     DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php")
       .setContents("foo")
       .build();
@@ -305,9 +305,9 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void should_save_project_measure() throws IOException {
+  void should_save_project_measure() {
     String projectKey = "myProject";
-    DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create().setKey(projectKey).setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
+    DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create().setKey(projectKey).setBaseDir(temp).setWorkDir(temp));
 
     underTest.store(new DefaultMeasure()
       .on(module)
@@ -319,45 +319,56 @@ public class DefaultSensorStorageTest {
     assertThat(m.getMetricKey()).isEqualTo(CoreMetrics.NCLOC_KEY);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void duplicateHighlighting() throws Exception {
+  @Test
+  void duplicateHighlighting() {
     InputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.java")
-      .setModuleBaseDir(temp.newFolder().toPath()).build();
+      .setModuleBaseDir(temp.toPath()).build();
     DefaultHighlighting h = new DefaultHighlighting(null)
       .onFile(inputFile);
     underTest.store(h);
-    underTest.store(h);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void duplicateSignificantCode() throws Exception {
-    InputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.java")
-      .setModuleBaseDir(temp.newFolder().toPath()).build();
-    DefaultSignificantCode h = new DefaultSignificantCode(null)
-      .onFile(inputFile);
-    underTest.store(h);
-    underTest.store(h);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void duplicateSymbolTable() throws Exception {
-    InputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.java")
-      .setModuleBaseDir(temp.newFolder().toPath()).build();
-    DefaultSymbolTable st = new DefaultSymbolTable(null)
-      .onFile(inputFile);
-    underTest.store(st);
-    underTest.store(st);
+    assertThrows(UnsupportedOperationException.class, () -> {
+      underTest.store(h);
+    });
   }
 
   @Test
-  public void shouldStoreContextProperty() {
+  void duplicateSignificantCode() {
+    InputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.java")
+      .setModuleBaseDir(temp.toPath()).build();
+    DefaultSignificantCode h = new DefaultSignificantCode(null)
+      .onFile(inputFile);
+    underTest.store(h);
+    assertThrows(UnsupportedOperationException.class, () -> {
+      underTest.store(h);
+    });
+  }
+
+  @Test
+  void duplicateSymbolTable() {
+    InputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.java")
+      .setModuleBaseDir(temp.toPath()).build();
+    DefaultSymbolTable st = new DefaultSymbolTable(null)
+      .onFile(inputFile);
+    underTest.store(st);
+    assertThrows(UnsupportedOperationException.class, () -> {
+      underTest.store(st);
+    });
+  }
+
+  @Test
+  void shouldStoreContextProperty() {
     underTest.storeProperty("foo", "bar");
     assertThat(contextPropertiesCache.getAll()).containsOnly(entry("foo", "bar"));
   }
 
   @Test
-  public void store_whenAdhocRuleIsSpecified_shouldWriteAdhocRuleToReport() {
+  void shouldStoreTelemetryEntries() {
+    underTest.storeTelemetry("key", "value");
+    assertThat(telemetryCache.getAll()).containsOnly(entry("key", "value"));
+  }
 
+  @Test
+  void store_whenAdhocRuleIsSpecified_shouldWriteAdhocRuleToReport() {
     underTest.store(new DefaultAdHocRule().ruleId("ruleId").engineId("engineId")
       .name("name")
       .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
@@ -383,7 +394,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void store_whenAdhocRuleIsSpecifiedWithOptionalFieldEmpty_shouldWriteAdhocRuleWithDefaultImpactsToReport() {
+  void store_whenAdhocRuleIsSpecifiedWithOptionalFieldEmpty_shouldWriteAdhocRuleWithDefaultImpactsToReport() {
     underTest.store(new DefaultAdHocRule().ruleId("ruleId").engineId("engineId")
       .name("name")
       .description("description"));

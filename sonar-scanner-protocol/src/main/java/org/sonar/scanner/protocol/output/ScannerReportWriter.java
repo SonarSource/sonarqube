@@ -163,6 +163,12 @@ public class ScannerReportWriter {
     return file;
   }
 
+  public File writeTelemetry(Iterable<ScannerReport.TelemetryEntry> telemetryEntries) {
+    File file = fileStructure.telemetryEntries();
+    Protobuf.writeStream(telemetryEntries, file, false);
+    return file;
+  }
+
   public File getSourceFile(int componentRef) {
     return fileStructure.fileFor(FileStructure.Domain.SOURCE, componentRef);
   }

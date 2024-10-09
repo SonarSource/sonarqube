@@ -57,6 +57,7 @@ class InMemorySensorStorage implements SensorStorage {
   Map<String, List<DefaultCoverage>> coverageByComponent = new HashMap<>();
   Map<String, DefaultSymbolTable> symbolsPerComponent = new HashMap<>();
   Map<String, String> contextProperties = new HashMap<>();
+  Map<String, String> telemetryEntries = new HashMap<>();
   Map<String, DefaultSignificantCode> significantCodePerComponent = new HashMap<>();
 
   @Override
@@ -130,6 +131,15 @@ class InMemorySensorStorage implements SensorStorage {
     checkArgument(key != null, "Key of context property must not be null");
     checkArgument(value != null, "Value of context property must not be null");
     contextProperties.put(key, value);
+  }
+
+  public void storeTelemetry(String key, String value) {
+    checkArgument(key != null, "Key of context property must not be null");
+    checkArgument(value != null, "Value of context property must not be null");
+
+    if (telemetryEntries.size() < 1000 || telemetryEntries.containsKey(key)) {
+      telemetryEntries.put(key, value);
+    }
   }
 
   @Override

@@ -20,6 +20,7 @@
 package org.sonar.scanner.protocol.output;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,10 +61,10 @@ public class FileStructureTest {
   @Test
   public void locate_files() throws Exception {
     File dir = temp.newFolder();
-    FileUtils.write(new File(dir, "metadata.pb"), "metadata content");
-    FileUtils.write(new File(dir, "issues-3.pb"), "external issues of component 3");
-    FileUtils.write(new File(dir, "external-issues-3.pb"), "issues of component 3");
-    FileUtils.write(new File(dir, "component-42.pb"), "details of component 42");
+    FileUtils.write(new File(dir, "metadata.pb"), "metadata content", Charset.defaultCharset());
+    FileUtils.write(new File(dir, "issues-3.pb"), "external issues of component 3", Charset.defaultCharset());
+    FileUtils.write(new File(dir, "external-issues-3.pb"), "issues of component 3", Charset.defaultCharset());
+    FileUtils.write(new File(dir, "component-42.pb"), "details of component 42", Charset.defaultCharset());
 
     FileStructure structure = new FileStructure(dir);
     assertThat(structure.metadataFile()).exists().isFile();
@@ -78,9 +79,19 @@ public class FileStructureTest {
   public void contextProperties_file() throws Exception {
     File dir = temp.newFolder();
     File file = new File(dir, "context-props.pb");
-    FileUtils.write(file, "content");
+    FileUtils.write(file, "content", Charset.defaultCharset());
 
     FileStructure structure = new FileStructure(dir);
     assertThat(structure.contextProperties()).exists().isFile().isEqualTo(file);
+  }
+
+  @Test
+  public void telemetryFile_hasTheCorrectName() throws Exception {
+    File dir = temp.newFolder();
+    File file = new File(dir, "telemetry-entries.pb");
+    FileUtils.write(file, "content", Charset.defaultCharset());
+
+    FileStructure structure = new FileStructure(dir);
+    assertThat(structure.telemetryEntries()).exists().isFile().isEqualTo(file);
   }
 }

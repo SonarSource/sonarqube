@@ -154,7 +154,8 @@ public class ScannerReportWriterTest {
     // write data
     ScannerReport.Cve cve = ScannerReport.Cve.newBuilder()
       .setCveId("CVE-2023-20863")
-      .setDescription("In spring framework versions prior to 5.2.24 release+ ,5.3.27+ and 6.0.8+ , it is possible for a user to provide a specially crafted SpEL expression that may cause a denial-of-service (DoS) condition.")
+      .setDescription("In spring framework versions prior to 5.2.24 release+ ,5.3.27+ and 6.0.8+ , it is possible for a user to provide a" +
+        " specially crafted SpEL expression that may cause a denial-of-service (DoS) condition.")
       .setCvssScore(6.5f)
       .setEpssScore(0.00306f)
       .setEpssPercentile(0.70277f)
@@ -366,4 +367,25 @@ public class ScannerReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.COVERAGES, 1)).isTrue();
   }
 
+  @Test
+  public void write_telemetry() {
+
+    List<ScannerReport.TelemetryEntry> input = List.of(
+      ScannerReport.TelemetryEntry.newBuilder()
+        .setKey("key")
+        .setValue("value").build(),
+      ScannerReport.TelemetryEntry.newBuilder()
+        .setKey("key2")
+        .setValue("value2").build());
+
+    underTest.writeTelemetry(input);
+
+    try (CloseableIterator<ScannerReport.TelemetryEntry> telemetryIterator =
+           Protobuf.readStream(underTest.getFileStructure().telemetryEntries(), ScannerReport.TelemetryEntry.parser())) {
+
+      assertThat(telemetryIterator).toIterable()
+        .containsExactlyElementsOf(input)
+        .hasSize(input.size());
+    }
+  }
 }

@@ -87,6 +87,11 @@ message ContextProperty {
   string value = 2;
 }
 
+message TelemetryEntry {
+  string key = 1;
+  string value = 2;
+}
+
 message ActiveRule {
   string rule_repository = 1;
   string rule_key = 2;
