@@ -20,11 +20,14 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.base.MoreObjects;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
@@ -42,6 +45,7 @@ public class ActiveRuleChange {
   private final ActiveRuleKey key;
   private final String ruleUuid;
   private String severity = null;
+  private final Map<SoftwareQuality, Severity> impactSeverities = new EnumMap<>(SoftwareQuality.class);
   private Boolean prioritizedRule = null;
   private ActiveRuleInheritance inheritance = null;
   private final Map<String, String> parameters = new HashMap<>();
@@ -81,13 +85,23 @@ public class ActiveRuleChange {
     return this;
   }
 
-  public ActiveRuleChange setPrioritizedRule(@Nullable Boolean prioritizedRule){
+  public Map<SoftwareQuality, Severity> getImpactSeverities() {
+    return impactSeverities;
+  }
+
+  public ActiveRuleChange setImpactSeverities(Map<SoftwareQuality, Severity> impactSeverities) {
+    this.impactSeverities.clear();
+    this.impactSeverities.putAll(impactSeverities);
+    return this;
+  }
+
+  public ActiveRuleChange setPrioritizedRule(@Nullable Boolean prioritizedRule) {
     this.prioritizedRule = prioritizedRule;
     return this;
   }
 
   @CheckForNull
-  public Boolean isPrioritizedRule(){
+  public Boolean isPrioritizedRule() {
     return prioritizedRule;
   }
 
@@ -159,6 +173,7 @@ public class ActiveRuleChange {
       .add("inheritance", inheritance)
       .add("parameters", parameters)
       .add("prioritizedRule", prioritizedRule)
+      .add("impactSeverities", impactSeverities)
       .toString();
   }
 }

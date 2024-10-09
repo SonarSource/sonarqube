@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableBiMap;
 import java.util.EnumMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
@@ -46,12 +47,12 @@ public class QProfileImpactSeverityMapper {
   private QProfileImpactSeverityMapper() {
   }
 
-  public static Map<SoftwareQuality, Severity> mapImpactSeverities(String severity, Map<SoftwareQuality, Severity> ruleImpacts, RuleType ruleType) {
-    if (ruleType == RuleType.SECURITY_HOTSPOT) {
-      return Map.of();
+  public static Map<SoftwareQuality, Severity> mapImpactSeverities(@Nullable String severity, Map<SoftwareQuality, Severity> ruleImpacts, RuleType ruleType) {
+    Map<SoftwareQuality, Severity> result = ruleImpacts.isEmpty() ? Map.of() : new EnumMap<>(ruleImpacts);
+    if (severity == null || ruleImpacts.isEmpty()) {
+      return result;
     }
     SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(ruleType);
-    Map<SoftwareQuality, Severity> result = new EnumMap<>(ruleImpacts);
     if (ruleImpacts.containsKey(softwareQuality)) {
       result.put(softwareQuality, SEVERITY_MAPPING.inverse().get(severity));
     } else if (ruleImpacts.size() == 1) {
@@ -61,7 +62,7 @@ public class QProfileImpactSeverityMapper {
   }
 
   @CheckForNull
-  public static String mapSeverity(Map<SoftwareQuality, Severity> impacts, RuleType ruleType, String ruleSeverity) {
+  public static String mapSeverity(Map<SoftwareQuality, Severity> impacts, RuleType ruleType, @Nullable String ruleSeverity) {
     SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(ruleType);
     if (impacts.containsKey(softwareQuality)) {
       return SEVERITY_MAPPING.get(impacts.get(softwareQuality));

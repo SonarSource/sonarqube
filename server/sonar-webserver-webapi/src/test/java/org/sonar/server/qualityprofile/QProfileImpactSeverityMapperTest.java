@@ -37,11 +37,20 @@ class QProfileImpactSeverityMapperTest {
   @Test
   void mapImpactSeverities_whenSecurityHotspot_shouldReturnEmptyMap() {
     Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> result = QProfileImpactSeverityMapper.mapImpactSeverities(Severity.MAJOR,
-      Map.of(SoftwareQuality.MAINTAINABILITY,
-        org.sonar.api.issue.impact.Severity.HIGH),
+      Map.of(),
       RuleType.SECURITY_HOTSPOT);
 
     assertThat(result).isEmpty();
+  }
+
+  @Test
+  void mapImpactSeverities_whenSeverityIsNull_shouldReturnRuleImpacts() {
+    Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH);
+    Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> result = QProfileImpactSeverityMapper.mapImpactSeverities(null,
+      impacts,
+      RuleType.SECURITY_HOTSPOT);
+
+    assertThat(result).isEqualTo(impacts);
   }
 
   @Test

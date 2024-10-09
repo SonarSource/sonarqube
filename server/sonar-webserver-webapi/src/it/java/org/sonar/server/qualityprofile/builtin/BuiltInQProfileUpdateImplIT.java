@@ -25,11 +25,12 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.assertj.core.groups.Tuple;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
@@ -39,6 +40,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -73,16 +75,16 @@ import static org.sonar.api.rules.RulePriority.MINOR;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newRuleProfileDto;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.INHERITED;
 
-public class BuiltInQProfileUpdateImplIT {
+class BuiltInQProfileUpdateImplIT {
 
   private static final long NOW = 1_000;
   private static final long PAST = NOW - 100;
 
-  @Rule
+  @RegisterExtension
   public BuiltInQProfileRepositoryRule builtInProfileRepository = new BuiltInQProfileRepositoryRule();
-  @Rule
+  @RegisterExtension
   public DbTester db = DbTester.create();
-  @Rule
+  @RegisterExtension
   public UserSessionRule userSession = UserSessionRule.standalone();
   private System2 system2 = new TestSystem2().setNow(NOW);
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
@@ -96,8 +98,8 @@ public class BuiltInQProfileUpdateImplIT {
 
   private RulesProfileDto persistedProfile;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     persistedProfile = newRuleProfileDto(rp -> rp
       .setIsBuiltIn(true)
       .setLanguage("xoo")
@@ -107,8 +109,10 @@ public class BuiltInQProfileUpdateImplIT {
   }
 
   @Test
-  public void activate_new_rules() {
-    RuleDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
+  void activate_new_rules() {
+    RuleDto rule1 = db.rules()
+      .insert(r -> r.setLanguage("xoo").replaceAllDefaultImpacts(List.of(newImpactDto(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH),
+        newImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW))));
     RuleDto rule2 = db.rules().insert(r -> r.setLanguage("xoo"));
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("Sonar way", "xoo");
@@ -121,34 +125,41 @@ public class BuiltInQProfileUpdateImplIT {
 
     List<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
     assertThat(activeRules).hasSize(2);
-    assertThatRuleIsNewlyActivated(activeRules, rule1, CRITICAL);
-    assertThatRuleIsNewlyActivated(activeRules, rule2, MAJOR);
+    assertThatRuleIsNewlyActivated(activeRules, rule1, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH,
+      SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW));
+    assertThatRuleIsNewlyActivated(activeRules, rule2, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM));
     assertThatProfileIsMarkedAsUpdated(persistedProfile);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
   }
 
+  private static ImpactDto newImpactDto(SoftwareQuality maintainability, org.sonar.api.issue.impact.Severity high) {
+    return new ImpactDto().setSoftwareQuality(maintainability).setSeverity(high);
+  }
+
   @Test
-  public void already_activated_rule_is_updated_in_case_of_differences() {
-    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
+  void already_activated_rule_is_updated_in_case_of_differences() {
+    RuleDto rule = db.rules().insert(
+      r -> r.setLanguage("xoo")
+        .replaceAllDefaultImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))));
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("Sonar way", "xoo");
-    newQp.activateRule(rule.getRepositoryKey(), rule.getRuleKey()).overrideSeverity(Severity.CRITICAL);
+    newQp.activateRule(rule.getRepositoryKey(), rule.getRuleKey()).overrideSeverity(Severity.BLOCKER);
     newQp.done();
     BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"), rule);
 
-    activateRuleInDb(persistedProfile, rule, BLOCKER);
+    activateRuleInDb(persistedProfile, rule, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
 
     List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, persistedProfile);
 
     List<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
     assertThat(activeRules).hasSize(1);
-    assertThatRuleIsUpdated(activeRules, rule, CRITICAL);
+    assertThatRuleIsUpdated(activeRules, rule, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER));
     assertThatProfileIsMarkedAsUpdated(persistedProfile);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
   }
 
   @Test
-  public void already_activated_rule_is_not_touched_if_no_differences() {
+  void already_activated_rule_is_not_touched_if_no_differences() {
     RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("Sonar way", "xoo");
@@ -156,7 +167,7 @@ public class BuiltInQProfileUpdateImplIT {
     newQp.done();
     BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"), rule);
 
-    activateRuleInDb(persistedProfile, rule, CRITICAL);
+    activateRuleInDb(persistedProfile, rule, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
 
     underTest.update(db.getSession(), builtIn, persistedProfile);
 
@@ -168,7 +179,7 @@ public class BuiltInQProfileUpdateImplIT {
   }
 
   @Test
-  public void deactivate_rule_that_is_not_in_built_in_definition_anymore() {
+  void deactivate_rule_that_is_not_in_built_in_definition_anymore() {
     RuleDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
     RuleDto rule2 = db.rules().insert(r -> r.setLanguage("xoo"));
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
@@ -179,7 +190,7 @@ public class BuiltInQProfileUpdateImplIT {
 
     // built-in definition contains only rule2
     // so rule1 must be deactivated
-    activateRuleInDb(persistedProfile, rule1, CRITICAL);
+    activateRuleInDb(persistedProfile, rule1, CRITICAL, Map.of());
 
     List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, persistedProfile);
 
@@ -191,7 +202,7 @@ public class BuiltInQProfileUpdateImplIT {
   }
 
   @Test
-  public void activate_deactivate_and_update_three_rules_at_the_same_time() {
+  void activate_deactivate_and_update_three_rules_at_the_same_time() {
     RuleDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
     RuleDto rule2 = db.rules().insert(r -> r.setLanguage("xoo"));
     RuleDto rule3 = db.rules().insert(r -> r.setLanguage("xoo"));
@@ -206,15 +217,15 @@ public class BuiltInQProfileUpdateImplIT {
     // rule1 must be updated (blocker to critical)
     // rule2 must be activated
     // rule3 must be deactivated
-    activateRuleInDb(persistedProfile, rule1, BLOCKER);
-    activateRuleInDb(persistedProfile, rule3, BLOCKER);
+    activateRuleInDb(persistedProfile, rule1, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
+    activateRuleInDb(persistedProfile, rule3, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
 
     List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, persistedProfile);
 
     List<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
     assertThat(activeRules).hasSize(2);
-    assertThatRuleIsUpdated(activeRules, rule1, CRITICAL);
-    assertThatRuleIsNewlyActivated(activeRules, rule2, MAJOR);
+    assertThatRuleIsUpdated(activeRules, rule1, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
+    assertThatRuleIsNewlyActivated(activeRules, rule2, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM));
     assertThatRuleIsDeactivated(activeRules, rule3);
     assertThatProfileIsMarkedAsUpdated(persistedProfile);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
@@ -222,7 +233,7 @@ public class BuiltInQProfileUpdateImplIT {
 
   // SONAR-10473
   @Test
-  public void activate_rule_on_built_in_profile_resets_severity_to_default_if_not_overridden() {
+  void activate_rule_on_built_in_profile_resets_severity_to_default_if_not_overridden() {
     RuleDto rule = db.rules().insert(r -> r.setSeverity(Severity.MAJOR).setLanguage("xoo"));
 
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
@@ -233,20 +244,21 @@ public class BuiltInQProfileUpdateImplIT {
     underTest.update(db.getSession(), builtIn, persistedProfile);
 
     List<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
-    assertThatRuleIsNewlyActivated(activeRules, rule, MAJOR);
+    assertThatRuleIsNewlyActivated(activeRules, rule, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
 
     // emulate an upgrade of analyzer that changes the default severity of the rule
     rule.setSeverity(Severity.MINOR);
+    rule.replaceAllDefaultImpacts(List.of(newImpactDto(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW)));
     db.rules().update(rule);
 
     List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, persistedProfile);
     activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
-    assertThatRuleIsNewlyActivated(activeRules, rule, MINOR);
+    assertThatRuleIsNewlyActivated(activeRules, rule, MINOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
   }
 
   @Test
-  public void activate_rule_on_built_in_profile_resets_params_to_default_if_not_overridden() {
+  void activate_rule_on_built_in_profile_resets_params_to_default_if_not_overridden() {
     RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
 
@@ -274,7 +286,7 @@ public class BuiltInQProfileUpdateImplIT {
   }
 
   @Test
-  public void propagate_activation_to_descendant_profiles() {
+  void propagate_activation_to_descendant_profiles() {
     RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
 
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
@@ -297,14 +309,17 @@ public class BuiltInQProfileUpdateImplIT {
 
   // SONAR-14559
   @Test
-  public void propagate_rule_update_to_descendant_active_rule() {
-    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
+  void propagate_rule_update_to_descendant_active_rule() {
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER)
+      .replaceAllDefaultImpacts(List.of(newImpactDto(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER))));
 
     QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
-    activateRuleInDb(RulesProfileDto.from(parentProfile), rule, RulePriority.valueOf(Severity.MINOR), null);
+    activateRuleInDb(RulesProfileDto.from(parentProfile), rule, RulePriority.valueOf(Severity.MINOR),
+      Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
 
     QProfileDto childProfile = createChildProfile(parentProfile);
-    activateRuleInDb(RulesProfileDto.from(childProfile), rule, RulePriority.valueOf(Severity.MINOR), INHERITED);
+    activateRuleInDb(RulesProfileDto.from(childProfile), rule, RulePriority.valueOf(Severity.MINOR),
+      Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW), INHERITED);
 
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile(parentProfile.getName(), parentProfile.getLanguage());
@@ -316,26 +331,26 @@ public class BuiltInQProfileUpdateImplIT {
     assertThat(changes).hasSize(2);
 
     List<ActiveRuleDto> parentActiveRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), RulesProfileDto.from(parentProfile));
-    assertThatRuleIsUpdated(parentActiveRules, rule, RulePriority.BLOCKER, null);
+    assertThatRuleIsUpdated(parentActiveRules, rule, RulePriority.BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER));
 
     List<ActiveRuleDto> childActiveRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), RulesProfileDto.from(childProfile));
-    assertThatRuleIsUpdated(childActiveRules, rule, RulePriority.BLOCKER, INHERITED);
+    assertThatRuleIsUpdated(childActiveRules, rule, RulePriority.BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), INHERITED);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
   }
 
   @Test
-  public void propagate_rule_param_update_to_descendant_active_rule_params() {
+  void propagate_rule_param_update_to_descendant_active_rule_params() {
     RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
 
     QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
     ActiveRuleDto parentActiveRuleDto = activateRuleInDb(RulesProfileDto.from(parentProfile), rule,
-        RulePriority.valueOf(Severity.MINOR), null);
+      RulePriority.valueOf(Severity.MINOR), Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
     activateRuleParamInDb(parentActiveRuleDto, ruleParam, "20");
 
     QProfileDto childProfile = createChildProfile(parentProfile);
     ActiveRuleDto childActiveRuleDto = activateRuleInDb(RulesProfileDto.from(childProfile), rule,
-        RulePriority.valueOf(Severity.MINOR), INHERITED);
+      RulePriority.valueOf(Severity.MINOR), Map.of(), INHERITED);
     activateRuleParamInDb(childActiveRuleDto, ruleParam, "20");
 
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
@@ -353,7 +368,7 @@ public class BuiltInQProfileUpdateImplIT {
   }
 
   @Test
-  public void propagate_deactivation_to_descendant_profiles() {
+  void propagate_deactivation_to_descendant_profiles() {
     RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
 
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
@@ -423,16 +438,19 @@ public class BuiltInQProfileUpdateImplIT {
       .containsExactlyInAnyOrder(expectedParams);
   }
 
-  private static void assertThatRuleIsNewlyActivated(List<ActiveRuleDto> activeRules, RuleDto rule, RulePriority severity) {
+  private static void assertThatRuleIsNewlyActivated(List<ActiveRuleDto> activeRules, RuleDto rule, RulePriority severity,
+    Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts) {
     ActiveRuleDto activeRule = findRule(activeRules, rule).get();
 
     assertThat(activeRule.getInheritance()).isNull();
     assertThat(activeRule.getSeverityString()).isEqualTo(severity.name());
+    assertThat(activeRule.getImpacts()).isEqualTo(impacts);
     assertThat(activeRule.getCreatedAt()).isEqualTo(NOW);
     assertThat(activeRule.getUpdatedAt()).isEqualTo(NOW);
   }
 
-  private static void assertThatRuleIsUpdated(List<ActiveRuleDto> activeRules, RuleDto rule, RulePriority severity, @Nullable ActiveRuleInheritance expectedInheritance) {
+  private static void assertThatRuleIsUpdated(List<ActiveRuleDto> activeRules, RuleDto rule, RulePriority severity,
+    Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts, @Nullable ActiveRuleInheritance expectedInheritance) {
     ActiveRuleDto activeRule = findRule(activeRules, rule).get();
 
     if (expectedInheritance != null) {
@@ -441,16 +459,14 @@ public class BuiltInQProfileUpdateImplIT {
       assertThat(activeRule.getInheritance()).isNull();
     }
     assertThat(activeRule.getSeverityString()).isEqualTo(severity.name());
+    assertThat(activeRule.getImpacts()).isEqualTo(impacts);
     assertThat(activeRule.getCreatedAt()).isEqualTo(PAST);
     assertThat(activeRule.getUpdatedAt()).isEqualTo(NOW);
   }
 
-  private static void assertThatRuleIsUpdated(List<ActiveRuleDto> activeRules, RuleDto rule, RulePriority severity) {
-    assertThatRuleIsUpdated(activeRules, rule, severity, null);
-  }
-
-  private static void assertThatRuleIsUpdated(ActiveRuleDto activeRules, RuleDto rule, RulePriority severity, @Nullable ActiveRuleInheritance expectedInheritance) {
-    assertThatRuleIsUpdated(singletonList(activeRules), rule, severity, expectedInheritance);
+  private static void assertThatRuleIsUpdated(List<ActiveRuleDto> activeRules, RuleDto rule, RulePriority severity,
+    Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts) {
+    assertThatRuleIsUpdated(activeRules, rule, severity, impacts, null);
   }
 
   private static void assertThatRuleIsUntouched(List<ActiveRuleDto> activeRules, RuleDto rule, RulePriority severity) {
@@ -496,15 +512,17 @@ public class BuiltInQProfileUpdateImplIT {
       .findFirst();
   }
 
-  private ActiveRuleDto activateRuleInDb(RulesProfileDto profile, RuleDto rule, RulePriority severity) {
-    return activateRuleInDb(profile, rule, severity, null);
+  private ActiveRuleDto activateRuleInDb(RulesProfileDto profile, RuleDto rule, RulePriority severity, Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts) {
+    return activateRuleInDb(profile, rule, severity, impacts, null);
   }
 
-  private ActiveRuleDto activateRuleInDb(RulesProfileDto ruleProfile, RuleDto rule, RulePriority severity, @Nullable ActiveRuleInheritance inheritance) {
+  private ActiveRuleDto activateRuleInDb(RulesProfileDto ruleProfile, RuleDto rule, RulePriority severity, Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts,
+    @Nullable ActiveRuleInheritance inheritance) {
     ActiveRuleDto dto = new ActiveRuleDto()
       .setKey(ActiveRuleKey.of(ruleProfile, RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey())))
       .setProfileUuid(ruleProfile.getUuid())
       .setSeverity(severity.name())
+      .setImpacts(impacts)
       .setRuleUuid(rule.getUuid())
       .setInheritance(inheritance != null ? inheritance.name() : null)
       .setCreatedAt(PAST)
@@ -516,10 +534,10 @@ public class BuiltInQProfileUpdateImplIT {
 
   private void activateRuleParamInDb(ActiveRuleDto activeRuleDto, RuleParamDto ruleParamDto, String value) {
     ActiveRuleParamDto dto = new ActiveRuleParamDto()
-        .setActiveRuleUuid(activeRuleDto.getUuid())
-        .setRulesParameterUuid(ruleParamDto.getUuid())
-        .setKey(ruleParamDto.getName())
-        .setValue(value);
+      .setActiveRuleUuid(activeRuleDto.getUuid())
+      .setRulesParameterUuid(ruleParamDto.getUuid())
+      .setKey(ruleParamDto.getName())
+      .setValue(value);
     db.getDbClient().activeRuleDao().insertParam(db.getSession(), activeRuleDto, dto);
     db.commit();
   }

@@ -20,11 +20,13 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Strings;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.Severity;
 
 /**
@@ -36,15 +38,17 @@ public class RuleActivation {
   private final String ruleUuid;
   private final boolean reset;
   private final String severity;
+  private final Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impactSeverities;
   private final Boolean prioritizedRule;
   private final Map<String, String> parameters = new HashMap<>();
 
-  private RuleActivation(String ruleUuid, boolean reset, @Nullable String severity, @Nullable Boolean prioritizedRule, @Nullable Map<String,
-    String> parameters) {
+  private RuleActivation(String ruleUuid, boolean reset, @Nullable String severity, @Nullable Boolean prioritizedRule, @Nullable Map<String, String> parameters,
+    Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impactSeverities) {
     this.ruleUuid = ruleUuid;
     this.reset = reset;
     this.severity = severity;
     this.prioritizedRule = prioritizedRule;
+    this.impactSeverities = impactSeverities.isEmpty() ? Map.of() : new EnumMap<>(impactSeverities);
     if (severity != null && !Severity.ALL.contains(severity)) {
       throw new IllegalArgumentException("Unknown severity: " + severity);
     }
@@ -56,16 +60,21 @@ public class RuleActivation {
   }
 
   public static RuleActivation createReset(String ruleUuid) {
-    return new RuleActivation(ruleUuid, true, null, null, null);
+    return new RuleActivation(ruleUuid, true, null, null, null, Map.of());
   }
 
   public static RuleActivation create(String ruleUuid, @Nullable String severity, @Nullable Boolean prioritizedRule,
     @Nullable Map<String, String> parameters) {
-    return new RuleActivation(ruleUuid, false, severity, prioritizedRule, parameters);
+    return new RuleActivation(ruleUuid, false, severity, prioritizedRule, parameters, Map.of());
   }
 
   public static RuleActivation create(String ruleUuid, @Nullable String severity, @Nullable Map<String, String> parameters) {
     return create(ruleUuid, severity, null, parameters);
+  }
+
+  public static RuleActivation createOverrideImpacts(String ruleUuid, Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impactSeverities,
+    @Nullable Map<String, String> parameters) {
+    return new RuleActivation(ruleUuid, false, null, null, parameters, impactSeverities);
   }
 
   public static RuleActivation create(String ruleUuid) {
@@ -78,6 +87,10 @@ public class RuleActivation {
   @CheckForNull
   public String getSeverity() {
     return severity;
+  }
+
+  public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> getImpactSeverities() {
+    return impactSeverities;
   }
 
   public String getRuleUuid() {

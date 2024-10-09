@@ -33,6 +33,7 @@ import org.mockito.Mockito;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
@@ -40,6 +41,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -112,7 +114,7 @@ class QProfileRuleImplIT {
     RuleActivation activation = RuleActivation.create(rule.getUuid(), BLOCKER, null);
     List<ActiveRuleChange> changes = activate(profile, activation);
 
-    assertThatRuleIsActivated(profile, rule, changes, BLOCKER, null, emptyMap());
+    assertThatRuleIsActivated(profile, rule, changes, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), null, emptyMap());
     assertThatProfileIsUpdatedBySystem(profile);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(profile.getLanguage()));
   }
@@ -125,7 +127,7 @@ class QProfileRuleImplIT {
     RuleActivation activation = RuleActivation.create(rule.getUuid(), BLOCKER, null);
     List<ActiveRuleChange> changes = activate(profile, activation);
 
-    assertThatRuleIsActivated(profile, rule, changes, BLOCKER, null, emptyMap());
+    assertThatRuleIsActivated(profile, rule, changes, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), null, emptyMap());
     assertThatProfileIsUpdatedByUser(profile);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(profile.getLanguage()));
   }
@@ -139,7 +141,7 @@ class QProfileRuleImplIT {
     RuleActivation activation = RuleActivation.create(rule.getUuid());
     List<ActiveRuleChange> changes = activate(profile, activation);
 
-    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), null, ofEntries(entry("min", "10")));
+    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, ofEntries(entry("min", "10")));
     assertThatProfileIsUpdatedBySystem(profile);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(profile.getLanguage()));
   }
@@ -153,7 +155,7 @@ class QProfileRuleImplIT {
     RuleActivation activation = RuleActivation.create(rule.getUuid(), null, of(ruleParam.getName(), "15"));
     List<ActiveRuleChange> changes = activate(profile, activation);
 
-    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), null, of("min", "15"));
+    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, of("min", "15"));
     assertThatProfileIsUpdatedBySystem(profile);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(profile.getLanguage()));
   }
@@ -166,7 +168,7 @@ class QProfileRuleImplIT {
     RuleActivation activation = RuleActivation.create(rule.getUuid());
     List<ActiveRuleChange> changes = activate(profile, activation);
 
-    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), null, emptyMap());
+    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, emptyMap());
     assertThatProfileIsUpdatedBySystem(profile);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(profile.getLanguage()));
   }
@@ -183,7 +185,7 @@ class QProfileRuleImplIT {
     RuleActivation activation = RuleActivation.create(rule.getUuid(), null, of("min", ""));
     List<ActiveRuleChange> changes = activate(profile, activation);
 
-    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), null, of("min", "10"));
+    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, of("min", "10"));
     assertThatProfileIsUpdatedBySystem(profile);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(profile.getLanguage()));
   }
@@ -202,7 +204,7 @@ class QProfileRuleImplIT {
     RuleActivation activation = RuleActivation.create(rule.getUuid(), null, of(paramWithoutDefault.getName(), "-10"));
     List<ActiveRuleChange> changes = activate(profile, activation);
 
-    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), null,
+    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null,
       of(paramWithoutDefault.getName(), "-10", paramWithDefault.getName(), paramWithDefault.getDefaultValue()));
     assertThatProfileIsUpdatedBySystem(profile);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(profile.getLanguage()));
@@ -217,7 +219,7 @@ class QProfileRuleImplIT {
     RuleActivation activation = RuleActivation.create(rule.getUuid(), null, of("xxx", "yyy"));
     List<ActiveRuleChange> changes = activate(profile, activation);
 
-    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), null, of(param.getName(), param.getDefaultValue()));
+    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, of(param.getName(), param.getDefaultValue()));
     assertThatProfileIsUpdatedBySystem(profile);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(profile.getLanguage()));
   }
@@ -237,7 +239,7 @@ class QProfileRuleImplIT {
     RuleActivation updateActivation = RuleActivation.create(rule.getUuid(), CRITICAL, of(param.getName(), "20"));
     changes = activate(profile, updateActivation);
 
-    assertThatRuleIsUpdated(profile, rule, CRITICAL, null, of(param.getName(), "20"));
+    assertThatRuleIsUpdated(profile, rule, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), null, of(param.getName(), "20"));
     assertThatProfileIsUpdatedBySystem(profile);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(profile.getLanguage()));
   }
@@ -258,7 +260,8 @@ class QProfileRuleImplIT {
     changes = activate(profile, updateActivation);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(profile.getLanguage()));
 
-    assertThatRuleIsUpdated(profile, rule, MAJOR, null, of(paramWithDefault.getName(), "10", paramWithoutDefault.getName(), "3"));
+    assertThatRuleIsUpdated(profile, rule, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM), null,
+      of(paramWithDefault.getName(), "10", paramWithoutDefault.getName(), "3"));
     assertThatProfileIsUpdatedBySystem(profile);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(profile.getLanguage()));
   }
@@ -278,7 +281,7 @@ class QProfileRuleImplIT {
     RuleActivation updateActivation = RuleActivation.create(rule.getUuid(), null, of(paramWithDefault.getName(), ""));
     changes = activate(profile, updateActivation);
 
-    assertThatRuleIsUpdated(profile, rule, rule.getSeverityString(), null, of(paramWithDefault.getName(), "10"));
+    assertThatRuleIsUpdated(profile, rule, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, of(paramWithDefault.getName(), "10"));
     assertThat(changes).hasSize(1);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(profile.getLanguage()));
   }
@@ -299,7 +302,7 @@ class QProfileRuleImplIT {
     RuleActivation updateActivation = RuleActivation.create(rule.getUuid(), null, of(paramWithoutDefault.getName(), ""));
     changes = activate(profile, updateActivation);
 
-    assertThatRuleIsUpdated(profile, rule, rule.getSeverityString(), null, of(paramWithDefault.getName(),
+    assertThatRuleIsUpdated(profile, rule, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, of(paramWithDefault.getName(),
       paramWithDefault.getDefaultValue()));
     assertThat(changes).hasSize(1);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(profile.getLanguage()));
@@ -315,14 +318,14 @@ class QProfileRuleImplIT {
     RuleActivation activation = RuleActivation.create(rule.getUuid());
     List<ActiveRuleChange> changes = activate(profile, activation);
     db.getDbClient().activeRuleDao().deleteParametersByRuleProfileUuids(db.getSession(), asList(profile.getRulesProfileUuid()));
-    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), null, emptyMap());
+    assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, emptyMap());
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(profile.getLanguage()));
 
     // contrary to activerule, the param is supposed to be inserted but not updated
     RuleActivation updateActivation = RuleActivation.create(rule.getUuid(), null, of(param.getName(), ""));
     changes = activate(profile, updateActivation);
 
-    assertThatRuleIsUpdated(profile, rule, rule.getSeverityString(), null, of(param.getName(), param.getDefaultValue()));
+    assertThatRuleIsUpdated(profile, rule, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, of(param.getName(), param.getDefaultValue()));
     assertThat(changes).hasSize(1);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(profile.getLanguage()));
   }
@@ -355,7 +358,6 @@ class QProfileRuleImplIT {
     RuleActivation activation = RuleActivation.create(rule.getUuid(), BLOCKER, of(param.getName(), "20"));
     List<ActiveRuleChange> changes = activate(profile, activation);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(profile.getLanguage()));
-
 
     // update without any severity or params => keep
     RuleActivation update = RuleActivation.create(rule.getUuid());
@@ -418,13 +420,13 @@ class QProfileRuleImplIT {
     // initial activation
     RuleActivation activation = RuleActivation.create(customRule.getUuid(), MAJOR, emptyMap());
     List<ActiveRuleChange> changes = activate(profile, activation);
-    assertThatRuleIsActivated(profile, customRule, null, MAJOR, null, of("format", "txt"));
+    assertThatRuleIsActivated(profile, customRule, null, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM), null, of("format", "txt"));
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(profile.getLanguage()));
 
     // update -> parameter is not changed
     RuleActivation updateActivation = RuleActivation.create(customRule.getUuid(), BLOCKER, of("format", "xml"));
     changes = activate(profile, updateActivation);
-    assertThatRuleIsActivated(profile, customRule, null, BLOCKER, null, of("format", "txt"));
+    assertThatRuleIsActivated(profile, customRule, null, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), null, of("format", "txt"));
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(profile.getLanguage()));
   }
 
@@ -504,8 +506,8 @@ class QProfileRuleImplIT {
 
     List<ActiveRuleChange> changes = activate(childProfile, RuleActivation.create(rule.getUuid()));
     assertThatProfileHasNoActiveRules(parentProfile);
-    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsActivated(grandChildProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, emptyMap());
+    assertThatRuleIsActivated(grandChildProfile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, emptyMap());
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(childProfile.getLanguage()));
   }
 
@@ -521,16 +523,16 @@ class QProfileRuleImplIT {
 
     // Rule already active on childProfile2
     List<ActiveRuleChange> changes = activate(childProfile2, activation);
-    assertThatRuleIsActivated(childProfile2, rule, changes, rule.getSeverityString(), null, emptyMap());
+    assertThatRuleIsActivated(childProfile2, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, emptyMap());
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
     deactivate(childProfile3, rule);
     assertThatProfileHasNoActiveRules(childProfile3);
 
     changes = activate(parentProfile, activation);
-    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
-    assertThatRuleIsUpdated(childProfile2, rule, rule.getSeverityString(), INHERITED, emptyMap());
-    assertThatRuleIsActivated(childProfile3, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, emptyMap());
+    assertThatRuleIsUpdated(childProfile2, rule, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(childProfile3, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, emptyMap());
     assertThat(changes).hasSize(4);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
   }
@@ -538,20 +540,21 @@ class QProfileRuleImplIT {
   @Test
   void activate_whenChildAlreadyActivatedRuleWithOverriddenValues_shouldNotOverrideValues() {
     RuleDto rule = createRule();
+    rule.replaceAllDefaultImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH)));
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
     QProfileDto childProfile2 = createChildProfile(childProfile);
     QProfileDto childProfile3 = createChildProfile(childProfile2);
 
     List<ActiveRuleChange> changes = activate(childProfile2, RuleActivation.create(rule.getUuid(), CRITICAL, emptyMap()));
-    assertThatRuleIsActivated(childProfile2, rule, changes, CRITICAL, null, emptyMap());
-    assertThatRuleIsActivated(childProfile3, rule, changes, CRITICAL, INHERITED, emptyMap());
+    assertThatRuleIsActivated(childProfile2, rule, changes, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), null, emptyMap());
+    assertThatRuleIsActivated(childProfile3, rule, changes, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), INHERITED, emptyMap());
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
 
     changes = activate(parentProfile, RuleActivation.create(rule.getUuid(), MAJOR, emptyMap()));
-    assertThatRuleIsActivated(parentProfile, rule, changes, MAJOR, null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule, changes, MAJOR, INHERITED, emptyMap());
-    assertThatRuleIsUpdated(childProfile2, rule, CRITICAL, OVERRIDES, emptyMap());
+    assertThatRuleIsActivated(parentProfile, rule, changes, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM), null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM), INHERITED, emptyMap());
+    assertThatRuleIsUpdated(childProfile2, rule, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), OVERRIDES, emptyMap());
     // childProfile3 is neither activated nor updated, it keeps its inherited value from childProfile2
     assertThat(changes).hasSize(3);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
@@ -564,12 +567,12 @@ class QProfileRuleImplIT {
     QProfileDto childProfile = createChildProfile(parentProfile);
 
     List<ActiveRuleChange> changes = activate(parentProfile, RuleActivation.create(rule.getUuid(), CRITICAL, emptyMap()));
-    assertThatRuleIsActivated(parentProfile, rule, changes, CRITICAL, null, emptyMap());
+    assertThatRuleIsActivated(parentProfile, rule, changes, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), null, emptyMap());
     deactivate(childProfile, rule);
     assertThatProfileHasNoActiveRules(childProfile);
 
     changes = activate(childProfile, RuleActivation.create(rule.getUuid(), CRITICAL, emptyMap()));
-    assertThatRuleIsActivated(childProfile, rule, changes, CRITICAL, INHERITED, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), INHERITED, emptyMap());
     assertThat(changes).hasSize(1);
   }
 
@@ -580,12 +583,12 @@ class QProfileRuleImplIT {
     QProfileDto childProfile = createChildProfile(parentProfile);
 
     List<ActiveRuleChange> changes = activate(parentProfile, RuleActivation.create(rule.getUuid(), CRITICAL, emptyMap()));
-    assertThatRuleIsActivated(parentProfile, rule, changes, CRITICAL, null, emptyMap());
+    assertThatRuleIsActivated(parentProfile, rule, changes, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), null, emptyMap());
     deactivate(childProfile, rule);
     assertThatProfileHasNoActiveRules(childProfile);
 
     changes = activate(childProfile, RuleActivation.create(rule.getUuid(), MAJOR, emptyMap()));
-    assertThatRuleIsActivated(childProfile, rule, changes, MAJOR, OVERRIDES, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM), OVERRIDES, emptyMap());
     assertThat(changes).hasSize(1);
   }
 
@@ -609,8 +612,9 @@ class QProfileRuleImplIT {
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(childProfile.getLanguage()));
 
     assertThatProfileHasNoActiveRules(parentProfile);
-    assertThatRuleIsUpdated(childProfile, rule, CRITICAL, null, of(param.getName(), "bar"));
-    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, INHERITED, of(param.getName(), "bar"));
+    assertThatRuleIsUpdated(childProfile, rule, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), null, of(param.getName(), "bar"));
+    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), INHERITED,
+      of(param.getName(), "bar"));
     assertThat(changes).hasSize(2);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(childProfile.getLanguage()));
   }
@@ -631,8 +635,9 @@ class QProfileRuleImplIT {
     changes = activate(grandChildProfile, overrideActivation);
 
     assertThatProfileHasNoActiveRules(parentProfile);
-    assertThatRuleIsUpdated(childProfile, rule, MAJOR, null, of(param.getName(), "foo"));
-    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, OVERRIDES, of(param.getName(), "bar"));
+    assertThatRuleIsUpdated(childProfile, rule, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM), null, of(param.getName(), "foo"));
+    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), OVERRIDES,
+      of(param.getName(), "bar"));
     assertThat(changes).hasSize(1);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(childProfile.getLanguage()));
   }
@@ -658,8 +663,9 @@ class QProfileRuleImplIT {
     changes = activate(childProfile, updateActivation);
 
     assertThatProfileHasNoActiveRules(parentProfile);
-    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, null, of(param.getName(), "baz"));
-    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, OVERRIDES, of(param.getName(), "bar"));
+    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), null, of(param.getName(), "baz"));
+    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), OVERRIDES,
+      of(param.getName(), "bar"));
     assertThat(changes).hasSize(1);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(childProfile.getLanguage()));
   }
@@ -686,9 +692,10 @@ class QProfileRuleImplIT {
 
     Map<String, String> test = new HashMap<>();
     test.put(param.getName(), param.getDefaultValue());
-    assertThatRuleIsUpdated(parentProfile, rule, rule.getSeverityString(), null, test);
-    assertThatRuleIsUpdated(childProfile, rule, rule.getSeverityString(), INHERITED, of(param.getName(), param.getDefaultValue()));
-    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, OVERRIDES, of(param.getName(), "bar"));
+    assertThatRuleIsUpdated(parentProfile, rule, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, test);
+    assertThatRuleIsUpdated(childProfile, rule, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, of(param.getName(), param.getDefaultValue()));
+    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), OVERRIDES,
+      of(param.getName(), "bar"));
     assertThat(changes).hasSize(2);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
   }
@@ -707,8 +714,8 @@ class QProfileRuleImplIT {
     RuleActivation parentActivation = RuleActivation.create(rule.getUuid(), MAJOR, of(param.getName(), "bar"));
     changes = activate(parentProfile, parentActivation);
 
-    assertThatRuleIsUpdated(parentProfile, rule, MAJOR, null, of(param.getName(), "bar"));
-    assertThatRuleIsUpdated(childProfile, rule, MAJOR, OVERRIDES, of(param.getName(), "foo"));
+    assertThatRuleIsUpdated(parentProfile, rule, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM), null, of(param.getName(), "bar"));
+    assertThatRuleIsUpdated(childProfile, rule, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM), OVERRIDES, of(param.getName(), "foo"));
     assertThat(changes).hasSize(2);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
   }
@@ -727,8 +734,8 @@ class QProfileRuleImplIT {
     RuleActivation parentActivation = RuleActivation.create(rule.getUuid(), MAJOR, of(param.getName(), "foo"));
     changes = activate(parentProfile, parentActivation);
 
-    assertThatRuleIsUpdated(parentProfile, rule, MAJOR, null, of(param.getName(), "foo"));
-    assertThatRuleIsUpdated(childProfile, rule, MAJOR, INHERITED, of(param.getName(), "foo"));
+    assertThatRuleIsUpdated(parentProfile, rule, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM), null, of(param.getName(), "foo"));
+    assertThatRuleIsUpdated(childProfile, rule, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM), INHERITED, of(param.getName(), "foo"));
     assertThat(changes).hasSize(2);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
   }
@@ -747,7 +754,7 @@ class QProfileRuleImplIT {
     RuleActivation overrideActivation = RuleActivation.create(rule.getUuid(), MAJOR, of(param.getName(), "foo"));
     changes = activate(childProfile, overrideActivation);
 
-    assertThatRuleIsUpdated(childProfile, rule, MAJOR, INHERITED, of(param.getName(), "foo"));
+    assertThatRuleIsUpdated(childProfile, rule, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM), INHERITED, of(param.getName(), "foo"));
     assertThat(changes).isEmpty();
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(childProfile.getLanguage()));
   }
@@ -766,7 +773,7 @@ class QProfileRuleImplIT {
     RuleActivation overrideActivation = RuleActivation.create(rule.getUuid(), CRITICAL, of(param.getName(), "bar"));
     changes = activate(childProfile, overrideActivation);
 
-    assertThatRuleIsUpdated(childProfile, rule, CRITICAL, OVERRIDES, of(param.getName(), "bar"));
+    assertThatRuleIsUpdated(childProfile, rule, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), OVERRIDES, of(param.getName(), "bar"));
     assertThat(changes).hasSize(1);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(childProfile.getLanguage()));
   }
@@ -779,8 +786,8 @@ class QProfileRuleImplIT {
 
     RuleActivation activation = RuleActivation.create(rule.getUuid());
     List<ActiveRuleChange> changes = activate(parentProfile, activation);
-    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, emptyMap());
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
 
     changes = deactivate(parentProfile, rule);
@@ -802,15 +809,15 @@ class QProfileRuleImplIT {
 
     // Rule active on parentProfile, childProfile1 and childProfile3 but not on childProfile2
     List<ActiveRuleChange> changes = activate(parentProfile, activation);
-    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
-    assertThatRuleIsActivated(childProfile2, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
-    assertThatRuleIsActivated(childProfile3, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(childProfile2, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(childProfile3, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, emptyMap());
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
     deactivate(childProfile2, rule);
     changes = activate(childProfile3, activation);
     assertThatProfileHasNoActiveRules(childProfile2);
-    assertThatRuleIsActivated(childProfile3, rule, changes, rule.getSeverityString(), null, emptyMap());
+    assertThatRuleIsActivated(childProfile3, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, emptyMap());
 
     changes = deactivate(parentProfile, rule);
     assertThatProfileHasNoActiveRules(parentProfile);
@@ -829,13 +836,13 @@ class QProfileRuleImplIT {
 
     RuleActivation activation = RuleActivation.create(rule.getUuid());
     List<ActiveRuleChange> changes = activate(parentProfile, activation);
-    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, emptyMap());
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
 
     activation = RuleActivation.create(rule.getUuid(), CRITICAL, null);
     changes = activate(childProfile, activation);
-    assertThatRuleIsUpdated(childProfile, rule, CRITICAL, OVERRIDES, emptyMap());
+    assertThatRuleIsUpdated(childProfile, rule, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), OVERRIDES, emptyMap());
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(childProfile.getLanguage()));
 
     changes = deactivate(parentProfile, rule);
@@ -853,8 +860,8 @@ class QProfileRuleImplIT {
 
     RuleActivation activation = RuleActivation.create(rule.getUuid());
     List<ActiveRuleChange> changes = activate(parentProfile, activation);
-    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, emptyMap());
 
     changes = deactivate(childProfile, rule);
     assertThatProfileHasNoActiveRules(childProfile);
@@ -872,8 +879,8 @@ class QProfileRuleImplIT {
 
     RuleActivation activation = RuleActivation.create(rule.getUuid());
     List<ActiveRuleChange> changes = activate(parentProfile, activation);
-    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, emptyMap());
 
     assertThatThrownBy(() -> deactivate(childProfile, rule))
       .isInstanceOf(BadRequestException.class)
@@ -889,19 +896,19 @@ class QProfileRuleImplIT {
 
     RuleActivation activation = RuleActivation.create(rule.getUuid(), CRITICAL, null);
     List<ActiveRuleChange> changes = activate(parentProfile, activation);
-    assertThatRuleIsActivated(parentProfile, rule, changes, CRITICAL, null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule, changes, CRITICAL, INHERITED, emptyMap());
+    assertThatRuleIsActivated(parentProfile, rule, changes, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), INHERITED, emptyMap());
     assertThat(changes).hasSize(2);
 
     RuleActivation childActivation = RuleActivation.create(rule.getUuid(), BLOCKER, null);
     changes = activate(childProfile, childActivation);
-    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, OVERRIDES, emptyMap());
+    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), OVERRIDES, emptyMap());
     assertThat(changes).hasSize(1);
 
     RuleActivation resetActivation = RuleActivation.createReset(rule.getUuid());
     changes = activate(childProfile, resetActivation);
-    assertThatRuleIsUpdated(childProfile, rule, CRITICAL, INHERITED, emptyMap());
-    assertThatRuleIsUpdated(parentProfile, rule, CRITICAL, null, emptyMap());
+    assertThatRuleIsUpdated(childProfile, rule, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), INHERITED, emptyMap());
+    assertThatRuleIsUpdated(parentProfile, rule, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), null, emptyMap());
     assertThat(changes).hasSize(1);
 
   }
@@ -915,31 +922,31 @@ class QProfileRuleImplIT {
 
     RuleActivation activation = RuleActivation.create(rule.getUuid(), CRITICAL, null);
     List<ActiveRuleChange> changes = activate(baseProfile, activation);
-    assertThatRuleIsActivated(baseProfile, rule, changes, CRITICAL, null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule, changes, CRITICAL, INHERITED, emptyMap());
-    assertThatRuleIsActivated(grandChildProfile, rule, changes, CRITICAL, INHERITED, emptyMap());
+    assertThatRuleIsActivated(baseProfile, rule, changes, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), INHERITED, emptyMap());
+    assertThatRuleIsActivated(grandChildProfile, rule, changes, CRITICAL, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH), INHERITED, emptyMap());
     assertThat(changes).hasSize(3);
 
     RuleActivation childActivation = RuleActivation.create(rule.getUuid(), BLOCKER, null);
     changes = activate(childProfile, childActivation);
-    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, OVERRIDES, emptyMap());
-    assertThatRuleIsUpdated(grandChildProfile, rule, BLOCKER, INHERITED, emptyMap());
+    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), OVERRIDES, emptyMap());
+    assertThatRuleIsUpdated(grandChildProfile, rule, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), INHERITED, emptyMap());
     assertThat(changes).hasSize(2);
 
     // Reset on parent do not change child nor grandchild
     RuleActivation resetActivation = RuleActivation.createReset(rule.getUuid());
     changes = activate(baseProfile, resetActivation);
-    assertThatRuleIsUpdated(baseProfile, rule, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, OVERRIDES, emptyMap());
-    assertThatRuleIsUpdated(grandChildProfile, rule, BLOCKER, INHERITED, emptyMap());
+    assertThatRuleIsUpdated(baseProfile, rule, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, emptyMap());
+    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), OVERRIDES, emptyMap());
+    assertThatRuleIsUpdated(grandChildProfile, rule, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), INHERITED, emptyMap());
     assertThat(changes).hasSize(1);
 
     // Reset on child change grandchild
     resetActivation = RuleActivation.createReset(rule.getUuid());
     changes = activate(childProfile, resetActivation);
-    assertThatRuleIsUpdated(baseProfile, rule, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsUpdated(childProfile, rule, rule.getSeverityString(), INHERITED, emptyMap());
-    assertThatRuleIsUpdated(grandChildProfile, rule, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsUpdated(baseProfile, rule, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, emptyMap());
+    assertThatRuleIsUpdated(childProfile, rule, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, emptyMap());
+    assertThatRuleIsUpdated(grandChildProfile, rule, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, emptyMap());
     assertThat(changes).hasSize(2);
   }
 
@@ -978,7 +985,8 @@ class QProfileRuleImplIT {
     assertThat(bulkChangeResult.countSucceeded()).isEqualTo(bulkSize);
     assertThat(bulkChangeResult.getChanges()).hasSize(bulkSize);
     assertThat(db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)).hasSize(bulkSize);
-    rules.forEach(r -> assertThatRuleIsActivated(profile, r, null, MINOR, true, null, emptyMap()));
+    rules
+      .forEach(r -> assertThatRuleIsActivated(profile, r, null, MINOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW), true, null, emptyMap()));
   }
 
   @Test
@@ -1022,8 +1030,8 @@ class QProfileRuleImplIT {
     QProfileDto childProfile = createChildProfile(parentProfile);
 
     activate(parentProfile, RuleActivation.create(rule.getUuid()));
-    assertThatRuleIsActivated(parentProfile, rule, null, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule, null, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(parentProfile, rule, null, rule.getSeverityString(), rule.getDefaultImpactsMap(), null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, null, rule.getSeverityString(), rule.getDefaultImpactsMap(), INHERITED, emptyMap());
 
     ruleIndexer.indexAll();
 
@@ -1060,14 +1068,16 @@ class QProfileRuleImplIT {
     assertThat(result.countFailed()).isZero();
 
     // Rule1 must be activated with BLOCKER on all profiles
-    assertThatRuleIsActivated(parentProfile, rule1, null, BLOCKER, true, null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule1, null, BLOCKER, true, INHERITED, emptyMap());
-    assertThatRuleIsActivated(grandchildProfile, rule1, null, BLOCKER, true, INHERITED, emptyMap());
+    assertThatRuleIsActivated(parentProfile, rule1, null, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), true, null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule1, null, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), true, INHERITED,
+      emptyMap());
+    assertThatRuleIsActivated(grandchildProfile, rule1, null, BLOCKER, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER), true, INHERITED,
+      emptyMap());
 
     // Rule2 did not changed
-    assertThatRuleIsActivated(parentProfile, rule2, null, rule2.getSeverityString(), null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule2, null, rule2.getSeverityString(), INHERITED, emptyMap());
-    assertThatRuleIsActivated(grandchildProfile, rule2, null, rule2.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(parentProfile, rule2, null, rule2.getSeverityString(), rule2.getDefaultImpactsMap(), null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule2, null, rule2.getSeverityString(), rule2.getDefaultImpactsMap(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(grandchildProfile, rule2, null, rule2.getSeverityString(), rule2.getDefaultImpactsMap(), INHERITED, emptyMap());
   }
 
   @Test
@@ -1144,7 +1154,8 @@ class QProfileRuleImplIT {
   }
 
   private void assertThatRuleIsActivated(QProfileDto profile, RuleDto rule, @Nullable List<ActiveRuleChange> changes,
-    String expectedSeverity, boolean expectedPrioritizedRule, @Nullable ActiveRuleInheritance expectedInheritance,
+    String expectedSeverity, Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts, boolean expectedPrioritizedRule,
+    @Nullable ActiveRuleInheritance expectedInheritance,
     Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
@@ -1153,6 +1164,7 @@ class QProfileRuleImplIT {
       .orElseThrow(IllegalStateException::new);
 
     assertThat(activeRule.getSeverityString()).isEqualTo(expectedSeverity);
+    assertThat(activeRule.getImpacts()).isEqualTo(impacts);
     assertThat(activeRule.isPrioritizedRule()).isEqualTo(expectedPrioritizedRule);
     assertThat(activeRule.getInheritance()).isEqualTo(expectedInheritance != null ? expectedInheritance.name() : null);
 
@@ -1171,8 +1183,9 @@ class QProfileRuleImplIT {
   }
 
   private void assertThatRuleIsActivated(QProfileDto profile, RuleDto rule, @Nullable List<ActiveRuleChange> changes,
-    String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
-    assertThatRuleIsActivated(profile, rule, changes, expectedSeverity, false, expectedInheritance, expectedParams);
+    String expectedSeverity, Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> expectedImpacts, @Nullable ActiveRuleInheritance expectedInheritance,
+    Map<String, String> expectedParams) {
+    assertThatRuleIsActivated(profile, rule, changes, expectedSeverity, expectedImpacts, false, expectedInheritance, expectedParams);
   }
 
   private void assertThatRuleIsNotPresent(QProfileDto profile, RuleDto rule) {
@@ -1185,7 +1198,8 @@ class QProfileRuleImplIT {
   }
 
   private void assertThatRuleIsUpdated(QProfileDto profile, RuleDto rule,
-    String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
+    String expectedSeverity, Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> expectedImpacts, @Nullable ActiveRuleInheritance expectedInheritance,
+    Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
       .filter(ar -> ar.getRuleKey().equals(rule.getKey()))
@@ -1193,6 +1207,7 @@ class QProfileRuleImplIT {
       .orElseThrow(IllegalStateException::new);
 
     assertThat(activeRule.getSeverityString()).isEqualTo(expectedSeverity);
+    assertThat(activeRule.getImpacts()).isEqualTo(expectedImpacts);
     assertThat(activeRule.getInheritance()).isEqualTo(expectedInheritance != null ? expectedInheritance.name() : null);
 
     List<ActiveRuleParamDto> params = db.getDbClient().activeRuleDao().selectParamsByActiveRuleUuid(db.getSession(), activeRule.getUuid());
@@ -1214,7 +1229,8 @@ class QProfileRuleImplIT {
   }
 
   private RuleDto createRule() {
-    return db.rules().insert(r -> r.setSeverity(Severity.MAJOR));
+    return db.rules().insert(r -> r.setSeverity(Severity.MAJOR)
+      .replaceAllDefaultImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM))));
   }
 
   private RuleDto createJavaRule() {
