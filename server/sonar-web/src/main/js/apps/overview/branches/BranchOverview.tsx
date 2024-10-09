@@ -45,6 +45,7 @@ import {
   useApplicationQualityGateStatus,
   useProjectQualityGateStatus,
 } from '../../../queries/quality-gates';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import { Analysis, GraphType, MeasureHistory } from '../../../types/project-activity';
@@ -68,6 +69,7 @@ const FROM_DATE = toISO8601WithOffsetString(new Date().setFullYear(new Date().ge
 
 export default function BranchOverview(props: Readonly<Props>) {
   const { component, branch, branchesEnabled } = props;
+  const { data: isLegacy = false } = useIsLegacyCCTMode();
   const { graph: initialGraph } = getActivityGraph(
     BRANCH_OVERVIEW_ACTIVITY_GRAPH,
     props.component.key,
@@ -281,7 +283,7 @@ export default function BranchOverview(props: Readonly<Props>) {
   };
 
   const loadHistoryMeasures = React.useCallback(() => {
-    const graphMetrics = getHistoryMetrics(graph, []);
+    const graphMetrics = getHistoryMetrics(graph, [], isLegacy);
     const metrics = uniq([...HISTORY_METRICS_LIST, ...graphMetrics]);
 
     return getAllTimeMachineData({
@@ -375,11 +377,10 @@ export default function BranchOverview(props: Readonly<Props>) {
   }, [branch, loadHistory, loadStatus]);
 
   const projectIsEmpty =
-    loadingStatus === false &&
-    (measures === undefined ||
-      measures.find((measure) =>
-        ([MetricKey.lines, MetricKey.new_lines] as string[]).includes(measure.metric.key),
-      ) === undefined);
+    !loadingStatus &&
+    measures?.find((measure) =>
+      ([MetricKey.lines, MetricKey.new_lines] as string[]).includes(measure.metric.key),
+    ) === undefined;
 
   return (
     <BranchOverviewRenderer

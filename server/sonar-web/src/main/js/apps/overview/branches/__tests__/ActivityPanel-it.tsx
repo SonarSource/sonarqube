@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
+import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import * as React from 'react';
+import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import {
   mockAnalysis,
@@ -38,10 +40,16 @@ import {
   DefinitionChangeType,
   ProjectAnalysisEventCategory,
 } from '../../../../types/project-activity';
+import { SettingsKey } from '../../../../types/settings';
 import ActivityPanel, { ActivityPanelProps } from '../ActivityPanel';
 
-it('should render correctly', async () => {
-  const user = userEvent.setup();
+const settingsHandler = new SettingsServiceMock();
+
+afterEach(() => {
+  settingsHandler.reset();
+});
+
+async function expectGraphs(user: UserEvent) {
   renderActivityPanel();
 
   expect(await screen.findAllByText('metric.level.ERROR')).toHaveLength(2);
@@ -52,7 +60,7 @@ it('should render correctly', async () => {
   expect(screen.getByText('event.sqUpgrade10.2')).toBeInTheDocument();
 
   // Checking measures variations
-  expect(screen.getAllByText(/% project_activity\.graphs\.coverage$/)).toHaveLength(3);
+  expect(await screen.findAllByText(/% project_activity\.graphs\.coverage$/)).toHaveLength(3);
   expect(screen.getAllByText(/% project_activity\.graphs\.duplications$/)).toHaveLength(3);
   // Analysis 1 (latest)
   expect(screen.getByText(/^-5 project_activity\.graphs\.issues$/)).toBeInTheDocument();
@@ -76,6 +84,10 @@ it('should render correctly', async () => {
     ),
   ).toBeInTheDocument();
 
+  return user;
+}
+
+async function expectQualityGate(user: UserEvent) {
   await user.click(
     screen.getByRole('link', {
       name: 'quality_profiles.page_title_changelog_x.QP-test: 1 new rule, 2 modified rules, and 3 removed rules',
@@ -83,10 +95,60 @@ it('should render correctly', async () => {
   );
 
   expect(await screen.findByText('QP-test java')).toBeInTheDocument();
+}
+
+it('should render correctly', async () => {
+  const user = userEvent.setup();
+  await expectGraphs(user);
+
+  expect(screen.queryByText('metric.code_smells.name')).not.toBeInTheDocument();
+  expect(screen.queryByText('metric.vulnerabilities.name')).not.toBeInTheDocument();
+  expect(screen.queryByText('metric.bugs.name')).not.toBeInTheDocument();
+
+  await expectQualityGate(user);
+});
+
+it('should render correctly for legacy mode', async () => {
+  settingsHandler.set(SettingsKey.MQRMode, 'false');
+  const user = userEvent.setup();
+  await expectGraphs(user);
+
+  expect(screen.getByText('metric.code_smells.name')).toBeInTheDocument();
+  expect(screen.getByText('metric.vulnerabilities.name')).toBeInTheDocument();
+  expect(screen.getByText('metric.bugs.name')).toBeInTheDocument();
+
+  await expectQualityGate(user);
 });
 
 function renderActivityPanel() {
   const mockedMeasureHistory = [
+    mockMeasureHistory({
+      metric: MetricKey.vulnerabilities,
+      history: [
+        mockHistoryItem({ date: parseDate('2018-10-27T10:21:15+0200'), value: '200' }),
+        mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '200' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '100' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T18:33:50+0200'), value: '95' }),
+      ],
+    }),
+    mockMeasureHistory({
+      metric: MetricKey.code_smells,
+      history: [
+        mockHistoryItem({ date: parseDate('2018-10-27T10:21:15+0200'), value: '200' }),
+        mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '200' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '100' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T18:33:50+0200'), value: '95' }),
+      ],
+    }),
+    mockMeasureHistory({
+      metric: MetricKey.bugs,
+      history: [
+        mockHistoryItem({ date: parseDate('2018-10-27T10:21:15+0200'), value: '200' }),
+        mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '200' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '100' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T18:33:50+0200'), value: '95' }),
+      ],
+    }),
     mockMeasureHistory({
       metric: MetricKey.violations,
       history: [

@@ -37,6 +37,11 @@ const GRAPHS_METRICS_DISPLAYED: Dict<string[]> = {
   [GraphType.duplications]: [MetricKey.ncloc, MetricKey.duplicated_lines],
 };
 
+const LEGACY_GRAPHS_METRICS_DISPLAYED: Dict<string[]> = {
+  ...GRAPHS_METRICS_DISPLAYED,
+  [GraphType.issues]: [MetricKey.bugs, MetricKey.code_smells, MetricKey.vulnerabilities],
+};
+
 const GRAPHS_METRICS: Dict<string[]> = {
   [GraphType.issues]: GRAPHS_METRICS_DISPLAYED[GraphType.issues].concat([
     MetricKey.reliability_rating,
@@ -48,6 +53,15 @@ const GRAPHS_METRICS: Dict<string[]> = {
     ...GRAPHS_METRICS_DISPLAYED[GraphType.duplications],
     MetricKey.duplicated_lines_density,
   ],
+};
+
+const LEGACY_GRAPHS_METRICS: Dict<string[]> = {
+  ...GRAPHS_METRICS,
+  [GraphType.issues]: LEGACY_GRAPHS_METRICS_DISPLAYED[GraphType.issues].concat([
+    MetricKey.reliability_rating,
+    MetricKey.security_rating,
+    MetricKey.sqale_rating,
+  ]),
 };
 
 export const LINE_CHART_DASHES = [0, 3, 7];
@@ -74,12 +88,23 @@ export function getSeriesMetricType(series: Serie[]) {
   return series.length > 0 ? series[0].type : MetricType.Integer;
 }
 
-export function getDisplayedHistoryMetrics(graph: GraphType, customMetrics: string[]) {
-  return isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS_DISPLAYED[graph];
+export function getDisplayedHistoryMetrics(
+  graph: GraphType,
+  customMetrics: string[],
+  isLegacy = false,
+) {
+  if (isCustomGraph(graph)) {
+    return customMetrics;
+  }
+
+  return isLegacy ? LEGACY_GRAPHS_METRICS_DISPLAYED[graph] : GRAPHS_METRICS_DISPLAYED[graph];
 }
 
-export function getHistoryMetrics(graph: GraphType, customMetrics: string[]) {
-  return isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS[graph];
+export function getHistoryMetrics(graph: GraphType, customMetrics: string[], isLegacy = false) {
+  if (isCustomGraph(graph)) {
+    return customMetrics;
+  }
+  return isLegacy ? LEGACY_GRAPHS_METRICS[graph] : GRAPHS_METRICS[graph];
 }
 
 export function hasHistoryDataValue(series: Serie[]) {

@@ -24,6 +24,7 @@ import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
@@ -37,7 +38,6 @@ import {
 import { CodeScope } from '../../../helpers/urls';
 import { useProjectAiCodeAssuredQuery } from '../../../queries/ai-code-assurance';
 import { useDismissNoticeMutation } from '../../../queries/users';
-import { MetricKey } from '../../../sonar-aligned/types/metrics';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
 import { isProject } from '../../../types/component';
@@ -83,7 +83,7 @@ export interface BranchOverviewRendererProps {
   qualityGate?: QualityGate;
 }
 
-export default function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
+export default function BranchOverviewRenderer(props: Readonly<BranchOverviewRendererProps>) {
   const {
     analyses,
     appLeak,

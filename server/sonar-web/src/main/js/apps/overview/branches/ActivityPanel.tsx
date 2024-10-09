@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator, Card, Spinner } from 'design-system';
+import { Spinner } from '@sonarsource/echoes-react';
+import { BasicSeparator, Card } from 'design-system';
 import * as React from 'react';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import GraphsHeader from '../../../components/activity-graph/GraphsHeader';
@@ -32,6 +33,7 @@ import ActivityLink from '../../../components/common/ActivityLink';
 import { parseDate } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { BranchLike } from '../../../types/branch-like';
 import {
   Analysis as AnalysisType,
@@ -70,7 +72,8 @@ export function ActivityPanel(props: ActivityPanelProps) {
     metrics,
   } = props;
 
-  const displayedMetrics = getDisplayedHistoryMetrics(graph, []);
+  const { data: isLegacy = false } = useIsLegacyCCTMode();
+  const displayedMetrics = getDisplayedHistoryMetrics(graph, [], isLegacy);
   const series = generateSeries(measuresHistory, graph, metrics, displayedMetrics);
   const graphs = splitSeriesInGraphs(series, MAX_GRAPH_NB, MAX_SERIES_PER_GRAPH);
   let shownLeakPeriodDate;
@@ -134,7 +137,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
 
         <BasicSeparator className="sw-mb-4 sw-mt-16" />
 
-        <Spinner loading={loading}>
+        <Spinner isLoading={loading}>
           {displayedAnalyses.length === 0 ? (
             <p>{translate('no_results')}</p>
           ) : (

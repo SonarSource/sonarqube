@@ -21,8 +21,10 @@ import { RatingEnum } from 'design-system/lib';
 import * as React from 'react';
 import { useCallback } from 'react';
 import { useIntl } from 'react-intl';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import RatingComponent from '../../../app/components/metrics/RatingComponent';
-import { MetricKey } from '../../../sonar-aligned/types/metrics';
+import RatingTooltipContent from '../../../components/measure/RatingTooltipContent';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { Branch } from '../../../types/branch-like';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 
@@ -35,13 +37,18 @@ export interface SoftwareImpactMeasureRatingProps {
 
 export function SoftwareImpactMeasureRating(props: Readonly<SoftwareImpactMeasureRatingProps>) {
   const { ratingMetricKey, componentKey, softwareQuality, branch } = props;
+  const { data: isLegacy = false } = useIsLegacyCCTMode();
 
   const intl = useIntl();
 
   const getSoftwareImpactRatingTooltip = useCallback(
-    (rating: RatingEnum) => {
+    (rating: RatingEnum, value: string | undefined) => {
       if (rating === undefined) {
         return null;
+      }
+
+      if (isLegacy && value !== undefined) {
+        return <RatingTooltipContent metricKey={ratingMetricKey} value={value} />;
       }
 
       function ratingToWorseSeverity(rating: string): SoftwareImpactSeverity {

@@ -62,6 +62,6 @@ public class TelemetryMQRModePropertyProvider implements TelemetryDataProvider<B
   @Override
   public Optional<Boolean> getValue() {
     PropertyDto property = dbClient.propertiesDao().selectGlobalProperty(MULTI_QUALITY_MODE_ENABLED);
-    return Optional.of(property != null && Boolean.parseBoolean(property.getValue()));
+    return property == null ? Optional.of(true) : Optional.of(Boolean.valueOf(property.getValue()));
   }
 }

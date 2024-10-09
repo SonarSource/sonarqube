@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { LinkHighlight, LinkStandalone, Tooltip } from '@sonarsource/echoes-react';
-import { Badge, TextBold, TextSubdued, themeColor } from 'design-system';
+import { LinkHighlight, LinkStandalone, Text, Tooltip } from '@sonarsource/echoes-react';
+import { Badge, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
@@ -87,7 +87,8 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
     >
       <div className="sw-flex sw-items-center">
         <ColorBold className="sw-typo-semibold">
-          {intl.formatMessage({ id: `software_quality.${softwareQuality}` })}
+          {!isLegacy && intl.formatMessage({ id: `software_quality.${softwareQuality}` })}
+          {alternativeMeasure && isLegacy && alternativeMeasure.metric.name}
         </ColorBold>
         {failed && (
           <Badge className="sw-h-fit sw-ml-2" variant="deleted">
@@ -99,7 +100,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
         <div className="sw-flex sw-mt-4">
           <div className="sw-flex sw-gap-1 sw-items-center">
             {count ? (
-              <Tooltip content={countTooltipOverlay}>
+              <Tooltip content={countTooltipOverlay} isOpen={isLegacy ? false : undefined}>
                 <LinkStandalone
                   data-testid={`overview__software-impact-${softwareQuality}`}
                   aria-label={intl.formatMessage(
@@ -121,11 +122,11 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
                 </LinkStandalone>
               </Tooltip>
             ) : (
-              <StyledDash className="sw-font-bold" name="-" />
+              <StyledDash isHighlighted>-</StyledDash>
             )}
-            <TextSubdued className="sw-self-end sw-typo-default sw-pb-1">
+            <Text isSubdued className="sw-self-end sw-typo-default sw-pb-1">
               {intl.formatMessage({ id: 'overview.measures.software_impact.total_open_issues' })}
-            </TextSubdued>
+            </Text>
           </div>
 
           <div className="sw-flex-grow sw-flex sw-justify-end">
@@ -142,7 +143,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   );
 }
 
-const StyledDash = styled(TextBold)`
+const StyledDash = styled(Text)`
   font-size: 36px;
 `;
 const ColorBold = styled.h2`

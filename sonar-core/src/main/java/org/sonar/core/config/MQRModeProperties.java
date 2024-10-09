@@ -36,7 +36,7 @@ public final class MQRModeProperties {
   public static List<PropertyDefinition> all() {
     return Collections.singletonList(
       PropertyDefinition.builder(MULTI_QUALITY_MODE_ENABLED)
-        .defaultValue(Boolean.FALSE.toString())
+        .defaultValue(Boolean.TRUE.toString())
         .name("Enable Multi-Quality Rule Mode")
         .description("Aims to more accurately represent the impact software has on all software qualities. " +
                 "It does this by mapping rules to every software quality they can impact, not just the one " +
