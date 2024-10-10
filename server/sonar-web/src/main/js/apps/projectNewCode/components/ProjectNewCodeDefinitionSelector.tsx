@@ -139,6 +139,7 @@ export default function ProjectNewCodeDefinitionSelector(
           }
           days={days}
           disabled={!overrideGlobalNewCodeDefinition}
+          isChanged={isChanged}
           isValid={isValid}
           onChangeDays={props.onSelectDays}
           onSelect={props.onSelectSetting}

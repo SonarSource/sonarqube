@@ -46,6 +46,7 @@ export interface Props {
   currentDaysValue?: string;
   days: string;
   disabled?: boolean;
+  isChanged: boolean;
   isValid: boolean;
   onChangeDays: (value: string) => void;
   onSelect: (selection: NewCodeDefinitionType) => void;
@@ -65,6 +66,7 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
     projectKey,
     updatedAt,
     disabled,
+    isChanged,
     isValid,
     onChangeDays,
     onSelect,
@@ -131,6 +133,7 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
                 <InputField
                   id="baseline_number_of_days"
                   isInvalid={!isValid}
+                  isValid={isChanged && isValid}
                   max={NUMBER_OF_DAYS_MAX_VALUE}
                   min={NUMBER_OF_DAYS_MIN_VALUE}
                   onChange={(e) => onChangeDays(e.currentTarget.value)}

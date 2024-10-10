@@ -45,7 +45,9 @@ export default function InputValidationField({ ...props }: Readonly<Props>) {
   const modalValidationProps = { description, dirty, error, label, touched, required };
   return (
     <ModalValidationField id={props.id} {...modalValidationProps}>
-      {({ isInvalid }) => <InputField size="full" isInvalid={isInvalid} {...inputProps} />}
+      {({ isInvalid, isValid }) => (
+        <InputField size="full" isInvalid={isInvalid} isValid={isValid} {...inputProps} />
+      )}
     </ModalValidationField>
   );
 }

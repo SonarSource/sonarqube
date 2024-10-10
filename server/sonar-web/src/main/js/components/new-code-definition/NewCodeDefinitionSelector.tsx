@@ -54,6 +54,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
   const [globalNcd, setGlobalNcd] = React.useState<NewCodeDefinition | null>(null);
   const [selectedNcdType, setSelectedNcdType] = React.useState<NewCodeDefinitionType | null>(null);
   const [days, setDays] = React.useState<string>('');
+  const [isChanged, setIsChanged] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     const numberOfDays = getNumberOfDaysDefaultValue(globalNcd);
@@ -74,6 +75,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
     (newNcdType: NewCodeDefinitionType) => {
       if (newNcdType && newNcdType !== selectedNcdType) {
         setSelectedNcdType(newNcdType);
+        setIsChanged(true);
       }
     },
     [selectedNcdType],
@@ -155,6 +157,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
           disabled={Boolean(
             !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited,
           )}
+          isChanged={isChanged}
           isValid={isCompliant}
           onChangeDays={setDays}
           onSelect={handleNcdChanged}

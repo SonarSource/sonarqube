@@ -185,6 +185,7 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
             />
             <NewCodeDefinitionDaysOption
               days={days}
+              isChanged={isChanged}
               isValid={isValid}
               onChangeDays={this.handleSelectDays}
               onSelect={this.handleSelectSetting}

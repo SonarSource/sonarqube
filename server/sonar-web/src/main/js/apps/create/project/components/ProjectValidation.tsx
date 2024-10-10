@@ -248,6 +248,7 @@ export default function ProjectValidation<I>(props: Readonly<Props<I>>) {
             value={name}
             autoFocus
             isInvalid={projectNameIsInvalid}
+            isValid={projectNameIsValid}
             required
           />
           {projectNameIsInvalid && <FlagErrorIcon className="sw-ml-2" />}
@@ -277,6 +278,7 @@ export default function ProjectValidation<I>(props: Readonly<Props<I>>) {
             type="text"
             value={key}
             isInvalid={projectKeyIsInvalid}
+            isValid={projectKeyIsValid}
             required
           />
           {projectKeyIsInvalid && <FlagErrorIcon className="sw-ml-2" />}

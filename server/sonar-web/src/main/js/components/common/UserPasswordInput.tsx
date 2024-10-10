@@ -57,6 +57,7 @@ export default function UserPasswordInput(props: Readonly<Props>) {
           <div className="sw-flex sw-items-center">
             <InputField
               isInvalid={isInvalid}
+              isValid={isValid}
               onFocus={() => setIsFocused(true)}
               id="create-password"
               size={size}
@@ -92,6 +93,7 @@ export default function UserPasswordInput(props: Readonly<Props>) {
         <div className="sw-flex sw-items-center">
           <InputField
             isInvalid={passwordDontMatch}
+            isValid={passwordMatch}
             onFocus={() => setIsFocused(true)}
             id="confirm-password"
             size={size}

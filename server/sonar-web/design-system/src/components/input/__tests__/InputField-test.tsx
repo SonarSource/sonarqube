@@ -22,10 +22,11 @@ import { InputField } from '../InputField';
 
 describe('Input Field', () => {
   it.each([
-    ['default', false, 'defaultStyle'],
-    ['invalid', true, 'dangerStyle'],
-  ])('should handle status %s', (_, isInvalid, expectedStyle) => {
-    render(<InputField isInvalid={isInvalid} />);
+    ['default', false, false, 'defaultStyle'],
+    ['invalid', true, false, 'dangerStyle'],
+    ['valid', false, true, 'successStyle'],
+  ])('should handle status %s', (_, isInvalid, isValid, expectedStyle) => {
+    render(<InputField isInvalid={isInvalid} isValid={isValid} />);
 
     // Emotion classes contain pseudo-random parts, we're interesting in the fixed part
     // so we can't just check a specific class
