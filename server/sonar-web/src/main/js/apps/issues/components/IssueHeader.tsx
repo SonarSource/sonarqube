@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { IconLink } from '@sonarsource/echoes-react';
 import {
   Badge,
   BasicSeparator,
   ClipboardIconButton,
   IssueMessageHighlighting,
   Link,
-  LinkIcon,
   Note,
   PageContentFontWrapper,
 } from 'design-system';
@@ -172,7 +172,7 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
                   messageFormattings={issue.messageFormattings}
                 />
                 <ClipboardIconButton
-                  Icon={LinkIcon}
+                  Icon={IconLink}
                   aria-label={translate('permalink')}
                   className="sw-ml-1 sw-align-bottom"
                   copyValue={getPathUrlAsString(issueUrl, false)}

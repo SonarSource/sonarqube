@@ -1,35 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should follow and complete all steps: Dart: .github/workflows/build.yml 1`] = `
-"
-name: Build
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened]
-
-jobs:
-  build:
-    name: Build and analyze
-    runs-on: ubuntu-latest
-    steps:
-      - <commands to build your project>
-      - name: Download sonar-scanner
-        run: |
-          curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.1.0.4477-linux-x64.zip
-          unzip $HOME/.sonar/sonar-scanner.zip -o -d $HOME/.sonar/
-      - name: Run sonar-scanner
-        env:
-          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-        run: |
-          sonar-scanner-6.1.0.4477-linux-x64/bin/sonar-scanner \\
-            -Dsonar.projectKey=my-project"
-`;
-
 exports[`should follow and complete all steps: .NET: .github/workflows/build.yml 1`] = `
 "name: Build
 
@@ -296,6 +266,35 @@ jobs:
 `;
 
 exports[`should follow and complete all steps: C++: sonar-project.properties 1`] = `"sonar.projectKey=my-project"`;
+
+exports[`should follow and complete all steps: Dart: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: ubuntu-latest
+    steps:
+      - <commands to build your project>
+      - name: Download sonar-scanner
+        run: |
+          curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.1.0.4477-linux-x64.zip
+          unzip $HOME/.sonar/sonar-scanner.zip -o -d $HOME/.sonar/
+      - name: Run sonar-scanner
+        env:
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
+        run: |
+          sonar-scanner-6.1.0.4477-linux-x64/bin/sonar-scanner \\
+            -Dsonar.projectKey=my-project"
+`;
 
 exports[`should follow and complete all steps: Gradle: .github/workflows/build.yml 1`] = `
 "name: Build

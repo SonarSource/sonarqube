@@ -17,90 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  Button,
+  ButtonIcon,
+  ButtonSize,
+  ButtonVariety,
+  IconCopy,
+  Tooltip,
+  TooltipProvider,
+} from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import Clipboard from 'clipboard';
-import React from 'react';
-import { INTERACTIVE_TOOLTIP_DELAY } from '../helpers/constants';
-import { ButtonSecondary } from '../sonar-aligned/components/buttons';
-import { DiscreetInteractiveIcon, InteractiveIcon, InteractiveIconSize } from './InteractiveIcon';
-import { Tooltip } from './Tooltip';
-import { CopyIcon } from './icons/CopyIcon';
-import { IconProps } from './icons/Icon';
+import { copy } from 'clipboard';
+import React, { ComponentProps, useCallback, useState } from 'react';
 
 const COPY_SUCCESS_NOTIFICATION_LIFESPAN = 1000;
-
-export interface State {
-  copySuccess: boolean;
-}
-
-interface RenderProps {
-  copySuccess: boolean;
-  setCopyButton: (node: HTMLElement | null) => void;
-}
-
-interface BaseProps {
-  children: (props: RenderProps) => React.ReactNode;
-}
-
-export class ClipboardBase extends React.PureComponent<BaseProps, State> {
-  private clipboard?: Clipboard;
-  private copyButton?: HTMLElement | null;
-  mounted = false;
-  state: State = { copySuccess: false };
-
-  componentDidMount() {
-    this.mounted = true;
-    if (this.copyButton) {
-      this.clipboard = new Clipboard(this.copyButton, {
-        container: this.copyButton.parentElement ?? undefined,
-      });
-      this.clipboard.on('success', this.handleSuccessCopy);
-    }
-  }
-
-  componentDidUpdate(props: BaseProps) {
-    if (this.props.children !== props.children) {
-      if (this.clipboard) {
-        this.clipboard.destroy();
-      }
-      if (this.copyButton) {
-        this.clipboard = new Clipboard(this.copyButton, {
-          container: this.copyButton.parentElement ?? undefined,
-        });
-        this.clipboard.on('success', this.handleSuccessCopy);
-      }
-    }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-    if (this.clipboard) {
-      this.clipboard.destroy();
-    }
-  }
-
-  setCopyButton = (node: HTMLElement | null) => {
-    this.copyButton = node;
-  };
-
-  handleSuccessCopy = () => {
-    if (this.mounted) {
-      this.setState({ copySuccess: true });
-      setTimeout(() => {
-        if (this.mounted) {
-          this.setState({ copySuccess: false });
-        }
-      }, COPY_SUCCESS_NOTIFICATION_LIFESPAN);
-    }
-  };
-
-  render() {
-    return this.props.children({
-      setCopyButton: this.setCopyButton,
-      copySuccess: this.state.copySuccess,
-    });
-  }
-}
 
 interface ButtonProps {
   children?: React.ReactNode;
@@ -111,41 +41,42 @@ interface ButtonProps {
   icon?: React.ReactNode;
 }
 
-export function ClipboardButton({
-  icon = <CopyIcon />,
-  className,
-  children,
-  copyValue,
-  copiedLabel = 'Copied',
-  copyLabel = 'Copy',
-}: ButtonProps) {
+export function ClipboardButton(props: ButtonProps) {
+  const {
+    icon = <IconCopy />,
+    className,
+    children,
+    copyValue,
+    copiedLabel = 'Copied',
+    copyLabel = 'Copy',
+  } = props;
+  const [copySuccess, handleCopy] = useCopyClipboardEffect(copyValue);
+
   return (
-    <ClipboardBase>
-      {({ setCopyButton, copySuccess }) => (
-        <Tooltip content={copiedLabel} visible={copySuccess}>
-          <ButtonSecondary
-            className={classNames('sw-select-none', className)}
-            data-clipboard-text={copyValue}
-            icon={icon}
-            ref={setCopyButton}
-          >
-            {children ?? copyLabel}
-          </ButtonSecondary>
-        </Tooltip>
-      )}
-    </ClipboardBase>
+    <TooltipProvider>
+      {/* TODO ^ Remove TooltipProvider after design-system is reintegrated into sonar-web */}
+      <Tooltip content={copiedLabel} isOpen={copySuccess}>
+        <Button
+          className={classNames('sw-select-none', className)}
+          onClick={handleCopy}
+          prefix={icon}
+        >
+          {children ?? copyLabel}
+        </Button>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
 interface IconButtonProps {
-  Icon?: React.ComponentType<React.PropsWithChildren<IconProps>>;
+  Icon?: ComponentProps<typeof ButtonIcon>['Icon'];
   'aria-label'?: string;
   className?: string;
   copiedLabel?: string;
   copyLabel?: string;
   copyValue: string;
   discreet?: boolean;
-  size?: InteractiveIconSize;
+  size?: ButtonSize;
 }
 
 export function ClipboardIconButton(props: IconButtonProps) {
@@ -153,37 +84,49 @@ export function ClipboardIconButton(props: IconButtonProps) {
     className,
     copyValue,
     discreet,
-    size = 'small',
-    Icon = CopyIcon,
+    size = ButtonSize.Medium,
+    Icon = IconCopy,
     copiedLabel = 'Copied',
     copyLabel = 'Copy to clipboard',
   } = props;
-  const InteractiveIconComponent = discreet ? DiscreetInteractiveIcon : InteractiveIcon;
+
+  const [copySuccess, handleCopy] = useCopyClipboardEffect(copyValue);
 
   return (
-    <ClipboardBase>
-      {({ setCopyButton, copySuccess }) => {
-        return (
-          <Tooltip
-            content={
-              <div className="sw-w-abs-150 sw-text-center">
-                {copySuccess ? copiedLabel : copyLabel}
-              </div>
-            }
-            mouseEnterDelay={INTERACTIVE_TOOLTIP_DELAY}
-            {...(copySuccess ? { visible: copySuccess } : undefined)}
-          >
-            <InteractiveIconComponent
-              Icon={Icon}
-              aria-label={props['aria-label'] ?? copyLabel}
-              className={className}
-              data-clipboard-text={copyValue}
-              ref={setCopyButton}
-              size={size}
-            />
-          </Tooltip>
-        );
-      }}
-    </ClipboardBase>
+    <TooltipProvider>
+      {/* TODO ^ Remove TooltipProvider after design-system is reintegrated into sonar-web */}
+      <ButtonIcon
+        Icon={Icon}
+        ariaLabel={props['aria-label'] ?? copyLabel}
+        className={className}
+        onClick={handleCopy}
+        size={size}
+        tooltipContent={copySuccess ? copiedLabel : copyLabel}
+        tooltipOptions={copySuccess ? { isOpen: copySuccess } : undefined}
+        variety={discreet ? ButtonVariety.DefaultGhost : ButtonVariety.Default}
+      />
+    </TooltipProvider>
   );
+}
+
+export function useCopyClipboardEffect(copyValue: string) {
+  const [copySuccess, setCopySuccess] = useState(false);
+
+  const handleCopy = useCallback(
+    ({ currentTarget }: React.MouseEvent<HTMLButtonElement>) => {
+      const isSuccess = copy(copyValue) === copyValue;
+      setCopySuccess(isSuccess);
+
+      if (isSuccess) {
+        setTimeout(() => {
+          setCopySuccess(false);
+        }, COPY_SUCCESS_NOTIFICATION_LIFESPAN);
+      }
+
+      currentTarget.focus();
+    },
+    [copyValue],
+  );
+
+  return [copySuccess, handleCopy] as const;
 }

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ClipboardIconButton, IssueMessageHighlighting, LinkIcon, Title } from 'design-system';
+import { IconLink } from '@sonarsource/echoes-react';
+import { ClipboardIconButton, IssueMessageHighlighting, Title } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { getPathUrlAsString, getRuleUrl } from '../../../helpers/urls';
@@ -44,7 +45,7 @@ export default function RuleDetailsMeta(props: Readonly<Props>) {
         <Title className="sw-mb-0">
           <IssueMessageHighlighting message={ruleDetails.name} />
           <ClipboardIconButton
-            Icon={LinkIcon}
+            Icon={IconLink}
             aria-label={translate('permalink')}
             className="sw-ml-1 sw-align-bottom"
             copyValue={getPathUrlAsString(ruleUrl, ruleDetails.isExternal)}

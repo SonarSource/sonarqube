@@ -27,8 +27,30 @@ const CI_TRANSLATE_MAP: Partial<Record<TutorialModes, string>> = {
   [TutorialModes.GitLabCI]: 'gitlab_ci',
 };
 
-export function getCopyToClipboardValue(i = 0, name = 'copy_to_clipboard') {
-  return screen.getAllByRole('button', { name })[i].getAttribute('data-clipboard-text');
+interface GetCopyToClipboardValueArgs {
+  i?: number;
+  inlineSnippet?: boolean;
+  name?: string;
+}
+
+export function getCopyToClipboardValue({
+  i = 0,
+  inlineSnippet = false,
+  name = 'copy_to_clipboard',
+}: GetCopyToClipboardValueArgs = {}) {
+  const button = screen.getAllByRole('button', { name })[i];
+
+  return inlineSnippet
+    ? button.previousSibling?.firstChild?.textContent
+    : button.nextSibling?.firstChild?.textContent;
+}
+
+export function getCopyToClipboardHostURLValue({
+  i = 0,
+  name = 'copy_to_clipboard',
+}: Omit<GetCopyToClipboardValueArgs, 'inlineSnippet'> = {}) {
+  return screen.getAllByRole('button', { name })[i].nextSibling?.nextSibling?.firstChild
+    ?.textContent;
 }
 
 export function getCommonNodes(ci: TutorialModes) {

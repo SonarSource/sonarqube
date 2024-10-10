@@ -19,7 +19,7 @@
  */
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { byRole } from '~sonar-aligned/helpers/testSelector';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import EncryptionApp from '../EncryptionApp';
@@ -50,7 +50,7 @@ it('should be able to generate new key', async () => {
 
   expect(await ui.appHeading.find()).toBeInTheDocument();
   await user.click(ui.generateSecretButton.get());
-  expect(ui.copyToClipboard.get()).toHaveAttribute('data-clipboard-text', 'secretKey');
+  expect(byText('secretKey').get()).toBeInTheDocument();
 });
 
 it('should be able to encrypt property value when secret is registered', async () => {
@@ -61,11 +61,11 @@ it('should be able to encrypt property value when secret is registered', async (
   expect(await ui.appHeading.find()).toBeInTheDocument();
   await user.type(ui.encryptTextarea.get(), 'sonar.announcement.message');
   await user.click(ui.encryptButton.get());
-  expect(ui.copyToClipboard.get()).toHaveAttribute('data-clipboard-text', 'encryptedValue');
+  expect(byText('encryptedValue').get()).toBeInTheDocument();
 
   // can generate new secret in view
   await user.click(ui.generateNewSecretButton.get());
-  expect(ui.copyToClipboard.get()).toHaveAttribute('data-clipboard-text', 'secretKey');
+  expect(byText('secretKey').get()).toBeInTheDocument();
 });
 
 function renderEncryptionApp() {

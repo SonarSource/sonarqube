@@ -29,7 +29,7 @@ import { InputSizeKeys, ThemedProps } from '../types/theme';
 import { BaseLink, LinkProps } from './Link';
 import NavLink from './NavLink';
 import { Tooltip } from './Tooltip';
-import { ClipboardBase } from './clipboard';
+import { useCopyClipboardEffect } from './clipboard';
 import { Checkbox } from './input/Checkbox';
 
 interface Props extends React.HtmlHTMLAttributes<HTMLMenuElement> {
@@ -223,23 +223,17 @@ interface ItemCopyProps {
 
 export function ItemCopy(props: ItemCopyProps) {
   const { children, className, copyValue, tooltipOverlay } = props;
+
+  const [copySuccess, handleCopy] = useCopyClipboardEffect(copyValue);
+
   return (
-    <ClipboardBase>
-      {({ setCopyButton, copySuccess }) => (
-        <Tooltip content={tooltipOverlay} visible={copySuccess}>
-          <li role="none">
-            <ItemButtonStyled
-              className={className}
-              data-clipboard-text={copyValue}
-              ref={setCopyButton}
-              role="menuitem"
-            >
-              {children}
-            </ItemButtonStyled>
-          </li>
-        </Tooltip>
-      )}
-    </ClipboardBase>
+    <Tooltip content={tooltipOverlay} visible={copySuccess}>
+      <li role="none">
+        <ItemButtonStyled className={className} onClick={handleCopy} role="menuitem">
+          {children}
+        </ItemButtonStyled>
+      </li>
+    </Tooltip>
   );
 }
 

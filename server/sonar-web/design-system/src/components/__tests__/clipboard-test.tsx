@@ -43,9 +43,9 @@ describe('ClipboardButton', () => {
 
     await user.click(screen.getByRole('button', { name: 'Copy' }));
 
-    expect(await screen.findByText('Copied')).toBeVisible();
+    expect(await screen.findByRole('tooltip', { name: 'Copied' })).toBeInTheDocument();
 
-    await waitForElementToBeRemoved(() => screen.queryByText('Copied'));
+    await waitForElementToBeRemoved(() => screen.queryByRole('tooltip', { name: 'Copied' }));
     jest.runAllTimers();
   });
 
@@ -74,9 +74,9 @@ describe('ClipboardIconButton', () => {
 
     await user.click(screen.getByRole('button', { name: 'Copy to clipboard' }));
 
-    expect(await screen.findByText('Copied')).toBeVisible();
+    expect(await screen.findByRole('tooltip', { name: 'Copied' })).toBeInTheDocument();
 
-    await waitForElementToBeRemoved(() => screen.queryByText('Copied'));
+    await waitForElementToBeRemoved(() => screen.queryByRole('tooltip', { name: 'Copied' }));
     jest.runAllTimers();
   });
 });

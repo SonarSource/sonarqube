@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { IconLink } from '@sonarsource/echoes-react';
 import {
   ClipboardIconButton,
   IssueMessageHighlighting,
   LightLabel,
   LightPrimary,
   Link,
-  LinkIcon,
   StyledPageTitle,
 } from 'design-system';
 import React from 'react';
@@ -73,7 +73,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
               <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
             </LightPrimary>
             <ClipboardIconButton
-              Icon={LinkIcon}
+              Icon={IconLink}
               copiedLabel={translate('copied_action')}
               copyLabel={translate('copy_to_clipboard')}
               className="sw-ml-2"

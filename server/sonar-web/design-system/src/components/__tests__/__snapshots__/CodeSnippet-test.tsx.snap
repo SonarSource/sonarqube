@@ -16,16 +16,8 @@ exports[`should highlight code content correctly 1`] = `
   border-radius: 0.25rem;
 }
 
-.emotion-4 {
+.emotion-3 {
   box-sizing: border-box;
-  -webkit-text-decoration: none;
-  text-decoration: none;
-  outline: none;
-  border: var(--border);
-  color: var(--color);
-  background-color: var(--background);
-  -webkit-transition: background-color 0.2s ease;
-  transition: background-color 0.2s ease;
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
@@ -34,19 +26,28 @@ exports[`should highlight code content correctly 1`] = `
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  height: 2.25rem;
-  font: var(--echoes-typography-text-default-semi-bold);
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  border-radius: 0.5rem;
+  padding: var(--echoes-dimension-space-0) var(--button-padding);
+  height: var(--button-height);
+  min-height: var(--button-height);
+  overflow: hidden;
+  font: var(--echoes-typography-others-label);
+  color: var(--button-color);
+  -webkit-text-decoration: none;
+  text-decoration: none;
+  background-color: var(--button-background);
+  border: var(--button-border);
+  border-radius: var(--echoes-border-radius-400);
+  outline: none;
   cursor: pointer;
-  --background: rgb(255,255,255);
-  --backgroundHover: rgb(239,242,249);
-  --color: rgb(62,67,87);
-  --focus: rgba(197,205,223,0.2);
-  --border: 1px solid rgb(197,205,223);
+  --button-color: var(--echoes-color-text-default);
+  --button-border: var(--echoes-color-border-bold) solid var(--echoes-border-width-default);
+  --button-background: var(--echoes-color-background-default);
+  --button-background-hover: var(--echoes-color-background-default-hover);
+  --button-background-active: var(--echoes-color-background-default-active);
+  --button-background-focus: var(--echoes-color-background-default);
+  --button-background-disabled: var(--echoes-color-background-disabled);
+  --button-padding: var(--echoes-dimension-space-150);
+  --button-height: var(--echoes-sizes-buttons-large);
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -57,90 +58,115 @@ exports[`should highlight code content correctly 1`] = `
   position: absolute;
 }
 
-.emotion-4:hover,
-.emotion-4:active {
-  color: var(--color);
-  background-color: var(--backgroundHover);
-}
-
-.emotion-4:focus,
-.emotion-4:active,
-.emotion-4:focus-visible {
-  color: var(--color);
-}
-
-.emotion-4:focus-visible {
-  outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
+.emotion-3:focus,
+.emotion-3:focus-visible {
+  background-color: var(--button-background-focus);
+  outline: var(--echoes-color-focus-default) solid var(--echoes-focus-border-width-default);
   outline-offset: var(--echoes-focus-border-offset-default);
 }
 
-.emotion-4:disabled,
-.emotion-4:disabled:hover {
+.emotion-3:hover {
+  background-color: var(--button-background-hover);
+}
+
+.emotion-3:active {
+  background-color: var(--button-background-active);
+}
+
+.emotion-3:disabled,
+.emotion-3:disabled:has(:hover, :active, :focus, :focus-visible) {
   color: var(--echoes-color-text-disabled);
-  background-color: rgb(239,242,249);
-  border: 1px solid rgb(197,205,223);
+  background-color: var(--button-background-disabled);
+  border: none;
   cursor: not-allowed;
-}
-
-.emotion-4>svg {
-  margin-right: 0.25rem;
-}
-
-.emotion-4 [disabled] {
   pointer-events: none;
 }
 
-.code-snippet-highlighted-oneline .emotion-4 {
+.code-snippet-highlighted-oneline .emotion-3 {
   bottom: 0.5rem;
 }
 
-.emotion-6 code {
+.emotion-5 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: var(--echoes-dimension-space-75);
+  overflow: hidden;
+}
+
+.emotion-7 {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-size: calc(1em + 4px);
+  font-style: normal;
+  font-weight: normal;
+  height: calc(2em - 16px);
+  line-height: calc(2em - 16px);
+  text-align: center;
+  vertical-align: bottom;
+  width: calc(2em - 16px);
+  font-family: 'Material Symbols Rounded';
+}
+
+.emotion-9 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emotion-11 code {
   font: var(--echoes-typography-code-default);
   background: rgb(252,252,253);
   color: rgb(51,53,60);
 }
 
-.emotion-6 code.hljs {
+.emotion-11 code.hljs {
   padding: unset;
 }
 
-.emotion-6 .hljs-meta,
-.emotion-6 .hljs-variable {
+.emotion-11 .hljs-meta,
+.emotion-11 .hljs-variable {
   color: rgb(51,53,60);
 }
 
-.emotion-6 .hljs-doctag,
-.emotion-6 .hljs-title,
-.emotion-6 .hljs-title.class_,
-.emotion-6 .hljs-title.function_ {
+.emotion-11 .hljs-doctag,
+.emotion-11 .hljs-title,
+.emotion-11 .hljs-title.class_,
+.emotion-11 .hljs-title.function_ {
   color: rgb(34,84,192);
 }
 
-.emotion-6 .hljs-comment {
+.emotion-11 .hljs-comment {
   font: var(--echoes-typography-code-comment);
   color: rgb(109,111,119);
 }
 
-.emotion-6 .hljs-keyword,
-.emotion-6 .hljs-tag,
-.emotion-6 .hljs-type {
+.emotion-11 .hljs-keyword,
+.emotion-11 .hljs-tag,
+.emotion-11 .hljs-type {
   color: rgb(152,29,150);
 }
 
-.emotion-6 .hljs-literal,
-.emotion-6 .hljs-number {
+.emotion-11 .hljs-literal,
+.emotion-11 .hljs-number {
   color: rgb(126,83,5);
 }
 
-.emotion-6 .hljs-string {
+.emotion-11 .hljs-string {
   color: rgb(32,105,31);
 }
 
-.emotion-6 .hljs-meta .hljs-keyword {
+.emotion-11 .hljs-meta .hljs-keyword {
   color: rgb(47,103,48);
 }
 
-.emotion-6 .sonar-underline {
+.emotion-11 .sonar-underline {
   -webkit-text-decoration: underline rgb(253,162,155);
   text-decoration: underline rgb(253,162,155);
   -webkit-text-decoration: underline rgb(253,162,155) wavy;
@@ -149,17 +175,17 @@ exports[`should highlight code content correctly 1`] = `
   text-decoration-skip-ink: none;
 }
 
-.emotion-6.code-wrap {
+.emotion-11.code-wrap {
   white-space: pre-wrap;
   word-break: break-all;
 }
 
-.emotion-6.code-wrap.wrap-words {
+.emotion-11.code-wrap.wrap-words {
   word-break: normal;
   overflow-wrap: break-word;
 }
 
-.emotion-6 mark {
+.emotion-11 mark {
   font-weight: 400;
   padding: 0.25rem;
   border-radius: 0.25rem;
@@ -172,32 +198,28 @@ exports[`should highlight code content correctly 1`] = `
     class="sw-code fs-mask emotion-0 emotion-1"
   >
     <button
-      aria-describedby="tooltip-3"
-      class="sw-select-none emotion-2 emotion-3 emotion-4 emotion-5"
-      data-clipboard-text="<prop>foobar<prop>"
+      class="sw-select-none emotion-2 emotion-3 emotion-4"
+      data-state="closed"
       type="button"
     >
-      <svg
-        aria-hidden="true"
-        class="octicon octicon-copy"
-        fill="currentColor"
-        focusable="false"
-        height="16"
-        style="display: inline-block; user-select: none; vertical-align: middle; overflow: visible;"
-        viewBox="0 0 16 16"
-        width="16"
+      <span
+        class="emotion-5 emotion-6"
       >
-        <path
-          d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"
-        />
-        <path
-          d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"
-        />
-      </svg>
-      Copy
+        <span
+          aria-hidden="true"
+          class="emotion-7 emotion-8"
+        >
+          
+        </span>
+        <span
+          class="emotion-9 emotion-10"
+        >
+          Copy
+        </span>
+      </span>
     </button>
     <span
-      class="hljs sw-overflow-auto sw-pr-24 sw-flex emotion-6 emotion-7"
+      class="hljs sw-overflow-auto sw-pr-24 sw-flex emotion-11 emotion-12"
     >
       <pre>
         &lt;prop&gt;foobar&lt;prop&gt;
@@ -223,16 +245,8 @@ exports[`should show full size when multiline with no editing 1`] = `
   border-radius: 0.25rem;
 }
 
-.emotion-4 {
+.emotion-3 {
   box-sizing: border-box;
-  -webkit-text-decoration: none;
-  text-decoration: none;
-  outline: none;
-  border: var(--border);
-  color: var(--color);
-  background-color: var(--background);
-  -webkit-transition: background-color 0.2s ease;
-  transition: background-color 0.2s ease;
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
@@ -241,19 +255,28 @@ exports[`should show full size when multiline with no editing 1`] = `
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  height: 2.25rem;
-  font: var(--echoes-typography-text-default-semi-bold);
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  border-radius: 0.5rem;
+  padding: var(--echoes-dimension-space-0) var(--button-padding);
+  height: var(--button-height);
+  min-height: var(--button-height);
+  overflow: hidden;
+  font: var(--echoes-typography-others-label);
+  color: var(--button-color);
+  -webkit-text-decoration: none;
+  text-decoration: none;
+  background-color: var(--button-background);
+  border: var(--button-border);
+  border-radius: var(--echoes-border-radius-400);
+  outline: none;
   cursor: pointer;
-  --background: rgb(255,255,255);
-  --backgroundHover: rgb(239,242,249);
-  --color: rgb(62,67,87);
-  --focus: rgba(197,205,223,0.2);
-  --border: 1px solid rgb(197,205,223);
+  --button-color: var(--echoes-color-text-default);
+  --button-border: var(--echoes-color-border-bold) solid var(--echoes-border-width-default);
+  --button-background: var(--echoes-color-background-default);
+  --button-background-hover: var(--echoes-color-background-default-hover);
+  --button-background-active: var(--echoes-color-background-default-active);
+  --button-background-focus: var(--echoes-color-background-default);
+  --button-background-disabled: var(--echoes-color-background-disabled);
+  --button-padding: var(--echoes-dimension-space-150);
+  --button-height: var(--echoes-sizes-buttons-large);
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -264,90 +287,115 @@ exports[`should show full size when multiline with no editing 1`] = `
   position: absolute;
 }
 
-.emotion-4:hover,
-.emotion-4:active {
-  color: var(--color);
-  background-color: var(--backgroundHover);
-}
-
-.emotion-4:focus,
-.emotion-4:active,
-.emotion-4:focus-visible {
-  color: var(--color);
-}
-
-.emotion-4:focus-visible {
-  outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
+.emotion-3:focus,
+.emotion-3:focus-visible {
+  background-color: var(--button-background-focus);
+  outline: var(--echoes-color-focus-default) solid var(--echoes-focus-border-width-default);
   outline-offset: var(--echoes-focus-border-offset-default);
 }
 
-.emotion-4:disabled,
-.emotion-4:disabled:hover {
+.emotion-3:hover {
+  background-color: var(--button-background-hover);
+}
+
+.emotion-3:active {
+  background-color: var(--button-background-active);
+}
+
+.emotion-3:disabled,
+.emotion-3:disabled:has(:hover, :active, :focus, :focus-visible) {
   color: var(--echoes-color-text-disabled);
-  background-color: rgb(239,242,249);
-  border: 1px solid rgb(197,205,223);
+  background-color: var(--button-background-disabled);
+  border: none;
   cursor: not-allowed;
-}
-
-.emotion-4>svg {
-  margin-right: 0.25rem;
-}
-
-.emotion-4 [disabled] {
   pointer-events: none;
 }
 
-.code-snippet-highlighted-oneline .emotion-4 {
+.code-snippet-highlighted-oneline .emotion-3 {
   bottom: 0.5rem;
 }
 
-.emotion-6 code {
+.emotion-5 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: var(--echoes-dimension-space-75);
+  overflow: hidden;
+}
+
+.emotion-7 {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-size: calc(1em + 4px);
+  font-style: normal;
+  font-weight: normal;
+  height: calc(2em - 16px);
+  line-height: calc(2em - 16px);
+  text-align: center;
+  vertical-align: bottom;
+  width: calc(2em - 16px);
+  font-family: 'Material Symbols Rounded';
+}
+
+.emotion-9 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emotion-11 code {
   font: var(--echoes-typography-code-default);
   background: rgb(252,252,253);
   color: rgb(51,53,60);
 }
 
-.emotion-6 code.hljs {
+.emotion-11 code.hljs {
   padding: unset;
 }
 
-.emotion-6 .hljs-meta,
-.emotion-6 .hljs-variable {
+.emotion-11 .hljs-meta,
+.emotion-11 .hljs-variable {
   color: rgb(51,53,60);
 }
 
-.emotion-6 .hljs-doctag,
-.emotion-6 .hljs-title,
-.emotion-6 .hljs-title.class_,
-.emotion-6 .hljs-title.function_ {
+.emotion-11 .hljs-doctag,
+.emotion-11 .hljs-title,
+.emotion-11 .hljs-title.class_,
+.emotion-11 .hljs-title.function_ {
   color: rgb(34,84,192);
 }
 
-.emotion-6 .hljs-comment {
+.emotion-11 .hljs-comment {
   font: var(--echoes-typography-code-comment);
   color: rgb(109,111,119);
 }
 
-.emotion-6 .hljs-keyword,
-.emotion-6 .hljs-tag,
-.emotion-6 .hljs-type {
+.emotion-11 .hljs-keyword,
+.emotion-11 .hljs-tag,
+.emotion-11 .hljs-type {
   color: rgb(152,29,150);
 }
 
-.emotion-6 .hljs-literal,
-.emotion-6 .hljs-number {
+.emotion-11 .hljs-literal,
+.emotion-11 .hljs-number {
   color: rgb(126,83,5);
 }
 
-.emotion-6 .hljs-string {
+.emotion-11 .hljs-string {
   color: rgb(32,105,31);
 }
 
-.emotion-6 .hljs-meta .hljs-keyword {
+.emotion-11 .hljs-meta .hljs-keyword {
   color: rgb(47,103,48);
 }
 
-.emotion-6 .sonar-underline {
+.emotion-11 .sonar-underline {
   -webkit-text-decoration: underline rgb(253,162,155);
   text-decoration: underline rgb(253,162,155);
   -webkit-text-decoration: underline rgb(253,162,155) wavy;
@@ -356,17 +404,17 @@ exports[`should show full size when multiline with no editing 1`] = `
   text-decoration-skip-ink: none;
 }
 
-.emotion-6.code-wrap {
+.emotion-11.code-wrap {
   white-space: pre-wrap;
   word-break: break-all;
 }
 
-.emotion-6.code-wrap.wrap-words {
+.emotion-11.code-wrap.wrap-words {
   word-break: normal;
   overflow-wrap: break-word;
 }
 
-.emotion-6 mark {
+.emotion-11 mark {
   font-weight: 400;
   padding: 0.25rem;
   border-radius: 0.25rem;
@@ -379,33 +427,28 @@ exports[`should show full size when multiline with no editing 1`] = `
     class="sw-code fs-mask emotion-0 emotion-1"
   >
     <button
-      aria-describedby="tooltip-1"
-      class="sw-select-none emotion-2 emotion-3 emotion-4 emotion-5"
-      data-clipboard-text="foo
-bar"
+      class="sw-select-none emotion-2 emotion-3 emotion-4"
+      data-state="closed"
       type="button"
     >
-      <svg
-        aria-hidden="true"
-        class="octicon octicon-copy"
-        fill="currentColor"
-        focusable="false"
-        height="16"
-        style="display: inline-block; user-select: none; vertical-align: middle; overflow: visible;"
-        viewBox="0 0 16 16"
-        width="16"
+      <span
+        class="emotion-5 emotion-6"
       >
-        <path
-          d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"
-        />
-        <path
-          d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"
-        />
-      </svg>
-      Copy
+        <span
+          aria-hidden="true"
+          class="emotion-7 emotion-8"
+        >
+          
+        </span>
+        <span
+          class="emotion-9 emotion-10"
+        >
+          Copy
+        </span>
+      </span>
     </button>
     <span
-      class="hljs sw-overflow-auto sw-pr-24 sw-flex emotion-6 emotion-7"
+      class="hljs sw-overflow-auto sw-pr-24 sw-flex emotion-11 emotion-12"
     >
       <pre>
         foo
@@ -432,16 +475,8 @@ exports[`should show reduced size when single line with no editing 1`] = `
   border-radius: 0.25rem;
 }
 
-.emotion-4 {
+.emotion-3 {
   box-sizing: border-box;
-  -webkit-text-decoration: none;
-  text-decoration: none;
-  outline: none;
-  border: var(--border);
-  color: var(--color);
-  background-color: var(--background);
-  -webkit-transition: background-color 0.2s ease;
-  transition: background-color 0.2s ease;
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
@@ -450,19 +485,28 @@ exports[`should show reduced size when single line with no editing 1`] = `
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  height: 2.25rem;
-  font: var(--echoes-typography-text-default-semi-bold);
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  border-radius: 0.5rem;
+  padding: var(--echoes-dimension-space-0) var(--button-padding);
+  height: var(--button-height);
+  min-height: var(--button-height);
+  overflow: hidden;
+  font: var(--echoes-typography-others-label);
+  color: var(--button-color);
+  -webkit-text-decoration: none;
+  text-decoration: none;
+  background-color: var(--button-background);
+  border: var(--button-border);
+  border-radius: var(--echoes-border-radius-400);
+  outline: none;
   cursor: pointer;
-  --background: rgb(255,255,255);
-  --backgroundHover: rgb(239,242,249);
-  --color: rgb(62,67,87);
-  --focus: rgba(197,205,223,0.2);
-  --border: 1px solid rgb(197,205,223);
+  --button-color: var(--echoes-color-text-default);
+  --button-border: var(--echoes-color-border-bold) solid var(--echoes-border-width-default);
+  --button-background: var(--echoes-color-background-default);
+  --button-background-hover: var(--echoes-color-background-default-hover);
+  --button-background-active: var(--echoes-color-background-default-active);
+  --button-background-focus: var(--echoes-color-background-default);
+  --button-background-disabled: var(--echoes-color-background-disabled);
+  --button-padding: var(--echoes-dimension-space-150);
+  --button-height: var(--echoes-sizes-buttons-large);
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -475,90 +519,115 @@ exports[`should show reduced size when single line with no editing 1`] = `
   top: 1rem;
 }
 
-.emotion-4:hover,
-.emotion-4:active {
-  color: var(--color);
-  background-color: var(--backgroundHover);
-}
-
-.emotion-4:focus,
-.emotion-4:active,
-.emotion-4:focus-visible {
-  color: var(--color);
-}
-
-.emotion-4:focus-visible {
-  outline: var(--echoes-focus-border-width-default) solid var(--echoes-color-focus-default);
+.emotion-3:focus,
+.emotion-3:focus-visible {
+  background-color: var(--button-background-focus);
+  outline: var(--echoes-color-focus-default) solid var(--echoes-focus-border-width-default);
   outline-offset: var(--echoes-focus-border-offset-default);
 }
 
-.emotion-4:disabled,
-.emotion-4:disabled:hover {
+.emotion-3:hover {
+  background-color: var(--button-background-hover);
+}
+
+.emotion-3:active {
+  background-color: var(--button-background-active);
+}
+
+.emotion-3:disabled,
+.emotion-3:disabled:has(:hover, :active, :focus, :focus-visible) {
   color: var(--echoes-color-text-disabled);
-  background-color: rgb(239,242,249);
-  border: 1px solid rgb(197,205,223);
+  background-color: var(--button-background-disabled);
+  border: none;
   cursor: not-allowed;
-}
-
-.emotion-4>svg {
-  margin-right: 0.25rem;
-}
-
-.emotion-4 [disabled] {
   pointer-events: none;
 }
 
-.code-snippet-highlighted-oneline .emotion-4 {
+.code-snippet-highlighted-oneline .emotion-3 {
   bottom: 0.5rem;
 }
 
-.emotion-6 code {
+.emotion-5 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: var(--echoes-dimension-space-75);
+  overflow: hidden;
+}
+
+.emotion-7 {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-size: calc(1em + 4px);
+  font-style: normal;
+  font-weight: normal;
+  height: calc(2em - 16px);
+  line-height: calc(2em - 16px);
+  text-align: center;
+  vertical-align: bottom;
+  width: calc(2em - 16px);
+  font-family: 'Material Symbols Rounded';
+}
+
+.emotion-9 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emotion-11 code {
   font: var(--echoes-typography-code-default);
   background: rgb(252,252,253);
   color: rgb(51,53,60);
 }
 
-.emotion-6 code.hljs {
+.emotion-11 code.hljs {
   padding: unset;
 }
 
-.emotion-6 .hljs-meta,
-.emotion-6 .hljs-variable {
+.emotion-11 .hljs-meta,
+.emotion-11 .hljs-variable {
   color: rgb(51,53,60);
 }
 
-.emotion-6 .hljs-doctag,
-.emotion-6 .hljs-title,
-.emotion-6 .hljs-title.class_,
-.emotion-6 .hljs-title.function_ {
+.emotion-11 .hljs-doctag,
+.emotion-11 .hljs-title,
+.emotion-11 .hljs-title.class_,
+.emotion-11 .hljs-title.function_ {
   color: rgb(34,84,192);
 }
 
-.emotion-6 .hljs-comment {
+.emotion-11 .hljs-comment {
   font: var(--echoes-typography-code-comment);
   color: rgb(109,111,119);
 }
 
-.emotion-6 .hljs-keyword,
-.emotion-6 .hljs-tag,
-.emotion-6 .hljs-type {
+.emotion-11 .hljs-keyword,
+.emotion-11 .hljs-tag,
+.emotion-11 .hljs-type {
   color: rgb(152,29,150);
 }
 
-.emotion-6 .hljs-literal,
-.emotion-6 .hljs-number {
+.emotion-11 .hljs-literal,
+.emotion-11 .hljs-number {
   color: rgb(126,83,5);
 }
 
-.emotion-6 .hljs-string {
+.emotion-11 .hljs-string {
   color: rgb(32,105,31);
 }
 
-.emotion-6 .hljs-meta .hljs-keyword {
+.emotion-11 .hljs-meta .hljs-keyword {
   color: rgb(47,103,48);
 }
 
-.emotion-6 .sonar-underline {
+.emotion-11 .sonar-underline {
   -webkit-text-decoration: underline rgb(253,162,155);
   text-decoration: underline rgb(253,162,155);
   -webkit-text-decoration: underline rgb(253,162,155) wavy;
@@ -567,17 +636,17 @@ exports[`should show reduced size when single line with no editing 1`] = `
   text-decoration-skip-ink: none;
 }
 
-.emotion-6.code-wrap {
+.emotion-11.code-wrap {
   white-space: pre-wrap;
   word-break: break-all;
 }
 
-.emotion-6.code-wrap.wrap-words {
+.emotion-11.code-wrap.wrap-words {
   word-break: normal;
   overflow-wrap: break-word;
 }
 
-.emotion-6 mark {
+.emotion-11 mark {
   font-weight: 400;
   padding: 0.25rem;
   border-radius: 0.25rem;
@@ -590,32 +659,28 @@ exports[`should show reduced size when single line with no editing 1`] = `
     class="sw-code sw-py-6 code-snippet-highlighted-oneline fs-mask emotion-0 emotion-1"
   >
     <button
-      aria-describedby="tooltip-2"
-      class="sw-select-none emotion-2 emotion-3 emotion-4 emotion-5"
-      data-clipboard-text="foobar"
+      class="sw-select-none emotion-2 emotion-3 emotion-4"
+      data-state="closed"
       type="button"
     >
-      <svg
-        aria-hidden="true"
-        class="octicon octicon-copy"
-        fill="currentColor"
-        focusable="false"
-        height="16"
-        style="display: inline-block; user-select: none; vertical-align: middle; overflow: visible;"
-        viewBox="0 0 16 16"
-        width="16"
+      <span
+        class="emotion-5 emotion-6"
       >
-        <path
-          d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"
-        />
-        <path
-          d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"
-        />
-      </svg>
-      Copy
+        <span
+          aria-hidden="true"
+          class="emotion-7 emotion-8"
+        >
+          
+        </span>
+        <span
+          class="emotion-9 emotion-10"
+        >
+          Copy
+        </span>
+      </span>
     </button>
     <span
-      class="hljs sw-overflow-auto sw-pr-24 sw-flex emotion-6 emotion-7"
+      class="hljs sw-overflow-auto sw-pr-24 sw-flex emotion-11 emotion-12"
     >
       <code>
         foobar

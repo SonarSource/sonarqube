@@ -30,8 +30,7 @@ pipelines:
 `;
 
 exports[`should follow and complete all steps: C++ (automatic) and other: .github/workflows/build.yml 1`] = `
-"
-definitions:
+"definitions:
   steps:
     - step: &build-step
         name: SonarQube analysis
@@ -58,8 +57,7 @@ pipelines:
 `;
 
 exports[`should follow and complete all steps: C++ (automatic) and other: bitbucket-pipelines.yml 1`] = `
-"
-definitions:
+"definitions:
   steps:
     - step: &build-step
         name: SonarQube analysis

@@ -42,10 +42,6 @@ it('renders correctly', async () => {
 
   // Title
   expect(byRole('heading', { name: issue.message }).get()).toBeInTheDocument();
-  expect(byRole('button', { name: 'permalink' }).get()).toHaveAttribute(
-    'data-clipboard-text',
-    'http://localhost/project/issues?issues=AVsae-CQS-9G3txfbFN2&open=AVsae-CQS-9G3txfbFN2&id=myproject',
-  );
 
   // CCT attribute
   const cctBadge = byText(
