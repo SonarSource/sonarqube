@@ -42,6 +42,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.core.rule.ImpactFormatter;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -55,7 +56,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
-import org.sonar.server.issue.ImpactFormatter;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
@@ -256,10 +256,9 @@ public class RulesResponseFormatter {
 
   public static Rules.Impacts mapImpacts(Map<SoftwareQuality, Severity> impacts) {
     Rules.Impacts.Builder impactsBuilder = Rules.Impacts.newBuilder();
-    impacts.forEach((quality, severity) ->
-      impactsBuilder.addImpacts(Common.Impact.newBuilder()
-        .setSoftwareQuality(Common.SoftwareQuality.valueOf(quality.name()))
-        .setSeverity(ImpactFormatter.mapImpactSeverity(severity))));
+    impacts.forEach((quality, severity) -> impactsBuilder.addImpacts(Common.Impact.newBuilder()
+      .setSoftwareQuality(Common.SoftwareQuality.valueOf(quality.name()))
+      .setSeverity(ImpactFormatter.mapImpactSeverity(severity))));
     return impactsBuilder.build();
   }
 

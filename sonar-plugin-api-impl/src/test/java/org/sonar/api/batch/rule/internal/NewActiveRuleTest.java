@@ -20,9 +20,10 @@
 package org.sonar.api.batch.rule.internal;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
@@ -43,6 +44,7 @@ public class NewActiveRuleTest {
       .setRuleKey(RuleKey.of("foo", "bar"))
       .setName("name")
       .setSeverity(org.sonar.api.rule.Severity.CRITICAL)
+      .setImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM)
       .setParam("key", "value")
       .setCreatedAt(1_000L)
       .setUpdatedAt(1_000L)
@@ -55,6 +57,7 @@ public class NewActiveRuleTest {
     assertThat(rule.ruleKey).isEqualTo(RuleKey.of("foo", "bar"));
     assertThat(rule.name).isEqualTo("name");
     assertThat(rule.severity).isEqualTo(org.sonar.api.rule.Severity.CRITICAL);
+    assertThat(rule.impacts).containsExactlyInAnyOrderEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM));
     assertThat(rule.params).isEqualTo(ImmutableMap.of("key", "value"));
     assertThat(rule.createdAt).isEqualTo(1_000L);
     assertThat(rule.updatedAt).isEqualTo(1_000L);

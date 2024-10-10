@@ -17,10 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue;
+package org.sonar.core.rule;
 
 import org.sonar.api.issue.impact.Severity;
 import org.sonarqube.ws.Common;
+
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.INFO;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.Severity.MEDIUM;
 
 public class ImpactFormatter {
   private ImpactFormatter() {
@@ -33,6 +39,17 @@ public class ImpactFormatter {
       case MEDIUM -> Common.ImpactSeverity.MEDIUM;
       case LOW -> Common.ImpactSeverity.LOW;
       case INFO -> Common.ImpactSeverity.ImpactSeverity_INFO;
+    };
+  }
+
+  public static Severity mapImpactSeverity(Common.ImpactSeverity severity) {
+    return switch (severity) {
+      case ImpactSeverity_BLOCKER -> BLOCKER;
+      case HIGH -> HIGH;
+      case MEDIUM -> MEDIUM;
+      case LOW -> LOW;
+      case ImpactSeverity_INFO -> INFO;
+      case UNKNOWN_IMPACT_SEVERITY -> throw new UnsupportedOperationException("Impact severity not supported");
     };
   }
 }

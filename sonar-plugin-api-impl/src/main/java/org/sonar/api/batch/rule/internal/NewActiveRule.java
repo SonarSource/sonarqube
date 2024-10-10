@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.rule.internal;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -26,6 +27,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang3.StringUtils;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
@@ -37,6 +39,7 @@ public class NewActiveRule {
   final RuleKey ruleKey;
   final String name;
   final String severity;
+  final Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts;
   final Map<String, String> params;
   final long createdAt;
   final long updatedAt;
@@ -50,6 +53,7 @@ public class NewActiveRule {
     this.ruleKey = builder.ruleKey;
     this.name = builder.name;
     this.severity = builder.severity;
+    this.impacts = builder.impacts;
     this.params = builder.params;
     this.createdAt = builder.createdAt;
     this.updatedAt = builder.updatedAt;
@@ -68,6 +72,7 @@ public class NewActiveRule {
     private RuleKey ruleKey;
     private String name;
     private String severity = Severity.defaultSeverity();
+    private final Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = new EnumMap<>(SoftwareQuality.class);
     private Map<String, String> params = new HashMap<>();
     private long createdAt;
     private long updatedAt;
@@ -89,6 +94,11 @@ public class NewActiveRule {
 
     public Builder setSeverity(@Nullable String severity) {
       this.severity = StringUtils.defaultIfBlank(severity, Severity.defaultSeverity());
+      return this;
+    }
+
+    public Builder setImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
+      impacts.put(softwareQuality, severity);
       return this;
     }
 

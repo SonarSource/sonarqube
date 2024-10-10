@@ -21,6 +21,7 @@ package org.sonar.scanner.rule;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,9 +30,13 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.api.impl.utils.ScannerUtils;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.core.rule.ImpactFormatter;
 import org.sonar.scanner.http.ScannerWsClient;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Active;
@@ -109,6 +114,7 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
       loadedRule.setRuleKey(RuleKey.parse(r.getKey()));
       loadedRule.setName(r.getName());
       loadedRule.setSeverity(active.getSeverity());
+
       loadedRule.setCreatedAt(DateUtils.dateToLong(DateUtils.parseDateTime(active.getCreatedAt())));
       loadedRule.setUpdatedAt(DateUtils.dateToLong(DateUtils.parseDateTime(active.getUpdatedAt())));
       loadedRule.setLanguage(r.getLang());
@@ -128,7 +134,15 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
       for (Param param : active.getParamsList()) {
         params.put(param.getKey(), param.getValue());
       }
+
       loadedRule.setParams(params);
+
+      Map<SoftwareQuality, Severity> impacts = new EnumMap<>(SoftwareQuality.class);
+      for (Common.Impact impact : active.getImpacts().getImpactsList()) {
+        impacts.put(SoftwareQuality.valueOf(impact.getSoftwareQuality().name()), ImpactFormatter.mapImpactSeverity(impact.getSeverity()));
+      }
+      loadedRule.setImpacts(impacts);
+
       loadedRule.setDeprecatedKeys(r.getDeprecatedKeys().getDeprecatedKeyList()
         .stream()
         .map(RuleKey::parse)
@@ -138,4 +152,5 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
 
     return loadedRules;
   }
+
 }
