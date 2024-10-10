@@ -126,8 +126,7 @@ export const buttonStyle = (props: ThemedProps) => css`
   border: var(--border);
   color: var(--color);
   background-color: var(--background);
-  transition:
-    background-color 0.2s ease,
+  transition: background-color 0.2s ease;
 
   ${tw`sw-inline-flex sw-items-center`}
   ${tw`sw-h-control`}

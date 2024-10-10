@@ -51,18 +51,24 @@ export class ClipboardBase extends React.PureComponent<BaseProps, State> {
   componentDidMount() {
     this.mounted = true;
     if (this.copyButton) {
-      this.clipboard = new Clipboard(this.copyButton);
+      this.clipboard = new Clipboard(this.copyButton, {
+        container: this.copyButton.parentElement ?? undefined,
+      });
       this.clipboard.on('success', this.handleSuccessCopy);
     }
   }
 
-  componentDidUpdate() {
-    if (this.clipboard) {
-      this.clipboard.destroy();
-    }
-    if (this.copyButton) {
-      this.clipboard = new Clipboard(this.copyButton);
-      this.clipboard.on('success', this.handleSuccessCopy);
+  componentDidUpdate(props: BaseProps) {
+    if (this.props.children !== props.children) {
+      if (this.clipboard) {
+        this.clipboard.destroy();
+      }
+      if (this.copyButton) {
+        this.clipboard = new Clipboard(this.copyButton, {
+          container: this.copyButton.parentElement ?? undefined,
+        });
+        this.clipboard.on('success', this.handleSuccessCopy);
+      }
     }
   }
 
