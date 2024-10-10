@@ -201,6 +201,16 @@
       r.uuid = #{ruleUuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByRepository" parameterType="String" resultType="ActiveRule">
+    select
+    <include refid="activeRuleColumns"/>
+    from active_rules a
+    <include refid="activeRuleKeyJoin"/>
+    where
+      r.plugin_name = #{repositoryKey, jdbcType=VARCHAR}
+      and r.language = #{repositoryLanguage, jdbcType=VARCHAR}
+  </select>
+
   <select id="selectByRuleUuids" parameterType="List" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
     select
     <include refid="orgActiveRuleColumns"/>

@@ -68,6 +68,10 @@ public class ActiveRuleDao implements Dao {
     return mapper(dbSession).selectByRuleUuid(ruleUuid);
   }
 
+  public List<ActiveRuleDto> selectByRepository(DbSession dbSession, String repositoryKey, String repositoryLanguage) {
+    return mapper(dbSession).selectByRepository(repositoryKey, repositoryLanguage);
+  }
+
   public List<OrgActiveRuleDto> selectByRuleUuids(DbSession dbSession, List<String> uuids) {
     return executeLargeInputs(uuids, chunk -> mapper(dbSession).selectByRuleUuids(chunk));
   }

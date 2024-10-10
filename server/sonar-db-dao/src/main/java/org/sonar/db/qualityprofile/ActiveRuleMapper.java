@@ -47,6 +47,9 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleDto> selectByRuleUuid(String ruleUuid);
 
+  List<ActiveRuleDto> selectByRepository(@Param("repositoryKey") String repositoryKey,
+    @Param("repositoryLanguage") String repositoryLanguage);
+
   List<OrgActiveRuleDto> selectByRuleUuids(@Param("ruleUuids") List<String> partitionOfRuleUuids);
 
   List<OrgActiveRuleDto> selectByProfileUuid(String uuid);

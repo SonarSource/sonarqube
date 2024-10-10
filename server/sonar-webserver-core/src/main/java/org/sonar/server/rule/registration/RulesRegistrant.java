@@ -83,11 +83,13 @@ public class RulesRegistrant implements Startable {
   private final QualityProfileChangesUpdater qualityProfileChangesUpdater;
   private final SonarQubeVersion sonarQubeVersion;
   private final DetectPluginChange detectPluginChange;
+  private final ActiveRulesImpactInitializer activeRulesImpactInitializer;
 
   public RulesRegistrant(RuleDefinitionsLoader defLoader, QProfileRules qProfileRules, DbClient dbClient, RuleIndexer ruleIndexer,
     ActiveRuleIndexer activeRuleIndexer, System2 system2, WebServerRuleFinder webServerRuleFinder,
     MetadataIndex metadataIndex, RulesKeyVerifier rulesKeyVerifier, StartupRuleUpdater startupRuleUpdater,
-    NewRuleCreator newRuleCreator, QualityProfileChangesUpdater qualityProfileChangesUpdater, SonarQubeVersion sonarQubeVersion, DetectPluginChange detectPluginChange) {
+    NewRuleCreator newRuleCreator, QualityProfileChangesUpdater qualityProfileChangesUpdater, SonarQubeVersion sonarQubeVersion,
+    DetectPluginChange detectPluginChange, ActiveRulesImpactInitializer activeRulesImpactInitializer) {
     this.defLoader = defLoader;
     this.qProfileRules = qProfileRules;
     this.dbClient = dbClient;
@@ -102,6 +104,7 @@ public class RulesRegistrant implements Startable {
     this.qualityProfileChangesUpdater = qualityProfileChangesUpdater;
     this.sonarQubeVersion = sonarQubeVersion;
     this.detectPluginChange = detectPluginChange;
+    this.activeRulesImpactInitializer = activeRulesImpactInitializer;
   }
 
   @Override
@@ -125,12 +128,15 @@ public class RulesRegistrant implements Startable {
           throw new IllegalStateException("Language is mandatory for repository " + repoDef.key());
         }
         Set<PluginRuleUpdate> pluginRuleUpdates = registerRules(rulesRegistrationContext, repoDef.rules(), dbSession);
+
         if (!repoDef.isExternal()) {
           // External rules are not part of quality profiles
+          activeRulesImpactInitializer.createImpactsOnActiveRules(rulesRegistrationContext, repoDef, dbSession);
           qualityProfileChangesUpdater.createQprofileChangesForRuleUpdates(dbSession, pluginRuleUpdates);
         }
         dbSession.commit();
       }
+      activeRulesImpactInitializer.markInitialPopulationDone();
       processRemainingDbRules(rulesRegistrationContext, dbSession);
       List<ActiveRuleChange> changes = anyPluginChanged ? removeActiveRulesOnStillExistingRepositories(dbSession, rulesRegistrationContext, rulesRepositories) : List.of();
       dbSession.commit();
