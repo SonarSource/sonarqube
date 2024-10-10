@@ -21,17 +21,21 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.net.HttpURLConnection;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockitoAnnotations;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
@@ -55,9 +59,11 @@ import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_IMPACTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PRIORITIZED_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
 
 class ActivateRuleActionIT {
 
@@ -83,7 +89,7 @@ class ActivateRuleActionIT {
     WebService.Action definition = ws.getDef();
     assertThat(definition).isNotNull();
     assertThat(definition.isPost()).isTrue();
-    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("severity", "prioritizedRule", "key",
+    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("severity", "impacts", "prioritizedRule", "key",
       "reset", "rule", "params");
   }
 
@@ -144,10 +150,69 @@ class ActivateRuleActionIT {
   }
 
   @Test
-  void activate_rule() {
+  void handle_whenBothSeverityAndImpactsAreSent_shouldFail() {
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDto rule = db.rules().insert(RuleTesting.randomRuleKey());
+
+    TestRequest request = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_RULE, rule.getKey().toString())
+      .setParam(PARAM_KEY, qualityProfile.getKee())
+      .setParam(PARAM_SEVERITY, "BLOCKER")
+      .setParam(PARAM_IMPACTS, "MAINTAINABILITY=BLOCKER");
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("'severity' and 'impacts' parameters can't be provided both at the same time");
+  }
+
+  @Test
+  void handle_whenImpactsAreMalformed_shouldFail() {
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
+    RuleDto rule = db.rules().insert(RuleTesting.randomRuleKey());
+
+    TestRequest request = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_RULE, rule.getKey().toString())
+      .setParam(PARAM_KEY, qualityProfile.getKee())
+      .setParam(PARAM_IMPACTS, "MAINTAINABILITY=UNKNOWN_SEVERITY");
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Unexpected value for parameter 'impacts': MAINTAINABILITY=UNKNOWN_SEVERITY");
+  }
+
+  @Test
+  void handle_whenImpactsAreProvidedAndDoesntMatchRuleImpacts_shouldFail() {
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
+    RuleDto rule = db.rules().insert(r -> r.setRuleKey(RuleTesting.randomRuleKey()).setSeverity(Severity.MAJOR)
+      .replaceAllDefaultImpacts(List.of(
+        newImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM))));
+
+    TestRequest request = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_RULE, rule.getKey().toString())
+      .setParam(PARAM_KEY, qualityProfile.getKee())
+      .setParam(PARAM_IMPACTS, "MAINTAINABILITY=BLOCKER;SECURITY=MEDIUM");
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Only impacts defined on the rule can be overridden. (MAINTAINABILITY)");
+  }
+
+  @Test
+  void activate_rule() {
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
+    RuleDto rule = db.rules().insert(r -> r.setRuleKey(RuleTesting.randomRuleKey()).setSeverity(Severity.MAJOR)
+      .replaceAllDefaultImpacts(List.of(
+        newImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM),
+        newImpact(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.LOW),
+        newImpact(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.INFO))));
+
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, rule.getKey().toString())
@@ -168,8 +233,46 @@ class ActivateRuleActionIT {
     RuleActivation activation = activations.iterator().next();
     assertThat(activation.getRuleUuid()).isEqualTo(rule.getUuid());
     assertThat(activation.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(activation.getImpactSeverities()).isEmpty();
     assertThat(activation.isPrioritizedRule()).isTrue();
     assertThat(activation.isReset()).isFalse();
+  }
+
+  @Test
+  void handle_whenImpactsAreProvided_shouldOverrideImpacts() {
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
+    RuleDto rule = db.rules().insert(r -> r.setRuleKey(RuleTesting.randomRuleKey()).setSeverity(Severity.MAJOR)
+      .replaceAllDefaultImpacts(List.of(
+        newImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM),
+        newImpact(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.LOW),
+        newImpact(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.INFO))));
+
+    TestRequest request = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_RULE, rule.getKey().toString())
+      .setParam(PARAM_KEY, qualityProfile.getKee())
+      .setParam(PARAM_IMPACTS, "MAINTAINABILITY=BLOCKER;SECURITY=MEDIUM");
+
+    TestResponse response = request.execute();
+
+    assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
+    verify(qProfileRules).activateAndCommit(any(DbSession.class), any(QProfileDto.class), ruleActivationCaptor.capture());
+
+    Collection<RuleActivation> activations = ruleActivationCaptor.getValue();
+    assertThat(activations).hasSize(1);
+
+    RuleActivation activation = activations.iterator().next();
+    assertThat(activation.getRuleUuid()).isEqualTo(rule.getUuid());
+    assertThat(activation.getSeverity()).isNull();
+    assertThat(activation.getImpactSeverities()).containsExactlyInAnyOrderEntriesOf(
+      Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.BLOCKER, SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM));
+    assertThat(activation.isPrioritizedRule()).isNull();
+    assertThat(activation.isReset()).isFalse();
+  }
+
+  private static ImpactDto newImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
+    return new ImpactDto().setSoftwareQuality(softwareQuality).setSeverity(severity);
   }
 
   @Test

@@ -27,6 +27,7 @@ public class QualityProfileWsParameters {
 
     String PARAM_BACKUP = "backup";
   }
+
   public static final String ACTION_ACTIVATE_RULE = "activate_rule";
   public static final String ACTION_ACTIVATE_RULES = "activate_rules";
   public static final String ACTION_ADD_PROJECT = "add_project";
@@ -70,6 +71,7 @@ public class QualityProfileWsParameters {
   public static final String PARAM_TO = "to";
   public static final String PARAM_TO_NAME = "toName";
   public static final String PARAM_PRIORITIZED_RULE = "prioritizedRule";
+  public static final String PARAM_IMPACTS = "impacts";
 
   private QualityProfileWsParameters() {
     // Only static stuff

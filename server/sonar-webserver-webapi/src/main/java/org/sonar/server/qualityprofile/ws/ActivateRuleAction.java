@@ -19,7 +19,11 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.EnumMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Change;
@@ -31,6 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.user.UserSession;
@@ -40,6 +45,7 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_IMPACTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARAMS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PRIORITIZED_RULE;
@@ -71,6 +77,7 @@ public class ActivateRuleAction implements QProfileWsAction {
         "  <li>Edit right on the specified quality profile</li>" +
         "</ul>")
       .setChangelog(
+        new Change("10.8", format("Add new parameter '%s'", PARAM_IMPACTS)),
         new Change("10.6", format("Add parameter '%s'.", PARAM_PRIORITIZED_RULE)),
         new Change("10.2", format("Parameter '%s' is now deprecated.", PARAM_SEVERITY)))
       .setHandler(this)
@@ -88,9 +95,13 @@ public class ActivateRuleAction implements QProfileWsAction {
       .setExampleValue("java:AvoidCycles");
 
     activate.createParam(PARAM_SEVERITY)
-      .setDescription(format("Severity. Ignored if parameter %s is true.", PARAM_RESET))
+      .setDescription(format("Severity. Cannot be used as the same time as '%s'.Ignored if parameter %s is true.", PARAM_IMPACTS, PARAM_RESET))
       .setDeprecatedSince("10.2")
       .setPossibleValues(Severity.ALL);
+
+    activate.createParam(PARAM_IMPACTS)
+      .setDescription(format("Override of impact severities for the rule. Cannot be used as the same time as '%s'. Ignored if parameter %s is true.", PARAM_SEVERITY, PARAM_RESET))
+      .setExampleValue("impacts=MAINTAINABILITY=HIGH;SECURITY=MEDIUM");
 
     activate.createParam(PARAM_PARAMS)
       .setDescription(format("Parameters as semi-colon list of <code>key=value</code>. Ignored if parameter %s is true.", PARAM_RESET))
@@ -129,13 +140,42 @@ public class ActivateRuleAction implements QProfileWsAction {
       return RuleActivation.createReset(ruleDto.getUuid());
     }
     String severity = request.param(PARAM_SEVERITY);
+    String impactsAsString = request.param(PARAM_IMPACTS);
+
+    if (impactsAsString != null && severity != null) {
+      throw BadRequestException.create(format("'%s' and '%s' parameters can't be provided both at the same time", PARAM_SEVERITY, PARAM_IMPACTS));
+    }
+
+    Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = new EnumMap<>(SoftwareQuality.class);
+    if (impactsAsString != null) {
+      impacts = getImpacts(impactsAsString, ruleDto);
+    }
+
     Boolean prioritizedRule = request.paramAsBoolean(PARAM_PRIORITIZED_RULE);
     Map<String, String> params = null;
     String paramsAsString = request.param(PARAM_PARAMS);
     if (paramsAsString != null) {
       params = KeyValueFormat.parse(paramsAsString);
     }
-    return RuleActivation.create(ruleDto.getUuid(), severity, prioritizedRule, params);
+    return RuleActivation.create(ruleDto.getUuid(), severity, impacts, prioritizedRule, params);
+  }
+
+  @NotNull
+  private static Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> getImpacts(String impactsAsString, RuleDto ruleDto) {
+    Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> result;
+    try {
+      result = KeyValueFormat.parse(impactsAsString)
+        .entrySet()
+        .stream().collect(Collectors.toMap(e -> SoftwareQuality.valueOf(e.getKey()), e -> org.sonar.api.issue.impact.Severity.valueOf(e.getValue())));
+    } catch (Exception e) {
+      throw BadRequestException.create(format("Unexpected value for parameter '%s': %s", PARAM_IMPACTS, impactsAsString));
+    }
+    if (!ruleDto.getDefaultImpactsMap().keySet().containsAll(result.keySet())) {
+      throw BadRequestException.create(
+        format("Only impacts defined on the rule can be overridden. (%s)", ruleDto.getDefaultImpactsMap().keySet().stream().map(Enum::name).collect(Collectors.joining(","))));
+    }
+    return result;
+
   }
 
 }
