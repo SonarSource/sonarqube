@@ -31,6 +31,7 @@ import org.sonar.xoo.extensions.XooExcludeFileFilter;
 import org.sonar.xoo.extensions.XooIssueFilter;
 import org.sonar.xoo.extensions.XooPostJob;
 import org.sonar.xoo.extensions.XooProjectBuilder;
+import org.sonar.xoo.rule.telemetry.SensorMetrics;
 import org.sonar.xoo.global.DeprecatedGlobalSensor;
 import org.sonar.xoo.global.GlobalProjectSensor;
 import org.sonar.xoo.lang.CpdTokenizerSensor;
@@ -85,6 +86,7 @@ import org.sonar.xoo.rule.XooSonarWayProfile;
 import org.sonar.xoo.rule.hotspot.HotspotWithContextsSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithSingleContextSensor;
 import org.sonar.xoo.rule.hotspot.HotspotWithoutContextSensor;
+import org.sonar.xoo.rule.telemetry.OneIssuePerUninitializedVariableForTelemetrySensor;
 import org.sonar.xoo.rule.variant.HotspotWithCodeVariantsSensor;
 import org.sonar.xoo.rule.variant.IssueWithCodeVariantsSensor;
 import org.sonar.xoo.scm.XooBlameCommand;
@@ -174,6 +176,8 @@ public class XooPlugin implements Plugin {
       OnePredefinedRuleExternalIssuePerLineSensor.class,
       OnePredefinedAndAdHocRuleExternalIssuePerLineSensor.class,
 
+      OneIssuePerUninitializedVariableForTelemetrySensor.class,
+
       CreateIssueByInternalKeySensor.class,
       MultilineIssuesSensor.class,
       MultilineHotspotSensor.class,
@@ -184,6 +188,7 @@ public class XooPlugin implements Plugin {
       OneVulnerabilityIssuePerProjectSensor.class,
       OneVulnerabilityPerSecurityStandardSensor.class,
 
+      SensorMetrics.class,
       DeprecatedGlobalSensor.class,
       GlobalProjectSensor.class,
 
