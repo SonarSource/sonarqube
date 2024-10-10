@@ -388,3 +388,13 @@ message Impact {
   string software_quality = 1;
   string severity = 2;
 }
+
+message Dependency {
+  string key = 1;
+  string name = 2;
+  optional string package_manager = 3;
+  optional string full_name = 4;
+  optional string description = 5;
+  optional string version = 6;
+  repeated string parent_dependency_key = 7;
+}

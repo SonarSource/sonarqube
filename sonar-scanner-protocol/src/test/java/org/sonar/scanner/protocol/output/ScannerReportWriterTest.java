@@ -128,8 +128,6 @@ class ScannerReportWriterTest {
 
   @Test
   void write_adhoc_rule() {
-
-    // write data
     ScannerReport.AdHocRule rule = ScannerReport.AdHocRule.newBuilder()
       .setEngineId("eslint")
       .setRuleId("123")
@@ -149,8 +147,6 @@ class ScannerReportWriterTest {
 
   @Test
   void write_cve() {
-
-    // write data
     ScannerReport.Cve cve = ScannerReport.Cve.newBuilder()
       .setCveId("CVE-2023-20863")
       .setDescription("In spring framework versions prior to 5.2.24 release+ ,5.3.27+ and 6.0.8+ , it is possible for a user to provide a" +
@@ -368,7 +364,6 @@ class ScannerReportWriterTest {
 
   @Test
   void write_telemetry() {
-
     List<ScannerReport.TelemetryEntry> input = List.of(
       ScannerReport.TelemetryEntry.newBuilder()
         .setKey("key")
@@ -387,4 +382,24 @@ class ScannerReportWriterTest {
         .hasSize(input.size());
     }
   }
+
+  @Test
+  void write_dependencies() {
+    ScannerReport.Dependency dependency = ScannerReport.Dependency.newBuilder()
+      .setKey("mvn+com.fasterxml.jackson.core:jackson-databind$2.9.7")
+      .setName("jackson-databind")
+      .setFullName("com.fasterxml.jackson.core:jackson-databind")
+      .setDescription("General data-binding functionality for Jackson: works on core streaming API")
+      .setVersion("2.9.7")
+      .addParentDependencyKey("mvn+org.springframework:spring-webmvc$5.1.3.RELEASE")
+      .build();
+    underTest.appendDependency(dependency);
+
+    File file = underTest.getFileStructure().dependencies();
+    assertThat(file).exists().isFile();
+    try (CloseableIterator<ScannerReport.Dependency> read = Protobuf.readStream(file, ScannerReport.Dependency.parser())) {
+      assertThat(Iterators.size(read)).isOne();
+    }
+  }
+
 }
