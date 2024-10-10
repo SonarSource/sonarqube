@@ -77,25 +77,25 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
 
   private String getSelectUuidQuery() {
     return format("""
-    SELECT uuid
-    FROM %s
-    WHERE measures_migrated = ?
-    """, tableName);
+      SELECT uuid
+      FROM %s
+      WHERE measures_migrated = ?
+      """, tableName);
   }
 
   private String getCountQuery() {
     return format("""
-    SELECT count(uuid)
-    FROM %s
-    """, tableName);
+      SELECT count(uuid)
+      FROM %s
+      """, tableName);
   }
 
   private String getUpdateFlagQuery() {
     return format("""
-    UPDATE %s
-    SET measures_migrated = ?
-    WHERE uuid = ?
-    """, tableName);
+      UPDATE %s
+      SET measures_migrated = ?
+      WHERE uuid = ?
+      """, tableName);
   }
 
   @Override
@@ -149,20 +149,23 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
     });
     // insert the last component
     if (!measureValues.isEmpty()) {
-      Upsert measureInsert = context.prepareUpsert(INSERT_QUERY);
-      preparePersistMeasure(uuid, measureInsert, componentUuid, measureValues);
-      measureInsert
-        .execute()
-        .commit();
+      try (Upsert measureInsert = context.prepareUpsert(INSERT_QUERY)) {
+        preparePersistMeasure(uuid, measureInsert, componentUuid, measureValues);
+        measureInsert
+          .execute()
+          .commit();
+      }
     }
 
     LOGGER.debug("Flagging migration done for {} {}...", item, uuid);
 
-    context.prepareUpsert(getUpdateFlagQuery())
-      .setBoolean(1, true)
-      .setString(2, uuid)
-      .execute()
-      .commit();
+    try (Upsert flagUpdate = context.prepareUpsert(getUpdateFlagQuery())) {
+      flagUpdate
+        .setBoolean(1, true)
+        .setString(2, uuid)
+        .execute()
+        .commit();
+    }
 
     LOGGER.debug("Migration finished for {} {}", item, uuid);
   }
