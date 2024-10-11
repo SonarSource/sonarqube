@@ -111,7 +111,12 @@ public abstract class AbstractMigrateLiveMeasuresToMeasures extends DataChange {
     int migrated = 0;
 
     for (String uuid : uuids) {
-      migrateItem(uuid, context);
+      try {
+        migrateItem(uuid, context);
+      } catch (Exception e) {
+        LOGGER.error(format("Migration of %s %s failed", item, uuid));
+        throw e;
+      }
 
       migrated++;
       if (migrated % 100 == 0) {

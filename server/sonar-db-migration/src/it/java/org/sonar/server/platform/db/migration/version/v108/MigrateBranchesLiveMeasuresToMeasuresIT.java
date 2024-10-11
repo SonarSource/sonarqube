@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.MigrationDbTester;
@@ -33,6 +35,7 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 
@@ -45,6 +48,9 @@ class MigrateBranchesLiveMeasuresToMeasuresIT {
   @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(MigrateBranchesLiveMeasuresToMeasures.class);
 
+  @RegisterExtension
+  private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
+
   private final SequenceUuidFactory uuidFactory = new SequenceUuidFactory();
   private final System2 system2 = mock();
   private final DataChange underTest = new MigrateBranchesLiveMeasuresToMeasures(db.database(), system2);
@@ -54,6 +60,23 @@ class MigrateBranchesLiveMeasuresToMeasuresIT {
     underTest.execute();
 
     assertThat(db.countRowsOfTable("measures")).isZero();
+  }
+
+  @Test
+  void log_the_item_uuid_when_the_migration_fails() {
+    String nclocMetricUuid = insertMetric("ncloc", "INT");
+    String branch1 = "branch_1";
+    insertNotMigratedBranch(branch1);
+    insertMeasure(branch1, nclocMetricUuid, Map.of("value", 120));
+
+    db.executeDdl("drop table measures");
+    db.assertTableDoesNotExist("measures");
+
+    assertThatExceptionOfType(SQLException.class)
+      .isThrownBy(underTest::execute);
+
+    assertThat(logTester.logs(Level.ERROR))
+      .contains("Migration of branch branch_1 failed");
   }
 
   @Test
