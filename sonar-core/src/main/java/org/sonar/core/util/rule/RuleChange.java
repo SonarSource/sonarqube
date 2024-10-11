@@ -20,8 +20,12 @@
 package org.sonar.core.util.rule;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.core.util.ParamChange;
 
 public class RuleChange implements Serializable {
@@ -30,6 +34,7 @@ public class RuleChange implements Serializable {
   private String templateKey;
   private String severity;
   private ParamChange[] params = new ParamChange[0];
+  private final List<Impact> impacts = new ArrayList<>();
 
   public String getKey() {
     return key;
@@ -76,5 +81,31 @@ public class RuleChange implements Serializable {
   public RuleChange setParams(ParamChange[] params) {
     this.params = params;
     return this;
+  }
+
+  public List<Impact> getImpacts() {
+    return impacts;
+  }
+
+  public void addImpact(SoftwareQuality softwareQuality, Severity severity) {
+    impacts.add(new Impact(softwareQuality, severity));
+  }
+
+  static class Impact implements Serializable {
+    private final SoftwareQuality softwareQuality;
+    private final Severity severity;
+
+    Impact(SoftwareQuality softwareQuality, Severity severity) {
+      this.softwareQuality = softwareQuality;
+      this.severity = severity;
+    }
+
+    public SoftwareQuality getSoftwareQuality() {
+      return softwareQuality;
+    }
+
+    public Severity getSeverity() {
+      return severity;
+    }
   }
 }

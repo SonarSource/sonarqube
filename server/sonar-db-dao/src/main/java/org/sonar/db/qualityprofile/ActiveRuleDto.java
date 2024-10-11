@@ -214,6 +214,7 @@ public class ActiveRuleDto {
     dto.setProfileUuid(profile.getRulesProfileUuid());
     dto.setRuleUuid(ruleDto.getUuid());
     dto.setKey(ActiveRuleKey.of(profile, ruleDto.getKey()));
+    dto.setImpacts(ruleDto.getDefaultImpactsMap());
     return dto;
   }
 
