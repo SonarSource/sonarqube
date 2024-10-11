@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { PropsWithChildren } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -119,7 +120,8 @@ const TabButton = styled(BareButton)<{
 
   height: 34px;
   background: ${(props) => (props.selected ? themeColor('backgroundSecondary') : 'none')};
-  color: ${(props) => (props.selected ? themeColor('tabSelected') : themeColor('tab'))};
+  color: ${(props) =>
+    props.selected ? themeColor('tabSelected') : 'var(--echoes-color-text-subdued)'};
   border: ${(props) =>
     props.selected ? props.borderColor : themeBorder('default', 'transparent')};
   border-bottom: ${(props) =>
