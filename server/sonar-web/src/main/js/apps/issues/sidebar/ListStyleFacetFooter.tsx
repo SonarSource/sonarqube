@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { useTheme } from '@emotion/react';
-import { DiscreetLink, Theme } from 'design-system';
+import { DiscreetLink } from 'design-system';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
@@ -42,8 +41,6 @@ export function ListStyleFacetFooter({
   showMoreAriaLabel,
   total,
 }: Props) {
-  const theme = useTheme() as Theme;
-
   const hasMore = total > nbShown;
   const allShown = Boolean(total && total === nbShown);
 
