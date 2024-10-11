@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import * as React from 'react';
 import tw from 'twin.macro';
-import { themeBorder, themeColor, themeContrast } from '../helpers';
+import { themeBorder, themeColor } from '../helpers';
 import { isDefined } from '../helpers/types';
 import { ButtonProps, ButtonSecondary } from '../sonar-aligned/components/buttons';
 
@@ -142,7 +143,7 @@ const StyledButton = styled(ButtonSecondary)<{ active?: boolean; small?: boolean
     border-color: transparent;
 
     & span.container span.stat {
-      color: ${themeContrast('buttonDisabled')};
+      color: var(--echoes-color-text-disabled);
     }
 
     &:hover {

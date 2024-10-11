@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import classNames from 'classnames';
@@ -101,7 +102,7 @@ const accordionStyle = (props: ThemedProps) => css`
 
   & > button:disabled,
   & > button:disabled:hover {
-    color: ${themeContrast('buttonDisabled')(props)};
+    color: var(--echoes-color-text-disabled);
     background-color: ${themeColor('buttonDisabled')(props)};
     border: ${themeBorder('default', 'buttonDisabledBorder')(props)};
 

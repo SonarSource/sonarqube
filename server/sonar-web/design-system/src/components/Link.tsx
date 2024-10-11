@@ -300,7 +300,7 @@ StandoutLink.displayName = 'StandoutLink';
 /** @deprecated Use either Link or LinkStandalone from Echoes instead.
  */
 export const IssueIndicatorLink = styled(BaseLink)`
-  color: ${themeColor('codeLineMeta')};
+  color: var(--echoes-color-text-subdued);
   text-decoration: none;
 
   ${tw`sw-whitespace-nowrap`}

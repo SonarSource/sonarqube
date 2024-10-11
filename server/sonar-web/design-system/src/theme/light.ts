@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { OPACITY_20_PERCENT, OPACITY_75_PERCENT } from '../helpers/constants';
 import COLORS from './colors';
 
@@ -76,7 +77,6 @@ export const lightTheme = {
     danger: danger.dark,
 
     // text
-    textDisabled: COLORS.blueGrey[300],
     textSubdued: COLORS.blueGrey[400],
     textSuccess: COLORS.yellowGreen[700],
 
@@ -156,7 +156,6 @@ export const lightTheme = {
     radioDisabled: secondary.default,
     radioDisabledBackground: secondary.light,
     radioDisabledBorder: secondary.default,
-    radioDisabledLabel: COLORS.blueGrey[300],
 
     // switch
     switch: secondary.default,
@@ -178,7 +177,6 @@ export const lightTheme = {
 
     //separator-circle
     separatorCircle: COLORS.blueGrey[200],
-    separatorSlash: COLORS.blueGrey[300],
 
     // rule breakdown table
     breakdownBorder: COLORS.grey[100],
@@ -270,7 +268,6 @@ export const lightTheme = {
     codeLineHover: secondary.light,
     codeLineHighlighted: COLORS.blueGrey[100],
     codeLineNewCodeUnderline: [...COLORS.indigo[300], 0.15],
-    codeLineMeta: COLORS.blueGrey[300],
     codeLineMetaHover: secondary.dark,
     codeLineDuplication: secondary.default,
     codeLineCovered: COLORS.green[300],
@@ -281,7 +278,6 @@ export const lightTheme = {
     codeLineIssuePointerBorder: COLORS.white,
     codeLineLocationHighlighted: [...COLORS.blueGrey[200], 0.6],
     codeLineEllipsis: COLORS.white,
-    codeLineEllipsisContrast: COLORS.blueGrey[300],
     codeLineEllipsisHover: secondary.light,
     codeLineEllipsisHoverContrast: secondary.dark,
     codeLineIssueLocation: [...danger.lighter, 0.15],
@@ -416,16 +412,10 @@ export const lightTheme = {
     iconSoftwareImpactSeverityMedium: COLORS.orange[400],
     iconSoftwareImpactSeverityLow: COLORS.yellow[500],
     iconSoftwareImpactSeverityInfo: COLORS.blue[600],
-    iconSoftwareImpactSeverityDisabled: COLORS.blueGrey[300],
     iconSeverityMajor: danger.light,
     iconSeverityMinor: COLORS.yellowGreen[400],
     iconSeverityInfo: COLORS.blue[400],
-    iconSeverityDisabled: COLORS.blueGrey[300],
-    iconTypeDisabled: COLORS.blueGrey[300],
     iconDirectory: COLORS.orange[300],
-    iconFile: COLORS.blueGrey[300],
-    iconProject: COLORS.blueGrey[300],
-    iconUnitTest: COLORS.blueGrey[300],
     iconFavorite: COLORS.tangerine[400],
     iconCheck: COLORS.green[500],
     iconPositiveUpdate: COLORS.green[300],
@@ -557,7 +547,6 @@ export const lightTheme = {
     facetItemSelected: COLORS.indigo[50],
     facetItemSelectedHover: COLORS.indigo[100],
     facetItemSelectedBorder: primary.light,
-    facetItemDisabled: COLORS.blueGrey[300],
     facetItemLight: secondary.dark,
     facetItemGraph: secondary.default,
     facetKeyboardHint: COLORS.blueGrey[50],
@@ -572,7 +561,6 @@ export const lightTheme = {
     subnavigationBorder: COLORS.grey[100],
     subnavigationSeparator: COLORS.grey[50],
     subnavigationSubheading: COLORS.blueGrey[25],
-    subnavigationDisabled: COLORS.blueGrey[300],
     subnavigationExecutionFlow: COLORS.blueGrey[25],
     subnavigationExecutionFlowBorder: secondary.default,
     subnavigationExecutionFlowSeparator: COLORS.blueGrey[100],
@@ -626,7 +614,6 @@ export const lightTheme = {
     pageBlockBorder: COLORS.blueGrey[100],
 
     // core concepts
-    coreConceptsCloseIcon: COLORS.blueGrey[300],
     coreConceptsTitle: secondary.darker,
     coreConceptsBody: secondary.darker,
     coreConceptsHomeBorder: COLORS.blueGrey[100],
@@ -746,7 +733,6 @@ export const lightTheme = {
     // switch
     switchHover: primary.light,
     switchButton: primary.default,
-    switchButtonDisabled: COLORS.blueGrey[300],
 
     // sidebar
     sidebarBackground: COLORS.blueGrey[200],
@@ -762,7 +748,6 @@ export const lightTheme = {
     bannerMessage: COLORS.red[900],
 
     // buttons
-    buttonDisabled: COLORS.blueGrey[300],
     buttonSecondary: secondary.darker,
 
     // danger buttons
@@ -777,7 +762,6 @@ export const lightTheme = {
 
     // dropdown menu
     dropdownMenu: secondary.darker,
-    dropdownMenuDisabled: COLORS.blueGrey[300],
     dropdownMenuHeader: secondary.dark,
 
     // toggle buttons
@@ -788,7 +772,6 @@ export const lightTheme = {
     codeLineNewCodeUnderline: COLORS.indigo[500],
     codeLineCoveredUnderline: COLORS.green[700],
     codeLineUncoveredUnderline: COLORS.red[700],
-    codeLineEllipsis: COLORS.blueGrey[300],
     codeLineEllipsisHover: secondary.dark,
     codeLineLocationMarker: COLORS.red[900],
     codeLineLocationMarkerSelected: COLORS.red[900],
@@ -805,7 +788,6 @@ export const lightTheme = {
 
     // input field
     inputBackground: secondary.darker,
-    inputDisabled: COLORS.blueGrey[300],
 
     // tooltip
     tooltipBackground: secondary.light,

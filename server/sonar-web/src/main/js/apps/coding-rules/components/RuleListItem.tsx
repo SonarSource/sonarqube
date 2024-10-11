@@ -286,7 +286,7 @@ export default function RuleListItem(props: Readonly<Props>) {
               >
                 <TypeHelper
                   className="sw-flex sw-items-center"
-                  iconFill="iconTypeDisabled"
+                  iconFill="var(--echoes-color-icon-disabled)"
                   type={rule.type}
                 />
               </DocHelpTooltip>

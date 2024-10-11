@@ -65,11 +65,11 @@ export default function RuleDetailsHeaderActions(props: Readonly<Props>) {
           data-meta="type"
         >
           <IssueTypeIcon
-            fill="iconTypeDisabled"
-            type={ruleDetails.type}
             aria-hidden
-            width={12}
+            fill="var(--echoes-color-icon-disabled)"
             height={12}
+            type={ruleDetails.type}
+            width={12}
           />
           {translate('issue.type', ruleDetails.type)}
         </TextSubdued>
@@ -96,11 +96,11 @@ export default function RuleDetailsHeaderActions(props: Readonly<Props>) {
           data-meta="severity"
         >
           <IssueSeverityIcon
-            fill="iconSeverityDisabled"
-            severity={ruleDetails.severity as IssueSeverity}
             aria-hidden
-            width={12}
+            fill="var(--echoes-color-icon-disabled)"
             height={12}
+            severity={ruleDetails.severity as IssueSeverity}
+            width={12}
           />
           {translate('severity', ruleDetails.severity)}
         </TextSubdued>

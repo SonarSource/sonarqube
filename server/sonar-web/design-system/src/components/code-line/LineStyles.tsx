@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
@@ -63,7 +64,7 @@ export const LineStyled = styled.tr`
 LineStyled.displayName = 'LineStyled';
 
 export const LineMeta = styled.td`
-  color: ${themeColor('codeLineMeta')};
+  color: var(--echoes-color-text-subdued);
   background-color: var(--line-background);
   outline: none;
 
@@ -148,14 +149,15 @@ export const UncoveredUnderlineLabel = styled(UnderlineLabel)`
 export const LineCodeEllipsisStyled = styled(BareButton)`
   ${tw`sw-flex sw-items-center sw-gap-2`}
   ${tw`sw-px-2 sw-py-1`}
-${tw`sw-code`}
-${tw`sw-w-full`}
-${tw`sw-box-border`}
-color: ${themeColor('codeLineEllipsisContrast')};
-  background-color: ${themeColor('codeLineEllipsis')};
+  ${tw`sw-code`}
+  ${tw`sw-w-full`}
+  ${tw`sw-box-border`}
 
   border-top: ${themeBorder('default', 'codeLineBorder')};
   border-bottom: ${themeBorder('default', 'codeLineBorder')};
+
+  color: var(--echoes-color-text-subdued);
+  background-color: ${themeColor('codeLineEllipsis')};
 
   &:hover {
     color: ${themeColor('codeLineEllipsisHoverContrast')};

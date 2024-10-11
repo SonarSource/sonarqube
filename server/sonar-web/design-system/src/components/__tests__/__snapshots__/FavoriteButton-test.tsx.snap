@@ -49,7 +49,7 @@ exports[`should render favorite empty 1`] = `
 
 .emotion-1:disabled,
 .emotion-1:disabled:hover {
-  color: rgb(166,173,194);
+  color: var(--echoes-color-icon-disabled);
   background-color: var(--background);
   cursor: not-allowed;
 }
@@ -132,7 +132,7 @@ exports[`should render favorite filled 1`] = `
 
 .emotion-1:disabled,
 .emotion-1:disabled:hover {
-  color: rgb(166,173,194);
+  color: var(--echoes-color-icon-disabled);
   background-color: var(--background);
   cursor: not-allowed;
 }

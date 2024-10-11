@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import classNames from 'classnames';
@@ -381,7 +382,7 @@ const itemStyle = (props: ThemedProps) => css`
 
   &:disabled,
   &.disabled {
-    color: ${themeContrast('dropdownMenuDisabled')(props)};
+    color: var(--echoes-color-text-disabled);
     background-color: ${themeColor('dropdownMenuDisabled')(props)};
     pointer-events: none !important;
 

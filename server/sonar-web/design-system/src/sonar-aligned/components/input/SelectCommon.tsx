@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { useTheme as themeInfo } from '@emotion/react';
 import { RefObject } from 'react';
 import { useIntl } from 'react-intl';
@@ -153,7 +154,7 @@ export function selectStyle<
           : 'none',
       borderRadius: '4px',
       ...(isDisabled && {
-        color: themeContrast('inputDisabled')({ theme }),
+        color: 'var(--echoes-color-text-disabled)',
         background: themeColor('inputDisabled')({ theme }),
         border: themeBorder('default', 'inputDisabledBorder')({ theme }),
         outline: 'none',

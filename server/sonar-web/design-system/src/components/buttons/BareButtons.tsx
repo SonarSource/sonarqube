@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../../helpers';
@@ -33,7 +34,7 @@ export const CodeViewerExpander = styled(BareButton)<CodeViewerExpanderProps>`
   ${tw`sw-w-full`}
   ${tw`sw-box-border`}
 
-  color: ${themeContrast('codeLineEllipsis')};
+  color: var(--echoes-color-text-subdued);
   background-color: ${themeColor('codeLineEllipsis')};
 
   &:hover {
@@ -49,7 +50,7 @@ export const CodeViewerExpander = styled(BareButton)<CodeViewerExpanderProps>`
 `;
 
 export const IssueIndicatorButton = styled(BareButton)`
-  color: ${themeColor('codeLineMeta')};
+  color: var(--echoes-color-text-subdued);
   text-decoration: none;
 
   ${tw`sw-whitespace-nowrap`}

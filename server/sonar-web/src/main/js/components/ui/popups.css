@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 .popup {
   position: absolute;
   z-index: var(--popupZIndex);
   margin-top: -16px;
   margin-left: 8px;
   padding: var(--gridSize);
-  border: 1px solid var(--neutral200);
+  border: 1px solid var(--echoes-color-border-weak);
   border-radius: 3px;
   box-sizing: border-box;
   background-color: #ffffff;

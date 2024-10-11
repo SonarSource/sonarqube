@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { ForwardedRef, forwardRef } from 'react';
 import tw from 'twin.macro';
@@ -75,7 +76,7 @@ const CheckIconContainer = styled.div<StyledProps>`
   ${tw`sw-flex sw-items-center sw-justify-center`}
   ${tw`sw-w-4 sw-h-4`}
   color: ${({ disabled }) =>
-    disabled ? themeContrast('switchButtonDisabled') : themeContrast('switchButton')};
+    disabled ? 'var(--echoes-color-icon-disabled)' : themeContrast('switchButton')};
   background: ${({ disabled }) =>
     disabled ? themeColor('switchButtonDisabled') : themeColor('switchButton')};
   border: none;

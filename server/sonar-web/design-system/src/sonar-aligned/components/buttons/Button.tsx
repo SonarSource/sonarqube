@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import React, { MouseEvent, ReactNode, forwardRef, useCallback } from 'react';
 import tw from 'twin.macro';
 import { BaseLink, LinkProps } from '../../../components/Link';
-import { themeBorder, themeColor, themeContrast } from '../../../helpers/theme';
+import { themeBorder, themeColor } from '../../../helpers/theme';
 import { ThemedProps } from '../../../types/theme';
 
 type AllowedButtonAttributes = Pick<
@@ -153,7 +154,7 @@ export const buttonStyle = (props: ThemedProps) => css`
 
   &:disabled,
   &:disabled:hover {
-    color: ${themeContrast('buttonDisabled')(props)};
+    color: var(--echoes-color-text-disabled);
     background-color: ${themeColor('buttonDisabled')(props)};
     border: ${themeBorder('default', 'buttonDisabledBorder')(props)};
 
@@ -176,7 +177,7 @@ const BaseButtonLink = styled(BaseLink)`
   ${({ disabled, theme }) =>
     disabled
       ? `&, &:hover, &:focus, &:active {
-        color: ${themeContrast('buttonDisabled')({ theme })};
+        color: var(--echoes-color-text-disabled);
         background-color: ${themeColor('buttonDisabled')({ theme })};
         border: ${themeBorder('default', 'buttonDisabledBorder')({ theme })};
         cursor: not-allowed;

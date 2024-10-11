@@ -2,7 +2,7 @@
 
 exports[`should render correctly when covered 1`] = `
 .emotion-0 {
-  color: rgb(166,173,194);
+  color: var(--echoes-color-text-subdued);
   background-color: var(--line-background);
   outline: none;
   height: 100%;
@@ -46,7 +46,7 @@ exports[`should render correctly when covered 1`] = `
 
 exports[`should render correctly when no data 1`] = `
 .emotion-0 {
-  color: rgb(166,173,194);
+  color: var(--echoes-color-text-subdued);
   background-color: var(--line-background);
   outline: none;
   height: 100%;
@@ -72,7 +72,7 @@ exports[`should render correctly when no data 1`] = `
 
 exports[`should render correctly when partially covered with 5/10 conditions 1`] = `
 .emotion-0 {
-  color: rgb(166,173,194);
+  color: var(--echoes-color-text-subdued);
   background-color: var(--line-background);
   outline: none;
   height: 100%;
@@ -133,7 +133,7 @@ exports[`should render correctly when partially covered with 5/10 conditions 1`]
 
 exports[`should render correctly when partially covered without conditions 1`] = `
 .emotion-0 {
-  color: rgb(166,173,194);
+  color: var(--echoes-color-text-subdued);
   background-color: var(--line-background);
   outline: none;
   height: 100%;
@@ -194,7 +194,7 @@ exports[`should render correctly when partially covered without conditions 1`] =
 
 exports[`should render correctly when uncovered 1`] = `
 .emotion-0 {
-  color: rgb(166,173,194);
+  color: var(--echoes-color-text-subdued);
   background-color: var(--line-background);
   outline: none;
   height: 100%;

@@ -29,6 +29,8 @@ interface Props extends IconProps {
   qualifier: string | null | undefined;
 }
 
+const defaultIconfill = 'var(--echoes-color-icon-subdued)';
+
 export function QualifierIcon({ qualifier, fill, ...iconProps }: Readonly<Props>) {
   const theme = useTheme();
 
@@ -37,13 +39,13 @@ export function QualifierIcon({ qualifier, fill, ...iconProps }: Readonly<Props>
   }
 
   const icon = {
+    app: ApplicationIcon({ fill: fill ?? defaultIconfill, ...iconProps }),
     dir: <DirectoryIcon fill={fill ?? themeColor('iconDirectory')({ theme })} {...iconProps} />,
-    fil: <FileIcon fill={fill ?? themeColor('iconFile')({ theme })} {...iconProps} />,
-    trk: <ProjectIcon fill={fill ?? themeColor('iconProject')({ theme })} {...iconProps} />,
-    uts: <TestFileIcon fill={fill ?? themeColor('iconProject')({ theme })} {...iconProps} />,
-    app: ApplicationIcon({ fill: fill ?? themeColor('iconProject')({ theme }), ...iconProps }),
-    vw: PortfolioIcon({ fill: fill ?? themeColor('iconProject')({ theme }), ...iconProps }),
-    svw: SubPortfolioIcon({ fill: fill ?? themeColor('iconProject')({ theme }), ...iconProps }),
+    fil: <FileIcon fill={fill ?? defaultIconfill} {...iconProps} />,
+    svw: SubPortfolioIcon({ fill: fill ?? defaultIconfill, ...iconProps }),
+    trk: <ProjectIcon fill={fill ?? defaultIconfill} {...iconProps} />,
+    uts: <TestFileIcon fill={fill ?? defaultIconfill} {...iconProps} />,
+    vw: PortfolioIcon({ fill: fill ?? defaultIconfill, ...iconProps }),
   }[qualifier.toLowerCase()];
 
   return icon ?? null;

@@ -140,6 +140,6 @@ const NavBarTabLinkWrapper = styled.li`
   & > a.disabled-link.hover {
     ${tw`sw-cursor-default`};
     border-bottom: ${themeBorder('xsActive', 'transparent', 1)};
-    color: ${themeContrast('subnavigationDisabled')};
+    color: var(--echoes-color-text-disabled);
   }
 `;

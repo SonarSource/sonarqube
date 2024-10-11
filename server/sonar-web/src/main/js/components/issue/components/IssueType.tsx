@@ -43,7 +43,12 @@ export default function IssueType({ issue, ...iconProps }: Readonly<Props>) {
       ]}
     >
       <TextSubdued className="sw-flex sw-items-center sw-gap-1/2">
-        <IssueTypeIcon fill="iconTypeDisabled" type={issue.type} aria-hidden {...iconProps} />
+        <IssueTypeIcon
+          aria-hidden
+          fill="var(--echoes-color-icon-disabled)"
+          type={issue.type}
+          {...iconProps}
+        />
         {translate('issue.type', issue.type)}
       </TextSubdued>
     </DocHelpTooltip>

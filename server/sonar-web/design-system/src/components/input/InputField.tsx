@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import { forwardRef } from 'react';
@@ -117,7 +118,7 @@ const baseStyle = (props: ThemedProps) => css`
 
   &:disabled,
   &:disabled:hover {
-    color: ${themeContrast('inputDisabled')(props)};
+    color: var(--echoes-color-text-disabled);
     background-color: ${themeColor('inputDisabled')(props)};
     border: ${themeBorder('default', 'inputDisabledBorder')(props)};
     outline: none;

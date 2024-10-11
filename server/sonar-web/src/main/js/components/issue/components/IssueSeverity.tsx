@@ -45,9 +45,9 @@ export default function IssueSeverity({ issue, ...iconProps }: Readonly<Props>) 
     >
       <TextSubdued className="sw-flex sw-items-center sw-gap-1/2">
         <IssueSeverityIcon
-          fill="iconSeverityDisabled"
-          severity={issue.severity as IssueSeverityType}
           aria-hidden
+          fill="var(--echoes-color-icon-disabled)"
+          severity={issue.severity as IssueSeverityType}
           {...iconProps}
         />
         {translate('severity', issue.severity)}

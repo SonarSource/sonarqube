@@ -76,7 +76,7 @@ exports[`should highlight code content correctly 1`] = `
 
 .emotion-4:disabled,
 .emotion-4:disabled:hover {
-  color: rgb(166,173,194);
+  color: var(--echoes-color-text-disabled);
   background-color: rgb(239,242,249);
   border: 1px solid rgb(197,205,223);
   cursor: not-allowed;
@@ -283,7 +283,7 @@ exports[`should show full size when multiline with no editing 1`] = `
 
 .emotion-4:disabled,
 .emotion-4:disabled:hover {
-  color: rgb(166,173,194);
+  color: var(--echoes-color-text-disabled);
   background-color: rgb(239,242,249);
   border: 1px solid rgb(197,205,223);
   cursor: not-allowed;
@@ -494,7 +494,7 @@ exports[`should show reduced size when single line with no editing 1`] = `
 
 .emotion-4:disabled,
 .emotion-4:disabled:hover {
-  color: rgb(166,173,194);
+  color: var(--echoes-color-text-disabled);
   background-color: rgb(239,242,249);
   border: 1px solid rgb(197,205,223);
   cursor: not-allowed;
