@@ -122,9 +122,6 @@
     "typescript": "5.6.2",
     "whatwg-fetch": "3.6.20"
   },
-  "resolutions": {
-    "@types/react": "18.3.11"
-  },
   "scripts": {
     "start": "node scripts/start.js",
     "start:force": "node scripts/start.js --force-build-design-system",
