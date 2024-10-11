@@ -128,7 +128,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
       rule: rule.key,
       severity: !isMQRMode ? severity : undefined,
       prioritizedRule,
-      softwareQualityImpact: isMQRMode
+      impacts: isMQRMode
         ? (Object.fromEntries(impacts) as Record<SoftwareQuality, SoftwareImpactSeverity>)
         : undefined,
     };

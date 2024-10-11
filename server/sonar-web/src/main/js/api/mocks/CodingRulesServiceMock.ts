@@ -607,10 +607,10 @@ export default class CodingRulesServiceMock {
       ) &&
       (!data.severity || currentActivation.severity === data.severity) &&
       currentActivation.prioritizedRule === data.prioritizedRule &&
-      (!data.softwareQualityImpact ||
+      (!data.impacts ||
         isEqual(
           currentActivation.impacts,
-          Object.entries(data.softwareQualityImpact).map(([softwareQuality, severity]) => ({
+          Object.entries(data.impacts).map(([softwareQuality, severity]) => ({
             softwareQuality,
             severity,
           })),
@@ -623,8 +623,8 @@ export default class CodingRulesServiceMock {
     const inheritedImpacts =
       this.rulesActivations[data.rule]?.find(({ qProfile }) => qProfile === data.key)?.impacts ??
       [];
-    const severity = data.softwareQualityImpact
-      ? MQRtoStandardSeverityMap[data.softwareQualityImpact[SoftwareQuality.Maintainability]]
+    const severity = data.impacts
+      ? MQRtoStandardSeverityMap[data.impacts[SoftwareQuality.Maintainability]]
       : data.severity;
     const impacts = data.severity
       ? [
@@ -642,7 +642,7 @@ export default class CodingRulesServiceMock {
               StandardtoMQRSeverityMap[data.severity as keyof typeof StandardtoMQRSeverityMap],
           },
         ]
-      : Object.entries(data.softwareQualityImpact ?? {}).map(
+      : Object.entries(data.impacts ?? {}).map(
           ([softwareQuality, severity]: [SoftwareQuality, SoftwareImpactSeverity]) => ({
             softwareQuality,
             severity,

@@ -326,25 +326,23 @@ export function bulkDeactivateRules(data: BulkActivateParameters) {
 }
 
 export interface ActivateRuleParameters {
+  impacts?: Record<SoftwareQuality, SoftwareImpactSeverity>;
   key: string;
   params?: Record<string, string>;
   prioritizedRule?: boolean;
   reset?: boolean;
   rule: string;
   severity?: string;
-  softwareQualityImpact?: Record<SoftwareQuality, SoftwareImpactSeverity>;
 }
 
 export function activateRule(data: ActivateRuleParameters) {
   const params =
     data.params && map(data.params, (value, key) => `${key}=${csvEscape(value)}`).join(';');
-  const softwareQualityImpact =
-    data.softwareQualityImpact &&
-    map(data.softwareQualityImpact, (value, key) => `${key}=${value}`).join(';');
+  const impacts = data.impacts && map(data.impacts, (value, key) => `${key}=${value}`).join(';');
   return post('/api/qualityprofiles/activate_rule', {
     ...data,
     params,
-    softwareQualityImpact,
+    impacts,
   }).catch(throwGlobalError);
 }
 
