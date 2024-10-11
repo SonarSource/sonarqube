@@ -21,7 +21,12 @@ import { fireEvent, screen, within } from '@testing-library/react';
 import CodingRulesServiceMock, { RULE_TAGS_MOCK } from '../../../api/mocks/CodingRulesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { QP_2, RULE_1, RULE_10, RULE_9 } from '../../../api/mocks/data/ids';
-import { CLEAN_CODE_CATEGORIES, SOFTWARE_QUALITIES } from '../../../helpers/constants';
+import {
+  IMPACT_SEVERITIES,
+  ISSUE_TYPES,
+  SEVERITIES,
+  SOFTWARE_QUALITIES,
+} from '../../../helpers/constants';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { byRole } from '../../../sonar-aligned/helpers/testSelector';
 import {
@@ -54,19 +59,63 @@ describe('Rules app list', () => {
       .forEach((name) => expect(ui.ruleListItemLink(name).get()).toBeInTheDocument());
 
     // Render clean code attributes.
-    expect(
-      ui.ruleCleanCodeAttributeCategory(CleanCodeAttributeCategory.Intentional).getAll().length,
-    ).toBeGreaterThan(1);
     expect(ui.ruleSoftwareQuality(SoftwareQuality.Maintainability).getAll().length).toBeGreaterThan(
       1,
     );
 
     // Renders clean code categories and software qualities facets
-    CLEAN_CODE_CATEGORIES.map(
-      (category) => `issue.clean_code_attribute_category.${category}`,
-    ).forEach((name) => expect(ui.facetItem(name).get()).toBeInTheDocument());
-
     SOFTWARE_QUALITIES.map((quality) => `software_quality.${quality}`).forEach((name) =>
+      expect(ui.facetItem(name).get()).toBeInTheDocument(),
+    );
+    IMPACT_SEVERITIES.map((severity) => `severity_impact.${severity}`).forEach((name) =>
+      expect(ui.facetItem(name).get()).toBeInTheDocument(),
+    );
+    expect(
+      ui.facetItem('coding_rules.facet.security_hotspots.show_only').get(),
+    ).toBeInTheDocument();
+
+    // Renders language facets
+    ['JavaScript', 'Java', 'C'].forEach((name) =>
+      expect(ui.facetItem(name).get()).toBeInTheDocument(),
+    );
+
+    // Other facets are collapsed
+    [
+      ui.tagsFacet,
+      ui.cleanCodeCategoriesFacet,
+      ui.repositoriesFacet,
+      ui.statusesFacet,
+      ui.standardsFacet,
+      ui.availableSinceFacet,
+      ui.templateFacet,
+      ui.qpFacet,
+    ].forEach((facet) => {
+      expect(facet.get()).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    // Standard facets are hidden
+    [ui.standardSeveritiesFacet, ui.typeFacet].forEach((facet) => {
+      expect(facet.query()).not.toBeInTheDocument();
+    });
+  });
+
+  it('renders correctly in Standard mode', async () => {
+    const { ui } = getPageObjects();
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    renderCodingRulesApp();
+
+    await ui.appLoaded();
+
+    // Renders list
+    rulesHandler
+      .allRulesName()
+      .forEach((name) => expect(ui.ruleListItemLink(name).get()).toBeInTheDocument());
+
+    // Renders clean code categories and software qualities facets
+    ISSUE_TYPES.map((type) => `issue.type.${type}`).forEach((name) =>
+      expect(ui.facetItem(name).get()).toBeInTheDocument(),
+    );
+    SEVERITIES.map((severity) => `severity.${severity}`).forEach((name) =>
       expect(ui.facetItem(name).get()).toBeInTheDocument(),
     );
 
@@ -79,15 +128,23 @@ describe('Rules app list', () => {
     [
       ui.tagsFacet,
       ui.repositoriesFacet,
-      ui.severetiesFacet,
       ui.statusesFacet,
       ui.standardsFacet,
       ui.availableSinceFacet,
       ui.templateFacet,
       ui.qpFacet,
-      ui.typeFacet,
     ].forEach((facet) => {
       expect(facet.get()).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    // MQR facets are hidden
+    [
+      ui.severetiesFacet,
+      ui.securityHotspotFacet,
+      ui.softwareQualitiesFacet,
+      ui.cleanCodeCategoriesFacet,
+    ].forEach((facet) => {
+      expect(facet.query()).not.toBeInTheDocument();
     });
   });
 
@@ -178,7 +235,10 @@ describe('Rules app list', () => {
 
       expect(ui.getAllRuleListItems()).toHaveLength(11);
       // Filter by clean code category
-      await user.click(ui.facetItem('issue.clean_code_attribute_category.INTENTIONAL').get());
+      await user.click(ui.cleanCodeCategoriesFacet.get());
+      await user.click(
+        await ui.facetItem('issue.clean_code_attribute_category.INTENTIONAL').find(),
+      );
 
       expect(ui.getAllRuleListItems()).toHaveLength(9);
 
@@ -187,9 +247,25 @@ describe('Rules app list', () => {
       expect(ui.getAllRuleListItems()).toHaveLength(9);
 
       // Filter by severity
-      await user.click(ui.severetiesFacet.get());
       await user.click(ui.facetItem(/severity_impact.HIGH/).get());
       expect(ui.getAllRuleListItems()).toHaveLength(8);
+    });
+
+    it('filter by type and severity in standard mode', async () => {
+      const { ui, user } = getPageObjects();
+      settingsHandler.set(SettingsKey.MQRMode, 'false');
+      renderCodingRulesApp(mockCurrentUser());
+      await ui.appLoaded();
+
+      expect(ui.getAllRuleListItems()).toHaveLength(11);
+      // Filter by type
+      await user.click(await ui.facetItem('issue.type.BUG').find());
+
+      expect(ui.getAllRuleListItems()).toHaveLength(7);
+
+      // Filter by severity
+      await user.click(ui.facetItem(/severity.MAJOR/).get());
+      expect(ui.getAllRuleListItems()).toHaveLength(5);
     });
 
     it('filter by standards', async () => {
@@ -790,12 +866,33 @@ describe('redirects', () => {
 
     renderCodingRulesApp(
       mockLoggedInUser(),
-      'coding_rules#languages=c,js|types=BUG|cleanCodeAttributeCategories=INTENTIONAL',
+      'coding_rules#languages=c,js|impactSoftwareQualities=MAINTAINABILITY|cleanCodeAttributeCategories=INTENTIONAL',
     );
-    expect(ui.facetItem('issue.clean_code_attribute_category.INTENTIONAL').get()).toBeChecked();
+    await ui.appLoaded();
+    await user.click(ui.cleanCodeCategoriesFacet.get());
+    expect(
+      await ui.facetItem('issue.clean_code_attribute_category.INTENTIONAL').find(),
+    ).toBeChecked();
 
-    await user.click(ui.typeFacet.get());
-    expect(await ui.facetItem(/issue.type.BUG/).find()).toBeChecked();
+    expect(ui.facetItem('software_quality.MAINTAINABILITY').get()).toBeChecked();
+
+    // Only 2 rules shown
+    expect(screen.getByText('x_of_y_shown.2.2')).toBeInTheDocument();
+  });
+
+  it('should handle hash parameters in STANDARD mode', async () => {
+    const { ui } = getPageObjects();
+
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
+
+    renderCodingRulesApp(
+      mockLoggedInUser(),
+      'coding_rules#languages=c,js|severities=MAJOR|types=BUG',
+    );
+    await ui.appLoaded();
+
+    expect(ui.facetItem(/issue.type.BUG/).get()).toBeChecked();
+    expect(ui.facetItem(/severity.MAJOR/).get()).toBeChecked();
 
     // Only 2 rules shown
     expect(screen.getByText('x_of_y_shown.2.2')).toBeInTheDocument();

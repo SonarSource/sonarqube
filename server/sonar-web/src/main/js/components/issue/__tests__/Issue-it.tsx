@@ -24,11 +24,17 @@ import * as React from 'react';
 import { Route } from 'react-router-dom';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
+import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { mockIssue, mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { ComponentPropsType } from '../../../helpers/testUtils';
+import {
+  CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../../types/clean-code-taxonomy';
 import {
   IssueActions,
   IssueSeverity,
@@ -36,6 +42,7 @@ import {
   IssueTransition,
   IssueType,
 } from '../../../types/issues';
+import { SettingsKey } from '../../../types/settings';
 import { RestUserDetailed } from '../../../types/users';
 import Issue from '../Issue';
 
@@ -45,10 +52,12 @@ jest.mock('../../../helpers/preferences', () => ({
 
 const usersHandler = new UsersServiceMock();
 const issuesHandler = new IssuesServiceMock(usersHandler);
+const settingsHandler = new SettingsServiceMock();
 
 beforeEach(() => {
   issuesHandler.reset();
   usersHandler.reset();
+  settingsHandler.reset();
   usersHandler.users = [mockLoggedInUser() as unknown as RestUserDetailed];
 });
 
@@ -94,6 +103,33 @@ describe('rendering', () => {
     const { ui } = getPageObject();
     renderIssue({ issue: mockIssue(false, { codeVariants: ['variant 1', 'variant 2'] }) });
     await expect(ui.variants(2).get()).toHaveATooltipWithContent('variant 1, variant 2');
+  });
+
+  it('should correctly render in MQR mode', async () => {
+    const { ui } = getPageObject();
+    renderIssue();
+    expect(await ui.softwareQuality(SoftwareQuality.Maintainability).find()).toBeInTheDocument();
+    expect(ui.softwareQualitySeverity(SoftwareImpactSeverity.Medium).get()).toBeInTheDocument();
+    expect(ui.cleanCodeAttribute(CleanCodeAttributeCategory.Responsible).get()).toBeInTheDocument();
+
+    expect(ui.issueType(IssueType.Bug).query()).not.toBeInTheDocument();
+    expect(ui.standardSeverity(IssueSeverity.Major).query()).not.toBeInTheDocument();
+  });
+
+  it('should correctly render in Standard mode', async () => {
+    const { ui } = getPageObject();
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    renderIssue();
+    expect(await ui.issueType(IssueType.Bug).find()).toBeInTheDocument();
+    expect(ui.standardSeverity(IssueSeverity.Major).get()).toBeInTheDocument();
+
+    expect(ui.softwareQuality(SoftwareQuality.Maintainability).query()).not.toBeInTheDocument();
+    expect(
+      ui.softwareQualitySeverity(SoftwareImpactSeverity.Medium).query(),
+    ).not.toBeInTheDocument();
+    expect(
+      ui.cleanCodeAttribute(CleanCodeAttributeCategory.Responsible).query(),
+    ).not.toBeInTheDocument();
   });
 });
 
@@ -191,6 +227,13 @@ function getPageObject() {
     checkbox: byRole('checkbox'),
     issueMessageLink: byRole('link', { name: 'This is an issue' }),
     variants: (n: number) => byText(`issue.x_code_variants.${n}`),
+    softwareQuality: (quality: SoftwareQuality) => byText(`software_quality.${quality}`),
+    softwareQualitySeverity: (severity: SoftwareImpactSeverity) =>
+      byLabelText(`severity_impact.${severity}`),
+    cleanCodeAttribute: (category: CleanCodeAttributeCategory) =>
+      byText(`issue.clean_code_attribute_category.${category}`),
+    issueType: (type: IssueType) => byText(`issue.type.${type}`),
+    standardSeverity: (severity: IssueSeverity) => byLabelText(`severity.${severity}`),
 
     // Changelog
     toggleChangelogBtn: byRole('button', {

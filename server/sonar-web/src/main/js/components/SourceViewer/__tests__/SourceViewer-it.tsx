@@ -24,6 +24,7 @@ import { byLabelText } from '~sonar-aligned/helpers/testSelector';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
+import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
 import { isDiffMetric } from '../../../helpers/measures';
@@ -56,12 +57,14 @@ jest.mock('../helpers/lines', () => {
 const componentsHandler = new ComponentsServiceMock();
 const issuesHandler = new IssuesServiceMock();
 const usersHandler = new UsersServiceMock();
+const settingsHandler = new SettingsServiceMock();
 const message = 'First Issue';
 
 beforeEach(() => {
   issuesHandler.reset();
   componentsHandler.reset();
   usersHandler.reset();
+  settingsHandler.reset();
   usersHandler.users = [mockLoggedInUser() as unknown as RestUserDetailed];
 });
 

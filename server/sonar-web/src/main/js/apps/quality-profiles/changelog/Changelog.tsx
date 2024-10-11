@@ -33,8 +33,6 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
-import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import { parseDate } from '../../../helpers/dates';
 import { getRulesUrl } from '../../../helpers/urls';
 import { ProfileChangelogEvent } from '../types';
@@ -131,14 +129,6 @@ export default function Changelog(props: Props) {
           {event.ruleName && (
             <Link to={getRulesUrl({ rule_key: event.ruleKey })}>{event.ruleName}</Link>
           )}
-          <div className="sw-mt-3 sw-flex sw-gap-2">
-            {event.cleanCodeAttributeCategory && (
-              <CleanCodeAttributePill
-                cleanCodeAttributeCategory={event.cleanCodeAttributeCategory}
-              />
-            )}
-            {event.impacts && <SoftwareImpactPillList softwareImpacts={event.impacts} />}
-          </div>
         </CellComponent>
 
         <ContentCell

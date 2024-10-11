@@ -26,7 +26,7 @@ import * as React from 'react';
 import { deleteIssueComment, editIssueComment } from '../../../api/issues';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
-import { IssueActions } from '../../../types/issues';
+import { IssueActions, IssueSeverity } from '../../../types/issues';
 import { Issue } from '../../../types/types';
 import SoftwareImpactPillList from '../../shared/SoftwareImpactPillList';
 import { updateIssue } from '../actions';
@@ -118,7 +118,12 @@ export default class IssueView extends React.PureComponent<Props> {
             />
 
             <div className="sw-mt-1 sw-flex sw-items-start sw-justify-between">
-              <SoftwareImpactPillList data-guiding-id="issue-2" softwareImpacts={issue.impacts} />
+              <SoftwareImpactPillList
+                data-guiding-id="issue-2"
+                softwareImpacts={issue.impacts}
+                issueSeverity={issue.severity as IssueSeverity}
+                issueType={issue.type}
+              />
               <div className="sw-grow-0 sw-whitespace-nowrap">
                 <IssueTags
                   issue={issue}

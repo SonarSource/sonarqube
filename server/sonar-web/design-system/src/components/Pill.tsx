@@ -64,14 +64,17 @@ interface PillProps {
   ['aria-label']?: string;
   children: ReactNode;
   className?: string;
+  // If pill is wrapped with Tooltip, it will have onClick prop overriden.
+  // So to avoid hover effect, we add additional prop to disable hover effect even with onClick.
+  notClickable?: boolean;
   onClick?: () => void;
   variant: PillVariant;
 }
 
 // eslint-disable-next-line react/display-name
 export const Pill = forwardRef<HTMLButtonElement, Readonly<PillProps>>(
-  ({ children, variant, onClick, ...rest }, ref) => {
-    return onClick ? (
+  ({ children, variant, onClick, notClickable, ...rest }, ref) => {
+    return onClick && !notClickable ? (
       <StyledPillButton onClick={onClick} ref={ref} variant={variant} {...rest}>
         {children}
       </StyledPillButton>

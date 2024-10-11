@@ -27,7 +27,9 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
+import { useIsLegacyCCTMode } from '../../queries/settings';
 import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
+import { IssueSeverity } from '../../types/issues';
 import { Dict } from '../../types/types';
 
 interface Props extends IconProps {
@@ -40,12 +42,16 @@ const defaultIconSize = 14;
 const severityIcons: Dict<(props: IconProps) => React.ReactElement> = {
   [SoftwareImpactSeverity.Blocker]: SoftwareImpactSeverityBlockerIcon,
   [SoftwareImpactSeverity.High]: SoftwareImpactSeverityHighIcon,
+  [IssueSeverity.Critical]: SoftwareImpactSeverityHighIcon,
   [SoftwareImpactSeverity.Medium]: SoftwareImpactSeverityMediumIcon,
+  [IssueSeverity.Major]: SoftwareImpactSeverityMediumIcon,
   [SoftwareImpactSeverity.Low]: SoftwareImpactSeverityLowIcon,
+  [IssueSeverity.Minor]: SoftwareImpactSeverityLowIcon,
   [SoftwareImpactSeverity.Info]: SoftwareImpactSeverityInfoIcon,
 };
 
 export default function SoftwareImpactSeverityIcon({ severity, ...iconProps }: Readonly<Props>) {
+  const { data: isLegacy } = useIsLegacyCCTMode();
   if (typeof severity !== 'string' || !severityIcons[severity]) {
     return null;
   }
@@ -56,7 +62,7 @@ export default function SoftwareImpactSeverityIcon({ severity, ...iconProps }: R
       {...iconProps}
       width={iconProps?.width ?? defaultIconSize}
       height={iconProps?.height ?? defaultIconSize}
-      aria-label={translate('severity_impact', severity)}
+      aria-label={translate(isLegacy ? 'severity' : 'severity_impact', severity)}
     />
   );
 }

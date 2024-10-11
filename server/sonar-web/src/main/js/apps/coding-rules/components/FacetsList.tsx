@@ -22,7 +22,9 @@ import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import SeverityFacet from '../../../components/facets/SeverityFacet';
+import StandardSeverityFacet from '../../../components/facets/StandardSeverityFacet';
 import { translate } from '../../../helpers/l10n';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { Feature } from '../../../types/features';
 import { Dict } from '../../../types/types';
 import { LanguageFacet } from '../../issues/sidebar/LanguageFacet';
@@ -34,6 +36,7 @@ import InheritanceFacet from './InheritanceFacet';
 import PrioritizedRulesFacet from './PrioritizedRulesFacet';
 import ProfileFacet from './ProfileFacet';
 import RepositoryFacet from './RepositoryFacet';
+import SecurityHotspotsFacet from './SecurityHotspotFacet';
 import SoftwareQualityFacet from './SoftwareQualityFacet';
 import StatusFacet from './StatusFacet';
 import TagFacet from './TagFacet';
@@ -56,6 +59,7 @@ const MAX_INITIAL_LANGUAGES = 5;
 
 export default function FacetsList(props: FacetsListProps) {
   const { hasFeature } = useAvailableFeatures();
+  const { data: isLegacy } = useIsLegacyCCTMode();
   const languageDisabled = !props.hideProfileFacet && props.query.profile !== undefined;
 
   const inheritanceDisabled =
@@ -78,45 +82,89 @@ export default function FacetsList(props: FacetsListProps) {
         disabledHelper={translate('coding_rules.filters.language.inactive')}
       />
 
-      <BasicSeparator className="sw-my-4" />
+      {isLegacy && (
+        <>
+          <BasicSeparator className="sw-my-4" />
 
-      <AttributeCategoryFacet
-        onChange={props.onFilterChange}
-        onToggle={props.onFacetToggle}
-        open={!!props.openFacets.cleanCodeAttributeCategories}
-        stats={props.facets?.cleanCodeAttributeCategories}
-        values={props.query.cleanCodeAttributeCategories}
-      />
+          <TypeFacet
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!props.openFacets.types}
+            stats={props.facets?.types}
+            values={props.query.types}
+          />
+        </>
+      )}
 
-      <BasicSeparator className="sw-my-4" />
+      {!isLegacy && (
+        <>
+          <BasicSeparator className="sw-my-4" />
 
-      <SoftwareQualityFacet
-        onChange={props.onFilterChange}
-        onToggle={props.onFacetToggle}
-        open={!!props.openFacets.impactSoftwareQualities}
-        stats={props.facets?.impactSoftwareQualities}
-        values={props.query.impactSoftwareQualities}
-      />
+          <SoftwareQualityFacet
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!props.openFacets.impactSoftwareQualities}
+            stats={props.facets?.impactSoftwareQualities}
+            values={props.query.impactSoftwareQualities}
+          />
+        </>
+      )}
 
-      <BasicSeparator className="sw-my-4" />
+      {!isLegacy && (
+        <>
+          <BasicSeparator className="sw-my-4" />
 
-      <SeverityFacet
-        onChange={props.onFilterChange}
-        onToggle={props.onFacetToggle}
-        open={!!props.openFacets.impactSeverities}
-        stats={props.facets?.impactSeverities}
-        values={props.query.impactSeverities}
-      />
+          <SecurityHotspotsFacet
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!props.openFacets.types}
+            stats={props.facets?.types}
+            values={props.query.types}
+          />
+        </>
+      )}
 
-      <BasicSeparator className="sw-my-4" />
+      {!isLegacy && (
+        <>
+          <BasicSeparator className="sw-my-4" />
 
-      <TypeFacet
-        onChange={props.onFilterChange}
-        onToggle={props.onFacetToggle}
-        open={!!props.openFacets.types}
-        stats={props.facets?.types}
-        values={props.query.types}
-      />
+          <SeverityFacet
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!props.openFacets.impactSeverities}
+            stats={props.facets?.impactSeverities}
+            values={props.query.impactSeverities}
+          />
+        </>
+      )}
+
+      {isLegacy && (
+        <>
+          <BasicSeparator className="sw-my-4" />
+
+          <StandardSeverityFacet
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!props.openFacets.severities}
+            stats={props.facets?.severities}
+            values={props.query.severities}
+          />
+        </>
+      )}
+
+      {!isLegacy && (
+        <>
+          <BasicSeparator className="sw-my-4" />
+
+          <AttributeCategoryFacet
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!props.openFacets.cleanCodeAttributeCategories}
+            stats={props.facets?.cleanCodeAttributeCategories}
+            values={props.query.cleanCodeAttributeCategories}
+          />
+        </>
+      )}
 
       <BasicSeparator className="sw-my-4" />
 

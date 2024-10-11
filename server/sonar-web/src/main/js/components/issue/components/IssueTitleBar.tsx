@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 
+import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue } from '../../../types/types';
 import { CleanCodeAttributePill } from '../../shared/CleanCodeAttributePill';
@@ -32,6 +33,7 @@ export interface IssueTitleBarProps {
 
 export default function IssueTitleBar(props: Readonly<IssueTitleBarProps>) {
   const { issue, displayWhyIsThisAnIssue, branchLike } = props;
+  const { data: isLegacy } = useIsLegacyCCTMode();
 
   return (
     <div className="sw-mt-1 sw-flex sw-items-start sw-justify-between sw-gap-8">
@@ -43,7 +45,9 @@ export default function IssueTitleBar(props: Readonly<IssueTitleBarProps>) {
         />
       </div>
 
-      <CleanCodeAttributePill cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory} />
+      {!isLegacy && (
+        <CleanCodeAttributePill cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory} />
+      )}
     </div>
   );
 }

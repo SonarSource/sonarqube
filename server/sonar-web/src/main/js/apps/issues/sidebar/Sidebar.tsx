@@ -26,7 +26,9 @@ import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { useAppState } from '../../../app/components/app-state/withAppStateContext';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import SeverityFacet from '../../../components/facets/SeverityFacet';
+import StandardSeverityFacet from '../../../components/facets/StandardSeverityFacet';
 import { translate } from '../../../helpers/l10n';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isProject, isView } from '../../../types/component';
 import { Feature } from '../../../types/features';
@@ -92,6 +94,7 @@ export function Sidebar(props: Readonly<Props>) {
   } = props;
   const { settings } = useAppState();
   const { hasFeature } = useAvailableFeatures();
+  const { data: isLegacy } = useIsLegacyCCTMode();
 
   const renderComponentFacets = () => {
     const hasFileOrDirectory =
@@ -173,20 +176,8 @@ export function Sidebar(props: Readonly<Props>) {
         <PeriodFilter onChange={props.onFilterChange} newCodeSelected={query.inNewCodePeriod} />
       )}
 
-      {!needIssueSync && (
+      {!isLegacy && !needIssueSync && (
         <>
-          <AttributeCategoryFacet
-            fetching={props.loadingFacets.cleanCodeAttributeCategories === true}
-            needIssueSync={needIssueSync}
-            onChange={props.onFilterChange}
-            onToggle={props.onFacetToggle}
-            open={!!openFacets.cleanCodeAttributeCategories}
-            stats={facets.cleanCodeAttributeCategories}
-            categories={query.cleanCodeAttributeCategories}
-          />
-
-          <BasicSeparator className="sw-my-4" />
-
           <SoftwareQualityFacet
             fetching={props.loadingFacets.impactSoftwareQualities === true}
             needIssueSync={needIssueSync}
@@ -209,22 +200,54 @@ export function Sidebar(props: Readonly<Props>) {
           />
 
           <BasicSeparator className="sw-my-4" />
+
+          <AttributeCategoryFacet
+            fetching={props.loadingFacets.cleanCodeAttributeCategories === true}
+            needIssueSync={needIssueSync}
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!openFacets.cleanCodeAttributeCategories}
+            stats={facets.cleanCodeAttributeCategories}
+            categories={query.cleanCodeAttributeCategories}
+          />
+
+          <BasicSeparator className="sw-my-4" />
         </>
       )}
 
-      <TypeFacet
-        fetching={props.loadingFacets.types === true}
-        needIssueSync={needIssueSync}
-        onChange={props.onFilterChange}
-        onToggle={props.onFacetToggle}
-        open={!!openFacets.types}
-        stats={facets.types}
-        types={query.types}
-      />
-      {!needIssueSync && (
+      {isLegacy && (
         <>
+          <TypeFacet
+            fetching={props.loadingFacets.types === true}
+            needIssueSync={needIssueSync}
+            onChange={props.onFilterChange}
+            onToggle={props.onFacetToggle}
+            open={!!openFacets.types}
+            stats={facets.types}
+            types={query.types}
+          />
           <BasicSeparator className="sw-my-4" />
 
+          {!needIssueSync && (
+            <>
+              <StandardSeverityFacet
+                fetching={props.loadingFacets.severities === true}
+                onChange={props.onFilterChange}
+                onToggle={props.onFacetToggle}
+                open={!!openFacets.severities}
+                stats={facets.severities}
+                values={query.severities}
+                headerName={translate('issues.facet.severities')}
+              />
+
+              <BasicSeparator className="sw-my-4" />
+            </>
+          )}
+        </>
+      )}
+
+      {!needIssueSync && (
+        <>
           <ScopeFacet
             fetching={props.loadingFacets.scopes === true}
             onChange={props.onFilterChange}

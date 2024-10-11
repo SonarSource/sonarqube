@@ -23,6 +23,7 @@ import React from 'react';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
 import { mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
 import { Feature } from '../../../types/features';
+import { SettingsKey } from '../../../types/settings';
 import { NoticeType } from '../../../types/users';
 import IssuesList from '../components/IssuesList';
 import {
@@ -31,6 +32,7 @@ import {
   issuesHandler,
   renderIssueApp,
   renderProjectIssuesApp,
+  settingsHandler,
   ui,
   usersHandler,
   waitOnDataLoaded,
@@ -59,6 +61,7 @@ beforeEach(() => {
   componentsHandler.reset();
   branchHandler.reset();
   usersHandler.reset();
+  settingsHandler.reset();
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollTo = jest.fn();
 });
@@ -80,7 +83,6 @@ describe('issues app filtering', () => {
     expect(ui.issueItem5.query()).not.toBeInTheDocument();
 
     // Select MEDIUM severity
-    await user.click(ui.severityFacet.get());
     await user.click(ui.mediumSeverityFilter.get());
     expect(ui.issueItem8.query()).not.toBeInTheDocument();
 
@@ -135,9 +137,9 @@ describe('issues app filtering', () => {
     await user.click(screen.getByRole('checkbox', { name: 'email4@sonarsource.com' }));
     await user.click(screen.getByRole('checkbox', { name: 'email3@sonarsource.com' })); // Change author
 
-    // Deprecated type
-    await user.click(ui.typeFacet.get());
-    await user.click(ui.codeSmellIssueTypeFilter.get());
+    // No filters from standard mode
+    expect(ui.typeFacet.query()).not.toBeInTheDocument();
+    expect(ui.standardSeverityFacet.query()).not.toBeInTheDocument();
 
     // Prioritized Rule
     expect(ui.issueItem7.get()).toBeInTheDocument();
@@ -156,7 +158,6 @@ describe('issues app filtering', () => {
     // Clear filters one by one
     await user.click(ui.clearCodeCategoryFacet.get());
     await user.click(ui.clearSoftwareQualityFacet.get());
-    await user.click(ui.clearIssueTypeFacet.get());
     await user.click(ui.clearSeverityFacet.get());
     await user.click(ui.clearScopeFacet.get());
     await user.click(ui.clearRuleFacet.get());
@@ -165,6 +166,47 @@ describe('issues app filtering', () => {
     await user.click(ui.clearAssigneeFacet.get());
     await user.click(ui.clearAuthorFacet.get());
     await user.click(ui.clearPrioritizedRuleFacet.get());
+    expect(ui.issueItem1.get()).toBeInTheDocument();
+    expect(ui.issueItem2.get()).toBeInTheDocument();
+    expect(ui.issueItem3.get()).toBeInTheDocument();
+    expect(ui.issueItem4.get()).toBeInTheDocument();
+    expect(ui.issueItem5.get()).toBeInTheDocument();
+    expect(ui.issueItem6.get()).toBeInTheDocument();
+    expect(ui.issueItem7.get()).toBeInTheDocument();
+    expect(ui.issueItem10.get()).toBeInTheDocument();
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
+
+  it('should combine sidebar filters properly in standard mode', async () => {
+    jest.useFakeTimers();
+    issuesHandler.setPageSize(50);
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    renderIssueApp(undefined, [Feature.PrioritizedRules]);
+    await waitOnDataLoaded();
+
+    // No MQR filters
+    expect(ui.cleanCodeAttributeCategoryFacet.query()).not.toBeInTheDocument();
+    expect(ui.softwareQualityFacet.query()).not.toBeInTheDocument();
+    expect(ui.severityFacet.query()).not.toBeInTheDocument();
+
+    // Select Type + severity
+    await user.click(ui.codeSmellIssueTypeFilter.get());
+    await user.click(ui.majorSeverityFilter.get());
+
+    expect(ui.issueItem1.query()).not.toBeInTheDocument();
+    expect(ui.issueItem2.query()).not.toBeInTheDocument();
+    expect(ui.issueItem3.get()).toBeInTheDocument();
+    expect(ui.issueItem4.query()).not.toBeInTheDocument();
+    expect(ui.issueItem5.get()).toBeInTheDocument();
+    expect(ui.issueItem6.get()).toBeInTheDocument();
+    expect(ui.issueItem7.get()).toBeInTheDocument();
+    expect(ui.issueItem10.get()).toBeInTheDocument();
+
+    // Clear filters one by one
+    await user.click(ui.clearIssueTypeFacet.get());
+    await user.click(ui.clearStandardSeverityFacet.get());
     expect(ui.issueItem1.get()).toBeInTheDocument();
     expect(ui.issueItem2.get()).toBeInTheDocument();
     expect(ui.issueItem3.get()).toBeInTheDocument();
@@ -348,13 +390,14 @@ describe('issues app filtering', () => {
 });
 
 describe('issues app when reindexing', () => {
-  it('should display only some facets while reindexing is in progress', () => {
+  it('should display only some facets while reindexing is in progress', async () => {
     issuesHandler.setIsAdmin(true);
+    settingsHandler.set(SettingsKey.MQRMode, 'false');
     renderProjectIssuesApp(undefined, { needIssueSync: true });
 
     // Enabled facets
+    expect(await ui.typeFacet.find()).toBeInTheDocument();
     expect(ui.inNewCodeFilter.get()).toBeInTheDocument();
-    expect(ui.typeFacet.get()).toBeInTheDocument();
 
     // Disabled facets
     expect(ui.cleanCodeAttributeCategoryFacet.query()).not.toBeInTheDocument();

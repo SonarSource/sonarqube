@@ -90,6 +90,7 @@ type FacetFilter = Pick<
   | 'repositories'
   | 'qprofile'
   | 'activation'
+  | 'severities'
   | 'sonarsourceSecurity'
   | 'owaspTop10'
   | 'owaspTop10-2021'
@@ -179,6 +180,7 @@ export default class CodingRulesServiceMock {
     is_template,
     repositories,
     qprofile,
+    severities,
     sonarsourceSecurity,
     owaspTop10,
     'owaspTop10-2021': owasp2021Top10,
@@ -206,6 +208,12 @@ export default class CodingRulesServiceMock {
     if (impactSeverities) {
       filteredRules = filteredRules.filter(
         (r) => r.impacts && r.impacts.some(({ severity }) => impactSeverities.includes(severity)),
+      );
+    }
+    if (severities) {
+      filteredRules = filteredRules.filter(
+        (r) =>
+          r.severity && severities.split(',').some((severity: string) => r.severity === severity),
       );
     }
     if (types) {
@@ -434,6 +442,7 @@ export default class CodingRulesServiceMock {
     available_since,
     impactSeverities,
     impactSoftwareQualities,
+    severities,
     repositories,
     qprofile,
     sonarsourceSecurity,
@@ -501,6 +510,7 @@ export default class CodingRulesServiceMock {
         types,
         tags,
         is_template,
+        severities,
         sonarsourceSecurity,
         owaspTop10,
         'owaspTop10-2021': owasp2021Top10,

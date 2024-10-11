@@ -20,15 +20,20 @@
 import classNames from 'classnames';
 import React from 'react';
 import { translate } from '../../helpers/l10n';
+import { useIsLegacyCCTMode } from '../../queries/settings';
 import {
   SoftwareImpact,
   SoftwareImpactSeverity,
   SoftwareQuality,
 } from '../../types/clean-code-taxonomy';
+import { IssueSeverity } from '../../types/issues';
+import IssueTypePill from './IssueTypePill';
 import SoftwareImpactPill from './SoftwareImpactPill';
 
 interface SoftwareImpactPillListProps extends React.HTMLAttributes<HTMLUListElement> {
   className?: string;
+  issueSeverity?: IssueSeverity;
+  issueType?: string;
   softwareImpacts: SoftwareImpact[];
   type?: Parameters<typeof SoftwareImpactPill>[0]['type'];
 }
@@ -43,10 +48,13 @@ const severityMap = {
 
 export default function SoftwareImpactPillList({
   softwareImpacts,
+  issueSeverity,
+  issueType,
   type,
   className,
   ...props
 }: Readonly<SoftwareImpactPillListProps>) {
+  const { data: isLegacy } = useIsLegacyCCTMode();
   const getQualityLabel = (quality: SoftwareQuality) => translate('software_quality', quality);
   const sortingFn = (a: SoftwareImpact, b: SoftwareImpact) => {
     if (a.severity !== b.severity) {
@@ -57,18 +65,25 @@ export default function SoftwareImpactPillList({
 
   return (
     <ul className={classNames('sw-flex sw-gap-2', className)} {...props}>
-      {softwareImpacts
-        .slice()
-        .sort(sortingFn)
-        .map(({ severity, softwareQuality }) => (
-          <li key={softwareQuality}>
-            <SoftwareImpactPill
-              severity={severity}
-              quality={getQualityLabel(softwareQuality)}
-              type={type}
-            />
-          </li>
-        ))}
+      {!isLegacy &&
+        softwareImpacts
+          .slice()
+          .sort(sortingFn)
+          .map(({ severity, softwareQuality }) => (
+            <li key={softwareQuality}>
+              <SoftwareImpactPill
+                severity={severity}
+                quality={getQualityLabel(softwareQuality)}
+                type={type}
+              />
+            </li>
+          ))}
+      {!isLegacy && softwareImpacts.length === 0 && issueType === 'SECURITY_HOTSPOT' && (
+        <IssueTypePill severity={issueSeverity ?? IssueSeverity.Info} issueType={issueType} />
+      )}
+      {isLegacy && issueType && issueSeverity && (
+        <IssueTypePill severity={issueSeverity} issueType={issueType} />
+      )}
     </ul>
   );
 }

@@ -38,6 +38,7 @@ import {
   SoftwareQuality,
 } from '../../types/clean-code-taxonomy';
 import { Feature } from '../../types/features';
+import { IssueSeverity } from '../../types/issues';
 import { Component } from '../../types/types';
 import { NoticeType } from '../../types/users';
 import IssuesApp from './components/IssuesApp';
@@ -110,6 +111,7 @@ export const ui = {
     name: 'issues.facet.impactSoftwareQualities',
   }),
   severityFacet: byRole('button', { name: 'coding_rules.facet.impactSeverities' }),
+  standardSeverityFacet: byRole('button', { name: 'issues.facet.severities' }),
   prioritizedRuleFacet: byRole('button', { name: 'issues.facet.prioritized_rule.category' }),
 
   clearCodeCategoryFacet: byTestId('clear-issues.facet.cleanCodeAttributeCategories'),
@@ -124,6 +126,7 @@ export const ui = {
   clearRuleFacet: byTestId('clear-issues.facet.rules'),
   clearScopeFacet: byTestId('clear-issues.facet.scopes'),
   clearSeverityFacet: byTestId('clear-coding_rules.facet.impactSeverities'),
+  clearStandardSeverityFacet: byTestId('clear-issues.facet.severities'),
   clearIssueStatusFacet: byTestId('clear-issues.facet.issueStatuses'),
   clearTagFacet: byTestId('clear-issues.facet.tags'),
   clearPrioritizedRuleFacet: byTestId('clear-issues.facet.prioritized_rule.category'),
@@ -143,6 +146,9 @@ export const ui = {
   mainScopeFilter: byRole('checkbox', { name: 'issue.scope.MAIN' }),
   mediumSeverityFilter: byRole('checkbox', {
     name: `severity_impact.${SoftwareImpactSeverity.Medium}`,
+  }),
+  majorSeverityFilter: byRole('checkbox', {
+    name: `severity.${IssueSeverity.Major}`,
   }),
   openStatusFilter: byRole('checkbox', { name: 'issue.issue_status.OPEN' }),
   vulnerabilityIssueTypeFilter: byRole('checkbox', { name: 'issue.type.VULNERABILITY' }),

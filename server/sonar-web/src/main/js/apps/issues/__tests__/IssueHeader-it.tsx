@@ -18,12 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { mockIssue, mockRuleDetails } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { SettingsKey } from '../../../types/settings';
 import { Dict } from '../../../types/types';
 import IssueHeader from '../components/IssueHeader';
+
+const settingsHandler = new SettingsServiceMock();
+
+beforeEach(() => {
+  settingsHandler.reset();
+});
 
 it('renders correctly', async () => {
   const issue = mockIssue();
@@ -41,12 +49,12 @@ it('renders correctly', async () => {
   );
 
   // Title
-  expect(byRole('heading', { name: issue.message }).get()).toBeInTheDocument();
+  expect(await byRole('heading', { name: issue.message }).find()).toBeInTheDocument();
 
   // CCT attribute
-  const cctBadge = byText(
+  const cctBadge = await byText(
     `issue.clean_code_attribute_category.${issue.cleanCodeAttributeCategory}`,
-  ).get();
+  ).find();
   expect(cctBadge).toBeInTheDocument();
   await expect(cctBadge).toHaveAPopoverWithContent(
     `issue.clean_code_attribute.${issue.cleanCodeAttribute}`,
@@ -56,16 +64,13 @@ it('renders correctly', async () => {
   const qualityBadge = byText(`software_quality.${issue.impacts[0].softwareQuality}`).get();
   expect(qualityBadge).toBeInTheDocument();
   await expect(qualityBadge).toHaveAPopoverWithContent('software_quality');
+  expect(byLabelText(`severity_impact.${issue.impacts[0].severity}`).get()).toBeInTheDocument();
 
-  // Deprecated type
-  const type = byText(`issue.type.${issue.type}`).get();
-  expect(type).toBeInTheDocument();
-  await expect(type).toHaveATooltipWithContent('issue.clean_code_attribute');
+  // No old type
+  expect(byText(`issue.type.${issue.type}`).query()).not.toBeInTheDocument();
 
-  // Deprecated severity
-  const severity = byText(`severity.${issue.severity}`).get();
-  expect(severity).toBeInTheDocument();
-  await expect(severity).toHaveATooltipWithContent('issue.severity.new');
+  // No old severity
+  expect(byText(`severity.${issue.severity}`).query()).not.toBeInTheDocument();
 
   // Code variants
   expect(byText('issue.code_variants').get()).toBeInTheDocument();
@@ -78,6 +83,30 @@ it('renders correctly', async () => {
 
   // Rule external engine
   expect(byText('eslint').get()).toBeInTheDocument();
+});
+
+it('renders correctly for Standard mode', async () => {
+  const issue = mockIssue();
+  settingsHandler.set(SettingsKey.MQRMode, 'false');
+  renderIssueHeader({
+    issue,
+  });
+
+  // Shows old type
+  expect(await byText(`issue.type.${issue.type}`).find()).toBeInTheDocument();
+
+  // Shows old severity
+  expect(byLabelText(`severity.${issue.severity}`).get()).toBeInTheDocument();
+
+  // No CCT attribute
+  expect(
+    byText(`issue.clean_code_attribute_category.${issue.cleanCodeAttributeCategory}`).query(),
+  ).not.toBeInTheDocument();
+
+  // No Software Qualities
+  expect(
+    byText(`software_quality.${issue.impacts[0].softwareQuality}`).query(),
+  ).not.toBeInTheDocument();
 });
 
 it('renders correctly when some data is not provided', () => {

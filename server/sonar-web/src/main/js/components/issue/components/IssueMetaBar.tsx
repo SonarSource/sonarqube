@@ -28,8 +28,6 @@ import Tooltip from '../../controls/Tooltip';
 import DateFromNow from '../../intl/DateFromNow';
 import { WorkspaceContext } from '../../workspace/context';
 import IssuePrioritized from './IssuePrioritized';
-import IssueSeverity from './IssueSeverity';
-import IssueType from './IssueType';
 import SonarLintBadge from './SonarLintBadge';
 
 interface Props {
@@ -140,14 +138,6 @@ export default function IssueMetaBar(props: Readonly<Props>) {
       <IssueMetaListItem className={issueMetaListItemClassNames}>
         <DateFromNow date={issue.creationDate} />
       </IssueMetaListItem>
-
-      <SeparatorCircleIcon aria-hidden as="li" />
-
-      <IssueType issue={issue} height={12} width={12} />
-
-      <SeparatorCircleIcon data-guiding-id="issue-4" aria-hidden as="li" />
-
-      <IssueSeverity issue={issue} height={12} width={12} />
 
       {issue.prioritizedRule && (
         <>

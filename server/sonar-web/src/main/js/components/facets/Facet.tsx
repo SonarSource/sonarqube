@@ -43,6 +43,7 @@ export interface BasicProps {
 interface Props extends BasicProps {
   disabled?: boolean;
   disabledHelper?: string;
+  headerName?: string;
   options?: string[];
   property: FacetKey;
   renderFooter?: () => React.ReactNode;
@@ -105,6 +106,7 @@ export default class Facet extends React.PureComponent<Props> {
       help,
       values,
       fetching,
+      headerName,
     } = this.props;
     const items =
       this.props.options ||
@@ -129,7 +131,7 @@ export default class Facet extends React.PureComponent<Props> {
         clearIconLabel={translate('clear')}
         count={values.length}
         id={headerId}
-        name={translate('coding_rules.facet', property)}
+        name={headerName ?? translate('coding_rules.facet', property)}
         onClear={this.handleClear}
         onClick={disabled ? undefined : this.handleHeaderClick}
         open={open && !disabled}

@@ -416,6 +416,15 @@ export default class IssuesServiceMock {
         );
       })
       .filter((item) => {
+        if (!query.severities) {
+          return true;
+        }
+
+        return query.severities
+          .split(',')
+          .some((severity: string) => item.issue.severity.toLowerCase() === severity.toLowerCase());
+      })
+      .filter((item) => {
         if (!query.assignees) {
           return true;
         }

@@ -18,11 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import { Spinner } from '@sonarsource/echoes-react';
 import { LightLabel, themeBorder } from 'design-system';
 import React from 'react';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
 import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import { translate } from '../../../helpers/l10n';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { IssueSeverity } from '../../../types/issues';
 import { Issue } from '../../../types/types';
 
 interface Props {
@@ -30,21 +33,32 @@ interface Props {
 }
 
 export default function IssueHeaderSide({ issue }: Readonly<Props>) {
+  const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
   return (
     <StyledSection className="sw-flex sw-flex-col sw-pl-4 sw-max-w-[250px]">
-      <IssueHeaderInfo title={translate('issue.cct_attribute.label')} className="sw-mb-6">
-        <CleanCodeAttributePill
-          cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}
-          cleanCodeAttribute={issue.cleanCodeAttribute}
-        />
-      </IssueHeaderInfo>
+      <Spinner isLoading={isLoading}>
+        <IssueHeaderInfo
+          className="sw-mb-6"
+          data-guiding-id="issue-2"
+          title={isLegacy ? translate('type') : translate('issue.software_qualities.label')}
+        >
+          <SoftwareImpactPillList
+            className="sw-flex-wrap"
+            softwareImpacts={issue.impacts}
+            issueSeverity={issue.severity as IssueSeverity}
+            issueType={issue.type}
+          />
+        </IssueHeaderInfo>
 
-      <IssueHeaderInfo
-        data-guiding-id="issue-2"
-        title={translate('issue.software_qualities.label')}
-      >
-        <SoftwareImpactPillList className="sw-flex-wrap" softwareImpacts={issue.impacts} />
-      </IssueHeaderInfo>
+        {!isLegacy && (
+          <IssueHeaderInfo title={translate('issue.cct_attribute.label')}>
+            <CleanCodeAttributePill
+              cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}
+              cleanCodeAttribute={issue.cleanCodeAttribute}
+            />
+          </IssueHeaderInfo>
+        )}
+      </Spinner>
     </StyledSection>
   );
 }

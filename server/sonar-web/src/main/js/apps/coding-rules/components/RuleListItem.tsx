@@ -30,14 +30,11 @@ import {
   themeBorder,
 } from 'design-system';
 import * as React from 'react';
-import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { Profile } from '../../../api/quality-profiles';
 import Tooltip from '../../../components/controls/Tooltip';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
 import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
-import TypeHelper from '../../../components/shared/TypeHelper';
 import TagsList from '../../../components/tags/TagsList';
-import { DocLink } from '../../../helpers/doc-links';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 import {
@@ -45,6 +42,8 @@ import {
   useDeactivateRuleMutation,
 } from '../../../queries/quality-profiles';
 import { useRuleDetailsQuery } from '../../../queries/rules';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { IssueSeverity } from '../../../types/issues';
 import { Rule, RuleActivation } from '../../../types/types';
 import ActivatedRuleActions from './ActivatedRuleActions';
 import ActivationButton from './ActivationButton';
@@ -86,6 +85,7 @@ export default function RuleListItem(props: Readonly<Props>) {
   const { mutate: deactivateRule } = useDeactivateRuleMutation((data) =>
     onDeactivate(data.key, data.rule),
   );
+  const { data: isLegacy } = useIsLegacyCCTMode();
 
   const activation =
     data && ruleIsChanged
@@ -249,7 +249,7 @@ export default function RuleListItem(props: Readonly<Props>) {
           </div>
 
           <div>
-            {rule.cleanCodeAttributeCategory !== undefined && (
+            {rule.cleanCodeAttributeCategory !== undefined && !isLegacy && (
               <CleanCodeAttributePill
                 cleanCodeAttributeCategory={rule.cleanCodeAttributeCategory}
                 type="rule"
@@ -260,37 +260,16 @@ export default function RuleListItem(props: Readonly<Props>) {
 
         <div className="sw-flex sw-items-center">
           <div className="sw-grow sw-flex sw-gap-2 sw-items-center sw-typo-sm">
-            {rule.impacts.length > 0 && (
-              <SoftwareImpactPillList softwareImpacts={rule.impacts} type="rule" />
-            )}
+            <SoftwareImpactPillList
+              softwareImpacts={rule.impacts}
+              issueSeverity={rule.severity as IssueSeverity}
+              issueType={rule.type}
+              type="rule"
+            />
           </div>
 
           <TextSubdued as="ul" className="sw-flex sw-gap-1 sw-items-center sw-typo-sm">
             <li>{rule.langName}</li>
-
-            <SeparatorCircleIcon aria-hidden as="li" />
-            <li>
-              <DocHelpTooltip
-                content={
-                  <div>
-                    <p className="sw-mb-2">{translate('coding_rules.type.deprecation.title')}</p>
-                    <p>{translate('coding_rules.type.deprecation.filter_by')}</p>
-                  </div>
-                }
-                links={[
-                  {
-                    href: DocLink.CleanCodeIntroduction,
-                    label: translate('learn_more'),
-                  },
-                ]}
-              >
-                <TypeHelper
-                  className="sw-flex sw-items-center"
-                  iconFill="var(--echoes-color-icon-disabled)"
-                  type={rule.type}
-                />
-              </DocHelpTooltip>
-            </li>
 
             {rule.isTemplate && (
               <>
