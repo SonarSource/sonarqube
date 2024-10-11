@@ -56,6 +56,6 @@ public class ReportComputationStepsTest {
     Iterable<ComputationStep> instances = new ReportComputationSteps(computeEngineContainer).instances();
     assertThatThrownBy(() -> newArrayList(instances))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("org.sonar.ce.task.projectanalysis.step.PersistScannerContextStep");
+      .hasMessageContaining("org.sonar.ce.task.projectanalysis.step.SendAnalysisTelemetryStep");
   }
 }

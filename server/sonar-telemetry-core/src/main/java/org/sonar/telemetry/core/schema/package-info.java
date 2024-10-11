@@ -17,19 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.metrics.schema;
+@ParametersAreNonnullByDefault
+package org.sonar.telemetry.core.schema;
 
-import javax.annotation.Nullable;
-import org.sonar.telemetry.core.Granularity;
-import org.sonar.telemetry.core.TelemetryDataType;
-
-public class InstallationMetric extends Metric {
-
-  public InstallationMetric(String key, @Nullable Object value, TelemetryDataType type, Granularity granularity) {
-    this.key = key;
-    this.value = value;
-    this.type = type;
-    this.granularity = granularity;
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

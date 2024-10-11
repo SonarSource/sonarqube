@@ -17,24 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce;
+package org.sonar.telemetry.core;
 
-import org.sonar.ce.task.projectanalysis.purge.IndexPurgeListener;
-import org.sonar.ce.task.projectanalysis.purge.ProjectCleaner;
-import org.sonar.core.platform.Module;
-import org.sonar.db.purge.period.DefaultPeriodCleaner;
-import org.sonar.telemetry.core.TelemetryClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import org.sonar.telemetry.core.schema.BaseMessage;
 
-/**
- * Globally available components in CE for tasks to use.
- */
-public class CeTaskCommonsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      DefaultPeriodCleaner.class,
-      ProjectCleaner.class,
-      IndexPurgeListener.class,
-      TelemetryClient.class);
+public class MessageSerializer {
+
+  private MessageSerializer() {
+    throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
   }
+
+  public static String serialize(BaseMessage message) {
+    ObjectMapper mapper = new ObjectMapper();
+    try {
+      return mapper.writeValueAsString(message);
+    } catch (IOException ioException) {
+      throw new UncheckedIOException(ioException);
+    }
+  }
+
 }

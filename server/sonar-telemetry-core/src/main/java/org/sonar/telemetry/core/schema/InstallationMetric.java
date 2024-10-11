@@ -17,31 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.metrics.schema;
+package org.sonar.telemetry.core.schema;
 
-import org.junit.jupiter.api.Test;
+import javax.annotation.Nullable;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class InstallationMetric extends Metric {
 
-class ProjectMetricTest {
-
-  @Test
-  void gettersAndSetters() {
-    ProjectMetric metric = new ProjectMetric(
-      "project-key-1",
-      1.0998,
-      "project-uuid",
-      TelemetryDataType.FLOAT,
-      Granularity.DAILY
-    );
-
-    assertThat(metric.getValue()).isEqualTo(1.0998);
-    assertThat(metric.getKey()).isEqualTo("project-key-1");
-    assertThat(metric.getGranularity()).isEqualTo(Granularity.DAILY);
-    assertThat(metric.getType()).isEqualTo(TelemetryDataType.FLOAT);
-    assertThat(metric.getProjectUuid()).isEqualTo("project-uuid");
+  public InstallationMetric(String key, @Nullable Object value, TelemetryDataType type, Granularity granularity) {
+    this.key = key;
+    this.value = value;
+    this.type = type;
+    this.granularity = granularity;
   }
 
 }

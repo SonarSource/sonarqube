@@ -63,6 +63,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
   private List<ScannerReport.AnalysisWarning> analysisWarnings = Collections.emptyList();
   private byte[] analysisCache;
   private List<ScannerReport.Cve> cves = new ArrayList<>();
+  private List<ScannerReport.TelemetryEntry> telemetryEntries = new ArrayList<>();
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -331,6 +332,16 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader, After
   @Override
   public CloseableIterator<ScannerReport.Cve> readCves() {
     return CloseableIterator.from(cves.iterator());
+  }
+
+  @Override
+  public CloseableIterator<ScannerReport.TelemetryEntry> readTelemetryEntries() {
+    return CloseableIterator.from(telemetryEntries.iterator());
+  }
+
+  public BatchReportReaderRule putTelemetry(List<ScannerReport.TelemetryEntry> telemetryEntries) {
+    this.telemetryEntries = telemetryEntries;
+    return this;
   }
 
   public BatchReportReaderRule putCves(List<ScannerReport.Cve> cves) {

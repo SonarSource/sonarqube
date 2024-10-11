@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.metrics.schema;
+package org.sonar.telemetry.core.schema;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.telemetry.core.Granularity;
@@ -25,17 +25,23 @@ import org.sonar.telemetry.core.TelemetryDataType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class LanguageMetricTest {
+class ProjectMetricTest {
 
   @Test
   void gettersAndSetters() {
-    LanguageMetric metric = new LanguageMetric("ncloc", 100, "java", TelemetryDataType.INTEGER, Granularity.MONTHLY);
+    ProjectMetric metric = new ProjectMetric(
+      "project-key-1",
+      1.0998,
+      "project-uuid",
+      TelemetryDataType.FLOAT,
+      Granularity.DAILY
+    );
 
-    assertThat(metric.getLanguage()).isEqualTo("java");
-    assertThat(metric.getValue()).isEqualTo(100);
-    assertThat(metric.getKey()).isEqualTo("ncloc");
-    assertThat(metric.getGranularity()).isEqualTo(Granularity.MONTHLY);
-    assertThat(metric.getType()).isEqualTo(TelemetryDataType.INTEGER);
+    assertThat(metric.getValue()).isEqualTo(1.0998);
+    assertThat(metric.getKey()).isEqualTo("project-key-1");
+    assertThat(metric.getGranularity()).isEqualTo(Granularity.DAILY);
+    assertThat(metric.getType()).isEqualTo(TelemetryDataType.FLOAT);
+    assertThat(metric.getProjectUuid()).isEqualTo("project-uuid");
   }
 
 }

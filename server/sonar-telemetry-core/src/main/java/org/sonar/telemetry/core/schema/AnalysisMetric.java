@@ -17,26 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.metrics.util;
+package org.sonar.telemetry.core.schema;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import org.sonar.telemetry.metrics.schema.BaseMessage;
+import org.sonar.telemetry.core.Granularity;
+import org.sonar.telemetry.core.TelemetryDataType;
 
-public class MessageSerializer {
+public class AnalysisMetric extends Metric {
 
-  private MessageSerializer() {
-    throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+  public AnalysisMetric(String key, String value) {
+    this.key = key;
+    this.value = value;
+    this.type = TelemetryDataType.STRING;
+    this.granularity = Granularity.ADHOC;
   }
-
-  public static String serialize(BaseMessage message) {
-    ObjectMapper mapper = new ObjectMapper();
-    try {
-      return mapper.writeValueAsString(message);
-    } catch (IOException ioException) {
-      throw new UncheckedIOException(ioException);
-    }
-  }
-
 }

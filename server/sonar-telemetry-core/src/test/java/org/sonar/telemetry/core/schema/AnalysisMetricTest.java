@@ -17,30 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.metrics.schema;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+package org.sonar.telemetry.core.schema;
+
+import org.junit.jupiter.api.Test;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
 
-public class LanguageMetric extends Metric {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @JsonProperty("language")
-  private String language;
+class AnalysisMetricTest {
 
-  public LanguageMetric(String key, Object value, String language, TelemetryDataType type, Granularity granularity) {
-    this.key = key;
-    this.value = value;
-    this.language = language;
-    this.type = type;
-    this.granularity = granularity;
-  }
+  @Test
+  void getters() {
+    AnalysisMetric metric = new AnalysisMetric("memory", "100");
 
-  public String getLanguage() {
-    return language;
-  }
-
-  public void setLanguage(String language) {
-    this.language = language;
+    assertThat(metric.getKey()).isEqualTo("memory");
+    assertThat(metric.getValue()).isEqualTo("100");
+    assertThat(metric.getGranularity()).isEqualTo(Granularity.ADHOC);
+    assertThat(metric.getType()).isEqualTo(TelemetryDataType.STRING);
   }
 }

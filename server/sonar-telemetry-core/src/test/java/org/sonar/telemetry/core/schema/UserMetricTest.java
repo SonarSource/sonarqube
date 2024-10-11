@@ -17,31 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.metrics.schema;
+package org.sonar.telemetry.core.schema;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.junit.jupiter.api.Test;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
 
-public class ProjectMetric extends Metric {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @JsonProperty("project_uuid")
-  private String projectUuid;
+class UserMetricTest {
 
-  public ProjectMetric(String key, Object value, String projectUuid, TelemetryDataType type, Granularity granularity) {
-    this.key = key;
-    this.value = value;
-    this.projectUuid = projectUuid;
-    this.type = type;
-    this.granularity = granularity;
-  }
+  @Test
+  void gettersAndSetters() {
+    UserMetric metric = new UserMetric(
+      "user-key-1",
+      true,
+      "user-uuid",
+      TelemetryDataType.BOOLEAN,
+      Granularity.DAILY
+    );
 
-  public String getProjectUuid() {
-    return projectUuid;
-  }
-
-  public void setProjectUuid(String projectUuid) {
-    this.projectUuid = projectUuid;
+    assertThat(metric.getValue()).isEqualTo(true);
+    assertThat(metric.getKey()).isEqualTo("user-key-1");
+    assertThat(metric.getGranularity()).isEqualTo(Granularity.DAILY);
+    assertThat(metric.getType()).isEqualTo(TelemetryDataType.BOOLEAN);
+    assertThat(metric.getUserUuid()).isEqualTo("user-uuid");
   }
 
 }

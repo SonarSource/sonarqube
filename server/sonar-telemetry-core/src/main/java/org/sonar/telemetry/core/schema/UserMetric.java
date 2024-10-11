@@ -17,7 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.telemetry.metrics.schema;
+package org.sonar.telemetry.core.schema;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.sonar.telemetry.core.Granularity;
+import org.sonar.telemetry.core.TelemetryDataType;
+
+public class UserMetric extends Metric {
+
+  @JsonProperty("user_uuid")
+  private String userUuid;
+
+  public UserMetric(String key, Object value, String userUuid, TelemetryDataType type, Granularity granularity) {
+    this.key = key;
+    this.value = value;
+    this.userUuid = userUuid;
+    this.type = type;
+    this.granularity = granularity;
+  }
+
+  public String getUserUuid() {
+    return userUuid;
+  }
+
+  public void setUserUuid(String userUuid) {
+    this.userUuid = userUuid;
+  }
+
+}

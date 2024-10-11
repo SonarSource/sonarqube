@@ -291,7 +291,7 @@ import org.sonar.server.webhook.WebhookQGChangeEventListener;
 import org.sonar.server.webhook.ws.WebhooksWsModule;
 import org.sonar.server.ws.WebServiceEngine;
 import org.sonar.server.ws.ws.WebServicesWsModule;
-import org.sonar.telemetry.TelemetryClient;
+import org.sonar.telemetry.core.TelemetryClient;
 import org.sonar.telemetry.TelemetryDaemon;
 import org.sonar.telemetry.legacy.CloudUsageDataProvider;
 import org.sonar.telemetry.legacy.ProjectLocDistributionDataProvider;

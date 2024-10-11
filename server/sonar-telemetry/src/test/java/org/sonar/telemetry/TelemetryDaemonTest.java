@@ -35,6 +35,7 @@ import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.util.GlobalLockManager;
 import org.sonar.server.util.GlobalLockManagerImpl;
+import org.sonar.telemetry.core.TelemetryClient;
 import org.sonar.telemetry.legacy.TelemetryData;
 import org.sonar.telemetry.legacy.TelemetryDataJsonWriter;
 import org.sonar.telemetry.legacy.TelemetryDataLoader;

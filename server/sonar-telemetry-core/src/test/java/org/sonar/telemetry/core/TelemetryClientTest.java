@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry;
+package org.sonar.telemetry.core;
 
 import java.io.IOException;
 import okhttp3.MediaType;
@@ -27,12 +27,10 @@ import okio.Buffer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_COMPRESSION;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_METRICS_URL;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
@@ -43,7 +41,7 @@ class TelemetryClientTest {
   private static final String TELEMETRY_URL = "https://telemetry.com/url";
   private static final String METRICS_TELEMETRY_URL = "https://telemetry.com/url/metrics";
 
-  private final OkHttpClient okHttpClient = mock(OkHttpClient.class, RETURNS_DEEP_STUBS);
+  private final OkHttpClient okHttpClient = Mockito.mock(OkHttpClient.class, Mockito.RETURNS_DEEP_STUBS);
   private final MapSettings settings = new MapSettings();
 
   private final TelemetryClient underTest = new TelemetryClient(okHttpClient, settings.asConfig());
@@ -62,7 +60,7 @@ class TelemetryClientTest {
 
     underTest.upload(JSON);
 
-    verify(okHttpClient).newCall(requestCaptor.capture());
+    Mockito.verify(okHttpClient).newCall(requestCaptor.capture());
     Request request = requestCaptor.getValue();
     assertThat(request.method()).isEqualTo("POST");
     assertThat(request.body().contentType()).isEqualTo(MediaType.parse("application/json; charset=utf-8"));
@@ -80,7 +78,7 @@ class TelemetryClientTest {
 
     underTest.uploadMetric(JSON);
 
-    verify(okHttpClient).newCall(requestCaptor.capture());
+    Mockito.verify(okHttpClient).newCall(requestCaptor.capture());
     Request request = requestCaptor.getValue();
     assertThat(request.method()).isEqualTo("POST");
     assertThat(request.body().contentType()).isEqualTo(MediaType.parse("application/json; charset=utf-8"));
@@ -97,7 +95,7 @@ class TelemetryClientTest {
 
     underTest.optOut(JSON);
 
-    verify(okHttpClient).newCall(requestCaptor.capture());
+    Mockito.verify(okHttpClient).newCall(requestCaptor.capture());
     Request request = requestCaptor.getValue();
     assertThat(request.method()).isEqualTo("DELETE");
     assertThat(request.body().contentType()).isEqualTo(MediaType.parse("application/json; charset=utf-8"));

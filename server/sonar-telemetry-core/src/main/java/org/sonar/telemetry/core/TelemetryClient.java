@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry;
+package org.sonar.telemetry.core;
 
 import java.io.IOException;
 import okhttp3.Call;
@@ -32,13 +32,13 @@ import okio.Okio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 
-import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_COMPRESSION;
-import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_URL;
-import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_METRICS_URL;
+import static org.sonar.process.ProcessProperties.Property;
 
+@ComputeEngineSide
 @ServerSide
 public class TelemetryClient implements Startable {
   private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -55,17 +55,17 @@ public class TelemetryClient implements Startable {
     this.okHttpClient = okHttpClient;
   }
 
-  void upload(String json) throws IOException {
+  public void upload(String json) throws IOException {
     Request request = buildHttpRequest(serverUrl, json);
     execute(okHttpClient.newCall(request));
   }
 
-  void uploadMetric(String json) throws IOException {
+  public void uploadMetric(String json) throws IOException {
     Request request = buildHttpRequest(metricsServerUrl, json);
     execute(okHttpClient.newCall(request));
   }
 
-  void optOut(String json) {
+  public void optOut(String json) {
     Request.Builder request = new Request.Builder();
     request.url(serverUrl);
     RequestBody body = RequestBody.create(JSON, json);
@@ -121,15 +121,27 @@ public class TelemetryClient implements Startable {
 
   @Override
   public void start() {
-    this.serverUrl = config.get(SONAR_TELEMETRY_URL.getKey())
-      .orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", SONAR_TELEMETRY_URL)));
-    this.metricsServerUrl = config.get(SONAR_TELEMETRY_METRICS_URL.getKey())
-      .orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", SONAR_TELEMETRY_METRICS_URL)));
-    this.compression = config.getBoolean(SONAR_TELEMETRY_COMPRESSION.getKey()).orElse(true);
+    this.serverUrl = config.get(Property.SONAR_TELEMETRY_URL.getKey())
+      .orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", Property.SONAR_TELEMETRY_URL)));
+    this.metricsServerUrl = config.get(Property.SONAR_TELEMETRY_METRICS_URL.getKey())
+      .orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", Property.SONAR_TELEMETRY_METRICS_URL)));
+    this.compression = config.getBoolean(Property.SONAR_TELEMETRY_COMPRESSION.getKey()).orElse(true);
   }
 
   @Override
   public void stop() {
     // Nothing to do
+  }
+
+  public void uploadMetricAsync(String jsonString) {
+    Thread thread = new Thread(() -> {
+      try {
+        uploadMetric(jsonString);
+      } catch (IOException e) {
+        LOG.debug("Sending telemetry messages has failed", e);
+      }
+    });
+    thread.setDaemon(true);
+    thread.start();
   }
 }

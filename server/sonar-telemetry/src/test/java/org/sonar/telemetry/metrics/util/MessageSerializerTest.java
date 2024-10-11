@@ -27,13 +27,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
+import org.sonar.telemetry.core.MessageSerializer;
 import org.sonar.telemetry.core.TelemetryDataType;
-import org.sonar.telemetry.metrics.schema.BaseMessage;
-import org.sonar.telemetry.metrics.schema.InstallationMetric;
-import org.sonar.telemetry.metrics.schema.LanguageMetric;
-import org.sonar.telemetry.metrics.schema.Metric;
-import org.sonar.telemetry.metrics.schema.ProjectMetric;
-import org.sonar.telemetry.metrics.schema.UserMetric;
+import org.sonar.telemetry.core.schema.BaseMessage;
+import org.sonar.telemetry.core.schema.InstallationMetric;
+import org.sonar.telemetry.core.schema.LanguageMetric;
+import org.sonar.telemetry.core.schema.Metric;
+import org.sonar.telemetry.core.schema.ProjectMetric;
+import org.sonar.telemetry.core.schema.UserMetric;
 
 import static org.sonar.test.JsonAssert.assertJson;
 

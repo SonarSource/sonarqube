@@ -233,4 +233,12 @@ public class ScannerReportReader {
   public FileStructure getFileStructure() {
     return fileStructure;
   }
+
+  public CloseableIterator<ScannerReport.TelemetryEntry> readTelemetryEntries() {
+    File file = fileStructure.telemetryEntries();
+    if (!fileExists(file)) {
+      return emptyCloseableIterator();
+    }
+    return Protobuf.readStream(file, ScannerReport.TelemetryEntry.parser());
+  }
 }

@@ -31,6 +31,7 @@ import okio.Okio;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.telemetry.core.TelemetryClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_METRICS_URL;

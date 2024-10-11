@@ -35,8 +35,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.telemetry.TelemetryMetricsSentDto;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.TelemetryDataProvider;
-import org.sonar.telemetry.metrics.schema.BaseMessage;
-import org.sonar.telemetry.metrics.schema.Metric;
+import org.sonar.telemetry.core.schema.BaseMessage;
+import org.sonar.telemetry.core.schema.Metric;
 import org.sonar.telemetry.metrics.util.SentMetricsStorage;
 
 public class TelemetryMetricsLoader {

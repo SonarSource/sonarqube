@@ -17,31 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.metrics.schema;
+package org.sonar.telemetry.core.schema;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.junit.jupiter.api.Test;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
 
-public class UserMetric extends Metric {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @JsonProperty("user_uuid")
-  private String userUuid;
+class LanguageMetricTest {
 
-  public UserMetric(String key, Object value, String userUuid, TelemetryDataType type, Granularity granularity) {
-    this.key = key;
-    this.value = value;
-    this.userUuid = userUuid;
-    this.type = type;
-    this.granularity = granularity;
-  }
+  @Test
+  void gettersAndSetters() {
+    LanguageMetric metric = new LanguageMetric("ncloc", 100, "java", TelemetryDataType.INTEGER, Granularity.MONTHLY);
 
-  public String getUserUuid() {
-    return userUuid;
-  }
-
-  public void setUserUuid(String userUuid) {
-    this.userUuid = userUuid;
+    assertThat(metric.getLanguage()).isEqualTo("java");
+    assertThat(metric.getValue()).isEqualTo(100);
+    assertThat(metric.getKey()).isEqualTo("ncloc");
+    assertThat(metric.getGranularity()).isEqualTo(Granularity.MONTHLY);
+    assertThat(metric.getType()).isEqualTo(TelemetryDataType.INTEGER);
   }
 
 }

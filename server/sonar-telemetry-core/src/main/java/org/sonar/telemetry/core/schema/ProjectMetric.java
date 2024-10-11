@@ -17,54 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.metrics.schema;
+package org.sonar.telemetry.core.schema;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
 
-public abstract class Metric {
-  @JsonProperty("key")
-  protected String key;
+public class ProjectMetric extends Metric {
 
-  @JsonProperty("value")
-  protected Object value;
+  @JsonProperty("project_uuid")
+  private String projectUuid;
 
-  @JsonProperty("type")
-  protected TelemetryDataType type;
-
-  @JsonProperty("granularity")
-  protected Granularity granularity;
-
-  public String getKey() {
-    return key;
-  }
-
-  public void setKey(String key) {
+  public ProjectMetric(String key, Object value, String projectUuid, TelemetryDataType type, Granularity granularity) {
     this.key = key;
-  }
-
-  public Object getValue() {
-    return value;
-  }
-
-  public void setValue(Object value) {
     this.value = value;
-  }
-
-  public TelemetryDataType getType() {
-    return type;
-  }
-
-  public void setType(TelemetryDataType type) {
+    this.projectUuid = projectUuid;
     this.type = type;
-  }
-
-  public Granularity getGranularity() {
-    return granularity;
-  }
-
-  public void setGranularity(Granularity granularity) {
     this.granularity = granularity;
   }
+
+  public String getProjectUuid() {
+    return projectUuid;
+  }
+
+  public void setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
+  }
+
 }
