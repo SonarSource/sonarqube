@@ -24,11 +24,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rules.CleanCodeAttribute;
@@ -71,54 +71,62 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.index.IssueScope.MAIN;
 import static org.sonar.server.issue.index.IssueScope.TEST;
 
-@RunWith(MockitoJUnitRunner.class)
-public class SearchResponseFormatFormatOperationTest {
-  @Rule
-  public DbTester db = DbTester.create();
+@ExtendWith(MockitoExtension.class)
+class SearchResponseFormatFormatOperationTest {
+  @RegisterExtension
+  DbTester db = DbTester.create();
   private final Durations durations = new Durations();
   private final Languages languages = mock(Languages.class);
   private final TextRangeResponseFormatter textRangeResponseFormatter = mock(TextRangeResponseFormatter.class);
   private final UserResponseFormatter userResponseFormatter = mock(UserResponseFormatter.class);
   private final Common.User user = mock(Common.User.class);
-  private final SearchResponseFormat searchResponseFormat = new SearchResponseFormat(durations, languages, textRangeResponseFormatter, userResponseFormatter);
+  private final SearchResponseFormat searchResponseFormat = new SearchResponseFormat(durations, languages, textRangeResponseFormatter,
+    userResponseFormatter);
 
   private SearchResponseData searchResponseData;
   private IssueDto issueDto;
   private ComponentDto componentDto;
   private UserDto userDto;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     searchResponseData = newSearchResponseDataMainBranch();
   }
 
   @Test
-  public void formatOperation_should_add_components_to_response() {
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+  void formatOperation_should_add_components_to_response() {
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getComponentsList()).hasSize(1);
     assertThat(result.getComponentsList().get(0).getKey()).isEqualTo(issueDto.getComponentKey());
   }
 
   @Test
-  public void formatOperation_should_add_rules_to_response() {
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+  void formatOperation_should_add_rules_to_response() {
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getRulesList()).hasSize(1);
     assertThat(result.getRulesList().get(0).getKey()).isEqualTo(issueDto.getRuleKey().toString());
   }
 
   @Test
-  public void formatOperation_should_add_users_to_response() {
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+  void formatOperation_should_add_users_to_response() {
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getUsersList()).hasSize(1);
     assertThat(result.getUsers(0)).isSameAs(user);
   }
 
   @Test
-  public void formatOperation_should_add_issue_to_response() {
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+  void formatOperation_does_not_add_author_to_response_if_showAuthor_false() {
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, false);
+
+    assertThat(result.getIssue().getAuthor()).isEmpty();
+  }
+
+  @Test
+  void formatOperation_should_add_issue_to_response() {
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertIssueEqualsIssueDto(result.getIssue(), issueDto);
   }
@@ -155,10 +163,10 @@ public class SearchResponseFormatFormatOperationTest {
   }
 
   @Test
-  public void formatOperation_should_not_add_issue_when_several_issue() {
+  void formatOperation_should_not_add_issue_when_several_issue() {
     searchResponseData = new SearchResponseData(List.of(createIssue(), createIssue()));
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue()).isEqualTo(Issue.getDefaultInstance());
   }
@@ -172,86 +180,86 @@ public class SearchResponseFormatFormatOperationTest {
   }
 
   @Test
-  public void formatOperation_should_add_branch_on_issue() {
+  void formatOperation_should_add_branch_on_issue() {
     String branchName = randomAlphanumeric(5);
     searchResponseData = newSearchResponseDataBranch(branchName);
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
     assertThat(result.getIssue().getBranch()).isEqualTo(branchName);
   }
 
   @Test
-  public void formatOperation_should_add_pullrequest_on_issue() {
+  void formatOperation_should_add_pullrequest_on_issue() {
     searchResponseData = newSearchResponseDataPr("pr1");
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
     assertThat(result.getIssue().getPullRequest()).isEqualTo("pr1");
   }
 
   @Test
-  public void formatOperation_should_add_project_on_issue() {
+  void formatOperation_should_add_project_on_issue() {
     issueDto.setProjectUuid(componentDto.uuid());
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getProject()).isEqualTo(componentDto.getKey());
   }
 
   @Test
-  public void formatOperation_should_add_external_rule_engine_on_issue() {
+  void formatOperation_should_add_external_rule_engine_on_issue() {
     issueDto.setExternal(true);
     String expected = randomAlphanumeric(5);
     issueDto.setRuleKey(EXTERNAL_RULE_REPO_PREFIX + expected, randomAlphanumeric(5));
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getExternalRuleEngine()).isEqualTo(expected);
   }
 
   @Test
-  public void formatOperation_should_add_effort_and_debt_on_issue() {
+  void formatOperation_should_add_effort_and_debt_on_issue() {
     long effort = 60L;
     issueDto.setEffort(effort);
     String expected = durations.encode(Duration.create(effort));
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getEffort()).isEqualTo(expected);
     assertThat(result.getIssue().getDebt()).isEqualTo(expected);
   }
 
   @Test
-  public void formatOperation_should_add_scope_test_on_issue_when_unit_test_file() {
+  void formatOperation_should_add_scope_test_on_issue_when_unit_test_file() {
     componentDto.setQualifier(UNIT_TEST_FILE);
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getScope()).isEqualTo(TEST.name());
   }
 
   @Test
-  public void formatOperation_should_add_scope_main_on_issue_when_not_unit_test_file() {
+  void formatOperation_should_add_scope_main_on_issue_when_not_unit_test_file() {
     componentDto.setQualifier(randomAlphanumeric(5));
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getScope()).isEqualTo(MAIN.name());
   }
 
   @Test
-  public void formatOperation_should_add_actions_on_issues() {
+  void formatOperation_should_add_actions_on_issues() {
     Set<String> expectedActions = Set.of("actionA", "actionB");
     searchResponseData.addActions(issueDto.getKey(), expectedActions);
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getActions().getActionsList()).containsExactlyInAnyOrderElementsOf(expectedActions);
   }
 
   @Test
-  public void formatOperation_should_add_transitions_on_issues() {
+  void formatOperation_should_add_transitions_on_issues() {
     Set<String> expectedTransitions = Set.of("transitionone", "transitiontwo");
     searchResponseData.addTransitions(issueDto.getKey(), createFakeTransitions(expectedTransitions));
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getTransitions().getTransitionsList()).containsExactlyInAnyOrderElementsOf(expectedTransitions);
   }
@@ -263,30 +271,30 @@ public class SearchResponseFormatFormatOperationTest {
   }
 
   @Test
-  public void formatOperation_should_add_comments_on_issues() {
+  void formatOperation_should_add_comments_on_issues() {
     IssueChangeDto issueChangeDto = newIssueChangeDto(issueDto);
     searchResponseData.setComments(List.of(issueChangeDto));
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getComments().getCommentsList()).hasSize(1).extracting(Common.Comment::getKey).containsExactly(issueChangeDto.getKey());
   }
 
   @Test
-  public void formatOperation_should_not_set_severity_for_security_hotspot_issue() {
+  void formatOperation_should_not_set_severity_for_security_hotspot_issue() {
     issueDto.setType(SECURITY_HOTSPOT);
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().hasSeverity()).isFalse();
   }
 
   @Test
-  public void formatOperation_shouldReturnExpectedIssueStatus() {
+  void formatOperation_shouldReturnExpectedIssueStatus() {
     issueDto.setStatus(org.sonar.api.issue.Issue.STATUS_RESOLVED);
     issueDto.setResolution(org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX);
 
-    Operation result = searchResponseFormat.formatOperation(searchResponseData);
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
 
     assertThat(result.getIssue().getIssueStatus()).isEqualTo(IssueStatus.ACCEPTED.name());
   }

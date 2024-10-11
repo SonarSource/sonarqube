@@ -242,7 +242,7 @@ public class ListAction implements IssuesWsAction {
     Paging paging = forPageIndex(request.page)
       .withPageSize(request.pageSize)
       .andTotal(request.pageSize);
-    return searchResponseFormat.formatList(additionalFields, data, paging);
+    return searchResponseFormat.formatList(additionalFields, data, paging, userSession.isLoggedIn());
   }
 
   private void collectLoggedInUser(SearchResponseLoader.Collector collector) {

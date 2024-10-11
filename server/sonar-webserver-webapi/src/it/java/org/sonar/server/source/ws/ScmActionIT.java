@@ -73,6 +73,7 @@ public class ScmActionIT {
 
   @Test
   public void show_scm() {
+    userSessionRule.logIn();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
@@ -91,7 +92,27 @@ public class ScmActionIT {
   }
 
   @Test
+  public void hide_author_if_not_logged_in() {
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
+
+    dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
+      .setUuid(Uuids.createFast())
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
+      .setSourceData(DbFileSources.Data.newBuilder().addLines(
+        newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1)).build()));
+    dbSession.commit();
+
+    tester.newRequest()
+      .setParam("key", FILE_KEY)
+      .execute()
+      .assertJson(getClass(), "hide_author.json");
+  }
+
+  @Test
   public void show_scm_from_given_range_lines() {
+    userSessionRule.logIn();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
@@ -117,6 +138,7 @@ public class ScmActionIT {
 
   @Test
   public void not_group_lines_by_commit() {
+    userSessionRule.logIn();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
@@ -142,6 +164,7 @@ public class ScmActionIT {
 
   @Test
   public void group_lines_by_commit() {
+    userSessionRule.logIn();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 
@@ -167,6 +190,7 @@ public class ScmActionIT {
 
   @Test
   public void accept_negative_value_in_from_parameter() {
+    userSessionRule.logIn();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
       .registerBranches(project.getMainBranchDto());
 

@@ -109,7 +109,7 @@ public class SetSeverityAction implements IssuesWsAction {
     String severity = request.mandatoryParam(PARAM_SEVERITY);
     try (DbSession session = dbClient.openSession(false)) {
       SearchResponseData preloadedSearchResponseData = setType(session, issueKey, severity);
-      responseWriter.write(issueKey, preloadedSearchResponseData, request, response);
+      responseWriter.write(issueKey, preloadedSearchResponseData, request, response, true);
     }
   }
 

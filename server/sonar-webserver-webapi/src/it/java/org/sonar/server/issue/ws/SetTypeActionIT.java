@@ -127,7 +127,7 @@ public class SetTypeActionIT {
 
     call(issueDto.getKey(), to.name());
 
-    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class), eq(true));
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getType()).isEqualTo(to.getDbConstant());
 

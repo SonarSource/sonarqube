@@ -98,7 +98,7 @@ public class EditCommentAction implements IssuesWsAction {
       CommentData commentData = loadCommentData(dbSession, toWsRequest(request));
       updateComment(dbSession, commentData);
       IssueDto issueDto = commentData.getIssueDto();
-      responseWriter.write(issueDto.getKey(), new SearchResponseData(issueDto), request, response);
+      responseWriter.write(issueDto.getKey(), new SearchResponseData(issueDto), request, response, true);
     }
   }
 

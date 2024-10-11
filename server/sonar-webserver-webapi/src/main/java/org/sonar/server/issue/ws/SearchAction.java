@@ -557,7 +557,7 @@ public class SearchAction implements IssuesWsAction {
 
     // FIXME allow long in Paging
     Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) getTotalHits(result).value);
-    return searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
+    return searchResponseFormat.formatSearch(additionalFields, data, paging, facets, userSession.isLoggedIn());
   }
 
   private static TotalHits getTotalHits(SearchResponse response) {
@@ -565,15 +565,21 @@ public class SearchAction implements IssuesWsAction {
       "results"));
   }
 
-  private static SearchOptions createSearchOptionsFromRequest(SearchRequest request) {
+  private SearchOptions createSearchOptionsFromRequest(SearchRequest request) {
     SearchOptions options = new SearchOptions();
     options.setPage(request.getPage(), request.getPageSize());
 
     List<String> facets = request.getFacets();
-    if (facets != null && !facets.isEmpty()) {
-      options.addFacets(facets);
+
+    if (facets == null || facets.isEmpty()) {
+      return options;
     }
 
+    List<String> requestedFacets = new ArrayList<>(facets);
+    if (!userSession.isLoggedIn()) {
+      requestedFacets.remove(PARAM_AUTHOR);
+    }
+    options.addFacets(requestedFacets);
     return options;
   }
 

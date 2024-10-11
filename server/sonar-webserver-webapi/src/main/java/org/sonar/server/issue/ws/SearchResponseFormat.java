@@ -94,19 +94,21 @@ public class SearchResponseFormat {
   private final TextRangeResponseFormatter textRangeFormatter;
   private final UserResponseFormatter userFormatter;
 
-  public SearchResponseFormat(Durations durations, Languages languages, TextRangeResponseFormatter textRangeFormatter, UserResponseFormatter userFormatter) {
+  public SearchResponseFormat(Durations durations, Languages languages, TextRangeResponseFormatter textRangeFormatter,
+    UserResponseFormatter userFormatter) {
     this.durations = durations;
     this.languages = languages;
     this.textRangeFormatter = textRangeFormatter;
     this.userFormatter = userFormatter;
   }
 
-  SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging, Facets facets) {
+  SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging, Facets facets,
+    boolean showAuthor) {
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
 
     formatPaging(paging, response);
     ofNullable(data.getEffortTotal()).ifPresent(response::setEffortTotal);
-    response.addAllIssues(createIssues(fields, data));
+    response.addAllIssues(createIssues(fields, data, showAuthor));
     response.addAllComponents(formatComponents(data));
     formatFacets(data, facets, response);
     if (fields.contains(SearchAdditionalField.RULES)) {
@@ -121,23 +123,23 @@ public class SearchResponseFormat {
     return response.build();
   }
 
-  Issues.ListWsResponse formatList(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging) {
+  Issues.ListWsResponse formatList(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging, boolean showAuthor) {
     Issues.ListWsResponse.Builder response = Issues.ListWsResponse.newBuilder();
 
     response.setPaging(Common.Paging.newBuilder()
       .setPageIndex(paging.pageIndex())
       .setPageSize(data.getIssues().size()));
-    response.addAllIssues(createIssues(fields, data));
+    response.addAllIssues(createIssues(fields, data, showAuthor));
     response.addAllComponents(formatComponents(data));
     return response.build();
   }
 
-  Operation formatOperation(SearchResponseData data) {
+  Operation formatOperation(SearchResponseData data, boolean showAuthor) {
     Operation.Builder response = Operation.newBuilder();
 
     if (data.getIssues().size() == 1) {
       IssueDto dto = data.getIssues().get(0);
-      response.setIssue(createIssue(ALL_ADDITIONAL_FIELDS, data, dto));
+      response.setIssue(createIssue(ALL_ADDITIONAL_FIELDS, data, dto, showAuthor));
     }
     response.addAllComponents(formatComponents(data));
     response.addAllRules(formatRules(data).getRulesList());
@@ -159,20 +161,20 @@ public class SearchResponseFormat {
       .setTotal(paging.total());
   }
 
-  private List<Issues.Issue> createIssues(Collection<SearchAdditionalField> fields, SearchResponseData data) {
+  private List<Issues.Issue> createIssues(Collection<SearchAdditionalField> fields, SearchResponseData data, boolean showAuthor) {
     return data.getIssues().stream()
-      .map(dto -> createIssue(fields, data, dto))
+      .map(dto -> createIssue(fields, data, dto, showAuthor))
       .toList();
   }
 
-  private Issue createIssue(Collection<SearchAdditionalField> fields, SearchResponseData data, IssueDto dto) {
+  private Issue createIssue(Collection<SearchAdditionalField> fields, SearchResponseData data, IssueDto dto, boolean showAuthor) {
     Issue.Builder issueBuilder = Issue.newBuilder();
-    addMandatoryFieldsToIssueBuilder(issueBuilder, dto, data);
+    addMandatoryFieldsToIssueBuilder(issueBuilder, dto, data, showAuthor);
     addAdditionalFieldsToIssueBuilder(fields, data, dto, issueBuilder);
     return issueBuilder.build();
   }
 
-  private void addMandatoryFieldsToIssueBuilder(Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
+  private void addMandatoryFieldsToIssueBuilder(Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data, boolean showAuthor) {
     issueBuilder.setKey(dto.getKey());
     issueBuilder.setType(Common.RuleType.forNumber(dto.getType()));
 
@@ -204,6 +206,7 @@ public class SearchResponseFormat {
       issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
     }
     ofNullable(data.getUserByUuid(dto.getAssigneeUuid())).ifPresent(assignee -> issueBuilder.setAssignee(assignee.getLogin()));
+ 
     ofNullable(emptyToNull(dto.getResolution())).ifPresent(issueBuilder::setResolution);
     issueBuilder.setStatus(dto.getStatus());
     ofNullable(dto.getIssueStatus()).map(IssueStatus::name).ifPresent(issueBuilder::setIssueStatus);
@@ -221,7 +224,9 @@ public class SearchResponseFormat {
     ofNullable(emptyToNull(dto.getChecksum())).ifPresent(issueBuilder::setHash);
     completeIssueLocations(dto, issueBuilder, data);
 
-    issueBuilder.setAuthor(nullToEmpty(dto.getAuthorLogin()));
+    if (showAuthor) {
+      issueBuilder.setAuthor(nullToEmpty(dto.getAuthorLogin()));
+    }
     ofNullable(dto.getIssueCreationDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setCreationDate);
     ofNullable(dto.getIssueUpdateDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setUpdateDate);
     ofNullable(dto.getIssueCloseDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setCloseDate);
@@ -235,7 +240,8 @@ public class SearchResponseFormat {
     Optional.ofNullable(dto.getCveId()).ifPresent(issueBuilder::setCveId);
   }
 
-  private static void addAdditionalFieldsToIssueBuilder(Collection<SearchAdditionalField> fields, SearchResponseData data, IssueDto dto, Issue.Builder issueBuilder) {
+  private static void addAdditionalFieldsToIssueBuilder(Collection<SearchAdditionalField> fields, SearchResponseData data, IssueDto dto,
+    Issue.Builder issueBuilder) {
     if (fields.contains(ACTIONS)) {
       issueBuilder.setActions(createIssueActions(data, dto));
     }

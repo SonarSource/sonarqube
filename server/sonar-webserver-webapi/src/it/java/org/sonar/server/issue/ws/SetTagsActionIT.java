@@ -102,7 +102,7 @@ public class SetTagsActionIT {
 
     call(issueDto.getKey(), "bug", "todo");
 
-    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class), eq(true));
     verifyContentOfPreloadedSearchResponseData(issueDto);
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(db.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getTags()).containsOnly("bug", "todo");

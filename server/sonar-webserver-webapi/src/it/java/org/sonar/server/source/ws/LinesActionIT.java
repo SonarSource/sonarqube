@@ -50,6 +50,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -69,7 +70,8 @@ public class LinesActionIT {
   private final HtmlSourceDecorator htmlSourceDecorator = mock(HtmlSourceDecorator.class);
   private final SourceService sourceService = new SourceService(db.getDbClient(), htmlSourceDecorator);
   private final LinesJsonWriter linesJsonWriter = new LinesJsonWriter(htmlSourceDecorator);
-  private final LinesAction underTest = new LinesAction(TestComponentFinder.from(db), db.getDbClient(), sourceService, linesJsonWriter, userSession);
+  private final LinesAction underTest = new LinesAction(TestComponentFinder.from(db), db.getDbClient(), sourceService, linesJsonWriter,
+    userSession);
   private final WsActionTester tester = new WsActionTester(underTest);
 
   @Before
@@ -363,10 +365,12 @@ public class LinesActionIT {
 
     ComponentDto file = insertFileWithData(data, mainBranch);
 
-    tester.newRequest()
+    String response = tester.newRequest()
       .setParam("uuid", file.uuid())
       .execute()
-      .assertJson(getClass(), "hide_scmAuthors.json");
+      .getInput();
+
+    assertThat(response).doesNotContain("isaac@asimov.com");
   }
 
   @Test
