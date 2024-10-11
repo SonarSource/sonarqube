@@ -27,57 +27,57 @@ import static org.assertj.core.data.MapEntry.entry;
 
 class TelemetryCacheTest {
 
-    TelemetryCache underTest = new TelemetryCache();
+  TelemetryCache underTest = new TelemetryCache();
 
-    @Test
-    void put_EntryIsAddedToCache() {
-        assertThat(underTest.getAll()).isEmpty();
+  @Test
+  void put_EntryIsAddedToCache() {
+    assertThat(underTest.getAll()).isEmpty();
 
-        underTest.put("key", "value");
-        assertThat(underTest.getAll()).containsOnly(entry("key", "value"));
+    underTest.put("key", "value");
+    assertThat(underTest.getAll()).containsOnly(entry("key", "value"));
+  }
+
+  @Test
+  void put_whenKeyIsAlreadyThere_EntryOverridesPreviousValue() {
+    underTest.put("key", "value");
+    underTest.put("key", "newValue");
+    assertThat(underTest.getAll()).containsOnly(entry("key", "newValue"));
+  }
+
+  @Test
+  void put_whenCacheIsAlreadyFull_newEntryIsNotAdded() {
+    for (int i = 0; i < 1000; i++) {
+      underTest.put("key" + i, "value" + i);
     }
+    underTest.put("key", "value");
+    assertThat(underTest.getAll()).hasSize(1000);
+    assertThat(underTest.getAll()).doesNotContain(entry("key", "value"));
+  }
 
-    @Test
-    void put_whenKeyIsAlreadyThere_EntryOverridesPreviousValue() {
-        underTest.put("key", "value");
-        underTest.put("key", "newValue");
-        assertThat(underTest.getAll()).containsOnly(entry("key", "newValue"));
+  @Test
+  void put_whenCacheIsAlreadyFull_newEntryIsAddedIfKeyAlreadyThere() {
+    for (int i = 0; i < 1000; i++) {
+      underTest.put("key" + i, "value" + i);
     }
+    underTest.put("key1", "newValue");
+    underTest.put("key", "newValue");
 
-    @Test
-    void put_whenCacheIsAlreadyFull_newEntryIsNotAdded() {
-        for (int i = 0; i < 1000; i++) {
-            underTest.put("key" + i, "value" + i);
-        }
-        underTest.put("key", "value");
-        assertThat(underTest.getAll()).hasSize(1000);
-        assertThat(underTest.getAll()).doesNotContain(entry("key", "value"));
-    }
+    assertThat(underTest.getAll()).hasSize(1000);
+    assertThat(underTest.getAll()).contains(entry("key1", "newValue"));
+  }
 
-    @Test
-    void put_whenCacheIsAlreadyFull_newEntryIsAddedIfKeyAlreadyThere() {
-        for (int i = 0; i < 1000; i++) {
-            underTest.put("key" + i, "value" + i);
-        }
-        underTest.put("key1", "newValue");
-        underTest.put("key", "newValue");
+  @Test
+  void put_whenKeyIsNull_IAEIsThrown() {
+    assertThatThrownBy(() -> underTest.put(null, "value"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Key of the telemetry entry must not be null");
+  }
 
-        assertThat(underTest.getAll()).hasSize(1000);
-        assertThat(underTest.getAll()).contains(entry("key1", "newValue"));
-    }
-
-    @Test
-    void put_whenKeyIsNull_IAEIsThrown() {
-        assertThatThrownBy(() -> underTest.put(null, "value"))
-          .isInstanceOf(IllegalArgumentException.class)
-          .hasMessage("Key of the telemetry entry must not be null");
-    }
-
-    @Test
-    void put_whenValueIsNull_IAEIsThrown() {
-        assertThatThrownBy(() -> underTest.put("key", null))
-          .isInstanceOf(IllegalArgumentException.class)
-          .hasMessage("Value of the telemetry entry must not be null");
-    }
+  @Test
+  void put_whenValueIsNull_IAEIsThrown() {
+    assertThatThrownBy(() -> underTest.put("key", null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of the telemetry entry must not be null");
+  }
 
 }

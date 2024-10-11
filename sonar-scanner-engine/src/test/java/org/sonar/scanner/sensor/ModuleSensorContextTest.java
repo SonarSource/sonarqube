@@ -19,10 +19,10 @@
  */
 package org.sonar.scanner.sensor;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import java.io.File;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
@@ -46,10 +46,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ModuleSensorContextTest {
+class ModuleSensorContextTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  public File temp;
 
   private final ActiveRules activeRules = new ActiveRulesBuilder().build();
   private final MapSettings settings = new MapSettings();
@@ -65,15 +65,15 @@ public class ModuleSensorContextTest {
   private ExecutingSensorContext executingSensorContext = mock(ExecutingSensorContext.class);
   private ScannerPluginRepository pluginRepository = mock(ScannerPluginRepository.class);
 
-  @Before
-  public void prepare() throws Exception {
-    fs = new DefaultFileSystem(temp.newFolder().toPath());
+  @BeforeEach
+  void prepare() {
+    fs = new DefaultFileSystem(temp);
     underTest = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime,
       branchConfiguration, writeCache, readCache, analysisCacheEnabled, unchangedFilesHandler, executingSensorContext, pluginRepository);
   }
 
   @Test
-  public void shouldProvideComponents_returnsNotNull() {
+  void shouldProvideComponents_returnsNotNull() {
     assertThat(underTest.activeRules()).isEqualTo(activeRules);
     assertThat(underTest.fileSystem()).isEqualTo(fs);
     assertThat(underTest.getSonarQubeVersion()).isEqualTo(Version.parse("5.5"));
@@ -93,7 +93,7 @@ public class ModuleSensorContextTest {
   }
 
   @Test
-  public void should_delegate_to_unchanged_files_handler() {
+  void should_delegate_to_unchanged_files_handler() {
     DefaultInputFile defaultInputFile = mock(DefaultInputFile.class);
 
     underTest.markAsUnchanged(defaultInputFile);
@@ -102,7 +102,7 @@ public class ModuleSensorContextTest {
   }
 
   @Test
-  public void pull_request_can_skip_unchanged_files() {
+  void pull_request_can_skip_unchanged_files() {
     when(branchConfiguration.isPullRequest()).thenReturn(true);
     underTest = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime,
       branchConfiguration, writeCache, readCache, analysisCacheEnabled, unchangedFilesHandler, executingSensorContext, pluginRepository);

@@ -23,10 +23,9 @@ import com.google.common.collect.Iterators;
 import java.io.File;
 import java.time.Instant;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Protobuf;
 import org.sonar.scanner.protocol.Constants;
@@ -36,19 +35,19 @@ import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.Hi
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ScannerReportWriterTest {
+class ScannerReportWriterTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  public File temp;
   private ScannerReportWriter underTest;
 
-  @Before
-  public void setUp() throws Exception {
-    underTest = new ScannerReportWriter(new FileStructure(temp.newFolder()));
+  @BeforeEach
+  void setUp() {
+    underTest = new ScannerReportWriter(new FileStructure(temp));
   }
 
   @Test
-  public void write_metadata() {
+  void write_metadata() {
     ScannerReport.Metadata.Builder metadata = ScannerReport.Metadata.newBuilder()
       .setAnalysisDate(15000000L)
       .setProjectKey("PROJECT_A")
@@ -62,7 +61,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_component() {
+  void write_component() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isFalse();
 
@@ -88,7 +87,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_issues() {
+  void write_issues() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.ISSUES, 1)).isFalse();
 
@@ -108,7 +107,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_external_issues() {
+  void write_external_issues() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.EXTERNAL_ISSUES, 1)).isFalse();
 
@@ -128,7 +127,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_adhoc_rule() {
+  void write_adhoc_rule() {
 
     // write data
     ScannerReport.AdHocRule rule = ScannerReport.AdHocRule.newBuilder()
@@ -149,7 +148,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_cve() {
+  void write_cve() {
 
     // write data
     ScannerReport.Cve cve = ScannerReport.Cve.newBuilder()
@@ -173,7 +172,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_changed_lines() {
+  void write_changed_lines() {
     assertThat(underTest.hasComponentData(FileStructure.Domain.CHANGED_LINES, 1)).isFalse();
 
     ScannerReport.ChangedLines changedLines = ScannerReport.ChangedLines.newBuilder()
@@ -190,7 +189,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_measures() {
+  void write_measures() {
     assertThat(underTest.hasComponentData(FileStructure.Domain.MEASURES, 1)).isFalse();
 
     ScannerReport.Measure measure = ScannerReport.Measure.newBuilder()
@@ -208,7 +207,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_scm() {
+  void write_scm() {
     assertThat(underTest.hasComponentData(FileStructure.Domain.CHANGESETS, 1)).isFalse();
 
     ScannerReport.Changesets scm = ScannerReport.Changesets.newBuilder()
@@ -233,7 +232,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_duplications() {
+  void write_duplications() {
     assertThat(underTest.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isFalse();
 
     ScannerReport.Duplication duplication = ScannerReport.Duplication.newBuilder()
@@ -262,7 +261,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_duplication_blocks() {
+  void write_duplication_blocks() {
     assertThat(underTest.hasComponentData(FileStructure.Domain.CPD_TEXT_BLOCKS, 1)).isFalse();
 
     ScannerReport.CpdTextBlock duplicationBlock = ScannerReport.CpdTextBlock.newBuilder()
@@ -288,7 +287,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_symbols() {
+  void write_symbols() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.SYMBOLS, 1)).isFalse();
 
@@ -320,7 +319,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_syntax_highlighting() {
+  void write_syntax_highlighting() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, 1)).isFalse();
 
@@ -337,7 +336,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_line_significant_code() {
+  void write_line_significant_code() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.SGNIFICANT_CODE, 1)).isFalse();
 
@@ -352,7 +351,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_coverage() {
+  void write_coverage() {
     // no data yet
     assertThat(underTest.hasComponentData(FileStructure.Domain.COVERAGES, 1)).isFalse();
 
@@ -368,7 +367,7 @@ public class ScannerReportWriterTest {
   }
 
   @Test
-  public void write_telemetry() {
+  void write_telemetry() {
 
     List<ScannerReport.TelemetryEntry> input = List.of(
       ScannerReport.TelemetryEntry.newBuilder()
