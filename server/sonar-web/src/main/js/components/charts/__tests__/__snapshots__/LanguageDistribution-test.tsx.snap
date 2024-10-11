@@ -7,7 +7,7 @@ exports[`should render correctly 1`] = `
 
 .emotion-2 {
   font: var(--echoes-typography-text-default-regular);
-  fill: rgb(106,117,144);
+  fill: var(--echoes-color-text-subdued);
 }
 
 .e1vbniy52 .emotion-2 {
