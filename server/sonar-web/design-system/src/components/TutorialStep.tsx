@@ -19,7 +19,7 @@
  */
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
-import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
+import { themeBorder, themeColor } from '../helpers/theme';
 
 interface Props {
   children: React.ReactNode;
@@ -69,7 +69,7 @@ const Step = styled.li<{ stepNumber?: number }>`
   ${tw`sw-mt-10`}
 
   &::before {
-    color: ${themeContrast('pageContentLight')};
+    color: var(--echoes-color-text-subdued);
     content: counter(li);
 
     ${tw`sw-inline-block`}

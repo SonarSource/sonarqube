@@ -21,7 +21,6 @@ import styled from '@emotion/styled';
 import { memo, useState } from 'react';
 import tw from 'twin.macro';
 import { PopupPlacement, PopupZLevel } from '../../helpers/positioning';
-import { themeColor } from '../../helpers/theme';
 import { DropdownToggler } from '../DropdownToggler';
 import { LineMeta } from './LineStyles';
 
@@ -90,6 +89,6 @@ const LineNumberStyled = styled.div`
   ${tw`sw-cursor-pointer`}
 
   &:hover {
-    color: ${themeColor('codeLineMetaHover')};
+    color: var(--echoes-color-text-bold);
   }
 `;

@@ -150,7 +150,7 @@ function Bars<T>(
 }
 
 const BarChartTick = styled.text`
-  fill: ${themeColor('pageContentLight')};
+  fill: var(--echoes-color-text-subdued);
   text-anchor: middle;
 `;
 

@@ -20,7 +20,7 @@
 
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
-import { themeBorder, themeColor, themeContrast } from '../../helpers';
+import { themeBorder, themeColor } from '../../helpers';
 import { BareButton } from '../../sonar-aligned/components/buttons';
 
 interface CodeViewerExpanderProps {
@@ -38,7 +38,6 @@ export const CodeViewerExpander = styled(BareButton)<CodeViewerExpanderProps>`
   background-color: ${themeColor('codeLineEllipsis')};
 
   &:hover {
-    color: ${themeContrast('codeLineEllipsisHover')};
     background-color: ${themeColor('codeLineEllipsisHover')};
   }
 
@@ -76,6 +75,6 @@ export const LineSCMStyled = styled(BareButton)`
   ${tw`sw-w-full sw-h-full`}
 
   &:hover {
-    color: ${themeColor('codeLineMetaHover')};
+    color: var(--echoes-color-text-subdued);
   }
 `;

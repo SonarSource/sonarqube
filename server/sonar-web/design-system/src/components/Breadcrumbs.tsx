@@ -27,7 +27,6 @@ import {
   PopupPlacement,
   PopupZLevel,
   themeColor,
-  themeContrast,
 } from '../helpers';
 import { useResizeObserver } from '../hooks/useResizeObserver';
 import { Dropdown } from './Dropdown';
@@ -181,6 +180,6 @@ const BreadcrumbWrapper = styled.nav`
   ${tw`sw-truncate`}
   ${tw`sw-typo-default`}
 
-  color: ${themeContrast('breadcrumb')};
+  color: var(--echoes-color-text-subdued);
   background-color: ${themeColor('breadcrumb')};
 `;

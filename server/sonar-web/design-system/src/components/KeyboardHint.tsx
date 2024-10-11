@@ -19,7 +19,6 @@
  */
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
-import { themeContrast } from '../helpers';
 import { Key } from '../helpers/keyboard';
 import { KeyboardHintKeys } from './KeyboardHintKeys';
 
@@ -45,7 +44,7 @@ export function KeyboardHint({ title, command, className }: Props) {
 const Body = styled.div`
   ${tw`sw-flex sw-gap-2 sw-justify-center`}
   flex-wrap: wrap;
-  color: ${themeContrast('pageContentLight')};
+  color: var(--echoes-color-text-subdued);
 `;
 
 function isMacOS() {

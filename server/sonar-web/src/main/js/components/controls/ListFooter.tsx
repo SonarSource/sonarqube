@@ -20,7 +20,7 @@
 import styled from '@emotion/styled';
 import { Button } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { Spinner, themeColor } from 'design-system';
+import { Spinner } from 'design-system';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
@@ -124,7 +124,7 @@ export default function ListFooter(props: ListFooterProps) {
 }
 
 const StyledDiv = styled.div`
-  color: ${themeColor('pageContentLight')};
+  color: var(--echoes-color-text-subdued);
 
   margin-top: 1rem /* 16px */;
 `;

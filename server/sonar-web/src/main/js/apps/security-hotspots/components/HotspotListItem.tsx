@@ -18,13 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import {
-  BareButton,
-  ExecutionFlowIcon,
-  SubnavigationItem,
-  themeColor,
-  themeContrast,
-} from 'design-system';
+import { BareButton, ExecutionFlowIcon, SubnavigationItem, themeColor } from 'design-system';
 import React, { useCallback } from 'react';
 import { FormattedMessage } from 'react-intl';
 import SingleFileLocationNavigator from '../../../components/locations/SingleFileLocationNavigator';
@@ -122,7 +116,7 @@ const StyledHotspotTitle = styled(BareButton)`
 `;
 
 const StyledHotspotInfo = styled.div`
-  color: ${themeContrast('pageContentLight')};
+  color: var(--echoes-color-text-subdued);
 `;
 
 const StyledSeparator = styled.div`

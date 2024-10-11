@@ -181,7 +181,7 @@ export const InteractiveIcon = styled(InteractiveIconBase)`
  * See the {@link https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3382706231/Button | Migration Guide} for more information.
  */
 export const DiscreetInteractiveIcon = styled(InteractiveIcon)`
-  --color: ${themeColor('discreetInteractiveIcon')};
+  --color: var(--echoes-color-icon-subdued);
 `;
 
 /**

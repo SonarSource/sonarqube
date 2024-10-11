@@ -162,7 +162,7 @@ const InputValue = styled.span`
   ${tw`sw-truncate`};
 
   &.is-placeholder {
-    color: ${themeColor('inputPlaceholder')};
+    color: var(--echoes-color-text-placeholder);
   }
 
   &.is-disabled {

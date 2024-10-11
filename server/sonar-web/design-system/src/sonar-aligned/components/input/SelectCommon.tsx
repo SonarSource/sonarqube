@@ -182,7 +182,7 @@ export function selectStyle<
     }),
     placeholder: (base) => ({
       ...base,
-      color: themeContrast('inputPlaceholder')({ theme }),
+      color: 'var(--echoes-color-text-placeholder)',
     }),
   };
 }

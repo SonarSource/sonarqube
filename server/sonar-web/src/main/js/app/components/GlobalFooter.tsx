@@ -20,13 +20,7 @@
 
 import styled from '@emotion/styled';
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
-import {
-  FlagMessage,
-  LAYOUT_VIEWPORT_MIN_WIDTH,
-  PageContentFontWrapper,
-  themeBorder,
-  themeColor,
-} from 'design-system';
+import { FlagMessage, LAYOUT_VIEWPORT_MIN_WIDTH, themeBorder, themeColor } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import InstanceMessage from '../../components/common/InstanceMessage';
@@ -50,7 +44,7 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
 
   return (
     <StyledFooter className="sw-p-6" id="footer">
-      <PageContentFontWrapper className="sw-typo-default sw-h-full sw-flex sw-flex-col sw-items-stretch">
+      <div className="sw-typo-default sw-h-full sw-flex sw-flex-col sw-items-stretch">
         {appState?.productionDatabase === false && (
           <FlagMessage className="sw-mb-4" id="evaluation_warning" variant="warning">
             <p>
@@ -121,12 +115,13 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
             )}
           </ul>
         </div>
-      </PageContentFontWrapper>
+      </div>
     </StyledFooter>
   );
 }
 
 const StyledFooter = styled.div`
+  color: var(--echoes-color-text-subdued);
   background-color: ${themeColor('backgroundSecondary')};
   border-top: ${themeBorder('default')};
   box-sizing: border-box;

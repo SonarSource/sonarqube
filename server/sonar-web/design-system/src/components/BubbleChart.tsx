@@ -438,6 +438,6 @@ const BubbleChartGrid = styled.line`
 const BubbleChartTick = styled.text`
   ${tw`sw-typo-default`}
   ${tw`sw-select-none`}
-  fill: ${themeColor('pageContentLight')};
+  fill: var(--echoes-color-text-subdued);
   text-anchor: var(--align);
 `;

@@ -20,10 +20,9 @@
 
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
-import { themeColor } from '../../../helpers';
 
 export const Note = styled.span`
-  color: ${themeColor('pageContentLight')};
+  color: var(--echoes-color-text-subdued);
 
   ${tw`sw-typo-default`}
 `;

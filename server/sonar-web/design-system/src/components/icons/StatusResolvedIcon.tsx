@@ -19,7 +19,7 @@
  */
 
 import { useTheme } from '@emotion/react';
-import { themeColor, themeContrast } from '../../helpers/theme';
+import { themeColor } from '../../helpers/theme';
 import { CustomIcon, IconProps } from './Icon';
 
 /** @deprecated Use IconStatusResolved from Echoes instead, if possible.
@@ -28,7 +28,10 @@ import { CustomIcon, IconProps } from './Icon';
  * to replace all of the icons yet. There are situations where it is OK to ignore this deprecation
  * warning when revisiting old code, but all new code should use the icons from Echoes.
  */
-export function StatusResolvedIcon({ fill = 'iconStatusResolved', ...iconProps }: IconProps) {
+export function StatusResolvedIcon({
+  fill = 'var(--echoes-color-icon-subdued)',
+  ...iconProps
+}: IconProps) {
   const theme = useTheme();
 
   return (
@@ -37,7 +40,7 @@ export function StatusResolvedIcon({ fill = 'iconStatusResolved', ...iconProps }
       <path
         clipRule="evenodd"
         d="M11.3105 6.22789c.2884.29737.2811.77219-.0163 1.06054L8.27211 10.25c-.29414.2852-.76273.2816-1.05244-.0081l-2-1.99999c-.29289-.2929-.29289-.76777 0-1.06066.29289-.2929.76777-.2929 1.06066 0L7.7581 8.65901 10.25 6.21158c.2974-.28835.7722-.28105 1.0605.01631Z"
-        fill={themeContrast('iconStatusResolved')({ theme })}
+        fill="var(--echoes-color-icon-on-color)"
         fillRule="evenodd"
       />
     </CustomIcon>

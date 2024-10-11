@@ -134,7 +134,7 @@ const StyledButton = styled(ButtonSecondary)<{ active?: boolean; small?: boolean
     }
 
     & span.stat {
-      color: ${themeColor('facetItemLight')};
+      color: var(--echoes-color-text-subdued);
     }
   }
 

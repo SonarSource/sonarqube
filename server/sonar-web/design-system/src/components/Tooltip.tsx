@@ -547,7 +547,7 @@ export const TooltipWrapperInner = styled.div`
   ${tw`sw-break-words`};
 
   hr {
-    background-color: ${themeColor('tooltipSeparator')};
+    background-color: var(--echoes-color-text-subdued);
 
     ${tw`sw-mx-4`};
   }

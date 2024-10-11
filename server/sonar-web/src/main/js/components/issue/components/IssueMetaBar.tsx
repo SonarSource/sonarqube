@@ -19,7 +19,7 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { Badge, CommentIcon, SeparatorCircleIcon, themeColor } from 'design-system';
+import { Badge, CommentIcon, SeparatorCircleIcon } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
@@ -163,5 +163,5 @@ export default function IssueMetaBar(props: Readonly<Props>) {
 }
 
 const IssueMetaListItem = styled.li`
-  color: ${themeColor('pageContentLight')};
+  color: var(--echoes-color-text-subdued);
 `;

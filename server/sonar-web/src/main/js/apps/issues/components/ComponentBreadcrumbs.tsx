@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { Badge, BranchIcon, themeBorder, themeContrast } from 'design-system';
+import { Badge, BranchIcon, themeBorder } from 'design-system';
 import * as React from 'react';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -88,7 +88,7 @@ export default function ComponentBreadcrumbs({
 }
 
 const DivStyled = styled.div`
-  color: ${themeContrast('breadcrumb')};
+  color: var(--echoes-color-text-subdued);
   &:not(:last-child) {
     border-bottom: ${themeBorder('default')};
   }

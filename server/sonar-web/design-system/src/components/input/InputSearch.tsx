@@ -260,7 +260,7 @@ export const StyledInteractiveIcon = styled(InteractiveIcon)`
 `;
 
 export const StyledNote = styled.span`
-  color: ${themeColor('inputPlaceholder')};
+  color: var(--echoes-color-text-placeholder);
   top: calc(1px + ${theme('inset.2')});
 
   ${tw`sw-absolute`}

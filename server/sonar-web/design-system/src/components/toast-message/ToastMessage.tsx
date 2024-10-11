@@ -70,7 +70,7 @@ const StyledToastContainer = styled(WrappedToastContainer)`
 
   .Toastify__close-button {
     ${tw`sw-pt-3 sw-pr-3`}
-    color: ${themeColor('toastCloseIcon')};
+    color: var(--echoes-color-icon-subdued);
     opacity: 1;
   }
 

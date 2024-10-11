@@ -141,7 +141,7 @@ const StyledButton = styled.button`
     ${tw`sw-cursor-not-allowed`}
 
     background-color: ${themeColor('selectionCardDisabled')};
-    color: ${themeColor('selectionCardDisabledText')};
+    color: var(--echoes-color-text-disabled);
     border: ${themeBorder('default', 'selectionCardBorderDisabled')};
   }
 `;
@@ -178,7 +178,7 @@ const StyledLabel = styled.label`
   cursor: inherit;
 
   .disabled & {
-    color: ${themeContrast('selectionCardDisabled')};
+    color: var(--echoes-color-text-disabled);
   }
 `;
 

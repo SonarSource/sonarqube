@@ -15,7 +15,7 @@ exports[`renders on mac 1`] = `
   -webkit-flex-wrap: wrap;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  color: rgb(106,117,144);
+  color: var(--echoes-color-text-subdued);
 }
 
 .emotion-2 {
@@ -75,7 +75,7 @@ exports[`renders on windows 1`] = `
   -webkit-flex-wrap: wrap;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  color: rgb(106,117,144);
+  color: var(--echoes-color-text-subdued);
 }
 
 .emotion-2 {
@@ -135,7 +135,7 @@ exports[`renders with command 1`] = `
   -webkit-flex-wrap: wrap;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  color: rgb(106,117,144);
+  color: var(--echoes-color-text-subdued);
 }
 
 .emotion-2 {
@@ -190,7 +190,7 @@ exports[`renders with title 1`] = `
   -webkit-flex-wrap: wrap;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  color: rgb(106,117,144);
+  color: var(--echoes-color-text-subdued);
 }
 
 .emotion-2 {
@@ -250,7 +250,7 @@ exports[`renders without title 1`] = `
   -webkit-flex-wrap: wrap;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  color: rgb(106,117,144);
+  color: var(--echoes-color-text-subdued);
 }
 
 .emotion-2 {

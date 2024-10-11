@@ -22,6 +22,7 @@ import classNames from 'classnames';
 import { ReactNode } from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor } from '../helpers/theme';
+import { Note } from '../sonar-aligned';
 import { BareButton } from '../sonar-aligned/components/buttons';
 
 interface Props {
@@ -44,12 +45,6 @@ export function IllustratedSelectionCard(props: Props) {
     </StyledSelectionCard>
   );
 }
-
-const Note = styled.span`
-  color: ${themeColor('pageContentLight')};
-
-  ${tw`sw-typo-default`}
-`;
 
 const ImageContainer = styled.div`
   min-height: 116px;

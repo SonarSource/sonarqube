@@ -199,6 +199,6 @@ const ComponentName = styled.div`
 `;
 
 const ExpandButton = styled(BareButton)`
-  color: ${themeContrast('subnavigationSubheading')};
+  color: var(--echoes-color-text-subdued);
   border-bottom: ${themeBorder('default', 'currentColor')};
 `;

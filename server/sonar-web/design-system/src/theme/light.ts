@@ -112,7 +112,6 @@ export const lightTheme = {
     // Toasts
     toast: COLORS.white,
     toastText: secondary.darker,
-    toastCloseIcon: secondary.dark,
 
     toastErrorBorder: danger.light,
     toastErrorIconBackground: danger.lightest,
@@ -142,7 +141,6 @@ export const lightTheme = {
     dropdownMenuDisabled: COLORS.white,
     dropdownMenuHeader: COLORS.white,
     dropdownMenuDanger: danger.default,
-    dropdownMenuSubTitle: secondary.dark,
 
     // radio
     radio: primary.default,
@@ -264,7 +262,6 @@ export const lightTheme = {
     codeLineHover: secondary.light,
     codeLineHighlighted: COLORS.blueGrey[100],
     codeLineNewCodeUnderline: [...COLORS.indigo[300], 0.15],
-    codeLineMetaHover: secondary.dark,
     codeLineDuplication: secondary.default,
     codeLineCovered: COLORS.green[300],
     codeLineUncovered: danger.default,
@@ -275,7 +272,6 @@ export const lightTheme = {
     codeLineLocationHighlighted: [...COLORS.blueGrey[200], 0.6],
     codeLineEllipsis: COLORS.white,
     codeLineEllipsisHover: secondary.light,
-    codeLineEllipsisHoverContrast: secondary.dark,
     codeLineIssueLocation: [...danger.lighter, 0.15],
     codeLineIssueLocationSelected: [...danger.lighter, 0.5],
     codeLineIssueMessageTooltip: secondary.darker,
@@ -310,14 +306,12 @@ export const lightTheme = {
     inputSuccessFocus: COLORS.yellowGreen[400],
     inputDisabled: secondary.light,
     inputDisabledBorder: secondary.default,
-    inputPlaceholder: secondary.dark,
 
     // required input
     inputRequired: danger.dark,
 
     // tooltip
     tooltipBackground: COLORS.blueGrey[600],
-    tooltipSeparator: secondary.dark,
     tooltipHighlight: secondary.default,
 
     // avatar
@@ -396,7 +390,6 @@ export const lightTheme = {
     bannerIcon: 'transparent',
     bannerIconHover: [...COLORS.red[600], OPACITY_20_PERCENT],
     bannerIconFocus: danger.default,
-    discreetInteractiveIcon: secondary.dark,
     destructiveIcon: 'transparent',
     destructiveIconHover: danger.lightest,
     destructiveIconFocus: danger.default,
@@ -423,7 +416,6 @@ export const lightTheme = {
     iconSuccess: COLORS.green[600],
     iconInfo: COLORS.blue[600],
     iconStatus: COLORS.blueGrey[200],
-    iconStatusResolved: secondary.dark,
     iconNotificationsOn: COLORS.indigo[300],
     iconHelperHint: COLORS.blueGrey[100],
     iconRuleInheritanceOverride: danger.light,
@@ -539,7 +531,6 @@ export const lightTheme = {
     facetItemSelected: COLORS.indigo[50],
     facetItemSelectedHover: COLORS.indigo[100],
     facetItemSelectedBorder: primary.light,
-    facetItemLight: secondary.dark,
     facetItemGraph: secondary.default,
     facetKeyboardHint: COLORS.blueGrey[50],
     facetToggleActive: COLORS.green[500],
@@ -596,7 +587,6 @@ export const lightTheme = {
 
     // page
     pageTitle: COLORS.blueGrey[700],
-    pageContentLight: secondary.dark,
     pageContent: secondary.darker,
     pageContentDark: COLORS.blueGrey[600],
     pageBlock: COLORS.white,
@@ -629,7 +619,6 @@ export const lightTheme = {
     // selection card
     selectionCardHeader: secondary.darker,
     selectionCardDisabled: secondary.light,
-    selectionCardDisabledText: secondary.dark,
     selectionCardBorder: COLORS.blueGrey[100],
     selectionCardBorderHover: COLORS.indigo[200],
     selectionCardBorderSelected: primary.light,
@@ -750,7 +739,6 @@ export const lightTheme = {
 
     // dropdown menu
     dropdownMenu: secondary.darker,
-    dropdownMenuHeader: secondary.dark,
 
     // toggle buttons
     toggle: secondary.darker,
@@ -760,7 +748,6 @@ export const lightTheme = {
     codeLineNewCodeUnderline: COLORS.indigo[500],
     codeLineCoveredUnderline: COLORS.green[700],
     codeLineUncoveredUnderline: COLORS.red[700],
-    codeLineEllipsisHover: secondary.dark,
     codeLineLocationMarker: COLORS.red[900],
     codeLineLocationMarkerSelected: COLORS.red[900],
     codeLineIssueMessageTooltip: COLORS.blueGrey[25],
@@ -801,9 +788,6 @@ export const lightTheme = {
     overviewCardErrorIcon: COLORS.red[500],
     overviewCardSuccessIcon: COLORS.green[500],
 
-    // breadcrumbs
-    breadcrumb: secondary.dark,
-
     // discreet select
     discreetBackground: secondary.darker,
     discreetHover: secondary.darker,
@@ -820,7 +804,6 @@ export const lightTheme = {
     iconSeverityMajor: COLORS.white,
     iconSeverityMinor: COLORS.white,
     iconSeverityInfo: COLORS.white,
-    iconStatusResolved: COLORS.white,
     iconHelperHint: secondary.darker,
     iconHelperHintRaised: COLORS.white,
 
@@ -881,10 +864,6 @@ export const lightTheme = {
     subnavigation: secondary.darker,
     subnavigationExecutionFlow: COLORS.blueGrey[700],
     subnavigationHover: COLORS.blueGrey[700],
-    subnavigationSubheading: secondary.dark,
-
-    // footer
-    footer: secondary.dark,
 
     // page
     pageBlock: secondary.darker,
@@ -899,9 +878,6 @@ export const lightTheme = {
     issueTypeIcon: COLORS.red[900],
     iconSeverityDisabled: COLORS.white,
     iconTypeDisabled: COLORS.white,
-
-    // selection card
-    selectionCardDisabled: secondary.dark,
 
     // bubble charts
     bubbleDefault: COLORS.blue[500],

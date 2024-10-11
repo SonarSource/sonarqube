@@ -276,7 +276,7 @@ export const ItemHeaderHighlight = styled.span`
  */
 export const ItemHeader = styled(UnstyledItemHeader)`
   background-color: ${themeColor('dropdownMenuHeader')};
-  color: ${themeContrast('dropdownMenuHeader')};
+  color: var(--echoes-color-text-subdued);
 
   ${tw`sw-py-2 sw-px-3`}
 `;

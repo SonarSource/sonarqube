@@ -54,7 +54,7 @@ exports[`renders correctly with yValues 1`] = `
 
 .emotion-2 {
   font: var(--echoes-typography-text-default-regular);
-  fill: rgb(106,117,144);
+  fill: var(--echoes-color-text-subdued);
 }
 
 .e1vbniy52 .emotion-2 {
@@ -140,7 +140,7 @@ exports[`renders correctly with yValues and yTicks 1`] = `
 
 .emotion-2 {
   font: var(--echoes-typography-text-default-regular);
-  fill: rgb(106,117,144);
+  fill: var(--echoes-color-text-subdued);
 }
 
 .e1vbniy52 .emotion-2 {
@@ -256,7 +256,7 @@ exports[`renders correctly with yValues, yTicks, and yTooltips 1`] = `
 
 .emotion-2 {
   font: var(--echoes-typography-text-default-regular);
-  fill: rgb(106,117,144);
+  fill: var(--echoes-color-text-subdued);
 }
 
 .e1vbniy52 .emotion-2 {

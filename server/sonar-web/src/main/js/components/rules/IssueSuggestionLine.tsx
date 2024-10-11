@@ -101,7 +101,7 @@ export function IssueSuggestionLine({
 
 const LineNumberStyled = styled.div`
   &:hover {
-    color: ${themeColor('codeLineMetaHover')};
+    color: var(--echoes-color-text-subdued);
   }
 
   &:focus-visible {

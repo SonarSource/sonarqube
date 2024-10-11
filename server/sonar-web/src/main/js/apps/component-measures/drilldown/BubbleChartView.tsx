@@ -297,7 +297,7 @@ const getTooltip = (
 };
 
 const BubbleChartWrapper = styled.div`
-  color: ${themeColor('pageContentLight')};
+  color: var(--echoes-color-text-subdued);
 `;
 
 const YAxis = styled.div`
