@@ -83,7 +83,7 @@ public class DeleteCommentAction implements IssuesWsAction {
       CommentData commentData = loadCommentData(dbSession, request);
       deleteComment(dbSession, commentData);
       IssueDto issueDto = commentData.getIssueDto();
-      responseWriter.write(issueDto.getKey(), new SearchResponseData(issueDto), request, response);
+      responseWriter.write(issueDto.getKey(), new SearchResponseData(issueDto), request, response, true);
     }
   }
 

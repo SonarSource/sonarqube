@@ -150,7 +150,7 @@ public class LinesAction implements SourcesWsAction {
         "No source found for file '%s' (uuid: %s)", file.getKey(), file.uuid());
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
-        linesJsonWriter.writeSource(lines, json, periodDateSupplier);
+        linesJsonWriter.writeSource(lines, json, periodDateSupplier, userSession.isLoggedIn());
         json.endObject();
       }
     }

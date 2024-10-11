@@ -108,7 +108,7 @@ public class SetSeverityActionTest {
 
     call(issueDto.getKey(), MINOR);
 
-    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class), eq(true));
     verifyContentOfPreloadedSearchResponseData(issueDto);
     verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any());
 

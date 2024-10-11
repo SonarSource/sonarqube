@@ -109,7 +109,7 @@ public class DoTransitionAction implements IssuesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issue);
       SearchResponseData preloadedSearchResponseData = doTransition(dbSession, issueDto, request.mandatoryParam(PARAM_TRANSITION));
-      responseWriter.write(issue, preloadedSearchResponseData, request, response);
+      responseWriter.write(issue, preloadedSearchResponseData, request, response, true);
     }
   }
 

@@ -125,7 +125,7 @@ public class DoTransitionActionTest {
 
     call(issue.getKey(), "confirm");
 
-    verify(responseWriter).write(eq(issue.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issue.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class), eq(true));
     verifyContentOfPreloadedSearchResponseData(issue);
     verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any(), any(), any(), any());
     IssueDto issueReloaded = db.getDbClient().issueDao().selectByKey(db.getSession(), issue.getKey()).get();

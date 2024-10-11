@@ -107,7 +107,7 @@ public class SetTypeAction implements IssuesWsAction {
     RuleType ruleType = RuleType.valueOf(request.mandatoryParam(PARAM_TYPE));
     try (DbSession session = dbClient.openSession(false)) {
       SearchResponseData preloadedSearchResponseData = setType(session, issueKey, ruleType);
-      responseWriter.write(issueKey, preloadedSearchResponseData, request, response);
+      responseWriter.write(issueKey, preloadedSearchResponseData, request, response, true);
     }
   }
 
