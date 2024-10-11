@@ -159,7 +159,16 @@ export function getMetricSubnavigationName(
   metric: Metric,
   translateFn: (metric: Metric) => string,
   isDiff = false,
+  isLegacy = false,
 ) {
+  // MQR mode and old taxonomy metrics, we return "Issues" for them anyway
+  if (!isLegacy && OLD_TAXONOMY_METRICS.includes(metric.key as MetricKey)) {
+    return translate('component_measures.awaiting_analysis.name');
+  }
+  if (!isLegacy && LEAK_OLD_TAXONOMY_METRICS.includes(metric.key as MetricKey)) {
+    return translate('component_measures.leak_awaiting_analysis.name');
+  }
+
   if (
     [
       ...LEAK_CCT_SOFTWARE_QUALITY_METRICS,

@@ -34,6 +34,7 @@ import {
   areCCTMeasuresComputed as areCCTMeasuresComputedFn,
   isDiffMetric,
 } from '../../../helpers/measures';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isProject } from '../../../types/component';
 import { Metric, ComponentMeasure as TypeComponentMeasure } from '../../../types/types';
@@ -47,13 +48,14 @@ interface Props {
 export default function ComponentMeasure(props: Props) {
   const { component, metric, branchLike } = props;
   const isProjectLike = isProject(component.qualifier) || isApplication(component.qualifier);
+  const { data: isLegacy } = useIsLegacyCCTMode();
   const isReleasability = metric.key === MetricKey.releasability_rating;
 
   let finalMetricKey = isProjectLike && isReleasability ? MetricKey.alert_status : metric.key;
   const finalMetricType = isProjectLike && isReleasability ? MetricType.Level : metric.type;
 
-  const areCCTMeasasuresComputed = areCCTMeasuresComputedFn(component.measures);
-  finalMetricKey = areCCTMeasasuresComputed
+  const areCCTMeasuresComputed = !isLegacy && areCCTMeasuresComputedFn(component.measures);
+  finalMetricKey = areCCTMeasuresComputed
     ? (OLD_TO_NEW_TAXONOMY_METRICS_MAP[finalMetricKey as MetricKey] ?? finalMetricKey)
     : finalMetricKey;
 

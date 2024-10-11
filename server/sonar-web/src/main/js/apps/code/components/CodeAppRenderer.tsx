@@ -17,15 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Spinner } from '@sonarsource/echoes-react';
-import {
-  Card,
-  FlagMessage,
-  HelperHintIcon,
-  KeyboardHint,
-  LargeCenteredLayout,
-  LightLabel,
-} from 'design-system';
+import { IconQuestionMark, Spinner, Text } from '@sonarsource/echoes-react';
+import { Card, FlagMessage, KeyboardHint, LargeCenteredLayout } from 'design-system';
 import { difference, intersection } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -144,9 +137,7 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
   return (
     <LargeCenteredLayout className="sw-py-8 sw-typo-lg" id="code-page">
       <Helmet defer={false} title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle} />
-
       <A11ySkipTarget anchor="code_main" />
-
       {!canBrowseAllChildProjects && isPortfolio && (
         <FlagMessage variant="warning" className="it__portfolio_warning sw-mb-4">
           {translate('code_viewer.not_all_measures_are_shown')}
@@ -154,7 +145,7 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
             className="sw-ml-2"
             overlay={translate('code_viewer.not_all_measures_are_shown.help')}
           >
-            <HelperHintIcon />
+            <IconQuestionMark />
           </HelpTooltip>
         </FlagMessage>
       )}
@@ -184,12 +175,12 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
 
             {!hasComponents && sourceViewer === undefined && (
               <div className="sw-flex sw-align-center sw-flex-col sw-fixed sw-top-1/2">
-                <LightLabel>
+                <Text isSubdued>
                   {translate(
                     'code_viewer.no_source_code_displayed_due_to_empty_analysis',
                     component.qualifier,
                   )}
-                </LightLabel>
+                </Text>
               </div>
             )}
 

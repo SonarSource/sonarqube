@@ -31,6 +31,7 @@ import { isDiffMetric } from '../../../helpers/measures';
 import { HttpStatus } from '../../../helpers/request';
 import { mockIssue, mockLoggedInUser, mockMeasure } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { SettingsKey } from '../../../types/settings';
 import { RestUserDetailed } from '../../../types/users';
 import SourceViewer, { Props } from '../SourceViewer';
 import loadIssues from '../helpers/loadIssues';
@@ -223,7 +224,11 @@ it('should show SCM information', async () => {
   expect(within(row).queryByRole('button')).not.toBeInTheDocument();
 });
 
-it('should show issue indicator', async () => {
+it.each([
+  ['MQR mode', 'true', ''],
+  ['Legacy mode', 'false', '.legacy'],
+])('should show issue indicator in %s', async (_, mode, translationKey) => {
+  settingsHandler.set(SettingsKey.MQRMode, mode);
   jest.mocked(loadIssues).mockResolvedValueOnce([
     mockIssue(false, {
       key: 'first-issue',
@@ -251,11 +256,12 @@ it('should show issue indicator', async () => {
   const issueRow = within(row);
   expect(issueRow.getByText('2')).toBeInTheDocument();
 
-  await user.click(
-    issueRow.getByRole('button', {
-      name: 'source_viewer.issues_on_line.multiple_issues_same_category.true.2.issue.clean_code_attribute_category.responsible',
-    }),
-  );
+  const issueIndicator = await issueRow.findByRole('button', {
+    name: `source_viewer.issues_on_line.multiple_issues_same_category${translationKey}.true.2.issue.type.bug.plural.issue.clean_code_attribute_category.responsible`,
+  });
+  await user.click(issueIndicator);
+
+  expect(await screen.findByRole('tooltip')).toBeInTheDocument();
 });
 
 it('should show coverage information', async () => {

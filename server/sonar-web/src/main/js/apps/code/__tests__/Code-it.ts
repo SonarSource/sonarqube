@@ -566,7 +566,7 @@ function getPageObject(user: UserEvent) {
     previewCode: byText('numpy', { exact: false }),
     previewIssueUnderline: byTestId('hljs-sonar-underline'),
     previewIssueIndicator: byRole('button', {
-      name: 'source_viewer.issues_on_line.multiple_issues_same_category.true.1.issue.clean_code_attribute_category.responsible',
+      name: 'source_viewer.issues_on_line.multiple_issues_same_category.true.1.issue.type.code_smell.issue.clean_code_attribute_category.responsible',
     }),
     issuesViewPage: byText('/project/issues?open=some-issue&id=foo'),
     previewMarkdown: byText('Learning a cosine with keras'),

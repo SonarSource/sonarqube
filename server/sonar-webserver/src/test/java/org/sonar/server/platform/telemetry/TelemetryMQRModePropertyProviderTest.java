@@ -64,7 +64,7 @@ class TelemetryMQRModePropertyProviderTest {
     return Stream.of(
       Arguments.of(true, true),
       Arguments.of(false, false),
-      Arguments.of(null, false)
+      Arguments.of(null, true)
     );
   }
 
