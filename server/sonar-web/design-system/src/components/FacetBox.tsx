@@ -214,7 +214,7 @@ const HeaderTitle = styled.span<{
   ${tw`sw-typo-semibold`};
 
   color: ${({ disabled }) =>
-    disabled ? themeColor('facetHeaderDisabled') : themeColor('facetHeader')};
+    disabled ? 'var(--echoes-color-text-disabled)' : themeColor('facetHeader')};
 
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'inherit')};
 `;

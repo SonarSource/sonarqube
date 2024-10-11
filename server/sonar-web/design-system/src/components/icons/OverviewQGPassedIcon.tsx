@@ -45,14 +45,10 @@ export function OverviewQGPassedIcon({ className }: { className?: string }) {
         d="M55 43.5982L70 43.5982L70 34.9911L55 34.9911L55 43.5982Z"
         fill={themeColor('illustrationSecondary')({ theme })}
       />
-      <path
-        d="M15 52.2054L87 52.2054"
-        stroke={themeColor('illustrationOutline')({ theme })}
-        strokeWidth="6"
-      />
+      <path d="M15 52.2054L87 52.2054" stroke="var(--echoes-color-icon-subdued)" strokeWidth="6" />
       <path
         d="M87 26.3839H19C16.7909 26.3839 15 28.1748 15 30.3839V126.746C15 128.955 16.7909 130.746 19 130.746H147C149.209 130.746 151 128.955 151 126.746V62.9643M136 26.3839H147C149.209 26.3839 151 28.1748 151 30.3839V42.5223"
-        stroke={themeColor('illustrationOutline')({ theme })}
+        stroke="var(--echoes-color-icon-subdued)"
         strokeWidth="6"
       />
       <path

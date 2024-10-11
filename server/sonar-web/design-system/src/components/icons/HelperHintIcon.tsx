@@ -40,10 +40,10 @@ export function HelperHintIcon({ raised, ...iconProps }: Props) {
       {raised ? (
         // eslint-disable-next-line react/jsx-fragments
         <Fragment>
-          <circle cx="8" cy="8" fill={themeColor('iconHelperHintRaised')({ theme })} r="7" />
+          <circle cx="8" cy="8" fill="var(--echoes-color-icon-subdued)" r="7" />
           <path
             d="M6.82812 10.2301H8.44318V10.0852C8.4517 9.25426 8.75 8.86648 9.4233 8.46165C10.2202 7.98864 10.7401 7.36222 10.7401 6.3608C10.7401 4.86932 9.53835 4 7.84659 4C6.29972 4 5.03835 4.80966 5 6.5142H6.73864C6.7642 5.8196 7.27983 5.44886 7.83807 5.44886C8.41335 5.44886 8.87784 5.83239 8.87784 6.42472C8.87784 6.98295 8.47301 7.35369 7.94886 7.68608C7.23295 8.13778 6.83239 8.59375 6.82812 10.0852V10.2301ZM7.66761 12.9574C8.21307 12.9574 8.68608 12.5014 8.69034 11.9347C8.68608 11.3764 8.21307 10.9205 7.66761 10.9205C7.10511 10.9205 6.64063 11.3764 6.64489 11.9347C6.64063 12.5014 7.10511 12.9574 7.66761 12.9574Z"
-            fill={themeContrast('iconHelperHintRaised')({ theme })}
+            fill="var(--echoes-color-icon-subdued)"
           />
         </Fragment>
       ) : (

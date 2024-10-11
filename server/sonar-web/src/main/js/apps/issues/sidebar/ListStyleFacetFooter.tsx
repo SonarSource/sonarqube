@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { useTheme } from '@emotion/react';
-import { DiscreetLink, Theme, themeColor } from 'design-system';
+import { DiscreetLink, Theme } from 'design-system';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
@@ -49,7 +50,7 @@ export function ListStyleFacetFooter({
   return (
     <div
       className="sw-mb-2 sw-mt-2 sw-text-center"
-      style={{ color: themeColor('graphCursorLineColor')({ theme }) }}
+      style={{ color: 'var(--echoes-color-text-subdued)' }}
     >
       {translateWithParameters('x_show', formatMeasure(nbShown, MetricType.Integer))}
 

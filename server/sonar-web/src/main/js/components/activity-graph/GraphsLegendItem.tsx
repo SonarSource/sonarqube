@@ -27,7 +27,6 @@ import {
   InteractiveIcon,
   Theme,
   themeBorder,
-  themeColor,
 } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -71,10 +70,7 @@ export function GraphsLegendItem({
       ) : (
         <ChartLegend className="sw-mr-2" index={index} />
       )}
-      <span
-        className="sw-typo-default"
-        style={{ color: themeColor('graphCursorLineColor')({ theme }) }}
-      >
+      <span className="sw-typo-default" style={{ color: 'var(--echoes-color-text-subdued)' }}>
         {name}
       </span>
       {isDeprecated && (

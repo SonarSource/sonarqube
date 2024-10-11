@@ -41,7 +41,7 @@ export function InProgressVisual() {
       <path
         clipRule="evenodd"
         d="M20 157a7 7 0 0 1-7-7V61a7 7 0 0 1 7-7h28.5v6H20a1 1 0 0 0-1 1v16.88h63v6.24H19V150a1 1 0 0 0 1 1h128a1 1 0 0 0 1-1V61a1 1 0 0 0-1-1h-11v-6h11a7 7 0 0 1 7 7v89a7 7 0 0 1-7 7H20Z"
-        fill={themeColor('illustrationOutline')({ theme })}
+        fill="var(--echoes-color-icon-subdued)"
         fillRule="evenodd"
       />
       <path

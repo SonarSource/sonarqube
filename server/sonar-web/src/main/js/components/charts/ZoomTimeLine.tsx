@@ -275,7 +275,7 @@ export class ZoomTimeLine extends React.PureComponent<Props, State> {
           y={options.yDim[1]}
         />
         <DraggableIcon
-          fill="graphZoomHandleColor"
+          fill="var(--echoes-color-icon-subdued)"
           x={options.direction === 'right' ? -7 : -9}
           y={16}
         />
@@ -386,7 +386,7 @@ const ZoomHighlight = styled.rect`
 const ZoomHighlightHandle = styled.rect`
   cursor: ew-resize;
   fill-opacity: 1;
-  fill: ${themeColor('graphZoomHandleColor')};
+  fill: var(--echoes-color-icon-subdued);
   stroke: none;
 `;
 

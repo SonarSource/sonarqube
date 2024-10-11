@@ -25,7 +25,7 @@ import {
   IconProps,
 } from '@sonarsource/echoes-react';
 import { themeColor } from '../../helpers/theme';
-import { ThemeColors } from '../../types';
+import { CSSColor, ThemeColors } from '../../types';
 
 export const enum TrendDirection {
   Down = 'down',
@@ -71,11 +71,11 @@ export function TrendIcon(props: Readonly<Props>) {
   );
 }
 
-const ICON_COLORS: Record<TrendType, ThemeColors> = {
+const ICON_COLORS: Record<TrendType, ThemeColors | CSSColor> = {
   [TrendType.Positive]: 'iconTrendPositive',
   [TrendType.Negative]: 'iconTrendNegative',
   [TrendType.Neutral]: 'iconTrendNeutral',
-  [TrendType.Disabled]: 'iconTrendDisabled',
+  [TrendType.Disabled]: 'var(--echoes-color-icon-disabled)',
 };
 
 const TrendIconWrapper = styled.span<{

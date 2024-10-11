@@ -67,13 +67,13 @@ export function OverviewQGNotComputedIcon({ className }: Readonly<Props>) {
       <path
         clipRule="evenodd"
         d="M88 67.5746H21V61.3297H88V67.5746Z"
-        fill={themeColor('illustrationOutline')({ theme })}
+        fill="var(--echoes-color-icon-subdued)"
         fillRule="evenodd"
       />
       <path
         clipRule="evenodd"
         d="M18 133C18 136.866 21.134 140 25 140H153C156.866 140 160 136.866 160 133V78H154V133C154 133.552 153.552 134 153 134H25C24.4477 134 24 133.552 24 133V44C24 43.4477 24.4477 43 25 43H72V37H25C21.134 37 18 40.134 18 44V133Z"
-        fill={themeColor('illustrationOutline')({ theme })}
+        fill="var(--echoes-color-icon-subdued)"
         fillRule="evenodd"
       />
       <path

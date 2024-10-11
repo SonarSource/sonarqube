@@ -148,7 +148,7 @@ const StyledTextSuccess = styled(StyledText)`
  */
 export const TextSubdued = styled.span`
   ${tw`sw-font-regular`};
-  color: ${themeColor('textSubdued')};
+  color: var(--echoes-color-text-subdued);
 `;
 
 /** @deprecated Use Text (with `isSubdued` prop) from Echoes instead.

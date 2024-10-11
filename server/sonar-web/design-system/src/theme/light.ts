@@ -77,7 +77,6 @@ export const lightTheme = {
     danger: danger.dark,
 
     // text
-    textSubdued: COLORS.blueGrey[400],
     textSuccess: COLORS.yellowGreen[700],
 
     //Project list card
@@ -171,8 +170,6 @@ export const lightTheme = {
     sidebarBackground: COLORS.blueGrey[700],
     sidebarItemActive: COLORS.blueGrey[800],
     sidebarBorder: COLORS.blueGrey[500],
-    sidebarTextDisabled: COLORS.blueGrey[400],
-    sidebarIcon: COLORS.blueGrey[400],
     sidebarActiveIcon: COLORS.blueGrey[200],
 
     //separator-circle
@@ -258,7 +255,6 @@ export const lightTheme = {
     // code viewer
     codeLine: COLORS.white,
     codeLineBorder: COLORS.grey[100],
-    codeLineIssueIndicator: COLORS.blueGrey[400], // Should be blueGrey[300], to be changed once code viewer is reworked
     codeLineLocationMarker: COLORS.red[200],
     codeLineLocationMarkerSelected: danger.lighter,
     codeLineLocationSelected: COLORS.blueGrey[100],
@@ -366,7 +362,6 @@ export const lightTheme = {
     tabBorder: primary.light,
 
     // tabs
-    tab: COLORS.blueGrey[400],
     tabSelected: primary.default,
     tabHover: COLORS.blueGrey[50],
 
@@ -423,7 +418,6 @@ export const lightTheme = {
     iconTrendPositive: COLORS.green[400],
     iconTrendNegative: COLORS.red[400],
     iconTrendNeutral: COLORS.blue[600],
-    iconTrendDisabled: COLORS.blueGrey[400],
     iconError: danger.default,
     iconWarning: COLORS.yellow[600],
     iconSuccess: COLORS.green[600],
@@ -432,7 +426,6 @@ export const lightTheme = {
     iconStatusResolved: secondary.dark,
     iconNotificationsOn: COLORS.indigo[300],
     iconHelperHint: COLORS.blueGrey[100],
-    iconHelperHintRaised: COLORS.blueGrey[400],
     iconRuleInheritanceOverride: danger.light,
 
     // numbered list
@@ -543,7 +536,6 @@ export const lightTheme = {
 
     // facets
     facetHeader: COLORS.blueGrey[600],
-    facetHeaderDisabled: COLORS.blueGrey[400],
     facetItemSelected: COLORS.indigo[50],
     facetItemSelectedHover: COLORS.indigo[100],
     facetItemSelectedBorder: primary.light,
@@ -578,7 +570,6 @@ export const lightTheme = {
     // overview
     backgroundPromotedSection: secondary.light,
     overviewCardDefaultIcon: secondary.light,
-    iconOverviewIssue: COLORS.blueGrey[400],
     overviewCardWarningIcon: COLORS.yellow[50],
     overviewCardErrorIcon: COLORS.red[100],
     overviewCardSuccessIcon: COLORS.green[200],
@@ -598,11 +589,9 @@ export const lightTheme = {
     'graphLineColor.4': COLORS.blue[700],
     'graphLineColor.5': COLORS.blue[300],
     graphGridColor: COLORS.grey[50],
-    graphCursorLineColor: COLORS.blueGrey[400],
     newCodeHighlight: COLORS.indigo[300],
     graphZoomBackgroundColor: COLORS.blueGrey[25],
     graphZoomBorderColor: COLORS.blueGrey[100],
-    graphZoomHandleColor: COLORS.blueGrey[400],
     graphLegendBorder: secondary.darker,
 
     // page
@@ -682,7 +671,6 @@ export const lightTheme = {
     activityCommentPipe: COLORS.tangerine[200],
 
     // illustrations
-    illustrationOutline: COLORS.blueGrey[400],
     illustrationInlineBorder: COLORS.blueGrey[100],
     illustrationPrimary: COLORS.indigo[400],
     illustrationSecondary: COLORS.indigo[200],

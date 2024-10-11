@@ -42,7 +42,7 @@ export function FlagVisual({ className }: Props) {
       <path
         clipRule="evenodd"
         d="M18.34 162h38.32c-2.83-6.1-9.95-11-19.16-11s-16.33 4.9-19.16 11Zm-7.12 3.01C12.92 153.72 24.03 145 37.5 145s24.59 8.72 26.28 20.01c.24 1.64-1.12 2.99-2.78 2.99H14c-1.66 0-3.02-1.35-2.78-2.99Z"
-        fill={themeColor('illustrationOutline')({ theme })}
+        fill="var(--echoes-color-icon-subdued)"
         fillRule="evenodd"
       />
       <path
@@ -52,19 +52,19 @@ export function FlagVisual({ className }: Props) {
       <path
         clipRule="evenodd"
         d="M37.5 27a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13Zm0 6a12.5 12.5 0 1 0 0-25 12.5 12.5 0 0 0 0 25Z"
-        fill={themeColor('illustrationOutline')({ theme })}
+        fill="var(--echoes-color-icon-subdued)"
         fillRule="evenodd"
       />
       <path
         clipRule="evenodd"
         d="M40 33.41h-5V144.6h5V33.4ZM29 27v124h17V27H29Z"
-        fill={themeColor('illustrationOutline')({ theme })}
+        fill="var(--echoes-color-icon-subdued)"
         fillRule="evenodd"
       />
       <path
         clipRule="evenodd"
         d="M40 37h41.11v6H46v55h89.42a1 1 0 0 0 .88-1.46l-11.84-22.81a7 7 0 0 1 0-6.46l11.84-22.8a1 1 0 0 0-.88-1.47h-6.3v-6h6.3a7 7 0 0 1 6.2 10.23l-11.83 22.8a1 1 0 0 0 0 .93l11.84 22.81a7 7 0 0 1-6.21 10.23H40V37Z"
-        fill={themeColor('illustrationOutline')({ theme })}
+        fill="var(--echoes-color-icon-subdued)"
         fillRule="evenodd"
       />
       <path

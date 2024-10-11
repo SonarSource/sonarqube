@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import tw from 'twin.macro';
@@ -36,10 +37,10 @@ const NewCodeLegendText = styled.span`
   ${tw`sw-align-middle`}
   ${tw`sw-typo-default`}
   ${tw`sw-ml-2`}
-  color: ${themeColor('graphCursorLineColor')};
+  color: var(--echoes-color-text-subdued);
 `;
 
-export function NewCodeLegend(props: { className?: string; text: string }) {
+export function NewCodeLegend(props: Readonly<{ className?: string; text: string }>) {
   const { className, text } = props;
 
   return (
