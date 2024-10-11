@@ -69,6 +69,8 @@ import org.sonar.db.dependency.CveDto;
 import org.sonar.db.dependency.CveMapper;
 import org.sonar.db.dependency.IssuesDependencyDto;
 import org.sonar.db.dependency.IssuesDependencyMapper;
+import org.sonar.db.dependency.ProjectDependenciesMapper;
+import org.sonar.db.dependency.ProjectDependencyDto;
 import org.sonar.db.duplication.DuplicationMapper;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.db.entity.EntityDto;
@@ -250,6 +252,7 @@ public class MyBatis {
     confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);
     confBuilder.loadAlias("Project", ProjectDto.class);
     confBuilder.loadAlias("ProjectBadgeToken", ProjectBadgeTokenDto.class);
+    confBuilder.loadAlias("ProjectDependency", ProjectDependencyDto.class);
     confBuilder.loadAlias("AnalysisPropertyValuePerProject", AnalysisPropertyValuePerProject.class);
     confBuilder.loadAlias("ProjectAlmKeyAndProject", ProjectAlmKeyAndProject.class);
     confBuilder.loadAlias("PrAndBranchCountByProjectDto", PrBranchAnalyzedLanguageCountByProjectDto.class);
@@ -325,6 +328,7 @@ public class MyBatis {
       PluginMapper.class,
       PortfolioMapper.class,
       ProjectAlmSettingMapper.class,
+      ProjectDependenciesMapper.class,
       ProjectLinkMapper.class,
       ProjectMapper.class,
       ProjectBadgeTokenMapper.class,

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.dependency.ProjectDependenciesMapper">
+  <sql id="projectDependenciesColumns">
+    pd.uuid as uuid,
+    pd.version as version,
+    pd.include_paths as includePaths,
+    pd.package_manager as packageManager,
+    pd.created_at as createdAt,
+    pd.updated_at as updatedAt
+  </sql>
+
+  <insert id="insert" parameterType="ProjectDependency" useGeneratedKeys="false">
+    insert into project_dependencies (
+      uuid,
+      version,
+      include_paths,
+      package_manager,
+      created_at,
+      updated_at
+    ) values (
+      #{uuid,jdbcType=VARCHAR},
+      #{version,jdbcType=CLOB},
+      #{includePaths,jdbcType=CLOB},
+      #{packageManager,jdbcType=VARCHAR},
+      #{createdAt,jdbcType=BIGINT},
+      #{updatedAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="deleteByUuid" parameterType="string">
+    delete from project_dependencies
+    where uuid = #{uuid,jdbcType=VARCHAR}
+  </delete>
+
+  <select id="selectByQuery" parameterType="map" resultType="ProjectDependency">
+    select <include refid="projectDependenciesColumns"/>
+    <include refid="sqlSelectByQuery" />
+    ORDER BY c.kee ASC
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
+
+  <select id="countByQuery" resultType="int">
+    select count(pd.uuid)
+    <include refid="sqlSelectByQuery" />
+  </select>
+
+  <sql id="sqlSelectByQuery">
+    from project_dependencies pd
+    inner join components c on pd.uuid = c.uuid
+    where c.branch_uuid = #{query.branchUuid,jdbcType=VARCHAR}
+    <if test="query.query() != null">
+      AND (
+        c.kee = #{query.query,jdbcType=VARCHAR}
+        OR lower(c.long_name) LIKE #{query.likeQuery} ESCAPE '/'
+      )
+    </if>
+  </sql>
+
+  <update id="update" parameterType="ProjectDependency" useGeneratedKeys="false">
+    update project_dependencies
+    set
+      uuid = #{uuid, jdbcType=VARCHAR},
+      version = #{version, jdbcType=CLOB},
+      include_paths = #{includePaths, jdbcType=CLOB},
+      package_manager = #{packageManager, jdbcType=VARCHAR},
+      updated_at = #{updatedAt, jdbcType=BIGINT}
+    where
+      uuid = #{uuid, jdbcType=VARCHAR}
+  </update>
+
+</mapper>

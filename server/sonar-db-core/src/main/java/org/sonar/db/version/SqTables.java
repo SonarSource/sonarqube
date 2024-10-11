@@ -85,6 +85,7 @@ public final class SqTables {
     "project_alm_settings",
     "project_badge_token",
     "project_branches",
+    "project_dependencies",
     "project_links",
     "project_measures",
     "project_qprofiles",

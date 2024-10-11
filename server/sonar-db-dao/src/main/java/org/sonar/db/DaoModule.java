@@ -41,6 +41,7 @@ import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.dependency.CveCweDao;
 import org.sonar.db.dependency.CveDao;
 import org.sonar.db.dependency.IssuesDependencyDao;
+import org.sonar.db.dependency.ProjectDependenciesDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.entity.EntityDao;
 import org.sonar.db.es.EsQueueDao;
@@ -163,6 +164,7 @@ public class DaoModule extends Module {
     PluginDao.class,
     ProjectDao.class,
     ProjectBadgeTokenDao.class,
+    ProjectDependenciesDao.class,
     ProjectExportDao.class,
     PortfolioDao.class,
     ProjectLinkDao.class,

@@ -41,6 +41,7 @@ import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.dependency.CveCweDao;
 import org.sonar.db.dependency.CveDao;
 import org.sonar.db.dependency.IssuesDependencyDao;
+import org.sonar.db.dependency.ProjectDependenciesDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.entity.EntityDao;
 import org.sonar.db.es.EsQueueDao;
@@ -202,6 +203,7 @@ public class DbClient {
   private final CveDao cveDao;
   private final CveCweDao cveCweDao;
   private final IssuesDependencyDao issuesDependencyDao;
+  private final ProjectDependenciesDao projectDependenciesDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -299,6 +301,7 @@ public class DbClient {
     cveDao = getDao(map, CveDao.class);
     cveCweDao = getDao(map, CveCweDao.class);
     issuesDependencyDao = getDao(map, IssuesDependencyDao.class);
+    projectDependenciesDao = getDao(map, ProjectDependenciesDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -665,5 +668,9 @@ public class DbClient {
 
   public IssuesDependencyDao issuesDependencyDao() {
     return issuesDependencyDao;
+  }
+
+  public ProjectDependenciesDao projectDependenciesDao() {
+    return projectDependenciesDao;
   }
 }

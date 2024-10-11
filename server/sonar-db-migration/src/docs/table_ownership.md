@@ -67,6 +67,7 @@ Important read: [Data Ownership Principles](https://xtranet-sonarsource.atlassia
 | project_alm_settings | Integration Squad |
 | project_badge_token | Dev and Team Workflow Squad |
 | project_branches |  |
+| project_dependencies | Analysis Experience Squad |
 | project_links | Dev and Team Workflow Squad |
 | project_measures | Analysis Experience Squad |
 | project_qgates | Dev and Team Workflow Squad |

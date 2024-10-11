@@ -42,6 +42,7 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ProjectLinkDbTester;
+import org.sonar.db.dependency.ProjectDependenciesDbTester;
 import org.sonar.db.event.EventDbTester;
 import org.sonar.db.favorite.FavoriteDbTester;
 import org.sonar.db.issue.IssueDbTester;
@@ -94,6 +95,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
   private final AlmPatsDbTester almPatsDbtester;
   private final AuditDbTester auditDbTester;
   private final AnticipatedTransitionDbTester anticipatedTransitionDbTester;
+  private final ProjectDependenciesDbTester projectDependenciesDbTester;
 
   private DbTester(UuidFactory uuidFactory, System2 system2, @Nullable String schemaPath, AuditPersister auditPersister, MyBatisConfExtension... confExtensions) {
     super(TestDbImpl.create(schemaPath, confExtensions));
@@ -125,6 +127,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
     this.almPatsDbtester = new AlmPatsDbTester(this);
     this.auditDbTester = new AuditDbTester(this);
     this.anticipatedTransitionDbTester = new AnticipatedTransitionDbTester(this);
+    this.projectDependenciesDbTester = new ProjectDependenciesDbTester(this);
   }
 
   public static DbTester create() {
@@ -266,6 +269,10 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEach
 
   public AnticipatedTransitionDbTester anticipatedTransitions() {
     return anticipatedTransitionDbTester;
+  }
+
+  public ProjectDependenciesDbTester projectDependencies() {
+    return projectDependenciesDbTester;
   }
 
   @Override
