@@ -203,6 +203,10 @@ public class AnalysisResult implements AnalysisObserver {
     return readFromReport(ScannerReportReader::readCves);
   }
 
+  public List<ScannerReport.Dependency> dependencies() {
+    return readFromReport(ScannerReportReader::readDependencies);
+  }
+
   @NotNull
   private <G> List<G> readFromReport(InputComponent component, BiFunction<ScannerReportReader, Integer, CloseableIterator<G>> readerMethod) {
     int ref = ((DefaultInputComponent) component).scannerId();
