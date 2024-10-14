@@ -51,6 +51,11 @@
     "validator": "13.12.0"
   },
   "devDependencies": {
+    "@babel/core": "7.25.8",
+    "@babel/preset-env": "7.25.8",
+    "@babel/preset-react": "7.25.7",
+    "@babel/preset-typescript": "7.25.7",
+    "@emotion/babel-plugin": "11.12.0",
     "@emotion/jest": "11.13.0",
     "@jupyterlab/nbformat": "4.2.5",
     "@swc/core": "1.7.28",
@@ -83,11 +88,11 @@
     "@typescript-eslint/parser": "7.18.0",
     "@typescript-eslint/rule-tester": "7.18.0",
     "autoprefixer": "10.4.20",
+    "browserslist-to-esbuild": "2.1.1",
     "chalk": "4.1.2",
     "chokidar": "3.6.0",
     "dd-trace": "5.23.0",
     "design-system": "1.0.0",
-    "esbuild": "0.24.0",
     "eslint": "8.57.1",
     "eslint-config-sonarqube": "2.1.3",
     "eslint-plugin-header": "3.1.1",
@@ -117,16 +122,20 @@
     "postcss-custom-properties": "12.1.11",
     "prettier": "3.3.3",
     "prettier-plugin-organize-imports": "4.1.0",
+    "rollup-plugin-visualizer": "5.12.0",
     "tailwindcss": "3.4.13",
     "turbo": "2.1.3",
     "typescript": "5.6.2",
+    "vite": "5.4.8",
+    "vite-plugin-babel-macros": "1.0.6",
+    "vite-plugin-require-transform": "1.0.21",
     "whatwg-fetch": "3.6.20"
   },
   "scripts": {
-    "start": "node scripts/start.js",
-    "start:force": "node scripts/start.js --force-build-design-system",
-    "build": "node scripts/build.js",
-    "build-release": "yarn install --immutable && node scripts/build.js release",
+    "start": "vite",
+    "build": "vite build",
+    "build-release": "yarn install --immutable && yarn build",
+    "chunks-analyze": "BUNDLE_ANALYSIS=true yarn build",
     "test": "jest --workerIdleMemoryLimit=1G",
     "test-ci": "NODE_OPTIONS=\"-r dd-trace/ci/init\" jest --coverage --maxWorkers=5 --workerIdleMemoryLimit=2G --ci",
     "test-eslint-local-rules": "jest -c eslint-local-rules/jest.config.js",
@@ -148,5 +157,12 @@
   "browser": {
     "path": "path-browserify"
   },
+  "browserslist": [
+    "defaults and supports es6-module",
+    "Chrome >= 61",
+    "Edge >= 18",
+    "Firefox >= 60",
+    "Safari >= 11"
+  ],
   "packageManager": "yarn@4.2.2"
 }

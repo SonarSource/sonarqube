@@ -62,7 +62,7 @@ describe('issues app', () => {
         canBrowseAllChildProjects: false,
         qualifier: ComponentQualifier.Portfolio,
       });
-      expect(screen.getByText('issues.not_all_issue_show')).toBeInTheDocument();
+      expect(await screen.findByText('issues.not_all_issue_show')).toBeInTheDocument();
 
       await user.keyboard('{ArrowRight}');
 

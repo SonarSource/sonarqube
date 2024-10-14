@@ -30,7 +30,7 @@ import org.sonar.api.server.http.HttpRequest;
 
 public final class SamlAuthStatusPageGenerator {
 
-  private static final String WEB_CONTEXT = "%WEB_CONTEXT%";
+  private static final String WEB_CONTEXT = "WEB_CONTEXT";
   private static final String SAML_AUTHENTICATION_STATUS = "%SAML_AUTHENTICATION_STATUS%";
   private static final String HTML_TEMPLATE_NAME = "samlAuthResult.html";
 

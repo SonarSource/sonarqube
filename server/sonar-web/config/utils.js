@@ -31,14 +31,14 @@ function getCustomProperties() {
           console.error(
             `Custom CSS property "${key}" already exists with value "${
               customProperties[`--${key}`]
-            }".`
+            }".`,
           );
           process.exit(1);
         }
       }
     });
   };
-  parseCustomProperties(require('../src/main/js/app/theme'));
+  parseCustomProperties(require('../src/main/js/app/theme-old'));
 
   return customProperties;
 }
@@ -49,7 +49,7 @@ function importAsGlobals(mapping) {
   const filter = new RegExp(
     Object.keys(mapping)
       .map((moduleName) => `^${escRe(moduleName)}$`)
-      .join('|')
+      .join('|'),
   );
 
   return {
@@ -76,7 +76,7 @@ function importAsGlobals(mapping) {
             contents: `module.exports = ${globalName};`,
             loader: 'js',
           };
-        }
+        },
       );
     },
   };

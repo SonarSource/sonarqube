@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-/* NOTE: esbuild will transpile the _syntax_ down to what the TARGET_BROWSERS (in config/utils) */
-/* understand. It will _not_, however, polyfill missing API methods, such as                    */
-/* String.prototype.replaceAll. This is why we also import core-js.                             */
+/* NOTE: esbuild will transpile the _syntax_ down to what the browsers listed in package.json */
+/* understand. It will _not_, however, polyfill missing API methods, such as                  */
+/* String.prototype.replaceAll. This is why we also import core-js.                           */
 import 'core-js/stable';
-/*                                                                                              */
+/*                                                                                            */
 import axios from 'axios';
 import { addGlobalErrorMessage } from 'design-system';
 import 'react-day-picker/dist/style.css';

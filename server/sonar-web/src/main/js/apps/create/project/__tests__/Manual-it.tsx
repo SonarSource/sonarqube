@@ -91,7 +91,7 @@ const ui = {
 };
 
 async function fillFormAndNext(displayName: string, user: UserEvent) {
-  expect(ui.manualProjectHeader.get()).toBeInTheDocument();
+  expect(await ui.manualProjectHeader.find()).toBeInTheDocument();
 
   await user.click(ui.displayNameField.get());
   await user.keyboard(displayName);

@@ -50,7 +50,7 @@ const ui = {
 
 it('renders tutorials page', async () => {
   renderTutorialsApp(mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }));
-  expect(ui.loading.get()).toBeInTheDocument();
+
   expect(await ui.localScanButton.find()).toBeInTheDocument();
 });
 

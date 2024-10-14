@@ -72,9 +72,12 @@ beforeAll(() => {
 
 afterEach(() => handler.reset());
 
-it('should require authorization if no permissions set', () => {
+it('should require authorization if no permissions set', async () => {
   renderProjectQualityGateApp({}, {});
-  expect(handleRequiredAuthorization).toHaveBeenCalled();
+
+  await waitFor(() => {
+    expect(handleRequiredAuthorization).toHaveBeenCalled();
+  });
   expect(ui.qualityGateHeading.query()).not.toBeInTheDocument();
 });
 

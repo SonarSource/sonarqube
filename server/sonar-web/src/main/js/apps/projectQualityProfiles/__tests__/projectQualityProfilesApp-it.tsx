@@ -151,7 +151,7 @@ it('should be able to add and change profile for languages', async () => {
     },
   });
 
-  expect(ui.pageTitle.get()).toBeInTheDocument();
+  expect(await ui.pageTitle.find()).toBeInTheDocument();
   expect(ui.pageDescription.get()).toBeInTheDocument();
   expect(await ui.addLanguageButton.find()).toBeInTheDocument();
   await expect(ui.helpTooltip.get()).toHaveATooltipWithContent(

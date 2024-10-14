@@ -42,7 +42,7 @@ public class CspFilterTest {
     "font-src 'self' data:; " +
     "img-src * data: blob:; " +
     "object-src 'none'; " +
-    "script-src 'self'; " +
+    "script-src 'self' 'sha256-D1jaqcDDM2TM2STrzE42NNqyKR9PlptcHDe6tyaBcuM='; " +
     "style-src 'self' 'unsafe-inline'; " +
     "worker-src 'none'";
   private final ServletContext servletContext = mock(ServletContext.class, RETURNS_MOCKS);

@@ -37,7 +37,7 @@ import static org.sonar.server.platform.Platform.Status.UP;
 
 public class WebPagesCache {
 
-  private static final String WEB_CONTEXT_PLACEHOLDER = "%WEB_CONTEXT%";
+  private static final String WEB_CONTEXT_PLACEHOLDER = "WEB_CONTEXT";
   private static final String SERVER_STATUS_PLACEHOLDER = "%SERVER_STATUS%";
   private static final String INSTANCE_PLACEHOLDER = "%INSTANCE%";
   private static final String OFFICIAL_PLACEHOLDER = "%OFFICIAL%";

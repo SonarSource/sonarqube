@@ -17,6 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function dummy_process_cwd() {
-  return '';
-}
+
+export const viteDevServerHtmlPlugin = () => {
+  return {
+    name: 'html-transform',
+    apply: 'serve',
+    transformIndexHtml(html) {
+      return html
+        .replace(/WEB_CONTEXT/g, '')
+        .replace(/%SERVER_STATUS%/g, 'UP')
+        .replace(/%INSTANCE%/g, 'SonarQube')
+        .replace(/%OFFICIAL%/g, 'true');
+    },
+  };
+};

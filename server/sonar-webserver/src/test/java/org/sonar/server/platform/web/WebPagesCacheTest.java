@@ -53,7 +53,7 @@ public class WebPagesCacheTest {
   public void setUp() {
     when(servletContext.getContextPath()).thenReturn(TEST_CONTEXT);
     when(servletContext.getResourceAsStream("/index.html")).thenAnswer(
-      (Answer<InputStream>) invocationOnMock -> toInputStream("Content of default index.html with context [%WEB_CONTEXT%], status [%SERVER_STATUS%], instance [%INSTANCE%]",
+      (Answer<InputStream>) invocationOnMock -> toInputStream("Content of default index.html with context [WEB_CONTEXT], status [%SERVER_STATUS%], instance [%INSTANCE%]",
         UTF_8));
   }
 

@@ -46,7 +46,8 @@ public class CspFilter implements Filter {
     cspPolicies.add("font-src 'self' data:");
     cspPolicies.add("img-src * data: blob:");
     cspPolicies.add("object-src 'none'");
-    cspPolicies.add("script-src 'self'");
+    // the hash below corresponds to the window.__assetsPath script in index.html
+    cspPolicies.add("script-src 'self' 'sha256-D1jaqcDDM2TM2STrzE42NNqyKR9PlptcHDe6tyaBcuM='");
     cspPolicies.add("style-src 'self' 'unsafe-inline'");
     cspPolicies.add("worker-src 'none'");
     this.policies = String.join("; ", cspPolicies).trim();
