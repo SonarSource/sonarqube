@@ -25,7 +25,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.auth.github.GithubAppConfiguration;
@@ -144,7 +143,7 @@ public class GithubAppSecurityImplTest {
   }
 
   private GithubAppConfiguration createAppConfigurationForPrivateKey(String privateKey) {
-    long applicationId = new Random().nextInt(654);
+    long applicationId = 1L;
     return new GithubAppConfiguration(applicationId, privateKey, secure().nextAlphabetic(8));
   }
 

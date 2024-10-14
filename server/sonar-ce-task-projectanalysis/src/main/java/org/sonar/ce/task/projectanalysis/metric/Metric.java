@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.metric;
 
 import javax.annotation.CheckForNull;
-import org.sonar.ce.task.projectanalysis.measure.Measure;
+import org.sonar.ce.task.projectanalysis.measure.Measure.ValueType;
 
 public interface Metric {
   /**
@@ -51,32 +51,32 @@ public interface Metric {
 
   /**
    * The decimal scale of float measures. Returned value is greater than or equal zero.
-   * @throws IllegalStateException if the value type is not decimal (see {@link org.sonar.ce.task.projectanalysis.measure.Measure.ValueType}
+   * @throws IllegalStateException if the value type is not decimal (see {@link ValueType}
    */
   int getDecimalScale();
 
   boolean isDeleteHistoricalData();
 
   enum MetricType {
-    INT(Measure.ValueType.INT),
-    MILLISEC(Measure.ValueType.LONG),
-    RATING(Measure.ValueType.INT),
-    WORK_DUR(Measure.ValueType.LONG),
-    FLOAT(Measure.ValueType.DOUBLE),
-    PERCENT(Measure.ValueType.DOUBLE),
-    BOOL(Measure.ValueType.BOOLEAN),
-    STRING(Measure.ValueType.STRING),
-    DISTRIB(Measure.ValueType.STRING),
-    DATA(Measure.ValueType.STRING),
-    LEVEL(Measure.ValueType.LEVEL);
+    INT(ValueType.INT),
+    MILLISEC(ValueType.LONG),
+    RATING(ValueType.INT),
+    WORK_DUR(ValueType.LONG),
+    FLOAT(ValueType.DOUBLE),
+    PERCENT(ValueType.DOUBLE),
+    BOOL(ValueType.BOOLEAN),
+    STRING(ValueType.STRING),
+    DISTRIB(ValueType.STRING),
+    DATA(ValueType.STRING),
+    LEVEL(ValueType.LEVEL);
 
-    private final Measure.ValueType valueType;
+    private final ValueType valueType;
 
-    MetricType(Measure.ValueType valueType) {
+    MetricType(ValueType valueType) {
       this.valueType = valueType;
     }
 
-    public Measure.ValueType getValueType() {
+    public ValueType getValueType() {
       return valueType;
     }
   }

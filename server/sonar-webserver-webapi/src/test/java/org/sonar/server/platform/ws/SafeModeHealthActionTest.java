@@ -45,7 +45,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class SafeModeHealthActionTest {
+class SafeModeHealthActionTest {
 
   private final HealthChecker healthChecker = mock(HealthChecker.class);
   private final SystemPasscode systemPasscode = mock(SystemPasscode.class);

@@ -38,7 +38,7 @@ import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.RandomStringUtils.randomAscii;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -181,7 +181,7 @@ class ProjectReactorValidatorTest {
       null,
       "1.0",
       "2017-10-16",
-      randomAscii(100)
+      secure().nextAscii(100)
     );
   }
 
@@ -199,7 +199,7 @@ class ProjectReactorValidatorTest {
       null,
       "1.0",
       "2017-10-16",
-      randomAscii(100)
+      secure().nextAscii(100)
     );
   }
 

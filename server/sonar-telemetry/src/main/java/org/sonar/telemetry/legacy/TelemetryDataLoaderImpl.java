@@ -76,8 +76,6 @@ import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
@@ -392,12 +390,6 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       return qualityProfile;
     }
     return this.defaultQualityProfileByLanguage.get(language);
-  }
-
-  private Map<String, String> getNclocMetricUuidMap(DbSession dbSession) {
-    return dbClient.metricDao().selectByKeys(dbSession, asList(NCLOC_KEY, NCLOC_LANGUAGE_DISTRIBUTION_KEY))
-      .stream()
-      .collect(toMap(MetricDto::getKey, MetricDto::getUuid));
   }
 
   private void resolveQualityGates(TelemetryData.Builder data, DbSession dbSession) {

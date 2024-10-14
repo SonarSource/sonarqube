@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
@@ -38,8 +37,6 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 public class ProjectDao implements Dao {
   private final System2 system2;
   private final AuditPersister auditPersister;
-
-  private final Function<String, Set<String>> languageFilters = language -> Set.of(language + "=%", "%;" + language + "=%");
 
   public ProjectDao(System2 system2, AuditPersister auditPersister) {
     this.system2 = system2;

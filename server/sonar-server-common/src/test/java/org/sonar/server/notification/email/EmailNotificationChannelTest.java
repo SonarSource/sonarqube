@@ -53,7 +53,7 @@ import org.subethamail.wiser.WiserMessage;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static junit.framework.Assert.fail;
-import static org.apache.commons.lang3.RandomStringUtils.random;
+import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -93,7 +93,7 @@ public class EmailNotificationChannelTest {
 
   @Test
   public void isActivated_returns_true_if_smpt_host_is_not_empty() {
-    when(configuration.getSmtpHost()).thenReturn(random(5));
+    when(configuration.getSmtpHost()).thenReturn(secure().next(5));
 
     assertThat(underTest.isActivated()).isTrue();
   }
