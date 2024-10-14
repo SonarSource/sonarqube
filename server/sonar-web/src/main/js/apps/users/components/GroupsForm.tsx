@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { LightPrimary, Modal, Note } from 'design-system';
+import { FlagMessage, LightPrimary, Modal, Note } from 'design-system';
 import { find } from 'lodash';
 import * as React from 'react';
 import SelectList, {
@@ -26,12 +26,17 @@ import SelectList, {
   SelectListSearchParams,
 } from '../../../components/controls/SelectList';
 import { translate } from '../../../helpers/l10n';
+import { definitions } from '../../../helpers/mocks/definitions-list';
 import {
   useAddGroupMembershipMutation,
   useRemoveGroupMembershipMutation,
   useUserGroupsQuery,
 } from '../../../queries/group-memberships';
 import { RestUserDetailed } from '../../../types/users';
+import useSamlConfiguration from '../../settings/components/authentication/hook/useSamlConfiguration';
+import { SAML } from '../../settings/components/authentication/SamlAuthenticationTab';
+
+const samlDefinitions = definitions.filter((def) => def.subCategory === SAML);
 
 interface Props {
   onClose: () => void;
@@ -54,6 +59,8 @@ export default function GroupsForm(props: Props) {
   });
   const { mutateAsync: addUserToGroup } = useAddGroupMembershipMutation();
   const { mutateAsync: removeUserFromGroup } = useRemoveGroupMembershipMutation();
+
+  const { samlEnabled } = useSamlConfiguration(samlDefinitions);
 
   const onSearch = (searchParams: SelectListSearchParams) => {
     if (query === searchParams.query && filter === searchParams.filter) {
@@ -110,6 +117,11 @@ export default function GroupsForm(props: Props) {
       headerTitle={header}
       body={
         <div className="sw-pt-1">
+          {samlEnabled && (
+            <FlagMessage className="sw-mb-2" variant="warning">
+              {translate('users.update_groups.saml_enabled')}
+            </FlagMessage>
+          )}
           <SelectList
             elements={groups?.map((group) => group.id.toString()) ?? []}
             elementsTotalCount={groups?.length}
