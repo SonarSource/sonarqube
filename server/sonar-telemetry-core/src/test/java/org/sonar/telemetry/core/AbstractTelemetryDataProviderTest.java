@@ -17,7 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.telemetry.core.common;
+package org.sonar.telemetry.core;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class AbstractTelemetryDataProviderTest {
+
+  AbstractTelemetryDataProvider<Boolean> customProvider = new AbstractTelemetryDataProvider<>("key", Dimension.INSTALLATION, Granularity.ADHOC, TelemetryDataType.BOOLEAN) {
+  };
+
+
+  @Test
+  void it_should_provide_configured_properties() {
+    assertThat(customProvider.getDimension()).isEqualTo(Dimension.INSTALLATION);
+    assertThat(customProvider.getMetricKey()).isEqualTo("key");
+    assertThat(customProvider.getGranularity()).isEqualTo(Granularity.ADHOC);
+    assertThat(customProvider.getType()).isEqualTo(TelemetryDataType.BOOLEAN);
+    assertThat(customProvider.getValue()).isEmpty();
+    assertThat(customProvider.getValues()).isEmpty();
+  }
+
+}

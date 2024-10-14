@@ -20,33 +20,17 @@
 package org.sonar.server.telemetry;
 
 import java.util.Optional;
+import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
-import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.core.TelemetryDataType;
 
-public class TelemetryDbMigrationTotalTimeProvider implements TelemetryDataProvider<Long> {
+public class TelemetryDbMigrationTotalTimeProvider extends AbstractTelemetryDataProvider<Long> {
 
   private Long dbMigrationTotalTime = null;
 
-  @Override
-  public String getMetricKey() {
-    return "db_migration_total_time_ms";
-  }
-
-  @Override
-  public Granularity getGranularity() {
-    return Granularity.ADHOC;
-  }
-
-  @Override
-  public TelemetryDataType getType() {
-    return TelemetryDataType.INTEGER;
-  }
-
-  @Override
-  public Dimension getDimension() {
-    return Dimension.INSTALLATION;
+  public TelemetryDbMigrationTotalTimeProvider() {
+    super("db_migration_total_time_ms", Dimension.INSTALLATION, Granularity.ADHOC, TelemetryDataType.INTEGER);
   }
 
   public void setDbMigrationTotalTime(Long dbMigrationTotalTime) {

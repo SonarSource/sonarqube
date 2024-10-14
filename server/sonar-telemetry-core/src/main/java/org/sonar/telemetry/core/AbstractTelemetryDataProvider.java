@@ -17,25 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.core.common;
+package org.sonar.telemetry.core;
 
-import org.sonar.telemetry.core.Dimension;
-import org.sonar.telemetry.core.Granularity;
-import org.sonar.telemetry.core.TelemetryDataProvider;
+public abstract class AbstractTelemetryDataProvider<T> implements TelemetryDataProvider<T> {
+  private final String metricKey;
+  private final Dimension dimension;
+  private final Granularity granularity;
+  private final TelemetryDataType type;
 
-/**
- * This class is used to provide daily installation metrics to the telemetry system.
- */
-public abstract class DailyInstallationMetricProvider<T> implements TelemetryDataProvider<T> {
+  protected AbstractTelemetryDataProvider(String metricKey, Dimension dimension, Granularity granularity, TelemetryDataType type) {
+    this.metricKey = metricKey;
+    this.dimension = dimension;
+    this.granularity = granularity;
+    this.type = type;
+  }
+
+  @Override
+  public String getMetricKey() {
+    return metricKey;
+  }
 
   @Override
   public Dimension getDimension() {
-    return Dimension.INSTALLATION;
+    return dimension;
   }
 
   @Override
   public Granularity getGranularity() {
-    return Granularity.DAILY;
+    return granularity;
   }
 
+  @Override
+  public TelemetryDataType getType() {
+    return type;
+  }
 }

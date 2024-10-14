@@ -21,25 +21,18 @@ package org.sonar.server.platform.telemetry;
 
 import java.util.Optional;
 import org.sonar.api.platform.Server;
+import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
+import org.sonar.telemetry.core.Dimension;
+import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
-import org.sonar.telemetry.core.common.DailyInstallationMetricProvider;
 
-public class TelemetryVersionProvider extends DailyInstallationMetricProvider<String> {
+public class TelemetryVersionProvider extends AbstractTelemetryDataProvider<String> {
 
   private final Server server;
 
   public TelemetryVersionProvider(Server server) {
+    super("version", Dimension.INSTALLATION, Granularity.DAILY, TelemetryDataType.STRING);
     this.server = server;
-  }
-
-  @Override
-  public String getMetricKey() {
-    return "version";
-  }
-
-  @Override
-  public TelemetryDataType getType() {
-    return TelemetryDataType.STRING;
   }
 
   @Override

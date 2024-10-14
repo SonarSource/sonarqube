@@ -29,37 +29,18 @@ import org.sonar.db.DbSession;
 import org.sonar.db.measure.ProjectMainBranchMeasureDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
-import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.core.TelemetryDataType;
 
-public class ProjectCppAutoconfigTelemetryProvider implements TelemetryDataProvider<String> {
+public class ProjectCppAutoconfigTelemetryProvider extends AbstractTelemetryDataProvider<String> {
 
   private final DbClient dbClient;
 
   public ProjectCppAutoconfigTelemetryProvider(DbClient dbClient) {
+    super("project_cpp_config_type", Dimension.PROJECT, Granularity.WEEKLY, TelemetryDataType.STRING);
     this.dbClient = dbClient;
-  }
-
-  @Override
-  public String getMetricKey() {
-    return "project_cpp_config_type";
-  }
-
-  @Override
-  public Dimension getDimension() {
-    return Dimension.PROJECT;
-  }
-
-  @Override
-  public Granularity getGranularity() {
-    return Granularity.WEEKLY;
-  }
-
-  @Override
-  public TelemetryDataType getType() {
-    return TelemetryDataType.STRING;
   }
 
   @Override

@@ -25,8 +25,8 @@ import java.util.Optional;
 /**
  * This interface is used to provide data to the telemetry system. The telemetry system will call the methods of this interface to get the
  * data that will be sent to the telemetry server.
- * If you want to add new metric to the telemetry system, you need to create a new implementation of this interface and register it in the
- * Spring context as a bean.
+ * If you want to add a new metric to the telemetry system, you need to create a new implementation of this interface, or for convenience to subclass {@link AbstractTelemetryDataProvider} (recommended),
+ * and register it in the Spring context as a bean.
  *
  * @param <T> type of the value provided by this instance. Should be either {@link Boolean}, {@link String},
  * {@link Integer} or {@link Float}.

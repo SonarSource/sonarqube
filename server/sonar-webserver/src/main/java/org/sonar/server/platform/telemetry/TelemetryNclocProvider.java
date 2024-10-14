@@ -26,13 +26,13 @@ import java.util.Map;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.ProjectLocDistributionDto;
+import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
-import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.core.TelemetryDataType;
 import org.sonar.telemetry.legacy.ProjectLocDistributionDataProvider;
 
-public class TelemetryNclocProvider implements TelemetryDataProvider<Long> {
+public class TelemetryNclocProvider extends AbstractTelemetryDataProvider<Long> {
 
   public static final String METRIC_KEY = "ncloc_per_language";
 
@@ -40,28 +40,9 @@ public class TelemetryNclocProvider implements TelemetryDataProvider<Long> {
   private final ProjectLocDistributionDataProvider projectLocDistributionDataProvider;
 
   public TelemetryNclocProvider(DbClient dbClient, ProjectLocDistributionDataProvider projectLocDistributionDataProvider) {
+    super(METRIC_KEY, Dimension.LANGUAGE, Granularity.DAILY, TelemetryDataType.INTEGER);
     this.dbClient = dbClient;
     this.projectLocDistributionDataProvider = projectLocDistributionDataProvider;
-  }
-
-  @Override
-  public String getMetricKey() {
-    return METRIC_KEY;
-  }
-
-  @Override
-  public Dimension getDimension() {
-    return Dimension.LANGUAGE;
-  }
-
-  @Override
-  public Granularity getGranularity() {
-    return Granularity.DAILY;
-  }
-
-  @Override
-  public TelemetryDataType getType() {
-    return TelemetryDataType.INTEGER;
   }
 
   @Override

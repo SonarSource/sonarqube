@@ -27,37 +27,18 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserQuery;
 import org.sonar.server.util.DigestUtil;
+import org.sonar.telemetry.core.AbstractTelemetryDataProvider;
 import org.sonar.telemetry.core.Dimension;
 import org.sonar.telemetry.core.Granularity;
-import org.sonar.telemetry.core.TelemetryDataProvider;
 import org.sonar.telemetry.core.TelemetryDataType;
 
-public class TelemetryUserEnabledProvider implements TelemetryDataProvider<Boolean> {
+public class TelemetryUserEnabledProvider extends AbstractTelemetryDataProvider<Boolean> {
 
   private final DbClient dbClient;
 
   public TelemetryUserEnabledProvider(DbClient dbClient) {
+    super("user_enabled", Dimension.USER, Granularity.DAILY, TelemetryDataType.BOOLEAN);
     this.dbClient = dbClient;
-  }
-
-  @Override
-  public String getMetricKey() {
-    return "user_enabled";
-  }
-
-  @Override
-  public Dimension getDimension() {
-    return Dimension.USER;
-  }
-
-  @Override
-  public Granularity getGranularity() {
-    return Granularity.DAILY;
-  }
-
-  @Override
-  public TelemetryDataType getType() {
-    return TelemetryDataType.BOOLEAN;
   }
 
   @Override
