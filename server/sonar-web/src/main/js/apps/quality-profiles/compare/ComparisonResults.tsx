@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ActionCell, ContentCell, Link, Table, TableRowInteractive } from 'design-system';
+import { LinkStandalone } from '@sonarsource/echoes-react';
+import { ActionCell, ContentCell, Table, TableRowInteractive } from 'design-system';
 import { isEqual } from 'lodash';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
@@ -26,6 +27,7 @@ import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIco
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
 import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import { getRulesUrl } from '../../../helpers/urls';
+import { useIsLegacyCCTMode } from '../../../queries/settings';
 import { IssueSeverity } from '../../../types/issues';
 import { Dict } from '../../../types/types';
 import ComparisonResultActivation from './ComparisonResultActivation';
@@ -222,16 +224,21 @@ export default function ComparisonResults(props: Readonly<Props>) {
 }
 
 function RuleCell({ rule, severity }: Readonly<{ rule: RuleCompare; severity?: string }>) {
+  const { data: isLegacy } = useIsLegacyCCTMode();
   const shouldRenderSeverity =
-    Boolean(severity) && rule.left && rule.right && isEqual(rule.left.params, rule.right.params);
+    isLegacy &&
+    Boolean(severity) &&
+    rule.left &&
+    rule.right &&
+    isEqual(rule.left.params, rule.right.params);
 
   return (
     <div>
       {shouldRenderSeverity && <IssueSeverityIcon severity={severity as IssueSeverity} />}
-      <Link className="sw-ml-1" to={getRulesUrl({ rule_key: rule.key, open: rule.key })}>
+      <LinkStandalone className="sw-ml-1" to={getRulesUrl({ rule_key: rule.key, open: rule.key })}>
         {rule.name}
-      </Link>
-      {(rule.cleanCodeAttributeCategory || rule.impacts.length > 0) && (
+      </LinkStandalone>
+      {!isLegacy && (rule.cleanCodeAttributeCategory || rule.impacts.length > 0) && (
         <ul className="sw-mt-3 sw-flex sw-items-center">
           {rule.cleanCodeAttributeCategory && (
             <li>
