@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -79,7 +78,7 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     }
 
     Optional<Long> lastAnalysisOptional = lastAnalysis();
-    boolean firstAnalysis = !lastAnalysisOptional.isPresent();
+    boolean firstAnalysis = lastAnalysisOptional.isEmpty();
     if (firstAnalysis || isNewFile(component)) {
       backdateIssue(component, issue);
       return;
@@ -93,7 +92,7 @@ public class IssueCreationDateCalculator extends IssueVisitor {
       // Rule can't be inactive (see contract of IssueVisitor)
       ActiveRule activeRule = activeRulesHolder.get(issue.getRuleKey()).get();
       if (activeRuleIsNewOrChanged(activeRule, lastAnalysisOptional.get())
-        || ruleImplementationChanged(activeRule.getRuleKey(), activeRule.getPluginKey(), lastAnalysisOptional.get())
+        || ruleImplementationChanged(activeRule.getPluginKey(), lastAnalysisOptional.get())
         || qualityProfileChanged(activeRule.getQProfileKey())) {
         backdateIssue(component, issue);
       }
@@ -112,14 +111,14 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     getDateOfLatestChange(component, issue).ifPresent(changeDate -> updateDate(issue, changeDate));
   }
 
-  private boolean ruleImplementationChanged(RuleKey ruleKey, @Nullable String pluginKey, long lastAnalysisDate) {
+  private boolean ruleImplementationChanged(@Nullable String pluginKey, long lastAnalysisDate) {
     if (pluginKey == null) {
       return false;
     }
 
-    ScannerPlugin scannerPlugin = Optional.ofNullable(analysisMetadataHolder.getScannerPluginsByKey().get(pluginKey))
-      .orElseThrow(illegalStateException("The rule %s is declared to come from plugin %s, but this plugin was not used by scanner.", ruleKey, pluginKey));
-    return pluginIsNew(scannerPlugin, lastAnalysisDate)
+    ScannerPlugin scannerPlugin = analysisMetadataHolder.getScannerPluginsByKey().get(pluginKey);
+    return scannerPlugin == null
+      || pluginIsNew(scannerPlugin, lastAnalysisDate)
       || basePluginIsNew(scannerPlugin, lastAnalysisDate);
   }
 
