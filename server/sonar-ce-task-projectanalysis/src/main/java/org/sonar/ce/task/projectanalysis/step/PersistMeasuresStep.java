@@ -40,6 +40,7 @@ import org.sonar.ce.task.projectanalysis.measure.BestValueOptimization;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.measure.MeasureToMeasureDto;
+import org.sonar.ce.task.projectanalysis.measure.ValueType;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
@@ -66,7 +67,7 @@ public class PersistMeasuresStep implements ComputationStep {
   // 50 mb
   private static final int MAX_TRANSACTION_SIZE = 50_000_000;
   private static final Predicate<Measure> NON_EMPTY_MEASURE = measure ->
-    measure.getValueType() != Measure.ValueType.NO_VALUE || measure.getData() != null;
+    measure.getValueType() != ValueType.NO_VALUE || measure.getData() != null;
 
   private final DbClient dbClient;
   private final MetricRepository metricRepository;

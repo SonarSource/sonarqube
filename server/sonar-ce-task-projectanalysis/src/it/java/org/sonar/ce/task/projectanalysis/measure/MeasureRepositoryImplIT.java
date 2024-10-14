@@ -240,7 +240,7 @@ public class MeasureRepositoryImplIT {
   @UseDataProvider("measures")
   public void update_throws_IAE_if_valueType_of_Measure_is_not_the_same_as_the_Metric_valueType_unless_NO_VALUE(Measure measure) {
     for (Metric.MetricType metricType : Metric.MetricType.values()) {
-      if (metricType.getValueType() == measure.getValueType() || measure.getValueType() == Measure.ValueType.NO_VALUE) {
+      if (metricType.getValueType() == measure.getValueType() || measure.getValueType() == ValueType.NO_VALUE) {
         continue;
       }
 

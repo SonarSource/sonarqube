@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.metric;
 
 import javax.annotation.CheckForNull;
-import org.sonar.ce.task.projectanalysis.measure.Measure.ValueType;
+import org.sonar.ce.task.projectanalysis.measure.ValueType;
 
 public interface Metric {
   /**

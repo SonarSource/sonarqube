@@ -25,7 +25,7 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.ValueType.NO_VALUE;
+import static org.sonar.ce.task.projectanalysis.measure.ValueType.NO_VALUE;
 
 public class BestValueOptimization implements Predicate<Measure> {
   private final Metric metric;

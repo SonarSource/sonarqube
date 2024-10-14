@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.formula.coverage;
 
 import org.sonar.ce.task.projectanalysis.formula.CounterInitializationContext;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
+import org.sonar.ce.task.projectanalysis.measure.ValueType;
 
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
@@ -38,10 +39,10 @@ public final class CoverageUtils {
 
   static long getLongMeasureValue(CounterInitializationContext counterContext, String metricKey) {
     Measure measure = counterContext.getMeasure(metricKey).orElse(DEFAULT_MEASURE_LONG);
-    if (measure.getValueType() == Measure.ValueType.NO_VALUE) {
+    if (measure.getValueType() == ValueType.NO_VALUE) {
       return 0L;
     }
-    if (measure.getValueType() == Measure.ValueType.INT) {
+    if (measure.getValueType() == ValueType.INT) {
       return measure.getIntValue();
     }
     return measure.getLongValue();
@@ -49,7 +50,7 @@ public final class CoverageUtils {
 
   static int getIntMeasureValue(CounterInitializationContext counterContext, String metricKey) {
     Measure measure = counterContext.getMeasure(metricKey).orElse(DEFAULT_MEASURE_INT);
-    if (measure.getValueType() == Measure.ValueType.NO_VALUE) {
+    if (measure.getValueType() == ValueType.NO_VALUE) {
       return 0;
     }
     return measure.getIntValue();

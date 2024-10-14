@@ -44,10 +44,10 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
   public MeasureAssert hasValue(int expected) {
     isNotNull();
 
-    if (actual.getValueType() != Measure.ValueType.INT) {
+    if (actual.getValueType() != ValueType.INT) {
       failWithMessage(
         "Expected Measure to have an int value and therefore its ValueType to be <%s> but was <%s>",
-        Measure.ValueType.INT, actual.getValueType());
+        ValueType.INT, actual.getValueType());
     }
 
     if (actual.getIntValue() != expected) {
@@ -60,10 +60,10 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
   public MeasureAssert hasValue(long expected) {
     isNotNull();
 
-    if (actual.getValueType() != Measure.ValueType.LONG) {
+    if (actual.getValueType() != ValueType.LONG) {
       failWithMessage(
         "Expected Measure to have a long value and therefore its ValueType to be <%s> but was <%s>",
-        Measure.ValueType.LONG, actual.getValueType());
+        ValueType.LONG, actual.getValueType());
     }
 
     if (actual.getLongValue() != expected) {
@@ -76,10 +76,10 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
   public MeasureAssert hasValue(double expected) {
     isNotNull();
 
-    if (actual.getValueType() != Measure.ValueType.DOUBLE) {
+    if (actual.getValueType() != ValueType.DOUBLE) {
       failWithMessage(
         "Expected Measure to have a double value and therefore its ValueType to be <%s> but was <%s>",
-        Measure.ValueType.DOUBLE, actual.getValueType());
+        ValueType.DOUBLE, actual.getValueType());
     }
 
     if (actual.getDoubleValue() != expected) {
@@ -92,10 +92,10 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
   public MeasureAssert hasValue(double expected, Offset<Double> offset) {
     isNotNull();
 
-    if (actual.getValueType() != Measure.ValueType.DOUBLE) {
+    if (actual.getValueType() != ValueType.DOUBLE) {
       failWithMessage(
         "Expected Measure to have a double value and therefore its ValueType to be <%s> but was <%s>",
-        Measure.ValueType.DOUBLE, actual.getValueType());
+        ValueType.DOUBLE, actual.getValueType());
     }
 
     double value = actual.getDoubleValue();
@@ -111,10 +111,10 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
   public MeasureAssert hasValue(boolean expected) {
     isNotNull();
 
-    if (actual.getValueType() != Measure.ValueType.BOOLEAN) {
+    if (actual.getValueType() != ValueType.BOOLEAN) {
       failWithMessage(
         "Expected Measure to have a boolean value and therefore its ValueType to be <%s> but was <%s>",
-        Measure.ValueType.DOUBLE, actual.getValueType());
+        ValueType.DOUBLE, actual.getValueType());
     }
 
     if (actual.getBooleanValue() != expected) {
@@ -127,10 +127,10 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
   public MeasureAssert hasValue(String expected) {
     isNotNull();
 
-    if (actual.getValueType() != Measure.ValueType.STRING) {
+    if (actual.getValueType() != ValueType.STRING) {
       failWithMessage(
         "Expected Measure to have a String value and therefore its ValueType to be <%s> but was <%s>",
-        Measure.ValueType.DOUBLE, actual.getValueType());
+        ValueType.DOUBLE, actual.getValueType());
     }
 
     if (!Objects.equals(actual.getStringValue(), expected)) {
@@ -143,10 +143,10 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
   public MeasureAssert hasValue(Measure.Level expected) {
     isNotNull();
 
-    if (actual.getValueType() != Measure.ValueType.LEVEL) {
+    if (actual.getValueType() != ValueType.LEVEL) {
       failWithMessage(
         "Expected Measure to have a Level value and therefore its ValueType to be <%s> but was <%s>",
-        Measure.ValueType.DOUBLE, actual.getValueType());
+        ValueType.DOUBLE, actual.getValueType());
     }
 
     if (actual.getLevelValue() != expected) {
@@ -159,10 +159,10 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
   public MeasureAssert hasNoValue() {
     isNotNull();
 
-    if (actual.getValueType() != Measure.ValueType.NO_VALUE) {
+    if (actual.getValueType() != ValueType.NO_VALUE) {
       failWithMessage(
         "Expected Measure to have no value and therefore its ValueType to be <%s> but was <%s>",
-        Measure.ValueType.DOUBLE, actual.getValueType());
+        ValueType.DOUBLE, actual.getValueType());
     }
 
     return this;

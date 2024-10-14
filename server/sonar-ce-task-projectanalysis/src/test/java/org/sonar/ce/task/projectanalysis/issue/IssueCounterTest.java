@@ -38,6 +38,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
+import org.sonar.ce.task.projectanalysis.measure.ValueType;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.rule.RuleTesting;
@@ -536,7 +537,7 @@ class IssueCounterTest {
   private void assertIntValue(Component componentRef, MapEntry<String, Integer>... entries) {
     assertThat(measureRepository.getRawMeasures(componentRef).entrySet()
       .stream()
-      .filter(e -> e.getValue().getValueType() == Measure.ValueType.INT)
+      .filter(e -> e.getValue().getValueType() == ValueType.INT)
       .map(e -> entry(e.getKey(), e.getValue().getIntValue())))
       .contains(entries);
   }
