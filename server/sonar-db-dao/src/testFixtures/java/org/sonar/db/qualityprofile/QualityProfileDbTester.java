@@ -27,7 +27,6 @@ import java.util.function.Consumer;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
@@ -96,6 +95,7 @@ public class QualityProfileDbTester {
   public ActiveRuleDto activateRule(QProfileDto profile, RuleDto rule, Consumer<ActiveRuleDto> consumer) {
     ActiveRuleDto activeRule = createFor(profile, rule)
       .setSeverity(Severity.ALL.get(random.nextInt(Severity.ALL.size())))
+      .setImpacts(rule.getDefaultImpactsMap())
       .setPrioritizedRule(random.nextBoolean())
       .setCreatedAt(random.nextLong(Long.MAX_VALUE))
       .setUpdatedAt(random.nextLong(Long.MAX_VALUE));

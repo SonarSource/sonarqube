@@ -20,7 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import java.util.Map;
-
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 
 class ImportedRule {
@@ -32,9 +32,11 @@ class ImportedRule {
   private String name = null;
   private String type = null;
   private String severity = null;
+  private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = Map.of();
   private Boolean prioritizedRule = false;
   private String description = null;
   private Map<String, String> parameters = null;
+
   public Map<String, String> getParameters() {
     return parameters;
   }
@@ -59,6 +61,10 @@ class ImportedRule {
     return severity;
   }
 
+  public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> getImpacts() {
+    return impacts;
+  }
+
   public Boolean getPrioritizedRule() {
     return prioritizedRule;
   }
@@ -74,6 +80,11 @@ class ImportedRule {
 
   ImportedRule setSeverity(String severity) {
     this.severity = severity;
+    return this;
+  }
+
+  ImportedRule setImpacts(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts) {
+    this.impacts = impacts;
     return this;
   }
 

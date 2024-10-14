@@ -259,11 +259,15 @@ public class RuleActivator {
     @Nullable ActiveRuleWrapper parentActiveRule) {
     String requestSeverity = request.getSeverity();
     if (requestSeverity != null) {
+      Map<SoftwareQuality, Severity> impactSeverities = request.getImpactSeverities();
+      if (impactSeverities != null && !impactSeverities.isEmpty()) {
+        return new SeverityConfiguration(requestSeverity, impactSeverities);
+      }
       // When standard severity is requested to be overridden, we translate it to the impact to override
       return new SeverityConfiguration(requestSeverity,
         QProfileImpactSeverityMapper.mapImpactSeverities(requestSeverity, ruleDto.getDefaultImpactsMap(), ruleDto.getEnumType()));
     } else if (!request.getImpactSeverities().isEmpty()) {
-      // If an impact is request to be overridden, we translat it to the standard severity
+      // If an impact is request to be overridden, we translate it to the standard severity
       return new SeverityConfiguration(
         QProfileImpactSeverityMapper.mapSeverity(request.getImpactSeverities(), ruleDto.getEnumType(), ruleDto.getSeverityString()),
         request.getImpactSeverities());

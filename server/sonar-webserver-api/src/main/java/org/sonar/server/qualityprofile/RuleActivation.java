@@ -68,9 +68,11 @@ public class RuleActivation {
     return new RuleActivation(ruleUuid, false, severity, prioritizedRule, parameters, Map.of());
   }
 
-  public static RuleActivation create(String ruleUuid, @Nullable String severity, Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impactSeverities,
-    @Nullable Boolean prioritizedRule,
-    @Nullable Map<String, String> parameters) {
+  public static RuleActivation create(String ruleUuid, @Nullable String severity, @Nullable Map<SoftwareQuality,
+    org.sonar.api.issue.impact.Severity> impactSeverities, @Nullable Boolean prioritizedRule, @Nullable Map<String, String> parameters) {
+    if (impactSeverities == null) {
+      impactSeverities = Map.of();
+    }
     return new RuleActivation(ruleUuid, false, severity, prioritizedRule, parameters, impactSeverities);
   }
 

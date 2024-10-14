@@ -104,6 +104,7 @@ class QualityProfileExportDaoIT {
     ActiveRuleDto activeCustomRule =
       activeRules.stream().filter(activeRuleDto -> activeRuleDto.getRuleKey().equals(customRule.getKey())).findFirst().get();
     assertThat(exportCustomRuleDto.getSeverityString()).isEqualTo(activeCustomRule.getSeverityString());
+    assertThat(exportCustomRuleDto.getImpacts()).isEqualTo(activeCustomRule.getImpactsString());
 
     // verify regular rule
     ExportRuleDto exportRuleDto = results.stream().filter(regularRule -> !regularRule.isCustomRule()).findFirst().get();
@@ -119,6 +120,7 @@ class QualityProfileExportDaoIT {
     ActiveRuleDto activeRule =
       activeRules.stream().filter(activeRuleDto -> activeRuleDto.getRuleKey().equals(rule.getKey())).findFirst().get();
     assertThat(exportRuleDto.getSeverityString()).isEqualTo(activeRule.getSeverityString());
+    assertThat(exportRuleDto.getImpacts()).isEqualTo(activeRule.getImpactsString());
   }
 
   @Test

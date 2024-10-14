@@ -21,9 +21,15 @@ package org.sonar.server.qualityprofile;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.sonar.api.issue.impact.Severity.BLOCKER;
+import static org.sonar.api.issue.impact.Severity.INFO;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 
 class QProfileParserTest {
 
@@ -40,6 +46,16 @@ class QProfileParserTest {
             <key>s001</key>
             <type>CODE_SMELL</type>
             <priority>CRITICAL</priority>
+            <impacts>
+              <impact>
+                <softwareQuality>MAINTAINABILITY</softwareQuality>
+                <severity>BLOCKER</severity>
+               </impact>
+               <impact>
+                <softwareQuality>SECURITY</softwareQuality>
+                <severity>INFO</severity>
+               </impact>
+              </impacts>
             <name>custom rule name</name>
             <templateKey>rule_mc8</templateKey>
             <description>custom rule description</description>
@@ -72,6 +88,7 @@ class QProfileParserTest {
             <type>CODE_SMELL</type>
             <priority>CRITICAL</priority>
             <prioritizedRule>false</prioritizedRule>
+            <impacts></impacts>
             <name>custom rule name</name>
             <templateKey>rule_mc8</templateKey>
             <description>custom rule description</description>
@@ -90,9 +107,58 @@ class QProfileParserTest {
     var importedRule = importedQProfile.getRules().get(0);
     assertThat(importedRule.getDescription()).isEqualTo("custom rule description");
     assertThat(importedRule.getPrioritizedRule()).isFalse();
+    assertThat(importedRule.getImpacts()).isEqualTo(Map.of(MAINTAINABILITY, BLOCKER, SECURITY, INFO));
     importedRule = importedQProfile.getRules().get(1);
     assertThat(importedRule.getPrioritizedRule()).isTrue();
+    assertThat(importedRule.getImpacts()).isEmpty();
     importedRule = importedQProfile.getRules().get(2);
     assertThat(importedRule.getPrioritizedRule()).isFalse();
+    assertThat(importedRule.getImpacts()).isEmpty();
+  }
+
+  @Test
+    //test that exception is thrown if impacts has incorrect arguments
+  void readXml_whenImpactsIncorrectArguments_shouldThrow() {
+    Reader backup = new StringReader("""
+      <?xml version='1.0' encoding='UTF-8'?>
+      <profile>
+        <name>custom rule</name>
+        <language>js</language>
+        <rules>
+          <rule>
+            <repositoryKey>sonarjs</repositoryKey>
+            <key>s001</key>
+            <type>CODE_SMELL</type>
+            <priority>CRITICAL</priority>
+            <impacts>
+              <impact>
+                <softwareQuality>MAINTAINABILITY</softwareQuality>
+                <severity>BLOCKER</severity>
+              </impact>
+              <impact>
+                <softwareQuality>SECURITY</softwareQuality>
+                <severity>INFO</severity>
+              </impact>
+              <impact>
+                <softwareQuality>RELIABILITY</softwareQuality>
+                <severity>MAJOR</severity>
+              <impact>
+            </impacts>
+            <name>custom rule name</name>
+            <templateKey>rule_mc8</templateKey>
+            <description>custom rule description</description>
+            <parameters>
+              <parameter>
+                <key>bar</key>
+                <value>baz</value>
+              </parameter>
+            </parameters>
+          </rule>
+        </rules>
+      </profile>""");
+    var parser = new QProfileParser();
+    assertThatThrownBy(() -> parser.readXml(backup))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("No enum constant org.sonar.api.issue.impact.Severity.MAJOR");
   }
 }

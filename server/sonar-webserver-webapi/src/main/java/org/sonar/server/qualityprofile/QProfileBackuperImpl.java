@@ -50,6 +50,7 @@ import org.sonar.server.qualityprofile.builtin.QProfileName;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toSet;
+import static org.sonar.server.qualityprofile.QProfileUtils.parseImpactsToMap;
 
 @ServerSide
 public class QProfileBackuperImpl implements QProfileBackuper {
@@ -95,6 +96,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       importedRule.setRepository(ruleKey.repository());
       importedRule.setKey(ruleKey.rule());
       importedRule.setSeverity(exportRuleDto.getSeverityString());
+      importedRule.setImpacts(exportRuleDto.getImpacts() != null ? parseImpactsToMap(exportRuleDto.getImpacts()) : Map.of());
       if (exportRuleDto.isCustomRule()) {
         importedRule.setTemplate(exportRuleDto.getTemplateRuleKey().rule());
         importedRule.setDescription(exportRuleDto.getDescriptionOrThrow());
@@ -213,6 +215,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     return NewCustomRule.createForCustomRule(r.getRuleKey(), r.getTemplateKey())
       .setName(r.getName())
       .setSeverity(r.getSeverity())
+      .setImpacts(r.getImpacts().entrySet().stream().map(i -> new NewCustomRule.Impact(i.getKey(), i.getValue())).toList())
       .setStatus(RuleStatus.READY)
       .setPreventReactivation(true)
       .setType(RuleType.valueOf(r.getType()))
@@ -228,7 +231,12 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       if (ruleDto == null) {
         continue;
       }
-      activatedRule.add(RuleActivation.create(ruleDto.getUuid(), r.getSeverity(), r.getPrioritizedRule(), r.getParameters()));
+      activatedRule.add(RuleActivation.create(
+        ruleDto.getUuid(),
+        r.getSeverity(),
+        r.getImpacts(),
+        r.getPrioritizedRule(),
+        r.getParameters()));
     }
     return activatedRule;
   }
