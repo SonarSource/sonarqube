@@ -275,7 +275,7 @@ class RulesRegistrantIT {
 
   @Test
   void insert_then_remove_rule() {
-    String ruleKey = secure().randomAlphanumeric(5);
+    String ruleKey = secure().nextAlphanumeric(5);
 
     // register one rule
     executeWithPluginRules(context -> {
