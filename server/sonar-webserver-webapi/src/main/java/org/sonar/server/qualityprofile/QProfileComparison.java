@@ -99,7 +99,7 @@ public class QProfileComparison {
     }
   }
 
-  private static Map<SoftwareQuality, Severity> computeEffectiveImpactMap(RuleDto ruleDto, Map<SoftwareQuality, Severity> activeRuleImpacts) {
+  public static Map<SoftwareQuality, Severity> computeEffectiveImpactMap(RuleDto ruleDto, Map<SoftwareQuality, Severity> activeRuleImpacts) {
     Map<SoftwareQuality, Severity> impacts = ruleDto.getDefaultImpactsMap();
     impacts.replaceAll(activeRuleImpacts::getOrDefault);
     return impacts;
