@@ -48,7 +48,7 @@ import {
 
 interface Props {
   gitHubConfiguration?: GitHubConfigurationResponse;
-  isLegacyConfiguration: boolean;
+  isStandardModeConfiguration: boolean;
   onClose: () => void;
 }
 
@@ -64,7 +64,7 @@ interface FormData {
 }
 
 export default function GitHubConfigurationForm(props: Readonly<Props>) {
-  const { gitHubConfiguration, isLegacyConfiguration, onClose } = props;
+  const { gitHubConfiguration, isStandardModeConfiguration, onClose } = props;
   const isCreate = gitHubConfiguration === undefined;
 
   const [errors, setErrors] = useState<Partial<Record<GitHubAuthFormFields, ErrorValue>>>({});
@@ -158,13 +158,13 @@ export default function GitHubConfigurationForm(props: Readonly<Props>) {
     }
   };
 
-  const helpMessage = isLegacyConfiguration ? `legacy_help.${AlmKeys.GitHub}` : 'help';
+  const helpMessage = isStandardModeConfiguration ? `legacy_help.${AlmKeys.GitHub}` : 'help';
 
   const formBody = (
     <form id={FORM_ID} onSubmit={handleSubmit}>
       <FlagMessage
         className="sw-w-full sw-mb-8"
-        variant={isLegacyConfiguration ? 'warning' : 'info'}
+        variant={isStandardModeConfiguration ? 'warning' : 'info'}
       >
         <span>
           <FormattedMessage
@@ -192,7 +192,7 @@ export default function GitHubConfigurationForm(props: Readonly<Props>) {
               onFieldChange={(_, value) => {
                 setFormData((prev) => ({ ...prev, [key]: { ...prev[key], value } }));
               }}
-              isNotSet={isCreate || isLegacyConfiguration}
+              isNotSet={isCreate || isStandardModeConfiguration}
               error={errors[key]?.message}
             />
           </div>

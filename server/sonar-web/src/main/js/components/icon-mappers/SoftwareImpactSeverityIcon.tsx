@@ -27,7 +27,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import { useIsLegacyCCTMode } from '../../queries/settings';
+import { useStandardExperienceMode } from '../../queries/settings';
 import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
 import { IssueSeverity } from '../../types/issues';
 import { Dict } from '../../types/types';
@@ -51,7 +51,7 @@ const severityIcons: Dict<(props: IconProps) => React.ReactElement> = {
 };
 
 export default function SoftwareImpactSeverityIcon({ severity, ...iconProps }: Readonly<Props>) {
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode } = useStandardExperienceMode();
   if (typeof severity !== 'string' || !severityIcons[severity]) {
     return null;
   }
@@ -62,7 +62,7 @@ export default function SoftwareImpactSeverityIcon({ severity, ...iconProps }: R
       {...iconProps}
       width={iconProps?.width ?? defaultIconSize}
       height={iconProps?.height ?? defaultIconSize}
-      aria-label={translate(isLegacy ? 'severity' : 'severity_impact', severity)}
+      aria-label={translate(isStandardMode ? 'severity' : 'severity_impact', severity)}
     />
   );
 }

@@ -58,7 +58,7 @@ import { omitNil } from '../../helpers/request';
 import { getBaseUrl } from '../../helpers/system';
 import { isDefined } from '../../helpers/types';
 import { getBranchLikeUrl, getCodeUrl } from '../../helpers/urls';
-import { useIsLegacyCCTMode } from '../../queries/settings';
+import { useStandardExperienceMode } from '../../queries/settings';
 import type { BranchLike } from '../../types/branch-like';
 import { IssueType } from '../../types/issues';
 import type { Measure, SourceViewerFile } from '../../types/types';
@@ -76,7 +76,7 @@ interface Props {
 
 export default function SourceViewerHeader(props: Readonly<Props>) {
   const intl = useIntl();
-  const { data: isLegacy = false } = useIsLegacyCCTMode();
+  const { data: isStandardMode = false } = useStandardExperienceMode();
 
   const { showMeasures, branchLike, hidePinOption, openComponent, componentMeasures } = props;
   const { key, measures, path, project, projectName, q } = props.sourceViewerFile;
@@ -87,7 +87,7 @@ export default function SourceViewerHeader(props: Readonly<Props>) {
   const rawSourcesLink = `${getBaseUrl()}/api/sources/raw?${query}`;
 
   const renderIssueMeasures = () => {
-    const areCCTMeasuresComputed = !isLegacy && areCCTMeasuresComputedFn(componentMeasures);
+    const areCCTMeasuresComputed = !isStandardMode && areCCTMeasuresComputedFn(componentMeasures);
 
     return (
       componentMeasures &&
@@ -115,7 +115,7 @@ export default function SourceViewerHeader(props: Readonly<Props>) {
               });
 
               const qualityTitle = intl.formatMessage({
-                id: `metric.${isLegacy ? deprecatedMetric : metric}.short_name`,
+                id: `metric.${isStandardMode ? deprecatedMetric : metric}.short_name`,
               });
 
               return (

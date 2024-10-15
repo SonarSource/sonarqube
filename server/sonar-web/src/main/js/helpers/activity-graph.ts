@@ -25,14 +25,14 @@ import { SOFTWARE_QUALITY_RATING_METRICS_MAP } from './constants';
 export const mergeRatingMeasureHistory = (
   historyData: TimeMachineResponse | undefined,
   parseDateFn: (date: string) => Date,
-  isLegacy = false,
+  isStandardMode = false,
 ) => {
   const softwareQualityMeasures = Object.values(SOFTWARE_QUALITY_RATING_METRICS_MAP);
   const softwareQualityMeasuresMap = new Map<
     string,
     { history: { date: string; value?: string }[]; index: number; splitDate?: Date }
   >();
-  if (isLegacy) {
+  if (isStandardMode) {
     return (
       historyData?.measures
         ?.filter((m) => !softwareQualityMeasures.includes(m.metric))

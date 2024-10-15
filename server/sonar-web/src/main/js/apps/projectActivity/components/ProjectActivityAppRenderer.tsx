@@ -42,7 +42,7 @@ interface Props {
   analysesLoading: boolean;
   graphLoading: boolean;
   initializing: boolean;
-  isLegacy?: boolean;
+  isStandardMode?: boolean;
   leakPeriodDate?: Date;
   measuresHistory: MeasureHistory[];
   metrics: Metric[];
@@ -62,7 +62,7 @@ export default function ProjectActivityAppRenderer(props: Props) {
     graphLoading,
     metrics,
     project,
-    isLegacy,
+    isStandardMode,
   } = props;
   const { configuration, qualifier } = props.project;
   const canAdmin =
@@ -103,7 +103,7 @@ export default function ProjectActivityAppRenderer(props: Props) {
                 analyses={analyses}
                 leakPeriodDate={leakPeriodDate}
                 loading={graphLoading}
-                isLegacy={isLegacy}
+                isStandardMode={isStandardMode}
                 measuresHistory={measuresHistory}
                 metrics={metrics}
                 project={project.key}

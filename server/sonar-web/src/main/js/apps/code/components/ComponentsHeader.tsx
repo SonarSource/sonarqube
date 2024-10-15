@@ -26,7 +26,7 @@ import {
   OLD_TO_NEW_TAXONOMY_METRICS_MAP,
 } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { ComponentMeasure } from '../../../types/types';
 
 interface ComponentsHeaderProps {
@@ -47,7 +47,7 @@ const SHORT_NAME_METRICS = [
 
 export default function ComponentsHeader(props: ComponentsHeaderProps) {
   const { baseComponent, canBePinned = true, metrics, rootComponent, showAnalysisDate } = props;
-  const { data: isLegacy = false } = useIsLegacyCCTMode();
+  const { data: isStandardMode = false } = useStandardExperienceMode();
   const isPortfolio = isPortfolioLike(rootComponent.qualifier);
   let columns: string[] = [];
   let Cell: typeof NumericalCell;
@@ -68,7 +68,7 @@ export default function ComponentsHeader(props: ComponentsHeaderProps) {
     Cell = RatingCell;
   } else {
     columns = metrics.map((m: MetricKey) => {
-      const metric = isLegacy ? m : (OLD_TO_NEW_TAXONOMY_METRICS_MAP[m] ?? m);
+      const metric = isStandardMode ? m : (OLD_TO_NEW_TAXONOMY_METRICS_MAP[m] ?? m);
 
       return translate(
         'metric',

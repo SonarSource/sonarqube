@@ -38,7 +38,7 @@ import useApplicationLeakQuery from '../../../queries/applications';
 import { useCurrentBranchQuery } from '../../../queries/branch';
 import { useAllMeasuresHistoryQuery } from '../../../queries/measures';
 import { useAllProjectAnalysesQuery } from '../../../queries/project-analyses';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { isApplication, isProject } from '../../../types/component';
 import { MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
 import { Query, parseQuery, serializeUrlQuery } from '../utils';
@@ -73,7 +73,7 @@ export function ProjectActivityApp() {
   );
 
   const { data: analysesData, isLoading: isLoadingAnalyses } = useAllProjectAnalysesQuery(enabled);
-  const { data: isLegacy, isLoading: isLoadingLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode, isLoading: isLoadingStandardMode } = useStandardExperienceMode();
 
   const { data: historyData, isLoading: isLoadingHistory } = useAllMeasuresHistoryQuery(
     {
@@ -87,8 +87,11 @@ export function ProjectActivityApp() {
   const analyses = React.useMemo(() => analysesData ?? [], [analysesData]);
 
   const measuresHistory = React.useMemo(
-    () => (isLoadingLegacy ? [] : mergeRatingMeasureHistory(historyData, parseDate, isLegacy)),
-    [historyData, isLegacy, isLoadingLegacy],
+    () =>
+      isLoadingStandardMode
+        ? []
+        : mergeRatingMeasureHistory(historyData, parseDate, isStandardMode),
+    [historyData, isStandardMode, isLoadingStandardMode],
   );
 
   const leakPeriodDate = React.useMemo(() => {
@@ -139,11 +142,11 @@ export function ProjectActivityApp() {
 
   return (
     component && (
-      <Spinner isLoading={isLoadingLegacy}>
+      <Spinner isLoading={isLoadingStandardMode}>
         <ProjectActivityAppRenderer
           analyses={analyses}
-          isLegacy={
-            isLegacy ||
+          isStandardMode={
+            isStandardMode ||
             !firstSoftwareQualityRatingMetric ||
             firstSoftwareQualityRatingMetric.history.every((h) => h.value === undefined)
           }

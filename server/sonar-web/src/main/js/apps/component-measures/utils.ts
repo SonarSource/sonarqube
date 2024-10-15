@@ -102,7 +102,7 @@ const ISSUES_METRICS = [
 ];
 
 export const populateDomainsFromMeasures = memoize(
-  (measures: MeasureEnhanced[], isLegacy = false): Domain[] => {
+  (measures: MeasureEnhanced[], isStandardMode = false): Domain[] => {
     let populatedMeasures = measures
       .filter((measure) => !DEPRECATED_METRICS.includes(measure.metric.key as MetricKey))
       .map((measure) => {
@@ -118,7 +118,7 @@ export const populateDomainsFromMeasures = memoize(
         };
       });
 
-    if (!isLegacy && areLeakCCTMeasuresComputed(measures)) {
+    if (!isStandardMode && areLeakCCTMeasuresComputed(measures)) {
       populatedMeasures = populatedMeasures.filter(
         (measure) => !LEAK_OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
       );
@@ -129,7 +129,7 @@ export const populateDomainsFromMeasures = memoize(
     }
 
     // Both new and overall code will exist after next analysis
-    if (!isLegacy && areSoftwareQualityRatingsComputed(measures)) {
+    if (!isStandardMode && areSoftwareQualityRatingsComputed(measures)) {
       populatedMeasures = populatedMeasures.filter(
         (measure) =>
           !OLD_TAXONOMY_RATINGS.includes(measure.metric.key as MetricKey) &&
@@ -141,7 +141,7 @@ export const populateDomainsFromMeasures = memoize(
       );
     }
 
-    if (!isLegacy && areCCTMeasuresComputed(measures)) {
+    if (!isStandardMode && areCCTMeasuresComputed(measures)) {
       populatedMeasures = populatedMeasures.filter(
         (measure) => !OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
       );
@@ -159,13 +159,13 @@ export function getMetricSubnavigationName(
   metric: Metric,
   translateFn: (metric: Metric) => string,
   isDiff = false,
-  isLegacy = false,
+  isStandardMode = false,
 ) {
   // MQR mode and old taxonomy metrics, we return "Issues" for them anyway
-  if (!isLegacy && OLD_TAXONOMY_METRICS.includes(metric.key as MetricKey)) {
+  if (!isStandardMode && OLD_TAXONOMY_METRICS.includes(metric.key as MetricKey)) {
     return translate('component_measures.awaiting_analysis.name');
   }
-  if (!isLegacy && LEAK_OLD_TAXONOMY_METRICS.includes(metric.key as MetricKey)) {
+  if (!isStandardMode && LEAK_OLD_TAXONOMY_METRICS.includes(metric.key as MetricKey)) {
     return translate('component_measures.leak_awaiting_analysis.name');
   }
 

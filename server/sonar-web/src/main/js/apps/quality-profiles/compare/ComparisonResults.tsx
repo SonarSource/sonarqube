@@ -27,7 +27,7 @@ import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIco
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
 import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import { getRulesUrl } from '../../../helpers/urls';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { IssueSeverity } from '../../../types/issues';
 import { Dict } from '../../../types/types';
 import ComparisonResultActivation from './ComparisonResultActivation';
@@ -224,9 +224,9 @@ export default function ComparisonResults(props: Readonly<Props>) {
 }
 
 function RuleCell({ rule, severity }: Readonly<{ rule: RuleCompare; severity?: string }>) {
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode } = useStandardExperienceMode();
   const shouldRenderSeverity =
-    isLegacy &&
+    isStandardMode &&
     Boolean(severity) &&
     rule.left &&
     rule.right &&
@@ -238,7 +238,7 @@ function RuleCell({ rule, severity }: Readonly<{ rule: RuleCompare; severity?: s
       <LinkStandalone className="sw-ml-1" to={getRulesUrl({ rule_key: rule.key, open: rule.key })}>
         {rule.name}
       </LinkStandalone>
-      {!isLegacy && (rule.cleanCodeAttributeCategory || rule.impacts.length > 0) && (
+      {!isStandardMode && (rule.cleanCodeAttributeCategory || rule.impacts.length > 0) && (
         <ul className="sw-mt-3 sw-flex sw-items-center">
           {rule.cleanCodeAttributeCategory && (
             <li>

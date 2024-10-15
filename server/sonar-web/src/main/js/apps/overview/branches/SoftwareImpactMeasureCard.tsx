@@ -31,7 +31,7 @@ import {
   getIssueTypeBySoftwareQuality,
 } from '../../../helpers/issues';
 import { isDefined } from '../../../helpers/types';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { Branch } from '../../../types/branch-like';
 import { SoftwareImpactMeasureData, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
@@ -52,12 +52,12 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   const { component, conditions, softwareQuality, ratingMetricKey, measures, branch } = props;
 
   const intl = useIntl();
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode } = useStandardExperienceMode();
 
   // Find measure for this software quality
   const metricKey = softwareQualityToMeasure(softwareQuality);
   const measureRaw = measures.find((m) => m.metric.key === metricKey);
-  const measure = isLegacy
+  const measure = isStandardMode
     ? undefined
     : (JSON.parse(measureRaw?.value ?? 'null') as SoftwareImpactMeasureData);
   const alternativeMeasure = measures.find(
@@ -87,8 +87,8 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
     >
       <div className="sw-flex sw-items-center">
         <ColorBold className="sw-typo-semibold">
-          {!isLegacy && intl.formatMessage({ id: `software_quality.${softwareQuality}` })}
-          {alternativeMeasure && isLegacy && alternativeMeasure.metric.name}
+          {!isStandardMode && intl.formatMessage({ id: `software_quality.${softwareQuality}` })}
+          {alternativeMeasure && isStandardMode && alternativeMeasure.metric.name}
         </ColorBold>
         {failed && (
           <Badge className="sw-h-fit sw-ml-2" variant="deleted">
@@ -100,7 +100,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
         <div className="sw-flex sw-mt-4">
           <div className="sw-flex sw-gap-1 sw-items-center">
             {count ? (
-              <Tooltip content={countTooltipOverlay} isOpen={isLegacy ? false : undefined}>
+              <Tooltip content={countTooltipOverlay} isOpen={isStandardMode ? false : undefined}>
                 <LinkStandalone
                   data-testid={`overview__software-impact-${softwareQuality}`}
                   aria-label={intl.formatMessage(

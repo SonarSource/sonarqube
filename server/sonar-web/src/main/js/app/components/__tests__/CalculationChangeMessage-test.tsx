@@ -53,7 +53,7 @@ it.each([
 it.each([
   ['Project', '/projects', ComponentQualifier.Project],
   ['Portfolios', '/portfolios', ComponentQualifier.Portfolio],
-])('should not render on %s page if isLegacy', (_, path, qualifier) => {
+])('should not render on %s page if isStandardMode', (_, path, qualifier) => {
   settingsHandler.set(SettingsKey.MQRMode, 'false');
   render(path);
   expect(ui.alert.get()).toBeInTheDocument();

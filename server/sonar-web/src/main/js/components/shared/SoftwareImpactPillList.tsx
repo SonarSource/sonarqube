@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import { translate } from '../../helpers/l10n';
-import { useIsLegacyCCTMode } from '../../queries/settings';
+import { useStandardExperienceMode } from '../../queries/settings';
 import {
   SoftwareImpact,
   SoftwareImpactSeverity,
@@ -54,7 +54,7 @@ export default function SoftwareImpactPillList({
   className,
   ...props
 }: Readonly<SoftwareImpactPillListProps>) {
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode } = useStandardExperienceMode();
   const getQualityLabel = (quality: SoftwareQuality) => translate('software_quality', quality);
   const sortingFn = (a: SoftwareImpact, b: SoftwareImpact) => {
     if (a.severity !== b.severity) {
@@ -65,7 +65,7 @@ export default function SoftwareImpactPillList({
 
   return (
     <ul className={classNames('sw-flex sw-gap-2', className)} {...props}>
-      {!isLegacy &&
+      {!isStandardMode &&
         softwareImpacts
           .slice()
           .sort(sortingFn)
@@ -78,10 +78,10 @@ export default function SoftwareImpactPillList({
               />
             </li>
           ))}
-      {!isLegacy && softwareImpacts.length === 0 && issueType === 'SECURITY_HOTSPOT' && (
+      {!isStandardMode && softwareImpacts.length === 0 && issueType === 'SECURITY_HOTSPOT' && (
         <IssueTypePill severity={issueSeverity ?? IssueSeverity.Info} issueType={issueType} />
       )}
-      {isLegacy && issueType && issueSeverity && (
+      {isStandardMode && issueType && issueSeverity && (
         <IssueTypePill severity={issueSeverity} issueType={issueType} />
       )}
     </ul>

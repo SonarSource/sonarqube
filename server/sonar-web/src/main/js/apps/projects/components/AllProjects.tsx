@@ -44,7 +44,7 @@ import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthent
 import { translate } from '../../../helpers/l10n';
 import { get, save } from '../../../helpers/storage';
 import { isDefined } from '../../../helpers/types';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { AppState } from '../../../types/appstate';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { Query, hasFilterParams, parseUrlQuery } from '../query';
@@ -59,7 +59,7 @@ interface Props {
   appState: AppState;
   currentUser: CurrentUser;
   isFavorite: boolean;
-  isLegacy: boolean;
+  isStandardMode: boolean;
   location: Location;
   router: Router;
 }
@@ -106,21 +106,24 @@ export class AllProjects extends React.PureComponent<Props, State> {
   }
 
   fetchMoreProjects = () => {
-    const { isFavorite, isLegacy } = this.props;
+    const { isFavorite, isStandardMode } = this.props;
     const { pageIndex, projects, query } = this.state;
 
     if (isDefined(pageIndex) && pageIndex !== 0 && projects && Object.keys(query).length !== 0) {
       this.setState({ loading: true });
 
-      fetchProjects({ isFavorite, query, pageIndex: pageIndex + 1, isLegacy }).then((response) => {
-        if (this.mounted) {
-          this.setState({
-            loading: false,
-            pageIndex: pageIndex + 1,
-            projects: [...projects, ...response.projects],
-          });
-        }
-      }, this.stopLoading);
+      fetchProjects({ isFavorite, query, pageIndex: pageIndex + 1, isStandardMode }).then(
+        (response) => {
+          if (this.mounted) {
+            this.setState({
+              loading: false,
+              pageIndex: pageIndex + 1,
+              projects: [...projects, ...response.projects],
+            });
+          }
+        },
+        this.stopLoading,
+      );
     }
   };
 
@@ -175,14 +178,14 @@ export class AllProjects extends React.PureComponent<Props, State> {
   };
 
   handleQueryChange() {
-    const { isFavorite, isLegacy } = this.props;
+    const { isFavorite, isStandardMode } = this.props;
 
     const queryRaw = this.props.location.query;
     const query = parseUrlQuery(queryRaw);
 
     this.setState({ loading: true, query });
 
-    fetchProjects({ isFavorite, query, isLegacy }).then((response) => {
+    fetchProjects({ isFavorite, query, isStandardMode }).then((response) => {
       // We ignore the request if the query changed since the time it was initiated
       // If that happened, another query will be initiated anyway
       if (this.mounted && queryRaw === this.props.location.query) {
@@ -204,10 +207,10 @@ export class AllProjects extends React.PureComponent<Props, State> {
   };
 
   loadSearchResultCount = (property: string, values: string[]) => {
-    const { isFavorite, isLegacy } = this.props;
+    const { isFavorite, isStandardMode } = this.props;
     const { query = {} } = this.state;
 
-    const data = convertToQueryData({ ...query, [property]: values }, isFavorite, isLegacy, {
+    const data = convertToQueryData({ ...query, [property]: values }, isFavorite, isStandardMode, {
       ps: 1,
       facets: property,
     });
@@ -352,10 +355,10 @@ function getStorageOptions() {
   return options;
 }
 
-function AllProjectsWrapper(props: Readonly<Omit<Props, 'isLegacy'>>) {
+function AllProjectsWrapper(props: Readonly<Omit<Props, 'isStandardMode'>>) {
   const [searchParams, setSearchParams] = useSearchParams();
   const savedOptions = getStorageOptions();
-  const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
+  const { data: isStandardMode, isLoading } = useStandardExperienceMode();
 
   React.useEffect(
     () => {
@@ -374,7 +377,7 @@ function AllProjectsWrapper(props: Readonly<Omit<Props, 'isLegacy'>>) {
 
   return (
     <Spinner isLoading={isLoading}>
-      <AllProjects {...props} isLegacy={isLegacy ?? false} />
+      <AllProjects {...props} isStandardMode={isStandardMode ?? false} />
     </Spinner>
   );
 }

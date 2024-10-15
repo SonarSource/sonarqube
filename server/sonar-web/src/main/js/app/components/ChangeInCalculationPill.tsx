@@ -23,7 +23,7 @@ import * as React from 'react';
 import DocumentationLink from '../../components/common/DocumentationLink';
 import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
-import { useIsLegacyCCTMode } from '../../queries/settings';
+import { useStandardExperienceMode } from '../../queries/settings';
 import { ComponentQualifier } from '../../sonar-aligned/types/component';
 
 interface Props {
@@ -32,9 +32,9 @@ interface Props {
 
 export default function ChangeInCalculation({ qualifier }: Readonly<Props>) {
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
-  const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
+  const { data: isStandardMode, isLoading } = useStandardExperienceMode();
 
-  if (isLegacy || isLoading) {
+  if (isStandardMode || isLoading) {
     return null;
   }
 

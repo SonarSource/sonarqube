@@ -24,7 +24,7 @@ import { useIntl } from 'react-intl';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import RatingComponent from '../../../app/components/metrics/RatingComponent';
 import RatingTooltipContent from '../../../components/measure/RatingTooltipContent';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { Branch } from '../../../types/branch-like';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 
@@ -37,7 +37,7 @@ export interface SoftwareImpactMeasureRatingProps {
 
 export function SoftwareImpactMeasureRating(props: Readonly<SoftwareImpactMeasureRatingProps>) {
   const { ratingMetricKey, componentKey, softwareQuality, branch } = props;
-  const { data: isLegacy = false } = useIsLegacyCCTMode();
+  const { data: isStandardMode = false } = useStandardExperienceMode();
 
   const intl = useIntl();
 
@@ -47,7 +47,7 @@ export function SoftwareImpactMeasureRating(props: Readonly<SoftwareImpactMeasur
         return null;
       }
 
-      if (isLegacy && value !== undefined) {
+      if (isStandardMode && value !== undefined) {
         return <RatingTooltipContent metricKey={ratingMetricKey} value={value} />;
       }
 

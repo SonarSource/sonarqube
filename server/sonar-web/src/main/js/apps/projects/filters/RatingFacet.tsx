@@ -25,7 +25,7 @@ import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricType } from '~sonar-aligned/types/metrics';
 import { RawQuery } from '~sonar-aligned/types/router';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { Facet } from '../types';
 import RangeFacetBase from './RangeFacetBase';
 
@@ -40,7 +40,7 @@ interface Props {
 
 export default function RatingFacet(props: Readonly<Props>) {
   const { facet, maxFacetValue, name, property, value } = props;
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode } = useStandardExperienceMode();
 
   const renderAccessibleLabel = React.useCallback(
     (option: number) => {
@@ -66,7 +66,7 @@ export default function RatingFacet(props: Readonly<Props>) {
       facet={facet}
       header={translate('metric_domain', name)}
       description={
-        hasDescription(property, isLegacy)
+        hasDescription(property, isStandardMode)
           ? translate(`projects.facets.${property.replace('new_', '')}.description`)
           : undefined
       }
@@ -82,12 +82,12 @@ export default function RatingFacet(props: Readonly<Props>) {
   );
 }
 
-const hasDescription = (property: string, isLegacy = false) => {
+const hasDescription = (property: string, isStandardMode = false) => {
   return [
     'maintainability',
     'new_maintainability',
     'security_review',
-    ...(isLegacy ? ['security', 'new_security', 'reliability', 'new_reliability'] : []),
+    ...(isStandardMode ? ['security', 'new_security', 'reliability', 'new_reliability'] : []),
   ].includes(property);
 };
 
@@ -99,7 +99,7 @@ function RatingOption({
   option,
   property,
 }: Readonly<{ option: string | number; property: string }>) {
-  const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
+  const { data: isStandardMode, isLoading } = useStandardExperienceMode();
   const intl = useIntl();
 
   const ratingFormatted = formatMeasure(option, MetricType.Rating);
@@ -114,7 +114,7 @@ function RatingOption({
       />
       <span className="sw-ml-2">
         {intl.formatMessage({
-          id: `projects.facets.rating_option.${propertyWithoutPrefix}${isLegacy && isSecurityOrReliability ? '.legacy' : ''}.${option}`,
+          id: `projects.facets.rating_option.${propertyWithoutPrefix}${isStandardMode && isSecurityOrReliability ? '.legacy' : ''}.${option}`,
         })}
       </span>
     </Spinner>

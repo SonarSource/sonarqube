@@ -33,9 +33,10 @@ import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
 import { getRulesUrl } from '../../../helpers/urls';
+import { StaleTime } from '../../../queries/common';
 import { useGetQualityProfile } from '../../../queries/quality-profiles';
 import { useSearchRulesQuery } from '../../../queries/rules';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { CleanCodeAttributeCategory, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { SearchRulesResponse } from '../../../types/coding-rules';
 import { RulesFacetName } from '../../../types/rules';
@@ -55,28 +56,31 @@ interface ByType {
 }
 
 export default function ProfileRules({ profile }: Readonly<Props>) {
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode } = useStandardExperienceMode();
   const activateMoreUrl = getRulesUrl({ qprofile: profile.key, activation: 'false' });
   const { actions = {} } = profile;
 
-  const { data: allRules, isLoading: isAllRulesLoading } = useSearchRulesQuery({
-    ps: 1,
-    languages: profile.language,
-    facets: isLegacy
-      ? `${RulesFacetName.Types}`
-      : `${RulesFacetName.CleanCodeAttributeCategories},${RulesFacetName.ImpactSoftwareQualities}`,
-  });
+  const { data: allRules, isLoading: isAllRulesLoading } = useSearchRulesQuery(
+    {
+      ps: 1,
+      languages: profile.language,
+      facets: isStandardMode
+        ? `${RulesFacetName.Types}`
+        : `${RulesFacetName.CleanCodeAttributeCategories},${RulesFacetName.ImpactSoftwareQualities}`,
+    },
+    { staleTime: StaleTime.LIVE },
+  );
 
   const { data: activatedRules, isLoading: isActivatedRulesLoading } = useSearchRulesQuery(
     {
       ps: 1,
       activation: 'true',
-      facets: isLegacy
+      facets: isStandardMode
         ? `${RulesFacetName.Types}`
         : `${RulesFacetName.CleanCodeAttributeCategories},${RulesFacetName.ImpactSoftwareQualities}`,
       qprofile: profile.key,
     },
-    { enabled: !!allRules },
+    { enabled: !!allRules, staleTime: StaleTime.LIVE },
   );
 
   const { data: sonarWayDiff, isLoading: isShowProfileLoading } = useGetQualityProfile(
@@ -123,7 +127,7 @@ export default function ProfileRules({ profile }: Readonly<Props>) {
           {translate('quality_profile.rules.breakdown')}
         </Heading>
 
-        {isLegacy && (
+        {isStandardMode && (
           <Table
             columnCount={3}
             columnWidths={['50%', '25%', '25%']}
@@ -153,7 +157,7 @@ export default function ProfileRules({ profile }: Readonly<Props>) {
           </Table>
         )}
 
-        {!isLegacy && (
+        {!isStandardMode && (
           <>
             <Table
               className="sw-mb-4"

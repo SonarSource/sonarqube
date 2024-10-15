@@ -42,7 +42,7 @@ import {
   useDeactivateRuleMutation,
 } from '../../../queries/quality-profiles';
 import { useRuleDetailsQuery } from '../../../queries/rules';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { IssueSeverity } from '../../../types/issues';
 import { Rule, RuleActivation } from '../../../types/types';
 import ActivatedRuleActions from './ActivatedRuleActions';
@@ -85,7 +85,7 @@ export default function RuleListItem(props: Readonly<Props>) {
   const { mutate: deactivateRule } = useDeactivateRuleMutation((data) =>
     onDeactivate(data.key, data.rule),
   );
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode } = useStandardExperienceMode();
 
   const activation =
     data && ruleIsChanged
@@ -249,7 +249,7 @@ export default function RuleListItem(props: Readonly<Props>) {
           </div>
 
           <div>
-            {rule.cleanCodeAttributeCategory !== undefined && !isLegacy && (
+            {rule.cleanCodeAttributeCategory !== undefined && !isStandardMode && (
               <CleanCodeAttributePill
                 cleanCodeAttributeCategory={rule.cleanCodeAttributeCategory}
                 type="rule"

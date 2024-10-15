@@ -28,7 +28,7 @@ import { useAvailableFeatures } from '../../../app/components/available-features
 import SeverityFacet from '../../../components/facets/SeverityFacet';
 import StandardSeverityFacet from '../../../components/facets/StandardSeverityFacet';
 import { translate } from '../../../helpers/l10n';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isProject, isView } from '../../../types/component';
 import { Feature } from '../../../types/features';
@@ -94,7 +94,7 @@ export function Sidebar(props: Readonly<Props>) {
   } = props;
   const { settings } = useAppState();
   const { hasFeature } = useAvailableFeatures();
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode } = useStandardExperienceMode();
 
   const renderComponentFacets = () => {
     const hasFileOrDirectory =
@@ -176,7 +176,7 @@ export function Sidebar(props: Readonly<Props>) {
         <PeriodFilter onChange={props.onFilterChange} newCodeSelected={query.inNewCodePeriod} />
       )}
 
-      {!isLegacy && !needIssueSync && (
+      {!isStandardMode && !needIssueSync && (
         <>
           <SoftwareQualityFacet
             fetching={props.loadingFacets.impactSoftwareQualities === true}
@@ -215,7 +215,7 @@ export function Sidebar(props: Readonly<Props>) {
         </>
       )}
 
-      {isLegacy && (
+      {isStandardMode && (
         <>
           <TypeFacet
             fetching={props.loadingFacets.types === true}

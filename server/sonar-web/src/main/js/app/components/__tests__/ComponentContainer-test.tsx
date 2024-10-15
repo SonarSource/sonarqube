@@ -52,7 +52,7 @@ jest.mock('../../../api/components', () => ({
 }));
 
 jest.mock('../../../queries/settings', () => ({
-  useIsLegacyCCTMode: jest.fn(),
+  useStandardExperienceMode: jest.fn(),
 }));
 
 jest.mock('../../../api/navigation', () => ({

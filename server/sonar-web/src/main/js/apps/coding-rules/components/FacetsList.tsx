@@ -24,7 +24,7 @@ import { useAvailableFeatures } from '../../../app/components/available-features
 import SeverityFacet from '../../../components/facets/SeverityFacet';
 import StandardSeverityFacet from '../../../components/facets/StandardSeverityFacet';
 import { translate } from '../../../helpers/l10n';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { Feature } from '../../../types/features';
 import { Dict } from '../../../types/types';
 import { LanguageFacet } from '../../issues/sidebar/LanguageFacet';
@@ -59,7 +59,7 @@ const MAX_INITIAL_LANGUAGES = 5;
 
 export default function FacetsList(props: FacetsListProps) {
   const { hasFeature } = useAvailableFeatures();
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode } = useStandardExperienceMode();
   const languageDisabled = !props.hideProfileFacet && props.query.profile !== undefined;
 
   const inheritanceDisabled =
@@ -82,7 +82,7 @@ export default function FacetsList(props: FacetsListProps) {
         disabledHelper={translate('coding_rules.filters.language.inactive')}
       />
 
-      {isLegacy && (
+      {isStandardMode && (
         <>
           <BasicSeparator className="sw-my-4" />
 
@@ -96,7 +96,7 @@ export default function FacetsList(props: FacetsListProps) {
         </>
       )}
 
-      {!isLegacy && (
+      {!isStandardMode && (
         <>
           <BasicSeparator className="sw-my-4" />
 
@@ -110,7 +110,7 @@ export default function FacetsList(props: FacetsListProps) {
         </>
       )}
 
-      {!isLegacy && (
+      {!isStandardMode && (
         <>
           <BasicSeparator className="sw-my-4" />
 
@@ -124,7 +124,7 @@ export default function FacetsList(props: FacetsListProps) {
         </>
       )}
 
-      {!isLegacy && (
+      {!isStandardMode && (
         <>
           <BasicSeparator className="sw-my-4" />
 
@@ -138,7 +138,7 @@ export default function FacetsList(props: FacetsListProps) {
         </>
       )}
 
-      {isLegacy && (
+      {isStandardMode && (
         <>
           <BasicSeparator className="sw-my-4" />
 
@@ -152,7 +152,7 @@ export default function FacetsList(props: FacetsListProps) {
         </>
       )}
 
-      {!isLegacy && (
+      {!isStandardMode && (
         <>
           <BasicSeparator className="sw-my-4" />
 

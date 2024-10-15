@@ -55,7 +55,7 @@ import { PROJECT_ACTIVITY_GRAPH } from './ProjectActivityApp';
 
 interface Props {
   analyses: ParsedAnalysis[];
-  isLegacy?: boolean;
+  isStandardMode?: boolean;
   leakPeriodDate?: Date;
   loading: boolean;
   measuresHistory: MeasureHistory[];
@@ -219,7 +219,7 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
   };
 
   renderQualitiesMetricInfoMessage = () => {
-    const { measuresHistory, isLegacy } = this.props;
+    const { measuresHistory, isStandardMode } = this.props;
 
     const qualityMeasuresHistory = measuresHistory.find((history) =>
       CCT_SOFTWARE_QUALITY_METRICS.includes(history.metric),
@@ -230,7 +230,7 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
 
     if (
       this.hasGaps(qualityMeasuresHistory) ||
-      (!isLegacy && this.hasGaps(ratingQualityMeasuresHistory))
+      (!isStandardMode && this.hasGaps(ratingQualityMeasuresHistory))
     ) {
       return (
         <FlagMessage variant="info">

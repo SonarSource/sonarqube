@@ -91,20 +91,24 @@ export function getSeriesMetricType(series: Serie[]) {
 export function getDisplayedHistoryMetrics(
   graph: GraphType,
   customMetrics: string[],
-  isLegacy = false,
+  isStandardMode = false,
 ) {
   if (isCustomGraph(graph)) {
     return customMetrics;
   }
 
-  return isLegacy ? LEGACY_GRAPHS_METRICS_DISPLAYED[graph] : GRAPHS_METRICS_DISPLAYED[graph];
+  return isStandardMode ? LEGACY_GRAPHS_METRICS_DISPLAYED[graph] : GRAPHS_METRICS_DISPLAYED[graph];
 }
 
-export function getHistoryMetrics(graph: GraphType, customMetrics: string[], isLegacy = false) {
+export function getHistoryMetrics(
+  graph: GraphType,
+  customMetrics: string[],
+  isStandardMode = false,
+) {
   if (isCustomGraph(graph)) {
     return customMetrics;
   }
-  return isLegacy ? LEGACY_GRAPHS_METRICS[graph] : GRAPHS_METRICS[graph];
+  return isStandardMode ? LEGACY_GRAPHS_METRICS[graph] : GRAPHS_METRICS[graph];
 }
 
 export function hasHistoryDataValue(series: Serie[]) {

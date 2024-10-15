@@ -372,7 +372,7 @@ export default function GitHubAuthenticationTab() {
         {isFormOpen && (
           <GitHubConfigurationForm
             gitHubConfiguration={gitHubConfiguration}
-            isLegacyConfiguration={hasLegacyConfiguration}
+            isStandardModeConfiguration={hasLegacyConfiguration}
             onClose={() => {
               setIsFormOpen(false);
             }}

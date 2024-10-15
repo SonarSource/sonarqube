@@ -206,19 +206,19 @@ export function fetchProjects({
   isFavorite,
   query,
   pageIndex = 1,
-  isLegacy,
+  isStandardMode,
 }: {
   isFavorite: boolean;
-  isLegacy: boolean;
+  isStandardMode: boolean;
   pageIndex?: number;
   query: Query;
 }) {
   const ps = PAGE_SIZE;
 
-  const data = convertToQueryData(query, isFavorite, isLegacy, {
+  const data = convertToQueryData(query, isFavorite, isStandardMode, {
     p: pageIndex > 1 ? pageIndex : undefined,
     ps,
-    facets: defineFacets(query, isLegacy).join(),
+    facets: defineFacets(query, isStandardMode).join(),
     f: 'analysisDate,leakPeriodDate',
   });
 
@@ -226,7 +226,7 @@ export function fetchProjects({
     .then((response) => Promise.all([Promise.resolve(response), fetchScannableProjects()]))
     .then(([{ components, facets, paging }, { scannableProjects }]) => {
       return {
-        facets: getFacetsMap(facets, isLegacy),
+        facets: getFacetsMap(facets, isStandardMode),
         projects: components.map((component) => ({
           ...component,
           isScannable: scannableProjects.find((p) => p.key === component.key) !== undefined,
@@ -244,23 +244,23 @@ export function defineMetrics(query: Query): string[] {
   return METRICS;
 }
 
-function defineFacets(query: Query, isLegacy: boolean): string[] {
+function defineFacets(query: Query, isStandardMode: boolean): string[] {
   if (query.view === 'leak') {
-    return isLegacy ? LEGACY_LEAK_FACETS : LEAK_FACETS;
+    return isStandardMode ? LEGACY_LEAK_FACETS : LEAK_FACETS;
   }
 
-  return isLegacy ? LEGACY_FACETS : FACETS;
+  return isStandardMode ? LEGACY_FACETS : FACETS;
 }
 
 export function convertToQueryData(
   query: Query,
   isFavorite: boolean,
-  isLegacy: boolean,
+  isStandardMode: boolean,
   defaultData = {},
 ) {
   const data: RequestData = { ...defaultData };
-  const filter = convertToFilter(query, isFavorite, isLegacy);
-  const sort = convertToSorting(query, isLegacy);
+  const filter = convertToFilter(query, isFavorite, isStandardMode);
+  const sort = convertToSorting(query, isStandardMode);
 
   if (filter) {
     data.filter = filter;
@@ -321,11 +321,11 @@ export const propertyToMetricMap: Dict<string | undefined> = {
   new_maintainability: 'new_software_quality_maintainability_rating',
 };
 
-function getFacetsMap(facets: Facet[], isLegacy: boolean) {
+function getFacetsMap(facets: Facet[], isStandardMode: boolean) {
   const map: Dict<Dict<number>> = {};
 
   facets.forEach((facet) => {
-    const property = invert(isLegacy ? propertyToMetricMapLegacy : propertyToMetricMap)[
+    const property = invert(isStandardMode ? propertyToMetricMapLegacy : propertyToMetricMap)[
       facet.property
     ];
     const { values } = facet;
@@ -342,16 +342,16 @@ function getFacetsMap(facets: Facet[], isLegacy: boolean) {
 
 export function convertToSorting(
   { sort }: Query,
-  isLegacy: boolean,
+  isStandardMode: boolean,
 ): { asc?: boolean; s?: string } {
   if (sort?.startsWith('-')) {
     return {
-      s: (isLegacy ? propertyToMetricMapLegacy : propertyToMetricMap)[sort.substring(1)],
+      s: (isStandardMode ? propertyToMetricMapLegacy : propertyToMetricMap)[sort.substring(1)],
       asc: false,
     };
   }
 
-  return { s: (isLegacy ? propertyToMetricMapLegacy : propertyToMetricMap)[sort ?? ''] };
+  return { s: (isStandardMode ? propertyToMetricMapLegacy : propertyToMetricMap)[sort ?? ''] };
 }
 
 const ONE_MINUTE = 60000;

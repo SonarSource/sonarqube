@@ -24,7 +24,7 @@ import React from 'react';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
 import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import { translate } from '../../../helpers/l10n';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { IssueSeverity } from '../../../types/issues';
 import { Issue } from '../../../types/types';
 
@@ -33,14 +33,14 @@ interface Props {
 }
 
 export default function IssueHeaderSide({ issue }: Readonly<Props>) {
-  const { data: isLegacy, isLoading } = useIsLegacyCCTMode();
+  const { data: isStandardMode, isLoading } = useStandardExperienceMode();
   return (
     <StyledSection className="sw-flex sw-flex-col sw-pl-4 sw-max-w-[250px]">
       <Spinner isLoading={isLoading}>
         <IssueHeaderInfo
           className="sw-mb-6"
           data-guiding-id="issue-2"
-          title={isLegacy ? translate('type') : translate('issue.software_qualities.label')}
+          title={isStandardMode ? translate('type') : translate('issue.software_qualities.label')}
         >
           <SoftwareImpactPillList
             className="sw-flex-wrap"
@@ -50,7 +50,7 @@ export default function IssueHeaderSide({ issue }: Readonly<Props>) {
           />
         </IssueHeaderInfo>
 
-        {!isLegacy && (
+        {!isStandardMode && (
           <IssueHeaderInfo title={translate('issue.cct_attribute.label')}>
             <CleanCodeAttributePill
               cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}
