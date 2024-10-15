@@ -40,6 +40,7 @@ interface Props {
 
 export default function RatingFacet(props: Readonly<Props>) {
   const { facet, maxFacetValue, name, property, value } = props;
+  const { data: isLegacy } = useIsLegacyCCTMode();
 
   const renderAccessibleLabel = React.useCallback(
     (option: number) => {
@@ -65,7 +66,7 @@ export default function RatingFacet(props: Readonly<Props>) {
       facet={facet}
       header={translate('metric_domain', name)}
       description={
-        hasDescription(property)
+        hasDescription(property, isLegacy)
           ? translate(`projects.facets.${property.replace('new_', '')}.description`)
           : undefined
       }
@@ -81,8 +82,13 @@ export default function RatingFacet(props: Readonly<Props>) {
   );
 }
 
-const hasDescription = (property: string) => {
-  return ['maintainability', 'new_maintainability', 'security_review'].includes(property);
+const hasDescription = (property: string, isLegacy = false) => {
+  return [
+    'maintainability',
+    'new_maintainability',
+    'security_review',
+    ...(isLegacy ? ['security', 'new_security', 'reliability', 'new_reliability'] : []),
+  ].includes(property);
 };
 
 function renderOption(option: string | number, property: string) {

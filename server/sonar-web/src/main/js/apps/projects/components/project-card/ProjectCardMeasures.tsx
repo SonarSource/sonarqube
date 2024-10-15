@@ -123,7 +123,9 @@ function renderRatings(props: ProjectCardMeasuresProps, isLegacy: boolean) {
     ? []
     : [
         {
-          iconLabel: translate(`metric.${MetricKey.security_issues}.short_name`),
+          iconLabel: translate(
+            `metric.${isLegacy ? MetricKey.vulnerabilities : MetricKey.security_issues}.short_name`,
+          ),
           noShrink: true,
           metricKey:
             isLegacy || measures[MetricKey.security_issues] === undefined
@@ -133,7 +135,9 @@ function renderRatings(props: ProjectCardMeasuresProps, isLegacy: boolean) {
           metricType: MetricType.ShortInteger,
         },
         {
-          iconLabel: translate(`metric.${MetricKey.reliability_issues}.short_name`),
+          iconLabel: translate(
+            `metric.${isLegacy ? MetricKey.bugs : MetricKey.reliability_issues}.short_name`,
+          ),
           metricKey:
             isLegacy || measures[MetricKey.reliability_issues] === undefined
               ? MetricKey.bugs
@@ -142,7 +146,9 @@ function renderRatings(props: ProjectCardMeasuresProps, isLegacy: boolean) {
           metricType: MetricType.ShortInteger,
         },
         {
-          iconLabel: translate(`metric.${MetricKey.maintainability_issues}.short_name`),
+          iconLabel: translate(
+            `metric.${isLegacy ? MetricKey.code_smells : MetricKey.maintainability_issues}.short_name`,
+          ),
           metricKey:
             isLegacy || measures[MetricKey.maintainability_issues] === undefined
               ? MetricKey.code_smells

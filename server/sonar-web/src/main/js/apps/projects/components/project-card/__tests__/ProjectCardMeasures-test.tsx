@@ -22,7 +22,9 @@ import * as React from 'react';
 
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
+import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
+import { SettingsKey } from '../../../../../types/settings';
 import { Dict } from '../../../../../types/types';
 import ProjectCardMeasures, { ProjectCardMeasuresProps } from '../ProjectCardMeasures';
 
@@ -31,10 +33,32 @@ jest.mock('date-fns', () => ({
   differenceInMilliseconds: () => 1000 * 60 * 60 * 24 * 30 * 8, // ~ 8 months
 }));
 
+const settingsService = new SettingsServiceMock();
+
+beforeEach(() => {
+  settingsService.reset();
+});
+
 describe('Overall measures', () => {
-  it('should be rendered properly', () => {
+  it('should be rendered properly', async () => {
     renderProjectCardMeasures();
-    expect(screen.getByTitle('metric.security_issues.short_name')).toBeInTheDocument();
+    expect(await screen.findByTitle('metric.security_issues.short_name')).toBeInTheDocument();
+    expect(screen.getByTitle('metric.reliability_issues.short_name')).toBeInTheDocument();
+    expect(screen.getByTitle('metric.maintainability_issues.short_name')).toBeInTheDocument();
+    expect(screen.queryByTitle('metric.vulnerabilities.short_name')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('metric.bugs.short_name')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('metric.code_smells.short_name')).not.toBeInTheDocument();
+  });
+
+  it('should be rendered properly in Standard mode', async () => {
+    settingsService.set(SettingsKey.MQRMode, 'false');
+    renderProjectCardMeasures();
+    expect(await screen.findByTitle('metric.vulnerabilities.short_name')).toBeInTheDocument();
+    expect(screen.getByTitle('metric.bugs.short_name')).toBeInTheDocument();
+    expect(screen.getByTitle('metric.code_smells.short_name')).toBeInTheDocument();
+    expect(screen.queryByTitle('metric.security_issues.short_name')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('metric.reliability_issues.short_name')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('metric.maintainability_issues.short_name')).not.toBeInTheDocument();
   });
 
   it("should be not be rendered if there's no line of code", () => {

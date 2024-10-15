@@ -89,6 +89,8 @@ it('should show legacy filters', async () => {
   renderPageSidebar();
 
   expect(await screen.findAllByText(/projects.facets.rating_option/)).toHaveLength(20);
+  expect(screen.getByText('projects.facets.security.description')).toBeInTheDocument();
+  expect(screen.getByText('projects.facets.reliability.description')).toBeInTheDocument();
   expect(screen.getByText('projects.facets.rating_option.security.legacy.1')).toBeInTheDocument();
   expect(
     screen.getByText('projects.facets.rating_option.reliability.legacy.1'),
@@ -100,6 +102,8 @@ it('should show non legacy filters', async () => {
   renderPageSidebar();
 
   expect(await screen.findAllByText(/projects.facets.rating_option/)).toHaveLength(20);
+  expect(screen.queryByText('projects.facets.security.description')).not.toBeInTheDocument();
+  expect(screen.queryByText('projects.facets.reliability.description')).not.toBeInTheDocument();
   expect(screen.getByText('projects.facets.rating_option.security.1')).toBeInTheDocument();
   expect(screen.getByText('projects.facets.rating_option.reliability.1')).toBeInTheDocument();
 });
