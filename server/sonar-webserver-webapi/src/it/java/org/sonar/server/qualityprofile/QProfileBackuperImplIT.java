@@ -425,14 +425,12 @@ class QProfileBackuperImplIT {
       Arguments.of(true, true, true),
       Arguments.of(false, false, false),
       Arguments.of(false, null, false),
-      Arguments.of(false, true, true)
-    );
+      Arguments.of(false, true, true));
   }
-
 
   @Test
   void restore_custom_rule() {
-    when(ruleCreator.create(any(), anyList())).then(invocation -> Collections.singletonList(db.rules().insert(RuleKey.of("sonarjs", "s001"))));
+    when(ruleCreator.restore(any(), anyList())).then(invocation -> Collections.singletonList(db.rules().insert(RuleKey.of("sonarjs", "s001"))));
 
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile>" +
@@ -494,7 +492,7 @@ class QProfileBackuperImplIT {
   }
 
   @Test
-  void restore_should_override_impacts(){
+  void restore_should_override_impacts() {
     String ruleUuid = db.rules().insert(RuleKey.of("sonarjs", "s001")).getUuid();
 
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +

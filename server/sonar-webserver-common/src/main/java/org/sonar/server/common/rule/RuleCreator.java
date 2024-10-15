@@ -85,7 +85,7 @@ public class RuleCreator {
       .orElseThrow(() -> new IllegalArgumentException(format(TEMPLATE_KEY_NOT_EXIST_FORMAT, templateKey)));
     checkArgument(templateRule.isTemplate(), "This rule is not a template rule: %s", templateKey.toString());
     checkArgument(templateRule.getStatus() != RuleStatus.REMOVED, TEMPLATE_KEY_NOT_EXIST_FORMAT, templateKey.toString());
-    validateCustomRule(newRule, dbSession, templateKey);
+    validateCustomRule(newRule, dbSession, templateKey, true);
 
     Optional<RuleDto> definition = loadRule(dbSession, newRule.ruleKey());
     RuleDto ruleDto = definition.map(dto -> updateExistingRule(dto, newRule, dbSession))
@@ -95,7 +95,7 @@ public class RuleCreator {
     return ruleDto;
   }
 
-  public List<RuleDto> create(DbSession dbSession, List<NewCustomRule> newRules) {
+  public List<RuleDto> restore(DbSession dbSession, List<NewCustomRule> newRules) {
     Set<RuleKey> templateKeys = newRules.stream().map(NewCustomRule::templateKey).collect(Collectors.toSet());
     Map<RuleKey, RuleDto> templateRules = dbClient.ruleDao().selectByKeys(dbSession, templateKeys)
       .stream()
@@ -112,7 +112,7 @@ public class RuleCreator {
     List<RuleDto> customRules = newRules.stream()
       .map(newCustomRule -> {
         RuleDto templateRule = templateRules.get(newCustomRule.templateKey());
-        validateCustomRule(newCustomRule, dbSession, templateRule.getKey());
+        validateCustomRule(newCustomRule, dbSession, templateRule.getKey(), false);
         return createCustomRule(newCustomRule, templateRule, dbSession);
       })
       .toList();
@@ -121,7 +121,7 @@ public class RuleCreator {
     return customRules;
   }
 
-  private void validateCustomRule(NewCustomRule newRule, DbSession dbSession, RuleKey templateKey) {
+  private void validateCustomRule(NewCustomRule newRule, DbSession dbSession, RuleKey templateKey, boolean checkImpacts) {
     List<String> errors = new ArrayList<>();
 
     validateRuleKey(errors, newRule.ruleKey(), templateKey);
@@ -135,7 +135,7 @@ public class RuleCreator {
     if (severity != null && !Severity.ALL.contains(severity)) {
       errors.add(format("Severity \"%s\" is invalid", severity));
     }
-    if (!CollectionUtils.isEmpty(newRule.getImpacts()) && (StringUtils.isNotBlank(newRule.severity()) || newRule.type() != null)) {
+    if (checkImpacts && !CollectionUtils.isEmpty(newRule.getImpacts()) && (StringUtils.isNotBlank(newRule.severity()) || newRule.type() != null)) {
       errors.add("The rule cannot have both impacts and type/severity specified");
     }
 

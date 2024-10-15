@@ -204,7 +204,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       .toList();
 
     if (!customRulesToCreate.isEmpty()) {
-      return db.ruleDao().selectByKeys(dbSession, ruleCreator.create(dbSession, customRulesToCreate).stream().map(RuleDto::getKey).toList())
+      return db.ruleDao().selectByKeys(dbSession, ruleCreator.restore(dbSession, customRulesToCreate).stream().map(RuleDto::getKey).toList())
         .stream()
         .collect(Collectors.toMap(RuleDto::getKey, identity()));
     }

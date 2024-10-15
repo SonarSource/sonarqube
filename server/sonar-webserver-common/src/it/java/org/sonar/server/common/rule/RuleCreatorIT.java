@@ -89,7 +89,8 @@ public class RuleCreatorIT {
   private final DbSession dbSession = dbTester.getSession();
   private final UuidFactory uuidFactory = new SequenceUuidFactory();
 
-  private final RuleCreator underTest = new RuleCreator(system2, new RuleIndexer(es.client(), dbTester.getDbClient()), dbTester.getDbClient(), newFullTypeValidations(), uuidFactory);
+  private final RuleCreator underTest = new RuleCreator(system2, new RuleIndexer(es.client(), dbTester.getDbClient()), dbTester.getDbClient(), newFullTypeValidations(),
+    uuidFactory);
 
   @Test
   public void create_custom_rule() {
@@ -357,6 +358,7 @@ public class RuleCreatorIT {
       .setName("My custom")
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
+      .setImpacts(List.of(new NewCustomRule.Impact(RELIABILITY, MEDIUM)))
       .setStatus(RuleStatus.READY);
 
     NewCustomRule secondRule = NewCustomRule.createForCustomRule(RuleKey.parse("java:CUSTOM_RULE_2"), templateRule.getKey())
@@ -365,7 +367,7 @@ public class RuleCreatorIT {
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY);
 
-    List<RuleKey> customRuleKeys = underTest.create(dbSession, Arrays.asList(firstRule, secondRule))
+    List<RuleKey> customRuleKeys = underTest.restore(dbSession, Arrays.asList(firstRule, secondRule))
       .stream()
       .map(RuleDto::getKey)
       .toList();
@@ -376,6 +378,11 @@ public class RuleCreatorIT {
     assertThat(rules).asList()
       .extracting("ruleKey")
       .containsOnly("CUSTOM_RULE_1", "CUSTOM_RULE_2");
+
+    RuleDto customRule1 = rules.stream().filter(e -> e.getRuleKey().equals("CUSTOM_RULE_1")).findFirst().orElseThrow();
+    assertThat(customRule1.getSeverityString()).isEqualTo(Severity.MAJOR);
+    assertThat(customRule1.getDefaultImpactsMap()).containsExactlyInAnyOrderEntriesOf(Map.of(RELIABILITY, MEDIUM));
+
   }
 
   @Test
@@ -391,8 +398,8 @@ public class RuleCreatorIT {
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(Map.of("regex", "a.*"));
-
-    assertThatThrownBy(() -> underTest.create(dbSession, singletonList(newRule)))
+    List<NewCustomRule> newRules = singletonList(newRule);
+    assertThatThrownBy(() -> underTest.restore(dbSession, newRules))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("This rule is not a template rule: java:S001");
   }
@@ -413,7 +420,7 @@ public class RuleCreatorIT {
       .setStatus(RuleStatus.READY);
 
     List<NewCustomRule> newRules = singletonList(newRule);
-    assertThatThrownBy(() -> underTest.create(dbSession, newRules))
+    assertThatThrownBy(() -> underTest.restore(dbSession, newRules))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The template key doesn't exist: java:S001");
   }
