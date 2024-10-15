@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 .snippet {
-  border: 1px solid var(--gray80);
+  border: 1px solid #cdcdcd;
   overflow-x: auto;
 }
 
@@ -46,10 +46,10 @@
 .expand-block > button {
   background: transparent;
   box-sizing: border-box;
-  color: var(--secondFontColor);
+  color: #656565;
   height: 20px;
   width: 100%;
-  padding: calc(var(--gridSize) / 4);
+  padding: calc(8px / 4);
   border: 0;
   text-align: left;
   cursor: pointer;
@@ -58,7 +58,7 @@
 .expand-block > button:hover,
 .expand-block > button:focus,
 .expand-block > button:active {
-  color: var(--darkBlue);
+  color: #236a97;
   outline: none;
 }
 

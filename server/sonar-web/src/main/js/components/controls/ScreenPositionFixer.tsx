@@ -20,7 +20,6 @@
 import { throttle } from 'lodash';
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
-import { rawSizes } from '../../app/theme';
 
 interface Props {
   /**
@@ -43,7 +42,7 @@ interface Fixes {
   topFix?: number;
 }
 
-const EDGE_MARGIN = rawSizes.grid / 2;
+const EDGE_MARGIN = 4;
 
 export default class ScreenPositionFixer extends React.Component<Props, Fixes> {
   throttledPosition: () => void;

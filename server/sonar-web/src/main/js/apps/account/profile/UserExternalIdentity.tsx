@@ -22,7 +22,6 @@ import { getTextColor } from 'design-system';
 import * as React from 'react';
 import { Image } from '~sonar-aligned/components/common/Image';
 import { getIdentityProviders } from '../../../api/users';
-import { colors } from '../../../app/theme';
 import { IdentityProvider } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 
@@ -102,7 +101,7 @@ export default class UserExternalIdentity extends React.PureComponent<
           className="sw-inline-flex sw-items-center sw-px-1"
           style={{
             backgroundColor: identityProvider.backgroundColor,
-            color: getTextColor(identityProvider.backgroundColor, colors.secondFontColor),
+            color: getTextColor(identityProvider.backgroundColor, '#656565'),
           }}
         >
           <Image

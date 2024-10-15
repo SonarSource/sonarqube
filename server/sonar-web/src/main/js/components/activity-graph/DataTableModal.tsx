@@ -195,7 +195,7 @@ const StyledTable = styled.table`
     vertical-align: top;
     line-height: 18px;
     padding: 8px 10px;
-    border-bottom: 1px solid var(--barBorderColor);
+    border-bottom: 1px solid #e6e6e6;
     font-weight: 600;
   }
 
@@ -207,7 +207,7 @@ const StyledTable = styled.table`
 
   & > tfoot > tr > td {
     font-size: 93%;
-    color: var(--secondFontColor);
+    color: #656565;
     padding: 5px;
   }
 

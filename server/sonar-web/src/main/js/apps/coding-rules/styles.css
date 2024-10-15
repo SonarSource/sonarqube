@@ -27,13 +27,13 @@
 
 .coding-rules-similar-tag-divider {
   margin-top: 6px;
-  border-top: 1px solid var(--barBorderColor);
+  border-top: 1px solid #e6e6e6;
 }
 
 .coding-rules-filter-title {
-  padding: var(--gridSize);
+  padding: 8px;
   font-size: 12px;
-  color: var(--neutral600);
+  color: #666666;
   white-space: nowrap;
   line-height: unset;
 }
@@ -74,7 +74,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-family: var(--sourceCodeFontFamily);
+  font-family: Consolas, 'Ubuntu Mono', 'Liberation Mono', Menlo, Courier, monospace;
 }
 
 .coding-rules-detail-quality-profile-parameter + .coding-rules-detail-quality-profile-parameter {
@@ -82,14 +82,14 @@
 }
 
 .coding-rules-detail-header {
-  font-size: var(--veryBigFontSize);
+  font-size: 18px;
 }
 
 .coding-rules-detail-properties {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  margin-top: var(--gridSize);
+  margin-top: 8px;
 }
 
 .coding-rules-detail-properties + .coding-rules-detail-properties {
@@ -99,13 +99,13 @@
 .coding-rules-detail-property {
   display: flex;
   align-items: center;
-  margin-right: var(--gridSize);
-  margin-bottom: var(--gridSize);
-  font-size: var(--smallFontSize);
+  margin-right: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
 }
 
 .coding-rules-detail-property.muted {
-  color: var(--neutral200);
+  color: #cccccc;
 }
 
 .coding-rules-detail-tag + .coding-rules-detail-tag {
@@ -154,7 +154,7 @@
 }
 
 .coding-rules-detail-parameter-value {
-  font-family: var(--sourceCodeFontFamily);
+  font-family: Consolas, 'Ubuntu Mono', 'Liberation Mono', Menlo, Courier, monospace;
   word-break: break-all;
 }
 
@@ -166,7 +166,7 @@
 
 .coding-rules-detail-quality-profiles td,
 .coding-rules-detail-list td {
-  border-top: 1px solid var(--barBorderColor);
+  border-top: 1px solid #e6e6e6;
 }
 
 .coding-rules-detail-quality-profiles tr:first-child td,
@@ -211,7 +211,7 @@
 }
 
 .coding-rules-detail-quality-profile-inheritance {
-  font-size: var(--smallFontSize);
+  font-size: 12px;
   font-weight: normal;
 }
 
@@ -225,7 +225,7 @@
 }
 
 .coding-rules-most-violated-projects tr:first-child + tr td {
-  border-top-color: var(--barBorderColor);
+  border-top-color: #e6e6e6;
 }
 
 .coding-rules-most-violated-projects .coding-rules-detail-list-name {
@@ -239,11 +239,11 @@
 }
 
 .coding-rule.selected {
-  border-color: var(--blue) !important;
+  border-color: #4b9fd5 !important;
 }
 
 .coding-rule + .coding-rule {
-  border-top-color: var(--barBorderColor);
+  border-top-color: #e6e6e6;
 }
 
 .coding-rule.selected + .coding-rule {
@@ -273,14 +273,14 @@
   }
 }
 .coding-rule-title {
-  line-height: calc(2.5 * var(--gridSize));
-  font-size: var(--baseFontSize);
+  line-height: calc(2.5 * 8px);
+  font-size: 13px;
 }
 
 .coding-rule-meta {
-  padding: calc(0.25 * var(--gridSize));
+  padding: calc(0.25 * 8px);
   padding-left: 30px;
-  font-size: var(--smallFontSize);
+  font-size: 12px;
 }
 
 .coding-rule-activation {
@@ -293,10 +293,10 @@
 }
 
 .notice-dot {
-  height: var(--gridSize);
-  width: var(--gridSize);
-  background-color: var(--blue);
+  height: 8px;
+  width: 8px;
+  background-color: #4b9fd5;
   border-radius: 50%;
   display: inline-block;
-  margin-left: var(--gridSize);
+  margin-left: 8px;
 }

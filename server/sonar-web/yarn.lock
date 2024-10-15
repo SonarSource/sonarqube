@@ -7597,7 +7597,6 @@ __metadata:
     path-browserify: "npm:1.0.1"
     postcss: "npm:8.4.47"
     postcss-calc: "npm:10.0.2"
-    postcss-custom-properties: "npm:12.1.11"
     prettier: "npm:3.3.3"
     prettier-plugin-organize-imports: "npm:4.1.0"
     react: "npm:18.3.1"
@@ -9748,7 +9747,6 @@ __metadata:
     jest: "npm:29.7.0"
     postcss: "npm:8.4.47"
     postcss-calc: "npm:10.0.2"
-    postcss-custom-properties: "npm:12.1.11"
     prettier: "npm:3.3.3"
     prettier-plugin-organize-imports: "npm:4.1.0"
     react-toastify: "npm:10.0.5"
@@ -15332,17 +15330,6 @@ __metadata:
   peerDependencies:
     postcss: ^8.4.38
   checksum: 10/12d497e632b4a12f7d33507ed6f74db2dd01f9b9cc1f9986271af16b118d25f959dc255777a91d742e0431f400a90b8540d00533fc0513f34c1840a491cf2bee
-  languageName: node
-  linkType: hard
-
-"postcss-custom-properties@npm:12.1.11":
-  version: 12.1.11
-  resolution: "postcss-custom-properties@npm:12.1.11"
-  dependencies:
-    postcss-value-parser: "npm:^4.2.0"
-  peerDependencies:
-    postcss: ^8.2
-  checksum: 10/3f049f07cc45c9debcc8d662374947eb3158bb66b2722c81368b36d60de0629e75d80ccfe2ca25ba21af8ce146c50dbc91c62c28e01c06635252e39678c1eb6d
   languageName: node
   linkType: hard
 

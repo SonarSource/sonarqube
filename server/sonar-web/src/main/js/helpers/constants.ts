@@ -20,7 +20,6 @@
 
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
-import { colors } from '../app/theme';
 import { AlmKeys } from '../types/alm-settings';
 import {
   CleanCodeAttribute,
@@ -154,6 +153,29 @@ export const SOURCE_SCOPES = [
 export const RULE_TYPES: RuleType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 
 export const RULE_STATUSES = ['READY', 'BETA', 'DEPRECATED'];
+
+/**
+ * @deprecated Legacy colors. Equivalents should be added to the Echoes design system soon
+ */
+const colors = {
+  success300: '#6CD46C',
+  success300a20: 'rgba(108, 212, 108, 0.2)',
+  success500: '#008223',
+  successVariant: '#C6E056',
+  successVarianta20: 'rgba(198, 224, 86, 0.2)',
+  successVariantDark: '#809E00',
+
+  warning: '#B95E04',
+  warningVariant: '#F4D348',
+  warningVarianta20: 'rgba(244, 211, 72, 0.2)',
+  warningVariantDark: '#B18F00',
+  warningAccent: '#F69D53',
+  warningAccenta20: 'rgba(246, 157, 83, 0.2)',
+
+  error400: '#F0878E',
+  error400a20: 'rgba(240, 135, 142, 0.2)',
+  error700: '#B81723',
+};
 
 export const RATING_COLORS = [
   { fill: colors.success300, fillTransparent: colors.success300a20, stroke: colors.success500 },

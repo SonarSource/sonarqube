@@ -17,31 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable no-console */
-function getCustomProperties() {
-  const customProperties = {};
-  const parseCustomProperties = (theme) => {
-    Object.keys(theme).forEach((key) => {
-      if (typeof theme[key] === 'object') {
-        parseCustomProperties(theme[key]);
-      } else if (typeof theme[key] === 'string') {
-        if (!customProperties[`--${key}`]) {
-          customProperties[`--${key}`] = theme[key];
-        } else {
-          console.error(
-            `Custom CSS property "${key}" already exists with value "${
-              customProperties[`--${key}`]
-            }".`,
-          );
-          process.exit(1);
-        }
-      }
-    });
-  };
-  parseCustomProperties(require('../src/main/js/app/theme-old'));
-
-  return customProperties;
-}
 
 // See https://github.com/evanw/esbuild/issues/337
 function importAsGlobals(mapping) {
@@ -83,7 +58,6 @@ function importAsGlobals(mapping) {
 }
 
 module.exports = {
-  getCustomProperties,
   importAsGlobals,
   // NOTE: esbuild will transpile the _syntax_ down to what the TARGET_BROWSERS understand.
   // It will _not_, however, polyfill missing API methods, such as String.prototype.replaceAll

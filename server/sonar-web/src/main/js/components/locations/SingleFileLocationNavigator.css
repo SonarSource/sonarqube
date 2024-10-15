@@ -22,15 +22,15 @@ button.locations-navigator {
   align-items: flex-start;
   border: 1px solid transparent;
   border-radius: 4px;
-  padding: calc(1 / 2 * var(--gridSize));
-  margin-bottom: calc(1 / 4 * var(--gridSize));
+  padding: calc(1 / 2 * 8px);
+  margin-bottom: calc(1 / 4 * 8px);
   color: inherit;
   text-align: left;
 }
 
 button.locations-navigator:hover,
 button.locations-navigator:active {
-  border-color: var(--info400);
+  border-color: #4b9fd5;
 }
 
 button.locations-navigator:focus {
@@ -38,6 +38,6 @@ button.locations-navigator:focus {
 }
 
 button.locations-navigator.selected {
-  border-color: var(--info400);
-  background-color: var(--info50);
+  border-color: #4b9fd5;
+  background-color: #ecf6fe;
 }

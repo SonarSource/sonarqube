@@ -19,7 +19,7 @@
  */
 .line-tooltip {
   fill: none;
-  stroke: var(--secondFontColor);
+  stroke: #656565;
   stroke-width: 1px;
   shape-rendering: crispEdges;
 }
@@ -40,27 +40,27 @@
 
 .line-chart-event {
   fill: #fff;
-  stroke: var(--blue);
+  stroke: #4b9fd5;
   stroke-width: 2px;
 }
 
 .line-chart-event.VERSION {
-  stroke: var(--blue);
+  stroke: #4b9fd5;
 }
 
 .line-chart-event.QUALITY_GATE {
-  stroke: var(--green);
+  stroke: #00aa00;
 }
 
 .line-chart-event.QUALITY_PROFILE {
-  stroke: var(--orange);
+  stroke: #ed7d20;
 }
 
 .line-chart-event.OTHER {
-  stroke: var(--purple);
+  stroke: #9139d4;
 }
 
 .new-code-legend {
-  fill: var(--secondFontColor);
-  font-size: var(--smallFontSize);
+  fill: #656565;
+  font-size: 12px;
 }

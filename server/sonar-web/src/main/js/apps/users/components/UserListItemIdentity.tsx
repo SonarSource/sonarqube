@@ -21,7 +21,6 @@
 import { Badge, Note, getTextColor } from 'design-system';
 import * as React from 'react';
 import { Image } from '~sonar-aligned/components/common/Image';
-import { colors } from '../../../app/theme';
 import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
 import { IdentityProvider, Provider } from '../../../types/types';
@@ -68,7 +67,7 @@ export function ExternalProvider({ identityProvider, user }: Omit<Props, 'manage
         className="sw-inline-flex sw-items-center sw-px-1"
         style={{
           backgroundColor: identityProvider.backgroundColor,
-          color: getTextColor(identityProvider.backgroundColor, colors.secondFontColor),
+          color: getTextColor(identityProvider.backgroundColor, '#656565'),
         }}
       >
         <Image

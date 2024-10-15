@@ -21,15 +21,11 @@ import react from '@vitejs/plugin-react';
 import autoprefixer from 'autoprefixer';
 import { resolve } from 'node:path';
 import postCssCalc from 'postcss-calc';
-import postCssCustomProperties from 'postcss-custom-properties';
 import tailwind from 'tailwindcss';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
-import { getCustomProperties } from '../config/utils';
 import babelConfig from './babel.config';
 import * as packageJson from './package.json';
-
-const customProperties = getCustomProperties();
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -47,15 +43,7 @@ export default defineConfig({
   },
   css: {
     postcss: {
-      plugins: [
-        tailwind('../tailwind.config.js'),
-        autoprefixer,
-        postCssCustomProperties({
-          importFrom: { customProperties },
-          preserve: false,
-        }),
-        postCssCalc,
-      ],
+      plugins: [tailwind('../tailwind.config.js'), autoprefixer, postCssCalc],
     },
   },
   esbuild: {

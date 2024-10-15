@@ -24,7 +24,7 @@
 .web-api-search {
   margin: 20px 10px 0;
   padding: 0 10px 20px;
-  border-bottom: 1px solid var(--barBorderColor);
+  border-bottom: 1px solid #e6e6e6;
   white-space: nowrap;
 }
 
@@ -45,7 +45,7 @@
 }
 
 .web-api-domain-actions {
-  margin-top: calc(2 * var(--gridSize));
+  margin-top: calc(2 * 8px);
 }
 
 .web-api-action-title {
@@ -78,7 +78,7 @@
 .web-api-params td {
   vertical-align: top;
   padding: 8px 10px;
-  border-top: 1px solid var(--barBorderColor);
+  border-top: 1px solid #e6e6e6;
 }
 
 .web-api-params tr:first-child td {

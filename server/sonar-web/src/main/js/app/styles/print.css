@@ -23,7 +23,7 @@
   }
 
   a {
-    color: var(--baseFontColor);
+    color: #333;
     border-bottom: none;
   }
 

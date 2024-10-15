@@ -20,7 +20,7 @@
 .source-viewer {
   width: 100%;
   min-height: 200px;
-  border: 1px solid var(--gray80);
+  border: 1px solid #cdcdcd;
   box-sizing: border-box;
   background-color: #fff;
 }
@@ -37,41 +37,41 @@
 
 .source-viewer-more-code {
   padding: 40px 0;
-  border-bottom: 1px solid var(--barBorderColor);
-  background-color: var(--barBackgroundColor);
+  border-bottom: 1px solid #e6e6e6;
+  background-color: #f3f3f3;
   text-align: center;
 }
 
 .source-table + .source-viewer-more-code {
   border-bottom: none;
-  border-top: 1px solid var(--barBorderColor);
+  border-top: 1px solid #e6e6e6;
 }
 
 .issue-location.highlighted {
-  border-color: var(--issueLocationHighlighted);
-  background-color: var(--issueLocationHighlighted);
+  border-color: #e1e1f2;
+  background-color: #e1e1f2;
 }
 
 .issue-location.selected {
-  border-color: var(--issueLocationSelected);
-  background-color: var(--issueLocationSelected);
+  border-color: #f4b1b0;
+  background-color: #f4b1b0;
 }
 
 .measures-viewer {
   display: flex;
-  margin: 0 calc(-1 * var(--gridSize));
+  margin: 0 calc(-1 * 8px);
 }
 
 .measures-viewer + .measures-viewer {
-  margin-top: var(--gridSize);
+  margin-top: 8px;
 }
 
 .measures-viewer-header {
-  font-size: var(--smallFontSize);
+  font-size: 12px;
 }
 
 .measures-viewer-secondary .measures-viewer-card {
-  background-color: var(--barBackgroundColor);
+  background-color: #f3f3f3;
 }
 
 .measures-viewer-section {
@@ -83,23 +83,23 @@
 }
 
 .measures-viewer-card {
-  margin: calc(2 * var(--gridSize)) var(--gridSize);
-  padding: var(--gridSize);
-  border: 1px solid var(--barBorderColor);
+  margin: calc(2 * 8px) 8px;
+  padding: 8px;
+  border: 1px solid #e6e6e6;
   background-color: #fff;
 }
 
 .measures + .measures {
-  margin-top: calc(2 * var(--gridSize));
-  padding-top: calc(2 * var(--gridSize));
-  border-top: 1px solid var(--barBorderColor);
+  margin-top: calc(2 * 8px);
+  padding-top: calc(2 * 8px);
+  border-top: 1px solid #e6e6e6;
 }
 
 .measures-chart {
   display: inline-block;
   vertical-align: middle;
-  width: calc(var(--gridSize) * 10);
-  margin-right: calc(var(--gridSize) * 3);
+  width: calc(8px * 10);
+  margin-right: calc(8px * 3);
   text-align: center;
 }
 
@@ -118,12 +118,12 @@
 
 .measure-name {
   display: block;
-  font-size: var(--baseFontSize);
+  font-size: 13px;
 }
 
 .measure-value {
-  color: var(--darkBlue);
-  font-size: var(--bigFontSize);
+  color: #236a97;
+  font-size: 16px;
   font-weight: 400;
 }
 
@@ -133,16 +133,16 @@
 }
 
 .measure-big .measure-name {
-  margin-top: calc(var(--gridSize) / 2);
-  margin-bottom: var(--gridSize);
-  font-size: var(--bigFontSize);
+  margin-top: calc(8px / 2);
+  margin-bottom: 8px;
+  font-size: 16px;
 }
 
 .measure-big .measure-value,
 .measure-big .rating {
-  font-size: var(--hugeFontSize);
+  font-size: 24px;
 }
 
 .measure-big + .measure-big {
-  margin-left: calc(var(--gridSize) * 3);
+  margin-left: calc(8px * 3);
 }

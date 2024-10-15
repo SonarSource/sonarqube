@@ -31,19 +31,19 @@
 }
 
 .overview-measures-row + .overview-measures-row {
-  border-top: 1px solid var(--barBorderColor);
+  border-top: 1px solid #e6e6e6;
 }
 
 .overview-measures-value {
   line-height: 1;
-  font-size: var(--giganticFontSize);
+  font-size: 36px;
   white-space: nowrap;
 }
 
 .overview-measures-empty-value {
   height: 1px;
-  width: var(--bigFontSize);
-  background: var(--baseFontColor);
+  width: 16px;
+  background: #333;
 }
 
 .overview-measures-aside {
@@ -52,11 +52,11 @@
 }
 
 .overview-measures-tab {
-  width: calc(160px - calc(4 * var(--gridSize)));
+  width: calc(160px - calc(4 * 8px));
 }
 
 .overview-measures-emphasis {
-  background: var(--veryLightGreen);
+  background: #f5f9fc;
 }
 
 .overview-quality-gate-conditions-list {
@@ -66,13 +66,13 @@
 .overview-quality-gate-condition,
 .overview-quality-gate-condition:hover {
   display: block;
-  color: var(--baseFontColor);
+  color: #333;
   border: none;
   transition: background-color 0.3s ease;
 }
 
 .overview-quality-gate-condition:hover {
-  background-color: var(--rowHoverHighlight);
+  background-color: #ecf6fe;
 }
 
 /*
@@ -115,11 +115,11 @@
 }
 
 .pr-overview .overview-quality-gate-condition-error {
-  border-color: var(--red);
+  border-color: #d02f3a;
 }
 
 .pr-overview .overview-quality-gate-condition-warn {
-  border-color: var(--orange);
+  border-color: #ed7d20;
 }
 
 .pr-pverview .overview-measures-row {
@@ -146,11 +146,11 @@
 }
 
 .overview-analysis {
-  color: var(--secondFontColor);
+  color: #656565;
 }
 
 .overview-analysis + .overview-analysis {
-  margin-top: calc(2 * var(--gridSize));
+  margin-top: calc(2 * 8px);
 }
 
 .overview-activity-events {
@@ -166,7 +166,7 @@
 .overview-analysis-event.badge {
   border-radius: 2px;
   font-weight: bold;
-  font-size: var(--smallFontSize);
+  font-size: 12px;
   letter-spacing: 0;
   overflow: hidden;
   text-overflow: ellipsis;
