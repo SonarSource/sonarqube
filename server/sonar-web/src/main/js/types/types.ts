@@ -598,7 +598,14 @@ export interface RuleParameter {
 
 export type RuleScope = 'MAIN' | 'TEST' | 'ALL';
 
-export type RuleType = 'BUG' | 'VULNERABILITY' | 'CODE_SMELL' | 'SECURITY_HOTSPOT' | 'UNKNOWN';
+export const RuleTypes = [
+  'BUG',
+  'VULNERABILITY',
+  'CODE_SMELL',
+  'SECURITY_HOTSPOT',
+  'UNKNOWN',
+] as const;
+export type RuleType = (typeof RuleTypes)[number];
 
 export interface Snippet {
   end: number;

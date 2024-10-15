@@ -21,7 +21,9 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
+import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
+import { SettingsKey } from '../../../types/settings';
 import routes from '../routes';
 
 jest.mock('../../../api/quality-profiles');
@@ -29,14 +31,17 @@ jest.mock('../../../api/rules');
 
 beforeEach(() => {
   serviceMock.reset();
+  settingsMock.reset();
 });
 
 const serviceMock = new QualityProfilesServiceMock();
+const settingsMock = new SettingsServiceMock();
 const ui = {
   loading: byRole('status', { name: 'loading' }),
   permissionSection: byRole('region', { name: 'permissions.page' }),
   projectSection: byRole('region', { name: 'projects' }),
   rulesSection: byRole('region', { name: 'rules' }),
+  rulesSectionHeader: byRole('heading', { name: 'quality_profile.rules.breakdown' }),
   exportersSection: byRole('region', { name: 'quality_profiles.exporters' }),
   inheritanceSection: byRole('region', { name: 'quality_profiles.profile_inheritance' }),
   grantPermissionButton: byRole('button', {
@@ -59,8 +64,8 @@ const ui = {
   }),
   qualityProfilesHeader: byRole('heading', { name: 'quality_profiles.page' }),
   deleteQualityProfileButton: byRole('menuitem', { name: 'delete' }),
-  activateMoreRulesButton: byRole('button', { name: 'quality_profiles.activate_more' }),
   activateMoreLink: byRole('link', { name: 'quality_profiles.activate_more' }),
+  activateMoreButton: byRole('button', { name: 'quality_profiles.activate_more' }),
   activateMoreRulesLink: byRole('menuitem', { name: 'quality_profiles.activate_more_rules' }),
   backUpLink: byRole('menuitem', { name: 'backup_verb open_in_new_tab' }),
   compareLink: byRole('menuitem', { name: 'compare' }),
@@ -224,7 +229,7 @@ describe('Admin or user with permission', () => {
 
       expect(await ui.rulesSection.find()).toBeInTheDocument();
 
-      expect(ui.activateMoreLink.get()).toBeInTheDocument();
+      expect(await ui.activateMoreLink.find()).toBeInTheDocument();
       expect(ui.activateMoreLink.get()).toHaveAttribute(
         'href',
         '/coding_rules?qprofile=old-php-qp&activation=false',
@@ -235,8 +240,8 @@ describe('Admin or user with permission', () => {
       renderQualityProfile('sonar');
       await ui.waitForDataLoaded();
       expect(await ui.rulesSection.find()).toBeInTheDocument();
-      expect(ui.activateMoreRulesButton.get()).toBeInTheDocument();
-      expect(ui.activateMoreRulesButton.get()).toBeDisabled();
+      expect(await ui.activateMoreButton.find()).toBeInTheDocument();
+      expect(ui.activateMoreButton.get()).toBeDisabled();
     });
   });
 
@@ -450,7 +455,7 @@ describe('Every Users', () => {
     renderQualityProfile();
     await ui.waitForDataLoaded();
 
-    expect(await ui.rulesSection.find()).toBeInTheDocument();
+    expect(await ui.rulesSectionHeader.find()).toBeInTheDocument();
 
     ui.checkRuleRow('rule.clean_code_attribute_category.INTENTIONAL', 23, 4);
     ui.checkRuleRow('rule.clean_code_attribute_category.CONSISTENT', 2, 18);
@@ -459,6 +464,19 @@ describe('Every Users', () => {
     ui.checkRuleRow('software_quality.MAINTAINABILITY', 9, 44);
     ui.checkRuleRow('software_quality.RELIABILITY', 16, 1);
     ui.checkRuleRow('software_quality.SECURITY', 0, 14);
+  });
+
+  it('should be able to see active/inactive rules for a Quality Profile in Legacy mode', async () => {
+    settingsMock.set(SettingsKey.MQRMode, 'false');
+    renderQualityProfile();
+    await ui.waitForDataLoaded();
+
+    expect(await ui.rulesSectionHeader.find()).toBeInTheDocument();
+
+    ui.checkRuleRow('issue.type.BUG.plural', 60, 0);
+    ui.checkRuleRow('issue.type.VULNERABILITY.plural', 40, 0);
+    ui.checkRuleRow('issue.type.CODE_SMELL.plural', 250, 0);
+    ui.checkRuleRow('issue.type.SECURITY_HOTSPOT.plural', 50, 0);
   });
 
   it('should be able to see a warning when some rules are missing compare to Sonar way', async () => {

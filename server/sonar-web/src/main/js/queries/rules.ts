@@ -17,7 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { createRule, deleteRule, getRuleDetails, searchRules, updateRule } from '../api/rules';
 import { mapRestRuleToRule } from '../apps/coding-rules/utils';
 import { SearchRulesResponse } from '../types/coding-rules';
@@ -33,8 +37,8 @@ function getRulesQueryKey(type: 'search' | 'details', data?: SearchRulesQuery | 
   return key;
 }
 
-export function useSearchRulesQuery(data: SearchRulesQuery) {
-  return useQuery({
+export const useSearchRulesQuery = createQueryHook((data: SearchRulesQuery) => {
+  return queryOptions({
     queryKey: getRulesQueryKey('search', data),
     queryFn: ({ queryKey: [, , query] }) => {
       if (!query) {
@@ -45,7 +49,7 @@ export function useSearchRulesQuery(data: SearchRulesQuery) {
     },
     staleTime: StaleTime.NEVER,
   });
-}
+});
 
 export const useRuleDetailsQuery = createQueryHook((data: { actives?: boolean; key: string }) => {
   return queryOptions({

@@ -81,7 +81,10 @@ export function getQualityProfile({
 }: {
   compareToSonarWay?: boolean;
   profile: Profile;
-}): Promise<any> {
+}): Promise<{
+  compareToSonarWay?: { missingRuleCount: number; profile: string; profileName: string };
+  profile: Profile;
+}> {
   return getJSON('/api/qualityprofiles/show', { compareToSonarWay, key });
 }
 

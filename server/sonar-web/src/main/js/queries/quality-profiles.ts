@@ -17,7 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { UseQueryResult, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  UseQueryResult,
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import {
   ActivateRuleParameters,
   AddRemoveGroupParameters,
@@ -30,8 +36,10 @@ import {
   compareProfiles,
   deactivateRule,
   getProfileInheritance,
+  getQualityProfile,
 } from '../api/quality-profiles';
 import { ProfileInheritanceDetails } from '../types/types';
+import { createQueryHook } from './common';
 
 export function useProfileInheritanceQuery(
   profile?: Pick<Profile, 'language' | 'name' | 'parentKey'>,
@@ -53,6 +61,17 @@ export function useProfileInheritanceQuery(
     },
   });
 }
+
+export const useGetQualityProfile = createQueryHook(
+  (data: Parameters<typeof getQualityProfile>[0]) => {
+    return queryOptions({
+      queryKey: ['quality-profile', 'details', data.profile, data.compareToSonarWay],
+      queryFn: () => {
+        return getQualityProfile(data);
+      },
+    });
+  },
+);
 
 export function useProfilesCompareQuery(leftKey: string, rightKey: string) {
   return useQuery({
