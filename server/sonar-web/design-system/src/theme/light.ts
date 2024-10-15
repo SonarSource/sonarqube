@@ -345,6 +345,12 @@ export const lightTheme = {
     pillAccent: COLORS.indigo[50],
     pillAccentBorder: 'transparent',
     pillAccentHover: COLORS.indigo[100],
+    pillSuccess: COLORS.green[100],
+    pillSuccessBorder: COLORS.green[600],
+    pillSuccessHover: COLORS.green[200],
+    pillNeutral: COLORS.blueGrey[50],
+    pillNeutralBorder: COLORS.blueGrey[400],
+    pillNeutralHover: COLORS.blueGrey[100],
 
     // input select
     selectOptionSelected: secondary.light,
@@ -781,6 +787,8 @@ export const lightTheme = {
     pillCaution: COLORS.yellow[800],
     pillInfo: COLORS.blue[800],
     pillAccent: COLORS.indigo[500],
+    pillSuccess: COLORS.green[800],
+    pillNeutral: COLORS.blueGrey[500],
 
     // project cards
     overviewCardDefaultIcon: COLORS.blueGrey[500],

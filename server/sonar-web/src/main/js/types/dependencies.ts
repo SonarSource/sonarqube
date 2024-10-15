@@ -17,32 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Status } from './common';
+import { SoftwareImpactSeverity } from './clean-code-taxonomy';
+import { Paging } from './types';
 
-/**
- * For Web API V2, use BranchLikeParameters instead
- */
-export type BranchParameters = { branch?: string } | { pullRequest?: string };
-
-export type BranchLikeParameters = { branchKey?: string } | { pullRequestKey?: string };
-
-export type BranchLikeBase = BranchBase | PullRequestBase;
-
-export interface BranchBase {
-  analysisDate?: string;
-  isMain: boolean;
-  name: string;
-  status?: { qualityGateStatus: Status };
-}
-
-export interface PullRequestBase {
-  analysisDate?: string;
-  base: string;
-  branch: string;
-  isOrphan?: true;
+export interface Dependency {
+  description?: string;
+  //TODO: Remove optional flag when findings are implemented
+  findingsCount?: number;
+  findingsExploitableCount?: number;
+  findingsSeverities?: FindingsSeverities;
+  fixVersion?: string;
   key: string;
-  status?: { qualityGateStatus: Status };
-  target: string;
-  title: string;
-  url?: string;
+  longName: string;
+  name: string;
+  project: string;
+  transitive: boolean;
+  version?: string;
 }
+
+export interface DependenciesResponse {
+  dependencies: Dependency[];
+  page: Paging;
+}
+
+type FindingsSeverities = Partial<Record<SoftwareImpactSeverity, number>>;

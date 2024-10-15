@@ -31,6 +31,13 @@ export enum PillVariant {
   Caution = 'caution',
   Info = 'info',
   Accent = 'accent',
+  Success = 'success',
+  Neutral = 'neutral',
+}
+
+export enum PillHighlight {
+  Medium = 'medium',
+  Low = 'low',
 }
 
 const variantThemeColors: Record<PillVariant, ThemeColors> = {
@@ -40,6 +47,8 @@ const variantThemeColors: Record<PillVariant, ThemeColors> = {
   [PillVariant.Caution]: 'pillCaution',
   [PillVariant.Info]: 'pillInfo',
   [PillVariant.Accent]: 'pillAccent',
+  [PillVariant.Success]: 'pillSuccess',
+  [PillVariant.Neutral]: 'pillNeutral',
 };
 
 const variantThemeBorderColors: Record<PillVariant, ThemeColors> = {
@@ -49,6 +58,8 @@ const variantThemeBorderColors: Record<PillVariant, ThemeColors> = {
   [PillVariant.Caution]: 'pillCautionBorder',
   [PillVariant.Info]: 'pillInfoBorder',
   [PillVariant.Accent]: 'pillAccentBorder',
+  [PillVariant.Success]: 'pillSuccessBorder',
+  [PillVariant.Neutral]: 'pillNeutralBorder',
 };
 
 const variantThemeHoverColors: Record<PillVariant, ThemeColors> = {
@@ -58,12 +69,15 @@ const variantThemeHoverColors: Record<PillVariant, ThemeColors> = {
   [PillVariant.Caution]: 'pillCautionHover',
   [PillVariant.Info]: 'pillInfoHover',
   [PillVariant.Accent]: 'pillAccentHover',
+  [PillVariant.Success]: 'pillSuccessHover',
+  [PillVariant.Neutral]: 'pillNeutralHover',
 };
 
 interface PillProps {
   ['aria-label']?: string;
   children: ReactNode;
   className?: string;
+  highlight?: PillHighlight;
   // If pill is wrapped with Tooltip, it will have onClick prop overriden.
   // So to avoid hover effect, we add additional prop to disable hover effect even with onClick.
   notClickable?: boolean;
@@ -73,13 +87,13 @@ interface PillProps {
 
 // eslint-disable-next-line react/display-name
 export const Pill = forwardRef<HTMLButtonElement, Readonly<PillProps>>(
-  ({ children, variant, onClick, notClickable, ...rest }, ref) => {
+  ({ children, variant, highlight = PillHighlight.Low, onClick, notClickable, ...rest }, ref) => {
     return onClick && !notClickable ? (
       <StyledPillButton onClick={onClick} ref={ref} variant={variant} {...rest}>
         {children}
       </StyledPillButton>
     ) : (
-      <StyledPill ref={ref} variant={variant} {...rest}>
+      <StyledPill highlight={highlight} ref={ref} variant={variant} {...rest}>
         {children}
       </StyledPill>
     );
@@ -101,14 +115,17 @@ const reusedStyles = css`
 `;
 
 const StyledPill = styled.span<{
+  highlight: PillHighlight;
   variant: PillVariant;
 }>`
   ${reusedStyles};
 
-  background-color: ${({ variant }) => themeColor(variantThemeColors[variant])};
+  background-color: ${({ variant, highlight }) =>
+    highlight === PillHighlight.Medium && themeColor(variantThemeColors[variant])};
   color: ${({ variant }) => themeContrast(variantThemeColors[variant])};
-  border-style: ${({ variant }) => (variant === PillVariant.Accent ? 'hidden' : 'solid')};
-  border-color: ${({ variant }) => themeColor(variantThemeBorderColors[variant])};
+  border-style: ${({ highlight }) => (highlight === PillHighlight.Medium ? 'hidden' : 'solid')};
+  border-color: ${({ variant, highlight }) =>
+    highlight === PillHighlight.Low && themeColor(variantThemeBorderColors[variant])};
 `;
 
 const StyledPillButton = styled.button<{

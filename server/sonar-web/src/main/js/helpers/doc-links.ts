@@ -89,6 +89,7 @@ export enum DocLink {
   SonarScannerMaven = '/analyzing-source-code/scanners/sonarscanner-for-maven/',
   SonarWayQualityGate = '/user-guide/quality-gates/#using-sonar-way-the-recommended-quality-gate', // to be confirmed
   Webhooks = '/project-administration/webhooks/',
+  Dependencies = '/project-administration/managing-dependencies/',
 }
 
 export const DocTitle = {

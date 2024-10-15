@@ -17,32 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Status } from './common';
+import axios from 'axios';
+import { BranchLikeParameters } from '../sonar-aligned/types/branch-like';
+import { DependenciesResponse } from '../types/dependencies';
 
-/**
- * For Web API V2, use BranchLikeParameters instead
- */
-export type BranchParameters = { branch?: string } | { pullRequest?: string };
+const DEPENDENCY_PATH = '/api/v2/analysis/dependencies';
 
-export type BranchLikeParameters = { branchKey?: string } | { pullRequestKey?: string };
-
-export type BranchLikeBase = BranchBase | PullRequestBase;
-
-export interface BranchBase {
-  analysisDate?: string;
-  isMain: boolean;
-  name: string;
-  status?: { qualityGateStatus: Status };
-}
-
-export interface PullRequestBase {
-  analysisDate?: string;
-  base: string;
-  branch: string;
-  isOrphan?: true;
-  key: string;
-  status?: { qualityGateStatus: Status };
-  target: string;
-  title: string;
-  url?: string;
+export function getDependencies(params: { projectKey: string; q?: string } & BranchLikeParameters) {
+  return axios.get<DependenciesResponse>(DEPENDENCY_PATH, { params });
 }

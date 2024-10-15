@@ -40,6 +40,7 @@ import ChangeAdminPasswordApp from '../../apps/change-admin-password/ChangeAdmin
 import codeRoutes from '../../apps/code/routes';
 import codingRulesRoutes from '../../apps/coding-rules/routes';
 import componentMeasuresRoutes from '../../apps/component-measures/routes';
+import { dependenciesRoutes } from '../../apps/dependencies/routes';
 import groupsRoutes from '../../apps/groups/routes';
 import { globalIssuesRoutes, projectIssuesRoutes } from '../../apps/issues/routes';
 import maintenanceRoutes from '../../apps/maintenance/routes';
@@ -122,6 +123,7 @@ function renderComponentRoutes() {
           element={<ProjectPageExtension />}
         />
         {projectIssuesRoutes()}
+        {dependenciesRoutes()}
         <Route path="security_hotspots" element={<SecurityHotspotsApp />} />
         {projectQualityGateRoutes()}
         {projectQualityProfilesRoutes()}

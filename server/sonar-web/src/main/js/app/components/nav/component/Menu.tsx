@@ -209,6 +209,17 @@ export function Menu(props: Readonly<Props>) {
     );
   };
 
+  const renderDependenciesLink = () => {
+    const isPortfolio = isPortfolioLike(qualifier);
+    return (
+      !isPortfolio &&
+      renderMenuLink({
+        label: translate('layout.dependencies'),
+        pathname: '/dependencies',
+      })
+    );
+  };
+
   const renderSecurityReports = () => {
     if (isPullRequest(branchLike)) {
       return null;
@@ -551,6 +562,7 @@ export function Menu(props: Readonly<Props>) {
         {renderBreakdownLink()}
         {renderIssuesLink()}
         {renderSecurityHotspotsLink()}
+        {renderDependenciesLink()}
         {renderSecurityReports()}
         {renderComponentMeasuresLink()}
         {renderCodeLink()}

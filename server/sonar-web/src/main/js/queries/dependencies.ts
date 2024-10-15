@@ -17,32 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Status } from './common';
+import { queryOptions } from '@tanstack/react-query';
+import { getDependencies } from '../api/dependencies';
+import { BranchLikeParameters } from '../sonar-aligned/types/branch-like';
+import { createQueryHook } from './common';
 
-/**
- * For Web API V2, use BranchLikeParameters instead
- */
-export type BranchParameters = { branch?: string } | { pullRequest?: string };
-
-export type BranchLikeParameters = { branchKey?: string } | { pullRequestKey?: string };
-
-export type BranchLikeBase = BranchBase | PullRequestBase;
-
-export interface BranchBase {
-  analysisDate?: string;
-  isMain: boolean;
-  name: string;
-  status?: { qualityGateStatus: Status };
-}
-
-export interface PullRequestBase {
-  analysisDate?: string;
-  base: string;
-  branch: string;
-  isOrphan?: true;
-  key: string;
-  status?: { qualityGateStatus: Status };
-  target: string;
-  title: string;
-  url?: string;
-}
+export const useDependenciesQuery = createQueryHook(
+  (data: { branchParameters: BranchLikeParameters; projectKey: string; q?: string }) => {
+    return queryOptions({
+      queryKey: ['dependencies', data.projectKey, data.branchParameters, data.q],
+      queryFn: () =>
+        getDependencies({
+          projectKey: data.projectKey,
+          q: data.q,
+          ...data.branchParameters,
+        }),
+    });
+  },
+);
