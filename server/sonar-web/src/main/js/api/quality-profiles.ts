@@ -199,23 +199,18 @@ export function getProfileChangelog(
 
 export interface RuleCompare {
   cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
-  impacts: SoftwareImpact[];
+  impacts?: SoftwareImpact[];
   key: string;
-  left?: { params: Dict<string>; severity: string };
+  left?: { impacts?: SoftwareImpact[]; params?: Dict<string>; severity?: string };
   name: string;
-  right?: { params: Dict<string>; severity: string };
+  right?: { impacts?: SoftwareImpact[]; params?: Dict<string>; severity?: string };
 }
 
 export interface CompareResponse {
   inLeft: Array<RuleCompare>;
   inRight: Array<RuleCompare>;
   left: { name: string };
-  modified: Array<
-    RuleCompare & {
-      left: { params: Dict<string>; severity: string };
-      right: { params: Dict<string>; severity: string };
-    }
-  >;
+  modified: Array<RuleCompare & Required<Pick<RuleCompare, 'left' | 'right'>>>;
   right: { name: string };
 }
 
