@@ -67,20 +67,26 @@
          "languageName": "JavaScript",
          "name" : "Avoid function with too many parameters",
          "cleanCodeAttributeCategory": "ADAPTABLE",
-         "impacts": [
-            {
-               "softwareQuality": "MAINTAINABILITY",
-               "severity": "HIGH"
-            }
-         ],
          "right" : {
             "severity" : "MAJOR",
+            "impacts": [
+               {
+                  "softwareQuality": "MAINTAINABILITY",
+                  "severity": "HIGH"
+               }
+            ],
             "params" : {
                "maximumFunctionParameters" : "7"
             }
          },
          "left" : {
             "severity" : "MAJOR",
+            "impacts": [
+               {
+                  "softwareQuality": "MAINTAINABILITY",
+                  "severity": "MEDIUM"
+               }
+            ],
             "params" : {
                "maximumFunctionParameters" : "10"
             }

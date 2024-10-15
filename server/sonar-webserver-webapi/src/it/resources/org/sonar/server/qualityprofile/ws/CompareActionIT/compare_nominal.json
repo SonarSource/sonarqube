@@ -67,20 +67,16 @@
          "languageName": "Xoo",
          "name" : "Rule4",
          "cleanCodeAttributeCategory": "INTENTIONAL",
-         "impacts": [
-            {
-               "softwareQuality": "RELIABILITY",
-               "severity": "HIGH"
-            }
-         ],
          "left" : {
             "severity" : "BLOCKER",
+            "impacts": [],
             "params" : {
                "param_rule4" : "polop"
             }
          },
          "right" : {
             "severity" : "BLOCKER",
+            "impacts": [],
             "params" : {
                "param_rule4" : "palap"
             }
@@ -94,17 +90,42 @@
          "languageName": "Xoo",
          "name" : "Rule5",
          "cleanCodeAttributeCategory": "INTENTIONAL",
-         "impacts": [
-            {
-               "softwareQuality": "RELIABILITY",
-               "severity": "HIGH"
-            }
-         ],
          "left" : {
-            "severity" : "MINOR"
+            "severity" : "MINOR",
+            "impacts": []
          },
          "right" : {
-            "severity" : "MAJOR"
+            "severity" : "MAJOR",
+            "impacts": []
+         }
+      },
+      {
+         "key": "blah:rule6",
+         "name": "Rule6",
+         "pluginKey": "blah",
+         "pluginName": "Blah",
+         "languageKey": "xoo",
+         "languageName": "Xoo",
+         "cleanCodeAttributeCategory": "INTENTIONAL",
+         "left": {
+            "severity": "BLOCKER",
+            "impacts": [
+               {
+                  "softwareQuality": "SECURITY",
+                  "severity": "BLOCKER"
+               }
+            ],
+            "params": {}
+         },
+         "right": {
+            "severity": "BLOCKER",
+            "impacts": [
+               {
+                  "softwareQuality": "SECURITY",
+                  "severity": "HIGH"
+               }
+            ],
+            "params": {}
          }
       }
    ]

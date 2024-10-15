@@ -1,0 +1,45 @@
+{
+  "left": {
+    "key": "xoo-profile-1-01234",
+    "name": "Profile 1"
+  },
+  "right": {
+    "key": "xoo-profile-2-12345",
+    "name": "Profile 2"
+  },
+  "inLeft": [],
+  "inRight": [],
+  "modified": [
+    {
+      "key": "blah:impactRule",
+      "name": "ImpactRule",
+      "pluginKey": "blah",
+      "pluginName": "Blah",
+      "languageKey": "xoo",
+      "languageName": "Xoo",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "left": {
+        "severity": "BLOCKER",
+        "impacts": [
+          {
+            "softwareQuality": "SECURITY",
+            "severity": "MEDIUM"
+          }
+        ],
+        "params": {}
+      },
+      "right": {
+        "severity": "BLOCKER",
+        "impacts": [
+          {
+            "softwareQuality": "SECURITY",
+            "severity": "BLOCKER"
+          }
+
+        ],
+        "params": {}
+      }
+    }
+  ],
+  "same": []
+}

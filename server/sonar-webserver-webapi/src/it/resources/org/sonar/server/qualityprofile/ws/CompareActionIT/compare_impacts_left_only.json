@@ -1,0 +1,30 @@
+{
+   "left": {
+      "key": "xoo-profile-1-01234",
+      "name": "Profile 1"
+   },
+   "right": {
+      "key": "xoo-profile-2-12345",
+      "name": "Profile 2"
+   },
+   "inLeft": [
+      {
+         "key": "blah:impactRule",
+         "name": "ImpactRule",
+         "pluginKey": "blah",
+         "pluginName": "Blah",
+         "languageKey": "xoo",
+         "languageName": "Xoo",
+         "cleanCodeAttributeCategory": "INTENTIONAL",
+         "impacts": [
+            {
+               "softwareQuality": "SECURITY",
+               "severity": "LOW"
+            }
+         ]
+      }
+   ],
+   "inRight": [],
+   "modified": [],
+   "same": []
+}

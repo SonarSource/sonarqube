@@ -19,10 +19,12 @@
          "languageName": "Xoo",
          "name" : "Rule1",
          "left" : {
-            "severity" : "BLOCKER"
+            "severity" : "BLOCKER",
+            "impacts": []
          },
          "right" : {
             "severity" : "BLOCKER",
+            "impacts": [],
             "params" : {
                "param_rule1" : "polop"
             }
