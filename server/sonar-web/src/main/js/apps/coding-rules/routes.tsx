@@ -19,9 +19,11 @@
  */
 import React, { useEffect } from 'react';
 import { Route, useLocation, useNavigate } from 'react-router-dom';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
 import { RawQuery } from '~sonar-aligned/types/router';
-import CodingRulesApp from './components/CodingRulesApp';
 import { parseQuery, serializeQuery } from './query';
+
+const CodingRulesApp = lazyLoadComponent(() => import('./components/CodingRulesApp'));
 
 const EXPECTED_SPLIT_PARTS = 2;
 

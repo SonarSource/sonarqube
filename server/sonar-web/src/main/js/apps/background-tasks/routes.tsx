@@ -19,7 +19,9 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import BackgroundTasksApp from './components/BackgroundTasksApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const BackgroundTasksApp = lazyLoadComponent(() => import('./components/BackgroundTasksApp'));
 
 const routes = () => <Route path="background_tasks" element={<BackgroundTasksApp />} />;
 

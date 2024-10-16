@@ -19,7 +19,9 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import ProjectActivityApp from './components/ProjectActivityApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const ProjectActivityApp = lazyLoadComponent(() => import('./components/ProjectActivityApp'));
 
 const routes = () => <Route path="project/activity" element={<ProjectActivityApp />} />;
 

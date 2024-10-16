@@ -20,7 +20,9 @@
 
 import React from 'react';
 import { Route } from 'react-router-dom';
-import DependenciesApp from './DependenciesApp';
+import { lazyLoadComponent } from '../../sonar-aligned/helpers/lazyLoadComponent';
+
+const DependenciesApp = lazyLoadComponent(() => import('./DependenciesApp'));
 
 export const dependenciesRoutes = () => <Route path="dependencies" element={<DependenciesApp />} />;
 

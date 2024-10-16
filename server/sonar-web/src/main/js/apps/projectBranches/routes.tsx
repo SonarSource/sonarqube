@@ -19,7 +19,9 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import ProjectBranchesApp from './ProjectBranchesApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const ProjectBranchesApp = lazyLoadComponent(() => import('./ProjectBranchesApp'));
 
 const routes = () => <Route path="branches" element={<ProjectBranchesApp />} />;
 

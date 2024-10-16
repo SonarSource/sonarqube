@@ -19,7 +19,9 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import GroupsApp from './GroupsApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const GroupsApp = lazyLoadComponent(() => import('./GroupsApp'));
 
 const routes = () => <Route path="groups" element={<GroupsApp />} />;
 

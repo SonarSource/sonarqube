@@ -19,7 +19,9 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import ProjectQualityProfilesApp from './ProjectQualityProfilesApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const ProjectQualityProfilesApp = lazyLoadComponent(() => import('./ProjectQualityProfilesApp'));
 
 const routes = () => (
   <Route path="project/quality_profiles" element={<ProjectQualityProfilesApp />} />

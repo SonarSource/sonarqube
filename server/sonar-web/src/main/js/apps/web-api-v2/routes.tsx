@@ -19,7 +19,9 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import WebApiApp from './WebApiApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const WebApiApp = lazyLoadComponent(() => import('./WebApiApp'));
 
 const routes = () => <Route path="web_api_v2" element={<WebApiApp />} />;
 

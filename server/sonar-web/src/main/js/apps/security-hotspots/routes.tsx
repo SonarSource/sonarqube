@@ -21,8 +21,8 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
 
-const ProjectManagementApp = lazyLoadComponent(() => import('./ProjectManagementApp'));
+const SecurityHotspotsApp = lazyLoadComponent(() => import('./SecurityHotspotsApp'));
 
-const routes = () => <Route path="projects_management" element={<ProjectManagementApp />} />;
+const routes = () => <Route path="security_hotspots" element={<SecurityHotspotsApp />} />;
 
 export default routes;

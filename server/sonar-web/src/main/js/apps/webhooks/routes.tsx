@@ -19,8 +19,10 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import App from './components/App';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
 
-export const routes = () => <Route path="webhooks" element={<App />} />;
+const WebhooksApp = lazyLoadComponent(() => import('./components/App'));
+
+export const routes = () => <Route path="webhooks" element={<WebhooksApp />} />;
 
 export default routes;

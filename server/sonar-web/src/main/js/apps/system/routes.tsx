@@ -19,7 +19,9 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import SystemApp from './components/SystemApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const SystemApp = lazyLoadComponent(() => import('./components/SystemApp'));
 
 export const routes = () => <Route path="system" element={<SystemApp />} />;
 

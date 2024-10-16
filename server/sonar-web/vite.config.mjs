@@ -85,13 +85,9 @@ export default ({ mode }) => {
           manualChunks: {
             // vendor js chunk will contain only react dependencies
             vendor: ['react', 'react-router-dom', 'react-dom'],
+            echoes: ['@sonarsource/echoes-react'],
+            datefns: ['date-fns'],
             lodash: ['lodash/lodash.js'],
-            highlightjs: [
-              'highlight.js',
-              'highlightjs-apex',
-              'highlightjs-cobol',
-              'highlightjs-sap-abap',
-            ],
           },
         },
         plugins: [],

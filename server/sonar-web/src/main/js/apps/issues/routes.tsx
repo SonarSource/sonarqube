@@ -19,9 +19,11 @@
  */
 import React, { useEffect } from 'react';
 import { Route, useNavigate, useSearchParams } from 'react-router-dom';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
 import { omitNil } from '../../helpers/request';
 import { IssueType } from '../../types/issues';
-import IssuesApp from './components/IssuesApp';
+
+const IssuesApp = lazyLoadComponent(() => import('./components/IssuesApp'));
 
 export const globalIssuesRoutes = () => <Route path="issues" element={<IssuesApp />} />;
 

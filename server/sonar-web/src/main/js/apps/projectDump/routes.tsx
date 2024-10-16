@@ -19,7 +19,9 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import ProjectDumpApp from './ProjectDumpApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const ProjectDumpApp = lazyLoadComponent(() => import('./ProjectDumpApp'));
 
 const routes = () => <Route path="import_export" element={<ProjectDumpApp />} />;
 

@@ -19,7 +19,9 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import UsersApp from './UsersApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const UsersApp = lazyLoadComponent(() => import('./UsersApp'));
 
 export const routes = () => <Route path="users" element={<UsersApp />} />;
 

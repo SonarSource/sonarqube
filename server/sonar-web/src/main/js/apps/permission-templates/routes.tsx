@@ -19,7 +19,11 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import PermissionTemplatesApp from './components/PermissionTemplatesApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const PermissionTemplatesApp = lazyLoadComponent(
+  () => import('./components/PermissionTemplatesApp'),
+);
 
 const routes = () => <Route path="permission_templates" element={<PermissionTemplatesApp />} />;
 

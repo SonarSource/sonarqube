@@ -19,7 +19,9 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import ProjectInformationApp from './ProjectInformationApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const ProjectInformationApp = lazyLoadComponent(() => import('./ProjectInformationApp'));
 
 const routes = () => <Route path="project/information" element={<ProjectInformationApp />} />;
 

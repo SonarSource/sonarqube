@@ -19,8 +19,10 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import SettingsApp from './components/SettingsApp';
-import EncryptionApp from './encryption/EncryptionApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const SettingsApp = lazyLoadComponent(() => import('./components/SettingsApp'));
+const EncryptionApp = lazyLoadComponent(() => import('./encryption/EncryptionApp'));
 
 const routes = () => (
   <Route path="settings">

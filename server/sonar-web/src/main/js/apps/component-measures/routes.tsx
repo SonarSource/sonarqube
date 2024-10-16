@@ -19,10 +19,12 @@
  */
 import React from 'react';
 import { Navigate, Route, useParams, useSearchParams } from 'react-router-dom';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
 import { searchParamsToQuery } from '~sonar-aligned/helpers/router';
 import NavigateWithParams from '../../app/utils/NavigateWithParams';
 import { omitNil } from '../../helpers/request';
-import ComponentMeasuresApp from './components/ComponentMeasuresApp';
+
+const ComponentMeasuresApp = lazyLoadComponent(() => import('./components/ComponentMeasuresApp'));
 
 const routes = () => (
   <Route path="component_measures">

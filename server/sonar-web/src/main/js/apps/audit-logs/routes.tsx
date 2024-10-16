@@ -19,8 +19,10 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import AuditApp from './components/AuditApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
 
 const routes = () => <Route path="audit" element={<AuditApp />} />;
+
+const AuditApp = lazyLoadComponent(() => import('./components/AuditApp'));
 
 export default routes;

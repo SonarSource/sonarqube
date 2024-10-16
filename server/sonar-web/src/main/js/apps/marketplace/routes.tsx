@@ -19,7 +19,9 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import MarketplaceAppContainer from './MarketplaceAppContainer';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const MarketplaceAppContainer = lazyLoadComponent(() => import('./MarketplaceAppContainer'));
 
 export const routes = () => <Route path="marketplace" element={<MarketplaceAppContainer />} />;
 

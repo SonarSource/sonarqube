@@ -33,10 +33,10 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from 'react-router-dom';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
 import accountRoutes from '../../apps/account/routes';
 import auditLogsRoutes from '../../apps/audit-logs/routes';
 import backgroundTasksRoutes from '../../apps/background-tasks/routes';
-import ChangeAdminPasswordApp from '../../apps/change-admin-password/ChangeAdminPasswordApp';
 import codeRoutes from '../../apps/code/routes';
 import codingRulesRoutes from '../../apps/coding-rules/routes';
 import componentMeasuresRoutes from '../../apps/component-measures/routes';
@@ -50,11 +50,11 @@ import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
 import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/permissions/routes';
 import projectActivityRoutes from '../../apps/projectActivity/routes';
 import projectBranchesRoutes from '../../apps/projectBranches/routes';
-import ProjectDeletionApp from '../../apps/projectDeletion/App';
+import projectDeletionRoutes from '../../apps/projectDeletion/routes';
 import projectDumpRoutes from '../../apps/projectDump/routes';
 import projectInfoRoutes from '../../apps/projectInformation/routes';
-import ProjectKeyApp from '../../apps/projectKey/ProjectKeyApp';
-import ProjectLinksApp from '../../apps/projectLinks/ProjectLinksApp';
+import projectKeyRoutes from '../../apps/projectKey/routes';
+import projectLinksRoutes from '../../apps/projectLinks/routes';
 import projectNewCodeDefinitionRoutes from '../../apps/projectNewCode/routes';
 import projectQualityGateRoutes from '../../apps/projectQualityGate/routes';
 import projectQualityProfilesRoutes from '../../apps/projectQualityProfiles/routes';
@@ -62,7 +62,7 @@ import projectsRoutes from '../../apps/projects/routes';
 import projectsManagementRoutes from '../../apps/projectsManagement/routes';
 import qualityGatesRoutes from '../../apps/quality-gates/routes';
 import qualityProfilesRoutes from '../../apps/quality-profiles/routes';
-import SecurityHotspotsApp from '../../apps/security-hotspots/SecurityHotspotsApp';
+import securityHotspotsRoutes from '../../apps/security-hotspots/routes';
 import sessionsRoutes from '../../apps/sessions/routes';
 import settingsRoutes from '../../apps/settings/routes';
 import systemRoutes from '../../apps/system/routes';
@@ -81,17 +81,13 @@ import AdminContainer from '../components/AdminContainer';
 import App from '../components/App';
 import ComponentContainer from '../components/ComponentContainer';
 import DocumentationRedirect from '../components/DocumentationRedirect';
-import FormattingHelp from '../components/FormattingHelp';
 import GlobalContainer from '../components/GlobalContainer';
 import Landing from '../components/Landing';
 import MigrationContainer from '../components/MigrationContainer';
 import NonAdminPagesContainer from '../components/NonAdminPagesContainer';
 import NotFound from '../components/NotFound';
-import PluginRiskConsent from '../components/PluginRiskConsent';
 import ProjectAdminContainer from '../components/ProjectAdminContainer';
-import ResetPassword from '../components/ResetPassword';
 import SimpleContainer from '../components/SimpleContainer';
-import SonarLintConnection from '../components/SonarLintConnection';
 import { DEFAULT_APP_STATE } from '../components/app-state/AppStateContext';
 import AppStateContextProvider from '../components/app-state/AppStateContextProvider';
 import {
@@ -123,8 +119,12 @@ function renderComponentRoutes() {
           element={<ProjectPageExtension />}
         />
         {projectIssuesRoutes()}
+<<<<<<< HEAD
         {dependenciesRoutes()}
         <Route path="security_hotspots" element={<SecurityHotspotsApp />} />
+=======
+        {securityHotspotsRoutes()}
+>>>>>>> 6803c465323 (SONAR-23205 Add lazy loading on most routes to improve build and dev server perfs)
         {projectQualityGateRoutes()}
         {projectQualityProfilesRoutes()}
         {projectInfoRoutes()}
@@ -144,9 +144,9 @@ function renderComponentRoutes() {
           {settingsRoutes()}
           {webhooksRoutes()}
 
-          <Route path="deletion" element={<ProjectDeletionApp />} />
-          <Route path="links" element={<ProjectLinksApp />} />
-          <Route path="key" element={<ProjectKeyApp />} />
+          {projectDeletionRoutes()}
+          {projectLinksRoutes()}
+          {projectKeyRoutes()}
         </Route>
         {projectPermissionsRoutes()}
       </Route>
@@ -184,6 +184,14 @@ function renderRedirects() {
     </>
   );
 }
+
+const FormattingHelp = lazyLoadComponent(() => import('../components/FormattingHelp'));
+const SonarLintConnection = lazyLoadComponent(() => import('../components/SonarLintConnection'));
+const ResetPassword = lazyLoadComponent(() => import('../components/ResetPassword'));
+const ChangeAdminPasswordApp = lazyLoadComponent(
+  () => import('../../apps/change-admin-password/ChangeAdminPasswordApp'),
+);
+const PluginRiskConsent = lazyLoadComponent(() => import('../components/PluginRiskConsent'));
 
 const router = createBrowserRouter(
   createRoutesFromElements(

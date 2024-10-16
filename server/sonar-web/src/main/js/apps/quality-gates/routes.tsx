@@ -19,7 +19,9 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import App from './components/App';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const App = lazyLoadComponent(() => import('./components/App'));
 
 const routes = () => (
   <Route path="quality_gates">

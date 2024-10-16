@@ -19,7 +19,11 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import ProjectNewCodeDefinitionApp from './components/ProjectNewCodeDefinitionApp';
+import { lazyLoadComponent } from '~sonar-aligned/helpers/lazyLoadComponent';
+
+const ProjectNewCodeDefinitionApp = lazyLoadComponent(
+  () => import('./components/ProjectNewCodeDefinitionApp'),
+);
 
 const routes = () => <Route path="baseline" element={<ProjectNewCodeDefinitionApp />} />;
 
