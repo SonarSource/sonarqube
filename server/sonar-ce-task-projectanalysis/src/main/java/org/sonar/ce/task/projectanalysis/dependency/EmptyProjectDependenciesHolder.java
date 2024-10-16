@@ -17,24 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.dependency;
+package org.sonar.ce.task.projectanalysis.dependency;
 
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
-import org.sonar.db.Pagination;
 
-public interface ProjectDependenciesMapper {
-  void insert(ProjectDependencyDto dto);
+public class EmptyProjectDependenciesHolder implements ProjectDependenciesHolder {
 
-  void deleteByUuid(String uuid);
+  @Override
+  public boolean isEmpty() {
+    return true;
+  }
 
-  ProjectDependencyDto selectByUuid(String uuid);
+  @Override
+  public List<ProjectDependency> getDependencies() {
+    return List.of();
+  }
 
-  List<ProjectDependencyDto> selectByBranchUuid(String branchUuid);
-
-  List<ProjectDependencyDto> selectByQuery(@Param("query") ProjectDependenciesQuery query, @Param("pagination") Pagination pagination);
-
-  void update(ProjectDependencyDto dto);
-
-  int countByQuery(@Param("query") ProjectDependenciesQuery query);
+  @Override
+  public int getSize() {
+    return 0;
+  }
 }

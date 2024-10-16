@@ -17,24 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.dependency;
+package org.sonar.ce.task.projectanalysis.dependency;
 
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
-import org.sonar.db.Pagination;
 
-public interface ProjectDependenciesMapper {
-  void insert(ProjectDependencyDto dto);
+/**
+ * The list of project dependencies defined in the scanner report.
+ */
+public interface ProjectDependenciesHolder {
+  /**
+   * @return true if the holder is empty
+   */
+  boolean isEmpty();
 
-  void deleteByUuid(String uuid);
+  /**
+   *
+   * @throws IllegalStateException if the holder is empty (ie. there is no dependencies yet)
+   */
+  List<ProjectDependency> getDependencies();
 
-  ProjectDependencyDto selectByUuid(String uuid);
+  /**
+   * Number of project dependencies.
+   *
+   * @throws IllegalStateException if the holder is empty (ie. there is no dependencies yet)
+   */
+  int getSize();
 
-  List<ProjectDependencyDto> selectByBranchUuid(String branchUuid);
-
-  List<ProjectDependencyDto> selectByQuery(@Param("query") ProjectDependenciesQuery query, @Param("pagination") Pagination pagination);
-
-  void update(ProjectDependencyDto dto);
-
-  int countByQuery(@Param("query") ProjectDependenciesQuery query);
 }

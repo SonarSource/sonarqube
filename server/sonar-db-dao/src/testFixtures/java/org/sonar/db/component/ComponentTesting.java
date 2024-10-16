@@ -73,6 +73,18 @@ public class ComponentTesting {
       .setLanguage("xoo");
   }
 
+  public static ComponentDto newDependencyDto(ComponentDto branch, String dependencyUuid) {
+    String name = "NAME_" + dependencyUuid;
+    return newChildComponent(dependencyUuid, branch, branch)
+      .setKey("DEP_KEY_" + dependencyUuid)
+      .setName("NAME_" + dependencyUuid)
+      .setLongName("LONGNAME_" + dependencyUuid)
+      .setScope("DEP")
+      .setBranchUuid(branch.branchUuid())
+      .setQualifier("DEP")
+      .setCreatedAt(new Date());
+  }
+
   public static ComponentDto newDirectory(ComponentDto branch, String path) {
     return newDirectory(branch, Uuids.createFast(), path);
   }

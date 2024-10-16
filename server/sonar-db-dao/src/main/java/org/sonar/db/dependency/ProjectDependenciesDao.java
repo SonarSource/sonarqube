@@ -20,6 +20,7 @@
 package org.sonar.db.dependency;
 
 import java.util.List;
+import java.util.Optional;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
@@ -36,6 +37,17 @@ public class ProjectDependenciesDao implements Dao {
 
   public void deleteByUuid(DbSession session, String uuid) {
     mapper(session).deleteByUuid(uuid);
+  }
+
+  public Optional<ProjectDependencyDto> selectByUuid(DbSession dbSession, String uuid) {
+    return Optional.ofNullable(mapper(dbSession).selectByUuid(uuid));
+  }
+
+  /**
+   * Retrieves all dependencies with a specific branch UUID, no other filtering is done by this method.
+   */
+  public List<ProjectDependencyDto> selectByBranchUuid(DbSession dbSession, String branchUuid) {
+    return mapper(dbSession).selectByBranchUuid(branchUuid);
   }
 
   public List<ProjectDependencyDto> selectByQuery(DbSession session, ProjectDependenciesQuery projectDependenciesQuery, Pagination pagination) {

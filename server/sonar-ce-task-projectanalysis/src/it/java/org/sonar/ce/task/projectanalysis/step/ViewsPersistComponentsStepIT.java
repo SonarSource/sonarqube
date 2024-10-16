@@ -33,6 +33,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.component.BranchPersister;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.MutableDisabledComponentsHolder;
+import org.sonar.ce.task.projectanalysis.dependency.ProjectDependenciesHolder;
 import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.ProjectViewAttributes;
 import org.sonar.ce.task.projectanalysis.component.SubViewAttributes;
@@ -100,7 +101,8 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
 
     BranchPersister branchPersister = mock(BranchPersister.class);
     ProjectPersister projectPersister = mock(ProjectPersister.class);
-    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, branchPersister, projectPersister);
+    ProjectDependenciesHolder projectDepsHolder = mock(ProjectDependenciesHolder.class);
+    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, branchPersister, projectPersister, projectDepsHolder);
   }
 
   @Override
@@ -326,7 +328,7 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    //We create audits for the portfolio and the project, not for the technical project
+    // We create audits for the portfolio and the project, not for the technical project
     verify(auditPersister, times(2)).addComponent(any(), any());
   }
 

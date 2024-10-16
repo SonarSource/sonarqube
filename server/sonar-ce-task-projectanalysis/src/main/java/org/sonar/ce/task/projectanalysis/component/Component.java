@@ -108,10 +108,10 @@ public interface Component {
   ProjectAttributes getProjectAttributes();
 
   /**
-   * Returns the attributes specific to components of type {@link Type#PROJECT}, {@link Type#MODULE},
+   * Returns the attributes specific to components of type {@link Type#PROJECT},
    * {@link Type#DIRECTORY} or {@link Type#FILE}.
    *
-   * @throws IllegalStateException when the component's type is neither {@link Type#PROJECT}, {@link Type#MODULE},
+   * @throws IllegalStateException when the component's type is neither {@link Type#PROJECT},
    *         {@link Type#DIRECTORY} nor {@link Type#FILE}.
    */
   ReportAttributes getReportAttributes();

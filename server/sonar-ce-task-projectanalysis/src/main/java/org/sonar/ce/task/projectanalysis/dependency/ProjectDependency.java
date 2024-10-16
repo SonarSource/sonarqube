@@ -17,24 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.dependency;
+package org.sonar.ce.task.projectanalysis.dependency;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
-import org.sonar.db.Pagination;
+import javax.annotation.CheckForNull;
 
-public interface ProjectDependenciesMapper {
-  void insert(ProjectDependencyDto dto);
+public interface ProjectDependency {
 
-  void deleteByUuid(String uuid);
+  /**
+   * Returns the dependency uuid.
+   */
+  String getUuid();
 
-  ProjectDependencyDto selectByUuid(String uuid);
+  /**
+   * Returns the dependency key.
+   */
+  String getKey();
 
-  List<ProjectDependencyDto> selectByBranchUuid(String branchUuid);
+  /**
+   * The dependency fully qualified name, without version. For Maven this is the groupId:artifactId.
+   */
+  String getFullName();
 
-  List<ProjectDependencyDto> selectByQuery(@Param("query") ProjectDependenciesQuery query, @Param("pagination") Pagination pagination);
+  /**
+   * The dependency name. For Maven this is only the artifactId.
+   */
+  String getName();
 
-  void update(ProjectDependencyDto dto);
+  /**
+   * The optional description of the dependency.
+   */
+  @CheckForNull
+  String getDescription();
 
-  int countByQuery(@Param("query") ProjectDependenciesQuery query);
+  /**
+   * The optional version of the dependency.
+   */
+  @CheckForNull
+  String getVersion();
+
+  /**
+   * The optional package manager of the dependency (e.g. mvn, npm, nuget, ...).
+   */
+  @CheckForNull
+  String getPackageManager();
 }

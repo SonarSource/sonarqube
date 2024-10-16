@@ -33,6 +33,19 @@
     where uuid = #{uuid,jdbcType=VARCHAR}
   </delete>
 
+  <select id="selectByUuid" parameterType="string" resultType="ProjectDependency">
+    select <include refid="projectDependenciesColumns"/>
+    from project_dependencies pd
+    where pd.uuid = #{uuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByBranchUuid" parameterType="string" resultType="ProjectDependency">
+    select <include refid="projectDependenciesColumns"/>
+    from project_dependencies pd
+    inner join components c on pd.uuid = c.uuid
+    where c.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+  </select>
+
   <select id="selectByQuery" parameterType="map" resultType="ProjectDependency">
     select <include refid="projectDependenciesColumns"/>
     <include refid="sqlSelectByQuery" />
