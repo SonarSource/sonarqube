@@ -20,7 +20,11 @@
 package org.sonar.server.platform.web;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -47,7 +51,7 @@ public class CspFilter implements Filter {
     cspPolicies.add("img-src * data: blob:");
     cspPolicies.add("object-src 'none'");
     // the hash below corresponds to the window.__assetsPath script in index.html
-    cspPolicies.add("script-src 'self' 'sha256-D1jaqcDDM2TM2STrzE42NNqyKR9PlptcHDe6tyaBcuM='");
+    cspPolicies.add("script-src 'self' " + getAssetsPathScriptCSPHash(filterConfig.getServletContext().getContextPath()));
     cspPolicies.add("style-src 'self' 'unsafe-inline'");
     cspPolicies.add("worker-src 'none'");
     this.policies = String.join("; ", cspPolicies).trim();
@@ -68,4 +72,26 @@ public class CspFilter implements Filter {
     // Not used
   }
 
+  private static String getAssetsPathScriptCSPHash(String contextPath) {
+    final String WEB_CONTEXT_PLACEHOLDER = "WEB_CONTEXT";
+    final String ASSETS_PATH_SCRIPT = "\n" +
+      "      window.__assetsPath = function (filename) {\n" +
+      "        return 'WEB_CONTEXT/' + filename;\n" +
+      "      };\n" +
+      "    ";
+
+    String assetsPathScriptWithContextPath = ASSETS_PATH_SCRIPT.replace(WEB_CONTEXT_PLACEHOLDER, contextPath);
+    return generateCSPHash(assetsPathScriptWithContextPath);
+  }
+
+  private static String generateCSPHash(String str) {
+    try {
+      byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
+      byte[] digestBytes = MessageDigest.getInstance("SHA-256").digest(bytes);
+      String rawHash = Base64.getMimeEncoder().encodeToString(digestBytes);
+      return String.format("'%s-%s'", "sha256", rawHash);
+    } catch (NoSuchAlgorithmException e) {
+      return "";
+    }
+  }
 }
