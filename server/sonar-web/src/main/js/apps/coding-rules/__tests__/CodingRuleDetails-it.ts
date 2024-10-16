@@ -18,14 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { fireEvent, screen } from '@testing-library/react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import CodingRulesServiceMock, { RULE_TAGS_MOCK } from '../../../api/mocks/CodingRulesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
-import { RULE_1 } from '../../../api/mocks/data/ids';
-import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
-import { byRole } from '../../../sonar-aligned/helpers/testSelector';
+import { QP_2, RULE_1, RULE_10 } from '../../../api/mocks/data/ids';
+import { mockCurrentUser, mockLoggedInUser, mockRuleActivation } from '../../../helpers/testMocks';
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
   SoftwareQuality,
 } from '../../../types/clean-code-taxonomy';
 import { Feature } from '../../../types/features';
@@ -35,8 +36,8 @@ import { getPageObjects, renderCodingRulesApp } from '../utils-tests';
 const rulesHandler = new CodingRulesServiceMock();
 const settingsHandler = new SettingsServiceMock();
 afterEach(() => {
-  rulesHandler.reset();
   settingsHandler.reset();
+  rulesHandler.reset();
 });
 
 describe('rendering', () => {
@@ -169,6 +170,33 @@ describe('rendering', () => {
 
     expect(ui.caycNotificationButton.query()).not.toBeInTheDocument();
   });
+
+  it('should not show customized severity if the order of impacts is different', async () => {
+    const { ui } = getPageObjects();
+    rulesHandler.rulesActivations = {
+      [RULE_10]: [
+        mockRuleActivation({
+          qProfile: QP_2,
+          severity: 'MINOR',
+          impacts: [
+            {
+              softwareQuality: SoftwareQuality.Reliability,
+              severity: SoftwareImpactSeverity.High,
+            },
+            {
+              softwareQuality: SoftwareQuality.Maintainability,
+              severity: SoftwareImpactSeverity.Low,
+            },
+          ],
+        }),
+      ],
+    };
+    renderCodingRulesApp(mockCurrentUser(), 'coding_rules?open=rule10');
+
+    await ui.detailsloaded();
+
+    expect(ui.newSeverityCustomizedCell.query()).not.toBeInTheDocument();
+  });
 });
 
 it('can activate/change/deactivate rule in quality profile', async () => {
@@ -240,7 +268,7 @@ it('can activate/change/deactivate rule in quality profile', async () => {
 
 it('can activate/change/deactivate rule in quality profile for legacy mode', async () => {
   const { ui, user } = getPageObjects();
-  settingsHandler.set(SettingsKey.MQRMode, 'true');
+  settingsHandler.set(SettingsKey.MQRMode, 'false');
   rulesHandler.setIsAdmin();
   renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule1', [Feature.PrioritizedRules]);
   await ui.detailsloaded();

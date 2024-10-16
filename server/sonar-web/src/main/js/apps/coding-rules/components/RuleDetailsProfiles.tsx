@@ -44,7 +44,8 @@ import {
   useActivateRuleMutation,
   useDeactivateRuleMutation,
 } from '../../../queries/quality-profiles';
-import { useIsLegacyCCTMode } from '../../../queries/settings';
+import { useStandardExperienceMode } from '../../../queries/settings';
+import { SoftwareImpact } from '../../../types/clean-code-taxonomy';
 import { Dict, RuleActivation, RuleDetails } from '../../../types/types';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
 import ActivatedRuleActions from './ActivatedRuleActions';
@@ -71,7 +72,7 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
   const { activations = [], referencedProfiles, ruleDetails, canDeactivateInherited } = props;
   const { mutate: activateRule } = useActivateRuleMutation(props.onActivate);
   const { mutate: deactivateRule } = useDeactivateRuleMutation(props.onDeactivate);
-  const { data: isLegacy } = useIsLegacyCCTMode();
+  const { data: isStandardMode } = useStandardExperienceMode();
 
   const canActivate = Object.values(referencedProfiles).some((profile) =>
     Boolean(profile.actions?.edit && profile.language === ruleDetails.lang),
@@ -144,6 +145,12 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
         )
       : null;
 
+    const sortImpacts = (a: SoftwareImpact, b: SoftwareImpact) => {
+      const indexA = softwareQualityOrderMap.get(a.softwareQuality) ?? -1;
+      const indexB = softwareQualityOrderMap.get(b.softwareQuality) ?? -1;
+      return indexA - indexB;
+    };
+
     return (
       <TableRowInteractive key={profile.key}>
         <ContentCell className="sw-flex sw-flex-col sw-gap-2">
@@ -163,73 +170,65 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
                 <Text isSubdued>{translate('coding_rules.prioritized_rule.title')}</Text>
               </>
             )}
-            {!isLegacy &&
+            {!isStandardMode &&
               activation.impacts &&
-              !isEqual(activation.impacts, ruleDetails.impacts) && (
+              !isEqual(
+                [...activation.impacts].sort(sortImpacts),
+                [...ruleDetails.impacts].sort(sortImpacts),
+              ) && (
                 <>
                   <SeparatorCircleIcon />
                   <Tooltip
                     content={
                       <>
-                        {[...activation.impacts]
-                          .sort((a, b) => {
-                            const indexA = softwareQualityOrderMap.get(a.softwareQuality) ?? -1;
-                            const indexB = softwareQualityOrderMap.get(b.softwareQuality) ?? -1;
-                            return indexA - indexB;
-                          })
-                          .map((impact) => {
-                            const ruleImpact = ruleDetails.impacts.find(
-                              (i) => i.softwareQuality === impact.softwareQuality,
-                            );
-                            if (!ruleImpact || ruleImpact.severity === impact.severity) {
-                              return null;
-                            }
-                            return (
-                              <Text
-                                as="div"
-                                colorOverride="echoes-color-text-on-color"
-                                key={impact.softwareQuality}
-                              >
-                                <FormattedMessage
-                                  id="coding_rules.impact_customized.detail"
-                                  values={{
-                                    softwareQuality: (
-                                      <Text
-                                        isHighlighted
-                                        colorOverride="echoes-color-text-on-color"
-                                      >
-                                        <FormattedMessage
-                                          id={`software_quality.${impact.softwareQuality}`}
-                                        />
-                                      </Text>
-                                    ),
-                                    recommended: (
-                                      <Text
-                                        isHighlighted
-                                        colorOverride="echoes-color-text-on-color"
-                                        className="sw-lowercase"
-                                      >
-                                        <FormattedMessage
-                                          id={`severity_impact.${ruleImpact?.severity}`}
-                                        />
-                                      </Text>
-                                    ),
-                                    customized: (
-                                      <Text
-                                        isHighlighted
-                                        colorOverride="echoes-color-text-on-color"
-                                        className="sw-lowercase"
-                                      >
-                                        <FormattedMessage
-                                          id={`severity_impact.${impact.severity}`}
-                                        />
-                                      </Text>
-                                    ),
-                                  }}
-                                />
-                              </Text>
-                            );
-                          })}
+                        {[...activation.impacts].sort(sortImpacts).map((impact) => {
+                          const ruleImpact = ruleDetails.impacts.find(
+                            (i) => i.softwareQuality === impact.softwareQuality,
+                          );
+                          if (!ruleImpact || ruleImpact.severity === impact.severity) {
+                            return null;
+                          }
+                          return (
+                            <Text
+                              as="div"
+                              colorOverride="echoes-color-text-on-color"
+                              key={impact.softwareQuality}
+                            >
+                              <FormattedMessage
+                                id="coding_rules.impact_customized.detail"
+                                values={{
+                                  softwareQuality: (
+                                    <Text isHighlighted colorOverride="echoes-color-text-on-color">
+                                      <FormattedMessage
+                                        id={`software_quality.${impact.softwareQuality}`}
+                                      />
+                                    </Text>
+                                  ),
+                                  recommended: (
+                                    <Text
+                                      isHighlighted
+                                      colorOverride="echoes-color-text-on-color"
+                                      className="sw-lowercase"
+                                    >
+                                      <FormattedMessage
+                                        id={`severity_impact.${ruleImpact?.severity}`}
+                                      />
+                                    </Text>
+                                  ),
+                                  customized: (
+                                    <Text
+                                      isHighlighted
+                                      colorOverride="echoes-color-text-on-color"
+                                      className="sw-lowercase"
+                                    >
+                                      <FormattedMessage id={`severity_impact.${impact.severity}`} />
+                                    </Text>
+                                  ),
+                                }}
+                              />
+                            </Text>
+                          );
+                        })}
                       </>
                     }
                   >
@@ -238,28 +237,30 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
                 </>
               )}
 
-            {isLegacy && activation.severity && activation.severity !== ruleDetails.severity && (
-              <>
-                <SeparatorCircleIcon />
-                <Text isSubdued>
-                  <FormattedMessage
-                    id="coding_rules.severity_customized.message"
-                    values={{
-                      recommended: (
-                        <Text isHighlighted className="sw-lowercase">
-                          <FormattedMessage id={`severity.${ruleDetails.severity}`} />
-                        </Text>
-                      ),
-                      customized: (
-                        <Text isHighlighted className="sw-lowercase">
-                          <FormattedMessage id={`severity.${activation.severity}`} />
-                        </Text>
-                      ),
-                    }}
-                  />
-                </Text>
-              </>
-            )}
+            {isStandardMode &&
+              activation.severity &&
+              activation.severity !== ruleDetails.severity && (
+                <>
+                  <SeparatorCircleIcon />
+                  <Text isSubdued>
+                    <FormattedMessage
+                      id="coding_rules.severity_customized.message"
+                      values={{
+                        recommended: (
+                          <Text isHighlighted className="sw-lowercase">
+                            <FormattedMessage id={`severity.${ruleDetails.severity}`} />
+                          </Text>
+                        ),
+                        customized: (
+                          <Text isHighlighted className="sw-lowercase">
+                            <FormattedMessage id={`severity.${activation.severity}`} />
+                          </Text>
+                        ),
+                      }}
+                    />
+                  </Text>
+                </>
+              )}
 
             {profile.isBuiltIn && <BuiltInQualityProfileBadge />}
           </div>

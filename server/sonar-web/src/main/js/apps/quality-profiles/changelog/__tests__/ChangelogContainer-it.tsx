@@ -21,6 +21,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import QualityProfilesServiceMock from '../../../../api/mocks/QualityProfilesServiceMock';
+import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { mockQualityProfileChangelogEvent } from '../../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
 import routes from '../../routes';
@@ -28,6 +29,7 @@ import routes from '../../routes';
 jest.mock('../../../../api/quality-profiles');
 
 const serviceMock = new QualityProfilesServiceMock();
+const settingsMock = new SettingsServiceMock();
 const ui = {
   row: byRole('row'),
   cell: byRole('cell'),
@@ -75,6 +77,7 @@ afterEach(() => {
   jest.useRealTimers();
 
   serviceMock.reset();
+  settingsMock.reset();
 });
 
 it('should see the changelog', async () => {

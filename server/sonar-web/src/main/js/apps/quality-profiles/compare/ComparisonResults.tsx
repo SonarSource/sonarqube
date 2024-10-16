@@ -233,15 +233,14 @@ type RuleCellProps = {
 function RuleCell({ rule, severity, impacts }: Readonly<RuleCellProps>) {
   const { data: isStandardMode } = useStandardExperienceMode();
   const shouldRenderSeverity =
-    isStandardMode &&Boolean(severity) &&
+    isStandardMode &&
+    Boolean(severity) &&
     rule.left?.severity &&
     rule.right?.severity &&
-    !isEqual(rule.left.severity,
-    rule.right.severity);
+    !isEqual(rule.left.severity, rule.right.severity);
   const shouldRenderImpacts =
     rule.impacts ||
-    (rule.left?.impacts && rule.right?.impacts &&
-    !isEqual(rule.left.impacts, rule.right.impacts));
+    (rule.left?.impacts && rule.right?.impacts && !isEqual(rule.left.impacts, rule.right.impacts));
 
   return (
     <div>
