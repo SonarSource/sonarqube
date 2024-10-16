@@ -23,12 +23,14 @@ import autoprefixer from 'autoprefixer';
 import browserslistToEsbuild from 'browserslist-to-esbuild';
 import path, { resolve } from 'path';
 import postCssCalc from 'postcss-calc';
+import license from 'rollup-plugin-license';
 import { visualizer } from 'rollup-plugin-visualizer';
 import tailwind from 'tailwindcss';
 import { defineConfig, loadEnv } from 'vite';
 import macrosPlugin from 'vite-plugin-babel-macros';
 import requireTransform from 'vite-plugin-require-transform';
 import babelConfig from './babel.config';
+import { ALLOWED_LICENSES, ALLOWED_LICENSE_TEXT, generateLicenseText } from './config/license';
 import { viteDevServerHtmlPlugin } from './config/vite-dev-server-html-plugin.mjs';
 
 const DEFAULT_DEV_SERVER_PORT = 3000;
@@ -58,7 +60,7 @@ export default ({ mode }) => {
           return { runtime: `window.__assetsPath(${JSON.stringify(filename)})` };
         } else {
           // Other files (css, images, etc.) are loaded relatively to the current url,
-          // automatically taking into accound the WEB_CONTEXT
+          // automatically taking into account the WEB_CONTEXT
           return { relative: filename };
         }
       },
@@ -90,7 +92,29 @@ export default ({ mode }) => {
             lodash: ['lodash/lodash.js'],
           },
         },
-        plugins: [],
+        plugins: [
+          // a tool used to concatenate all of our 3rd party licenses together for legal reasons
+          license({
+            thirdParty: {
+              allow: {
+                test: ({ license, licenseText }) =>
+                  ALLOWED_LICENSES.includes(license) ||
+                  ALLOWED_LICENSE_TEXT.some((text) => (licenseText ?? '').includes(text)),
+                failOnUnlicensed: false, // default is false. valid-url package has missing license
+                failOnViolation: true, // Fail if a dependency specifies a license that does not match requirements
+              },
+              output: {
+                // Output file into build/webapp directory which is included in the build output
+                file: path.join(__dirname, 'build/webapp', 'vendor.LICENSE.txt'),
+                template(dependencies) {
+                  return dependencies
+                    .map((dependency) => generateLicenseText(dependency))
+                    .join('\n');
+                },
+              },
+            },
+          }),
+        ],
       },
       sourcemap: isProduction, // enable source maps for production
     },

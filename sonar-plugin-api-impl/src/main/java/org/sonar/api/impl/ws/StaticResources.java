@@ -25,7 +25,7 @@ import java.util.List;
 public class StaticResources {
   private static final Collection<String> STATIC_RESOURCES = List.of("*.css", "*.css.map", "*.ico", "*.png",
     "*.jpg", "*.jpeg", "*.gif", "*.svg", "*.js", "*.js.map", "*.pdf", "/json/*", "*.woff2", "/static/*",
-    "/robots.txt", "/favicon.ico", "/apple-touch-icon*", "/mstile*");
+    "/robots.txt", "/favicon.ico", "/apple-touch-icon*", "/mstile*", "/vendor.LICENSE.txt");
 
   private StaticResources() {
     // only static
