@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-  UseQueryResult,
+  infiniteQueryOptions,
   queryOptions,
   useMutation,
   useQuery,
@@ -35,37 +35,64 @@ import {
   addUser,
   compareProfiles,
   deactivateRule,
+  getProfileChangelog,
   getProfileInheritance,
   getQualityProfile,
 } from '../api/quality-profiles';
-import { ProfileInheritanceDetails } from '../types/types';
-import { createQueryHook } from './common';
+import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
+import { isDefined } from '../helpers/types';
+import { QualityProfileChangelogFilterMode } from '../types/quality-profiles';
+import { createInfiniteQueryHook, createQueryHook } from './common';
 
-export function useProfileInheritanceQuery(
-  profile?: Pick<Profile, 'language' | 'name' | 'parentKey'>,
-): UseQueryResult<{
-  ancestors: ProfileInheritanceDetails[];
-  children: ProfileInheritanceDetails[];
-  profile: ProfileInheritanceDetails | null;
-}> {
-  const { language, name, parentKey } = profile ?? {};
-  return useQuery({
-    queryKey: ['quality-profiles', 'inheritance', language, name, parentKey],
-    queryFn: async ({ queryKey: [, , language, name] }) => {
-      if (!language || !name) {
-        return { ancestors: [], children: [], profile: null };
-      }
-      const response = await getProfileInheritance({ language, name });
-      response.ancestors.reverse();
-      return response;
-    },
-  });
-}
+const qualityProfileQueryKeys = {
+  all: () => ['quality-profiles'],
+  inheritance: (language?: string, name?: string, parentKey?: string) => [
+    ...qualityProfileQueryKeys.all(),
+    'inheritance',
+    language,
+    name,
+    parentKey,
+  ],
+  profile: (profile: Profile, compareToSonarWay = false) => [
+    ...qualityProfileQueryKeys.all(),
+    'details',
+    profile,
+    compareToSonarWay,
+  ],
+  changelog: (
+    language: string,
+    name: string,
+    since: string,
+    to: string,
+    filterMode: QualityProfileChangelogFilterMode,
+  ) => [...qualityProfileQueryKeys.all(), 'changelog', language, name, since, to, filterMode],
+  compare: (leftKey: string, rightKey: string) => [
+    ...qualityProfileQueryKeys.all(),
+    'compare',
+    leftKey,
+    rightKey,
+  ],
+};
+
+export const useProfileInheritanceQuery = createQueryHook(
+  (profile?: Pick<Profile, 'language' | 'name' | 'parentKey'>) => {
+    const { language, name, parentKey } = profile ?? {};
+    return queryOptions({
+      queryKey: qualityProfileQueryKeys.inheritance(language, name, parentKey),
+      queryFn: () => {
+        if (!isDefined(language) || !isDefined(name)) {
+          return { ancestors: [], children: [], profile: null };
+        }
+        return getProfileInheritance({ language, name });
+      },
+    });
+  },
+);
 
 export const useGetQualityProfile = createQueryHook(
   (data: Parameters<typeof getQualityProfile>[0]) => {
     return queryOptions({
-      queryKey: ['quality-profile', 'details', data.profile, data.compareToSonarWay],
+      queryKey: qualityProfileQueryKeys.profile(data.profile, data.compareToSonarWay),
       queryFn: () => {
         return getQualityProfile(data);
       },
@@ -73,11 +100,31 @@ export const useGetQualityProfile = createQueryHook(
   },
 );
 
+export const useGetQualityProfileChangelog = createInfiniteQueryHook(
+  (data: Parameters<typeof getProfileChangelog>[0]) => {
+    return infiniteQueryOptions({
+      queryKey: qualityProfileQueryKeys.changelog(
+        data.profile.language,
+        data.profile.name,
+        data.since,
+        data.to,
+        data.filterMode,
+      ),
+      queryFn: ({ pageParam }) => {
+        return getProfileChangelog({ ...data, page: pageParam });
+      },
+      getNextPageParam: (data) => getNextPageParam({ page: data.paging }),
+      getPreviousPageParam: (data) => getPreviousPageParam({ page: data.paging }),
+      initialPageParam: 1,
+    });
+  },
+);
+
 export function useProfilesCompareQuery(leftKey: string, rightKey: string) {
   return useQuery({
-    queryKey: ['quality-profiles', 'compare', leftKey, rightKey],
-    queryFn: ({ queryKey: [, , leftKey, rightKey] }) => {
-      if (!leftKey || !rightKey) {
+    queryKey: qualityProfileQueryKeys.compare(leftKey, rightKey),
+    queryFn: ({ queryKey: [_1, _2, leftKey, rightKey] }) => {
+      if (!isDefined(leftKey) || !isDefined(rightKey)) {
         return null;
       }
 

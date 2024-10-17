@@ -29,6 +29,7 @@ import {
   SoftwareImpactSeverity,
   SoftwareQuality,
 } from '../types/clean-code-taxonomy';
+import { QualityProfileChangelogFilterMode } from '../types/quality-profiles';
 import { Dict, Paging, ProfileInheritanceDetails, UserSelected } from '../types/types';
 
 export interface ProfileActions {
@@ -119,7 +120,7 @@ export function getProfileInheritance({
 }: Pick<Profile, 'language' | 'name'>): Promise<{
   ancestors: ProfileInheritanceDetails[];
   children: ProfileInheritanceDetails[];
-  profile: ProfileInheritanceDetails;
+  profile: ProfileInheritanceDetails | null;
 }> {
   return getJSON('/api/qualityprofiles/inheritance', {
     language,
@@ -182,17 +183,28 @@ export interface ChangelogResponse {
   paging: Paging;
 }
 
-export function getProfileChangelog(
-  since: any,
-  to: any,
-  { language, name: qualityProfile }: Profile,
-  page?: number,
-): Promise<ChangelogResponse> {
+interface ChangelogData {
+  filterMode: QualityProfileChangelogFilterMode;
+  page?: number;
+  profile: Profile;
+  since: string;
+  to: string;
+}
+
+export function getProfileChangelog(data: ChangelogData): Promise<ChangelogResponse> {
+  const {
+    filterMode,
+    page,
+    profile: { language, name: qualityProfile },
+    since,
+    to,
+  } = data;
   return getJSON('/api/qualityprofiles/changelog', {
     since,
     to,
     language,
     qualityProfile,
+    filterMode,
     p: page,
   });
 }

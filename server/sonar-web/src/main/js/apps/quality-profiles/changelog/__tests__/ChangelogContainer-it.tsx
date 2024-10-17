@@ -24,6 +24,7 @@ import QualityProfilesServiceMock from '../../../../api/mocks/QualityProfilesSer
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { mockQualityProfileChangelogEvent } from '../../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
+import { SettingsKey } from '../../../../types/settings';
 import routes from '../../routes';
 
 jest.mock('../../../../api/quality-profiles');
@@ -80,20 +81,24 @@ afterEach(() => {
   settingsMock.reset();
 });
 
-it('should see the changelog', async () => {
+it('should see the changelog in MQR', async () => {
   const user = userEvent.setup();
 
   renderChangeLog();
 
   const rows = await ui.row.findAll();
-  expect(rows).toHaveLength(6);
+  expect(rows).toHaveLength(7);
   expect(ui.emptyPage.query()).not.toBeInTheDocument();
   ui.checkRow(1, 'May 23, 2019', 'System', 'quality_profiles.changelog.ACTIVATED', 'Rule 0');
   ui.checkRow(2, 'April 23, 2019', 'System', 'quality_profiles.changelog.DEACTIVATED', 'Rule 0', [
-    /quality_profiles.deprecated_severity_set_to severity.MAJOR/,
+    /^$/, // Should be empty
   ]);
   ui.checkRow(3, '', '', '', 'Rule 1', [
-    /quality_profiles.deprecated_severity_set_to severity.CRITICAL/,
+    /quality_profiles.changelog.cca_and_category_changed.*COMPLETE.*INTENTIONAL.*LAWFUL.*RESPONSIBLE/,
+    /quality_profiles.changelog.impact_added.severity_impact.*MEDIUM.*RELIABILITY/,
+    /quality_profiles.changelog.impact_removed.severity_impact.HIGH.*MAINTAINABILITY/,
+  ]);
+  ui.checkRow(6, 'February 23, 2019', 'System', 'quality_profiles.changelog.UPDATED', 'Rule 5', [
     /quality_profiles.changelog.cca_and_category_changed.*COMPLETE.*INTENTIONAL.*LAWFUL.*RESPONSIBLE/,
     /quality_profiles.changelog.impact_added.severity_impact.*MEDIUM.*RELIABILITY/,
     /quality_profiles.changelog.impact_removed.severity_impact.HIGH.*MAINTAINABILITY/,
@@ -102,11 +107,28 @@ it('should see the changelog', async () => {
   expect(screen.getByText('/coding_rules?rule_key=c%3Arule0')).toBeInTheDocument();
 });
 
+it('should return standard mode changelogs only', async () => {
+  settingsMock.set(SettingsKey.MQRMode, 'false');
+  renderChangeLog();
+
+  const rows = await ui.row.findAll();
+  expect(rows).toHaveLength(7);
+  ui.checkRow(1, 'May 23, 2019', 'System', 'quality_profiles.changelog.ACTIVATED', 'Rule 0', [
+    /^$/,
+  ]);
+  ui.checkRow(2, 'April 23, 2019', 'System', 'quality_profiles.changelog.DEACTIVATED', 'Rule 0', [
+    /quality_profiles.severity_set_to severity.MAJOR/,
+  ]);
+  ui.checkRow(6, 'January 23, 2019', 'System', 'quality_profiles.changelog.UPDATED', 'Rule 6', [
+    /quality_profiles.severity_set_to severity.CRITICAL/,
+  ]);
+});
+
 it('should filter the changelog', async () => {
   const user = userEvent.setup();
   renderChangeLog();
 
-  expect(await ui.row.findAll()).toHaveLength(6);
+  expect(await ui.row.findAll()).toHaveLength(7);
   await user.click(ui.startDate.get());
   await user.click(screen.getByRole('gridcell', { name: '20' }));
   await user.click(document.body);
@@ -116,7 +138,7 @@ it('should filter the changelog', async () => {
   await user.click(document.body);
   expect(await ui.row.findAll()).toHaveLength(4);
   await user.click(ui.reset.get());
-  expect(await ui.row.findAll()).toHaveLength(6);
+  expect(await ui.row.findAll()).toHaveLength(7);
 });
 
 it('should load more', async () => {
@@ -134,7 +156,7 @@ it('should load more', async () => {
   await user.click(ui.showMore.get());
   expect(await ui.row.findAll()).toHaveLength(101);
   await user.click(ui.reset.get());
-  expect(await ui.row.findAll()).toHaveLength(51);
+  expect(await ui.row.findAll()).toHaveLength(101); // Reset should not reset the page
 });
 
 it('should see short changelog for php', async () => {
@@ -143,7 +165,7 @@ it('should see short changelog for php', async () => {
   const rows = await ui.row.findAll();
   expect(rows).toHaveLength(2);
   ui.checkRow(1, 'May 23, 2019', 'System', 'quality_profiles.changelog.DEACTIVATED', 'PHP Rule', [
-    /quality_profiles.deprecated_severity_set_to severity.CRITICAL/,
+    /^((?!severity.CRITICAL).)*$/, // Should not contain severity.CRITICAL
     /quality_profiles.changelog.cca_and_category_changed.*COMPLETE.*INTENTIONAL.*CLEAR.*RESPONSIBLE/,
   ]);
   expect(ui.showMore.query()).not.toBeInTheDocument();

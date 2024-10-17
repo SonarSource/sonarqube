@@ -17,18 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
-import { translate } from '../../../helpers/l10n';
-
-interface Props {
-  severity: string;
-}
-
-export default function SeverityChange({ severity }: Readonly<Props>) {
-  return (
-    <div className="sw-whitespace-nowrap">
-      {translate('quality_profiles.severity_set_to')} <SeverityHelper severity={severity} />
-    </div>
-  );
+export enum QualityProfileChangelogFilterMode {
+  MQR = 'MQR',
+  STANDARD = 'STANDARD',
 }
