@@ -219,7 +219,6 @@ it('can activate/change/deactivate rule in quality profile', async () => {
   await user.click(ui.activateButton.get());
 
   await user.click(ui.prioritizedSwitch.get());
-  await user.click(ui.mqrSwitch.get());
   await user.click(ui.newSeveritySelect(SoftwareQuality.Maintainability).get());
   await user.click(byRole('option', { name: 'severity_impact.LOW' }).get());
   await user.click(ui.activateButton.get(ui.activateQPDialog.get()));
@@ -241,7 +240,6 @@ it('can activate/change/deactivate rule in quality profile', async () => {
   await user.click(ui.changeButton('QP FooBaz').get());
   await user.clear(ui.paramInput('1').get());
   await user.type(ui.paramInput('1').get(), 'New');
-  await user.click(ui.mqrSwitch.get());
   await user.click(ui.newSeveritySelect(SoftwareQuality.Maintainability).get());
   await user.click(byRole('option', { name: 'severity_impact.BLOCKER' }).get());
   await user.click(ui.saveButton.get(ui.changeQPDialog.get()));
@@ -345,7 +343,6 @@ it('should show multiple customized severities', async () => {
   );
 
   await user.click(ui.changeButton('QP Bar').get());
-  await user.click(ui.mqrSwitch.get());
   await user.click(ui.newSeveritySelect(SoftwareQuality.Reliability).get());
   await user.click(
     byRole('option', { name: /coding_rules.custom_severity.severity_with_recommended/ }).get(),

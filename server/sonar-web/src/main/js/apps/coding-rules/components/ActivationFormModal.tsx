@@ -27,7 +27,6 @@ import {
   Note,
   SafeHTMLInjection,
   SanitizeLevel,
-  Switch,
 } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -36,6 +35,7 @@ import { useAvailableFeatures } from '../../../app/components/available-features
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { DocLink } from '../../../helpers/doc-links';
 import { useActivateRuleMutation } from '../../../queries/quality-profiles';
+import { useStandardExperienceMode } from '../../../queries/settings';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { Feature } from '../../../types/features';
 import { IssueSeverity } from '../../../types/issues';
@@ -82,7 +82,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
   const [changedImpactSeveritiesMap, setChangedImpactSeverities] = React.useState<
     Map<SoftwareQuality, SoftwareImpactSeverity>
   >(new Map());
-  const [isMQRMode, setIsMQRMode] = React.useState<boolean>(false);
+  const { data: isStandardMode } = useStandardExperienceMode();
 
   const profilesWithDepth = React.useMemo(() => {
     return getQualityProfilesWithDepth(profiles, rule.lang);
@@ -126,9 +126,9 @@ export default function ActivationFormModal(props: Readonly<Props>) {
       key: profile?.key ?? '',
       params,
       rule: rule.key,
-      severity: !isMQRMode ? severity : undefined,
+      severity: isStandardMode ? severity : undefined,
       prioritizedRule,
-      impacts: isMQRMode
+      impacts: !isStandardMode
         ? (Object.fromEntries(impacts) as Record<SoftwareQuality, SoftwareImpactSeverity>)
         : undefined,
     };
@@ -238,11 +238,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
             </FormField>
           )}
 
-          <FormField label="MQR Mode">
-            <Switch value={isMQRMode} onChange={setIsMQRMode} />
-          </FormField>
-
-          {!isMQRMode && (
+          {isStandardMode && (
             <>
               <FormField label={intl.formatMessage({ id: 'coding_rules.custom_severity.title' })}>
                 <Text>
@@ -281,7 +277,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
             </>
           )}
 
-          {isMQRMode && (
+          {!isStandardMode && (
             <>
               <FormField label={intl.formatMessage({ id: 'coding_rules.custom_severity.title' })}>
                 <Text>

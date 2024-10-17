@@ -171,7 +171,7 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
               </>
             )}
             {!isStandardMode &&
-              activation.impacts &&
+              Boolean(activation.impacts?.length) &&
               !isEqual(
                 [...activation.impacts].sort(sortImpacts),
                 [...ruleDetails.impacts].sort(sortImpacts),

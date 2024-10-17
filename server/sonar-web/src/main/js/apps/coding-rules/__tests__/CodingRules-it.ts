@@ -405,6 +405,10 @@ describe('Rules app list', () => {
   });
 
   describe('old severity', () => {
+    beforeEach(() => {
+      settingsHandler.set(SettingsKey.MQRMode, 'false');
+    });
+
     it('can activate/change/deactivate specific rule for quality profile', async () => {
       const { ui, user } = getPageObjects();
       rulesHandler.setIsAdmin();
@@ -565,8 +569,6 @@ describe('Rules app list', () => {
       // Activate Rule for qp
       await user.click(ui.activateButton.getAll()[1]);
 
-      await user.click(ui.mqrSwitch.get(ui.activateQPDialog.get()));
-
       expect(ui.newSeveritySelect(SoftwareQuality.Maintainability).get()).toHaveValue(
         'coding_rules.custom_severity.severity_with_recommended.severity_impact.MEDIUM',
       );
@@ -589,10 +591,6 @@ describe('Rules app list', () => {
       expect(ui.deactivateButton.getAll()).toHaveLength(1);
 
       await user.click(ui.changeButton('QP Bar').get());
-      expect(ui.oldSeveritySelect.get(ui.changeQPDialog.get())).toHaveValue('severity.MINOR');
-      expect(ui.notRecommendedSeverity.get()).toBeInTheDocument();
-      expect(ui.notRecommendedSeverity.get()).toHaveTextContent('severity.MAJOR');
-      await user.click(ui.mqrSwitch.get());
 
       expect(ui.newSeveritySelect(SoftwareQuality.Maintainability).get()).toHaveValue(
         'severity_impact.LOW',
@@ -613,11 +611,6 @@ describe('Rules app list', () => {
 
       // Check that new severity is saved
       await user.click(ui.changeButton('QP Bar').get());
-      await user.click(ui.mqrSwitch.get());
-      expect(ui.oldSeveritySelect.get(ui.changeQPDialog.get())).toHaveValue('severity.MINOR');
-      expect(ui.notRecommendedSeverity.get()).toBeInTheDocument();
-      expect(ui.notRecommendedSeverity.get()).toHaveTextContent('severity.MAJOR');
-      await user.click(ui.mqrSwitch.get());
 
       expect(ui.newSeveritySelect(SoftwareQuality.Maintainability).get()).toHaveValue(
         'severity_impact.LOW',
@@ -656,7 +649,6 @@ describe('Rules app list', () => {
 
       // Check that severity is reflected correctly
       await user.click(ui.changeButton('QP Bar').get());
-      await user.click(ui.mqrSwitch.get(ui.changeQPDialog.get()));
       expect(ui.newSeveritySelect(SoftwareQuality.Maintainability).get()).toHaveValue(
         'severity_impact.MEDIUM',
       );
@@ -710,7 +702,6 @@ describe('Rules app list', () => {
 
       // Check that severity is reflected correctly
       await user.click(ui.changeButton('QP Bar').get());
-      await user.click(ui.mqrSwitch.get(ui.changeQPDialog.get()));
       expect(ui.newSeveritySelect(SoftwareQuality.Reliability).get()).toHaveValue(
         'severity_impact.MEDIUM',
       );
@@ -737,7 +728,6 @@ describe('Rules app list', () => {
       expect(ui.changeButton('QP Bar').get()).toBeInTheDocument();
 
       await user.click(ui.changeButton('QP Bar').get());
-      await user.click(ui.mqrSwitch.get(ui.changeQPDialog.get()));
       expect(ui.newSeveritySelect(SoftwareQuality.Maintainability).get()).toHaveValue(
         'severity_impact.MEDIUM',
       );

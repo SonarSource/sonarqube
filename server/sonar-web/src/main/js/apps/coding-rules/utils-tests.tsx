@@ -163,7 +163,6 @@ const selectors = {
   }),
   qualityProfileSelect: byRole('combobox', { name: 'coding_rules.quality_profile' }),
   oldSeveritySelect: byRole('combobox', { name: 'coding_rules.custom_severity.choose_severity' }),
-  mqrSwitch: byRole('switch'),
   newSeveritySelect: (quality: SoftwareQuality) =>
     byRole('combobox', { name: `software_quality.${quality}` }),
   notRecommendedSeverity: byText('coding_rules.custom_severity.not_recommended'),
