@@ -47,6 +47,7 @@ public final class MQRModeProperties {
         .type(PropertyType.BOOLEAN)
         .category(UI_MODE)
         .subCategory(UI_MODE_SUB_CATEGORY)
+        .hidden()
         .index(1)
         .build()
     );

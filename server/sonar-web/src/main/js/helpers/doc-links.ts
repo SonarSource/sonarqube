@@ -67,6 +67,8 @@ export enum DocLink {
   MainBranchAnalysis = '/project-administration/maintaining-the-branches-of-your-project/',
   ManagingPortfolios = '/project-administration/managing-portfolios/',
   MetricDefinitions = '/user-guide/code-metrics/metrics-definition/',
+  ModeMQR = '/instance-administration/analysis-functions/instance-mode/mqr-mode',
+  ModeStandard = '/instance-administration/analysis-functions/instance-mode/standard-experience',
   Monorepos = '/project-administration/monorepos/',
   NewCodeDefinition = '/project-administration/clean-as-you-code-settings/defining-new-code/',
   NewCodeDefinitionOptions = '/project-administration/clean-as-you-code-settings/defining-new-code/#new-code-definition-options',

@@ -155,6 +155,14 @@ describe('Global Settings', () => {
 
     expect(await ui.generalComputeEngineHeading.find()).toBeInTheDocument();
   });
+
+  it('can open mode and see custom implementation', async () => {
+    const user = userEvent.setup();
+    renderSettingsApp();
+
+    await user.click(await ui.categoryLink('settings.mode.title').find());
+    expect(byRole('radio', { name: /settings.mode.standard/ }).get()).toBeInTheDocument();
+  });
 });
 
 describe('Project Settings', () => {

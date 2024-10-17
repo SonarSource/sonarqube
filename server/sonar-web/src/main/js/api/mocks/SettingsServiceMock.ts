@@ -121,6 +121,15 @@ export const DEFAULT_DEFINITIONS_MOCK = [
     description: 'Lets do it',
     type: SettingType.BOOLEAN,
   }),
+  mockDefinition({
+    category: 'Mode',
+    defaultValue: 'true',
+    key: 'sonar.multi-quality-mode.enabled',
+    name: 'Enable Multi-Quality Rule Mode',
+    options: [],
+    subCategory: 'Mode',
+    type: SettingType.BOOLEAN,
+  }),
 ];
 
 export default class SettingsServiceMock {

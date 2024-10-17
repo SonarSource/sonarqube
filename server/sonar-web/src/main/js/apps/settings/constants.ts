@@ -29,6 +29,7 @@ export const LANGUAGES_CATEGORY = 'languages';
 export const NEW_CODE_PERIOD_CATEGORY = 'new_code_period';
 export const PULL_REQUEST_DECORATION_BINDING_CATEGORY = 'pull_request_decoration_binding';
 export const EMAIL_NOTIFICATION_CATEGORY = 'email_notification';
+export const MODE_CATEGORY = 'mode';
 
 export const CATEGORY_OVERRIDES: Dict<string> = {
   abap: LANGUAGES_CATEGORY,
