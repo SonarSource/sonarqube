@@ -21,8 +21,8 @@ package org.sonar.server.rule.registration;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -62,7 +62,7 @@ public class QualityProfileChangesUpdaterTest {
 
   private final QualityProfileChangesUpdater underTest = new QualityProfileChangesUpdater(dbClient, UuidFactoryImpl.INSTANCE, sonarQubeVersion);
 
-  @Before
+  @BeforeEach
   public void before() {
     when(dbClient.ruleChangeDao()).thenReturn(ruleChangeDao);
     when(dbClient.qProfileChangeDao()).thenReturn(qualityProfileChangeDao);
@@ -123,10 +123,7 @@ public class QualityProfileChangesUpdaterTest {
     assertThat(firstChange.getNewCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
     assertThat(firstChange.getOldCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.TESTED);
     assertThat(firstChange.getRuleUuid()).isEqualTo(RULE_UUID);
-    assertThat(firstChange.getRuleImpactChanges()).hasSize(1);
-    assertThat(firstChange.getRuleImpactChanges()).extracting(RuleImpactChangeDto::getNewSoftwareQuality,
-        RuleImpactChangeDto::getOldSoftwareQuality, RuleImpactChangeDto::getOldSeverity, RuleImpactChangeDto::getNewSeverity)
-      .containsExactly(tuple(SoftwareQuality.RELIABILITY, SoftwareQuality.RELIABILITY, Severity.MEDIUM, Severity.LOW));
+    assertThat(firstChange.getRuleImpactChanges()).isEmpty();
 
     assertThat(secondChange.getNewCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.EFFICIENT);
     assertThat(secondChange.getOldCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.DISTINCT);

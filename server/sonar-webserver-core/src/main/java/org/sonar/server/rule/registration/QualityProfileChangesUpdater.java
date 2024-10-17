@@ -88,17 +88,6 @@ public class QualityProfileChangesUpdater {
   private static Set<RuleImpactChangeDto> createRuleImpactChanges(PluginRuleUpdate pluginRuleUpdate, RuleChangeDto ruleChangeDto) {
     Set<RuleImpactChangeDto> ruleImpactChangeDtos = new HashSet<>();
 
-    pluginRuleUpdate.getMatchingSoftwareQualities().stream()
-      .map(softwareQuality -> {
-        RuleImpactChangeDto ruleImpactChangeDto = new RuleImpactChangeDto();
-        ruleImpactChangeDto.setRuleChangeUuid(ruleChangeDto.getUuid());
-        ruleImpactChangeDto.setOldSeverity(pluginRuleUpdate.getOldImpacts().get(softwareQuality));
-        ruleImpactChangeDto.setOldSoftwareQuality(softwareQuality);
-        ruleImpactChangeDto.setNewSeverity(pluginRuleUpdate.getNewImpacts().get(softwareQuality));
-        ruleImpactChangeDto.setNewSoftwareQuality(softwareQuality);
-        return ruleImpactChangeDto;
-      }).forEach(ruleImpactChangeDtos::add);
-
     Iterator<SoftwareQuality> removedIterator = (Sets.difference(pluginRuleUpdate.getOldImpacts().keySet(), pluginRuleUpdate.getMatchingSoftwareQualities())).iterator();
     Iterator<SoftwareQuality> addedIterator = (Sets.difference(pluginRuleUpdate.getNewImpacts().keySet(), pluginRuleUpdate.getMatchingSoftwareQualities())).iterator();
     while (removedIterator.hasNext() || addedIterator.hasNext()) {
