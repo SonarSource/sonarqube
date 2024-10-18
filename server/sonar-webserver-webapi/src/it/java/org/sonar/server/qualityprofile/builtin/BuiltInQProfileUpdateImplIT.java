@@ -39,6 +39,7 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInQ
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -91,7 +92,8 @@ class BuiltInQProfileUpdateImplIT {
   private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
   private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession, mock(Configuration.class), sonarQubeVersion);
+  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), UuidFactoryImpl.INSTANCE, typeValidations, userSession, mock(Configuration.class),
+    sonarQubeVersion);
 
   private BuiltInQProfileUpdateImpl underTest = new BuiltInQProfileUpdateImpl(db.getDbClient(), ruleActivator, activeRuleIndexer,
     qualityProfileChangeEventService);

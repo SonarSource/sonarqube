@@ -111,7 +111,8 @@ class RegisterQualityProfilesNotificationIT {
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
   private final BuiltInQProfileInsert builtInQProfileInsert = new BuiltInQProfileInsertImpl(dbClient, ruleFinder, system2, UuidFactoryImpl.INSTANCE,
     typeValidations, activeRuleIndexer, sonarQubeVersion);
-  private final RuleActivator ruleActivator = new RuleActivator(system2, dbClient, typeValidations, userSessionRule, mock(Configuration.class), sonarQubeVersion);
+  private final RuleActivator ruleActivator = new RuleActivator(system2, dbClient, UuidFactoryImpl.INSTANCE, typeValidations, userSessionRule, mock(Configuration.class),
+    sonarQubeVersion);
   private final QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, mock(RuleIndex.class), activeRuleIndexer, qualityProfileChangeEventService);
   private final BuiltInQProfileUpdate builtInQProfileUpdate = new BuiltInQProfileUpdateImpl(dbClient, ruleActivator, activeRuleIndexer, qualityProfileChangeEventService);
   private final BuiltInQualityProfilesUpdateListener builtInQualityProfilesNotification = mock(BuiltInQualityProfilesUpdateListener.class);

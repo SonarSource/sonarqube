@@ -74,7 +74,7 @@ class QualityProfileChangeEventServiceImplTest {
     db.rules().insert(rule1);
 
     ActiveRuleChange activeRuleChange = changeActiveRule(qualityProfileDto, rule1, "paramChangeKey", "paramChangeValue");
-    activeRuleChange.setImpactSeverities(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+    activeRuleChange.setNewImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
 
     Collection<QProfileDto> profiles = Collections.singleton(qualityProfileDto);
 
@@ -94,11 +94,11 @@ class QualityProfileChangeEventServiceImplTest {
 
     assertThat(ruleSetChangedEvent)
       .contains("\"activatedRules\":[{\"key\":\"repo:ruleKey\"," +
-                "\"language\":\"xoo\"," +
-                "\"templateKey\":\"xoo:template-key\"," +
-                "\"params\":[{\"key\":\"paramChangeKey\",\"value\":\"paramChangeValue\"}]," +
-                "\"impacts\":[{\"softwareQuality\":\"MAINTAINABILITY\",\"severity\":\"LOW\"}]}]," +
-                "\"deactivatedRules\":[]");
+        "\"language\":\"xoo\"," +
+        "\"templateKey\":\"xoo:template-key\"," +
+        "\"params\":[{\"key\":\"paramChangeKey\",\"value\":\"paramChangeValue\"}]," +
+        "\"impacts\":[{\"softwareQuality\":\"MAINTAINABILITY\",\"severity\":\"LOW\"}]}]," +
+        "\"deactivatedRules\":[]");
   }
 
   @Test
@@ -110,7 +110,7 @@ class QualityProfileChangeEventServiceImplTest {
     QProfileDto defaultQualityProfile = insertDefaultQualityProfile(language);
     RuleDto rule = insertCustomRule(templateRule, language, "<div>line1\nline2</div>");
     ActiveRuleChange activeRuleChange = changeActiveRule(defaultQualityProfile, rule, "paramChangeKey", "paramChangeValue")
-      .setImpactSeverities(Map.of(SoftwareQuality.RELIABILITY, Severity.MEDIUM));
+      .setNewImpacts(Map.of(SoftwareQuality.RELIABILITY, Severity.MEDIUM));
     db.measures().insertMeasure(mainBranch, m -> m.addValue(NCLOC_LANGUAGE_DISTRIBUTION_KEY, language + "=100"));
 
     db.getSession().commit();
@@ -130,11 +130,11 @@ class QualityProfileChangeEventServiceImplTest {
 
     assertThat(ruleSetChangedEvent)
       .contains("\"activatedRules\":[{\"key\":\"repo:ruleKey\"," +
-                "\"language\":\"xoo\"," +
-                "\"templateKey\":\"xoo:template-key\"," +
-                "\"params\":[{\"key\":\"paramChangeKey\",\"value\":\"paramChangeValue\"}]," +
-                "\"impacts\":[{\"softwareQuality\":\"RELIABILITY\",\"severity\":\"MEDIUM\"}]}]," +
-                "\"deactivatedRules\":[]");
+        "\"language\":\"xoo\"," +
+        "\"templateKey\":\"xoo:template-key\"," +
+        "\"params\":[{\"key\":\"paramChangeKey\",\"value\":\"paramChangeValue\"}]," +
+        "\"impacts\":[{\"softwareQuality\":\"RELIABILITY\",\"severity\":\"MEDIUM\"}]}]," +
+        "\"deactivatedRules\":[]");
   }
 
   private Deque<PushEventDto> getProjectEvents(ProjectDto projectDto) {
@@ -215,9 +215,9 @@ class QualityProfileChangeEventServiceImplTest {
 
     assertThat(ruleSetChangedEvent)
       .contains("\"activatedRules\":[{\"key\":\"repo:ruleKey\"," +
-                "\"language\":\"xoo\",\"severity\":\"" + activeRule1.getSeverityString() + "\"," +
-                "\"params\":[{\"key\":\"" + activeRuleParam1.getKey() + "\",\"value\":\"" + activeRuleParam1.getValue() + "\"}]," +
-                "\"impacts\":[{\"softwareQuality\":\"SECURITY\",\"severity\":\"BLOCKER\"}]}]," +
-                "\"deactivatedRules\":[\"repo2:ruleKey2\"]");
+        "\"language\":\"xoo\",\"severity\":\"" + activeRule1.getSeverityString() + "\"," +
+        "\"params\":[{\"key\":\"" + activeRuleParam1.getKey() + "\",\"value\":\"" + activeRuleParam1.getValue() + "\"}]," +
+        "\"impacts\":[{\"softwareQuality\":\"SECURITY\",\"severity\":\"BLOCKER\"}]}]," +
+        "\"deactivatedRules\":[\"repo2:ruleKey2\"]");
   }
 }

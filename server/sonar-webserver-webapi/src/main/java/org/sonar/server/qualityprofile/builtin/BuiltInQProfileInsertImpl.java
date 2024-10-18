@@ -102,7 +102,6 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     activeRuleIndexer.commitAndIndex(batchDbSession, changes);
   }
 
-
   private void createDefaultAndOrgQProfiles(DbSession batchDbSession, BuiltInQProfile builtIn, RulesProfileDto rulesProfileDto) {
     Optional<String> qProfileUuid = dbClient.defaultQProfileDao().selectDefaultQProfileUuid(batchDbSession, builtIn.getLanguage());
 

@@ -19,6 +19,7 @@
  */
 package org.sonar.db.rule;
 
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -37,7 +38,7 @@ public class RuleImpactChangeDto {
   }
 
   public RuleImpactChangeDto(@Nullable SoftwareQuality newSoftwareQuality, @Nullable SoftwareQuality oldSoftwareQuality,
-                             @Nullable Severity newSeverity, @Nullable Severity oldSeverity) {
+    @Nullable Severity newSeverity, @Nullable Severity oldSeverity) {
     this.newSoftwareQuality = newSoftwareQuality;
     this.oldSoftwareQuality = oldSoftwareQuality;
     this.newSeverity = newSeverity;
@@ -82,5 +83,23 @@ public class RuleImpactChangeDto {
 
   public void setRuleChangeUuid(String ruleChangeUuid) {
     this.ruleChangeUuid = ruleChangeUuid;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    RuleImpactChangeDto that = (RuleImpactChangeDto) o;
+    return newSoftwareQuality == that.newSoftwareQuality && oldSoftwareQuality == that.oldSoftwareQuality && newSeverity == that.newSeverity && oldSeverity == that.oldSeverity
+      && Objects.equals(ruleChangeUuid, that.ruleChangeUuid);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(newSoftwareQuality, oldSoftwareQuality, newSeverity, oldSeverity, ruleChangeUuid);
   }
 }

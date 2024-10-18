@@ -33,6 +33,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -89,7 +90,8 @@ public class QProfilesWsMediumIT {
   private final TypeValidations typeValidations = new TypeValidations(emptyList());
   private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, typeValidations, userSessionRule, mock(Configuration.class), sonarQubeVersion);
+  private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, UuidFactoryImpl.INSTANCE, typeValidations, userSessionRule, mock(Configuration.class),
+    sonarQubeVersion);
   private final QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
   private final QProfileWsSupport qProfileWsSupport = new QProfileWsSupport(dbClient, userSessionRule);
   private final RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(dbClient);
@@ -100,7 +102,7 @@ public class QProfilesWsMediumIT {
   private final WsActionTester wsActivateRules = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSessionRule, qProfileRules, qProfileWsSupport, dbClient));
 
   @Before
-  public void before(){
+  public void before() {
     userSessionRule.logIn().setSystemAdministrator();
     userSessionRule.addPermission(GlobalPermission.ADMINISTER);
     userSessionRule.addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);

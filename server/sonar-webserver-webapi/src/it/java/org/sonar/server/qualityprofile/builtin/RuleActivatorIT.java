@@ -33,15 +33,20 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.QProfileChangeDto;
+import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.rule.RuleChangeDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleImpactChangeDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
@@ -70,7 +75,7 @@ import static org.sonar.server.qualityprofile.ActiveRuleInheritance.OVERRIDES;
 
 /**
  * Class org.sonar.server.qualityprofile.builtin.RuleActivator is mostly covered in
- * org.sonar.server.qualityprofile.builtin.BuiltInQProfileUpdateImplTest
+ * org.sonar.server.qualityprofile.builtin.BuiltInQProfileUpdateImplIT
  */
 class RuleActivatorIT {
   @RegisterExtension
@@ -86,7 +91,7 @@ class RuleActivatorIT {
 
   private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private final RuleActivator underTest = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession,
+  private final RuleActivator underTest = new RuleActivator(system2, db.getDbClient(), UuidFactoryImpl.INSTANCE, typeValidations, userSession,
     mock(Configuration.class), sonarQubeVersion);
 
   @Test
@@ -123,7 +128,7 @@ class RuleActivatorIT {
     ActiveRuleChange activeRuleResult = result.get(0);
     assertThat(activeRuleResult.getParameters()).containsEntry("min", "10");
     assertThat(activeRuleResult.getSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(activeRuleResult.getImpactSeverities()).isEqualTo(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
+    assertThat(activeRuleResult.getNewImpacts()).isEqualTo(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
     assertThat(activeRuleResult.isPrioritizedRule()).isFalse();
     assertThat(activeRuleResult.getInheritance()).isEqualTo(ActiveRuleInheritance.INHERITED);
   }
@@ -163,7 +168,7 @@ class RuleActivatorIT {
     ActiveRuleChange activeRuleResult = result.get(0);
     assertThat(activeRuleResult.getParameters()).containsEntry("min", "15");
     assertThat(activeRuleResult.getSeverity()).isEqualTo(Severity.MINOR);
-    assertThat(activeRuleResult.getImpactSeverities()).containsExactlyEntriesOf(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
+    assertThat(activeRuleResult.getNewImpacts()).containsExactlyEntriesOf(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
     assertThat(activeRuleResult.isPrioritizedRule()).isTrue();
     assertThat(activeRuleResult.getInheritance()).isEqualTo(OVERRIDES);
   }
@@ -202,7 +207,7 @@ class RuleActivatorIT {
     assertThat(result).hasSize(1);
     ActiveRuleChange activeRuleResult = result.get(0);
     assertThat(activeRuleResult.getSeverity()).isEqualTo(Severity.MINOR);
-    assertThat(activeRuleResult.getImpactSeverities()).containsExactlyEntriesOf(Map.of(SECURITY, org.sonar.api.issue.impact.Severity.LOW));
+    assertThat(activeRuleResult.getNewImpacts()).containsExactlyEntriesOf(Map.of(SECURITY, org.sonar.api.issue.impact.Severity.LOW));
     assertThat(activeRuleResult.getInheritance()).isEqualTo(OVERRIDES);
   }
 
@@ -243,7 +248,7 @@ class RuleActivatorIT {
     assertThat(result).hasSize(1);
     ActiveRuleChange activeRuleResult = result.get(0);
     assertThat(activeRuleResult.getSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(activeRuleResult.getImpactSeverities())
+    assertThat(activeRuleResult.getNewImpacts())
       .containsExactlyInAnyOrderEntriesOf(Map.of(SECURITY, org.sonar.api.issue.impact.Severity.LOW, RELIABILITY, org.sonar.api.issue.impact.Severity.LOW));
     assertThat(activeRuleResult.getInheritance()).isEqualTo(OVERRIDES);
   }
@@ -286,8 +291,17 @@ class RuleActivatorIT {
     assertThat(result).hasSize(1);
     ActiveRuleChange activeRuleResult = result.get(0);
     assertThat(activeRuleResult.getSeverity()).isEqualTo(Severity.MINOR);
-    assertThat(activeRuleResult.getImpactSeverities()).containsExactlyEntriesOf(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
+    assertThat(activeRuleResult.getNewImpacts()).containsExactlyEntriesOf(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
     assertThat(activeRuleResult.getInheritance()).isEqualTo(OVERRIDES);
+
+    List<QProfileChangeDto> qProfileChangeDtos = db.getDbClient().qProfileChangeDao().selectByQuery(session, new QProfileChangeQuery(childProfile.getKee()));
+    assertThat(qProfileChangeDtos).hasSize(1);
+    assertThat(qProfileChangeDtos.get(0).getChangeType()).isEqualTo("UPDATED");
+    assertThat(qProfileChangeDtos.get(0).getDataAsMap()).containsEntry("severity", Severity.MINOR);
+    RuleChangeDto ruleChange = qProfileChangeDtos.get(0).getRuleChange();
+    RuleImpactChangeDto expected = new RuleImpactChangeDto(MAINTAINABILITY, MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW, org.sonar.api.issue.impact.Severity.BLOCKER);
+    expected.setRuleChangeUuid(ruleChange.getUuid());
+    assertThat(ruleChange.getRuleImpactChanges()).containsExactly(expected);
   }
 
   @Test
@@ -317,7 +331,7 @@ class RuleActivatorIT {
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getParameters()).containsEntry("min", "10");
     assertThat(result.get(0).getSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(result.get(0).getImpactSeverities()).containsExactlyEntriesOf(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
+    assertThat(result.get(0).getNewImpacts()).containsExactlyEntriesOf(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
     assertThat(result.get(0).getInheritance()).isNull();
   }
 

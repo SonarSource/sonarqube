@@ -182,7 +182,7 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       ruleChange.setSeverity(arc.getSeverity());
       ruleChange.setLanguage(language);
 
-      arc.getImpactSeverities().forEach(ruleChange::addImpact);
+      arc.getNewImpacts().forEach(ruleChange::addImpact);
 
       Optional<String> templateKey = templateKey(arc);
       templateKey.ifPresent(ruleChange::setTemplateKey);
@@ -280,8 +280,7 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
   private List<ProjectDto> getDefaultQualityProfileAssociatedProjects(DbSession dbSession, String language) {
     Set<String> associatedProjectUuids = new HashSet<>();
 
-    List<ProjectMainBranchMeasureDto> measureDtos =
-      dbClient.measureDao().selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile(dbSession);
+    List<ProjectMainBranchMeasureDto> measureDtos = dbClient.measureDao().selectAllForProjectMainBranchesAssociatedToDefaultQualityProfile(dbSession);
     for (ProjectMainBranchMeasureDto measureDto : measureDtos) {
       String distribution = (String) measureDto.getMetricValues().get(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY);
       if (distribution != null && distributionContainsLanguage(distribution, language)) {

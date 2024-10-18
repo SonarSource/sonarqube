@@ -36,8 +36,8 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInQ
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
-import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.issue.ImpactDto;
@@ -73,14 +73,15 @@ class BuiltInQProfileInsertImplIT {
   public static DbTester db = DbTester.create();
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
-  private final UuidFactory uuidFactory = new SequenceUuidFactory();
+  private final UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
   private final TypeValidations typeValidations = new TypeValidations(singletonList(new StringTypeValidation()));
   private final DbSession dbSession = db.getSession();
   private static final DbSession batchDbSession = db.getDbClient().openSession(true);
   private final ServerRuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient(), mock(RuleDescriptionFormatter.class));
   private final ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private final BuiltInQProfileInsertImpl underTest = new BuiltInQProfileInsertImpl(db.getDbClient(), ruleFinder, system2, uuidFactory, typeValidations, activeRuleIndexer, sonarQubeVersion);
+  private final BuiltInQProfileInsertImpl underTest = new BuiltInQProfileInsertImpl(db.getDbClient(), ruleFinder, system2, uuidFactory, typeValidations, activeRuleIndexer,
+    sonarQubeVersion);
 
   @AfterAll
   public static void tearDown() {

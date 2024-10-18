@@ -35,6 +35,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -104,7 +105,8 @@ public class ChangeParentActionIT {
     activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
     TypeValidations typeValidations = new TypeValidations(Collections.emptyList());
     sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-    RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, typeValidations, userSession, mock(Configuration.class), sonarQubeVersion);
+    RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, UuidFactoryImpl.INSTANCE, typeValidations, userSession, mock(Configuration.class),
+      sonarQubeVersion);
     qProfileTree = new QProfileTreeImpl(dbClient, ruleActivator, System2.INSTANCE, activeRuleIndexer, mock(QualityProfileChangeEventService.class));
     ChangeParentAction underTest = new ChangeParentAction(
       dbClient,

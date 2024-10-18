@@ -34,6 +34,7 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -90,7 +91,7 @@ class QProfileComparisonIT {
     ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db, es.client());
     QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
     SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-    RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db, new TypeValidations(singletonList(new IntegerTypeValidation())),
+    RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db, UuidFactoryImpl.INSTANCE, new TypeValidations(singletonList(new IntegerTypeValidation())),
       userSession, mock(Configuration.class), sonarQubeVersion);
     qProfileRules = new QProfileRulesImpl(db, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
     comparison = new QProfileComparison(db);
