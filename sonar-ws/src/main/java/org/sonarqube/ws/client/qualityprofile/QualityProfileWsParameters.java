@@ -33,12 +33,10 @@ public class QualityProfileWsParameters {
   public static final String ACTION_ADD_PROJECT = "add_project";
   public static final String ACTION_ADD_GROUP = "add_group";
   public static final String ACTION_ADD_USER = "add_user";
-  public static final String ACTION_CHANGE_PARENT = "change_parent";
   public static final String ACTION_COPY = "copy";
   public static final String ACTION_CREATE = "create";
   public static final String ACTION_DEACTIVATE_RULE = "deactivate_rule";
   public static final String ACTION_DEACTIVATE_RULES = "deactivate_rules";
-  public static final String ACTION_DELETE = "delete";
   public static final String ACTION_REMOVE_PROJECT = "remove_project";
   public static final String ACTION_REMOVE_GROUP = "remove_group";
   public static final String ACTION_REMOVE_USER = "remove_user";
@@ -50,7 +48,7 @@ public class QualityProfileWsParameters {
 
   public static final String PARAM_COMPARE_TO_SONAR_WAY = "compareToSonarWay";
   public static final String PARAM_DEFAULTS = "defaults";
-  public static final String PARAM_FROM_KEY = "fromKey";
+  public static final String PARAM_FILTER_MODE = "filterMode";
   public static final String PARAM_GROUP = "group";
   public static final String PARAM_LANGUAGE = "language";
   public static final String PARAM_LOGIN = "login";
@@ -61,7 +59,6 @@ public class QualityProfileWsParameters {
   public static final String PARAM_QUALITY_PROFILE = "qualityProfile";
   public static final String PARAM_PROJECT = "project";
   public static final String PARAM_PROJECT_KEY = "projectKey";
-  public static final String PARAM_QUERY = "q";
   public static final String PARAM_RESET = "reset";
   public static final String PARAM_RULE = "rule";
   public static final String PARAM_SEVERITY = "severity";
@@ -69,7 +66,6 @@ public class QualityProfileWsParameters {
   public static final String PARAM_TARGET_KEY = "targetKey";
   public static final String PARAM_TARGET_SEVERITY = "targetSeverity";
   public static final String PARAM_TO = "to";
-  public static final String PARAM_TO_NAME = "toName";
   public static final String PARAM_PRIORITIZED_RULE = "prioritizedRule";
   public static final String PARAM_IMPACTS = "impacts";
 
