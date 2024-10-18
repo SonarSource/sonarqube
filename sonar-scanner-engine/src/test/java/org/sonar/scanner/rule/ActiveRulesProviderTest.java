@@ -31,7 +31,7 @@ import org.assertj.core.groups.Tuple;
 import org.junit.Test;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.LoadedActiveRule;
+import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -73,11 +73,11 @@ public class ActiveRulesProviderTest {
       RuleKey.of("rule1", "rule1"), RuleKey.of("rule2", "rule2"), RuleKey.of("rule3", "rule3"));
 
     Map<String, ActiveRule> activeRuleByKey = activeRules.findAll().stream().collect(Collectors.toMap(e -> e.ruleKey().rule(), e -> e));
-    assertThat(activeRuleByKey.get("rule1").impacts())
+    assertThat(((DefaultActiveRule) activeRuleByKey.get("rule1")).impacts())
       .containsExactlyInAnyOrderEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
 
-    assertThat(activeRuleByKey.get("rule2").impacts()).isEmpty();
-    assertThat(activeRuleByKey.get("rule3").impacts()).isEmpty();
+    assertThat(((DefaultActiveRule) activeRuleByKey.get("rule2")).impacts()).isEmpty();
+    assertThat(((DefaultActiveRule) activeRuleByKey.get("rule3")).impacts()).isEmpty();
 
     verify(loader).load("qp1");
     verify(loader).load("qp2");

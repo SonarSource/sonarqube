@@ -19,8 +19,20 @@
  */
 package org.sonar.scanner.rule;
 
-import java.util.List;
+import java.util.Map;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 
-public interface ActiveRulesLoader {
-  List<LoadedActiveRule> load(String qualityProfileKey);
+class LoadedActiveRuleTest {
+
+  @Test
+  void should_return_expected_field() {
+    LoadedActiveRule loadedActiveRule = new LoadedActiveRule();
+    loadedActiveRule.setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
+
+    Assertions.assertThat(loadedActiveRule.getImpacts())
+      .containsExactlyInAnyOrderEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
+  }
 }

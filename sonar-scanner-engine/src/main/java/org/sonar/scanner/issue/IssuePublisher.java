@@ -33,6 +33,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
@@ -78,7 +79,7 @@ public class IssuePublisher {
       return false;
     }
 
-    ScannerReport.Issue rawIssue = createReportIssue(issue, inputComponent.scannerId(), activeRule.severity(), activeRule.impacts());
+    ScannerReport.Issue rawIssue = createReportIssue(issue, inputComponent.scannerId(), activeRule.severity(), ((DefaultActiveRule) activeRule).impacts());
 
     if (filters.accept(inputComponent, rawIssue)) {
       write(inputComponent.scannerId(), rawIssue);

@@ -65,7 +65,6 @@ public class DefaultActiveRule implements ActiveRule {
     return severity;
   }
 
-  @Override
   public Map<SoftwareQuality, Severity> impacts() {
     return impacts;
   }

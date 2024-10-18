@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.rule.LoadedActiveRule;
+import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;

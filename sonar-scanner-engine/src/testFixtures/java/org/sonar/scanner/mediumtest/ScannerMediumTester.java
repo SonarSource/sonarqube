@@ -49,7 +49,6 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -76,6 +75,7 @@ import org.sonar.scanner.repository.SingleProjectRepository;
 import org.sonar.scanner.repository.settings.GlobalSettingsLoader;
 import org.sonar.scanner.repository.settings.ProjectSettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
+import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.scanner.rule.RulesLoader;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -279,7 +279,6 @@ public class ScannerMediumTester extends ExternalResource implements BeforeTestE
       throw new IllegalStateException(e);
     }
   }
-
 
   public AnalysisBuilder newAnalysis() {
     return new AnalysisBuilder(this);
