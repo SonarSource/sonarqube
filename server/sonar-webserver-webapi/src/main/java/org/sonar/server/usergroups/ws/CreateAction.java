@@ -24,8 +24,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.user.UserGroupValidation;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -33,6 +31,7 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.UserGroups;
 
@@ -46,8 +45,6 @@ import static org.sonar.server.usergroups.ws.GroupWsSupport.toProtobuf;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CreateAction implements UserGroupsWsAction {
-
-  private final Logger logger = LoggerFactory.getLogger(CreateAction.class);
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -98,7 +95,8 @@ public class CreateAction implements UserGroupsWsAction {
   public void handle(Request request, Response response) throws Exception {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = support.findOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION_KEY));
+      OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION_KEY))
+          .orElseThrow(() -> new NotFoundException("No organization found: " + request.param(PARAM_ORGANIZATION_KEY)));
       userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
       managedInstanceChecker.throwIfInstanceIsManaged();
       String groupName = request.mandatoryParam(PARAM_GROUP_NAME);

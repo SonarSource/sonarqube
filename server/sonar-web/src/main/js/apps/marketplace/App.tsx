@@ -41,8 +41,6 @@ import { translate } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
 import { PendingPluginResult, Plugin, RiskConsent } from '../../types/plugins';
 import { SettingsKey } from '../../types/settings';
-import EditionBoxes from './EditionBoxes';
-import Header from './Header';
 import PluginsList from './PluginsList';
 import Search from './Search';
 import PluginRiskConsentBox from './components/PluginRiskConsentBox';
@@ -169,8 +167,6 @@ class App extends React.PureComponent<Props, State> {
       <LargeCenteredLayout as="main" id="marketplace-page">
         <PageContentFontWrapper className="sw-typo-default sw-py-8">
           <Helmet title={translate('marketplace.page')} />
-          <Header currentEdition={currentEdition} />
-          <EditionBoxes currentEdition={currentEdition} />
 
           <BasicSeparator className="sw-my-6" />
 

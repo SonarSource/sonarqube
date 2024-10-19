@@ -106,6 +106,8 @@ import ProjectAdminPageExtension from '../components/extensions/ProjectAdminPage
 import ProjectPageExtension from '../components/extensions/ProjectPageExtension';
 import { GlobalStyles } from '../styles/GlobalStyles';
 import exportModulesAsGlobals from './exportModulesAsGlobals';
+import organizationsRoutes from '../../apps/organizations/routes';
+import { Organization } from "../../types/types";
 
 function renderComponentRoutes() {
   return (
@@ -207,12 +209,12 @@ const router = createBrowserRouter(
 
             {globalIssuesRoutes()}
 
+            {organizationsRoutes()}
+
             {projectsRoutes()}
 
             {qualityGatesRoutes()}
             {qualityProfilesRoutes()}
-
-            <Route path="portfolios" element={<PortfoliosPage />} />
 
             <Route path="sonarlint/auth" element={<SonarLintConnection />} />
 
@@ -257,6 +259,7 @@ const router = createBrowserRouter(
 
 export default function startReactApp(
   l10nBundle: IntlShape,
+  userOrganizations?: Organization[],
   currentUser?: CurrentUser,
   appState?: AppState,
   availableFeatures?: Feature[],
@@ -270,7 +273,7 @@ export default function startReactApp(
     <HelmetProvider>
       <AppStateContextProvider appState={appState ?? DEFAULT_APP_STATE}>
         <AvailableFeaturesContext.Provider value={availableFeatures ?? DEFAULT_AVAILABLE_FEATURES}>
-          <CurrentUserContextProvider currentUser={currentUser}>
+          <CurrentUserContextProvider currentUser={currentUser} userOrganizations={userOrganizations}>
             <RawIntlProvider value={l10nBundle}>
               <ThemeProvider theme={lightTheme}>
                 <QueryClientProvider client={queryClient}>

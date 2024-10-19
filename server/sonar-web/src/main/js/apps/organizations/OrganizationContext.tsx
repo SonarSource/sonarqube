@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,26 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { useOutletContext } from 'react-router-dom';
-import { getWrappedDisplayName } from '../../components/hoc/utils';
 import { Organization } from "../../types/types";
+import { getWrappedDisplayName } from "~sonar-aligned/components/hoc/utils";
+
+export const OrganizationContext = React.createContext<OrganizationContextProps>({});
 
 export interface OrganizationContextProps {
-  organization: Organization;
+  organization?: Organization;
 }
 
 export function withOrganizationContext<P extends Partial<OrganizationContextProps>>(
-    WrappedComponent: React.ComponentType<P>
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<P & OrganizationContextProps>>,
 ): React.ComponentType<Omit<P, keyof OrganizationContextProps>> {
-  function ComponentWithOrganizationProps(props: P) {
-    const context = useOutletContext<OrganizationContextProps>();
-    return <WrappedComponent {...props} {...context} />;
-  }
+  return class WithOrganizationContext extends React.PureComponent<
+    Omit<P, keyof OrganizationContextProps>
+  > {
+    static displayName = getWrappedDisplayName(WrappedComponent, 'withOrganizationContext');
 
-  (ComponentWithOrganizationProps as React.FC<P>).displayName = getWrappedDisplayName(
-      WrappedComponent,
-      'withOrganizationContext'
-  );
-
-  return ComponentWithOrganizationProps;
+    render() {
+      return (
+        <OrganizationContext.Consumer>
+          {(organization) => <WrappedComponent organization={organization} {...(this.props as P)} />}
+        </OrganizationContext.Consumer>
+      );
+    }
+  };
 }

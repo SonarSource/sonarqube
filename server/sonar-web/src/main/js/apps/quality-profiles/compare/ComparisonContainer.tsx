@@ -52,7 +52,7 @@ export function ComparisonContainer(props: Readonly<Props>) {
   } = useProfilesCompareQuery(profile.key, withKey);
 
   const handleCompare = (withKey: string) => {
-    const path = getProfileComparePath(profile.name, profile.language, withKey);
+    const path = getProfileComparePath(profile.name, profile.language, props.organization, withKey);
     router.push(path);
   };
 

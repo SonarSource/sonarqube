@@ -88,7 +88,7 @@ export default function ProjectCard({ project }: Readonly<Props>) {
       </aside>
 
       <SubHeading as="h3">
-        <DiscreetLink to={getProjectUrl(project.key)}>{project.name}</DiscreetLink>
+        <DiscreetLink to={getProjectUrl(project.key)}>Key: {project.name}</DiscreetLink>
       </SubHeading>
 
       <Note>{project.key}</Note>

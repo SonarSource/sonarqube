@@ -67,6 +67,7 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
         <>
           {renderOption(HotspotStatusOption.TO_REVIEW)}
           {renderOption(HotspotStatusOption.ACKNOWLEDGED)}
+          {renderOption(HotspotStatusOption.EXCEPTION)}
           {renderOption(HotspotStatusOption.FIXED)}
           {renderOption(HotspotStatusOption.SAFE)}
           <FormField

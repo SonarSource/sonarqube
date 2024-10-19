@@ -28,9 +28,10 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
@@ -46,9 +47,10 @@ import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class QualityProfileDao implements Dao {
 
+  private final Logger logger = LoggerFactory.getLogger(QualityProfileDao.class);
+
   private final System2 system;
   private final UuidFactory uuidFactory;
-  private final Logger logger = Loggers.get(QualityProfileDao.class);
 
   public QualityProfileDao(UuidFactory uuidFactory, System2 system) {
     this.uuidFactory = uuidFactory;
@@ -142,6 +144,10 @@ public class QualityProfileDao implements Dao {
   private static void doUpdate(QualityProfileMapper mapper, QProfileDto profile, long now) {
     mapper.updateRuleProfile(RulesProfileDto.from(profile), new Date(now));
     mapper.updateOrgQProfile(OrgQProfileDto.from(profile), now);
+  }
+
+  public List<QProfileDto> selectAll(DbSession dbSession) {
+    return mapper(dbSession).selectAll();
   }
 
   public List<QProfileDto> selectDefaultProfiles(DbSession dbSession, OrganizationDto organization, Collection<String> languages) {

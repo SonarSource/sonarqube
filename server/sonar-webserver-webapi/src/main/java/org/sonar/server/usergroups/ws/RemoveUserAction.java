@@ -19,8 +19,6 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
@@ -36,6 +34,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -91,8 +90,13 @@ public class RemoveUserAction implements UserGroupsWsAction {
       GroupDto groupDto = support.findGroupDto(dbSession, request);
       userSession.checkPermission(OrganizationPermission.ADMINISTER, groupDto.getOrganizationUuid());
       UserDto userDto = getUser(dbSession, request.mandatoryParam(PARAM_LOGIN));
-      groupMembershipService.removeMembership(groupDto.getUuid(), userDto.getUuid());
+      groupMembershipService.removeMembership(groupDto.getOrganizationUuid(), groupDto.getUuid(), userDto.getUuid());
       response.noContent();
+
+      OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, groupDto.getOrganizationUuid())
+              .orElseThrow(() -> new NotFoundException("No organization found with uuid: " + groupDto.getOrganizationUuid()));
+      logger.info("Removed User: {} from UserGroup: {} :: groupId: {}, organization: {}, orgId: {} and LoggedInUser: {}",
+          userDto.getLogin(), groupDto.getName(), groupDto.getUuid(), organization.getKey(), organization.getUuid(), userSession.getLogin());
     }
   }
 

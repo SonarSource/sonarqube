@@ -62,7 +62,7 @@ public class DefaultUserController implements UserController {
     SearchResults<UserInformation> userSearchResults = userService.findUsers(toUserSearchRequest(usersSearchRestRequest, excludedGroupId, page));
     PaginationInformation paging = forPageIndex(page.pageIndex()).withPageSize(page.pageSize()).andTotal(userSearchResults.total());
 
-    return usersSearchResponseGenerator.toUsersForResponse(userSearchResults.searchResults(), paging);
+    return usersSearchResponseGenerator.toUsersForResponse(userSearchResults.searchResults(), paging, false /* TODO */);
   }
 
   private void throwIfAdminOnlyParametersAreUsed(UsersSearchRestRequest usersSearchRestRequest, @Nullable String excludedGroupId) {
@@ -111,7 +111,7 @@ public class DefaultUserController implements UserController {
 
   @Override
   public UserRestResponse fetchUser(String id) {
-    return usersSearchResponseGenerator.toRestUser(userService.fetchUser(id));
+    return usersSearchResponseGenerator.toRestUser(userService.fetchUser(id), false /* TODO */);
   }
 
   @Override
@@ -119,7 +119,7 @@ public class DefaultUserController implements UserController {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     UpdateUser update = toUpdateUser(updateRequest);
     UserInformation updatedUser = userService.updateUser(id, update);
-    return usersSearchResponseGenerator.toRestUser(updatedUser);
+    return usersSearchResponseGenerator.toRestUser(updatedUser, false /* TODO */);
   }
 
   private static UpdateUser toUpdateUser(UserUpdateRestRequest updateRequest) {
@@ -137,7 +137,7 @@ public class DefaultUserController implements UserController {
   public UserRestResponse create(UserCreateRestRequest userCreateRestRequest) {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     UserCreateRequest userCreateRequest = toUserCreateRequest(userCreateRestRequest);
-    return usersSearchResponseGenerator.toRestUser(userService.createUser(userCreateRequest));
+    return usersSearchResponseGenerator.toRestUser(userService.createUser(userCreateRequest), false /* TODO */);
   }
 
   private static UserCreateRequest toUserCreateRequest(UserCreateRestRequest userCreateRestRequest) {

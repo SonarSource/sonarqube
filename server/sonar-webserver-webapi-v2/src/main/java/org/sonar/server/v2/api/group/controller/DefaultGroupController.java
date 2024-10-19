@@ -22,6 +22,7 @@ package org.sonar.server.v2.api.group.controller;
 import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.group.service.GroupInformation;
 import org.sonar.server.common.group.service.GroupSearchRequest;
@@ -56,7 +57,7 @@ public class DefaultGroupController implements GroupController {
   public GroupsSearchRestResponse search(GroupsSearchRestRequest groupsSearchRestRequest, RestPage restPage) {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupSearchRequest groupSearchRequest = new GroupSearchRequest(groupsSearchRestRequest.q(), groupsSearchRestRequest.managed(), restPage.pageIndex(), restPage.pageSize());
+      GroupSearchRequest groupSearchRequest = new GroupSearchRequest(null /* TODO */, groupsSearchRestRequest.q(), groupsSearchRestRequest.managed(), restPage.pageIndex(), restPage.pageSize());
       SearchResults<GroupInformation> searchResults = groupService.search(dbSession, groupSearchRequest);
       List<GroupRestResponse> groupRestResponses = toGroupRestResponses(searchResults);
       return new GroupsSearchRestResponse(groupRestResponses, new PageRestResponse(restPage.pageIndex(), restPage.pageSize(), searchResults.total()));
@@ -83,7 +84,9 @@ public class DefaultGroupController implements GroupController {
     try (DbSession session = dbClient.openSession(false)) {
       throwIfNotAllowedToDeleteGroup(id, session);
       GroupInformation group = findGroupInformationOrThrow(id, session);
-      groupService.delete(session, group.groupDto());
+      OrganizationDto organization = dbClient.organizationDao().selectByUuid(session, group.groupDto().getOrganizationUuid())
+          .orElseThrow(() -> new IllegalArgumentException("No organization found by uuid: " + group.groupDto().getOrganizationUuid()));
+      groupService.delete(session, organization, group.groupDto());
       session.commit();
     }
   }
@@ -95,6 +98,7 @@ public class DefaultGroupController implements GroupController {
       GroupInformation group = findGroupInformationOrThrow(id, session);
       GroupInformation updatedGroup = groupService.updateGroup(
         session,
+        null /* TODO */,
         group.groupDto(),
         updateRequest.getName().orElse(group.groupDto().getName()),
         updateRequest.getDescription().orElse(group.groupDto().getDescription()));
@@ -117,7 +121,9 @@ public class DefaultGroupController implements GroupController {
   public GroupRestResponse create(GroupCreateRestRequest request) {
     throwIfNotAllowedToModifyGroups();
     try (DbSession session = dbClient.openSession(false)) {
-      GroupInformation createdGroup = groupService.createGroup(session, request.name(), request.description());
+      OrganizationDto organization = dbClient.organizationDao().selectByKey(session, request.organization())
+          .orElseThrow(() -> new IllegalArgumentException("No organization found: " + request.organization()));
+      GroupInformation createdGroup = groupService.createGroup(session, organization, request.name(), request.description());
       session.commit();
       return toRestGroup(createdGroup);
     }

@@ -24,6 +24,7 @@ import { Rule, RuleActivation, RuleDetails } from '../../../types/types';
 import ActivationFormModal from './ActivationFormModal';
 
 interface Props {
+  organization: string;
   activation?: RuleActivation;
   ariaLabel?: string;
   buttonText: string;
@@ -51,6 +52,7 @@ export default function ActivationButton(props: Props) {
       </Button>
 
       <ActivationFormModal
+        organization={props.organization}
         activation={activation}
         modalHeader={modalHeader}
         isOpen={modalOpen}

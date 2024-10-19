@@ -97,6 +97,7 @@ allprojects {
         url "${artifactoryUrl}/${repository}"
       }
     } else {
+      mavenLocal()
       mavenCentral()
       maven {
         url 'https://jitpack.io'
@@ -139,6 +140,7 @@ allprojects {
          password = System.env.'ARTIFACTORY_PWD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
       }
     }
+    mavenLocal()
     mavenCentral()
     maven {
       url 'https://jitpack.io'
@@ -152,16 +154,16 @@ allprojects {
   artifactory {
     clientConfig.setIncludeEnvVars(true)
     clientConfig.setEnvVarsExcludePatterns('*pass*,*psw*,*secret*,*MAVEN_CMD_LINE_ARGS*,sun.java.command,*token*,*login*,*key*,*signing*,*auth*,*pwd*')
-    contextUrl = System.getenv('ARTIFACTORY_URL')
+    contextUrl = System.getenv('ARTIFACTORY_URL') ?: 'https://artifactory.autorabit.com/artifactory/'
     publish {
       repository {
-        repoKey = System.getenv('ARTIFACTORY_DEPLOY_REPO')
-        username = System.getenv('ARTIFACTORY_DEPLOY_USERNAME') ?: project.properties.artifactoryUsername
-        password = System.getenv('ARTIFACTORY_DEPLOY_PASSWORD') ?: project.properties.artifactoryPaswword
+        repoKey = System.env.'ARTIFACTORY_CODESCAN_REPO' ?: (project.hasProperty('artifactoryRepo') ? project.getProperty('artifactoryRepo') : 'libs-release-local')
+        username = System.env.'ARTIFACTORY_USER' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
+        password = System.env.'ARTIFACTORY_PWD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
       }
       defaults {
         properties = [
-            'build.name': 'sonar-enterprise',
+            'build.name': 'codescan-cloud',
             'build.number': System.getenv('BUILD_NUMBER'),
             'pr.branch.target': System.getenv('GITHUB_BASE_BRANCH'),
             'pr.number': System.getenv('PULL_REQUEST'),
@@ -174,14 +176,10 @@ allprojects {
         publishIvy = false
       }
     }
-    clientConfig.info.setBuildName('sonar-enterprise')
+    clientConfig.info.setBuildName('codescan-cloud')
     clientConfig.info.setBuildNumber(System.getenv('BUILD_NUMBER'))
     // Define the artifacts to be deployed to https://binaries.sonarsource.com on releases
-    clientConfig.info.addEnvironmentProperty('ARTIFACTS_TO_PUBLISH',
-        "${project.group}:sonar-application:zip," +
-            "com.sonarsource.sonarqube:sonarqube-developer:zip," +
-            "com.sonarsource.sonarqube:sonarqube-datacenter:zip," +
-            "com.sonarsource.sonarqube:sonarqube-enterprise:zip")
+    clientConfig.info.addEnvironmentProperty('ARTIFACTS_TO_PUBLISH', "${project.group}:codescan-application:zip")
     // The name of this variable is important because it's used by the delivery process when extracting version from Artifactory build info.
     clientConfig.info.addEnvironmentProperty('PROJECT_VERSION', "${version}")
   }
@@ -387,6 +385,8 @@ subprojects {
         entry 'junit-jupiter-api'
         entry 'junit-jupiter-engine'
         entry 'junit-jupiter-params'
+      }
+      dependencySet(group: 'org.junit.vintage', version: '5.10.2') {
         entry 'junit-vintage-engine'
       }
       dependency 'org.junit-pioneer:junit-pioneer:2.2.0'
@@ -706,12 +706,12 @@ subprojects {
     publications {
       mavenJava(MavenPublication) {
         pom {
-          name = 'SonarQube'
+          name = 'Codescan Cloud'
           description = project.description
-          url = 'https://www.sonarsource.com/products/sonarqube'
+          url = 'https://codescan.io'
           organization {
-            name = 'SonarSource'
-            url = 'https://www.sonarsource.com'
+            name = 'AutoRABIT LLC'
+            url = 'https://autorabit.com'
           }
           licenses {
             license {
@@ -721,12 +721,12 @@ subprojects {
             }
           }
           scm {
-            url = 'https://github.com/SonarSource/sonarqube'
+            url = 'https://github.com/codescan-io/sonarqube'
           }
           developers {
             developer {
-              id = 'sonarsource-team'
-              name = 'SonarSource Team'
+              id = 'codescan-team'
+              name = 'Codescan Team'
             }
           }
         }

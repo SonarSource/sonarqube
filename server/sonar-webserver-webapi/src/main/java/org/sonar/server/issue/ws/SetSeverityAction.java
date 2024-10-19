@@ -21,13 +21,14 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
 import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
@@ -49,6 +50,8 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITY;
 
 public class SetSeverityAction implements IssuesWsAction {
 
+  private final Logger logger = LoggerFactory.getLogger(SetSeverityAction.class);
+
   private final UserSession userSession;
   private final DbClient dbClient;
   private final IssueChangeEventService issueChangeEventService;
@@ -56,7 +59,6 @@ public class SetSeverityAction implements IssuesWsAction {
   private final IssueFieldsSetter issueFieldsSetter;
   private final IssueUpdater issueUpdater;
   private final OperationResponseWriter responseWriter;
-  private final Logger logger = Loggers.get(SetSeverityAction.class);
 
   public SetSeverityAction(UserSession userSession, DbClient dbClient, IssueChangeEventService issueChangeEventService,
     IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,

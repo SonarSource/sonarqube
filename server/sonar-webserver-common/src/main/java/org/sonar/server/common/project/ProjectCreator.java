@@ -22,6 +22,7 @@ package org.sonar.server.common.project;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.server.common.component.ComponentCreationParameters;
 import org.sonar.server.common.component.ComponentUpdater;
@@ -45,10 +46,11 @@ public class ProjectCreator {
     this.componentUpdater = componentUpdater;
   }
 
-  public ComponentCreationData createProject(DbSession dbSession, String projectKey, String projectName, @Nullable String mainBranchName, CreationMethod creationMethod,
-    @Nullable Boolean isPrivate, boolean isManaged) {
+  public ComponentCreationData createProject(DbSession dbSession, OrganizationDto organization, String projectKey, String projectName, @Nullable String mainBranchName, CreationMethod creationMethod,
+                                             @Nullable Boolean isPrivate, boolean isManaged) {
     boolean visibility = isPrivate != null ? isPrivate : projectDefaultVisibility.get(dbSession).isPrivate();
     NewComponent projectComponent = NewComponent.newComponentBuilder()
+      .setOrganizationUuid(organization.getUuid())
       .setKey(projectKey)
       .setName(projectName)
       .setPrivate(visibility)
@@ -65,7 +67,7 @@ public class ProjectCreator {
     return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
   }
 
-  public ComponentCreationData createProject(DbSession dbSession, String projectKey, String projectName, @Nullable String mainBranchName, CreationMethod creationMethod) {
-    return createProject(dbSession, projectKey, projectName, mainBranchName, creationMethod, projectDefaultVisibility.get(dbSession).isPrivate(), false);
+  public ComponentCreationData createProject(DbSession dbSession, OrganizationDto organization, String projectKey, String projectName, @Nullable String mainBranchName, CreationMethod creationMethod) {
+    return createProject(dbSession, organization, projectKey, projectName, mainBranchName, creationMethod, projectDefaultVisibility.get(dbSession).isPrivate(), false);
   }
 }

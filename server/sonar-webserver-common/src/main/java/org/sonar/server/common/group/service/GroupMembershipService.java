@@ -21,11 +21,12 @@ package org.sonar.server.common.group.service;
 
 import java.util.List;
 import java.util.Optional;
+
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDao;
@@ -43,6 +44,7 @@ import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
 @ServerSide
 public class GroupMembershipService {
+
   private final DbClient dbClient;
   private final UserGroupDao userGroupDao;
   private final UserDao userDao;
@@ -86,7 +88,8 @@ public class GroupMembershipService {
   public void removeMembership(String groupMembershipUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserGroupDto userGroupDto = findMembershipOrThrow(groupMembershipUuid, dbSession);
-      removeMembership(userGroupDto.getGroupUuid(), userGroupDto.getUserUuid());
+      GroupDto groupDto = findNonDefaultGroupOrThrow(userGroupDto.getGroupUuid(), dbSession);
+      removeMembership(groupDto.getOrganizationUuid(), userGroupDto.getGroupUuid(), userGroupDto.getUserUuid());
     }
   }
 
@@ -96,11 +99,11 @@ public class GroupMembershipService {
       .orElseThrow(() -> new NotFoundException(format("Group membership '%s' not found", groupMembershipUuid)));
   }
 
-  public void removeMembership(String groupUuid, String userUuid) {
+  public void removeMembership(String organizationUuid, String groupUuid, String userUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserDto userDto = findUserOrThrow(userUuid, dbSession);
       GroupDto groupDto = findNonDefaultGroupOrThrow(groupUuid, dbSession);
-      ensureLastAdminIsNotRemoved(dbSession, groupUuid, userUuid);
+      ensureLastAdminIsNotRemoved(dbSession, organizationUuid, groupUuid, userUuid);
       userGroupDao.delete(dbSession, groupDto, userDto);
       dbSession.commit();
     }
@@ -119,9 +122,9 @@ public class GroupMembershipService {
       .orElseThrow(() -> new NotFoundException(format("User '%s' not found", userUuid)));
   }
 
-  private void ensureLastAdminIsNotRemoved(DbSession dbSession, String groupUuids, String userUuid) {
+  private void ensureLastAdminIsNotRemoved(DbSession dbSession, String organizationUuid, String groupUuids, String userUuid) {
     int remainingAdmins = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroupMember(dbSession,
-      GlobalPermission.ADMINISTER.getKey(), groupUuids, userUuid);
+        organizationUuid, OrganizationPermission.ADMINISTER.getKey(), groupUuids, userUuid);
     checkRequest(remainingAdmins > 0, "The last administrator user cannot be removed");
   }
 

@@ -40,8 +40,9 @@ public class PopulateDefaultImpactsInRules extends DataChange {
     SELECT COUNT(*) FROM rules_default_impacts
     """;
   private static final String SELECT_QUERY = """
-    SELECT r.uuid, rule_type, priority, ad_hoc_type, ad_hoc_severity, is_ad_hoc
+    SELECT r.uuid, r.rule_type, r.priority, rm.ad_hoc_type, rm.ad_hoc_severity, r.is_ad_hoc
     FROM rules r
+    LEFT JOIN rules_metadata rm ON rm.rule_uuid = r.uuid
     LEFT JOIN rules_default_impacts rdi ON rdi.rule_uuid = r.uuid
     WHERE rdi.uuid IS NULL
     """;

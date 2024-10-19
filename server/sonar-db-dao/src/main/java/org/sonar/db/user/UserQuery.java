@@ -21,9 +21,7 @@ package org.sonar.db.user;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +38,8 @@ public class UserQuery {
   private final String groupUuid;
   private final String excludedGroupUuid;
   private final Set<String> userUuids;
+  private final List<String> organizationUuids;
+  private final List<String> excludedOrganizationUuids;
 
   private UserQuery(UserQuery userQuery, Collection<String> userUuids) {
     this.searchText = userQuery.getSearchText();
@@ -53,12 +53,15 @@ public class UserQuery {
     this.groupUuid = userQuery.groupUuid;
     this.excludedGroupUuid = userQuery.excludedGroupUuid;
     this.userUuids = new HashSet<>(userUuids);
+    this.organizationUuids = userQuery.getOrganizationUuids() != null ? new ArrayList<>(userQuery.getOrganizationUuids()) : null;
+    this.excludedOrganizationUuids = userQuery.getExcludedOrganizationUuids() != null ? new ArrayList<>(userQuery.getExcludedOrganizationUuids()) : null;
   }
 
   private UserQuery(@Nullable String searchText, @Nullable Boolean isActive, @Nullable String isManagedSqlClause,
     @Nullable OffsetDateTime lastConnectionDateFrom, @Nullable OffsetDateTime lastConnectionDateTo,
     @Nullable OffsetDateTime sonarLintLastConnectionDateFrom, @Nullable OffsetDateTime sonarLintLastConnectionDateTo, @Nullable String externalLogin,
-    @Nullable String groupUuid, @Nullable String excludedGroupUuid, @Nullable Set<String> userUuids) {
+    @Nullable String groupUuid, @Nullable String excludedGroupUuid, @Nullable Set<String> userUuids,
+    @Nullable List<String> organizationUuids, @Nullable List<String> excludedOrganizationUuids) {
     this.searchText = searchTextToSearchTextSql(searchText);
     this.isActive = isActive;
     this.isManagedSqlClause = isManagedSqlClause;
@@ -70,6 +73,8 @@ public class UserQuery {
     this.groupUuid = groupUuid;
     this.excludedGroupUuid = excludedGroupUuid;
     this.userUuids = userUuids;
+    this.organizationUuids = organizationUuids;
+    this.excludedOrganizationUuids = excludedOrganizationUuids;
   }
 
   public static UserQuery copyWithNewRangeOfUserUuids(UserQuery userQuery, Collection<String> userUuids) {
@@ -148,6 +153,14 @@ public class UserQuery {
     return userUuids;
   }
 
+  public List<String> getOrganizationUuids() {
+    return organizationUuids;
+  }
+
+  public List<String> getExcludedOrganizationUuids() {
+    return excludedOrganizationUuids;
+  }
+
   @CheckForNull
   private String getGroupUuid() {
     return groupUuid;
@@ -174,6 +187,8 @@ public class UserQuery {
     private String groupUuid = null;
     private String excludedGroupUuid;
     private Set<String> userUuids = null;
+    private List<String> organizationUuids = new ArrayList<>();
+    private List<String> excludedOrganizationUuids = new ArrayList<>();
 
     private UserQueryBuilder() {
     }
@@ -233,10 +248,27 @@ public class UserQuery {
       return this;
     }
 
+    /**
+     * Include only users that are members of at least one of the OrganizationUuids
+     */
+    public UserQueryBuilder addOrganizationUuids(List<String> organizationUuids) {
+      this.organizationUuids.addAll(organizationUuids);
+      return this;
+    }
+
+    /**
+     * Exclude only users that are members of at least one of the OrganizationUuids
+     */
+    public UserQueryBuilder addExcludedOrganizationUuids(String organizationUuid) {
+      this.excludedOrganizationUuids.add(organizationUuid);
+      return this;
+    }
+
     public UserQuery build() {
       return new UserQuery(
         searchText, isActive, isManagedSqlClause, lastConnectionDateFrom, lastConnectionDateTo,
-        sonarLintLastConnectionDateFrom, sonarLintLastConnectionDateTo, externalLogin, groupUuid, excludedGroupUuid, userUuids);
+        sonarLintLastConnectionDateFrom, sonarLintLastConnectionDateTo, externalLogin, groupUuid, excludedGroupUuid, userUuids,
+        organizationUuids, excludedOrganizationUuids);
     }
   }
 }

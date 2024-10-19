@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,11 +20,12 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
-import ValidationInput from "../../../components/controls/ValidationInput";
-import {translate} from "../../../helpers/l10n";
-import {getHostUrl} from "../../../helpers/urls";
-import HelpTooltip from "../../../components/controls/HelpTooltip";
+import { translate } from "../../../helpers/l10n";
+import { getHostUrl } from "../../../helpers/urls";
 import { checkOrganizationKeyExistence } from "../../../api/organizations";
+import { FormField } from "design-system";
+import HelpTooltip from "~sonar-aligned/components/controls/HelpTooltip";
+import { ButtonIcon, ButtonVariety, IconQuestionMark } from "@sonarsource/echoes-react";
 
 interface Props {
   initialValue?: string;
@@ -40,6 +41,7 @@ interface State {
 
 export default class OrganizationKeyInput extends React.PureComponent<Props, State> {
   mounted = false;
+
   constructor(props: Props) {
     super(props);
     this.state = { error: undefined, touched: false, validating: false, value: '' };
@@ -106,12 +108,13 @@ export default class OrganizationKeyInput extends React.PureComponent<Props, Sta
     const isInvalid = this.state.touched && this.state.error !== undefined;
     const isValid = this.state.touched && !this.state.validating && this.state.error === undefined;
     return (
-      <ValidationInput
+      <FormField
         error={this.state.error}
         isInvalid={isInvalid}
         isValid={isValid}
         label={translate('onboarding.create_organization.organization_name')}
-        required={true}>
+        required
+      >
         <div className="display-inline-flex-center">
           <span className="little-spacer-right nowrap">
             {getHostUrl().replace(/https*:\/\//, '') + '/organizations/'}
@@ -129,15 +132,22 @@ export default class OrganizationKeyInput extends React.PureComponent<Props, Sta
             value={this.state.value}
           />
           <HelpTooltip
-            className="little-spacer-left"
+            className="sw-ml-2"
             overlay={
-              <div className="big-padded-top big-padded-bottom">
+              <div className="sw-py-4">
                 {translate('organization.key.description')}
               </div>
             }
-          />
+          >
+            <ButtonIcon
+              Icon={IconQuestionMark}
+              ariaLabel={translate('help')}
+              isIconFilled
+              variety={ButtonVariety.DefaultGhost}
+            />
+          </HelpTooltip>
         </div>
-      </ValidationInput>
+      </FormField>
     );
   }
 }

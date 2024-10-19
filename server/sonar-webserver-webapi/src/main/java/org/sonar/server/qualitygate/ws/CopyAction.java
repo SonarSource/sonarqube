@@ -19,12 +19,12 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -41,11 +41,12 @@ import static org.sonarqube.ws.Qualitygates.QualityGate.newBuilder;
 
 public class CopyAction implements QualityGatesWsAction {
 
+  private final Logger logger = LoggerFactory.getLogger(CopyAction.class);
+
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QualityGateUpdater qualityGateUpdater;
   private final QualityGatesWsSupport wsSupport;
-  private final Logger logger = Loggers.get(CopyAction.class);
 
   public CopyAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater,
     QualityGatesWsSupport wsSupport) {

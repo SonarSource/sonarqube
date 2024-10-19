@@ -19,12 +19,12 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -32,19 +32,16 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 
 public class SetAsDefaultAction implements QualityGatesWsAction {
-  private static final String DEFAULT_QUALITY_GATE_PROPERTY_NAME = "qualitygate.default";
+
+  private final Logger logger = LoggerFactory.getLogger(SetAsDefaultAction.class);
 
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QualityGatesWsSupport wsSupport;
-  private final Logger logger = Loggers.get(SetAsDefaultAction.class);
 
   public SetAsDefaultAction(DbClient dbClient, UserSession userSession, QualityGatesWsSupport qualityGatesWsSupport) {
     this.dbClient = dbClient;

@@ -22,6 +22,7 @@ package org.sonar.server.common.project;
 import javax.annotation.Nullable;
 
 public record ImportProjectRequest(
+  String organization,
   @Nullable
   String projectKey,
   @Nullable

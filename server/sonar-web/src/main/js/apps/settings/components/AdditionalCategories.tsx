@@ -35,7 +35,6 @@ import Languages from './Languages';
 import NewCodeDefinition from './NewCodeDefinition';
 import Authentication from './authentication/Authentication';
 import EmailNotification from './email-notification/EmailNotification';
-import PullRequestDecorationBinding from './pullRequestDecorationBinding/PRDecorationBinding';
 
 export interface AdditionalCategoryComponentProps {
   categories: string[];
@@ -88,15 +87,6 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     displayTab: true,
   },
   {
-    key: PULL_REQUEST_DECORATION_BINDING_CATEGORY,
-    name: translate('settings.pr_decoration.binding.category'),
-    renderComponent: getPullRequestDecorationBindingComponent,
-    availableGlobally: false,
-    availableForProject: true,
-    displayTab: true,
-    requiresBranchSupport: true,
-  },
-  {
     key: AUTHENTICATION_CATEGORY,
     name: translate('property.category.authentication'),
     renderComponent: getAuthenticationComponent,
@@ -126,20 +116,12 @@ function getAnalysisScopeComponent(props: AdditionalCategoryComponentProps) {
   return <AnalysisScope {...props} />;
 }
 
-function getAlmIntegrationComponent(props: AdditionalCategoryComponentProps) {
-  return <AlmIntegration {...props} />;
-}
-
 function getCodeFixComponent(props: AdditionalCategoryComponentProps) {
   return <CodeFixAdmin {...props} />;
 }
 
 function getAuthenticationComponent(props: AdditionalCategoryComponentProps) {
   return <Authentication {...props} />;
-}
-
-function getPullRequestDecorationBindingComponent(props: AdditionalCategoryComponentProps) {
-  return props.component && <PullRequestDecorationBinding component={props.component} />;
 }
 
 function getEmailNotificationComponent() {

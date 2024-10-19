@@ -44,6 +44,7 @@ interface Props extends CompareResponse {
 
 export default function ComparisonResults(props: Readonly<Props>) {
   const {
+    organization,
     leftProfile,
     rightProfile,
     inLeft,
@@ -90,7 +91,7 @@ export default function ComparisonResults(props: Readonly<Props>) {
         {inLeft.map((rule) => (
           <TableRowInteractive key={`left-${rule.key}`}>
             <ContentCell>
-              <RuleCell rule={rule} />
+              <RuleCell organization={organization} rule={rule} />
             </ContentCell>
             {canRenderSecondColumn && (
               <ContentCell className="sw-px-0">
@@ -140,6 +141,7 @@ export default function ComparisonResults(props: Readonly<Props>) {
             <ActionCell className="sw-px-0">
               {renderFirstColumn && (
                 <ComparisonResultActivation
+                  organization={organization}
                   key={rule.key}
                   onDone={props.refresh}
                   profile={leftProfile}
@@ -148,7 +150,7 @@ export default function ComparisonResults(props: Readonly<Props>) {
               )}
             </ActionCell>
             <ContentCell className="sw-pl-4">
-              <RuleCell rule={rule} />
+              <RuleCell organization={organization} rule={rule} />
             </ContentCell>
           </TableRowInteractive>
         ))}
@@ -185,13 +187,13 @@ export default function ComparisonResults(props: Readonly<Props>) {
           <TableRowInteractive key={`modified-${rule.key}`}>
             <ContentCell>
               <div>
-                <RuleCell rule={rule} severity={rule.left.severity} />
+                <RuleCell organization={organization} rule={rule} severity={rule.left.severity} />
                 <Parameters params={rule.left.params} />
               </div>
             </ContentCell>
             <ContentCell className="sw-pl-4">
               <div>
-                <RuleCell rule={rule} severity={rule.right.severity} />
+                <RuleCell organization={organization} rule={rule} severity={rule.right.severity} />
                 <Parameters params={rule.right.params} />
               </div>
             </ContentCell>
@@ -222,14 +224,14 @@ export default function ComparisonResults(props: Readonly<Props>) {
   );
 }
 
-function RuleCell({ rule, severity }: Readonly<{ rule: RuleCompare; severity?: string }>) {
+function RuleCell({ organization, rule, severity }: Readonly<{ organization: string; rule: RuleCompare; severity?: string }>) {
   const shouldRenderSeverity =
     Boolean(severity) && rule.left && rule.right && isEqual(rule.left.params, rule.right.params);
 
   return (
     <div>
       {shouldRenderSeverity && <IssueSeverityIcon severity={severity as IssueSeverity} />}
-      <Link className="sw-ml-1" to={getRulesUrl({ rule_key: rule.key, open: rule.key })}>
+      <Link className="sw-ml-1" to={getRulesUrl({ rule_key: rule.key, open: rule.key }, organization)}>
         {rule.name}
       </Link>
       {(rule.cleanCodeAttributeCategory || rule.impacts.length > 0) && (

@@ -33,14 +33,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
@@ -64,7 +64,7 @@ import static org.sonar.server.qualityprofile.ActiveRuleInheritance.NONE;
 @ServerSide
 public class RegisterQualityProfiles implements Startable {
 
-  private static final Logger LOGGER = Loggers.get(RegisterQualityProfiles.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RegisterQualityProfiles.class);
 
   private final BuiltInQProfileRepository builtInQProfileRepository;
   private final DbClient dbClient;
@@ -93,7 +93,7 @@ public class RegisterQualityProfiles implements Startable {
       return;
     }
 
-    Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register quality profiles");
+    Profiler profiler = Profiler.create(LoggerFactory.getLogger(getClass())).startInfo("Register quality profiles");
     try (DbSession dbSession = dbClient.openSession(false);
       DbSession batchDbSession = dbClient.openSession(true)) {
       long startDate = system2.now();
@@ -121,7 +121,8 @@ public class RegisterQualityProfiles implements Startable {
       }
       ensureBuiltInDefaultQPContainsRules(dbSession);
       unsetBuiltInFlagAndRenameQPWhenPluginUninstalled(dbSession);
-      ensureBuiltInAreDefaultQPWhenNoRules(dbSession);
+      /* TODO */
+      // ensureBuiltInAreDefaultQPWhenNoRules(dbSession);
 
       dbSession.commit();
     }
@@ -166,7 +167,7 @@ public class RegisterQualityProfiles implements Startable {
     if (uuids.isEmpty()) {
       return;
     }
-    Profiler profiler = Profiler.createIfDebug(Loggers.get(getClass())).start();
+    Profiler profiler = Profiler.createIfDebug(LoggerFactory.getLogger(getClass())).start();
     String newName = profile.getName() + " (outdated copy)";
     LOGGER.info("Rename Quality profiles [{}/{}] to [{}]", profile.getLanguage(), profile.getName(), newName);
     dbClient.qualityProfileDao().renameRulesProfilesAndCommit(dbSession, uuids, newName);
@@ -189,10 +190,10 @@ public class RegisterQualityProfiles implements Startable {
       long rulesCountByLanguage = dbClient.ruleDao().countByLanguage(dbSession, defaultProfileWithNoRule.getLanguage());
       RulesProfileDto builtInQProfile = builtInQProfileByLanguage.get(defaultProfileWithNoRule.getLanguage());
       if (builtInQProfile != null && rulesCountByLanguage == 0) {
-        QProfileDto builtInQualityProfile = dbClient.qualityProfileDao().selectByRuleProfileUuid(dbSession, builtInQProfile.getUuid());
-        if (builtInQualityProfile != null) {
-          reassignDefaultQualityProfile(dbSession, defaultProfileWithNoRule, builtInQualityProfile);
-        }
+//        QProfileDto builtInQualityProfile = dbClient.qualityProfileDao().selectByRuleProfileUuid(dbSession, builtInQProfile.getUuid());
+//        if (builtInQualityProfile != null) {
+//          reassignDefaultQualityProfile(dbSession, defaultProfileWithNoRule, builtInQualityProfile);
+//        }
       }
     }
   }
@@ -229,7 +230,8 @@ public class RegisterQualityProfiles implements Startable {
   }
 
   private void reassignDefaultQualityProfile(DbSession dbSession, QProfileDto currentDefaultQualityProfile, QProfileDto newDefaultQualityProfile) {
-    Set<String> uuids = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, Collections.singleton(currentDefaultQualityProfile.getKee()));
+    /* TODO */
+    Set<String> uuids = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, currentDefaultQualityProfile.getOrganizationUuid(), Collections.singleton(currentDefaultQualityProfile.getKee()));
     dbClient.defaultQProfileDao().deleteByQProfileUuids(dbSession, uuids);
     dbClient.defaultQProfileDao().insertOrUpdate(dbSession, new DefaultQProfileDto()
       .setOrganizationUuid(currentDefaultQualityProfile.getOrganizationUuid())

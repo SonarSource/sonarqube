@@ -106,7 +106,7 @@ public class PopulateDb {
     );
     allProjects = Collections.synchronizedList(new ArrayList<>(dbTester.getDbClient().projectDao().selectProjects(initSession)));
     enabledRules = new HashSet<>(dbTester.getDbClient().ruleDao().selectEnabled(dbTester.getSession()));
-    adminGroupDto = dbTester.getDbClient().groupDao().selectByName(dbTester.getSession(), "sonar-administrators")
+    adminGroupDto = dbTester.getDbClient().groupDao().selectByName(dbTester.getSession(), "org", "sonar-administrators")
       .orElseThrow(() -> new IllegalStateException("group with name \"sonar-administrators\" is expected to exist"));
     SqContext sqContext = new SqContext(allProjects, enabledRules, metricDtosByKey, adminGroupDto, dbTester);
     LOG.info("Existing data has been collected");

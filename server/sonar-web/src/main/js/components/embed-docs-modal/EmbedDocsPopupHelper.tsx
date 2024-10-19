@@ -28,14 +28,36 @@ import {
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { EmbedDocsPopup } from './EmbedDocsPopup';
+import { getBaseUrl } from "../../helpers/system";
+import { Modal } from "design-system";
 
 export default function EmbedDocsPopupHelper() {
+
+  const [aboutCodescanOpen, setAboutCodescanOpen] = React.useState<boolean>();
+
+  const renderAboutCodescan = (link: string, icon: string, text: string) => {
+    return (
+      <Modal
+        className="abs-width-auto"
+        onRequestClose={() => setAboutCodescanOpen(false)}
+        contentLabel=''
+      >
+        <a href={link} rel="noopener noreferrer" target="_blank">
+          <img alt={text} src={`${getBaseUrl()}/images/${icon}`}/>
+        </a>
+        <span className="cross-button">
+            <ClearButton onClick={() => setAboutCodescanOpen(false)}/>
+          </span>
+      </Modal>
+    );
+  }
+
   return (
     <div className="dropdown">
       <DropdownMenu.Root
         align={DropdownMenuAlign.End}
         id="help-menu-dropdown"
-        items={<EmbedDocsPopup />}
+        items={<EmbedDocsPopup setAboutCodescanOpen={setAboutCodescanOpen} />}
       >
         <ButtonIcon
           Icon={IconQuestionMark}
@@ -45,6 +67,12 @@ export default function EmbedDocsPopupHelper() {
           variety={ButtonVariety.DefaultGhost}
         />
       </DropdownMenu.Root>
+
+      {aboutCodescanOpen && renderAboutCodescan(
+        'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
+        'embed-doc/codescan-version-24_0_11.png',
+        translate('embed_docs.codescan_version')
+      )}
     </div>
   );
 }

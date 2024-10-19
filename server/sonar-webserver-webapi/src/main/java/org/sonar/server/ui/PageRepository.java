@@ -43,6 +43,7 @@ import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
 import static org.sonar.api.web.page.Page.Scope.GLOBAL;
+import static org.sonar.api.web.page.Page.Scope.ORGANIZATION;
 
 @ServerSide
 public class PageRepository implements Startable {

@@ -352,7 +352,7 @@ public class BulkChangeAction implements IssuesWsAction {
 
   private boolean hasNotificationSupport(@Nullable BranchDto branch) {
     if (branch != null && branch.getBranchType() == BranchType.PULL_REQUEST) {
-      return Optional.ofNullable(dbClient.propertiesDao().selectProjectProperty(branch.getProjectUuid(), "codescan.cloud.notifications.pullRequestEnabled"))
+      return dbClient.propertiesDao().selectProjectProperty(branch.getProjectUuid(), "codescan.cloud.notifications.pullRequestEnabled")
               .map(prop -> Boolean.parseBoolean(prop.getValue()))
               .orElse(false);
     }

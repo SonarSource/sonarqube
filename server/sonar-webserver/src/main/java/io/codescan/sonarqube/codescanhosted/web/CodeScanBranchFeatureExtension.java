@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package io.codescan.sonarqube.codescanhosted.web;
 
 import org.sonar.api.server.ServerSide;
 import org.sonar.server.branch.BranchFeatureExtension;
 
-@ServerSide
 /**
  * This class flags the web application that branches are turned on...
  */
+@ServerSide
 public class CodeScanBranchFeatureExtension implements BranchFeatureExtension {
 
     @Override
@@ -35,7 +34,7 @@ public class CodeScanBranchFeatureExtension implements BranchFeatureExtension {
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isAvailable() {
         return true;
     }
 }

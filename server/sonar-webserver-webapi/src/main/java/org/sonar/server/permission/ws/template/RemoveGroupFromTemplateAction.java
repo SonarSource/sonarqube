@@ -20,12 +20,13 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -45,11 +46,13 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_G
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
+
+  private static final Logger logger = LoggerFactory.getLogger(RemoveGroupFromTemplateAction.class);
+
   private final DbClient dbClient;
   private final PermissionWsSupport wsSupport;
   private final UserSession userSession;
   private final WsParameters wsParameters;
-  private static final Logger logger = Loggers.get(RemoveGroupFromTemplateAction.class);
 
   public RemoveGroupFromTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession, WsParameters wsParameters) {
     this.dbClient = dbClient;

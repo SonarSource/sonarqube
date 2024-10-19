@@ -20,9 +20,15 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.base.Preconditions;
+
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+
+import org.elasticsearch.search.SearchHit;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -58,6 +64,7 @@ import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_STATUSES;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsUtils.checkArgument;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_LIST;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ORGANIZATION;
 
 public class ListAction implements IssuesWsAction {
 
@@ -139,6 +146,10 @@ public class ListAction implements IssuesWsAction {
       .setExampleValue("true")
       .setBooleanPossibleValues();
 
+    action.createParam(PARAM_ORGANIZATION)
+        .setDescription("Organization key")
+        .setRequired(true)
+        .setInternal(true);
   }
 
   @Override
@@ -203,6 +214,7 @@ public class ListAction implements IssuesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       BranchDto branch = projectAndBranch.getBranch();
       IssueListQuery.IssueListQueryBuilder queryBuilder = IssueListQuery.IssueListQueryBuilder.newIssueListQueryBuilder()
+        .organization(wsRequest.organization)
         .project(wsRequest.project)
         .component(wsRequest.component)
         .branch(branch.getBranchKey())
@@ -242,6 +254,7 @@ public class ListAction implements IssuesWsAction {
     Paging paging = forPageIndex(request.page)
       .withPageSize(request.pageSize)
       .andTotal(request.pageSize);
+
     return searchResponseFormat.formatList(additionalFields, data, paging);
   }
 
@@ -252,6 +265,7 @@ public class ListAction implements IssuesWsAction {
   }
 
   private static class WsRequest {
+    private String organization = null;
     private String project = null;
     private String component = null;
     private String branch = null;
@@ -261,6 +275,11 @@ public class ListAction implements IssuesWsAction {
     private Boolean resolved = null;
     private int page = 1;
     private int pageSize = 100;
+
+    public WsRequest organization(@Nullable String organization) {
+      this.organization = organization;
+      return this;
+    }
 
     public WsRequest project(@Nullable String project) {
       this.project = project;

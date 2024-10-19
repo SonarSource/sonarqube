@@ -40,10 +40,8 @@ import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.component.NewComponent;
 import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
@@ -54,15 +52,12 @@ import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
 import static org.sonar.db.component.ComponentValidator.MAX_COMPONENT_NAME_LENGTH;
-import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.project.CreationMethod.Category.LOCAL;
 import static org.sonar.db.project.CreationMethod.getCreationMethod;
 import static org.sonar.server.common.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
-import static org.sonar.server.component.NewComponent.newComponentBuilder;
-import static org.sonar.server.exceptions.BadRequestException.throwBadRequestException;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -81,17 +76,15 @@ public class CreateAction implements ProjectsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentUpdater componentUpdater;
-  private final ProjectDefaultVisibility projectDefaultVisibility;
   private final DefaultBranchNameResolver defaultBranchNameResolver;
   private final NewCodeDefinitionResolver newCodeDefinitionResolver;
   private final ProjectsWsSupport support;
 
   public CreateAction(DbClient dbClient, UserSession userSession, ComponentUpdater componentUpdater,
-    ProjectDefaultVisibility projectDefaultVisibility, DefaultBranchNameResolver defaultBranchNameResolver, NewCodeDefinitionResolver newCodeDefinitionResolver, ProjectsWsSupport support) {
+    DefaultBranchNameResolver defaultBranchNameResolver, NewCodeDefinitionResolver newCodeDefinitionResolver, ProjectsWsSupport support) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
-    this.projectDefaultVisibility = projectDefaultVisibility;
     this.defaultBranchNameResolver = defaultBranchNameResolver;
     this.newCodeDefinitionResolver = newCodeDefinitionResolver;
     this.support = support;
@@ -154,10 +147,11 @@ public class CreateAction implements ProjectsWsAction {
   private CreateWsResponse doHandle(CreateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.getOrganization(dbSession, request.getOrganization());
-      userSession.checkPermission(OrganizationPermission.PROVISION_PROJECTS, organization)      checkNewCodeDefinitionParam(request.getNewCodeDefinitionType(), request.getNewCodeDefinitionValue());
+      userSession.checkPermission(OrganizationPermission.PROVISION_PROJECTS, organization);
+      checkNewCodeDefinitionParam(request.getNewCodeDefinitionType(), request.getNewCodeDefinitionValue());
       logger.info("Create Project Action request:: organization :{}, orgId: {}, projectName: {}, projectKey: {}, user: {}", organization.getKey(),
           organization.getUuid(), request.getName(), request.getProjectKey(), userSession.getLogin());
-      ComponentCreationData componentData = createProject(request, dbSession);
+      ComponentCreationData componentData = createProject(request, dbSession, organization);
       ProjectDto projectDto = Optional.ofNullable(componentData.projectDto()).orElseThrow();
       BranchDto mainBranchDto = Optional.ofNullable(componentData.mainBranchDto()).orElseThrow();
 

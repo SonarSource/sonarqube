@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,6 @@ import java.util.List;
 
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
-import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 
 public class OrganizationAction implements NavigationWsAction {
 
@@ -63,8 +62,7 @@ public class OrganizationAction implements NavigationWsAction {
                 .setChangelog(new Change("6.4", "The field 'projectVisibility' is added"));
         projectNavigation.createParam(PARAM_ORGANIZATION)
                 .setRequired(true)
-                .setDescription("the organization key")
-                .setExampleValue(KEY_ORG_EXAMPLE_001);
+                .setDescription("the organization key");
     }
 
     @Override

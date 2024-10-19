@@ -116,7 +116,10 @@ public class SearchAction implements ProjectsWsAction {
       .setPossibleValues(PROJECT, VIEW, APP)
       .setDefaultValue(PROJECT);
 
-    wsSupport.addOrganizationParam(action);
+    action.createParam(PARAM_ORGANIZATION)
+        .setDescription("The key of the organization")
+        .setRequired(true)
+        .setInternal(true);
 
     action.createParam(PARAM_VISIBILITY)
       .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
@@ -190,7 +193,7 @@ public class SearchAction implements ProjectsWsAction {
         .selectLastAnalysesByRootComponentUuids(dbSession, componentUuids).stream()
         .collect(Collectors.toMap(SnapshotDto::getRootComponentUuid, identity()));
 
-      return buildResponse(organization, components, snapshotsByComponentUuid, lastAnalysisDateByComponentUuid, componentUuidToProjectUuid, componentUuidToManaged, paging)
+      return buildResponse(organization, components, snapshotsByComponentUuid, lastAnalysisDateByComponentUuid, componentUuidToProjectUuid, componentUuidToManaged, paging);
     }
   }
 

@@ -78,9 +78,11 @@ export function searchQualityProfiles(
 }
 
 export function getQualityProfile({
+  organization,
   compareToSonarWay,
   profile: { key },
 }: {
+  organization: string;
   compareToSonarWay?: boolean;
   profile: Profile;
 }): Promise<any> {

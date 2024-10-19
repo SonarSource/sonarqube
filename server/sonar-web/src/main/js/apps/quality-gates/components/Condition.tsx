@@ -48,6 +48,7 @@ export enum ConditionChange {
 }
 
 interface Props {
+  organization: string;
   canEdit: boolean;
   condition: ConditionType;
   isCaycModal?: boolean;
@@ -57,6 +58,7 @@ interface Props {
 }
 
 export default function ConditionComponent({
+  organization,
   condition,
   canEdit,
   metric,
@@ -64,7 +66,7 @@ export default function ConditionComponent({
   showEdit,
   isCaycModal,
 }: Readonly<Props>) {
-  const { mutateAsync: deleteCondition } = useDeleteConditionMutation(qualityGate.name);
+  const { mutateAsync: deleteCondition } = useDeleteConditionMutation(organization, qualityGate.name);
   const metrics = useMetrics();
   const { op = 'GT' } = condition;
 
@@ -95,6 +97,7 @@ export default function ConditionComponent({
               (isCaycCompliantAndOverCompliant && showEdit)) &&
               !isNonEditableMetric(condition.metric as MetricKey) && (
                 <EditConditionModal
+                  organization={organization}
                   condition={condition}
                   header={translate('quality_gates.update_condition')}
                   metric={metric}

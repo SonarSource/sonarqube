@@ -19,6 +19,7 @@
  */
 package org.sonar.server.v2.api.projects.controller;
 
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.common.project.ImportProjectRequest;
 import org.sonar.server.common.project.ImportProjectService;
 import org.sonar.server.common.project.ImportedProject;
@@ -26,7 +27,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.projects.request.BoundProjectCreateRestRequest;
 import org.sonar.server.v2.api.projects.response.BoundProjectCreateRestResponse;
 
-import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 
 public class DefaultBoundProjectsController implements BoundProjectsController {
 
@@ -41,7 +42,7 @@ public class DefaultBoundProjectsController implements BoundProjectsController {
 
   @Override
   public BoundProjectCreateRestResponse createBoundProject(BoundProjectCreateRestRequest request) {
-    userSession.checkLoggedIn().checkPermission(PROVISION_PROJECTS);
+    userSession.checkLoggedIn().checkPermission(PROVISION_PROJECTS, (OrganizationDto) null /* TODO */);
     ImportedProject importedProject = importProjectService.importProject(restRequestToServiceRequest(request));
     return toRestResponse(importedProject);
 
@@ -49,6 +50,7 @@ public class DefaultBoundProjectsController implements BoundProjectsController {
 
   private static ImportProjectRequest restRequestToServiceRequest(BoundProjectCreateRestRequest request) {
     return new ImportProjectRequest(
+      request.organization(),
       request.projectKey(),
       request.projectName(),
       request.devOpsPlatformSettingId(),

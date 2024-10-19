@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,29 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SearchBox from "../../components/controls/SearchBox";
-import {translate} from "../../helpers/l10n";
-import {formatMeasure} from "../../helpers/measures";
+import { translate } from "../../helpers/l10n";
+import { formatMeasure } from "~sonar-aligned/helpers/measures";
+import { InputSearch } from "design-system";
 
 export interface Props {
   handleSearch: (query?: string) => void;
   total?: number;
 }
 
-export default function MembersListHeader({
-  handleSearch,
-  total
-}: Props) {
+export default function MembersListHeader({ handleSearch, total }: Props) {
   return (
     <div className="panel panel-vertical bordered-bottom spacer-bottom">
-      <SearchBox
+      <InputSearch
         minLength={2}
         onChange={handleSearch}
         placeholder={translate('search.search_for_users')}
       />
-      {total !== undefined && (
+      {total && (
         <span className="pull-right little-spacer-top">
-          <strong>{formatMeasure(total, 'INT')}</strong> {translate('organization.members.members')}
+          <strong>{ formatMeasure(total, 'INT') }</strong> {translate('organization.members.members')}
         </span>
       )}
     </div>

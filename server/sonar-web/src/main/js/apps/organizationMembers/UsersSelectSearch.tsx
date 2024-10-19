@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { translate, translateWithParameters } from "../../helpers/l10n";
-import { BasicSelectOption, SearchSelect } from "../../components/controls/Select";
 import Avatar from "../../components/ui/Avatar";
 import { components, OptionProps, SingleValueProps } from 'react-select';
 import { isUserActive, UserActive } from "../../types/users";
 import { searchMembers } from "../../api/organizations";
 import { Organization } from "../../types/types";
+import { SearchSelect } from "design-system";
 
 export const MIN_QUERY_LENGTH = 2;
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,6 @@ package org.sonar.server.organization.ws;
 import static java.lang.String.format;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.organization.OrganizationQuery.newOrganizationQueryBuilder;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
@@ -32,6 +31,7 @@ import static org.sonarqube.ws.Common.Paging;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -120,13 +120,13 @@ public class SearchAction implements OrganizationsWsAction {
     private Set<String> searchOrganizationWithAdminPermission(DbSession dbSession) {
         String userUuid = userSession.getUuid();
         return userUuid == null ? emptySet()
-                : dbClient.organizationDao().selectByPermission(dbSession, userUuid, ADMINISTER.getKey()).stream().map(OrganizationDto::getUuid).collect(toSet());
+                : dbClient.organizationDao().selectByPermission(dbSession, userUuid, ADMINISTER.getKey()).stream().map(OrganizationDto::getUuid).collect(Collectors.toSet());
     }
 
     private Set<String> searchOrganizationWithProvisionPermission(DbSession dbSession) {
         String userUuid = userSession.getUuid();
         return userUuid == null ? emptySet()
-                : dbClient.organizationDao().selectByPermission(dbSession, userUuid, PROVISION_PROJECTS.getKey()).stream().map(OrganizationDto::getUuid).collect(toSet());
+                : dbClient.organizationDao().selectByPermission(dbSession, userUuid, PROVISION_PROJECTS.getKey()).stream().map(OrganizationDto::getUuid).collect(Collectors.toSet());
     }
 
     private Organizations.SearchWsResponse buildOrganizations(List<OrganizationDto> organizations, Set<String> adminOrganizationUuids, Set<String> provisionOrganizationUuids,

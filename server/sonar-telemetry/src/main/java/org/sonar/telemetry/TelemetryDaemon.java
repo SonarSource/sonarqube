@@ -93,7 +93,7 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
     if (!isTelemetryActivated && !hasOptOut) {
       optOut();
       internalProperties.write(I_PROP_OPT_OUT, String.valueOf(system2.now()));
-      LOG.info("Sharing of SonarQube statistics is disabled.");
+      LOG.info("Sharing of Codescan statistics is disabled.");
     }
     if (isTelemetryActivated && hasOptOut) {
       internalProperties.write(I_PROP_OPT_OUT, null);
@@ -101,7 +101,7 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
     if (!isTelemetryActivated) {
       return;
     }
-    LOG.info("Sharing of SonarQube statistics is enabled.");
+    LOG.info("Sharing of Codescan statistics is enabled.");
     int frequencyInSeconds = frequency();
     scheduleWithFixedDelay(telemetryCommand(), frequencyInSeconds, frequencyInSeconds, TimeUnit.SECONDS);
   }
@@ -129,7 +129,7 @@ public class TelemetryDaemon extends AbstractStoppableScheduledExecutorServiceIm
           updateTelemetryProps(now);
         }
       } catch (Exception e) {
-        LOG.debug("Error while checking SonarQube statistics: {}", e.getMessage(), e);
+        LOG.debug("Error while checking Codescan statistics: {}", e.getMessage(), e);
       }
       // do not check at start up to exclude test instance which are not up for a long time
     };

@@ -183,9 +183,8 @@ public class CreateAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    ruleWsSupport.checkQProfileAdminPermission();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = ruleWsSupport.getOrganizationByKey(dbSession, organizationKey);
+      OrganizationDto organization = ruleWsSupport.getOrganizationByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION));
       ruleWsSupport.checkQProfileAdminPermission(organization);
 
       try {

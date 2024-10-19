@@ -53,11 +53,11 @@ public class UserPermissionChanger implements GranteeTypeSpecificPermissionUpdat
   }
 
   @Override
-  public Set<String> loadExistingEntityPermissions(DbSession dbSession, String uuidOfGrantee, @Nullable String entityUuid) {
+  public Set<String> loadExistingEntityPermissions(DbSession dbSession, String organizationUuid, String uuidOfGrantee, @Nullable String entityUuid) {
     if (entityUuid != null) {
       return new HashSet<>(dbClient.userPermissionDao().selectEntityPermissionsOfUser(dbSession, uuidOfGrantee, entityUuid));
     }
-    return new HashSet<>(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, uuidOfGrantee));
+    return new HashSet<>(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, uuidOfGrantee, organizationUuid));
   }
 
   @Override

@@ -50,6 +50,7 @@ export interface QualityGatePanelProps {
 
 export function QualityGatePanel(props: QualityGatePanelProps) {
   const {
+    grc,
     component,
     loading,
     qgStatuses = [],

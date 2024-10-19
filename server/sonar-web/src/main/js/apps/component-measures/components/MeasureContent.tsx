@@ -316,7 +316,7 @@ function getComponentRequestParams(
   const opts: RequestData = {
     ...getBranchLikeQuery(branchLike),
     additionalFields: 'metrics',
-    ps: 500,
+    ps: 50,
   };
 
   const setMetricSort = () => {

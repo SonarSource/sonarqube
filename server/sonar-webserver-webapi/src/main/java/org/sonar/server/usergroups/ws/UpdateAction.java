@@ -19,7 +19,6 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -40,13 +39,7 @@ import org.sonarqube.ws.UserGroups;
 import static java.lang.String.format;
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_CURRENT_NAME;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.DESCRIPTION_MAX_LENGTH;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_CURRENT_NAME;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_DESCRIPTION;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.toProtobuf;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.*;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UpdateAction implements UserGroupsWsAction {
@@ -103,28 +96,23 @@ public class UpdateAction implements UserGroupsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      userSession.checkPermission(ADMINISTER);
+      OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION_KEY))
+          .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.mandatoryParam(PARAM_ORGANIZATION_KEY)));
+      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
+
       managedInstanceChecker.throwIfInstanceIsManaged();
       String currentName = request.mandatoryParam(PARAM_GROUP_CURRENT_NAME);
 
-      GroupDto group = dbClient.groupDao().selectByName(dbSession, currentName)
+      GroupDto group = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), currentName)
           .orElseThrow(() -> new NotFoundException(format("Could not find a user group with name '%s'.", currentName)));
-
-      OrganizationDto org = checkFoundWithOptional(dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid()), "Could not find organization with id '%s'.", group.getOrganizationUuid());
-
-      userSession.checkPermission(OrganizationPermission.ADMINISTER, orgOpt.get());
-      support.checkGroupIsNotDefault(dbSession, group);
-
-      userSession.checkPermission(ADMINISTER);
-      support.checkGroupIsNotDefault(dbSession, group);
 
       String newName = request.param(PARAM_GROUP_NAME);
       String description = request.param(PARAM_GROUP_DESCRIPTION);
 
-      GroupDto updatedGroup = groupService.updateGroup(dbSession, group, newName, description).groupDto();
+      GroupDto updatedGroup = groupService.updateGroup(dbSession, organization, group, newName, description).groupDto();
       dbSession.commit();
 
-      writeResponse(dbSession, request, response, org, updatedGroup);
+      writeResponse(dbSession, request, response, organization, updatedGroup);
     }
   }
 

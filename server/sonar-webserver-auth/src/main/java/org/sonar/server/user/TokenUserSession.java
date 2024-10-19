@@ -72,13 +72,13 @@ public class TokenUserSession extends ServerUserSession {
   protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
     TokenType tokenType = TokenType.valueOf(userToken.getType());
     return switch (tokenType) {
-      case USER_TOKEN -> super.hasPermissionImpl(permission);
+      case USER_TOKEN -> super.hasPermissionImpl(permission, organizationUuid);
       case PROJECT_ANALYSIS_TOKEN ->
         // The case with a project analysis token has to return false always, delegating the result to the super class would allow
         // the project analysis token to work for multiple projects in case the user has Global Permissions.
         false;
       case GLOBAL_ANALYSIS_TOKEN ->
-        GLOBAL_ANALYSIS_TOKEN_SUPPORTED_PERMISSIONS.contains(permission) && super.hasPermissionImpl(permission);
+        GLOBAL_ANALYSIS_TOKEN_SUPPORTED_PERMISSIONS.contains(permission) && super.hasPermissionImpl(permission, organizationUuid);
       default -> throw new IllegalArgumentException(format(TOKEN_ASSERTION_ERROR_MESSAGE, tokenType.name()));
     };
   }
@@ -108,10 +108,6 @@ public class TokenUserSession extends ServerUserSession {
         (SCAN.equals(permission) || USER.equals(permission)) ? Collections.singleton(userToken.getProjectUuid()) : Collections.emptySet();
       default -> throw new IllegalArgumentException(format(TOKEN_ASSERTION_ERROR_MESSAGE, tokenType.name()));
     };
-  }
-
-  public UserTokenDto getUserToken() {
-    return userToken;
   }
 
   /**

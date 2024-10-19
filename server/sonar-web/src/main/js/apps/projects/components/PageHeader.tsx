@@ -98,7 +98,9 @@ export default function PageHeader(props: Readonly<Props>) {
             </>
           )}
 
-          <HomePageSelect currentPage={{ type: 'PROJECTS' }} />
+          {props.showHomepageIcon && (
+            <HomePageSelect currentPage={{ type: 'PROJECTS' }} />
+          )}
         </div>
       </div>
     </div>

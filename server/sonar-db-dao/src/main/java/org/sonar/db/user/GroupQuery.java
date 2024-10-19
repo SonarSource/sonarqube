@@ -27,10 +27,12 @@ import org.sonar.db.DaoUtils;
 import org.sonar.db.WildcardPosition;
 
 public class GroupQuery {
+  private final String organizationUuid;
   private final String searchText;
   private final String isManagedSqlClause;
 
-  GroupQuery(@Nullable String searchText, @Nullable String isManagedSqlClause) {
+  GroupQuery(String organizationUuid, @Nullable String searchText, @Nullable String isManagedSqlClause) {
+    this.organizationUuid = organizationUuid;
     this.searchText = searchTextToSearchTextSql(searchText);
     this.isManagedSqlClause = isManagedSqlClause;
   }
@@ -42,6 +44,10 @@ public class GroupQuery {
 
     String upperCasedNameQuery = StringUtils.upperCase(text, Locale.ENGLISH);
     return DaoUtils.buildLikeValue(upperCasedNameQuery, WildcardPosition.BEFORE_AND_AFTER);
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
   @CheckForNull
@@ -59,10 +65,16 @@ public class GroupQuery {
   }
 
   public static final class GroupQueryBuilder {
+    private String organizationUuid;
     private String searchText = null;
     private String isManagedSqlClause = null;
 
     private GroupQueryBuilder() {
+    }
+
+    public GroupQuery.GroupQueryBuilder organizationUuid(String organizationUuid) {
+      this.organizationUuid = organizationUuid;
+      return this;
     }
 
     public GroupQuery.GroupQueryBuilder searchText(@Nullable String searchText) {
@@ -77,7 +89,7 @@ public class GroupQuery {
     }
 
     public GroupQuery build() {
-      return new GroupQuery(searchText, isManagedSqlClause);
+      return new GroupQuery(organizationUuid, searchText, isManagedSqlClause);
     }
   }
 }

@@ -173,7 +173,7 @@
     select gr.role
     from group_roles gr
     where
-    gr.component_uuid is null and
+    gr.entity_uuid is null and
     <choose>
       <when test="groupUuid != null">
         gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}
@@ -217,7 +217,7 @@
   </select>
 
   <select id="selectAllPermissionsByGroupUuid" parameterType="map" resultType="GroupPermission">
-    select gr.group_uuid as groupUuid, gr.component_uuid as componentUuid, gr.role as role, gr.organization_uuid as organizationUuid
+    select gr.group_uuid as groupUuid, gr.entity_uuid as componentUuid, gr.role as role, gr.organization_uuid as organizationUuid
     from group_roles gr
     where gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
     and gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}

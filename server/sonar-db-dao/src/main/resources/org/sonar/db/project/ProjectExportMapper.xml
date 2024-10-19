@@ -69,9 +69,9 @@
         r.rule_type as "type",
         r.scope,
         r.ad_hoc_name as "adHocName",
-        r.ad_hoc_description as "adHocDescription",
-        r.ad_hoc_severity as "adHocSeverity",
-        r.ad_hoc_type as "adHocType",
+        rm.ad_hoc_description as "adHocDescription",
+        rm.ad_hoc_severity as "adHocSeverity",
+        rm.ad_hoc_type as "adHocType",
         r.clean_code_attribute as "cleanCodeAttribute",
         rdi.rule_uuid as "rdi_ruleUuid",
         rdi.software_quality as "rdi_softwareQuality",
@@ -82,6 +82,7 @@
       rules r
       left outer join rule_tags rt on rt.rule_uuid = r.uuid
       left outer join rules_default_impacts rdi on rdi.rule_uuid = r.uuid
+      left join rules_metadata rm on rm.rule_uuid = r.uuid
       where
         r.status != 'REMOVED' and r.is_ad_hoc = ${_true}
         and exists(

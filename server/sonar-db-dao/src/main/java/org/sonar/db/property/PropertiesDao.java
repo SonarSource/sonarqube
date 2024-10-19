@@ -283,22 +283,6 @@ public class PropertiesDao implements Dao {
     executeLargeInputsWithoutOutput(uuids, list -> getMapper(dbSession).deleteByUuids(list));
   }
 
-  public void deleteByUser(DbSession dbSession, String userUuid, String userLogin) {
-    List<String> uuids = getMapper(dbSession).selectUuidsByUser(userUuid);
-
-    persistDeletedProperties(dbSession, userUuid, userLogin, uuids);
-
-    executeLargeInputsWithoutOutput(uuids, subList -> getMapper(dbSession).deleteByUuids(subList));
-  }
-
-  public void deleteByMatchingLogin(DbSession dbSession, String login, List<String> propertyKeys) {
-    List<String> uuids = getMapper(dbSession).selectIdsByMatchingLogin(login, propertyKeys);
-
-    persistDeletedProperties(dbSession, null, login, uuids);
-
-    executeLargeInputsWithoutOutput(uuids, list -> getMapper(dbSession).deleteByUuids(list));
-  }
-
   public void deleteByKeyAndValue(DbSession dbSession, String key, String value) {
     int deletedRows = getMapper(dbSession).deleteByKeyAndValue(key, value);
 

@@ -34,7 +34,7 @@ export function getGroupMemberships(data: {
   );
 }
 
-export function addGroupMembership(data: { groupId: string; userId: string }) {
+export function addGroupMembership(data: { organization: string; groupId: string; userId: string }) {
   return axios.post<GroupMembership>(GROUPS_MEMBERSHIPS_ENDPOINT, data);
 }
 

@@ -367,7 +367,7 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
           )}
           {StatusField}
           {DescriptionField}
-          {templateParams.map(renderParameterField)}
+          {templateParams.sort((a, b) => a.key.localeCompare(b.key)).map(renderParameterField)}
         </form>
       }
       primaryButton={

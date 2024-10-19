@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { deleteRequest, getJSON, post, postJSON } from '../helpers/request';
-import { throwGlobalError } from '../helpers/error';
-import { Visibility, Notification } from "../types/types";
+import { deleteRequest, post } from '../helpers/request';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { Notification } from "../types/types";
+import axios from "axios";
 
-export function getRawNotificationsForOrganization(key: string) : Promise<Notification> {
-  return getJSON('/_codescan/notifications', { organizationId: key })
-      .catch(throwGlobalError);
+export function getRawNotificationsForOrganization(key: string): Promise<Notification> {
+  return axios.get('/_codescan/notifications', { organizationId: key })
+    .catch(throwGlobalError);
 }
 
 export function deleteProject(uuid: string, deleteProject?: boolean): Promise<void> {
   return deleteRequest(`/_codescan/integrations/${uuid}?deleteProject=${deleteProject}`)
-      .catch(throwGlobalError);
+    .catch(throwGlobalError);
 }
 
 export function deleteBulkProjects(data: {
@@ -38,13 +39,11 @@ export function deleteBulkProjects(data: {
   projects?: string;
   q?: string;
   qualifiers?: string;
-  visibility?: Visibility;
 }): Promise<void> {
   return post('/_codescan/integrations/projects/bulk_delete', data)
-      .catch(throwGlobalError);
+    .catch(throwGlobalError);
 }
 
 export function getRedirectUrlForZoho(): Promise<string> {
-  return getJSON('/_codescan/zoho/redirectUrl')
-      .catch(throwGlobalError);
+  return axios.get('/_codescan/zoho/redirectUrl').catch(throwGlobalError);
 }

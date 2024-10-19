@@ -110,7 +110,8 @@ public class ShowAction implements RulesWsAction {
   public void handle(Request request, Response response) throws Exception {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = ruleWsSupport.getOrganizationByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION));
+      OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION))
+          .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.param(PARAM_ORGANIZATION)));
       RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization.getUuid(), key)
         .orElseThrow(() -> new NotFoundException(format("Rule not found: %s", key)));
 
@@ -134,7 +135,7 @@ public class ShowAction implements RulesWsAction {
     RuleDto rule = searchResult.getRules().get(0);
     responseBuilder.setRule(rulesResponseFormatter.formatRule(dbSession, searchResult));
     if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
-      responseBuilder.addAllActives(rulesResponseFormatter.formatActiveRule(dbSession, rule));
+      responseBuilder.addAllActives(rulesResponseFormatter.formatActiveRule(dbSession, organization, rule));
     }
     return responseBuilder.build();
   }

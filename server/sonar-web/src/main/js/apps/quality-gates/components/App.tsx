@@ -40,15 +40,15 @@ import { DocLink } from '../../../helpers/doc-links';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { useQualityGatesQuery } from '../../../queries/quality-gates';
-import { Organization, QualityGate } from '../../../types/types';
+import { QualityGate } from '../../../types/types';
 import '../styles.css';
 import Details from './Details';
 import List from './List';
 import ListHeader from './ListHeader';
-import { withOrganizationContext } from "../../organizations/OrganizationContext";
+import { OrganizationContextProps, withOrganizationContext } from "../../organizations/OrganizationContext";
 
-export default function App() {
-  const { data, isLoading } = useQualityGatesQuery();
+function App({ organization } : OrganizationContextProps) {
+  const { data, isLoading } = useQualityGatesQuery(organization!.kee);
   const { name } = useParams();
   const navigate = useNavigate();
   const {
@@ -65,7 +65,7 @@ export default function App() {
       if (!defaultQualityGate) {
         return;
       }
-      navigate(getQualityGateUrl(defaultQualityGate.name), { replace: true });
+      navigate(getQualityGateUrl(defaultQualityGate.name, organization!.kee), { replace: true });
     },
     [navigate],
   );
@@ -95,9 +95,9 @@ export default function App() {
               height: `calc(100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT}px)`,
             }}
           >
-            <ListHeader canCreate={canCreate} />
+            <ListHeader canCreate={canCreate} organization={organization!.kee} />
             <Spinner loading={isLoading}>
-              <List qualityGates={qualityGates} currentQualityGate={name} />
+              <List qualityGates={qualityGates} currentQualityGate={name} organization={organization!.kee} />
             </Spinner>
           </StyledContentWrapper>
 
@@ -109,7 +109,7 @@ export default function App() {
               }}
             >
               <Card className="sw-my-12">
-                <Details qualityGateName={name} />
+                <Details organization={organization!.kee} qualityGateName={name} />
               </Card>
             </div>
           )}
@@ -126,4 +126,4 @@ const StyledContentWrapper = withTheme(styled.div`
   overflow-x: hidden;
 `);
 
-export default withOrganizationContext(AppWrapper);
+export default withOrganizationContext(App);

@@ -44,6 +44,7 @@ export default function Home(props: Props) {
 
         <main>
           <List
+            organization={props.organization}
             permissionTemplates={props.permissionTemplates}
             permissions={props.permissions}
             refresh={props.refresh}

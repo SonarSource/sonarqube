@@ -30,6 +30,13 @@
 
   <select id="selectAll" resultType="QualityGate">
     SELECT
+    <include refid="gateColumns"/>
+    FROM quality_gates qg
+    ORDER BY qg.name ASC
+  </select>
+
+  <select id="selectAllByOrganization" resultType="QualityGate">
+    SELECT
     <include refid="qateWithOrgColumns"/>
     FROM quality_gates qg
     INNER JOIN

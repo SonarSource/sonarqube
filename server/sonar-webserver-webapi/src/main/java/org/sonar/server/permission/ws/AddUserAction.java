@@ -19,19 +19,18 @@
  */
 package org.sonar.server.permission.ws;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserId;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.permission.Operation;
 import org.sonar.server.permission.PermissionService;
@@ -106,14 +105,12 @@ public class AddUserAction implements PermissionsWsAction {
       }
 
       String organizationKey = request.mandatoryParam(PARAM_ORGANIZATION);
-      OrganizationDto org = project
-          .map(dto -> dbClient.organizationDao().selectByUuid(dbSession, dto.getOrganizationUuid()))
-          .orElseGet(() -> Optional.ofNullable(wsSupport.findOrganization(dbSession, organizationKey)))
+      OrganizationDto org = dbClient.organizationDao().selectByKey(dbSession, organizationKey)
           .orElseThrow(() -> new NotFoundException(String.format("Organization with key '%s' not found", organizationKey)));
-      checkArgument(organizationKey == null || org.getKey().equals(organizationKey), "Organization key is incorrect.");
+      checkArgument(org.getUuid().equals(entityDto.getOrganizationUuid()), "Organization key is incorrect.");
 
       UserId user = wsSupport.findUser(dbSession, userLogin);
-      checkProjectAdmin(userSession, configuration, org.getUuid(), project.orElse(null));
+      checkProjectAdmin(userSession, configuration, entityDto);
       wsSupport.checkMembership(dbSession, org, user);
 
       UserPermissionChange change = new UserPermissionChange(

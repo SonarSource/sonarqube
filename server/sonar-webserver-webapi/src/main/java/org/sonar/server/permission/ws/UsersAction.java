@@ -40,6 +40,7 @@ import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.avatar.AvatarResolver;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.user.UserSession;
@@ -113,9 +114,10 @@ public class UsersAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto org = wsSupport.findOrganization(dbSession, request.param(PARAM_ORGANIZATION));
+      OrganizationDto org = dbClient.organizationDao().selectByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION))
+          .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.param(PARAM_ORGANIZATION)));
       EntityDto entity = wsSupport.findEntity(dbSession, request);
-      wsSupport.checkPermissionManagementAccess(userSession, org.getUuid(), entity);
+      wsSupport.checkPermissionManagementAccess(userSession, entity);
 
       PermissionQuery query = buildPermissionQuery(request, org, entity);
       List<UserDto> users = findUsers(dbSession, query);

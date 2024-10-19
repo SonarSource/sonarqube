@@ -34,6 +34,7 @@ class IndexedIssueDtoTest {
   @Test
   void settersGetters_shouldSetAndGetValues() {
     IndexedIssueDto indexedIssueDto = new IndexedIssueDto()
+      .setOrganizationUuid("organization")
       .setIssueKey("issueKey")
       .setAssignee("assignee")
       .setAuthorLogin("authorLogin")

@@ -82,7 +82,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY
     );
 
-  private static final String SQL_PROJECTS = "SELECT p.uuid, p.kee, p.name, p.created_at, s.created_at, p.tags, p.qualifier " +
+  private static final String SQL_PROJECTS = "SELECT p.organization_uuid, p.uuid, p.kee, p.name, p.created_at, s.created_at, p.tags, p.qualifier " +
     "FROM projects p " +
     "INNER JOIN project_branches pb ON pb.project_uuid = p.uuid AND pb.is_main = ? " +
     "LEFT OUTER JOIN snapshots s ON s.root_component_uuid=pb.uuid AND s.islast=? " +

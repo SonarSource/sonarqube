@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import classNames from 'classnames';
-import Checkbox from "../../components/controls/Checkbox";
 import { Group } from "../../types/types";
+import { Checkbox } from "design-system";
 
 interface Props {
   group: Group;

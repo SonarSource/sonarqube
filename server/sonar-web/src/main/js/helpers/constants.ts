@@ -250,16 +250,6 @@ export const SOFTWARE_QUALITY_RATING_METRICS = [
 
 export const PROJECT_KEY_MAX_LEN = 400;
 
-export const ALM_DOCUMENTATION_PATHS = {
-  [AlmKeys.Azure]: 'https://knowledgebase.autorabit.com/codescan/docs',
-  [AlmKeys.BitbucketServer]:
-    'https://knowledgebase.autorabit.com/codescan/docs',
-  [AlmKeys.BitbucketCloud]:
-    'https://knowledgebase.autorabit.com/codescan/docs',
-  [AlmKeys.GitHub]: 'https://knowledgebase.autorabit.com/codescan/docs',
-  [AlmKeys.GitLab]: 'https://knowledgebase.autorabit.com/codescan/docs',
-};
-
 export const IMPORT_COMPATIBLE_ALMS = [
   AlmKeys.Azure,
   AlmKeys.BitbucketServer,

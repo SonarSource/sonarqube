@@ -33,23 +33,20 @@ import { getProjectTutorialLocation } from '../../../helpers/urls';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { useBranchesQuery } from '../../../queries/branch';
 import { useTaskForComponentQuery } from '../../../queries/component';
-import { AlmKeys } from '../../../types/alm-settings';
 import { BranchLike } from '../../../types/branch-like';
 import { Permissions } from '../../../types/permissions';
 import { TaskTypes } from '../../../types/tasks';
 import { Component } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
-import Link from "../../../components/common/Link";
 
 export interface EmptyOverviewProps {
-  hasAnalyses?: boolean;
   branchLike?: BranchLike;
   component: Component;
   currentUser: CurrentUser;
 }
 
 export function EmptyOverview(props: Readonly<EmptyOverviewProps>) {
-  const { hasAnalyses, branchLike, component, currentUser } = props;
+  const { branchLike, component, currentUser } = props;
 
   const { data: branchLikes } = useBranchesQuery(component);
 
@@ -61,18 +58,6 @@ export function EmptyOverview(props: Readonly<EmptyOverviewProps>) {
 
   const hasQueuedAnalyses =
     data && data.queue.filter((task) => task.type === TaskTypes.Report).length > 0;
-
-  let permissionInSyncFor: AlmKeys.GitHub | AlmKeys.GitLab = AlmKeys.GitHub;
-
-  const hasPermissionSyncInProgess =
-    data &&
-    data.queue.filter((task) => {
-      if (task.type === TaskTypes.GitlabProjectPermissionsProvisioning) {
-        permissionInSyncFor = AlmKeys.GitLab;
-        return true;
-      }
-      return task.type === TaskTypes.GithubProjectPermissionsProvisioning;
-    }).length > 0;
 
   React.useEffect(() => {
     if (currentUserCanScanProject || !isLoggedIn(currentUser)) {
@@ -108,22 +93,6 @@ export function EmptyOverview(props: Readonly<EmptyOverviewProps>) {
     branchLikes.length > 2 ||
     (branchLikes.length === 2 && branchLikes.some((branch) => isBranch(branch)));
 
-  if (hasPermissionSyncInProgess) {
-    return (
-      <LargeCenteredLayout className="sw-pt-8">
-        <PageContentFontWrapper>
-          <SynchInProgress>
-            <Spinner className="sw-mr-2" />
-            {translateWithParameters(
-              'provisioning.permission_synch_in_progress',
-              translate('alm', permissionInSyncFor),
-            )}
-          </SynchInProgress>
-        </PageContentFontWrapper>
-      </LargeCenteredLayout>
-    );
-  }
-
   const showTutorial =
     currentUserCanScanProject && isMainBranch(branchLike) && !hasBranches && !hasQueuedAnalyses;
 
@@ -158,10 +127,3 @@ export function EmptyOverview(props: Readonly<EmptyOverviewProps>) {
 }
 
 export default withCurrentUserContext(EmptyOverview);
-
-const SynchInProgress = styled.div`
-  height: 50vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;

@@ -185,7 +185,7 @@ public class ServerUserSession extends AbstractUserSession {
   @Override
   protected <T extends EntityDto> List<T> doKeepAuthorizedEntities(String permission, Collection<T> entities) {
     if (isRoot()) {
-      return new ArrayList<>(projects);
+      return new ArrayList<>(entities);
     }
 
     Set<String> projectsUuids = entities.stream().map(EntityDto::getUuid).collect(Collectors.toSet());
@@ -415,8 +415,6 @@ public class ServerUserSession extends AbstractUserSession {
     return isAuthenticatedBrowserSession;
   }
 
-  private boolean loadIsSystemAdministrator() {
-    return hasPermission(GlobalPermission.ADMINISTER);
   @Override
   public boolean isRoot() {
     return userDto != null && userDto.isRoot();

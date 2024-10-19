@@ -32,8 +32,8 @@ interface Props {
   qualityGate: QualityGate;
 }
 
-export default function DeleteQualityGateForm({ qualityGate, onClose }: Readonly<Props>) {
-  const { mutateAsync: deleteQualityGate } = useDeleteQualityGateMutation(qualityGate.name);
+export default function DeleteQualityGateForm({ organization, qualityGate, onClose }: Readonly<Props>) {
+  const { mutateAsync: deleteQualityGate } = useDeleteQualityGateMutation(organization, qualityGate.name);
   const router = useRouter();
 
   const onDelete = async () => {

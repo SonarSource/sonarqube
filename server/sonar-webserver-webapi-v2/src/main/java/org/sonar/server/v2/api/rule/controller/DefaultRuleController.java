@@ -22,6 +22,7 @@ package org.sonar.server.v2.api.rule.controller;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.common.rule.ReactivationException;
 import org.sonar.server.common.rule.service.NewCustomRule;
 import org.sonar.server.common.rule.service.RuleInformation;
@@ -36,7 +37,7 @@ import org.sonar.server.v2.api.rule.response.RuleRestResponse;
 import org.springframework.http.HttpStatus;
 
 import static java.util.Optional.ofNullable;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class DefaultRuleController implements RuleController {
   private final UserSession userSession;
@@ -53,7 +54,7 @@ public class DefaultRuleController implements RuleController {
   public RuleRestResponse create(RuleCreateRestRequest request) {
     userSession
       .checkLoggedIn()
-      .checkPermission(ADMINISTER_QUALITY_PROFILES);
+      .checkPermission(ADMINISTER_QUALITY_PROFILES, (OrganizationDto) null /* TODO */);
     try {
       RuleInformation ruleInformation = ruleService.createCustomRule(toNewCustomRule(request));
       return ruleRestResponseGenerator.toRuleRestResponse(ruleInformation);

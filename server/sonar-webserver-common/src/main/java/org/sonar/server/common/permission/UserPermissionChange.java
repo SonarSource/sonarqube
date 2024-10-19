@@ -32,9 +32,9 @@ public class UserPermissionChange extends PermissionChange {
 
   private final UserId userId;
 
-  public UserPermissionChange(Operation operation, String permission, @Nullable EntityDto entity, UserId userId,
+  public UserPermissionChange(Operation operation, String organizationUuid, String permission, @Nullable EntityDto entity, UserId userId,
     PermissionService permissionService) {
-    super(operation, permission, entity, permissionService);
+    super(operation, organizationUuid, permission, entity, permissionService);
     this.userId = requireNonNull(userId);
   }
 
@@ -50,6 +50,7 @@ public class UserPermissionChange extends PermissionChange {
   @Override
   public String toString() {
     return new StringJoiner(", ", UserPermissionChange.class.getSimpleName() + "[", "]")
+      .add("organizationUuid=" + getOrganizationUuid())
       .add("userId=" + userId)
       .add("operation=" + getOperation())
       .add("permission='" + getPermission() + "'")

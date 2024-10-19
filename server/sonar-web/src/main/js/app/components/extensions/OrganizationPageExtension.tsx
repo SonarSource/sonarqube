@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ import * as React from 'react';
 import NotFound from '../NotFound';
 import Extension from './Extension';
 import { withOrganizationContext } from "../../../apps/organizations/OrganizationContext";
-import { withRouter } from "../../../components/hoc/withRouter";
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Organization } from "../../../types/types";
 import { getOrganization } from "../../../api/organizations";
 import { useParams } from "react-router-dom";

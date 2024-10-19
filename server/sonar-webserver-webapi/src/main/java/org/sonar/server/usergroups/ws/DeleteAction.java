@@ -19,20 +19,15 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.exceptions.BadRequestException;
@@ -40,13 +35,12 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UserSession;
 
+import java.util.Set;
+
 import static java.lang.String.format;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.defineGroupWsParameters;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.*;
 
 public class DeleteAction implements UserGroupsWsAction {
-
-  private final Logger logger = LoggerFactory.getLogger(DeleteAction.class);
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -81,13 +75,11 @@ public class DeleteAction implements UserGroupsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupDto group = findGroupOrThrow(request, dbSession);
-      userSession.checkPermission(OrganizationPermission.ADMINISTER, group.getOrganizationUuid());
-      OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid())
-          .orElseThrow(() -> new IllegalArgumentException("No organization found: " + group.getOrganizationUuid()));
-      logger.info("Delete Group Request :: groupName: {} and organization: {}, orgId: {}", group.getName(),
-          organization.getKey(), organization.getUuid());
+      OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION_KEY))
+          .orElseThrow(() -> new NotFoundException("No organization with uuid: " + request.mandatoryParam(PARAM_ORGANIZATION_KEY)));
+      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
 
+      GroupDto group = findGroupOrThrow(request, dbSession, organization);
       checkIfInstanceAndGroupAreManaged(dbSession, group);
       groupService.delete(dbSession, organization, group);
 
@@ -103,9 +95,9 @@ public class DeleteAction implements UserGroupsWsAction {
     }
   }
 
-  private GroupDto findGroupOrThrow(Request request, DbSession dbSession) {
+  private GroupDto findGroupOrThrow(Request request, DbSession dbSession, OrganizationDto organization) {
     String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
-    return groupService.findGroup(dbSession, groupName)
+    return groupService.findGroup(dbSession, organization, groupName)
       .orElseThrow(() -> new NotFoundException(format("No group with name '%s'", groupName)));
   }
 }

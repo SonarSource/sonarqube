@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,18 +23,19 @@ import { Outlet, useParams } from 'react-router-dom';
 import { OrganizationContextProps } from "../OrganizationContext";
 import { Organization } from "../../../types/types";
 import { getOrganization, getOrganizationNavigation } from "../../../api/organizations";
-import { throwGlobalError } from "../../../helpers/error";
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { Helmet } from "react-helmet-async";
 import Suggestions from "../../../components/embed-docs-modal/Suggestions";
 import OrganizationNavigation from "../navigation/OrganizationNavigation";
-import { Alert } from "../../../components/ui/Alert";
 import withCurrentUserContext from "../../../app/components/current-user/withCurrentUserContext";
-import { Location, withRouter } from "../../../components/hoc/withRouter";
+import { Location } from '~sonar-aligned/types/router';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import './OrganizationApp.css';
 import { hasGlobalPermission } from "../../../helpers/users";
 import { Permissions } from "../../../types/permissions";
 import { CurrentUser } from "../../../types/users";
 import NotFound from "../../../app/components/NotFound";
+import { FlagMessage } from "design-system";
 
 interface OrganizationAppProps {
   currentUser: CurrentUser;
@@ -89,17 +90,20 @@ const OrganizationApp: React.FC<OrganizationAppProps> = ({ currentUser, userOrga
         />
         {
           organization.notifications ? organization.notifications.map((notification, index) => (
-                  <Alert key={index} variant={notification.type} display="banner"
-                         className={'top-fixed alert-' + notification.type}>
-                    <div className="alert-inner-content">
-                      <span
-                          dangerouslySetInnerHTML={{
-                            __html: notification.message
-                          }}
-                      />
-                    </div>
-                  </Alert>
-              )
+              <FlagMessage
+                variant={notification.type}
+                display="banner"
+                className={'top-fixed alert-' + notification.type}
+              >
+                <div className="alert-inner-content">
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: notification.message
+                    }}
+                  />
+                </div>
+              </FlagMessage>
+            )
           ) : null
         }
         {renderChildren(organization)}

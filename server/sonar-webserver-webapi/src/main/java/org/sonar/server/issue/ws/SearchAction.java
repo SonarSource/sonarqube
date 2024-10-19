@@ -20,14 +20,8 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.lucene.search.TotalHits;
@@ -553,7 +547,7 @@ public class SearchAction implements IssuesWsAction {
 
   private void validateAndUpdateSearchRequestWithProjectKeyIfMissing(SearchRequest searchRequest, UserTokenDto userToken) {
     List<String> updatedSearchRequestComponents = new ArrayList<>();
-    if (!CollectionUtils.isEmpty(searchRequest.getComponents())) {
+    if (!CollectionUtils.isEmpty(searchRequest.getComponentKeys())) {
       updatedSearchRequestComponents.addAll(filteredSearchRequestComponents(searchRequest, userToken));
       if (updatedSearchRequestComponents.isEmpty()) {
         throw insufficientPrivilegesException();
@@ -561,12 +555,13 @@ public class SearchAction implements IssuesWsAction {
     } else {
       updatedSearchRequestComponents.add(userToken.getProjectKey());
     }
-    searchRequest.setComponents(updatedSearchRequestComponents);
+    searchRequest.setComponentKeys(updatedSearchRequestComponents);
   }
 
   public List<String> filteredSearchRequestComponents(SearchRequest searchRequest, UserTokenDto userToken) {
+    Objects.requireNonNull(searchRequest.getComponentKeys());
     String formattedProjectKey = userToken.getProjectKey() + ":";
-    return searchRequest.getComponents()
+    return searchRequest.getComponentKeys()
       .stream()
       .filter(c -> (c.startsWith(formattedProjectKey) || c.equals(userToken.getProjectKey())))
       .toList();

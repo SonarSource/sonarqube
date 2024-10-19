@@ -35,6 +35,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -69,7 +71,7 @@ public class CeQueueImpl implements CeQueue {
   private final UuidFactory uuidFactory;
   protected final NodeInformation nodeInformation;
 
-  private static final Logger LOGGER = Loggers.get(CeQueueImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CeQueueImpl.class);
 
   public CeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory, NodeInformation nodeInformation) {
     this.system2 = system2;

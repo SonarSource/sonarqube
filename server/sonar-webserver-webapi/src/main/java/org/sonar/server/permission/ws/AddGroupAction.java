@@ -20,33 +20,28 @@
 package org.sonar.server.permission.ws;
 
 import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.server.permission.GroupPermissionChange;
-import org.sonar.server.permission.GroupUuidOrAnyone;
-import org.sonar.server.permission.PermissionChange;
 import org.sonar.db.entity.EntityDto;
-import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.permission.GroupPermissionChange;
 import org.sonar.server.common.permission.Operation;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.common.permission.PermissionUpdater;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.PermissionsWsParameters;
 
 import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class AddGroupAction implements PermissionsWsAction {
@@ -105,15 +100,16 @@ public class AddGroupAction implements PermissionsWsAction {
       if (entityDto != null && entityDto.isProject()) {
         managedInstanceChecker.throwIfProjectIsManaged(dbSession, entityDto.getUuid());
       }
-      wsSupport.checkPermissionManagementAccess(userSession, entityDto.getOrganizationUuid(), entityDto);
+      wsSupport.checkPermissionManagementAccess(userSession, entityDto);
 
-      Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());
+      Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, groupDto.getOrganizationUuid());
       logger.info("Grant Permission to a group: {} :: permission type: {}, organization: {}, orgId: {}, groupId: {}, user: {}",
           groupDto.getName(), request.mandatoryParam(PARAM_PERMISSION), organization.get().getKey(), organization.get().getUuid(),
           groupDto.getUuid(), userSession.getLogin());
 
       GroupPermissionChange change = new GroupPermissionChange(
         Operation.ADD,
+        groupDto.getOrganizationUuid(),
         request.mandatoryParam(PARAM_PERMISSION),
         entityDto,
         groupDto,

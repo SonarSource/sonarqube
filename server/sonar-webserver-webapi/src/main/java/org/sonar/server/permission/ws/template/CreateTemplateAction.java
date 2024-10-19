@@ -22,19 +22,20 @@ package org.sonar.server.permission.ws.template;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.RequestValidator;
-import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
@@ -54,18 +55,18 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_O
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
 
 public class CreateTemplateAction implements PermissionsWsAction {
+
+  private static final Logger logger = LoggerFactory.getLogger(CreateTemplateAction.class);
+
   private final DbClient dbClient;
   private final UserSession userSession;
   private final System2 system;
-  private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
-  private static final Logger logger = Loggers.get(CreateTemplateAction.class);
 
-  public CreateTemplateAction(DbClient dbClient, UserSession userSession, System2 system, PermissionWsSupport wsSupport, WsParameters wsParameters) {
+  public CreateTemplateAction(DbClient dbClient, UserSession userSession, System2 system, WsParameters wsParameters) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.system = system;
-    this.wsSupport = wsSupport;
     this.wsParameters = wsParameters;
   }
 
@@ -110,7 +111,8 @@ public class CreateTemplateAction implements PermissionsWsAction {
 
   private CreateTemplateWsResponse doHandle(CreateTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto org = wsSupport.findOrganization(dbSession, request.getOrganization());
+      OrganizationDto org = dbClient.organizationDao().selectByKey(dbSession, request.getOrganization())
+          .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.getOrganization()));
       checkGlobalAdmin(userSession, org.getUuid());
 
       logger.info("Create Permission Template Request :: organization: {} and orgId: {}, templateName: {}",

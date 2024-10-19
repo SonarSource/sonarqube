@@ -28,6 +28,7 @@ export default function Nav() {
       <NavBarTabLink to="/account/security" text={translate('my_account.security')} />
       <NavBarTabLink to="/account/notifications" text={translate('my_account.notifications')} />
       <NavBarTabLink to="/account/projects" text={translate('my_account.projects')} />
+      <NavBarTabLink to="/account/organizations" text={translate('my_account.organizations')} />
     </NavBarTabs>
   );
 }

@@ -109,6 +109,7 @@ class PermissionTemplatesApp extends React.PureComponent<Props, State> {
 
         {id === undefined ? (
           <Home
+            organization={this.props.organization}
             permissionTemplates={permissionTemplates}
             permissions={permissions}
             ready={ready}

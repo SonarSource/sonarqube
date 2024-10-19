@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@ import static com.google.common.collect.Sets.difference;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 
 import java.util.HashSet;
@@ -39,20 +38,17 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
 public class MemberUpdater {
 
   private final DbClient dbClient;
   private final DefaultGroupFinder defaultGroupFinder;
-  private final UserIndexer userIndexer;
   private final BillingValidationsProxy billingValidations;
 
-  public MemberUpdater(DbClient dbClient, DefaultGroupFinder defaultGroupFinder, UserIndexer userIndexer, BillingValidationsProxy billingValidations) {
+  public MemberUpdater(DbClient dbClient, DefaultGroupFinder defaultGroupFinder, BillingValidationsProxy billingValidations) {
     this.dbClient = dbClient;
     this.defaultGroupFinder = defaultGroupFinder;
-    this.userIndexer = userIndexer;
     this.billingValidations = billingValidations;
   }
 
@@ -63,15 +59,14 @@ public class MemberUpdater {
   public void addMembers(DbSession dbSession, OrganizationDto organization, List<UserDto> users) {
     Set<String> currentMemberUuids = new HashSet<>(dbClient.organizationMemberDao().selectUserUuidsByOrganizationUuid(dbSession, organization.getUuid()));
     List<UserDto> usersToAdd = users.stream()
-      .filter(UserDto::isActive)
-      .filter(u -> !currentMemberUuids.contains(u.getUuid()))
-      .filter(u -> canAddMember(organization, u))
-      .collect(toList());
+        .filter(UserDto::isActive)
+        .filter(u -> !currentMemberUuids.contains(u.getUuid()))
+        .filter(u -> canAddMember(organization, u))
+        .toList();
     if (usersToAdd.isEmpty()) {
       return;
     }
     usersToAdd.forEach(u -> addMemberInDb(dbSession, organization, u));
-    userIndexer.commitAndIndex(dbSession, usersToAdd);
   }
 
   private boolean canAddMember(OrganizationDto organization, UserDto user) {
@@ -104,7 +99,7 @@ public class MemberUpdater {
     List<UserDto> usersToRemove = users.stream()
             .filter(UserDto::isActive)
             .filter(u -> currentMemberIds.contains(u.getUuid()))
-            .collect(toList());
+            .toList();
     if (usersToRemove.isEmpty()) {
       return;
     }
@@ -114,7 +109,6 @@ public class MemberUpdater {
     checkArgument(!difference(adminUuids, userUuidsToRemove).isEmpty(), "The last administrator member cannot be removed");
 
     usersToRemove.forEach(u -> removeMemberInDb(dbSession, organization, u));
-    userIndexer.commitAndIndex(dbSession, usersToRemove);
   }
 
   private void removeMemberInDb(DbSession dbSession, OrganizationDto organization, UserDto user) {

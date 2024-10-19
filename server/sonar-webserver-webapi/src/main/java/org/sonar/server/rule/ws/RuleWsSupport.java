@@ -36,6 +36,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
@@ -50,11 +51,7 @@ import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
@@ -96,7 +93,7 @@ public class RuleWsSupport {
   public void checkQProfileAdminPermission(OrganizationDto organization) {
     userSession
       .checkLoggedIn()
-      .checkPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
+      .checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization.getUuid());
   }
 
   public OrganizationDto getOrganizationByKey(DbSession dbSession, String organizationKey) {

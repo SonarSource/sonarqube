@@ -369,6 +369,7 @@
       r.language as language,
       i.clean_code_attribute as cleanCodeAttribute,
       r.clean_code_attribute as ruleCleanCodeAttribute,
+      c.organization_uuid as organizationUuid,
       c.uuid as componentUuid,
       c.path,
       c.scope,
@@ -738,8 +739,9 @@
       left join issues_impacts im on i.kee = im.issue_key
     </if>
     <where>
+      root.organization_uuid = #{query.organization,jdbcType=VARCHAR}
       <if test="query.project != null">
-        root.kee = #{query.project,jdbcType=VARCHAR}
+        AND root.kee = #{query.project,jdbcType=VARCHAR}
       </if>
       <if test="query.component != null">
         AND p.kee = #{query.component,jdbcType=VARCHAR}

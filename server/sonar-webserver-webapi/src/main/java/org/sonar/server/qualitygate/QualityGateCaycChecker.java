@@ -47,10 +47,6 @@ import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.OVER_COMPLIANT;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
-import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
-import static org.sonar.server.qualitygate.QualityGateCaycStatus.OVER_COMPLIANT;
 
 public class QualityGateCaycChecker {
 

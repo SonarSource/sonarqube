@@ -63,8 +63,8 @@ export default function ProfileHeader(props: Props) {
       )}
 
       <Breadcrumbs className="sw-mb-6">
-        <HoverLink to={PROFILE_PATH}>{translate('quality_profiles.page')}</HoverLink>
-        <HoverLink to={getProfilesForLanguagePath(profile.language)}>
+        <HoverLink to={`/organizations/${organization}/${PROFILE_PATH}`}>{translate('quality_profiles.page')}</HoverLink>
+        <HoverLink to={getProfilesForLanguagePath(profile.language, organization)}>
           {profile.languageName}
         </HoverLink>
       </Breadcrumbs>
@@ -97,7 +97,7 @@ export default function ProfileHeader(props: Props) {
                 <div>
                   <Link
                     className="it__quality-profiles__changelog"
-                    to={getProfileChangelogPath(profile.name, profile.language)}
+                    to={getProfileChangelogPath(profile.name, profile.language, organization)}
                   >
                     {translate('see_changelog')}
                   </Link>
@@ -107,6 +107,7 @@ export default function ProfileHeader(props: Props) {
           )}
 
           <ProfileActions
+            organization={organization}
             profile={profile}
             isComparable={isComparable}
             updateProfiles={updateProfiles}

@@ -177,7 +177,6 @@ public class RuleIndexDefinition implements IndexDefinition {
       .keywordFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build()
       .keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build()
       .createBooleanField(FIELD_PRIORITIZED_RULE);
-      .keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build();
 
 
     // Rule extension

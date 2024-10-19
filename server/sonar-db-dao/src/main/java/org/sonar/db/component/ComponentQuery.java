@@ -31,6 +31,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.DaoUtils.buildLikeValue;
 
 public class ComponentQuery {
+  private final String organizationUuid;
   private final String nameOrKeyQuery;
   private final boolean partialMatchOnKey;
   private final String[] qualifiers;
@@ -43,6 +44,7 @@ public class ComponentQuery {
   private final boolean onProvisionedOnly;
 
   private ComponentQuery(Builder builder) {
+    this.organizationUuid = builder.organizationUuid;
     this.nameOrKeyQuery = builder.nameOrKeyQuery;
     this.partialMatchOnKey = builder.partialMatchOnKey == null ? false : builder.partialMatchOnKey;
     this.qualifiers = builder.qualifiers;
@@ -53,6 +55,10 @@ public class ComponentQuery {
     this.allBranchesAnalyzedBefore = builder.allBranchesAnalyzedBefore;
     this.createdAfter = builder.createdAfter;
     this.onProvisionedOnly = builder.onProvisionedOnly;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
   public String[] getQualifiers() {
@@ -123,6 +129,7 @@ public class ComponentQuery {
   }
 
   public static class Builder {
+    private String organizationUuid;
     private String nameOrKeyQuery;
     private Boolean partialMatchOnKey;
     private String[] qualifiers;
@@ -133,6 +140,11 @@ public class ComponentQuery {
     private Long allBranchesAnalyzedBefore;
     private Date createdAfter;
     private boolean onProvisionedOnly = false;
+
+    public Builder setOrganizationUuid(String organizationUuid) {
+      this.organizationUuid = organizationUuid;
+      return this;
+    }
 
     public Builder setNameOrKeyQuery(@Nullable String nameOrKeyQuery) {
       this.nameOrKeyQuery = nameOrKeyQuery;

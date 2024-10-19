@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package io.codescan.sonarqube.codescanhosted.scanner;
 
 import java.io.Reader;
@@ -26,10 +25,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.impl.utils.ScannerUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.http.ScannerWsClient;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.scanner.scan.branch.BranchInfo;
 import org.sonar.scanner.scan.branch.BranchType;
@@ -40,7 +39,8 @@ import org.sonarqube.ws.client.WsResponse;
 
 public class ProjectBranchesLoaderImpl implements ProjectBranchesLoader {
 
-    private static final Logger LOG = Loggers.get(ProjectBranchesLoaderImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProjectBranchesLoaderImpl.class);
+
     private final ScannerWsClient client;
 
     public ProjectBranchesLoaderImpl(ScannerWsClient client) {

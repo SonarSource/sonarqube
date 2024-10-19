@@ -170,6 +170,7 @@ public class CreateInitialSchema extends DdlChange {
     createRulesRepository(context);
     createRuleDescSections(context);
     createRules(context);
+    createRulesMetadata(context);
     createRulesParameters(context);
     createRulesProfiles(context);
     createSamlMessageIds(context);
@@ -1636,7 +1637,9 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(externalLoginCol)
         .addColumn(externalIdentityProviderCol)
         .addColumn(externalIdCol)
+        .addColumn(newBooleanColumnDefBuilder().setColumnName("is_root").setIsNullable(false).build())
         .addColumn(newBooleanColumnDefBuilder().setColumnName("user_local").setIsNullable(true).build())
+        .addColumn(newBooleanColumnDefBuilder().setColumnName("onboarded").setIsNullable(false).build())
         .addColumn(newVarcharColumnDefBuilder("homepage_type").setLimit(40).setIsNullable(true).build())
         .addColumn(newVarcharColumnDefBuilder("homepage_parameter").setLimit(40).setIsNullable(true).build())
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("last_connection_date").setIsNullable(true).build())

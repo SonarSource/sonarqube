@@ -119,7 +119,7 @@ export function MenuItemList(props: MenuItemListProps) {
             </HelpTooltip>
           </ItemHeader>
           <ItemDivider />
-          {branchLikeTree.orphanPullRequests.map(({...pr, isComparisonBranch: props.comparisonBranchesEnabled}) => renderItem(pr))}
+          {branchLikeTree.orphanPullRequests.map((pr) => renderItem({...pr, isComparisonBranch: props.comparisonBranchesEnabled}))}
         </>
       )}
     </ul>

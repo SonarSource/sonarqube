@@ -25,6 +25,7 @@ import EditMembersModal from './EditMembersModal';
 import ViewMembersModal from './ViewMembersModal';
 
 interface Props {
+  organization: string | undefined;
   group: Group;
   isManaged: boolean;
   onEdit: () => void;
@@ -61,7 +62,7 @@ export default function Members(props: Readonly<Props>) {
         (isReadonly ? (
           <ViewMembersModal isManaged={isManaged} group={group} onClose={handleModalClose} />
         ) : (
-          <EditMembersModal group={group} onClose={handleModalClose} />
+          <EditMembersModal group={group} onClose={handleModalClose} organization={props.organization} />
         ))}
     </>
   );

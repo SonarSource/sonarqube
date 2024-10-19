@@ -65,15 +65,16 @@ export function bulkDeleteProjects(
   return post('/api/projects/bulk_delete', parameters).catch(throwGlobalError);
 }
 
-export function deleteProject(project: string): Promise<void | Response> {
-  return post('/api/projects/delete', { project }).catch(throwGlobalError);
+export function deleteProject(organization: string, project: string): Promise<void | Response> {
+  return post('/api/projects/delete', { organization, project }).catch(throwGlobalError);
 }
 
-export function deletePortfolio(portfolio: string): Promise<void | Response> {
-  return post('/api/views/delete', { key: portfolio }).catch(throwGlobalError);
+export function deletePortfolio(organization: string, portfolio: string): Promise<void | Response> {
+  return post('/api/views/delete', { organization, key: portfolio }).catch(throwGlobalError);
 }
 
 export function createProject(data: {
+  organization: string;
   mainBranch: string;
   name: string;
   newCodeDefinitionType?: string;
@@ -85,9 +86,10 @@ export function createProject(data: {
 }
 
 export function changeProjectDefaultVisibility(
+  organization: string,
   projectVisibility: Visibility,
 ): Promise<void | Response> {
-  return post('/api/projects/update_default_visibility', { projectVisibility }).catch(
+  return post('/api/projects/update_default_visibility', { organization, projectVisibility }).catch(
     throwGlobalError,
   );
 }

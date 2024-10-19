@@ -37,7 +37,7 @@ const FORM_ID = 'rename-quality-gate';
 
 export default function CopyQualityGateForm({ organization, qualityGate, onClose }: Readonly<Props>) {
   const [name, setName] = React.useState(qualityGate.name);
-  const { mutateAsync: copyQualityGate } = useCopyQualityGateMutation(qualityGate.name);
+  const { mutateAsync: copyQualityGate } = useCopyQualityGateMutation(organization, qualityGate.name);
   const router = useRouter();
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {

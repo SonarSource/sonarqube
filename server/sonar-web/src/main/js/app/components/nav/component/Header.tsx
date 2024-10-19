@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Link } from "design-system";
 import { Component, Organization } from '../../../../types/types';
 import { CurrentUser } from '../../../../types/users';
 import withCurrentUserContext from '../../current-user/withCurrentUserContext';
 import { Breadcrumb } from './Breadcrumb';
 import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
 import OrganizationAvatar from "../../../../apps/organizations/components/OrganizationAvatar";
-import OrganizationLink from "../../../../apps/organizations/components/OrganizationLink";
 
 export interface HeaderProps {
   component: Component;
@@ -41,12 +41,12 @@ export function Header(props: HeaderProps) {
       {organization &&
         <>
           <OrganizationAvatar organization={organization} />
-          <OrganizationLink
+          <Link
             className="navbar-context-header-breadcrumb-link link-base-color link-no-underline spacer-left"
-            organization={organization}
+            to={`/organizations/${organization.kee}`}
           >
             {organization.name}
-          </OrganizationLink>
+          </Link>
           <span className="slash-separator" />
         </>
       }

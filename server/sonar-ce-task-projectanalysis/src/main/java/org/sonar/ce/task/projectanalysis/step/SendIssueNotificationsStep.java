@@ -98,7 +98,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
       try (DbSession dbSession = dbClient.openSession(false)) {
         BranchDto referenceBranch = dbClient.branchDao().selectByUuid(dbSession, analysisMetadataHolder.getBranch().getReferenceBranchUuid()).orElseThrow(IllegalArgumentException::new);
         boolean notificationsEnabled = Optional.ofNullable(dbClient.propertiesDao()
-                        .selectProjectProperty(referenceBranch.getProjectUuid(), "codescan.cloud.notifications.pullRequestEnabled"))
+                        .selectProjectProperty(dbSession, referenceBranch.getProjectUuid(), "codescan.cloud.notifications.pullRequestEnabled"))
                 .map(prop -> Boolean.parseBoolean(prop.getValue()))
                 .orElse(false);
         if (!notificationsEnabled) {

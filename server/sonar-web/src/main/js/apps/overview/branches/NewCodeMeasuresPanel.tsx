@@ -65,6 +65,7 @@ import { LeakPeriodInfo } from './LeakPeriodInfo';
 import QualityGatePanel from './QualityGatePanel';
 
 interface Props {
+  grc: boolean;
   appLeak?: ApplicationPeriod;
   branch?: Branch;
   component: Component;
@@ -76,7 +77,7 @@ interface Props {
 }
 
 export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
-  const { appLeak, branch, component, measures, qgStatuses, period, loading, qualityGate } = props;
+  const { grc, appLeak, branch, component, measures, qgStatuses, period, loading, qualityGate } = props;
   const intl = useIntl();
   const isApp = isApplication(component.qualifier);
 
@@ -157,7 +158,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
       {leakPeriod && (
         <div className="sw-flex sw-items-center sw-mr-6" data-spotlight-id="cayc-promotion-2">
           <Text isSubdued size={TextSize.Small} className="sw-mr-1">
-            {translate('overview.new_code')}:
+            {grc ? "New Violations" : translate('overview.new_code')}:
           </Text>
           <Text isHighlighted size={TextSize.Small} className="sw-flex">
             <LeakPeriodInfo leakPeriod={leakPeriod} />

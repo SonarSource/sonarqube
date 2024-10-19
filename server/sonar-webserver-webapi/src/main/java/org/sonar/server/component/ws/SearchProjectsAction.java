@@ -85,8 +85,6 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.measure.ProjectMeasuresIndexerIterator.METRIC_KEYS;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
@@ -251,24 +249,10 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private SearchProjectsWsResponse handleForAnyOrganization(DbSession dbSession, SearchProjectsRequest request) {
     SearchResults searchResults = searchData(dbSession, request, null);
-    Set<String> organizationUuids = searchResults.projects.stream().map(ProjectDto::getOrganizationUuid).collect(toSet());
+    Set<String> organizationUuids = searchResults.projects.stream().map(ProjectDto::getOrganizationUuid).collect(Collectors.toSet());
     Map<String, OrganizationDto> organizationsByUuid = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
             .stream()
-            .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
-    return buildResponse(request, searchResults, organizationsByUuid);
-  }
-
-  private SearchProjectsWsResponse handleForOrganization(DbSession dbSession, SearchProjectsRequest request, OrganizationDto organization) {
-    SearchResults searchResults = searchData(dbSession, request, organization);
-    return buildResponse(request, searchResults, Map.of(organization.getUuid(), organization));
-  }
-
-  private SearchProjectsWsResponse handleForAnyOrganization(DbSession dbSession, SearchProjectsRequest request) {
-    SearchResults searchResults = searchData(dbSession, request, null);
-    Set<String> organizationUuids = searchResults.projects.stream().map(ProjectDto::getOrganizationUuid).collect(toSet());
-    Map<String, OrganizationDto> organizationsByUuid = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
-        .stream()
-        .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
+            .collect(Collectors.toMap(OrganizationDto::getUuid, Function.identity()));
     return buildResponse(request, searchResults, organizationsByUuid);
   }
 

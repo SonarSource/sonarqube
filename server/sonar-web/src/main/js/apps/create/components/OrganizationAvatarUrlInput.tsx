@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,12 +21,12 @@ import * as React from 'react';
 import classNames from 'classnames';
 import { isWebUri } from 'valid-url';
 import { translate } from "../../../helpers/l10n";
-import ValidationInput from "../../../components/controls/ValidationInput";
-import { getWhiteListDomains } from '../../../../js/api/organizations';
-import { throwGlobalError } from '../../../../js/helpers/error';
+import { getWhiteListDomains } from '../../../api/organizations';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import withAppStateContext from '../../../../js/app/components/app-state/withAppStateContext';
-import { AppState } from '../../../../js/types/appstate';
-import { allowSpecificDomains } from '../../../../js/helpers/urls';
+import { AppState } from '../../../types/appstate';
+import { allowSpecificDomains } from '../../../helpers/urls';
+import { FormField, InputField } from "design-system";
 
 interface Props {
   initialValue?: string;
@@ -120,25 +120,26 @@ class OrganizationAvatarUrlInput extends React.PureComponent<Props, State> {
     const isInvalid = this.state.touched && !this.state.editing && this.state.error !== undefined;
     const isValid = this.state.touched && this.state.error === undefined && this.state.value !== '';
     return (
-        <ValidationInput
-            error={this.state.error}
-            isInvalid={isInvalid}
-            isValid={isValid}
-            labelHtmlFor="organization-avatar"
-            label={translate('onboarding.create_organization.avatar')}>
-          <input
-              className={classNames('input-super-large', 'text-middle', {
-                'is-invalid': isInvalid,
-                'is-valid': isValid
-              })}
-              id="organization-avatar"
-              onBlur={this.handleBlur}
-              onChange={this.handleChange}
-              onFocus={this.handleFocus}
-              type="text"
-              value={this.state.value}
+        <FormField
+          htmlFor="organization-avatar"
+          label={translate('onboarding.create_organization.avatar')}
+          error={this.state.error}
+          isInvalid={isInvalid}
+          isValid={isValid}
+        >
+          <InputField
+            className={classNames('input-super-large', 'text-middle', {
+              'is-invalid': isInvalid,
+              'is-valid': isValid
+            })}
+            id="organization-avatar"
+            onBlur={this.handleBlur}
+            onChange={this.handleChange}
+            onFocus={this.handleFocus}
+            type="text"
+            value={this.state.value}
           />
-        </ValidationInput>
+        </FormField>
     );
   }
 }

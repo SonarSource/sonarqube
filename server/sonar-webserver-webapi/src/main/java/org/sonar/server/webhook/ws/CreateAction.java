@@ -50,7 +50,6 @@ import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM_MAXI
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM_MINIMUM_LENGTH;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM_MAXIMUM_LENGTH;
-import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.NAME_WEBHOOK_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.URL_WEBHOOK_EXAMPLE_001;
@@ -108,11 +107,9 @@ public class CreateAction implements WebhooksWsAction {
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createParam(ORGANIZATION_KEY_PARAM)
-            .setInternal(true)
-            .setRequired(false)
+            .setRequired(true)
             .setMaximumLength(ORGANIZATION_KEY_PARAM_MAXIMUM_LENGTH)
-            .setDescription("The key of the organization that will own the webhook")
-            .setExampleValue(KEY_ORG_EXAMPLE_001);
+            .setDescription("The key of the organization that will own the webhook");
 
     action.createParam(SECRET_PARAM)
       .setRequired(false)

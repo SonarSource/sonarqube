@@ -27,13 +27,11 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserId;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.permission.Operation;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.common.permission.PermissionUpdater;
 import org.sonar.server.common.permission.UserPermissionChange;
@@ -113,7 +111,7 @@ public class RemoveUserAction implements PermissionsWsAction {
         entityDto,
         userIdDto,
         permissionService);
-      logger.info("Removing permissions for user: {} and permission type: {}, organization: {}, orgId: {}", user,
+      logger.info("Removing permissions for user: {} and permission type: {}, organization: {}, orgId: {}", userIdDto.getLogin(),
           change.getPermission(), org.getKey(), org.getUuid());
       permissionUpdater.apply(dbSession, singletonList(change));
       response.noContent();

@@ -28,9 +28,9 @@ import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -46,11 +46,12 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class QProfileFactoryImpl implements QProfileFactory {
 
+  private final Logger logger = LoggerFactory.getLogger(QProfileFactoryImpl.class);
+
   private final DbClient db;
   private final UuidFactory uuidFactory;
   private final System2 system2;
   private final ActiveRuleIndexer activeRuleIndexer;
-  private final Logger logger = Loggers.get(QProfileFactoryImpl.class);
 
   public QProfileFactoryImpl(DbClient db, UuidFactory uuidFactory, System2 system2, ActiveRuleIndexer activeRuleIndexer) {
     this.db = db;

@@ -119,6 +119,7 @@ export interface RawFlowLocation {
 }
 
 export interface RawIssue {
+  organization: string;
   actions: string[];
   assignee?: string;
   author?: string;

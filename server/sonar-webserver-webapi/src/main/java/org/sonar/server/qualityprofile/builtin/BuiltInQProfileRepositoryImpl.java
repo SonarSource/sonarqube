@@ -32,15 +32,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.util.logs.Profiler;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -52,8 +53,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static com.google.common.base.Preconditions.checkState;
 
 public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository {
-  private static final Logger LOGGER = Loggers.get(BuiltInQProfileRepositoryImpl.class);
   private static final String DEFAULT_PROFILE_NAME = "Sonar way";
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(BuiltInQProfileRepositoryImpl.class);
 
   private final DbClient dbClient;
   private final ServerRuleFinder ruleFinder;

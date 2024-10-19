@@ -65,6 +65,7 @@ interface Props {
 
 export default function RuleListItem(props: Readonly<Props>) {
   const {
+    organization,
     activation: initialActivation,
     rule,
     selectedProfile,
@@ -106,6 +107,7 @@ export default function RuleListItem(props: Readonly<Props>) {
   const handleDeactivate = () => {
     if (selectedProfile) {
       deactivateRule({
+        organization,
         key: selectedProfile.key,
         rule: rule.key,
       });
@@ -223,7 +225,7 @@ export default function RuleListItem(props: Readonly<Props>) {
             modalHeader={translate('coding_rules.activate_in_quality_profile')}
             onDone={handleActivate}
             profiles={[selectedProfile]}
-            organization={this.props.organization}
+            organization={organization}
             rule={rule}
           />
         )}
@@ -245,7 +247,7 @@ export default function RuleListItem(props: Readonly<Props>) {
           <div className="sw-flex sw-items-center">
             {renderActivation()}
 
-            <Link className="sw-typo-semibold" onClick={handleNameClick} to={getRuleUrl(rule.key)}>
+            <Link className="sw-typo-semibold" onClick={handleNameClick} to={getRuleUrl(rule.key, props.organization)}>
               {rule.name}
             </Link>
           </div>

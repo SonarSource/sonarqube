@@ -27,6 +27,9 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -43,12 +46,13 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public class QProfileRulesImpl implements QProfileRules {
 
+  private final Logger logger = LoggerFactory.getLogger(QProfileRulesImpl.class);
+
   private final DbClient db;
   private final RuleActivator ruleActivator;
   private final RuleIndex ruleIndex;
   private final ActiveRuleIndexer activeRuleIndexer;
   private final QualityProfileChangeEventService qualityProfileChangeEventService;
-  private final Logger logger = Loggers.get(QProfileRulesImpl.class);
 
   public QProfileRulesImpl(DbClient db, RuleActivator ruleActivator, RuleIndex ruleIndex, ActiveRuleIndexer activeRuleIndexer,
     QualityProfileChangeEventService qualityProfileChangeEventService) {

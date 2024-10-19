@@ -25,8 +25,6 @@ import { ContentCell, FlagWarningIcon, TableRow, themeColor } from 'design-syste
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
-import DateFormatter from '../../../components/intl/DateFormatter';
-import WarningIcon from '../../../components/icons/WarningIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -96,13 +94,13 @@ export default function TokensFormItem(props: Readonly<Props>) {
       </ContentCell>
 
       <ContentCell className={className}>
-        <DateFormatter date={token.createdAt} long />
+        <DateTimeFormatter date={token.createdAt} short />
       </ContentCell>
 
       <ContentCell className={className}>
         {token.expirationDate ? (
           <StyledSpan tokenIsExpired={token.isExpired}>
-            <DateFormatter date={token.expirationDate} long />
+            <DateTimeFormatter date={token.expirationDate} short />
           </StyledSpan>
         ) : (
           '–'

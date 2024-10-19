@@ -39,16 +39,12 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.server.component.ComponentUpdater;
-import org.sonar.server.component.NewComponent;
-import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.common.almsettings.DevOpsProjectCreator;
 import org.sonar.server.common.almsettings.DevOpsProjectCreatorFactory;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.common.project.ProjectCreator;
@@ -58,9 +54,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
-import static org.sonar.server.component.NewComponent.newComponentBuilder;
-import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
-import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.project.CreationMethod.SCANNER_API;
 import static org.sonar.db.project.CreationMethod.SCANNER_API_DEVOPS_AUTO_CONFIG;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -190,24 +183,21 @@ public class ReportSubmitter {
 
     DevOpsProjectCreator devOpsProjectCreator = devOpsProjectCreatorFactory.getDevOpsProjectCreator(dbSession, characteristics).orElse(null);
 
-    throwIfCurrentUserWouldNotHaveScanPermission(projectKey, dbSession, devOpsProjectCreator);
+    throwIfCurrentUserWouldNotHaveScanPermission(organization, projectKey, dbSession, devOpsProjectCreator);
 
     if (devOpsProjectCreator != null) {
-      return devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, SCANNER_API_DEVOPS_AUTO_CONFIG, false, projectKey, projectName);
+      return devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, organization, SCANNER_API_DEVOPS_AUTO_CONFIG, false, projectKey, projectName);
     }
     return projectCreator.createProject(dbSession, organization, componentKey.getKey(), defaultIfBlank(projectName, projectKey), null, SCANNER_API);
   }
 
-  private void throwIfCurrentUserWouldNotHaveScanPermission(String projectKey, DbSession dbSession, @Nullable DevOpsProjectCreator devOpsProjectCreator) {
-    if (!wouldCurrentUserHaveScanPermission(projectKey, dbSession, devOpsProjectCreator)) {
+  private void throwIfCurrentUserWouldNotHaveScanPermission(OrganizationDto organization, String projectKey, DbSession dbSession, @Nullable DevOpsProjectCreator devOpsProjectCreator) {
+    if (!wouldCurrentUserHaveScanPermission(organization, projectKey, dbSession, devOpsProjectCreator)) {
       throw insufficientPrivilegesException();
     }
   }
 
   private boolean wouldCurrentUserHaveScanPermission(OrganizationDto organization, String projectKey, DbSession dbSession, @Nullable DevOpsProjectCreator devOpsProjectCreator) {
-    if (userSession.hasPermission(SCAN)) {
-      return true;
-    }
     if (managedInstanceService.isInstanceExternallyManaged() && devOpsProjectCreator != null) {
       return devOpsProjectCreator.isScanAllowedUsingPermissionsFromDevopsPlatform();
     }

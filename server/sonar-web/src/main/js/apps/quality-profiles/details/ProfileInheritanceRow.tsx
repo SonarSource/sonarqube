@@ -29,6 +29,7 @@ import ProfileLink from '../components/ProfileLink';
 const INDENT_PIXELS = 25;
 
 interface Props {
+  organization: string;
   className?: string;
   depth: number;
   displayLink?: boolean;
@@ -38,7 +39,7 @@ interface Props {
 }
 
 export default function ProfileInheritanceRow(props: Readonly<Props>) {
-  const { className, depth, language, profile, displayLink = true, type = 'current' } = props;
+  const { organization, className, depth, language, profile, displayLink = true, type = 'current' } = props;
   const activeRulesUrl = getRulesUrl({ qprofile: profile.key, activation: 'true' });
   const inactiveRulesUrl = getRulesUrl({ qprofile: profile.key, activation: 'false' });
   const overridingRulesUrl = getRulesUrl({
@@ -53,7 +54,7 @@ export default function ProfileInheritanceRow(props: Readonly<Props>) {
       <ContentCell>
         <div className="sw-flex sw-items-center sw-gap-2" style={{ paddingLeft: offset }}>
           {displayLink ? (
-            <ProfileLink language={language} name={profile.name}>
+            <ProfileLink organization={organization} language={language} name={profile.name}>
               {profile.name}
             </ProfileLink>
           ) : (

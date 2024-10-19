@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,9 +21,7 @@ import * as React from 'react';
 import { sortBy } from 'lodash';
 import MembersListItem from './MembersListItem';
 import {LoggedInUser} from "../../types/users";
-import {Organization, OrganizationMember} from "../../types/types";
-import {doc} from "prettier";
-import Group = doc.builders.Group;
+import { Group, Organization, OrganizationMember } from "../../types/types";
 
 interface Props {
   currentUser: LoggedInUser;

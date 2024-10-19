@@ -27,6 +27,10 @@ import javax.validation.constraints.NotNull;
 public record BoundProjectCreateRestRequest(
 
   @NotEmpty
+  @Schema(description = "Key of the organization")
+  String organization,
+
+  @NotEmpty
   @Schema(description = "Key of the project to create")
   String projectKey,
 

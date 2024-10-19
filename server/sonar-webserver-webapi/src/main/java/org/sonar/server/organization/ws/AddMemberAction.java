@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
-import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 import org.sonar.api.server.ws.Request;
@@ -37,7 +36,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.AvatarResolver;
+import org.sonar.server.common.avatar.AvatarResolver;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations.AddMemberWsResponse;
 import org.sonarqube.ws.Organizations.User;
@@ -72,8 +71,7 @@ public class AddMemberAction implements OrganizationsWsAction {
     action
       .createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key")
-      .setRequired(true)
-      .setExampleValue(KEY_ORG_EXAMPLE_001);
+      .setRequired(true);
 
     action
       .createParam(PARAM_LOGIN)
@@ -82,7 +80,6 @@ public class AddMemberAction implements OrganizationsWsAction {
       .setExampleValue("ray.bradbury");
   }
 
-  @Override
   public void handle(Request request, Response response) throws Exception {
     String organizationKey = request.mandatoryParam(PARAM_ORGANIZATION);
     String login = request.mandatoryParam(PARAM_LOGIN);
@@ -93,6 +90,7 @@ public class AddMemberAction implements OrganizationsWsAction {
       userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
       UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' is not found", login);
       memberUpdater.addMember(dbSession, organization, user);
+      dbSession.commit();
 
       int groups = dbClient.groupMembershipDao().countGroups(dbSession, GroupMembershipQuery.builder()
         .organizationUuid(organization.getUuid())

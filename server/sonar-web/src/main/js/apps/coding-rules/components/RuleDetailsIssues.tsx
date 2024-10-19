@@ -137,14 +137,13 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
   renderTotal = () => {
     const {
       ruleDetails: { key },
-      organization
     } = this.props;
 
     const { totalIssues: total } = this.state;
     if (total === undefined) {
       return null;
     }
-    const path = getOrgIssuesUrl({ ...DEFAULT_ISSUES_QUERY, rules: key });
+    const path = getOrgIssuesUrl({ ...DEFAULT_ISSUES_QUERY, rules: key }, this.props.organization);
 
     const totalItem = (
       <span className="sw-ml-1">
@@ -165,11 +164,10 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
 
   renderProject = (project: Project) => {
     const {
-      organization,
       ruleDetails: { key },
     } = this.props;
 
-    const path = getOrgIssuesUrl({ ...DEFAULT_ISSUES_QUERY, rules: key, projects: project.key }, organization);
+    const path = getOrgIssuesUrl({ ...DEFAULT_ISSUES_QUERY, rules: key, projects: project.key }, this.props.organization);
     return (
       <TableRow key={project.key}>
         <ContentCell>{project.name}</ContentCell>
@@ -214,7 +212,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
                     values={{
                       count: totalProjects - projects.length,
                       link: (
-                        <Link to={getIssuesUrl({ resolved: 'false', rules: ruleDetails.key })}>
+                        <Link to={getOrgIssuesUrl({ resolved: 'false', rules: ruleDetails.key }, this.props.organization)}>
                           <FormattedMessage id="coding_rules.most_violating_projects.link" />
                         </Link>
                       ),

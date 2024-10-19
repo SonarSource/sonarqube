@@ -58,6 +58,8 @@ public interface QualityProfileMapper {
     @Param("organizationUuid") String organizationUuid,
     @Param("languages") Collection<String> languages);
 
+  List<QProfileDto> selectAll();
+
   List<QProfileDto> selectAllDefaultProfiles();
 
   @CheckForNull

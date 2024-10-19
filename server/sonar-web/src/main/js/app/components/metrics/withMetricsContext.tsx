@@ -34,7 +34,7 @@ export default function withMetricsContext<P>(
   > {
     static displayName = getWrappedDisplayName(WrappedComponent, 'withMetricsContext');
 
-    render() {
+    render() {x
       return (
         <MetricsContext.Consumer>
           {(metrics) => <WrappedComponent metrics={metrics} {...(this.props as P)} />}

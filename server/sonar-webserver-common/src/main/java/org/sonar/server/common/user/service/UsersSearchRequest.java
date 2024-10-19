@@ -20,6 +20,7 @@
 package org.sonar.server.common.user.service;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -40,6 +41,7 @@ public class UsersSearchRequest {
   private final String externalLogin;
   private final String groupUuid;
   private final String excludedGroupUuid;
+  private final List<String> organizationUuids;
 
   private UsersSearchRequest(Builder builder) {
     this.page = builder.page;
@@ -50,6 +52,7 @@ public class UsersSearchRequest {
     this.externalLogin = builder.externalLogin;
     this.groupUuid = builder.groupUuid;
     this.excludedGroupUuid = builder.excludedGroupUuid;
+    this.organizationUuids = builder.organizationUuids;
     try {
       this.lastConnectionDateFrom = Optional.ofNullable(builder.lastConnectionDateFrom).map(DateUtils::parseOffsetDateTime).orElse(null);
       this.lastConnectionDateTo = Optional.ofNullable(builder.lastConnectionDateTo).map(DateUtils::parseOffsetDateTime).orElse(null);
@@ -75,6 +78,10 @@ public class UsersSearchRequest {
 
   public boolean isDeactivated() {
     return deactivated;
+  }
+
+  public List<String> getOrganizationUuids() {
+    return organizationUuids;
   }
 
   @CheckForNull
@@ -127,6 +134,7 @@ public class UsersSearchRequest {
     private String externalLogin;
     private String groupUuid;
     private String excludedGroupUuid;
+    private List<String> organizationUuids;
 
     private Builder() {
       // enforce factory method use
@@ -189,6 +197,11 @@ public class UsersSearchRequest {
 
     public Builder setExcludedGroupUuid(@Nullable String excludedGroupUuid) {
       this.excludedGroupUuid = excludedGroupUuid;
+      return this;
+    }
+
+    public Builder setOrganizationUuids(List<String> organizationUuids) {
+      this.organizationUuids = organizationUuids;
       return this;
     }
 

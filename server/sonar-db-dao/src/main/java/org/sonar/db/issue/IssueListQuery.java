@@ -107,6 +107,7 @@ public class IssueListQuery {
   }
 
   public static final class IssueListQueryBuilder {
+    private String organization;
     private String project;
     private String branch;
     private String pullRequest;
@@ -124,6 +125,11 @@ public class IssueListQuery {
 
     public static IssueListQueryBuilder newIssueListQueryBuilder() {
       return new IssueListQueryBuilder();
+    }
+
+    public IssueListQueryBuilder organization(String organization) {
+      this.organization = organization;
+      return this;
     }
 
     public IssueListQueryBuilder project(String project) {

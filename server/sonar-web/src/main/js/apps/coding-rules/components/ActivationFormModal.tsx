@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Button, ButtonVariety, Modal } from '@sonarsource/echoes-react';
+import { Button, ButtonVariety, Modal, Select } from '@sonarsource/echoes-react';
 import {
   FlagMessage,
   FormField,
@@ -61,6 +61,8 @@ interface ProfileWithDepth extends Profile {
 
 const MIN_PROFILES_TO_ENABLE_SELECT = 2;
 const FORM_ID = 'rule-activation-modal-form';
+const PARAMS_DELIMITER = ";";
+const KEY_VALUE_DELIMITER = "=";
 
 export default function ActivationFormModal(props: Readonly<Props>) {
   const { activation, rule, profiles, modalHeader, isOpen, onOpenChange } = props;
@@ -91,15 +93,13 @@ export default function ActivationFormModal(props: Readonly<Props>) {
     changedPrioritizedRule ?? (activation ? activation.prioritizedRule : false);
   const profile = changedProfile ?? profilesWithDepth[0];
   const params = changedParams ?? getRuleParams({ activation, rule });
+  const allParams = getAllParams({ rule });
   const severity =
     changedSeverity ?? ((activation ? activation.severity : rule.severity) as IssueSeverity);
   const profileOptions = profilesWithDepth.map((p) => ({ label: p.name, value: p }));
   const isCustomRule = !!(rule as RuleDetails).templateKey;
   const activeInAllProfiles = profilesWithDepth.length <= 0;
   const isUpdateMode = !!activation;
-
-  const paramsDelimiter = ";";
-  const keyValueDelimiter = "=";
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -113,8 +113,9 @@ export default function ActivationFormModal(props: Readonly<Props>) {
   const handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = {
+      organization: this.props.organization,
       key: profile?.key ?? '',
-      params,
+      params: getParamsFromMap(params),
       rule: rule.key,
       severity,
       prioritizedRule,
@@ -127,6 +128,32 @@ export default function ActivationFormModal(props: Readonly<Props>) {
   ) => {
     const { name, value } = event.currentTarget;
     setChangedParams({ ...params, [name]: value });
+  };
+
+  const handleSingleSelectListChange = ({ value, labelKey }: { label: string, value: string, labelKey: string }) => {
+    params[labelKey] = value;
+    setChangedParams({ ...params });
+  };
+
+  const handleKeyChange = (index: any, value: any, paramKey: any) => {
+    params[paramKey][index][0] = value;
+    if (index === params[paramKey].length - 1) {
+      params[paramKey].splice(index + 1, 0, ['', '']);
+    }
+    setChangedParams({ ...params });
+  };
+
+  const handleValueChange = (index: any, value: any, paramKey: any) => {
+    params[paramKey][index][1] = value;
+    if (index === params[paramKey].length - 1) {
+      params[paramKey].splice(index + 1, 0, ['', '']);
+    }
+    setChangedParams({ ...params });
+  };
+
+  const handleDeleteValue = (index: number, paramKey: any) => {
+    params[paramKey].splice(index, 1);
+    setChangedParams({ ...params });
   };
 
   return (
@@ -245,7 +272,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
           ) : (
             rule.params?.map((param) => (
               <FormField label={param.key} key={param.key} htmlFor={param.key}>
-                {param.type === 'TEXT' ? (
+                {param.type === 'TEXT' && (
                   <InputTextArea
                     id={param.key}
                     disabled={submitting}
@@ -256,7 +283,53 @@ export default function ActivationFormModal(props: Readonly<Props>) {
                     size="full"
                     value={params[param.key] ?? ''}
                   />
-                ) : (
+                )}
+                {param.type.startsWith('SINGLE_SELECT_LIST') && (
+                  <Select
+                    clearable={false}
+                    onChange={handleSingleSelectListChange}
+                    options={this.state.allParams[param.key].map((item: string) => ({
+                      labelKey: param.key,
+                      label: item,
+                      value: item
+                    }))}
+                    value={{labelKey: param.key, label: this.state.params[param.key], value: this.state.params[param.key]}}
+                  />
+                )}
+                {param.type === 'KEY_VALUE_MAP' && (
+                  <ul>
+                    {this.state.params[param.key].map((value: any, index: number) =>
+                      <li className="spacer-bottom display-flex-row " key={index}>
+                        <input
+                          disabled={submitting}
+                          className="coding-rule-map-input"
+                          onChange={e => handleKeyChange(index, e.target.value, param.key)}
+                          name={"key" + index}
+                          type="text"
+                          value={value[0]} />
+
+                        <input
+                          disabled={submitting}
+                          className="coding-rule-map-input"
+                          onChange={e => handleValueChange(index, e.target.value, param.key)}
+                          name={"value" + index}
+                          type="text"
+                          value={value[1]} />
+
+                        {!(index === this.state.params[param.key].length - 1) && (
+                          <div className="display-inline-block spacer-left">
+                            <Button
+                              variety={ButtonVariety.Danger}
+                              isDisabled={submitting}
+                              onClick={() => handleDeleteValue(index, param.key)}
+                            />
+                          </div>
+                        )}
+                      </li>
+                    )}
+                  </ul>
+                )}
+                {param.type !== 'TEXT' && param.type !== 'KEY_VALUE_MAP' && !param.type.startsWith('SINGLE_SELECT_LIST') && (
                   <InputField
                     id={param.key}
                     disabled={submitting}
@@ -310,14 +383,65 @@ function getRuleParams({
   activation?: RuleActivation;
   rule: RuleDetails | Rule;
 }) {
-  const params: Dict<string> = {};
+  const params: Dict<any> = {};
   if (rule?.params) {
     for (const param of rule.params) {
-      params[param.key] = param.defaultValue ?? '';
+      if (param.type == "KEY_VALUE_MAP") {
+        let paramsArray: String[] = [];
+        if (param.defaultValue) {
+          paramsArray = param.defaultValue.split(PARAMS_DELIMITER);
+        }
+        paramsArray.push(KEY_VALUE_DELIMITER);
+        params[param.key] = paramsArray.map((object: any) => object.split(KEY_VALUE_DELIMITER));
+      } else {
+        params[param.key] = param.defaultValue ?? '';
+      }
     }
     if (activation?.params) {
       for (const param of activation.params) {
-        params[param.key] = param.value;
+        if (typeof (params[param.key]) !== 'string') {
+          let paramsArray: String[] = [];
+          paramsArray = param.value.split(PARAMS_DELIMITER);
+          paramsArray.push(KEY_VALUE_DELIMITER);
+          params[param.key] = paramsArray.map((object: any) => object.split(KEY_VALUE_DELIMITER));
+        } else {
+          params[param.key] = param.value;
+        }
+      }
+    }
+  }
+  return params;
+}
+
+function getParamsFromMap(stateParams) {
+  const { params = [] } = this.props.rule;
+  params.map(param => {
+    if (param.type == 'KEY_VALUE_MAP') {
+      stateParams[param.key].pop();
+      let res = '';
+      let row = stateParams[param.key].length;
+      stateParams[param.key].map((param: string[], index: number) => {
+        res = res + param[0] + this.keyValueDelimiter + param[1];
+        if (index + 1 != row) {
+          res = res + this.paramsDelimiter;
+        }
+      })
+      stateParams[param.key] = res;
+    }
+  })
+  return stateParams;
+}
+
+// Unlike other param types, SINGLE_SELECT_LIST has predefined list of values from which user can choose from.
+function getAllParams({ rule }) {
+  const params: Dict<any> = {};
+  if (rule && rule.params) {
+    for (const param of rule.params) {
+      if (param.type.startsWith("SINGLE_SELECT_LIST")) {
+        let list: String;
+        list = param.type.substring(param.type.indexOf('\"') + 1);
+        list = list.substring(0, list.indexOf(',\"'));
+        params[param.key] = list.split(',');
       }
     }
   }

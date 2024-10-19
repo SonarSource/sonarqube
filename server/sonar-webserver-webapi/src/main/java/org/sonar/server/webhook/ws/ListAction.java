@@ -46,7 +46,6 @@ import static org.sonar.server.webhook.HttpUrlHelper.obfuscateCredentials;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.LIST_ACTION;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.ORGANIZATION_KEY_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM;
-import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -76,8 +75,7 @@ public class ListAction implements WebhooksWsAction {
     action.createParam(ORGANIZATION_KEY_PARAM)
             .setDescription("Organization key.")
             .setInternal(true)
-            .setRequired(true)
-            .setExampleValue(KEY_ORG_EXAMPLE_001);
+            .setRequired(true);
 
     action.createParam(PROJECT_KEY_PARAM)
       .setDescription("Project key")

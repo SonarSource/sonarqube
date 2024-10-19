@@ -20,21 +20,18 @@
 package org.sonar.server.component;
 
 import java.util.List;
-import java.util.Optional;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.resources.Scopes;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.server.es.ProjectIndexers;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.es.Indexers;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
@@ -54,7 +51,7 @@ public class ComponentCleanerService {
 
   public void delete(DbSession dbSession, List<ProjectDto> projects, String user) {
     for (ProjectDto project : projects) {
-      deleteEntity(dbSession, project);
+      deleteEntity(dbSession, project, user);
     }
   }
 
@@ -64,7 +61,7 @@ public class ComponentCleanerService {
     }
     dbClient.purgeDao().deleteBranch(dbSession, branch.getUuid());
     updateProjectNcloc(dbSession, branch.getProjectUuid());
-    indexers.commitAndIndexBranches(dbSession, singletonList(branch), BranchEvent.DELETION);
+    indexers.commitAndIndexBranches(dbSession, singletonList(branch), Indexers.BranchEvent.DELETION);
   }
 
   private void updateProjectNcloc(DbSession dbSession, String projectUuid) {
@@ -72,7 +69,7 @@ public class ComponentCleanerService {
     dbClient.projectDao().updateNcloc(dbSession, projectUuid, maxncloc);
   }
 
-  public void deleteEntity(DbSession dbSession, EntityDto entity) {
+  public void deleteEntity(DbSession dbSession, EntityDto entity, String user) {
     OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, entity.getOrganizationUuid())
         .orElseThrow(() -> new IllegalStateException("No organization found: " + entity.getOrganizationUuid()));
     logger.info("Cleaning component entries for projectName: {}, projectKey: {}, projectId: {}, organization: {}, orgId: {}, user: {}",
@@ -86,6 +83,6 @@ public class ComponentCleanerService {
       dbClient.userTokenDao().deleteByProjectUuid(dbSession, entity.getKey(), entity.getUuid());
     }
     // Note that we do not send an event for each individual branch being deleted with the project
-    indexers.commitAndIndexEntities(dbSession, singletonList(entity), EntityEvent.DELETION);
+    indexers.commitAndIndexEntities(dbSession, singletonList(entity), Indexers.EntityEvent.DELETION);
   }
 }

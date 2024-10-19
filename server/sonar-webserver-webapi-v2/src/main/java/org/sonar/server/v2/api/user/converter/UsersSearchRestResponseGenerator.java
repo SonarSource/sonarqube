@@ -45,19 +45,19 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
   }
 
   @Override
-  public UsersSearchRestResponse toUsersForResponse(List<UserInformation> userInformations, PaginationInformation paginationInformation) {
-    List<UserRestResponse> usersForResponse = toUsersForResponse(userInformations);
+  public UsersSearchRestResponse toUsersForResponse(List<UserInformation> userInformations, PaginationInformation paginationInformation, boolean showEmailAndLastConnectionInfo) {
+    List<UserRestResponse> usersForResponse = toUsersForResponse(userInformations, showEmailAndLastConnectionInfo);
     PageRestResponse pageRestResponse = new PageRestResponse(paginationInformation.pageIndex(), paginationInformation.pageSize(), paginationInformation.total());
     return new UsersSearchRestResponse(usersForResponse, pageRestResponse);
   }
 
-  private List<UserRestResponse> toUsersForResponse(List<UserInformation> userInformations) {
+  private List<UserRestResponse> toUsersForResponse(List<UserInformation> userInformations, boolean showEmailAndLastConnectionInfo) {
     return userInformations.stream()
-      .map(this::toRestUser)
+      .map(u -> toRestUser(u, showEmailAndLastConnectionInfo))
       .toList();
   }
 
-  public UserRestResponse toRestUser(UserInformation userInformation) {
+  public UserRestResponse toRestUser(UserInformation userInformation, boolean showEmailAndLastConnectionInfo) {
     UserDto userDto = userInformation.userDto();
 
     String id = userDto.getUuid();
@@ -72,7 +72,7 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
     Boolean local = userDto.isLocal();
     String email = userDto.getEmail();
     String externalIdentityProvider = userDto.getExternalIdentityProvider();
-    if (userSession.isSystemAdministrator() || Objects.equals(userSession.getUuid(), userDto.getUuid())) {
+    if (userSession.isSystemAdministrator() || showEmailAndLastConnectionInfo || Objects.equals(userSession.getUuid(), userDto.getUuid())) {
       String externalLogin = userDto.getExternalLogin();
       Boolean managed = userInformation.managed();
       String sqLastConnectionDate = toDateTime(userDto.getLastConnectionDate());

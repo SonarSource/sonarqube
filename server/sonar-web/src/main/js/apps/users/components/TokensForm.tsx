@@ -78,12 +78,23 @@ export function TokensForm(props: Readonly<Props>) {
   const { mutateAsync: generate, isPending: generating } = useGenerateTokenMutation();
 
   const tokenTypeOptions = React.useMemo(() => {
-    const value = [{ label: translate('users.tokens', TokenType.User), value: TokenType.User }];
+    const value = [];
 
-    if (hasGlobalPermission(currentUser, Permissions.Scan)) {
+    if (hasGlobalPermission(currentUser, Permissions.Admin)) {
       value.unshift({
         label: translate('users.tokens', TokenType.Global),
         value: TokenType.Global,
+      });
+    }
+
+    // Adding user token if it is amazon deployment and have admin permissions.
+    // or it is codescan SaaS deployment.
+    const { whiteLabel } = this.props.appState;
+    if ((isDeploymentForAmazon(whiteLabel) && hasGlobalPermission(currentUser, Permissions.Admin))
+      || (isDeploymentForCodeScan(whiteLabel))) {
+      tokenTypeOptions.unshift({
+        label: translate('users.tokens', TokenType.User),
+        value: TokenType.User,
       });
     }
 

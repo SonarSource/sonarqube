@@ -32,6 +32,7 @@ import { getWeakMissingAndNonCaycConditions } from '../utils';
 import ConditionsTable from './ConditionsTable';
 
 interface Props {
+  organization: string;
   canEdit: boolean;
   conditions: Condition[];
   isOptimizing?: boolean;
@@ -43,8 +44,8 @@ interface Props {
 }
 
 export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) {
-  const { conditions, qualityGate, metrics, lockEditing, onClose, isOptimizing } = props;
-  const { mutateAsync: fixQualityGate } = useFixQualityGateMutation(qualityGate.name);
+  const { organization, conditions, qualityGate, metrics, lockEditing, onClose, isOptimizing } = props;
+  const { mutateAsync: fixQualityGate } = useFixQualityGateMutation(organization, qualityGate.name);
 
   const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
   const sortedWeakConditions = sortBy(

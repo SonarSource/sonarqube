@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,10 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import AddMemberForm from './AddMemberForm';
-import {Organization, OrganizationMember} from "../../types/types";
-import {translate} from "../../helpers/l10n";
-import Link from "../../components/common/Link";
-import DeferredSpinner from "../../components/ui/DeferredSpinner";
+import { Organization, OrganizationMember } from "../../types/types";
+import { translate } from "../../helpers/l10n";
+import { Link, Spinner } from "@sonarsource/echoes-react";
 
 export interface Props {
   handleAddMember: (member: OrganizationMember) => void;
@@ -40,7 +39,7 @@ export default function MembersPageHeader(props: Props) {
   return (
     <header className="page-header">
       <h1 className="page-title">{translate('organization.members.page')}</h1>
-      <DeferredSpinner loading={props.loading} />
+      <Spinner isLoading={props.loading}/>
       {isAdmin && (
         <div className="page-actions text-right">
           <div className="display-inline-block spacer-left spacer-bottom">
@@ -58,7 +57,8 @@ export default function MembersPageHeader(props: Props) {
           id="organization.members.page.description"
           values={{
             link: (
-              <Link target="_blank" to="https://knowledgebase.autorabit.com/codescan/docs/add-users-to-a-codescan-cloud-organisation">
+              <Link target="_blank"
+                    to="https://knowledgebase.autorabit.com/codescan/docs/add-users-to-a-codescan-cloud-organisation">
                 {translate('organization.members.manage_a_team')}
               </Link>
             )

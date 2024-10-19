@@ -64,7 +64,7 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
   const hasManyBranches = branchLikes.length >= 2;
   const isMenuEnabled = branchSupportEnabled && hasManyBranches;
 
-  const currentBranchLikeElement = <CurrentBranchLike currentBranchLike={currentBranchLike} />;
+  const currentBranchLikeElement = <CurrentBranchLike currentBranchLike={currentBranchLike} comparisonBranchesEnabled={comparisonBranchesEnabled} />;
 
   const handleOutsideClick = () => {
     setIsMenuOpen(false);

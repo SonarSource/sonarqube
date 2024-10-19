@@ -53,19 +53,19 @@ const qualityQuery = {
 };
 
 // This is internal to "enable" query when searching from the project page
-function useQualityGateQueryInner(name?: string) {
+function useQualityGateQueryInner(organization: string, name?: string) {
   return useQuery({
     queryKey: qualityQuery.detail(name),
     queryFn: ({ queryKey: [, , name] }) => {
-      return fetchQualityGate({ name });
+      return fetchQualityGate({ organization, name });
     },
     enabled: name !== undefined,
     staleTime: QUERY_STALE_TIME,
   });
 }
 
-export function useQualityGateQuery(name: string) {
-  return useQualityGateQueryInner(name);
+export function useQualityGateQuery(organization: string, name: string) {
+  return useQualityGateQueryInner(organization, name);
 }
 
 export function useQualityGateForProjectQuery(project: string) {
@@ -83,22 +83,22 @@ export function useComponentQualityGateQuery(project: string) {
   return useQualityGateQueryInner(name);
 }
 
-export function useQualityGatesQuery() {
+export function useQualityGatesQuery(organization: string) {
   return useQuery({
     queryKey: qualityQuery.list(),
     queryFn: () => {
-      return fetchQualityGates();
+      return fetchQualityGates({ organization });
     },
     staleTime: QUERY_STALE_TIME,
   });
 }
 
-export function useCreateQualityGateMutation() {
+export function useCreateQualityGateMutation(organization: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (name: string) => {
-      return createQualityGate({ name });
+      return createQualityGate({ organization, name });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
@@ -106,12 +106,12 @@ export function useCreateQualityGateMutation() {
   });
 }
 
-export function useSetQualityGateAsDefaultMutation() {
+export function useSetQualityGateAsDefaultMutation(organization: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (qualityGate: QualityGate) => {
-      return setQualityGateAsDefault({ name: qualityGate.name });
+      return setQualityGateAsDefault({ name: qualityGate.name, organization });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
@@ -120,12 +120,12 @@ export function useSetQualityGateAsDefaultMutation() {
   });
 }
 
-export function useRenameQualityGateMutation(currentName: string) {
+export function useRenameQualityGateMutation(organization: string, currentName: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (newName: string) => {
-      return renameQualityGate({ currentName, name: newName });
+      return renameQualityGate({ organization, currentName, name: newName });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
@@ -135,12 +135,12 @@ export function useRenameQualityGateMutation(currentName: string) {
   });
 }
 
-export function useCopyQualityGateMutation(sourceName: string) {
+export function useCopyQualityGateMutation(organization: string, sourceName: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (newName: string) => {
-      return copyQualityGate({ sourceName, name: newName });
+      return copyQualityGate({ organization, sourceName, name: newName });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
@@ -148,12 +148,12 @@ export function useCopyQualityGateMutation(sourceName: string) {
   });
 }
 
-export function useDeleteQualityGateMutation(name: string) {
+export function useDeleteQualityGateMutation(organization: string, name: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: () => {
-      return deleteQualityGate({ name });
+      return deleteQualityGate({ organization, name });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
@@ -163,7 +163,7 @@ export function useDeleteQualityGateMutation(name: string) {
   });
 }
 
-export function useFixQualityGateMutation(gateName: string) {
+export function useFixQualityGateMutation(organization: string, gateName: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -177,6 +177,7 @@ export function useFixQualityGateMutation(gateName: string) {
       const promiseArr = weakConditions
         .map((condition) => {
           return updateCondition({
+            organization,
             ...getCorrectCaycCondition(condition),
             id: condition.id,
           });
@@ -184,6 +185,7 @@ export function useFixQualityGateMutation(gateName: string) {
         .concat(
           missingConditions.map((condition) => {
             return createCondition({
+              organization,
               ...getCorrectCaycCondition(condition),
               gateName,
             });
@@ -200,12 +202,12 @@ export function useFixQualityGateMutation(gateName: string) {
   });
 }
 
-export function useCreateConditionMutation(gateName: string) {
+export function useCreateConditionMutation(organization: string, gateName: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (condition: Omit<Condition, 'id'>) => {
-      return createCondition({ ...condition, gateName });
+      return createCondition({ organization, ...condition, gateName });
     },
     onSuccess: (_, condition) => {
       queryClient.setQueryData(qualityQuery.detail(gateName), (oldData?: QualityGate) => {
@@ -223,12 +225,12 @@ export function useCreateConditionMutation(gateName: string) {
   });
 }
 
-export function useUpdateConditionMutation(gateName: string) {
+export function useUpdateConditionMutation(organization: string, gateName: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (condition: Condition) => {
-      return updateCondition(condition);
+      return updateCondition({ organization, condition });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qualityQuery.list() });
@@ -238,12 +240,13 @@ export function useUpdateConditionMutation(gateName: string) {
   });
 }
 
-export function useDeleteConditionMutation(gateName: string) {
+export function useDeleteConditionMutation(organization: string, gateName: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (condition: Condition) => {
       return deleteCondition({
+        organization,
         id: condition.id,
       });
     },

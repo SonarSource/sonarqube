@@ -129,7 +129,7 @@ public class SearchResponseFormat {
     response.setPaging(Common.Paging.newBuilder()
       .setPageIndex(paging.pageIndex())
       .setPageSize(data.getIssues().size()));
-    response.addAllIssues(createIssues(fields, data));
+    response.addAllIssues(createIssues(fields, data, null /* TODO */));
     response.addAllComponents(formatComponents(data));
     return response.build();
   }

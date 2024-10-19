@@ -19,13 +19,13 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -35,7 +35,6 @@ import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
@@ -107,4 +106,8 @@ public class AddUserAction implements UserGroupsWsAction {
     }
   }
 
+  private void checkMembership(DbSession dbSession, OrganizationDto organization, UserDto user) {
+    dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getUuid())
+        .orElseThrow(() -> new IllegalStateException(format("User '%s' is not member of organization '%s'", user.getLogin(), organization.getKey())));
+  }
 }

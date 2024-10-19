@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -50,7 +51,7 @@ public class QualityProfileDataProvider {
 
       Map<String, QProfileDto> allProfileDtosByUuid = dbClient.qualityProfileDao().selectAll(dbSession)
         .stream()
-        .collect(toMap(QProfileDto::getKee, p -> p));
+        .collect(toMap(QProfileDto::getKee, Function.identity()));
 
       return allProfileDtosByUuid.entrySet().stream()
         .map(p -> mapQualityProfile(p.getValue(), allProfileDtosByUuid, defaultProfileUuids.contains(p.getKey()), dbSession))

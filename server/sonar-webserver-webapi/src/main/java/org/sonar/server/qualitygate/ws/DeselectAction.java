@@ -83,14 +83,10 @@ public class DeselectAction implements QualityGatesWsAction {
 
   private void dissociateProject(DbSession dbSession, OrganizationDto organization, ProjectDto project) {
     wsSupport.checkCanAdminProject(organization, project);
-    dbClient.projectQgateAssociationDao().deleteByProjectUuid(dbSession, project.getUuid());
-    dbSession.commit();
-  }
-
-  private void checkProjectQGCanChange(ProjectDto project) {
-    wsSupport.checkCanAdminProject(project);
     if (aiCodeAssuranceVerifier.isAiCodeAssured(project)) {
       throw new ForbiddenException("Quality gate cannot be changed for project with AI Code Assurance enabled.");
     }
+    dbClient.projectQgateAssociationDao().deleteByProjectUuid(dbSession, project.getUuid());
+    dbSession.commit();
   }
 }

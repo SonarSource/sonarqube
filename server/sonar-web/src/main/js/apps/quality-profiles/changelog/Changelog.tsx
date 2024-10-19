@@ -130,7 +130,7 @@ export default function Changelog(props: Props) {
           className={classNames('sw-align-top', { 'sw-border-transparent': !shouldDisplayDate })}
         >
           {event.ruleName && (
-            <Link to={getRulesUrl({ rule_key: event.ruleKey })}>{event.ruleName}</Link>
+            <Link to={getRulesUrl({ rule_key: event.ruleKey }, props.organization)}>{event.ruleName}</Link>
           )}
           <div className="sw-mt-3 sw-flex sw-gap-2">
             {event.cleanCodeAttributeCategory && (

@@ -22,8 +22,7 @@ import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
-import ProjectAnalysisStep from './ProjectAnalysisStep';
-import TokenStep from './TokenStep';
+import {getHostUrl} from "../../../helpers/urls";
 
 export enum Steps {
   ANALYSIS,
@@ -45,44 +44,18 @@ interface State {
 export default class OtherTutorial extends React.PureComponent<Props, State> {
   state: State = { step: Steps.TOKEN };
 
-  handleTokenDone = (token: string) => {
-    this.setState({ step: Steps.ANALYSIS, token });
-  };
-
-  handleTokenOpen = () => {
-    this.setState({ step: Steps.TOKEN });
-  };
-
   render() {
-    const { component, baseUrl, currentUser, isLocal = false } = this.props;
-    const { step, token } = this.state;
+    const { component } = this.props;
+    const projectKey = component.key;
 
     return (
       <PageContentFontWrapper className="sw-typo-default">
         <div className="sw-mb-4">
           <Title>{translate('onboarding.project_analysis.header')} </Title>
-          <LightLabel>{translate('onboarding.project_analysis.description')}</LightLabel>
+          <LightLabel>
+            {translate('layout.must_be_configured')} Run analysis on <a href={getHostUrl() + '/project/extension/developer/project?id=' + projectKey}>Project Analysis</a> Page.
+          </LightLabel>
         </div>
-
-        <TokenStep
-          currentUser={currentUser}
-          projectKey={component.key}
-          finished={Boolean(this.state.token)}
-          initialTokenName={`Analyze "${component.name}"`}
-          onContinue={this.handleTokenDone}
-          onOpen={this.handleTokenOpen}
-          open={step === Steps.TOKEN}
-          stepNumber={1}
-        />
-
-        <ProjectAnalysisStep
-          component={component}
-          baseUrl={baseUrl}
-          isLocal={isLocal}
-          open={step === Steps.ANALYSIS}
-          token={token}
-          stepNumber={2}
-        />
       </PageContentFontWrapper>
     );
   }

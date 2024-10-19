@@ -89,15 +89,18 @@ public class PermissionWsSupport {
   }
 
   public GroupUuidOrAnyone findGroupUuidOrAnyone(DbSession dbSession, Request request) {
+    OrganizationDto org = dbClient.organizationDao().selectByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION))
+        .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.param(PARAM_ORGANIZATION)));
     String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
-    return groupWsSupport.findGroupOrAnyone(dbSession, groupName);
+    return groupWsSupport.findGroupOrAnyone(dbSession, org.getUuid(), groupName);
   }
 
   @CheckForNull
   public GroupDto findGroupDtoOrNullIfAnyone(DbSession dbSession, Request request) {
-    String orgKey = request.mandatoryParam(PARAM_ORGANIZATION);
+    OrganizationDto org = dbClient.organizationDao().selectByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION))
+        .orElseThrow(() -> new NotFoundException("No organization found with key: " + request.param(PARAM_ORGANIZATION)));
     String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
-    return groupWsSupport.findGroupDtoOrNullIfAnyone(dbSession, groupName);
+    return groupWsSupport.findGroupDtoOrNullIfAnyone(dbSession, org.getUuid(), groupName);
   }
 
   public UserId findUser(DbSession dbSession, String login) {
@@ -114,7 +117,8 @@ public class PermissionWsSupport {
         dbClient.permissionTemplateDao().selectByUuid(dbSession, uuid),
         "Permission template with id '%s' is not found", uuid);
     } else {
-      OrganizationDto org = findOrganization(dbSession, ref.getOrganization());
+      OrganizationDto org = dbClient.organizationDao().selectByKey(dbSession, ref.getOrganization())
+          .orElseThrow(() -> new NotFoundException("No organization found with key: " + ref.getOrganization()));
       return checkFound(
               dbClient.permissionTemplateDao().selectByName(dbSession, org.getUuid(), ref.name()),
               "Permission template with name '%s' is not found (case insensitive) in organization with key '%s'", ref.name(), org.getKey());

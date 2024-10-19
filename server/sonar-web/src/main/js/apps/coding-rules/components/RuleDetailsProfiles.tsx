@@ -133,7 +133,7 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
               aria-label={`${translate('quality_profiles.parent')} ${profile.parentName}`}
               className="sw-ml-1 sw-truncate"
               title={profile.parentName}
-              to={getQualityProfileUrl(profile.parentName, profile.language)}
+              to={getQualityProfileUrl(profile.parentName, profile.language, props.organization)}
             >
               {profile.parentName}
             </DiscreetLink>
@@ -149,7 +149,7 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
               className="sw-truncate sw-max-w-64"
               aria-label={profile.name}
               title={profile.name}
-              to={getQualityProfileUrl(profile.name, profile.language)}
+              to={getQualityProfileUrl(profile.name, profile.language, props.organization)}
             >
               {profile.name}
             </Link>

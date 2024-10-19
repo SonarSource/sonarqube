@@ -42,9 +42,9 @@ public class SearchWsReponseGenerator implements UsersSearchResponseGenerator<Us
   }
 
   @Override
-  public Users.SearchWsResponse toUsersForResponse(List<UserInformation> userInformations, PaginationInformation paginationInformation) {
+  public Users.SearchWsResponse toUsersForResponse(List<UserInformation> userInformations, PaginationInformation paginationInformation, boolean showEmailAndLastConnectionInfo) {
     Users.SearchWsResponse.Builder responseBuilder = newBuilder();
-    userInformations.forEach(user -> responseBuilder.addUsers(toSearchResponsUser(user)));
+    userInformations.forEach(user -> responseBuilder.addUsers(toSearchResponsUser(user, showEmailAndLastConnectionInfo)));
     responseBuilder.getPagingBuilder()
       .setPageIndex(paginationInformation.pageIndex())
       .setPageSize(paginationInformation.pageSize())
@@ -53,7 +53,7 @@ public class SearchWsReponseGenerator implements UsersSearchResponseGenerator<Us
     return responseBuilder.build();
   }
 
-  private Users.SearchWsResponse.User toSearchResponsUser(UserInformation userInformation) {
+  private Users.SearchWsResponse.User toSearchResponsUser(UserInformation userInformation, boolean showEmailAndLastConnectionInfo) {
     UserDto userDto = userInformation.userDto();
     Users.SearchWsResponse.User.Builder userBuilder = Users.SearchWsResponse.User.newBuilder().setLogin(userDto.getLogin());
     ofNullable(userDto.getName()).ifPresent(userBuilder::setName);
@@ -66,7 +66,7 @@ public class SearchWsReponseGenerator implements UsersSearchResponseGenerator<Us
         userBuilder.setScmAccounts(Users.SearchWsResponse.ScmAccounts.newBuilder().addAllScmAccounts(userDto.getSortedScmAccounts()));
       }
     }
-    if (userSession.isSystemAdministrator() || Objects.equals(userSession.getUuid(), userDto.getUuid())) {
+    if (userSession.isSystemAdministrator() || showEmailAndLastConnectionInfo || Objects.equals(userSession.getUuid(), userDto.getUuid())) {
       ofNullable(userDto.getEmail()).ifPresent(userBuilder::setEmail);
       if (!userInformation.groups().isEmpty()) {
         userBuilder.setGroups(Users.SearchWsResponse.Groups.newBuilder().addAllGroups(userInformation.groups()));

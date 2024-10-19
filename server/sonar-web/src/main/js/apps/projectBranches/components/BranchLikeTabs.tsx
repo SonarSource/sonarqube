@@ -72,6 +72,7 @@ const TABS = [
 const TABS_SF = [
   {
     key: Tabs.Branch,
+    value: Tabs.Branch,
     label: (
         <>
           <BranchIcon />
@@ -83,6 +84,7 @@ const TABS_SF = [
   },
   {
     key: Tabs.PullRequest,
+    value: Tabs.PullRequest,
     label: (
         <>
           <PullRequestIcon />
@@ -95,7 +97,7 @@ const TABS_SF = [
 ];
 
 export default function BranchLikeTabs(props: Props) {
-  const { component, fetchComponent } = props;
+  const { component, fetchComponent, comparisonBranchesEnabled } = props;
   const [currentTab, setCurrentTab] = useState<Tabs>(Tabs.Branch);
   const [renaming, setRenaming] = useState<BranchLike>();
   const [settingAsMain, setSettingAsMain] = useState<Branch>();
@@ -127,7 +129,7 @@ export default function BranchLikeTabs(props: Props) {
   const title = translate(
     isBranchMode
       ? 'project_branch_pull_request.table.branch'
-      : (this.props.comparisonBranchesEnabled
+      : (comparisonBranchesEnabled
         ? 'project_branch_pull_request.table.comparison_branch'
         : 'project_branch_pull_request.table.pull_request'),
   );
@@ -137,7 +139,7 @@ export default function BranchLikeTabs(props: Props) {
       <ToggleButton
         onChange={(currentTabKey: Tabs) => setCurrentTab(currentTabKey)}
         value={currentTab}
-        options={this.props.comparisonBranchesEnabled ? TABS_SF : TABS}
+        options={comparisonBranchesEnabled ? TABS_SF : TABS}
         role="tablist"
       />
 

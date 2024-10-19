@@ -51,7 +51,7 @@ function Header(props: Props) {
       const response = await createPermissionTemplate({ ...data, organization: organization.kee });
       await props.refresh();
       router.push({
-        pathname: `/organizations/${organization}/${PERMISSION_TEMPLATES_PATH}`,
+        pathname: `/organizations/${organization.kee}/${PERMISSION_TEMPLATES_PATH}`,
         query: { id: response.permissionTemplate.id },
       });
     } catch (e) {

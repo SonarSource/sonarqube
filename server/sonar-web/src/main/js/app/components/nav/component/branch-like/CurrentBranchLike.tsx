@@ -26,12 +26,13 @@ import QualityGateStatus from './QualityGateStatus';
 
 export interface CurrentBranchLikeProps extends Pick<BranchStatusData, 'status'> {
   currentBranchLike: BranchLike;
+  comparisonBranchesEnabled: boolean;
 }
 
 export function CurrentBranchLike(props: CurrentBranchLikeProps) {
   const { currentBranchLike } = props;
 
-  const displayName = getBranchLikeDisplayName(currentBranchLike);
+  const displayName = getBranchLikeDisplayName({...currentBranchLike, isComparisonBranch: props.comparisonBranchesEnabled});
 
   return (
     <div className="sw-flex sw-items-center sw-truncate">

@@ -19,12 +19,12 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -36,10 +36,11 @@ import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 
 public class DestroyAction implements QualityGatesWsAction {
 
+  private final Logger logger = LoggerFactory.getLogger(DestroyAction.class);
+
   private final DbClient dbClient;
   private final QualityGatesWsSupport wsSupport;
   private final QualityGateFinder finder;
-  private final Logger logger = Loggers.get(DestroyAction.class);
 
   public DestroyAction(DbClient dbClient, QualityGatesWsSupport wsSupport, QualityGateFinder finder) {
     this.dbClient = dbClient;
@@ -73,7 +74,6 @@ public class DestroyAction implements QualityGatesWsAction {
   @Override
   public void handle(Request request, Response response) {
     String name = request.mandatoryParam(QualityGatesWsParameters.PARAM_NAME);
-
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);

@@ -31,9 +31,9 @@ public class GroupPermissionChange extends PermissionChange {
 
   private final GroupDto groupDto;
 
-  public GroupPermissionChange(Operation operation, String permission, @Nullable EntityDto entityDto,
+  public GroupPermissionChange(Operation operation, String organizationUuid, String permission, @Nullable EntityDto entityDto,
     @Nullable GroupDto groupDto, PermissionService permissionService) {
-    super(operation, permission, entityDto, permissionService);
+    super(operation, organizationUuid, permission, entityDto, permissionService);
     this.groupDto = groupDto;
   }
 
@@ -53,6 +53,7 @@ public class GroupPermissionChange extends PermissionChange {
   @Override
   public String toString() {
     return new StringJoiner(", ", GroupPermissionChange.class.getSimpleName() + "[", "]")
+      .add("organizationUuid=" + getOrganizationUuid())
       .add("groupDto=" + groupDto)
       .add("operation=" + getOperation())
       .add("permission='" + getPermission() + "'")

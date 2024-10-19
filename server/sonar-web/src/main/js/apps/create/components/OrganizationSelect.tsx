@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -43,7 +43,7 @@ function renderValue(organization: Organization) {
       <div className="display-flex-space-between">
         <span className="text-ellipsis flex-1">
           {organization.name}
-          <span className="note little-spacer-left">{organization.kee}</span>
+          <span className="note sw-ml-2">{organization.kee}</span>
         </span>
       </div>
   );

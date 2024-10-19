@@ -31,9 +31,9 @@ interface Props {
   onClose: () => void;
 }
 
-export default function CreateQualityGateForm({ onClose }: Readonly<Props>) {
+export default function CreateQualityGateForm({ onClose, organization }: Readonly<Props>) {
   const [name, setName] = React.useState('');
-  const { mutateAsync: createQualityGate } = useCreateQualityGateMutation();
+  const { mutateAsync: createQualityGate } = useCreateQualityGateMutation(organization);
   const router = useRouter();
 
   const handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {

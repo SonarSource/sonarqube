@@ -154,7 +154,7 @@ class DefaultDevOpsProjectCreatorTest {
 
     // when
     ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
-      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null);
+      null, SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null);
 
     // then
     assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
@@ -183,7 +183,7 @@ class DefaultDevOpsProjectCreatorTest {
 
     // when
     ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
-      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null);
+        null, SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null);
 
     // then
     assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
@@ -205,7 +205,7 @@ class DefaultDevOpsProjectCreatorTest {
 
     // when
     ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
-      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null);
+        null, SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null);
 
     // then
     assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
@@ -226,7 +226,7 @@ class DefaultDevOpsProjectCreatorTest {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
 
     // when
-    ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), ALM_IMPORT_API, false,
+    ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), null, ALM_IMPORT_API, false,
       projectKey,
       null);
 
@@ -258,7 +258,7 @@ class DefaultDevOpsProjectCreatorTest {
     when(devOpsPlatformSettings.isProvisioningEnabled()).thenReturn(true);
 
     // when
-    ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), ALM_IMPORT_API, false,
+    ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), null, ALM_IMPORT_API, false,
       projectKey,
       null);
 

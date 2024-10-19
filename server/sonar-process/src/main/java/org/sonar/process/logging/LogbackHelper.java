@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.logging.LogManager;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;

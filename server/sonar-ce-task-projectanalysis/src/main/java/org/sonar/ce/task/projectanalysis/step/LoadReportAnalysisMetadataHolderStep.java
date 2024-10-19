@@ -23,6 +23,7 @@ import com.google.common.base.Joiner;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.CeTask;
@@ -48,7 +49,6 @@ import org.sonar.server.qualityprofile.QualityProfile;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toMap;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 /**
  * Feed analysis metadata holder with metadata from the analysis report.
@@ -162,13 +162,13 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
   private void checkQualityProfilesConsistency(ScannerReport.Metadata metadata, Organization organization) {
     List<String> profileKeys = metadata.getQprofilesPerLanguageMap().values().stream()
             .map(QProfile::getKey)
-            .collect(toList(metadata.getQprofilesPerLanguageMap().size()));
+            .toList();
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<QProfileDto> profiles = dbClient.qualityProfileDao().selectByUuids(dbSession, profileKeys);
       String badKeys = profiles.stream()
               .filter(p -> !p.getOrganizationUuid().equals(organization.getUuid()))
               .map(QProfileDto::getKee)
-              .collect(MoreCollectors.join(Joiner.on(", ")));
+              .collect(Collectors.joining(", "));
       if (!badKeys.isEmpty()) {
         throw MessageException.of(format("Quality profiles with following keys don't exist in organization [%s]: %s", organization.getKey(), badKeys));
       }

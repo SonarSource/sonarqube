@@ -158,8 +158,8 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
-      ComponentQuery componentQuery = buildDbQuery(request);
-      List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, template.getOrganizationUuid(), componentQuery, forPage(1).andSize(CeTaskQuery.MAX_COMPONENT_UUIDS));
+      ComponentQuery componentQuery = buildDbQuery(request, template.getOrganizationUuid());
+      List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, componentQuery, forPage(1).andSize(CeTaskQuery.MAX_COMPONENT_UUIDS));
 
       Set<String> entityUuids = components.stream()
         .map(ComponentDto::getKey)
@@ -185,10 +185,11 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
       .setProjects(request.paramAsStrings(PARAM_PROJECTS));
   }
 
-  private static ComponentQuery buildDbQuery(BulkApplyTemplateRequest request) {
+  private static ComponentQuery buildDbQuery(BulkApplyTemplateRequest request, String organizationUuid) {
     Collection<String> qualifiers = request.getQualifiers();
     ComponentQuery.Builder query = ComponentQuery.builder()
-      .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]));
+      .setOrganizationUuid(organizationUuid)
+      .setQualifiers(qualifiers.toArray(new String[0]));
 
     ofNullable(request.getQuery()).ifPresent(q -> {
       query.setNameOrKeyQuery(q);

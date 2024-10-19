@@ -24,16 +24,18 @@ import { searchIssueTags } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
 
 interface IssueTagsPopupProps {
+  organization: string;
   selectedTags: string[];
   setTags: (tags: string[]) => void;
 }
 
-function IssueTagsPopup({ selectedTags, setTags }: IssueTagsPopupProps) {
+function IssueTagsPopup({ organization, selectedTags, setTags }: IssueTagsPopupProps) {
   const [searchResult, setSearchResult] = React.useState<string[]>([]);
   const LIST_SIZE = 10;
 
   function onSearch(query: string) {
     return searchIssueTags({
+      organization,
       q: query,
       ps: Math.min(selectedTags.length - 1 + LIST_SIZE, 100),
     }).then((tags: string[]) => {

@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserIdDto;
@@ -75,13 +76,13 @@ public class DefaultDevOpsProjectCreator implements DevOpsProjectCreator {
   }
 
   @Override
-  public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
-    @Nullable String projectName) {
+  public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, OrganizationDto organization, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
+                                                                    @Nullable String projectName) {
     String key = Optional.ofNullable(projectKey).orElse(generateUniqueProjectKey());
     boolean isManaged = devOpsPlatformSettings.isProvisioningEnabled();
     Boolean shouldProjectBePrivate = shouldProjectBePrivate(devOpsProjectCreationContext.isPublic());
 
-    ComponentCreationData componentCreationData = projectCreator.createProject(dbSession, key, getProjectName(projectName),
+    ComponentCreationData componentCreationData = projectCreator.createProject(dbSession, organization, key, getProjectName(projectName),
       devOpsProjectCreationContext.defaultBranchName(), creationMethod, shouldProjectBePrivate, isManaged);
     ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
 
@@ -126,7 +127,7 @@ public class DefaultDevOpsProjectCreator implements DevOpsProjectCreator {
   private void addScanPermissionToCurrentUser(DbSession dbSession, ProjectDto projectDto) {
     UserSession userSession = devOpsProjectCreationContext.userSession();
     UserIdDto userId = new UserIdDto(requireNonNull(userSession.getUuid()), requireNonNull(userSession.getLogin()));
-    UserPermissionChange scanPermission = new UserPermissionChange(Operation.ADD, UserRole.SCAN, projectDto, userId, permissionService);
+    UserPermissionChange scanPermission = new UserPermissionChange(Operation.ADD, projectDto.getOrganizationUuid(), UserRole.SCAN, projectDto, userId, permissionService);
     permissionUpdater.apply(dbSession, Set.of(scanPermission));
   }
 

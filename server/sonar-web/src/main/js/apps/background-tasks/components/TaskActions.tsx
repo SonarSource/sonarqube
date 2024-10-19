@@ -21,7 +21,7 @@ import { ActionCell, ActionsDropdown, ItemButton, ItemDangerButton } from 'desig
 import * as React from 'react';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Task, TaskStatuses } from '../../../types/tasks';
+import { Task, TaskStatuses, TaskTypes } from '../../../types/tasks';
 import AnalysisWarningsModal from './AnalysisWarningsModal';
 import ScannerContext from './ScannerContext';
 import Stacktrace from './Stacktrace';

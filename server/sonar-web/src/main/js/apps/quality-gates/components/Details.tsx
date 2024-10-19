@@ -29,16 +29,16 @@ interface Props {
   qualityGateName: string;
 }
 
-export default function Details({ qualityGateName }: Readonly<Props>) {
-  const { data: qualityGate, isLoading, isFetching } = useQualityGateQuery(qualityGateName);
+export default function Details({ organization, qualityGateName }: Readonly<Props>) {
+  const { data: qualityGate, isLoading, isFetching } = useQualityGateQuery(organization, qualityGateName);
 
   return (
     <Spinner wrapperClassName="sw-block sw-text-center" isLoading={isLoading}>
       {qualityGate && (
         <main>
           <Helmet defer={false} title={qualityGate.name} />
-          <DetailsHeader qualityGate={qualityGate} />
-          <DetailsContent qualityGate={qualityGate} isFetching={isFetching} />
+          <DetailsHeader organization={organization} qualityGate={qualityGate} />
+          <DetailsContent organization={organization} qualityGate={qualityGate} isFetching={isFetching} />
         </main>
       )}
     </Spinner>

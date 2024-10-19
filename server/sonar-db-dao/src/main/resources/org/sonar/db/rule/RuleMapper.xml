@@ -776,7 +776,9 @@
   <select id="selectTags" resultType="string">
     SELECT DISTINCT value FROM
     rule_tags rt
+    <include refid="leftOuterJoinRulesTags"/>
     WHERE lower(value) like #{query}
+      AND r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
     ORDER BY value
     <include refid="org.sonar.db.common.Common.pagination"/>
   </select>

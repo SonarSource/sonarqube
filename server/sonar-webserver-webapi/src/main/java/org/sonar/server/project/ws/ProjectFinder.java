@@ -19,7 +19,6 @@
  */
 package org.sonar.server.project.ws;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -66,7 +65,7 @@ public class ProjectFinder {
       List<ProjectDto> uniqueProjects = projectsWithOrgLevelPermissions
               .stream()
               .filter(p -> !allProjects.contains(p))
-              .collect(Collectors.toList());
+              .toList();
       if (!uniqueProjects.isEmpty()) {
         allProjects.addAll(uniqueProjects);
       }
@@ -85,8 +84,7 @@ public class ProjectFinder {
     }
     List<String> orgUuids = orgs.stream().map(o -> o.getUuid())
             .collect(Collectors.toList());
-    List<ProjectDto> projects = dbClient.projectDao().selectProjectsByOrganizationUuids(dbSession, orgUuids);
-    return projects;
+    return dbClient.projectDao().selectProjectsByOrganizationUuids(dbSession, orgUuids);
   }
 
   private void applyQueryAndPermissionFilter(@Nullable String searchQuery, final List<ProjectDto> projects,

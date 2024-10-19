@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,10 +22,10 @@ import OrganizationNavigationHeader from './OrganizationNavigationHeader';
 import OrganizationNavigationMenu from './OrganizationNavigationMenu';
 import OrganizationNavigationMeta from './OrganizationNavigationMeta';
 import { rawSizes } from '../../../app/theme';
-import ContextNavBar from "../../../components/ui/ContextNavBar";
 import { Organization, Notification } from "../../../types/types";
-import { getRawNotificationsForOrganization } from '../../../../js/api/codescan';
+import { getRawNotificationsForOrganization } from '../../../api/codescan';
 import { sanitizeUserInput } from '../../../helpers/sanitize';
+import { TopBar } from "design-system";
 
 interface Props {
   location: { pathname: string };
@@ -41,54 +41,51 @@ export function OrganizationNavigation({ location, organization, userOrganizatio
 
   React.useEffect(() => {
     const fetchNotifications = async () => {
-        const notifications = await getRawNotificationsForOrganization(organization.kee);
-        if (notifications.length > 0) {
-          const errorNotifications = notifications.filter(notification => notification.type == 'ERROR');
-          if (errorNotifications.length > 0) {
-            setNotifications(errorNotifications);
-            setHeight(contextNavHeightWithError + orgAlertHeight * (errorNotifications.length - 1));
-          } else {
-            setNotifications(notifications);
-            setHeight(contextNavHeightWithError + orgAlertHeight * (notifications.length - 1));
-          }
+      const notifications = await getRawNotificationsForOrganization(organization.kee);
+      if (notifications.length > 0) {
+        const errorNotifications = notifications.filter(notification => notification.type == 'ERROR');
+        if (errorNotifications.length > 0) {
+          setNotifications(errorNotifications);
+          setHeight(contextNavHeightWithError + orgAlertHeight * (errorNotifications.length - 1));
         } else {
-          setNotifications([]);
-          setHeight(contextNavHeightRaw);
+          setNotifications(notifications);
+          setHeight(contextNavHeightWithError + orgAlertHeight * (notifications.length - 1));
         }
+      } else {
+        setNotifications([]);
+        setHeight(contextNavHeightRaw);
+      }
     };
     fetchNotifications();
-  },[organization, userOrganizations]);
+  }, [organization, userOrganizations]);
 
   return (
-        <>
-        <ContextNavBar height={height} id="context-navigation">
-          <div className="navbar-context-justified">
-            <OrganizationNavigationHeader
-                organization={organization}
-                organizations={userOrganizations}
-            />
-            <OrganizationNavigationMeta
-                organization={organization}
-            />
+    <TopBar id="context-navigation">
+      <div style={{ height: height + "px" }} className="navbar-context-justified">
+        <OrganizationNavigationHeader
+          organization={organization}
+          organizations={userOrganizations}
+        />
+        <OrganizationNavigationMeta
+          organization={organization}
+        />
+      </div>
+      <OrganizationNavigationMenu
+        location={location}
+        organization={organization}
+      />
+      {notifications.map((notification, key) => (
+        <div className={"org-alert-" + notification.type.toLowerCase()} key={key}>
+          <div className='org-alert-inner'>
+            <div className='icon'>
+              {notification.type === 'ERROR' ? 'x' : '!'}
+            </div>
+            <div className='msg' dangerouslySetInnerHTML={{ __html: sanitizeUserInput(notification.message) }}/>
           </div>
-          <OrganizationNavigationMenu
-              location={location}
-              organization={organization}
-          />
-          { notifications.map((notification, key) => (
-              <div className={"org-alert-" + notification.type.toLowerCase()} key={key}>
-                <div className='org-alert-inner'>
-                  <div className='icon'>
-                    {notification.type === 'ERROR' ? 'x' : '!'}
-                  </div>
-                  <div className='msg' dangerouslySetInnerHTML={{ __html: sanitizeUserInput(notification.message) }} />
-                </div>
-              </div>
-            ))
-          }
-        </ContextNavBar>
-      </>
-    );
+        </div>
+      ))}
+    </TopBar>
+  );
 }
 
 export default OrganizationNavigation;

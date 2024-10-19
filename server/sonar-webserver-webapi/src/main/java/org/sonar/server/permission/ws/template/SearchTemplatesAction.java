@@ -40,8 +40,8 @@ import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.common.permission.DefaultTemplatesResolver;
 import org.sonar.server.common.permission.DefaultTemplatesResolver.ResolvedDefaultTemplates;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
@@ -68,17 +68,15 @@ public class SearchTemplatesAction implements PermissionsWsAction {
   private final I18n i18n;
   private final DefaultTemplatesResolver defaultTemplatesResolver;
   private final PermissionService permissionService;
-  private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
 
   public SearchTemplatesAction(DbClient dbClient, UserSession userSession, I18n i18n, DefaultTemplatesResolver defaultTemplatesResolver,
-    PermissionService permissionService, PermissionWsSupport wsSupport, WsParameters wsParameters) {
+    PermissionService permissionService, WsParameters wsParameters) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.i18n = i18n;
     this.defaultTemplatesResolver = defaultTemplatesResolver;
     this.permissionService = permissionService;
-    this.wsSupport = wsSupport;
     this.wsParameters = wsParameters;
   }
 
@@ -98,7 +96,8 @@ public class SearchTemplatesAction implements PermissionsWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto org = wsSupport.findOrganization(dbSession, wsRequest.mandatoryParam(PARAM_ORGANIZATION));
+      OrganizationDto org = dbClient.organizationDao().selectByKey(dbSession, wsRequest.mandatoryParam(PARAM_ORGANIZATION))
+          .orElseThrow(() -> new NotFoundException("No organization found with key: " + wsRequest.param(PARAM_ORGANIZATION)));
       SearchTemplatesRequest request = new SearchTemplatesRequest().setOrganizationUuid(org.getUuid()).setQuery(wsRequest.param(Param.TEXT_QUERY));
       checkGlobalAdmin(userSession, request.getOrganizationUuid());
 
@@ -235,8 +234,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
     final Table<String, String, Boolean> templatePermissionsByTemplateUuidAndPermission = TreeBasedTable.create();
 
     List<PermissionTemplateCharacteristicDto> templatePermissions = dbClient.permissionTemplateCharacteristicDao().selectByTemplateUuids(dbSession, templateUuids);
-    templatePermissions.stream()
-      .forEach(templatePermission -> templatePermissionsByTemplateUuidAndPermission.put(templatePermission.getTemplateUuid(), templatePermission.getPermission(),
+    templatePermissions.forEach(templatePermission -> templatePermissionsByTemplateUuidAndPermission.put(templatePermission.getTemplateUuid(), templatePermission.getPermission(),
         templatePermission.getWithProjectCreator()));
 
     return templatePermissionsByTemplateUuidAndPermission;

@@ -188,7 +188,7 @@ public class DefaultUserControllerTest {
     SearchResults<UserInformation> searchResult = new SearchResults<>(users, users.size());
     when(userService.findUsers(any())).thenReturn(searchResult);
     List<UserRestResponse> restUserForAdmins = List.of(toRestUser(user1), toRestUser(user2), toRestUser(user3), toRestUser(user4));
-    when(responseGenerator.toUsersForResponse(eq(searchResult.searchResults()), any())).thenReturn(new UsersSearchRestResponse(restUserForAdmins, new PageRestResponse(1, 50, 4)));
+    when(responseGenerator.toUsersForResponse(eq(searchResult.searchResults()), any(), false)).thenReturn(new UsersSearchRestResponse(restUserForAdmins, new PageRestResponse(1, 50, 4)));
     userSession.logIn().setSystemAdministrator();
 
     MvcResult mvcResult = mockMvc.perform(get(USER_ENDPOINT))
@@ -349,7 +349,7 @@ public class DefaultUserControllerTest {
     UserInformation user = generateUserSearchResult("user1", true, true, false, 2, 3);
     UserRestResponseForAdmins restUserForAdmins = toRestUser(user);
     when(userService.fetchUser("userLogin")).thenReturn(user);
-    when(responseGenerator.toRestUser(user)).thenReturn(restUserForAdmins);
+    when(responseGenerator.toRestUser(user, false)).thenReturn(restUserForAdmins);
     MvcResult mvcResult = mockMvc.perform(get(USER_ENDPOINT + "/userLogin"))
       .andExpect(status().isOk())
       .andReturn();
@@ -416,7 +416,7 @@ public class DefaultUserControllerTest {
     UserInformation userInformation = generateUserSearchResult("1", true, true, false, 1, 2);
     UserDto userDto = userInformation.userDto();
     when(userService.createUser(any())).thenReturn(userInformation);
-    when(responseGenerator.toRestUser(userInformation)).thenReturn(toRestUser(userInformation));
+    when(responseGenerator.toRestUser(userInformation, false)).thenReturn(toRestUser(userInformation));
 
     MvcResult mvcResult = mockMvc.perform(
       post(USER_ENDPOINT)
@@ -539,7 +539,7 @@ public class DefaultUserControllerTest {
     UserInformation userInformation = generateUserSearchResult("1", true, true, false, 1, 2);
 
     when(userService.updateUser(eq("userUuid"), any())).thenReturn(userInformation);
-    when(responseGenerator.toRestUser(userInformation)).thenReturn(toRestUser(userInformation));
+    when(responseGenerator.toRestUser(userInformation, false)).thenReturn(toRestUser(userInformation));
 
     MvcResult mvcResult = mockMvc.perform(patch(USER_ENDPOINT + "/userUuid")
         .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
